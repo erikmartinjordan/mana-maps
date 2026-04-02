@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maña Maps</title>
+<title>Maña</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap;}
 .btn-primary{background:var(--primary);color:white;border:none;}
 .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
-.btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);text-decoration:none;}
 .btn-ghost:hover{background:var(--bgBox);}
 .menu-wrap{position:relative;}
 .drop-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;
@@ -267,6 +267,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
+    <a class="btn btn-ghost" href="/about">Acerca de</a>
+    <a class="btn btn-ghost" href="/changelog">Changelog</a>
     <button class="btn btn-ghost" onclick="clearAll()">Limpiar mapa</button>
     <div class="menu-wrap">
       <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
@@ -325,7 +327,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
       <div class="divider"></div>
       <div class="section-label">Estilo</div>
-      <!-- Paleta Apple -->
       <div class="color-row" id="color-row">
         <div class="color-swatch active" data-color="#0ea5e9" style="background:#0ea5e9" title="Azul" onclick="setDrawColor('#0ea5e9',this)"></div>
         <div class="color-swatch" data-color="#6366f1" style="background:#6366f1" title="&#205;ndigo" onclick="setDrawColor('#6366f1',this)"></div>
@@ -336,7 +337,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
         <div class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6" title="P&#250;rpura" onclick="setDrawColor('#8b5cf6',this)"></div>
         <div class="color-swatch" data-color="#64748b" style="background:#64748b" title="Pizarra" onclick="setDrawColor('#64748b',this)"></div>
       </div>
-      <!-- Tipo de marcador -->
       <div class="marker-row" id="marker-row">
         <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
@@ -797,14 +797,12 @@ function kmlToGeoJSON(xmlDoc) {
 }
 
 // ── EXPORT ────────────────────────────────────────
-// Convierte color HEX (#rrggbb) al formato KML AABBGGRR
 function hexToKmlColor(hex, alpha) {
   alpha = alpha || 'ff';
   const r = hex.slice(1, 3), g = hex.slice(3, 5), b = hex.slice(5, 7);
   return alpha + b + g + r;
 }
 
-// GeoJSON enriquecido: incluye color y nombre de cada capa
 function getEnrichedGeoJSON() {
   const features = [];
   drawnItems.eachLayer(function(l) {
@@ -838,7 +836,6 @@ function geoToKML(geo) {
     const name = (f.properties && f.properties.name) || ('Elemento ' + (i + 1));
     const hex = (f.properties && f.properties.color) || '#0ea5e9';
     const kmlColor = hexToKmlColor(hex);
-    // Color de relleno con 40% opacidad para polígonos
     const fillColor = '66' + hex.slice(5, 7) + hex.slice(3, 5) + hex.slice(1, 3);
     const styleId = 'style' + i;
     let styleTag = '';
