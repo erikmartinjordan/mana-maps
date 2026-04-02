@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog · Maña Maps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#ffffff;--bgBox:#f4f8fb;--primary:#30363b;--secondary:#555;
+  --third:#828c99;--blue:#0ea5e9;--border:rgba(30,30,30,0.1);
+  --shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;--purple:#8b5cf6;
+}
+html,body{height:100%;background:var(--bg);color:var(--primary);}
+
+/* TOPBAR */
+#topbar{
+  height:56px;border-bottom:1px solid var(--border);background:var(--bg);
+  display:flex;align-items:center;padding:0 20px;gap:12px;
+  position:sticky;top:0;z-index:100;
+}
+.mana-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+.mana-logo-icon{position:relative;width:36px;height:36px;flex-shrink:0;}
+.mana-logo-icon svg{width:100%;height:100%;}
+.mana-logo-icon span{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:Tahoma,Verdana,sans-serif;font-weight:900;font-size:15px;color:white;
+  line-height:1;pointer-events:none;
+}
+.logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);}
+.logo-sub{font-size:10px;color:var(--third);font-weight:600;vertical-align:super;margin-left:1px;letter-spacing:.02em;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
+  font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;
+  white-space:nowrap;text-decoration:none;
+}
+.btn-primary{background:var(--primary);color:white;border:none;}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px);}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);}
+.btn-ghost:hover{background:var(--bgBox);}
+
+/* LAYOUT */
+.page{max-width:680px;margin:0 auto;padding:48px 24px 80px;}
+
+/* HEADER */
+.page-header{margin-bottom:48px;}
+.page-header h1{font-size:28px;font-weight:900;letter-spacing:-.5px;color:var(--primary);margin-bottom:8px;}
+.page-header p{font-size:15px;color:var(--third);line-height:1.6;}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.day-group{margin-bottom:40px;}
+.day-label{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--third);margin-bottom:16px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.entry{
+  display:flex;gap:16px;padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.entry:last-child{border-bottom:none;}
+.entry-badge{
+  flex-shrink:0;margin-top:2px;
+  width:56px;text-align:center;
+}
+.badge{
+  display:inline-block;padding:3px 8px;border-radius:50px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  white-space:nowrap;
+}
+.badge-feat{background:#dbeafe;color:#1d4ed8;}
+.badge-fix{background:#dcfce7;color:#15803d;}
+.badge-style{background:#faf5ff;color:#7c3aed;}
+.badge-docs{background:#fef9c3;color:#92400e;}
+.badge-chore{background:#f1f5f9;color:#475569;}
+
+.entry-body{flex:1;min-width:0;}
+.entry-title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;line-height:1.4;}
+.entry-desc{font-size:13px;color:var(--secondary);line-height:1.6;}
+.entry-meta{
+  display:flex;align-items:center;gap:10px;margin-top:6px;
+}
+.entry-sha{
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--third);
+  text-decoration:none;transition:color .12s;
+}
+.entry-sha:hover{color:var(--blue);}
+.entry-time{font-size:11px;color:var(--third);}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 0;color:var(--third);font-size:14px;}
+
+/* FOOTER */
+.page-footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--third);}
+.page-footer a{color:var(--third);text-decoration:none;}
+.page-footer a:hover{color:var(--primary);}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a class="mana-logo-wrap" href="/">
+    <div class="mana-logo-icon">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+          d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+          transform="translate(100 100)"/>
+      </svg>
+      <span>M&#771;</span>
+    </div>
+    <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
+  </a>
+  <div class="topbar-right">
+    <a class="btn btn-ghost" href="/">Volver al mapa</a>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Changelog</h1>
+    <p>Historial de cambios y mejoras de Ma&#241;a Maps. Todos los commits relevantes, organizados por fecha.</p>
+  </div>
+
+  <div class="timeline">
+
+    <!-- 2 de abril de 2026 -->
+    <div class="day-group">
+      <div class="day-label">2 de abril de 2026</div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-fix">fix</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Exportaci&#243;n KMZ preserva colores y estilos</div>
+          <div class="entry-desc">Se a&#241;aden las funciones <code>hexToKmlColor()</code>, <code>getEnrichedGeoJSON()</code> y se reescribe <code>geoToKML()</code> para generar un bloque <code>&lt;Style&gt;</code> por cada Placemark. Los puntos, l&#237;neas y pol&#237;gonos ahora exportan con su color original al guardar como KMZ.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/302c86ef77a9a5fc02c68602aa3f6a8204b69325" target="_blank">302c86e</a>
+            <span class="entry-time">13:31</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Paleta Apple, secci&#243;n Estilo bajo Dibujar, coordenadas corregidas y modal de nombre integrado</div>
+          <div class="entry-desc">La paleta de colores adopta el estilo Apple con 8 tonos. El selector de estilo se reubica justo debajo de las herramientas de dibujo. El modal para nombrar elementos sustituye al prompt nativo del navegador.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/57f560585a131b3784a05d14fe848b51be632367" target="_blank">57f5605</a>
+            <span class="entry-time">13:09</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Coordenadas inline, copiar coords, Shapefile real (shpjs) y selector color + marcador</div>
+          <div class="entry-desc">Las coordenadas del rat&#243;n se muestran como p&#237;ldora en la barra inferior. El men&#250; contextual permite copiar coordenadas al portapapeles. La exportaci&#243;n Shapefile usa la librer&#237;a shpjs para ficheros .shp reales. Se a&#241;ade selector visual de tipo de marcador (pin, c&#237;rculo, cuadrado, estrella).</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/535ad35a6770e724ce4d180e9d9e8c5a296e64a6" target="_blank">535ad35</a>
+            <span class="entry-time">10:01</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-style">style</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Logo: &#171;Maps&#187; como super&#237;ndice</div>
+          <div class="entry-desc">El texto secundario del logotipo pasa a mostrarse como super&#237;ndice junto a &#171;Ma&#241;a&#187;, refinando la identidad visual de la cabecera.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/c369c759a790157eac203ce5a7da1f2497d3ace83" target="_blank">c369c75</a>
+            <span class="entry-time">09:54</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Drag &amp; Drop de archivos sobre el mapa</div>
+          <div class="entry-desc">Se puede arrastrar y soltar directamente sobre el mapa archivos GeoJSON, KML, KMZ y Shapefile (.zip). Se muestra un overlay visual con borde punteado azul al detectar el arrastre.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/445aef163d8b389b22de5a5999009172fac6446d" target="_blank">445aef1</a>
+            <span class="entry-time">09:48</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Sidebar colapsable a modo rail al arrastrar</div>
+          <div class="entry-desc">El panel lateral colapsa autom&#225;ticamente a modo rail (solo iconos) cuando se arrastra el handle hasta menos de 88 px de ancho, sin necesidad de bot&#243;n de toggle.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/ca99461c544c12a7d8431590bfd96e2cd28fdb55" target="_blank">ca99461</a>
+            <span class="entry-time">08:23</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Barra inferior con estad&#237;sticas e importaci&#243;n GeoJSON / KML / KMZ / Shapefile</div>
+          <div class="entry-desc">Se a&#241;ade una barra inferior semitransparente con contadores de puntos, l&#237;neas y pol&#237;gonos. El bot&#243;n Importar permite cargar archivos GeoJSON, KML, KMZ y Shapefiles comprimidos en .zip.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/8a3aee19cf49a9a0aebf86717f210b850f33ebec" target="_blank">8a3aee1</a>
+            <span class="entry-time">08:33</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Sidebar responsivo con DM Sans y p&#237;ldora de coordenadas</div>
+          <div class="entry-desc">Se adopta la tipograf&#237;a DM Sans para toda la interfaz. El panel lateral es ahora redimensionable. Se a&#241;ade p&#237;ldora de coordenadas del rat&#243;n en la esquina inferior derecha del mapa.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/f4d7a413633a1812455c5729266bb3b14316213e" target="_blank">f4d7a41</a>
+            <span class="entry-time">08:04</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Selector de tipo de mapa con miniaturas</div>
+          <div class="entry-desc">El sidebar incluye una cuadr&#237;cula de tarjetas con previsualizaci&#243;n de tesela para cambiar entre vista de mapa y sat&#233;lite.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/33a715b28aac589c6a9d09a2d65749e28837f142" target="_blank">33a715b</a>
+            <span class="entry-time">07:56</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-feat">feat</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Vista sat&#233;lite, regla de distancias y men&#250; contextual</div>
+          <div class="entry-desc">Se a&#241;ade la capa de im&#225;genes de Esri como opci&#243;n sat&#233;lite. La herramienta Regla permite medir distancias clic a clic. El clic derecho sobre el mapa abre un men&#250; contextual con opciones de copiar coordenadas, a&#241;adir punto y borrar elementos.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/24491d7b76d4d87a32a697d262002d6c03ae6bf2" target="_blank">24491d7</a>
+            <span class="entry-time">07:52</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-chore">init</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Despliegue inicial de Ma&#241;a Maps</div>
+          <div class="entry-desc">Primera versi&#243;n p&#250;blica con mapa Leaflet, herramientas de dibujo (punto, l&#237;nea, pol&#237;gono), chat de comandos en lenguaje natural, exportaci&#243;n GeoJSON/CSV/KML y panel lateral con capas.</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/1fe1294b9555f3f53dd800506aec24469b05063f" target="_blank">1fe1294</a>
+            <span class="entry-time">07:38</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- fin day-group -->
+
+  </div>
+  <!-- fin timeline -->
+
+  <div class="page-footer">
+    Ma&#241;a Maps &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
+  </div>
+</div>
+
+</body>
+</html>
