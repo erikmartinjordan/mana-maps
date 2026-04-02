@@ -328,7 +328,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
       <!-- Paleta Apple -->
       <div class="color-row" id="color-row">
         <div class="color-swatch active" data-color="#0ea5e9" style="background:#0ea5e9" title="Azul" onclick="setDrawColor('#0ea5e9',this)"></div>
-        <div class="color-swatch" data-color="#6366f1" style="background:#6366f1" title="Índigo" onclick="setDrawColor('#6366f1',this)"></div>
+        <div class="color-swatch" data-color="#6366f1" style="background:#6366f1" title="&#205;ndigo" onclick="setDrawColor('#6366f1',this)"></div>
         <div class="color-swatch" data-color="#10b981" style="background:#10b981" title="Menta" onclick="setDrawColor('#10b981',this)"></div>
         <div class="color-swatch" data-color="#f59e0b" style="background:#f59e0b" title="Dorado" onclick="setDrawColor('#f59e0b',this)"></div>
         <div class="color-swatch" data-color="#ef4444" style="background:#ef4444" title="Rojo" onclick="setDrawColor('#ef4444',this)"></div>
@@ -797,18 +797,71 @@ function kmlToGeoJSON(xmlDoc) {
 }
 
 // ── EXPORT ────────────────────────────────────────
+// Convierte color HEX (#rrggbb) al formato KML AABBGGRR
+function hexToKmlColor(hex, alpha) {
+  alpha = alpha || 'ff';
+  const r = hex.slice(1, 3), g = hex.slice(3, 5), b = hex.slice(5, 7);
+  return alpha + b + g + r;
+}
+
+// GeoJSON enriquecido: incluye color y nombre de cada capa
+function getEnrichedGeoJSON() {
+  const features = [];
+  drawnItems.eachLayer(function(l) {
+    const f = l.toGeoJSON();
+    if (l instanceof L.Marker) {
+      f.properties.color = l._manaColor || '#0ea5e9';
+    } else {
+      f.properties.color = (l.options && l.options.color) || '#0ea5e9';
+    }
+    f.properties.name = l._manaName || f.properties.name || 'Elemento';
+    features.push(f);
+  });
+  return { type: 'FeatureCollection', features: features };
+}
+
 function exportAs(fmt) {
   document.querySelectorAll('.drop-menu').forEach(x => x.classList.remove('open'));
-  const geo = drawnItems.toGeoJSON();
+  const geo = getEnrichedGeoJSON();
   if (!geo.features.length) { alert('No hay elementos en el mapa.'); return; }
   if (fmt === 'geojson') return dl(JSON.stringify(geo, null, 2), 'mana-maps.geojson', 'application/json');
   if (fmt === 'csv') return exportCSV(geo);
   if (fmt === 'kml') return exportKMZ(geo);
   if (fmt === 'shapefile') return exportShapefile(geo);
 }
-function dl(content, filename, mime, isBlob = false) { const blob = isBlob ? content : new Blob([content], { type: mime }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); }
+function dl(content, filename, mime, isBlob) { isBlob = isBlob || false; const blob = isBlob ? content : new Blob([content], { type: mime }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); }
 function exportCSV(geo) { const rows = [['id', 'type', 'name', 'longitude', 'latitude', 'coordinates']]; geo.features.forEach((f, i) => { const g = f.geometry, p = f.properties || {}; const name = p.name || p.title || ('Elemento ' + (i + 1)); if (g.type === 'Point') rows.push([i + 1, 'Point', name, g.coordinates[0], g.coordinates[1], '']); else rows.push([i + 1, g.type, name, '', '', JSON.stringify(g.coordinates)]); }); dl(rows.map(r => r.map(v => ('"' + String(v).replace(/"/g, '""') + '"')).join(',')).join('\n'), 'mana-maps.csv', 'text/csv'); }
-function geoToKML(geo) { const pm = geo.features.map((f, i) => { const g = f.geometry, name = (f.properties && f.properties.name) || ('Elemento ' + (i + 1)); if (g.type === 'Point') return `<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`; if (g.type === 'LineString') { const c = g.coordinates.map(c => c[0] + ',' + c[1] + ',0').join(' '); return `<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`; } if (g.type === 'Polygon') { const c = g.coordinates[0].map(c => c[0] + ',' + c[1] + ',0').join(' '); return `<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`; } return ''; }).join('\n'); return `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00F1a Maps</name>\n${pm}\n</Document></kml>`; }
+
+function geoToKML(geo) {
+  const parts = geo.features.map(function(f, i) {
+    const g = f.geometry;
+    const name = (f.properties && f.properties.name) || ('Elemento ' + (i + 1));
+    const hex = (f.properties && f.properties.color) || '#0ea5e9';
+    const kmlColor = hexToKmlColor(hex);
+    // Color de relleno con 40% opacidad para polígonos
+    const fillColor = '66' + hex.slice(5, 7) + hex.slice(3, 5) + hex.slice(1, 3);
+    const styleId = 'style' + i;
+    let styleTag = '';
+    if (g.type === 'Point') {
+      styleTag = '<Style id="' + styleId + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle><LabelStyle><scale>0.8</scale></LabelStyle></Style>';
+    } else {
+      styleTag = '<Style id="' + styleId + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
+    }
+    let geomTag = '';
+    if (g.type === 'Point') {
+      geomTag = '<Point><coordinates>' + g.coordinates[0] + ',' + g.coordinates[1] + ',0</coordinates></Point>';
+    } else if (g.type === 'LineString') {
+      const c = g.coordinates.map(function(p) { return p[0] + ',' + p[1] + ',0'; }).join(' ');
+      geomTag = '<LineString><coordinates>' + c + '</coordinates></LineString>';
+    } else if (g.type === 'Polygon') {
+      const c = g.coordinates[0].map(function(p) { return p[0] + ',' + p[1] + ',0'; }).join(' ');
+      geomTag = '<Polygon><outerBoundaryIs><LinearRing><coordinates>' + c + '</coordinates></LinearRing></outerBoundaryIs></Polygon>';
+    }
+    return styleTag + '\n<Placemark><name>' + name + '</name><styleUrl>#' + styleId + '</styleUrl>' + geomTag + '</Placemark>';
+  });
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00F1a Maps</name>\n' + parts.join('\n') + '\n</Document></kml>';
+}
+
 async function exportKMZ(geo) { const kml = geoToKML(geo); const zip = new JSZip(); zip.file('doc.kml', kml); const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }); dl(blob, 'mana-maps.kmz', 'application/vnd.google-earth.kmz', true); }
 async function exportShapefile(geo) {
   const points = geo.features.filter(f => f.geometry.type === 'Point');
