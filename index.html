@@ -148,6 +148,19 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   background:var(--primary);color:white;padding:7px 16px;border-radius:50px;
   font-size:12px;font-weight:600;z-index:800;pointer-events:none;white-space:nowrap;}
 
+/* ── DROP OVERLAY ── */
+#drop-overlay{
+  display:none;position:absolute;inset:0;z-index:900;
+  background:rgba(30,153,230,.12);
+  border:3px dashed var(--blue);
+  border-radius:4px;
+  pointer-events:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:12px;
+}
+#drop-overlay.active{display:flex;}
+#drop-overlay svg{width:48px;height:48px;color:var(--blue);opacity:.8;}
+#drop-overlay span{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:-.2px;}
+
 /* ── BARRA INFERIOR: stats + coords en la misma fila ── */
 #map-bottom-bar{
   position:absolute;bottom:0;left:0;right:0;
@@ -320,11 +333,21 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     <div id="draw-hint">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
 
+    <!-- OVERLAY DRAG & DROP -->
+    <div id="drop-overlay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 5 17 10"/>
+        <line x1="12" y1="5" x2="12" y2="17"/>
+      </svg>
+      <span>Suelta para importar</span>
+    </div>
+
     <!-- BARRA INFERIOR: stats izq + coords der -->
     <div id="map-bottom-bar">
-      <div class="stat-pill">Puntos <span id="cnt-points">0</span></div>
-      <div class="stat-pill">Líneas <span id="cnt-lines">0</span></div>
-      <div class="stat-pill">Polígonos <span id="cnt-polygons">0</span></div>
+      <div class="stat-pill">Puntos <span id="cnt-points">0</span></div>
+      <div class="stat-pill">Líneas <span id="cnt-lines">0</span></div>
+      <div class="stat-pill">Polígonos <span id="cnt-polygons">0</span></div>
       <div class="spacer"></div>
       <div id="mouse-coords">— , —</div>
     </div>
@@ -553,6 +576,39 @@ function ctxDeleteLayer(){if(!ctxTargetLayer)return;closeCtx();drawnItems.remove
 function toggleMenu(id,e){e.stopPropagation();const m=document.getElementById(id);const wasOpen=m.classList.contains('open');document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));if(!wasOpen)m.classList.add('open');}
 document.addEventListener('click',()=>document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open')));
 
+// ─── DRAG & DROP sobre el mapa ────────────────────────────
+(function(){
+  const mapWrap=document.getElementById('map-wrap');
+  const overlay=document.getElementById('drop-overlay');
+  let dragCounter=0;
+
+  mapWrap.addEventListener('dragenter',e=>{
+    e.preventDefault();
+    dragCounter++;
+    overlay.classList.add('active');
+  });
+
+  mapWrap.addEventListener('dragleave',e=>{
+    dragCounter--;
+    if(dragCounter<=0){dragCounter=0;overlay.classList.remove('active');}
+  });
+
+  mapWrap.addEventListener('dragover',e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect='copy';
+  });
+
+  mapWrap.addEventListener('drop',async e=>{
+    e.preventDefault();
+    dragCounter=0;
+    overlay.classList.remove('active');
+    const file=e.dataTransfer.files[0];
+    if(!file)return;
+    // Reutilizamos exactamente la misma lógica que handleImport
+    await processFile(file);
+  });
+})();
+
 // ─── IMPORT ────────────────────────────────────────
 function importTrigger(accept){
   document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));
@@ -563,6 +619,10 @@ function importTrigger(accept){
 }
 async function handleImport(e){
   const file=e.target.files[0];if(!file)return;
+  await processFile(file);
+}
+
+async function processFile(file){
   const name=file.name.toLowerCase();
   try{
     if(name.endsWith('.geojson')||name.endsWith('.json')){
@@ -581,7 +641,6 @@ async function handleImport(e){
     }else if(name.endsWith('.zip')){
       const buf=await file.arrayBuffer();
       const zip=await JSZip.loadAsync(buf);
-      // busca .geojson dentro del zip
       const geoFile=Object.keys(zip.files).find(n=>n.endsWith('.geojson')||n.endsWith('.json'));
       if(geoFile){
         const txt=await zip.files[geoFile].async('string');
@@ -589,9 +648,12 @@ async function handleImport(e){
       }else{
         alert('No se encontró un GeoJSON dentro del ZIP.\nConvierte el Shapefile a GeoJSON antes de importar.');
       }
+    }else{
+      alert('Formato no soportado. Usa GeoJSON, KML, KMZ o Shapefile (.zip).');
     }
   }catch(err){alert('Error al importar: '+err.message);}
 }
+
 function loadGeoJSON(geo){
   if(!geo||!geo.features&&geo.type!=='FeatureCollection'&&geo.type!=='Feature'){
     alert('Formato no válido.');return;
@@ -624,13 +686,10 @@ function kmlToGeoJSON(xmlDoc){
   xmlDoc.querySelectorAll('Placemark').forEach(pm=>{
     const name=pm.querySelector('name')?.textContent||'';
     const props={name};
-    // Point
     const pt=pm.querySelector('Point coordinates');
     if(pt){const[lng,lat]=pt.textContent.trim().split(',').map(Number);features.push({type:'Feature',properties:props,geometry:{type:'Point',coordinates:[lng,lat]}});return;}
-    // LineString
     const ls=pm.querySelector('LineString coordinates');
     if(ls){const coords=ls.textContent.trim().split(/\s+/).map(c=>{const[lng,lat]=c.split(',').map(Number);return[lng,lat];});features.push({type:'Feature',properties:props,geometry:{type:'LineString',coordinates:coords}});return;}
-    // Polygon
     const pg=pm.querySelector('Polygon outerBoundaryIs LinearRing coordinates');
     if(pg){const coords=pg.textContent.trim().split(/\s+/).map(c=>{const[lng,lat]=c.split(',').map(Number);return[lng,lat];});features.push({type:'Feature',properties:props,geometry:{type:'Polygon',coordinates:[coords]}});}
   });
@@ -648,7 +707,7 @@ function exportAs(fmt){
   if(fmt==='shapefile')return exportShapefile(geo);
 }
 function dl(content,filename,mime,isBlob=false){const blob=isBlob?content:new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
-function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point')rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
+function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point')rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('\"'+String(v).replace(/"/g,'""')+'\"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
 function geoToKML(geo){const pm=geo.features.map((f,i)=>{const g=f.geometry,name=(f.properties&&f.properties.name)||('Elemento '+(i+1));if(g.type==='Point')return`<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`;if(g.type==='LineString'){const c=g.coordinates.map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`;}if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;}return'';}).join('\n');return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Maña Maps</name>\n${pm}\n</Document></kml>`;}
 async function exportKMZ(geo){const kml=geoToKML(geo);const zip=new JSZip();zip.file('doc.kml',kml);const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});dl(blob,'mana-maps.kmz','application/vnd.google-earth.kmz',true);}
 async function exportShapefile(geo){
