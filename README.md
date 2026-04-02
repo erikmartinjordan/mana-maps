@@ -1,79 +1,79 @@
 # 🗺️ Maña Maps
 
-Editor de mapas interactivo construido con [Leaflet.js](https://leafletjs.com/), diseño cohesivo con [maña.com](https://maña.com) e IA conversacional integrada.
+Interactive map editor built with [Leaflet.js](https://leafletjs.com/), cohesive design with [maña.com](https://maña.com), and integrated conversational AI.
 
-🔗 **Demo en vivo:** [erikmartinjordan.github.io/mana-maps](https://erikmartinjordan.github.io/mana-maps)
+🔗 **Live demo:** [erikmartinjordan.github.io/mana-maps](https://erikmartinjordan.github.io/mana-maps)
 
 ---
 
-## ✨ Funcionalidades
+## ✨ Features
 
-### 🖊️ Herramientas de dibujo
-| Herramienta | Descripción |
+### 🖊️ Drawing tools
+| Tool | Description |
 |---|---|
-| Añadir punto | Clic en el mapa → introduce nombre → se añade con popup |
-| Dibujar línea | Clic para vértices, doble clic para terminar |
-| Dibujar polígono | Clic para vértices, cierra haciendo clic en el primer punto |
-| Borrar elemento | Clic sobre cualquier capa para eliminarla |
+| Add point | Click on the map → enter name → added with popup |
+| Draw line | Click for vertices, double-click to finish |
+| Draw polygon | Click for vertices, close by clicking the first point |
+| Delete element | Click on any layer to remove it |
 
-### 📤 Exportación en 4 formatos
-| Formato | Archivo | Compatibilidad |
+### 📤 Export in 4 formats
+| Format | File | Compatibility |
 |---|---|---|
-| **GeoJSON** | `mana-maps.geojson` | Web estándar, QGIS, PostGIS... |
+| **GeoJSON** | `mana-maps.geojson` | Web standard, QGIS, PostGIS... |
 | **CSV** | `mana-maps.csv` | Excel, Google Sheets... |
 | **KML / KMZ** | `mana-maps.kmz` | Google Earth, Google Maps |
-| **Shapefile** | `mana-maps-shp.zip` | ArcGIS, QGIS (puntos .shp + .dbf + .prj) |
+| **Shapefile** | `mana-maps-shp.zip` | ArcGIS, QGIS (points .shp + .dbf + .prj) |
 
-### 🤖 Chat IA (lenguaje natural)
-Escribe comandos directamente en el panel derecho:
+### 🤖 AI Chat (natural language)
+Type commands directly in the right panel:
 ```
-"dibuja un punto en Barcelona"
-"traza una línea entre Madrid y Valencia"
-"centra el mapa en Sevilla"
-"borra todo"
+"draw a point in Barcelona"
+"draw a line between Madrid and Valencia"
+"center the map on Seville"
+"delete everything"
 "zoom in" / "zoom out"
 ```
 
-### ↔️ Paneles redimensionables
-Arrastra los separadores entre la barra lateral y el mapa para ajustar el ancho de cada panel (mín. 160 px — máx. 520 px).
+### ↔️ Resizable panels
+Drag the dividers between the sidebar and the map to adjust each panel's width (min. 160 px — max. 520 px).
 
 ---
 
-## 🚀 Uso local
+## 🚀 Local usage
 
-No requiere instalación ni servidor. Simplemente abre `index.html` en tu navegador:
+No installation or server required. Simply open `index.html` in your browser:
 
 ```bash
 git clone https://github.com/erikmartinjordan/mana-maps.git
 cd mana-maps
 open index.html   # macOS
-# o doble clic en Windows/Linux
+# or double-click on Windows/Linux
 ```
 
-> ⚠️ El chat IA usa [Nominatim (OpenStreetMap)](https://nominatim.openstreetmap.org/) para geocodificación. Requiere conexión a internet.
+> ⚠️ The AI chat uses [Nominatim (OpenStreetMap)](https://nominatim.openstreetmap.org/) for geocoding. Requires an internet connection.
 
 ---
 
-## 🛠️ Stack técnico
+## 🛠️ Tech stack
 
-- **[Leaflet 1.9.4](https://leafletjs.com/)** — mapa interactivo
-- **[Leaflet Draw 1.0.4](https://github.com/Leaflet/Leaflet.draw)** — herramientas de dibujo
-- **[JSZip 3.10.1](https://stuk.github.io/jszip/)** — generación de KMZ y Shapefile ZIP
-- **[CartoDB Light](https://carto.com/basemaps/)** — tiles de mapa sin API key ni restricciones
-- **[Nominatim](https://nominatim.openstreetmap.org/)** — geocodificación gratuita
-- **Vanilla JS / CSS** — sin frameworks, un único `index.html`
+- **[Leaflet 1.9.4](https://leafletjs.com/)** — interactive map
+- **[Leaflet Draw 1.0.4](https://github.com/Leaflet/Leaflet.draw)** — drawing tools
+- **[JSZip 3.10.1](https://stuk.github.io/jszip/)** — KMZ and Shapefile ZIP generation
+- **[CartoDB Light](https://carto.com/basemaps/)** — map tiles with no API key or restrictions
+- **[Nominatim](https://nominatim.openstreetmap.org/)** — free geocoding
+- **Vanilla JS / CSS** — no frameworks, a single `index.html`
 
 ---
 
-## 📁 Estructura
+## 📁 Structure
 
 ```
 mana-maps/
-└── index.html    # App completa (HTML + CSS + JS en un solo archivo)
+└── index.html    # Full app (HTML + CSS + JS in a single file)
 ```
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
 MIT © [Erik Martín Jordán](https://github.com/erikmartinjordan)
