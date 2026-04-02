@@ -15,8 +15,6 @@
   --green:#48ac98;--red:#e05252;
 }
 html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;}
-
-/* TOPBAR */
 #topbar{height:56px;border-bottom:1px solid var(--border);background:var(--bg);
   display:flex;align-items:center;padding:0 20px;gap:12px;position:relative;z-index:1000;}
 .mana-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
@@ -33,8 +31,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);}
 .btn-ghost:hover{background:var(--bgBox);}
-
-/* Export dropdown */
 .export-wrap{position:relative;}
 .export-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;
   background:var(--bg);border:1px solid var(--border);border-radius:12px;
@@ -46,20 +42,13 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .export-item:hover{background:var(--bgBox);}
 .export-item svg{width:14px;height:14px;color:var(--third);flex-shrink:0;}
 .export-divider{height:1px;background:var(--border);}
-
-/* LAYOUT */
 #app{display:grid;
   grid-template-columns:var(--left-w,280px) 4px 1fr 4px var(--right-w,320px);
   height:calc(100vh - 56px);overflow:hidden;}
-
-/* DRAG HANDLES */
 .resize-handle{background:transparent;cursor:col-resize;z-index:100;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s;user-select:none;}
+  display:flex;align-items:center;justify-content:center;transition:background .15s;user-select:none;}
 .resize-handle:hover,.resize-handle.dragging{background:var(--blue);opacity:.4;border-radius:2px;}
 .resize-handle::after{content:'';display:block;width:2px;height:32px;border-radius:2px;background:var(--border);}
-
-/* SIDEBAR */
 #sidebar{border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;min-width:160px;}
 .sidebar-header{padding:16px 20px 10px;border-bottom:1px solid var(--border);}
 .sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--third);}
@@ -74,11 +63,31 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .divider{height:1px;background:var(--border);margin:8px 0;}
 .section-label{font-size:11px;color:var(--third);font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:8px 4px 4px;}
 
-/* Toggle mapa/satélite */
-.layer-toggle{display:flex;border:1px solid var(--border);border-radius:50px;overflow:hidden;margin-bottom:8px;}
-.layer-toggle-btn{flex:1;padding:7px 10px;border:none;background:none;font-size:12px;font-weight:600;
-  cursor:pointer;color:var(--third);transition:background .15s,color .15s;text-align:center;}
-.layer-toggle-btn.active{background:var(--primary);color:white;}
+/* SELECTOR DE CAPA BASE — miniaturas */
+.basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.basemap-card{
+  border-radius:10px;border:2px solid var(--border);
+  overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;
+  background:var(--bgBox);
+}
+.basemap-card:hover{border-color:var(--blue);}
+.basemap-card.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(48,54,59,.12);}
+.basemap-thumb{
+  width:100%;height:56px;display:block;
+  background-size:cover;background-position:center;
+  image-rendering:auto;
+}
+.basemap-thumb-map{
+  background-image:url('https://a.basemaps.cartocdn.com/light_all/5/15/12.png');
+}
+.basemap-thumb-sat{
+  background-image:url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/15');
+}
+.basemap-label{
+  font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
+  color:var(--secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.basemap-card.active .basemap-label{color:var(--primary);}
 
 #layer-list{display:flex;flex-direction:column;gap:4px;}
 .layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
@@ -88,8 +97,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .layer-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .layer-type{font-size:10px;color:var(--third);}
 .empty-note{font-size:13px;color:var(--third);padding:8px 4px;line-height:1.5;}
-
-/* MAPA */
 #map-wrap{position:relative;background:#e8ecef;overflow:hidden;}
 #map{width:100%;height:100%;}
 #draw-hint{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);
@@ -100,13 +107,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   border-radius:50px;padding:6px 12px;font-size:12px;font-weight:600;
   color:var(--secondary);backdrop-filter:blur(6px);box-shadow:var(--shadow);}
 .stat-pill span{color:var(--primary);}
-
-/* REGLA — tooltip flotante */
 #ruler-tooltip{display:none;position:absolute;z-index:900;background:var(--primary);color:white;
   padding:5px 11px;border-radius:50px;font-size:12px;font-weight:700;pointer-events:none;
   transform:translate(-50%,-140%);white-space:nowrap;box-shadow:var(--shadow);}
-
-/* MENÚ CONTEXTUAL */
 #ctx-menu{display:none;position:fixed;z-index:3000;background:var(--bg);
   border:1px solid var(--border);border-radius:12px;
   box-shadow:var(--shadow),rgb(15 15 15/12%) 0 8px 24px;
@@ -121,8 +124,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .ctx-item.danger svg{color:var(--red);}
 .ctx-sep{height:1px;background:var(--border);}
 .ctx-coords{padding:8px 16px;font-size:11px;color:var(--third);border-bottom:1px solid var(--border);font-family:monospace;}
-
-/* CHAT */
 #chat-panel{border-left:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;min-width:180px;}
 .chat-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
 .chat-header-icon{width:28px;height:28px;border-radius:8px;background:var(--primary);display:grid;place-items:center;flex-shrink:0;}
@@ -182,26 +183,53 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   <div id="sidebar">
     <div class="sidebar-header"><span class="sidebar-title">Herramientas</span></div>
     <div class="sidebar-body">
-      <div class="section-label">Vista de mapa</div>
-      <div class="layer-toggle">
-        <button class="layer-toggle-btn active" id="btn-map" onclick="setBaseLayer('map')">&#x1F5FA; Mapa</button>
-        <button class="layer-toggle-btn" id="btn-sat" onclick="setBaseLayer('satellite')">&#x1F6F0; Satélite</button>
-      </div>
-      <div class="divider"></div>
+
+      <!-- DIBUJAR -->
       <div class="section-label">Dibujar</div>
-      <button class="tool-btn" id="btn-point" onclick="setTool('point')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>Añadir punto</button>
-      <button class="tool-btn" id="btn-line" onclick="setTool('line')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>Dibujar línea</button>
-      <button class="tool-btn" id="btn-polygon" onclick="setTool('polygon')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>Dibujar polígono</button>
+      <button class="tool-btn" id="btn-point" onclick="setTool('point')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+        Añadir punto
+      </button>
+      <button class="tool-btn" id="btn-line" onclick="setTool('line')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>
+        Dibujar línea
+      </button>
+      <button class="tool-btn" id="btn-polygon" onclick="setTool('polygon')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>
+        Dibujar polígono
+      </button>
       <button class="tool-btn" id="btn-ruler" onclick="setTool('ruler')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
         Medir distancia
       </button>
+
       <div class="divider"></div>
+
+      <!-- TIPO DE MAPA — miniaturas -->
+      <div class="section-label">Tipo de mapa</div>
+      <div class="basemap-grid">
+        <button class="basemap-card active" id="bmc-map" onclick="setBaseLayer('map')">
+          <div class="basemap-thumb basemap-thumb-map"></div>
+          <div class="basemap-label">Mapa</div>
+        </button>
+        <button class="basemap-card" id="bmc-sat" onclick="setBaseLayer('satellite')">
+          <div class="basemap-thumb basemap-thumb-sat"></div>
+          <div class="basemap-label">Satélite</div>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- CAPAS -->
       <div class="section-label">Capas</div>
-      <div id="layer-list"><p class="empty-note">Aún no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p></div>
+      <div id="layer-list">
+        <p class="empty-note">Aún no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>
+      </div>
     </div>
   </div>
+
   <div class="resize-handle" id="handle-left"></div>
+
   <div id="map-wrap">
     <div id="map"></div>
     <div id="draw-hint">Haz clic en el mapa para dibujar</div>
@@ -212,15 +240,31 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
       <div class="stat-pill">Polígonos: <span id="cnt-polygons">0</span></div>
     </div>
   </div>
+
   <div class="resize-handle" id="handle-right"></div>
+
   <div id="chat-panel">
-    <div class="chat-header"><div class="chat-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div><div class="chat-header-title">Maña AI</div><div class="chat-header-sub">Escribe en lenguaje natural</div></div></div>
-    <div id="chat-messages"><div><div class="msg-label">Maña AI</div><div class="msg bot">¡Hola! Soy tu asistente de mapas. Puedes decirme cosas como:<br><br>• <em>"dibuja un punto en Barcelona"</em><br>• <em>"satélite"</em> / <em>"mapa"</em><br>• <em>"mide distancia"</em><br>• <em>"borra todo"</em></div></div></div>
-    <div id="chat-input-area"><textarea id="chat-input" rows="1" placeholder="Escribe un comando..."></textarea><button id="chat-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+    <div class="chat-header">
+      <div class="chat-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div><div class="chat-header-title">Maña AI</div><div class="chat-header-sub">Escribe en lenguaje natural</div></div>
+    </div>
+    <div id="chat-messages">
+      <div>
+        <div class="msg-label">Maña AI</div>
+        <div class="msg bot">¡Hola! Soy tu asistente de mapas. Puedes decirme cosas como:<br><br>
+        • <em>"dibuja un punto en Barcelona"</em><br>
+        • <em>"satélite"</em> / <em>"mapa"</em><br>
+        • <em>"mide distancia"</em><br>
+        • <em>"borra todo"</em></div>
+      </div>
+    </div>
+    <div id="chat-input-area">
+      <textarea id="chat-input" rows="1" placeholder="Escribe un comando..."></textarea>
+      <button id="chat-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
   </div>
 </div>
 
-<!-- MENÚ CONTEXTUAL CLIC DERECHO -->
 <div id="ctx-menu">
   <div class="ctx-coords" id="ctx-coords">0.00000, 0.00000</div>
   <button class="ctx-item" onclick="ctxAddPoint()">
@@ -246,7 +290,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script>
-// CAPAS BASE
 const tileMap=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>',subdomains:'abcd',maxZoom:20});
 const tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© <a href="https://www.esri.com/">Esri</a> — Esri, Maxar, Earthstar Geographics',maxZoom:20});
 const map=L.map('map',{zoomControl:true}).setView([40.416,-3.703],6);
@@ -256,13 +299,11 @@ function setBaseLayer(type){
   if(type==='map'){map.removeLayer(tileSat);tileMap.addTo(map);}
   else{map.removeLayer(tileMap);tileSat.addTo(map);}
   activeBase=type;
-  document.getElementById('btn-map').classList.toggle('active',type==='map');
-  document.getElementById('btn-sat').classList.toggle('active',type==='satellite');
+  document.getElementById('bmc-map').classList.toggle('active',type==='map');
+  document.getElementById('bmc-sat').classList.toggle('active',type==='satellite');
 }
 const drawnItems=new L.FeatureGroup().addTo(map);
 let activeTool=null,drawHandler=null;
-
-// RESIZE
 function initResize(handleId,cssVar,side){
   const handle=document.getElementById(handleId),app=document.getElementById('app');
   let startX,startW;
@@ -282,8 +323,6 @@ function initResize(handleId,cssVar,side){
   });
 }
 initResize('handle-left','left-w','left');initResize('handle-right','right-w','right');
-
-// STATS
 function stats(){
   let pts=0,lns=0,pols=0;
   drawnItems.eachLayer(l=>{if(l instanceof L.Marker) pts++;else if(l instanceof L.Polygon) pols++;else if(l instanceof L.Polyline) lns++;});
@@ -307,8 +346,6 @@ function focusLayer(i){
   const layers=[];drawnItems.eachLayer(l=>layers.push(l));const l=layers[i];if(!l)return;
   if(l.getBounds) map.fitBounds(l.getBounds(),{maxZoom:14});else map.setView(l.getLatLng(),14);
 }
-
-// HERRAMIENTAS
 function stopAll(){
   if(drawHandler){try{drawHandler.disable();}catch(e){}drawHandler=null;}
   stopRuler();
@@ -338,8 +375,6 @@ function setTool(tool){
 }
 map.on(L.Draw.Event.CREATED,e=>{drawnItems.addLayer(e.layer);stopAll();stats();});
 function clearAll(){closeCtx();if(confirm('¿Borrar todos los elementos del mapa?')){drawnItems.clearLayers();stats();}}
-
-// REGLA
 let rulerPoints=[],rulerLine=null,rulerMarkers=[];
 function startRuler(){
   rulerPoints=[];rulerMarkers=[];rulerLine=null;
@@ -362,23 +397,19 @@ function rulerClick(e){
 function rulerMove(e){
   if(!rulerPoints.length) return;
   const tip=document.getElementById('ruler-tooltip');
-  const total=getTotalDist([...rulerPoints,e.latlng]);
-  tip.textContent=formatDist(total);
+  tip.textContent=formatDist(getTotalDist([...rulerPoints,e.latlng]));
   const pt=map.latLngToContainerPoint(e.latlng);
   tip.style.left=pt.x+'px';tip.style.top=pt.y+'px';tip.style.display='block';
 }
 function rulerFinish(e){
   e.originalEvent.preventDefault();
   if(rulerPoints.length<2){stopRuler();stopAll();return;}
-  const total=getTotalDist(rulerPoints);
-  const mid=rulerPoints[Math.floor(rulerPoints.length/2)];
-  L.popup({closeButton:true}).setLatLng(mid).setContent('<strong>Distancia total</strong><br>'+formatDist(total)).openOn(map);
+  L.popup({closeButton:true}).setLatLng(rulerPoints[Math.floor(rulerPoints.length/2)])
+    .setContent('<strong>Distancia total</strong><br>'+formatDist(getTotalDist(rulerPoints))).openOn(map);
   stopRuler();stopAll();
 }
 function getTotalDist(pts){let d=0;for(let i=1;i<pts.length;i++) d+=pts[i].distanceTo(pts[i-1]);return d;}
 function formatDist(m){return m>=1000?(m/1000).toFixed(2)+' km':Math.round(m)+' m';}
-
-// MENÚ CONTEXTUAL
 let ctxLatLng=null,ctxTargetLayer=null;
 map.on('contextmenu',e=>{
   L.DomEvent.preventDefault(e);ctxLatLng=e.latlng;ctxTargetLayer=null;
@@ -389,8 +420,7 @@ map.on('contextmenu',e=>{
     } else if(l.getBounds&&l.getBounds().contains(e.latlng)) ctxTargetLayer=l;
   });
   document.getElementById('ctx-coords').textContent=e.latlng.lat.toFixed(5)+', '+e.latlng.lng.toFixed(5);
-  const delBtn=document.getElementById('ctx-delete-layer');
-  delBtn.style.display=ctxTargetLayer?'flex':'none';
+  document.getElementById('ctx-delete-layer').style.display=ctxTargetLayer?'flex':'none';
   const menu=document.getElementById('ctx-menu');
   menu.style.left=e.originalEvent.clientX+'px';menu.style.top=e.originalEvent.clientY+'px';
   menu.classList.add('open');
@@ -406,8 +436,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeCtx();});
 function ctxAddPoint(){if(!ctxLatLng)return;closeCtx();const name=window.prompt('Nombre del punto:','Nuevo punto')||'Punto';const m=L.marker(ctxLatLng).addTo(drawnItems);m._manaName=name;m.bindPopup('<strong>'+name+'</strong>');stats();}
 function ctxCenterHere(){if(!ctxLatLng)return;closeCtx();map.setView(ctxLatLng,map.getZoom());}
 function ctxDeleteLayer(){if(!ctxTargetLayer)return;closeCtx();drawnItems.removeLayer(ctxTargetLayer);ctxTargetLayer=null;stats();}
-
-// EXPORT
 function toggleExportMenu(e){e.stopPropagation();document.getElementById('export-menu').classList.toggle('open');}
 document.addEventListener('click',()=>document.getElementById('export-menu').classList.remove('open'));
 function exportAs(fmt){
@@ -420,7 +448,7 @@ function exportAs(fmt){
   if(fmt==='shapefile') return exportShapefile(geo);
 }
 function dl(content,filename,mime,isBlob=false){const blob=isBlob?content:new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
-function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point') rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v='"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n'),'mana-maps.csv','text/csv');}
+function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point') rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
 function geoToKML(geo){const pm=geo.features.map((f,i)=>{const g=f.geometry,name=(f.properties&&f.properties.name)||('Elemento '+(i+1));if(g.type==='Point') return`<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`;if(g.type==='LineString'){const c=g.coordinates.map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`;}if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;}return'';}).join('\n');return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Maña Maps</name>\n${pm}\n</Document></kml>`;}
 async function exportKMZ(geo){const kml=geoToKML(geo);const zip=new JSZip();zip.file('doc.kml',kml);const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});dl(blob,'mana-maps.kmz','application/vnd.google-earth.kmz',true);}
 async function exportShapefile(geo){
@@ -441,11 +469,7 @@ async function exportShapefile(geo){
   const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
   dl(blob,'mana-maps-shp.zip','application/zip',true);
 }
-
-// GEOCODER
 async function geocode(q){const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q),{headers:{'Accept-Language':'es','User-Agent':'MañaMaps/1.0'}});return r.json();}
-
-// CHAT
 function addMsg(text,isUser){const wrap=document.createElement('div');if(!isUser){const lbl=document.createElement('div');lbl.className='msg-label';lbl.textContent='Maña AI';wrap.appendChild(lbl);}const el=document.createElement('div');el.className='msg '+(isUser?'user':'bot');el.innerHTML=text;wrap.appendChild(el);const msgs=document.getElementById('chat-messages');msgs.appendChild(wrap);msgs.scrollTop=msgs.scrollHeight;return el;}
 async function processCmd(raw){
   const cmd=raw.toLowerCase().trim();
