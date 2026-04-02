@@ -33,7 +33,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   font-family:Tahoma,Verdana,sans-serif;font-weight:900;font-size:15px;color:white;line-height:1;pointer-events:none;
 }
 .logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);}
-.logo-sub{font-size:12px;color:var(--third);font-weight:400;margin-left:2px;}
+.logo-sub{
+  font-size:10px;color:var(--third);font-weight:600;
+  vertical-align:super;margin-left:1px;letter-spacing:.02em;
+}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;position:relative;}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
   font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap;}
@@ -604,7 +607,6 @@ document.addEventListener('click',()=>document.querySelectorAll('.drop-menu').fo
     overlay.classList.remove('active');
     const file=e.dataTransfer.files[0];
     if(!file)return;
-    // Reutilizamos exactamente la misma lógica que handleImport
     await processFile(file);
   });
 })();
@@ -680,7 +682,7 @@ function loadGeoJSON(geo){
   stats();
 }
 
-// KML → GeoJSON (simple: Points, LineStrings, Polygons)
+// KML → GeoJSON
 function kmlToGeoJSON(xmlDoc){
   const features=[];
   xmlDoc.querySelectorAll('Placemark').forEach(pm=>{
