@@ -6,7 +6,7 @@
 <title>Maña Maps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 <style>
@@ -17,8 +17,8 @@
   --shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;
   --green:#48ac98;--red:#e05252;
   --left-w:280px;--right-w:320px;
-  --rail-w:44px;   /* anchura mínima = solo iconos */
-  --rail-threshold:88px; /* por debajo → modo rail */
+  --rail-w:44px;
+  --rail-threshold:88px;
 }
 html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;}
 
@@ -41,18 +41,20 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);}
 .btn-ghost:hover{background:var(--bgBox);}
-.export-wrap{position:relative;}
-.export-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;
+
+/* menus de exportar/importar */
+.menu-wrap{position:relative;}
+.drop-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;
   background:var(--bg);border:1px solid var(--border);border-radius:12px;
   box-shadow:var(--shadow),rgb(15 15 15/12%) 0 8px 24px;
-  overflow:hidden;min-width:160px;z-index:2000;}
-.export-menu.open{display:block;}
-.export-item{display:flex;align-items:center;gap:10px;padding:10px 16px;
+  overflow:hidden;min-width:170px;z-index:2000;}
+.drop-menu.open{display:block;}
+.drop-item{display:flex;align-items:center;gap:10px;padding:10px 16px;
   font-size:13px;cursor:pointer;color:var(--primary);transition:background .12s;
   border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;}
-.export-item:hover{background:var(--bgBox);}
-.export-item svg{width:14px;height:14px;color:var(--third);flex-shrink:0;}
-.export-divider{height:1px;background:var(--border);}
+.drop-item:hover{background:var(--bgBox);}
+.drop-item svg{width:14px;height:14px;color:var(--third);flex-shrink:0;}
+.drop-divider{height:1px;background:var(--border);}
 
 /* ── LAYOUT ── */
 #app{
@@ -84,38 +86,23 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   max-height:20px;opacity:1;
 }
 .sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px;}
-
-/* ── TOOL BUTTONS ── */
 .tool-btn{
   width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;
   border-radius:10px;border:none;background:none;color:var(--primary);
   font-size:14px;cursor:pointer;text-align:left;transition:background .15s;
-  font-family:'DM Sans',sans-serif;
-  /* en modo rail centramos el icono */
-  justify-content:flex-start;
+  font-family:'DM Sans',sans-serif;justify-content:flex-start;
 }
 .tool-btn:hover{background:var(--bgBox);}
 .tool-btn.active{background:var(--bgBox);font-weight:600;}
 .tool-btn svg{width:16px;height:16px;color:var(--third);flex-shrink:0;}
 .tool-btn.active svg{color:var(--green);}
-
-/* texto dentro del botón */
-.tool-btn .btn-label{
-  white-space:nowrap;overflow:hidden;
-  transition:opacity .15s,max-width .15s;
-  max-width:200px;opacity:1;
-}
-
+.tool-btn .btn-label{white-space:nowrap;overflow:hidden;transition:opacity .15s,max-width .15s;max-width:200px;opacity:1;}
 .divider{height:1px;background:var(--border);margin:8px 0;}
 .section-label{
   font-size:11px;color:var(--third);font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;padding:8px 4px 4px;
-  white-space:nowrap;overflow:hidden;
-  transition:opacity .15s,max-height .15s;
-  max-height:20px;opacity:1;
+  letter-spacing:.07em;padding:8px 4px 4px;white-space:nowrap;overflow:hidden;
+  transition:opacity .15s,max-height .15s;max-height:20px;opacity:1;
 }
-
-/* ── BASEMAP GRID ── */
 .basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;transition:grid-template-columns .15s;}
 .basemap-card{border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;
   transition:border-color .15s,box-shadow .15s;background:var(--bgBox);}
@@ -127,12 +114,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .basemap-label{
   font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
   color:var(--secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  transition:opacity .15s,max-height .15s,padding .15s;
-  max-height:28px;opacity:1;
+  transition:opacity .15s,max-height .15s,padding .15s;max-height:28px;opacity:1;
 }
 .basemap-card.active .basemap-label{color:var(--primary);}
-
-/* ── LAYERS ── */
 #layer-list{display:flex;flex-direction:column;gap:4px;}
 .layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
   border:1px solid var(--border);background:var(--bgBox);font-size:13px;cursor:pointer;transition:border-color .15s;}
@@ -142,50 +126,52 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .layer-type{font-size:10px;color:var(--third);}
 .empty-note{font-size:13px;color:var(--third);padding:8px 4px;line-height:1.5;}
 
-/* ══════════════════════════════════════════
-   MODO RAIL  (sidebar.rail)
-   Solo iconos centrados, sin texto
-══════════════════════════════════════════ */
+/* RAIL MODE */
 #sidebar.rail .sidebar-title{opacity:0;max-height:0;overflow:hidden;}
 #sidebar.rail .sidebar-header{padding:12px 0 10px;}
 #sidebar.rail .section-label{opacity:0;max-height:0;overflow:hidden;padding:0;}
 #sidebar.rail .divider{margin:4px 0;}
 #sidebar.rail .sidebar-body{padding:8px 4px;}
-
 #sidebar.rail .tool-btn{justify-content:center;padding:10px 0;}
 #sidebar.rail .tool-btn .btn-label{max-width:0;opacity:0;}
-
-/* miniaturas: apilar en una sola columna, sin etiqueta */
 #sidebar.rail .basemap-grid{grid-template-columns:1fr;}
 #sidebar.rail .basemap-thumb{height:28px;}
 #sidebar.rail .basemap-label{max-height:0;opacity:0;padding:0;}
-
-/* lista de capas: solo dot */
 #sidebar.rail .layer-item{justify-content:center;padding:8px 0;}
-#sidebar.rail .layer-name,
-#sidebar.rail .layer-type{display:none;}
+#sidebar.rail .layer-name,#sidebar.rail .layer-type{display:none;}
 #sidebar.rail .empty-note{display:none;}
 
 /* ── MAP ── */
-#map-wrap{position:relative;background:#e8ecef;overflow:hidden;}
-#map{width:100%;height:100%;}
+#map-wrap{position:relative;background:#e8ecef;overflow:hidden;display:flex;flex-direction:column;}
+#map{flex:1;width:100%;}
 #draw-hint{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);
   background:var(--primary);color:white;padding:7px 16px;border-radius:50px;
   font-size:12px;font-weight:600;z-index:800;pointer-events:none;white-space:nowrap;}
-#map-stats{position:absolute;bottom:44px;left:16px;z-index:800;display:flex;gap:8px;flex-wrap:wrap;}
-.stat-pill{background:rgba(255,255,255,.92);border:1px solid var(--border);
-  border-radius:50px;padding:6px 12px;font-size:12px;font-weight:600;
-  color:var(--secondary);backdrop-filter:blur(6px);box-shadow:var(--shadow);}
-.stat-pill span{color:var(--primary);}
 
-/* ── COORDS PILL ── */
+/* ── BARRA INFERIOR: stats + coords en la misma fila ── */
+#map-bottom-bar{
+  position:absolute;bottom:0;left:0;right:0;
+  z-index:800;
+  display:flex;align-items:center;
+  padding:8px 12px;
+  gap:6px;
+  background:linear-gradient(to top,rgba(255,255,255,.7) 0%,rgba(255,255,255,0) 100%);
+  pointer-events:none;
+}
+.stat-pill{
+  background:rgba(255,255,255,.92);border:1px solid var(--border);
+  border-radius:50px;padding:5px 11px;font-size:12px;font-weight:600;
+  color:var(--secondary);backdrop-filter:blur(6px);box-shadow:var(--shadow);
+  white-space:nowrap;
+}
+.stat-pill span{color:var(--primary);}
+#map-bottom-bar .spacer{flex:1;}
 #mouse-coords{
-  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
-  z-index:800;background:rgba(255,255,255,.92);border:1px solid var(--border);
+  background:rgba(255,255,255,.92);border:1px solid var(--border);
   border-radius:50px;padding:5px 14px;
   font-family:'DM Mono',monospace;font-size:11px;color:var(--secondary);
   backdrop-filter:blur(6px);box-shadow:var(--shadow);
-  white-space:nowrap;pointer-events:none;letter-spacing:.01em;
+  white-space:nowrap;letter-spacing:.01em;
 }
 
 /* ── RULER ── */
@@ -250,18 +236,37 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   </a>
   <div class="topbar-right">
     <button class="btn btn-ghost" onclick="clearAll()">Limpiar mapa</button>
-    <div class="export-wrap">
-      <button class="btn btn-primary" onclick="toggleExportMenu(event)">
+
+    <!-- IMPORTAR -->
+    <div class="menu-wrap">
+      <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg>
+        Importar
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="drop-menu" id="import-menu">
+        <button class="drop-item" onclick="importTrigger('.geojson,.json')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>GeoJSON</button>
+        <button class="drop-item" onclick="importTrigger('.kml')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KML</button>
+        <button class="drop-item" onclick="importTrigger('.kmz')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KMZ</button>
+        <div class="drop-divider"></div>
+        <button class="drop-item" onclick="importTrigger('.zip')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
+      </div>
+    </div>
+    <input type="file" id="file-import" style="display:none" onchange="handleImport(event)">
+
+    <!-- EXPORTAR -->
+    <div class="menu-wrap">
+      <button class="btn btn-primary" onclick="toggleMenu('export-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Exportar
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="export-menu" id="export-menu">
-        <button class="export-item" onclick="exportAs('geojson')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>GeoJSON</button>
-        <button class="export-item" onclick="exportAs('csv')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>CSV</button>
-        <button class="export-item" onclick="exportAs('kml')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KML / KMZ</button>
-        <div class="export-divider"></div>
-        <button class="export-item" onclick="exportAs('shapefile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
+      <div class="drop-menu" id="export-menu">
+        <button class="drop-item" onclick="exportAs('geojson')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>GeoJSON</button>
+        <button class="drop-item" onclick="exportAs('csv')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>CSV</button>
+        <button class="drop-item" onclick="exportAs('kml')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KML / KMZ</button>
+        <div class="drop-divider"></div>
+        <button class="drop-item" onclick="exportAs('shapefile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
       </div>
     </div>
   </div>
@@ -271,7 +276,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   <div id="sidebar">
     <div class="sidebar-header"><span class="sidebar-title">Herramientas</span></div>
     <div class="sidebar-body">
-
       <div class="section-label">Dibujar</div>
       <button class="tool-btn" id="btn-point" onclick="setTool('point')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
@@ -289,9 +293,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
         <span class="btn-label">Medir distancia</span>
       </button>
-
       <div class="divider"></div>
-
       <div class="section-label">Tipo de mapa</div>
       <div class="basemap-grid">
         <button class="basemap-card active" id="bmc-map" onclick="setBaseLayer('map')">
@@ -303,9 +305,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
           <div class="basemap-label">Satélite</div>
         </button>
       </div>
-
       <div class="divider"></div>
-
       <div class="section-label">Capas</div>
       <div id="layer-list">
         <p class="empty-note">Aún no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>
@@ -319,12 +319,15 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     <div id="map"></div>
     <div id="draw-hint">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
-    <div id="map-stats">
-      <div class="stat-pill">Puntos: <span id="cnt-points">0</span></div>
-      <div class="stat-pill">Líneas: <span id="cnt-lines">0</span></div>
-      <div class="stat-pill">Polígonos: <span id="cnt-polygons">0</span></div>
+
+    <!-- BARRA INFERIOR: stats izq + coords der -->
+    <div id="map-bottom-bar">
+      <div class="stat-pill">Puntos <span id="cnt-points">0</span></div>
+      <div class="stat-pill">Líneas <span id="cnt-lines">0</span></div>
+      <div class="stat-pill">Polígonos <span id="cnt-polygons">0</span></div>
+      <div class="spacer"></div>
+      <div id="mouse-coords">— , —</div>
     </div>
-    <div id="mouse-coords">— , —</div>
   </div>
 
   <div class="resize-handle" id="handle-right"></div>
@@ -378,7 +381,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 <script>
 // BASE LAYERS
 const tileMap=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>',subdomains:'abcd',maxZoom:20});
-const tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© <a href="https://www.esri.com/">Esri</a> — Esri, Maxar, Earthstar Geographics',maxZoom:20});
+const tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© <a href="https://www.esri.com/">Esri</a>',maxZoom:20});
 const map=L.map('map',{zoomControl:true}).setView([40.416,-3.703],6);
 tileMap.addTo(map);
 let activeBase='map';
@@ -399,44 +402,32 @@ map.on('mousemove',e=>{
 });
 map.on('mouseout',()=>{document.getElementById('mouse-coords').textContent='— , —';});
 
-// ─── RESIZE — ambos paneles arrastrables ───────────────────────────────────
-const RAIL_W   = 44;   // px mínimo sidebar → modo icono
-const RAIL_THR = 88;   // px umbral para activar clase .rail
-
-function initResize(handleId, side){
-  const handle = document.getElementById(handleId);
-  const app    = document.getElementById('app');
-  const sidebar= document.getElementById('sidebar');
-  let startX, startW;
-
-  handle.addEventListener('mousedown', e=>{
-    e.preventDefault();
-    handle.classList.add('dragging');
-    startX = e.clientX;
-    const cols = getComputedStyle(app).gridTemplateColumns.split(' ');
-    startW = side==='left' ? parseInt(cols[0]) : parseInt(cols[4]);
-
-    const onMove = e=>{
-      const dx = e.clientX - startX;
+// ─── RESIZE ───────────────────────────────────────
+const RAIL_W=44,RAIL_THR=88;
+function initResize(handleId,side){
+  const handle=document.getElementById(handleId);
+  const app=document.getElementById('app');
+  const sidebar=document.getElementById('sidebar');
+  let startX,startW;
+  handle.addEventListener('mousedown',e=>{
+    e.preventDefault();handle.classList.add('dragging');startX=e.clientX;
+    const cols=getComputedStyle(app).gridTemplateColumns.split(' ');
+    startW=side==='left'?parseInt(cols[0]):parseInt(cols[4]);
+    const onMove=e=>{
+      const dx=e.clientX-startX;
       if(side==='left'){
-        const newW = Math.max(RAIL_W, Math.min(320, startW + dx));
-        app.style.setProperty('--left-w', newW+'px');
-        // rail mode
-        sidebar.classList.toggle('rail', newW < RAIL_THR);
-      } else {
-        const newW = Math.max(180, Math.min(520, startW - dx));
-        app.style.setProperty('--right-w', newW+'px');
+        const nw=Math.max(RAIL_W,Math.min(320,startW+dx));
+        app.style.setProperty('--left-w',nw+'px');
+        sidebar.classList.toggle('rail',nw<RAIL_THR);
+      }else{
+        const nw=Math.max(180,Math.min(520,startW-dx));
+        app.style.setProperty('--right-w',nw+'px');
       }
       map.invalidateSize();
     };
-    const onUp = ()=>{
-      handle.classList.remove('dragging');
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      map.invalidateSize();
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    const onUp=()=>{handle.classList.remove('dragging');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);map.invalidateSize();};
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
   });
 }
 initResize('handle-left','left');
@@ -445,7 +436,7 @@ initResize('handle-right','right');
 // STATS
 function stats(){
   let pts=0,lns=0,pols=0;
-  drawnItems.eachLayer(l=>{if(l instanceof L.Marker) pts++;else if(l instanceof L.Polygon) pols++;else if(l instanceof L.Polyline) lns++;});
+  drawnItems.eachLayer(l=>{if(l instanceof L.Marker)pts++;else if(l instanceof L.Polygon)pols++;else if(l instanceof L.Polyline)lns++;});
   document.getElementById('cnt-points').textContent=pts;
   document.getElementById('cnt-lines').textContent=lns;
   document.getElementById('cnt-polygons').textContent=pols;
@@ -464,7 +455,7 @@ function renderLayers(){
 }
 function focusLayer(i){
   const layers=[];drawnItems.eachLayer(l=>layers.push(l));const l=layers[i];if(!l)return;
-  if(l.getBounds) map.fitBounds(l.getBounds(),{maxZoom:14});else map.setView(l.getLatLng(),14);
+  if(l.getBounds)map.fitBounds(l.getBounds(),{maxZoom:14});else map.setView(l.getLatLng(),14);
 }
 
 // TOOLS
@@ -499,26 +490,22 @@ function clearAll(){closeCtx();if(confirm('¿Borrar todos los elementos del mapa
 
 // RULER
 let rulerPoints=[],rulerLine=null,rulerMarkers=[];
-function startRuler(){
-  rulerPoints=[];rulerMarkers=[];rulerLine=null;
-  map.on('click',rulerClick);map.on('dblclick',rulerFinish);map.on('mousemove',rulerMove);
-}
+function startRuler(){rulerPoints=[];rulerMarkers=[];rulerLine=null;map.on('click',rulerClick);map.on('dblclick',rulerFinish);map.on('mousemove',rulerMove);}
 function stopRuler(){
   map.off('click',rulerClick);map.off('dblclick',rulerFinish);map.off('mousemove',rulerMove);
-  rulerMarkers.forEach(m=>map.removeLayer(m));
-  if(rulerLine) map.removeLayer(rulerLine);
+  rulerMarkers.forEach(m=>map.removeLayer(m));if(rulerLine)map.removeLayer(rulerLine);
   rulerPoints=[];rulerMarkers=[];rulerLine=null;
   document.getElementById('ruler-tooltip').style.display='none';
 }
 function rulerClick(e){
-  if(rulerPoints.length>0&&e.latlng.distanceTo(rulerPoints[rulerPoints.length-1])<5) return;
+  if(rulerPoints.length>0&&e.latlng.distanceTo(rulerPoints[rulerPoints.length-1])<5)return;
   rulerPoints.push(e.latlng);
   const dot=L.circleMarker(e.latlng,{radius:5,color:'#30363b',fillColor:'white',fillOpacity:1,weight:2}).addTo(map);
   rulerMarkers.push(dot);
-  if(rulerPoints.length>=2){if(rulerLine) map.removeLayer(rulerLine);rulerLine=L.polyline(rulerPoints,{color:'#1e99e6',weight:2,dashArray:'6 4'}).addTo(map);}
+  if(rulerPoints.length>=2){if(rulerLine)map.removeLayer(rulerLine);rulerLine=L.polyline(rulerPoints,{color:'#1e99e6',weight:2,dashArray:'6 4'}).addTo(map);}
 }
 function rulerMove(e){
-  if(!rulerPoints.length) return;
+  if(!rulerPoints.length)return;
   const tip=document.getElementById('ruler-tooltip');
   tip.textContent=formatDist(getTotalDist([...rulerPoints,e.latlng]));
   const pt=map.latLngToContainerPoint(e.latlng);
@@ -531,7 +518,7 @@ function rulerFinish(e){
     .setContent('<strong>Distancia total</strong><br>'+formatDist(getTotalDist(rulerPoints))).openOn(map);
   stopRuler();stopAll();
 }
-function getTotalDist(pts){let d=0;for(let i=1;i<pts.length;i++) d+=pts[i].distanceTo(pts[i-1]);return d;}
+function getTotalDist(pts){let d=0;for(let i=1;i<pts.length;i++)d+=pts[i].distanceTo(pts[i-1]);return d;}
 function formatDist(m){return m>=1000?(m/1000).toFixed(2)+' km':Math.round(m)+' m';}
 
 // CONTEXT MENU
@@ -541,8 +528,8 @@ map.on('contextmenu',e=>{
   drawnItems.eachLayer(l=>{
     if(l instanceof L.Marker){
       const pt=map.latLngToContainerPoint(l.getLatLng()),ep=map.latLngToContainerPoint(e.latlng);
-      if(Math.hypot(pt.x-ep.x,pt.y-ep.y)<20) ctxTargetLayer=l;
-    }else if(l.getBounds&&l.getBounds().contains(e.latlng)) ctxTargetLayer=l;
+      if(Math.hypot(pt.x-ep.x,pt.y-ep.y)<20)ctxTargetLayer=l;
+    }else if(l.getBounds&&l.getBounds().contains(e.latlng))ctxTargetLayer=l;
   });
   document.getElementById('ctx-coords').textContent=e.latlng.lat.toFixed(5)+', '+e.latlng.lng.toFixed(5);
   document.getElementById('ctx-delete-layer').style.display=ctxTargetLayer?'flex':'none';
@@ -551,32 +538,118 @@ map.on('contextmenu',e=>{
   menu.classList.add('open');
   requestAnimationFrame(()=>{
     const r=menu.getBoundingClientRect();
-    if(r.right>window.innerWidth) menu.style.left=(e.originalEvent.clientX-r.width)+'px';
-    if(r.bottom>window.innerHeight) menu.style.top=(e.originalEvent.clientY-r.height)+'px';
+    if(r.right>window.innerWidth)menu.style.left=(e.originalEvent.clientX-r.width)+'px';
+    if(r.bottom>window.innerHeight)menu.style.top=(e.originalEvent.clientY-r.height)+'px';
   });
 });
 function closeCtx(){document.getElementById('ctx-menu').classList.remove('open');}
 document.addEventListener('click',closeCtx);
-document.addEventListener('keydown',e=>{if(e.key==='Escape') closeCtx();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
 function ctxAddPoint(){if(!ctxLatLng)return;closeCtx();const name=window.prompt('Nombre del punto:','Nuevo punto')||'Punto';const m=L.marker(ctxLatLng).addTo(drawnItems);m._manaName=name;m.bindPopup('<strong>'+name+'</strong>');stats();}
 function ctxCenterHere(){if(!ctxLatLng)return;closeCtx();map.setView(ctxLatLng,map.getZoom());}
 function ctxDeleteLayer(){if(!ctxTargetLayer)return;closeCtx();drawnItems.removeLayer(ctxTargetLayer);ctxTargetLayer=null;stats();}
 
-// EXPORT
-function toggleExportMenu(e){e.stopPropagation();document.getElementById('export-menu').classList.toggle('open');}
-document.addEventListener('click',()=>document.getElementById('export-menu').classList.remove('open'));
+// ─── MENUS (toggle genérico) ────────────────────────────
+function toggleMenu(id,e){e.stopPropagation();const m=document.getElementById(id);const wasOpen=m.classList.contains('open');document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));if(!wasOpen)m.classList.add('open');}
+document.addEventListener('click',()=>document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open')));
+
+// ─── IMPORT ────────────────────────────────────────
+function importTrigger(accept){
+  document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));
+  const inp=document.getElementById('file-import');
+  inp.accept=accept;
+  inp.value='';
+  inp.click();
+}
+async function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const name=file.name.toLowerCase();
+  try{
+    if(name.endsWith('.geojson')||name.endsWith('.json')){
+      const text=await file.text();
+      loadGeoJSON(JSON.parse(text));
+    }else if(name.endsWith('.kml')){
+      const text=await file.text();
+      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(text,'text/xml')));
+    }else if(name.endsWith('.kmz')){
+      const buf=await file.arrayBuffer();
+      const zip=await JSZip.loadAsync(buf);
+      const kmlFile=Object.keys(zip.files).find(n=>n.endsWith('.kml'));
+      if(!kmlFile)throw new Error('No se encontró un .kml dentro del KMZ');
+      const kmlText=await zip.files[kmlFile].async('string');
+      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(kmlText,'text/xml')));
+    }else if(name.endsWith('.zip')){
+      const buf=await file.arrayBuffer();
+      const zip=await JSZip.loadAsync(buf);
+      // busca .geojson dentro del zip
+      const geoFile=Object.keys(zip.files).find(n=>n.endsWith('.geojson')||n.endsWith('.json'));
+      if(geoFile){
+        const txt=await zip.files[geoFile].async('string');
+        loadGeoJSON(JSON.parse(txt));
+      }else{
+        alert('No se encontró un GeoJSON dentro del ZIP.\nConvierte el Shapefile a GeoJSON antes de importar.');
+      }
+    }
+  }catch(err){alert('Error al importar: '+err.message);}
+}
+function loadGeoJSON(geo){
+  if(!geo||!geo.features&&geo.type!=='FeatureCollection'&&geo.type!=='Feature'){
+    alert('Formato no válido.');return;
+  }
+  const layer=L.geoJSON(geo,{
+    style:{color:'#30363b',weight:2,fillOpacity:.15},
+    pointToLayer:(f,ll)=>{
+      const m=L.marker(ll);
+      const name=(f.properties&&(f.properties.name||f.properties.Name||f.properties.NAME))||'Importado';
+      m._manaName=name;
+      m.bindPopup('<strong>'+name+'</strong>');
+      return m;
+    },
+    onEachFeature:(f,l)=>{
+      if(!(l instanceof L.Marker)){
+        const name=(f.properties&&(f.properties.name||f.properties.Name||f.properties.NAME))||'';
+        if(name)l.bindPopup('<strong>'+name+'</strong>');
+      }
+    }
+  });
+  layer.eachLayer(l=>drawnItems.addLayer(l));
+  const bounds=layer.getBounds();
+  if(bounds.isValid())map.fitBounds(bounds,{padding:[24,24],maxZoom:14});
+  stats();
+}
+
+// KML → GeoJSON (simple: Points, LineStrings, Polygons)
+function kmlToGeoJSON(xmlDoc){
+  const features=[];
+  xmlDoc.querySelectorAll('Placemark').forEach(pm=>{
+    const name=pm.querySelector('name')?.textContent||'';
+    const props={name};
+    // Point
+    const pt=pm.querySelector('Point coordinates');
+    if(pt){const[lng,lat]=pt.textContent.trim().split(',').map(Number);features.push({type:'Feature',properties:props,geometry:{type:'Point',coordinates:[lng,lat]}});return;}
+    // LineString
+    const ls=pm.querySelector('LineString coordinates');
+    if(ls){const coords=ls.textContent.trim().split(/\s+/).map(c=>{const[lng,lat]=c.split(',').map(Number);return[lng,lat];});features.push({type:'Feature',properties:props,geometry:{type:'LineString',coordinates:coords}});return;}
+    // Polygon
+    const pg=pm.querySelector('Polygon outerBoundaryIs LinearRing coordinates');
+    if(pg){const coords=pg.textContent.trim().split(/\s+/).map(c=>{const[lng,lat]=c.split(',').map(Number);return[lng,lat];});features.push({type:'Feature',properties:props,geometry:{type:'Polygon',coordinates:[coords]}});}
+  });
+  return{type:'FeatureCollection',features};
+}
+
+// ─── EXPORT ──────────────────────────────────────
 function exportAs(fmt){
-  document.getElementById('export-menu').classList.remove('open');
+  document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));
   const geo=drawnItems.toGeoJSON();
   if(!geo.features.length){alert('No hay elementos en el mapa.');return;}
-  if(fmt==='geojson') return dl(JSON.stringify(geo,null,2),'mana-maps.geojson','application/json');
-  if(fmt==='csv') return exportCSV(geo);
-  if(fmt==='kml') return exportKMZ(geo);
-  if(fmt==='shapefile') return exportShapefile(geo);
+  if(fmt==='geojson')return dl(JSON.stringify(geo,null,2),'mana-maps.geojson','application/json');
+  if(fmt==='csv')return exportCSV(geo);
+  if(fmt==='kml')return exportKMZ(geo);
+  if(fmt==='shapefile')return exportShapefile(geo);
 }
 function dl(content,filename,mime,isBlob=false){const blob=isBlob?content:new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
-function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point') rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
-function geoToKML(geo){const pm=geo.features.map((f,i)=>{const g=f.geometry,name=(f.properties&&f.properties.name)||('Elemento '+(i+1));if(g.type==='Point') return`<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`;if(g.type==='LineString'){const c=g.coordinates.map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`;}if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;}return'';}).join('\n');return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Maña Maps</name>\n${pm}\n</Document></kml>`;}
+function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point')rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
+function geoToKML(geo){const pm=geo.features.map((f,i)=>{const g=f.geometry,name=(f.properties&&f.properties.name)||('Elemento '+(i+1));if(g.type==='Point')return`<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`;if(g.type==='LineString'){const c=g.coordinates.map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`;}if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;}return'';}).join('\n');return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Maña Maps</name>\n${pm}\n</Document></kml>`;}
 async function exportKMZ(geo){const kml=geoToKML(geo);const zip=new JSZip();zip.file('doc.kml',kml);const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});dl(blob,'mana-maps.kmz','application/vnd.google-earth.kmz',true);}
 async function exportShapefile(geo){
   const points=geo.features.filter(f=>f.geometry.type==='Point');
@@ -591,8 +664,8 @@ async function exportShapefile(geo){
   function buildPointShp(feats){const recs=feats.map((f,i)=>{const[x,y]=f.geometry.coordinates;const c=concat(w32le(1),wdbl(x),wdbl(y));return concat(w32be(i+1),w32be(c.byteLength/2),c);});const cLen=recs.reduce((s,r)=>s+r.byteLength,0);const fLen=100+cLen;const hdr=new ArrayBuffer(100);const dv=new DataView(hdr);dv.setInt32(0,9994,false);dv.setInt32(24,fLen/2,false);dv.setInt32(28,1000,true);dv.setInt32(32,1,true);return concat(hdr,...recs);}
   function buildDBF(feats){const recs=feats.map((f,i)=>{const name=(f.properties&&(f.properties.name||f.properties.title))||('Elem '+(i+1));return name.substring(0,50).padEnd(50,' ');});const n=recs.length,fl=50,hs=32+32+1,rs=1+fl;const buf=new ArrayBuffer(hs+n*rs);const dv=new DataView(buf);dv.setUint8(0,3);dv.setUint16(8,hs,true);dv.setUint16(10,rs,true);dv.setInt32(4,n,true);const enc=new TextEncoder();enc.encode('NAME      ').forEach((b,i)=>dv.setUint8(32+i,b));dv.setUint8(32+11,67);dv.setUint8(32+16,fl);dv.setUint8(32+32,13);recs.forEach((r,i)=>{const o=hs+i*rs;dv.setUint8(o,32);enc.encode(r).forEach((b,j)=>dv.setUint8(o+1+j,b));});return buf;}
   if(points.length){zip.file('puntos.shp',buildPointShp(points));zip.file('puntos.dbf',buildDBF(points));zip.file('puntos.prj',prj);}
-  if(lines.length) zip.file('lineas.geojson',JSON.stringify({type:'FeatureCollection',features:lines},null,2));
-  if(polygons.length) zip.file('poligonos.geojson',JSON.stringify({type:'FeatureCollection',features:polygons},null,2));
+  if(lines.length)zip.file('lineas.geojson',JSON.stringify({type:'FeatureCollection',features:lines},null,2));
+  if(polygons.length)zip.file('poligonos.geojson',JSON.stringify({type:'FeatureCollection',features:polygons},null,2));
   const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
   dl(blob,'mana-maps-shp.zip','application/zip',true);
 }
