@@ -6,7 +6,7 @@
 <title>Maña Maps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 <style>
@@ -16,7 +16,9 @@
   --third:#828c99;--blue:#1e99e6;--border:rgba(30,30,30,0.1);
   --shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;
   --green:#48ac98;--red:#e05252;
-  --sidebar-w:280px;
+  --left-w:280px;--right-w:320px;
+  --rail-w:44px;   /* anchura mínima = solo iconos */
+  --rail-threshold:88px; /* por debajo → modo rail */
 }
 html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;}
 
@@ -55,12 +57,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 /* ── LAYOUT ── */
 #app{
   display:grid;
-  grid-template-columns:var(--sidebar-w) 4px 1fr 4px var(--right-w,320px);
+  grid-template-columns:var(--left-w) 4px 1fr 4px var(--right-w);
   height:calc(100vh - 56px);overflow:hidden;
-  transition:grid-template-columns .22s ease;
-}
-#app.sidebar-collapsed{
-  --sidebar-w:0px;
 }
 
 /* ── DRAG HANDLES ── */
@@ -68,43 +66,73 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   display:flex;align-items:center;justify-content:center;transition:background .15s;user-select:none;}
 .resize-handle:hover,.resize-handle.dragging{background:var(--blue);opacity:.4;border-radius:2px;}
 .resize-handle::after{content:'';display:block;width:2px;height:32px;border-radius:2px;background:var(--border);}
-/* left handle no es draggable, solo actúa como espacio visual */
-#handle-left{cursor:default;pointer-events:none;}
 
 /* ── SIDEBAR ── */
 #sidebar{
   border-right:1px solid var(--border);background:var(--bg);
   display:flex;flex-direction:column;overflow:hidden;
-  width:var(--sidebar-w);min-width:0;
-  transition:width .22s ease,border-color .22s;
+  min-width:var(--rail-w);
 }
-#app.sidebar-collapsed #sidebar{border-right-color:transparent;}
-.sidebar-header{padding:16px 20px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--third);}
-.sidebar-body{flex:1;overflow-y:auto;padding:12px;min-width:248px;}
+.sidebar-header{
+  padding:12px 12px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+  overflow:hidden;transition:padding .18s;
+}
+.sidebar-title{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--third);
+  white-space:nowrap;overflow:hidden;
+  transition:opacity .15s,max-height .15s;
+  max-height:20px;opacity:1;
+}
+.sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px;}
+
+/* ── TOOL BUTTONS ── */
 .tool-btn{
   width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;
   border-radius:10px;border:none;background:none;color:var(--primary);
   font-size:14px;cursor:pointer;text-align:left;transition:background .15s;
   font-family:'DM Sans',sans-serif;
+  /* en modo rail centramos el icono */
+  justify-content:flex-start;
 }
 .tool-btn:hover{background:var(--bgBox);}
 .tool-btn.active{background:var(--bgBox);font-weight:600;}
 .tool-btn svg{width:16px;height:16px;color:var(--third);flex-shrink:0;}
 .tool-btn.active svg{color:var(--green);}
+
+/* texto dentro del botón */
+.tool-btn .btn-label{
+  white-space:nowrap;overflow:hidden;
+  transition:opacity .15s,max-width .15s;
+  max-width:200px;opacity:1;
+}
+
 .divider{height:1px;background:var(--border);margin:8px 0;}
-.section-label{font-size:11px;color:var(--third);font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:8px 4px 4px;}
-.basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.section-label{
+  font-size:11px;color:var(--third);font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;padding:8px 4px 4px;
+  white-space:nowrap;overflow:hidden;
+  transition:opacity .15s,max-height .15s;
+  max-height:20px;opacity:1;
+}
+
+/* ── BASEMAP GRID ── */
+.basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;transition:grid-template-columns .15s;}
 .basemap-card{border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;
   transition:border-color .15s,box-shadow .15s;background:var(--bgBox);}
 .basemap-card:hover{border-color:var(--blue);}
 .basemap-card.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(48,54,59,.12);}
-.basemap-thumb{width:100%;height:56px;display:block;background-size:cover;background-position:center;}
+.basemap-thumb{width:100%;height:56px;display:block;background-size:cover;background-position:center;transition:height .15s;}
 .basemap-thumb-map{background-image:url('https://a.basemaps.cartocdn.com/light_all/5/15/12.png');}
 .basemap-thumb-sat{background-image:url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/15');}
-.basemap-label{font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
-  color:var(--secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.basemap-label{
+  font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
+  color:var(--secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:opacity .15s,max-height .15s,padding .15s;
+  max-height:28px;opacity:1;
+}
 .basemap-card.active .basemap-label{color:var(--primary);}
+
+/* ── LAYERS ── */
 #layer-list{display:flex;flex-direction:column;gap:4px;}
 .layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
   border:1px solid var(--border);background:var(--bgBox);font-size:13px;cursor:pointer;transition:border-color .15s;}
@@ -113,6 +141,30 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .layer-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .layer-type{font-size:10px;color:var(--third);}
 .empty-note{font-size:13px;color:var(--third);padding:8px 4px;line-height:1.5;}
+
+/* ══════════════════════════════════════════
+   MODO RAIL  (sidebar.rail)
+   Solo iconos centrados, sin texto
+══════════════════════════════════════════ */
+#sidebar.rail .sidebar-title{opacity:0;max-height:0;overflow:hidden;}
+#sidebar.rail .sidebar-header{padding:12px 0 10px;}
+#sidebar.rail .section-label{opacity:0;max-height:0;overflow:hidden;padding:0;}
+#sidebar.rail .divider{margin:4px 0;}
+#sidebar.rail .sidebar-body{padding:8px 4px;}
+
+#sidebar.rail .tool-btn{justify-content:center;padding:10px 0;}
+#sidebar.rail .tool-btn .btn-label{max-width:0;opacity:0;}
+
+/* miniaturas: apilar en una sola columna, sin etiqueta */
+#sidebar.rail .basemap-grid{grid-template-columns:1fr;}
+#sidebar.rail .basemap-thumb{height:28px;}
+#sidebar.rail .basemap-label{max-height:0;opacity:0;padding:0;}
+
+/* lista de capas: solo dot */
+#sidebar.rail .layer-item{justify-content:center;padding:8px 0;}
+#sidebar.rail .layer-name,
+#sidebar.rail .layer-type{display:none;}
+#sidebar.rail .empty-note{display:none;}
 
 /* ── MAP ── */
 #map-wrap{position:relative;background:#e8ecef;overflow:hidden;}
@@ -135,20 +187,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   backdrop-filter:blur(6px);box-shadow:var(--shadow);
   white-space:nowrap;pointer-events:none;letter-spacing:.01em;
 }
-
-/* ── SIDEBAR TOGGLE (botón flotante en el borde izq. del mapa) ── */
-#sidebar-toggle{
-  position:absolute;left:0;top:50%;transform:translateY(-50%);
-  z-index:900;width:18px;height:48px;
-  background:var(--bg);border:1px solid var(--border);border-left:none;
-  border-radius:0 8px 8px 0;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--third);transition:color .15s,background .15s;
-  box-shadow:2px 0 6px rgba(0,0,0,.06);
-}
-#sidebar-toggle:hover{color:var(--primary);background:var(--bgBox);}
-#sidebar-toggle svg{width:10px;height:10px;transition:transform .22s ease;}
-#app.sidebar-collapsed #sidebar-toggle svg{transform:rotate(180deg);}
 
 /* ── RULER ── */
 #ruler-tooltip{display:none;position:absolute;z-index:900;background:var(--primary);color:white;
@@ -194,25 +232,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   transition:opacity .15s,transform .1s;}
 #chat-send:hover{opacity:.8;transform:scale(1.05);}
 #chat-send svg{width:14px;height:14px;}
-
-/* ── RESPONSIVE ≤640px ── */
-@media(max-width:640px){
-  /* El panel de chat se oculta */
-  #chat-panel,#handle-right{display:none;}
-  /* La sidebar actúa como drawer sobre el mapa */
-  #sidebar{
-    position:absolute;top:0;left:0;height:100%;
-    z-index:800;box-shadow:4px 0 20px rgba(0,0,0,.1);
-    width:80vw!important;
-  }
-  #app.sidebar-collapsed #sidebar{
-    width:0!important;
-    box-shadow:none;
-  }
-  #app{
-    grid-template-columns:0 0 1fr 0 0!important;
-  }
-}
 </style>
 </head>
 <body>
@@ -256,19 +275,19 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
       <div class="section-label">Dibujar</div>
       <button class="tool-btn" id="btn-point" onclick="setTool('point')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
-        Añadir punto
+        <span class="btn-label">Añadir punto</span>
       </button>
       <button class="tool-btn" id="btn-line" onclick="setTool('line')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>
-        Dibujar línea
+        <span class="btn-label">Dibujar línea</span>
       </button>
       <button class="tool-btn" id="btn-polygon" onclick="setTool('polygon')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>
-        Dibujar polígono
+        <span class="btn-label">Dibujar polígono</span>
       </button>
       <button class="tool-btn" id="btn-ruler" onclick="setTool('ruler')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
-        Medir distancia
+        <span class="btn-label">Medir distancia</span>
       </button>
 
       <div class="divider"></div>
@@ -300,21 +319,11 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     <div id="map"></div>
     <div id="draw-hint">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
-
-    <!-- Botón flotante toggle sidebar -->
-    <button id="sidebar-toggle" onclick="toggleSidebar()" title="Mostrar/ocultar panel">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </button>
-
     <div id="map-stats">
       <div class="stat-pill">Puntos: <span id="cnt-points">0</span></div>
       <div class="stat-pill">Líneas: <span id="cnt-lines">0</span></div>
       <div class="stat-pill">Polígonos: <span id="cnt-polygons">0</span></div>
     </div>
-
-    <!-- Coordenadas del ratón -->
     <div id="mouse-coords">— , —</div>
   </div>
 
@@ -388,36 +397,50 @@ map.on('mousemove',e=>{
   document.getElementById('mouse-coords').textContent=
     e.latlng.lat.toFixed(5)+'°N  '+e.latlng.lng.toFixed(5)+'°E';
 });
-map.on('mouseout',()=>{
-  document.getElementById('mouse-coords').textContent='— , —';
-});
+map.on('mouseout',()=>{document.getElementById('mouse-coords').textContent='— , —';});
 
-// SIDEBAR TOGGLE
-function toggleSidebar(){
-  document.getElementById('app').classList.toggle('sidebar-collapsed');
-  setTimeout(()=>map.invalidateSize(),230);
-}
+// ─── RESIZE — ambos paneles arrastrables ───────────────────────────────────
+const RAIL_W   = 44;   // px mínimo sidebar → modo icono
+const RAIL_THR = 88;   // px umbral para activar clase .rail
 
-// RESIZE (solo panel derecho draggable)
-function initResize(handleId,side){
-  const handle=document.getElementById(handleId),app=document.getElementById('app');
-  if(side==='left') return; // left no es draggable
-  let startX,startW;
-  handle.addEventListener('mousedown',e=>{
-    e.preventDefault();handle.classList.add('dragging');startX=e.clientX;
-    const cols=getComputedStyle(app).gridTemplateColumns.split(' ');
-    startW=parseInt(cols[4]);
-    const onMove=e=>{
-      const dx=e.clientX-startX;
-      const newW=Math.max(180,Math.min(520,startW-dx));
-      app.style.setProperty('--right-w',newW+'px');
+function initResize(handleId, side){
+  const handle = document.getElementById(handleId);
+  const app    = document.getElementById('app');
+  const sidebar= document.getElementById('sidebar');
+  let startX, startW;
+
+  handle.addEventListener('mousedown', e=>{
+    e.preventDefault();
+    handle.classList.add('dragging');
+    startX = e.clientX;
+    const cols = getComputedStyle(app).gridTemplateColumns.split(' ');
+    startW = side==='left' ? parseInt(cols[0]) : parseInt(cols[4]);
+
+    const onMove = e=>{
+      const dx = e.clientX - startX;
+      if(side==='left'){
+        const newW = Math.max(RAIL_W, Math.min(320, startW + dx));
+        app.style.setProperty('--left-w', newW+'px');
+        // rail mode
+        sidebar.classList.toggle('rail', newW < RAIL_THR);
+      } else {
+        const newW = Math.max(180, Math.min(520, startW - dx));
+        app.style.setProperty('--right-w', newW+'px');
+      }
       map.invalidateSize();
     };
-    const onUp=()=>{handle.classList.remove('dragging');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);map.invalidateSize();};
-    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+    const onUp = ()=>{
+      handle.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      map.invalidateSize();
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   });
 }
-initResize('handle-left','left');initResize('handle-right','right');
+initResize('handle-left','left');
+initResize('handle-right','right');
 
 // STATS
 function stats(){
