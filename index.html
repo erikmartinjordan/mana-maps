@@ -78,7 +78,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   letter-spacing:.07em;padding:8px 4px 4px;white-space:nowrap;overflow:hidden;
   transition:opacity .15s,max-height .15s;max-height:20px;opacity:1;}
 
-/* COLOR SWATCHES — paleta Apple */
+/* COLOR SWATCHES */
 .color-row{display:flex;gap:7px;padding:6px 4px 4px;flex-wrap:wrap;}
 .color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;
   border:2.5px solid transparent;transition:transform .12s,border-color .12s,box-shadow .12s;flex-shrink:0;}
@@ -93,6 +93,12 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .marker-opt:hover{border-color:var(--blue);}
 .marker-opt.active{border-color:var(--primary);background:white;}
 .marker-opt svg{width:14px;height:14px;}
+
+/* SIDEBAR FOOTER LINKS */
+.sidebar-footer{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:14px;overflow:hidden;}
+.sidebar-footer-link{font-size:12px;color:var(--third);text-decoration:none;white-space:nowrap;
+  transition:color .15s;overflow:hidden;}
+.sidebar-footer-link:hover{color:var(--primary);}
 
 /* RAIL MODE */
 #sidebar.rail .sidebar-title{opacity:0;max-height:0;overflow:hidden;}
@@ -109,6 +115,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 #sidebar.rail .layer-item{justify-content:center;padding:8px 0;}
 #sidebar.rail .layer-name,#sidebar.rail .layer-type{display:none;}
 #sidebar.rail .empty-note{display:none;}
+#sidebar.rail .sidebar-footer-link{max-width:0;opacity:0;overflow:hidden;}
+#sidebar.rail .sidebar-footer{gap:0;padding:10px 0;}
 
 .basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;transition:grid-template-columns .15s;}
 .basemap-card{border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;background:var(--bgBox);}
@@ -267,8 +275,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
-    <a class="btn btn-ghost" href="/about">Acerca de</a>
-    <a class="btn btn-ghost" href="/changelog">Changelog</a>
     <button class="btn btn-ghost" onclick="clearAll()">Limpiar mapa</button>
     <div class="menu-wrap">
       <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
@@ -369,6 +375,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
       <div id="layer-list">
         <p class="empty-note">A&#250;n no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>
       </div>
+    </div>
+    <div class="sidebar-footer">
+      <a class="sidebar-footer-link" href="/about">Acerca de</a>
+      <a class="sidebar-footer-link" href="/changelog">Changelog</a>
     </div>
   </div>
 
