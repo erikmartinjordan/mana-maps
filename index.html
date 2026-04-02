@@ -17,26 +17,20 @@
   --shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;
   --green:#48ac98;--red:#e05252;
   --left-w:280px;--right-w:320px;
-  --rail-w:44px;
-  --rail-threshold:88px;
+  --rail-w:44px;--rail-threshold:88px;
 }
 html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;}
 
-/* ── TOPBAR ── */
+/* TOPBAR */
 #topbar{height:56px;border-bottom:1px solid var(--border);background:var(--bg);
   display:flex;align-items:center;padding:0 20px;gap:12px;position:relative;z-index:1000;}
 .mana-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
 .mana-logo-icon{position:relative;width:36px;height:36px;flex-shrink:0;}
 .mana-logo-icon svg{width:100%;height:100%;}
-.mana-logo-icon span{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:Tahoma,Verdana,sans-serif;font-weight:900;font-size:15px;color:white;line-height:1;pointer-events:none;
-}
+.mana-logo-icon span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:Tahoma,Verdana,sans-serif;font-weight:900;font-size:15px;color:white;line-height:1;pointer-events:none;}
 .logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);}
-.logo-sub{
-  font-size:10px;color:var(--third);font-weight:600;
-  vertical-align:super;margin-left:1px;letter-spacing:.02em;
-}
+.logo-sub{font-size:10px;color:var(--third);font-weight:600;vertical-align:super;margin-left:1px;letter-spacing:.02em;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;position:relative;}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
   font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap;}
@@ -44,8 +38,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);}
 .btn-ghost:hover{background:var(--bgBox);}
-
-/* menus de exportar/importar */
 .menu-wrap{position:relative;}
 .drop-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;
   background:var(--bg);border:1px solid var(--border);border-radius:12px;
@@ -59,66 +51,74 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .drop-item svg{width:14px;height:14px;color:var(--third);flex-shrink:0;}
 .drop-divider{height:1px;background:var(--border);}
 
-/* ── LAYOUT ── */
-#app{
-  display:grid;
-  grid-template-columns:var(--left-w) 4px 1fr 4px var(--right-w);
-  height:calc(100vh - 56px);overflow:hidden;
-}
-
-/* ── DRAG HANDLES ── */
+/* LAYOUT */
+#app{display:grid;grid-template-columns:var(--left-w) 4px 1fr 4px var(--right-w);height:calc(100vh - 56px);overflow:hidden;}
 .resize-handle{background:transparent;cursor:col-resize;z-index:100;
   display:flex;align-items:center;justify-content:center;transition:background .15s;user-select:none;}
 .resize-handle:hover,.resize-handle.dragging{background:var(--blue);opacity:.4;border-radius:2px;}
 .resize-handle::after{content:'';display:block;width:2px;height:32px;border-radius:2px;background:var(--border);}
 
-/* ── SIDEBAR ── */
-#sidebar{
-  border-right:1px solid var(--border);background:var(--bg);
-  display:flex;flex-direction:column;overflow:hidden;
-  min-width:var(--rail-w);
-}
-.sidebar-header{
-  padding:12px 12px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
-  overflow:hidden;transition:padding .18s;
-}
-.sidebar-title{
-  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--third);
-  white-space:nowrap;overflow:hidden;
-  transition:opacity .15s,max-height .15s;
-  max-height:20px;opacity:1;
-}
+/* SIDEBAR */
+#sidebar{border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;min-width:var(--rail-w);}
+.sidebar-header{padding:12px 12px 10px;border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;transition:padding .18s;}
+.sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--third);
+  white-space:nowrap;overflow:hidden;transition:opacity .15s,max-height .15s;max-height:20px;opacity:1;}
 .sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px;}
-.tool-btn{
-  width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;
+.tool-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;
   border-radius:10px;border:none;background:none;color:var(--primary);
   font-size:14px;cursor:pointer;text-align:left;transition:background .15s;
-  font-family:'DM Sans',sans-serif;justify-content:flex-start;
-}
+  font-family:'DM Sans',sans-serif;justify-content:flex-start;}
 .tool-btn:hover{background:var(--bgBox);}
 .tool-btn.active{background:var(--bgBox);font-weight:600;}
 .tool-btn svg{width:16px;height:16px;color:var(--third);flex-shrink:0;}
 .tool-btn.active svg{color:var(--green);}
 .tool-btn .btn-label{white-space:nowrap;overflow:hidden;transition:opacity .15s,max-width .15s;max-width:200px;opacity:1;}
 .divider{height:1px;background:var(--border);margin:8px 0;}
-.section-label{
-  font-size:11px;color:var(--third);font-weight:700;text-transform:uppercase;
+.section-label{font-size:11px;color:var(--third);font-weight:700;text-transform:uppercase;
   letter-spacing:.07em;padding:8px 4px 4px;white-space:nowrap;overflow:hidden;
-  transition:opacity .15s,max-height .15s;max-height:20px;opacity:1;
-}
+  transition:opacity .15s,max-height .15s;max-height:20px;opacity:1;}
+
+/* COLOR SWATCHES */
+.color-row{display:flex;gap:6px;padding:6px 4px;flex-wrap:wrap;}
+.color-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;
+  transition:transform .12s,border-color .12s;flex-shrink:0;}
+.color-swatch:hover{transform:scale(1.15);}
+.color-swatch.active{border-color:var(--primary);transform:scale(1.15);}
+/* MARKER STYLE SELECTOR */
+.marker-row{display:flex;gap:6px;padding:4px 4px 6px;}
+.marker-opt{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--bgBox);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:border-color .12s,background .12s;}
+.marker-opt:hover{border-color:var(--blue);}
+.marker-opt.active{border-color:var(--primary);background:white;}
+.marker-opt svg{width:14px;height:14px;}
+
+/* RAIL MODE */
+#sidebar.rail .sidebar-title{opacity:0;max-height:0;overflow:hidden;}
+#sidebar.rail .sidebar-header{padding:12px 0 10px;}
+#sidebar.rail .section-label{opacity:0;max-height:0;overflow:hidden;padding:0;}
+#sidebar.rail .divider{margin:4px 0;}
+#sidebar.rail .sidebar-body{padding:8px 4px;}
+#sidebar.rail .tool-btn{justify-content:center;padding:10px 0;}
+#sidebar.rail .tool-btn .btn-label{max-width:0;opacity:0;}
+#sidebar.rail .color-row,#sidebar.rail .marker-row{display:none;}
+#sidebar.rail .basemap-grid{grid-template-columns:1fr;}
+#sidebar.rail .basemap-thumb{height:28px;}
+#sidebar.rail .basemap-label{max-height:0;opacity:0;padding:0;}
+#sidebar.rail .layer-item{justify-content:center;padding:8px 0;}
+#sidebar.rail .layer-name,#sidebar.rail .layer-type{display:none;}
+#sidebar.rail .empty-note{display:none;}
+
 .basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;transition:grid-template-columns .15s;}
-.basemap-card{border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;
-  transition:border-color .15s,box-shadow .15s;background:var(--bgBox);}
+.basemap-card{border-radius:10px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;background:var(--bgBox);}
 .basemap-card:hover{border-color:var(--blue);}
 .basemap-card.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(48,54,59,.12);}
 .basemap-thumb{width:100%;height:56px;display:block;background-size:cover;background-position:center;transition:height .15s;}
 .basemap-thumb-map{background-image:url('https://a.basemaps.cartocdn.com/light_all/5/15/12.png');}
 .basemap-thumb-sat{background-image:url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/15');}
-.basemap-label{
-  font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
+.basemap-label{font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
   color:var(--secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  transition:opacity .15s,max-height .15s,padding .15s;max-height:28px;opacity:1;
-}
+  transition:opacity .15s,max-height .15s,padding .15s;max-height:28px;opacity:1;}
 .basemap-card.active .basemap-label{color:var(--primary);}
 #layer-list{display:flex;flex-direction:column;gap:4px;}
 .layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
@@ -129,77 +129,51 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .layer-type{font-size:10px;color:var(--third);}
 .empty-note{font-size:13px;color:var(--third);padding:8px 4px;line-height:1.5;}
 
-/* RAIL MODE */
-#sidebar.rail .sidebar-title{opacity:0;max-height:0;overflow:hidden;}
-#sidebar.rail .sidebar-header{padding:12px 0 10px;}
-#sidebar.rail .section-label{opacity:0;max-height:0;overflow:hidden;padding:0;}
-#sidebar.rail .divider{margin:4px 0;}
-#sidebar.rail .sidebar-body{padding:8px 4px;}
-#sidebar.rail .tool-btn{justify-content:center;padding:10px 0;}
-#sidebar.rail .tool-btn .btn-label{max-width:0;opacity:0;}
-#sidebar.rail .basemap-grid{grid-template-columns:1fr;}
-#sidebar.rail .basemap-thumb{height:28px;}
-#sidebar.rail .basemap-label{max-height:0;opacity:0;padding:0;}
-#sidebar.rail .layer-item{justify-content:center;padding:8px 0;}
-#sidebar.rail .layer-name,#sidebar.rail .layer-type{display:none;}
-#sidebar.rail .empty-note{display:none;}
-
-/* ── MAP ── */
+/* MAP */
 #map-wrap{position:relative;background:#e8ecef;overflow:hidden;display:flex;flex-direction:column;}
 #map{flex:1;width:100%;}
 #draw-hint{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);
   background:var(--primary);color:white;padding:7px 16px;border-radius:50px;
   font-size:12px;font-weight:600;z-index:800;pointer-events:none;white-space:nowrap;}
 
-/* ── DROP OVERLAY ── */
-#drop-overlay{
-  display:none;position:absolute;inset:0;z-index:900;
-  background:rgba(30,153,230,.12);
-  border:3px dashed var(--blue);
-  border-radius:4px;
-  pointer-events:none;
-  flex-direction:column;align-items:center;justify-content:center;gap:12px;
-}
+/* DROP OVERLAY */
+#drop-overlay{display:none;position:absolute;inset:0;z-index:900;
+  background:rgba(30,153,230,.12);border:3px dashed var(--blue);border-radius:4px;
+  pointer-events:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
 #drop-overlay.active{display:flex;}
 #drop-overlay svg{width:48px;height:48px;color:var(--blue);opacity:.8;}
 #drop-overlay span{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:-.2px;}
 
-/* ── BARRA INFERIOR: stats + coords en la misma fila ── */
+/* BOTTOM BAR — coords inline junto a los contadores */
 #map-bottom-bar{
-  position:absolute;bottom:0;left:0;right:0;
-  z-index:800;
-  display:flex;align-items:center;
-  padding:8px 12px;
-  gap:6px;
+  position:absolute;bottom:0;left:0;right:0;z-index:800;
+  display:flex;align-items:center;padding:8px 12px;gap:6px;
   background:linear-gradient(to top,rgba(255,255,255,.7) 0%,rgba(255,255,255,0) 100%);
   pointer-events:none;
 }
 .stat-pill{
   background:rgba(255,255,255,.92);border:1px solid var(--border);
   border-radius:50px;padding:5px 11px;font-size:12px;font-weight:600;
-  color:var(--secondary);backdrop-filter:blur(6px);box-shadow:var(--shadow);
-  white-space:nowrap;
+  color:var(--secondary);backdrop-filter:blur(6px);box-shadow:var(--shadow);white-space:nowrap;
 }
 .stat-pill span{color:var(--primary);}
-#map-bottom-bar .spacer{flex:1;}
 #mouse-coords{
   background:rgba(255,255,255,.92);border:1px solid var(--border);
   border-radius:50px;padding:5px 14px;
   font-family:'DM Mono',monospace;font-size:11px;color:var(--secondary);
-  backdrop-filter:blur(6px);box-shadow:var(--shadow);
-  white-space:nowrap;letter-spacing:.01em;
+  backdrop-filter:blur(6px);box-shadow:var(--shadow);white-space:nowrap;letter-spacing:.01em;
 }
 
-/* ── RULER ── */
+/* RULER */
 #ruler-tooltip{display:none;position:absolute;z-index:900;background:var(--primary);color:white;
   padding:5px 11px;border-radius:50px;font-size:12px;font-weight:700;pointer-events:none;
   transform:translate(-50%,-140%);white-space:nowrap;box-shadow:var(--shadow);}
 
-/* ── CONTEXT MENU ── */
+/* CONTEXT MENU */
 #ctx-menu{display:none;position:fixed;z-index:3000;background:var(--bg);
   border:1px solid var(--border);border-radius:12px;
   box-shadow:var(--shadow),rgb(15 15 15/12%) 0 8px 24px;
-  overflow:hidden;min-width:180px;}
+  overflow:hidden;min-width:190px;}
 #ctx-menu.open{display:block;}
 .ctx-item{display:flex;align-items:center;gap:10px;padding:10px 16px;
   font-size:13px;cursor:pointer;color:var(--primary);border:none;background:none;
@@ -210,9 +184,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .ctx-item svg{width:14px;height:14px;flex-shrink:0;color:var(--third);}
 .ctx-item.danger svg{color:var(--red);}
 .ctx-sep{height:1px;background:var(--border);}
-.ctx-coords{padding:8px 16px;font-size:11px;color:var(--third);border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;}
+.ctx-coords{padding:8px 16px;font-size:11px;color:var(--third);border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;cursor:default;}
 
-/* ── CHAT ── */
+/* CHAT */
 #chat-panel{border-left:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;min-width:180px;}
 .chat-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
 .chat-header-icon{width:28px;height:28px;border-radius:8px;background:var(--primary);display:grid;place-items:center;flex-shrink:0;}
@@ -230,13 +204,20 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   background:var(--bgBox);color:var(--primary);outline:none;transition:border-color .15s;}
 #chat-input:focus{border-color:var(--blue);}
 #chat-send{width:34px;height:34px;border-radius:50%;border:none;background:var(--primary);
-  color:white;cursor:pointer;display:grid;place-items:center;flex-shrink:0;
-  transition:opacity .15s,transform .1s;}
+  color:white;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:opacity .15s,transform .1s;}
 #chat-send:hover{opacity:.8;transform:scale(1.05);}
 #chat-send svg{width:14px;height:14px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--primary);color:white;padding:7px 18px;border-radius:50px;
+  font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity .2s,transform .2s;
+  pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 
 <div id="topbar">
   <a class="mana-logo-wrap" href="#">
@@ -246,14 +227,12 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
           d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
           transform="translate(100 100)"/>
       </svg>
-      <span>M̃</span>
+      <span>M&#771;</span>
     </div>
-    <span class="logo-wordmark">Maña</span><span class="logo-sub">Maps</span>
+    <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
     <button class="btn btn-ghost" onclick="clearAll()">Limpiar mapa</button>
-
-    <!-- IMPORTAR -->
     <div class="menu-wrap">
       <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg>
@@ -265,12 +244,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
         <button class="drop-item" onclick="importTrigger('.kml')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KML</button>
         <button class="drop-item" onclick="importTrigger('.kmz')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KMZ</button>
         <div class="drop-divider"></div>
-        <button class="drop-item" onclick="importTrigger('.zip')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
+        <button class="drop-item" onclick="importTrigger('.zip,.shp')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
       </div>
     </div>
     <input type="file" id="file-import" style="display:none" onchange="handleImport(event)">
-
-    <!-- EXPORTAR -->
     <div class="menu-wrap">
       <button class="btn btn-primary" onclick="toggleMenu('export-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -292,18 +269,49 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   <div id="sidebar">
     <div class="sidebar-header"><span class="sidebar-title">Herramientas</span></div>
     <div class="sidebar-body">
+      <div class="section-label">Estilo</div>
+      <!-- Color swatches -->
+      <div class="color-row" id="color-row">
+        <div class="color-swatch active" data-color="#30363b" style="background:#30363b" title="Carbón" onclick="setDrawColor('#30363b',this)"></div>
+        <div class="color-swatch" data-color="#1e99e6" style="background:#1e99e6" title="Azul" onclick="setDrawColor('#1e99e6',this)"></div>
+        <div class="color-swatch" data-color="#48ac98" style="background:#48ac98" title="Verde" onclick="setDrawColor('#48ac98',this)"></div>
+        <div class="color-swatch" data-color="#e05252" style="background:#e05252" title="Rojo" onclick="setDrawColor('#e05252',this)"></div>
+        <div class="color-swatch" data-color="#f5a623" style="background:#f5a623" title="Naranja" onclick="setDrawColor('#f5a623',this)"></div>
+        <div class="color-swatch" data-color="#9b59b6" style="background:#9b59b6" title="Morado" onclick="setDrawColor('#9b59b6',this)"></div>
+        <div class="color-swatch" data-color="#e91e8c" style="background:#e91e8c" title="Rosa" onclick="setDrawColor('#e91e8c',this)"></div>
+      </div>
+      <!-- Marker style -->
+      <div class="marker-row" id="marker-row">
+        <!-- pin -->
+        <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <!-- circle -->
+        <div class="marker-opt" data-mtype="circle" title="Círculo" onclick="setMarkerType('circle',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>
+        </div>
+        <!-- square -->
+        <div class="marker-opt" data-mtype="square" title="Cuadrado" onclick="setMarkerType('square',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        </div>
+        <!-- star -->
+        <div class="marker-opt" data-mtype="star" title="Estrella" onclick="setMarkerType('star',this)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
+        </div>
+      </div>
+      <div class="divider"></div>
       <div class="section-label">Dibujar</div>
       <button class="tool-btn" id="btn-point" onclick="setTool('point')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
-        <span class="btn-label">Añadir punto</span>
+        <span class="btn-label">A&#241;adir punto</span>
       </button>
       <button class="tool-btn" id="btn-line" onclick="setTool('line')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>
-        <span class="btn-label">Dibujar línea</span>
+        <span class="btn-label">Dibujar l&#237;nea</span>
       </button>
       <button class="tool-btn" id="btn-polygon" onclick="setTool('polygon')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>
-        <span class="btn-label">Dibujar polígono</span>
+        <span class="btn-label">Dibujar pol&#237;gono</span>
       </button>
       <button class="tool-btn" id="btn-ruler" onclick="setTool('ruler')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
@@ -318,13 +326,13 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
         </button>
         <button class="basemap-card" id="bmc-sat" onclick="setBaseLayer('satellite')">
           <div class="basemap-thumb basemap-thumb-sat"></div>
-          <div class="basemap-label">Satélite</div>
+          <div class="basemap-label">Sat&#233;lite</div>
         </button>
       </div>
       <div class="divider"></div>
       <div class="section-label">Capas</div>
       <div id="layer-list">
-        <p class="empty-note">Aún no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>
+        <p class="empty-note">A&#250;n no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>
       </div>
     </div>
   </div>
@@ -335,24 +343,19 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     <div id="map"></div>
     <div id="draw-hint">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
-
-    <!-- OVERLAY DRAG & DROP -->
     <div id="drop-overlay">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-        <polyline points="7 10 12 5 17 10"/>
-        <line x1="12" y1="5" x2="12" y2="17"/>
+        <polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/>
       </svg>
       <span>Suelta para importar</span>
     </div>
-
-    <!-- BARRA INFERIOR: stats izq + coords der -->
+    <!-- BARRA INFERIOR: contadores + coords en la misma fila, sin spacer -->
     <div id="map-bottom-bar">
       <div class="stat-pill">Puntos <span id="cnt-points">0</span></div>
-      <div class="stat-pill">Líneas <span id="cnt-lines">0</span></div>
-      <div class="stat-pill">Polígonos <span id="cnt-polygons">0</span></div>
-      <div class="spacer"></div>
-      <div id="mouse-coords">— , —</div>
+      <div class="stat-pill">L&#237;neas <span id="cnt-lines">0</span></div>
+      <div class="stat-pill">Pol&#237;gonos <span id="cnt-polygons">0</span></div>
+      <div id="mouse-coords">&#8212; , &#8212;</div>
     </div>
   </div>
 
@@ -361,16 +364,16 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   <div id="chat-panel">
     <div class="chat-header">
       <div class="chat-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-      <div><div class="chat-header-title">Maña AI</div><div class="chat-header-sub">Escribe en lenguaje natural</div></div>
+      <div><div class="chat-header-title">Ma&#241;a AI</div><div class="chat-header-sub">Escribe en lenguaje natural</div></div>
     </div>
     <div id="chat-messages">
       <div>
-        <div class="msg-label">Maña AI</div>
-        <div class="msg bot">¡Hola! Soy tu asistente de mapas. Puedes decirme cosas como:<br><br>
-        • <em>"dibuja un punto en Barcelona"</em><br>
-        • <em>"satélite"</em> / <em>"mapa"</em><br>
-        • <em>"mide distancia"</em><br>
-        • <em>"borra todo"</em></div>
+        <div class="msg-label">Ma&#241;a AI</div>
+        <div class="msg bot">&#161;Hola! Soy tu asistente de mapas. Puedes decirme cosas como:<br><br>
+        &#8226; <em>"dibuja un punto en Barcelona"</em><br>
+        &#8226; <em>"sat&#233;lite"</em> / <em>"mapa"</em><br>
+        &#8226; <em>"mide distancia"</em><br>
+        &#8226; <em>"borra todo"</em></div>
       </div>
     </div>
     <div id="chat-input-area">
@@ -382,13 +385,17 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
 <div id="ctx-menu">
   <div class="ctx-coords" id="ctx-coords">0.00000, 0.00000</div>
+  <button class="ctx-item" id="ctx-copy-coords" onclick="ctxCopyCoords()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    Copiar coordenadas
+  </button>
   <button class="ctx-item" onclick="ctxAddPoint()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-    Añadir punto aquí
+    A&#241;adir punto aqu&#237;
   </button>
   <button class="ctx-item" onclick="ctxCenterHere()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-    Centrar mapa aquí
+    Centrar mapa aqu&#237;
   </button>
   <div class="ctx-sep"></div>
   <button class="ctx-item danger" id="ctx-delete-layer" onclick="ctxDeleteLayer()" style="display:none">
@@ -401,13 +408,46 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   </button>
 </div>
 
+<!-- shpjs para Shapefile binario real -->
+<script src="https://unpkg.com/shpjs@4.0.4/dist/shp.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script>
-// BASE LAYERS
-const tileMap=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>',subdomains:'abcd',maxZoom:20});
-const tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© <a href="https://www.esri.com/">Esri</a>',maxZoom:20});
+// ── DRAW STYLE STATE ─────────────────────────────
+let drawColor='#30363b';
+let markerType='pin';
+
+function setDrawColor(color,el){
+  drawColor=color;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+}
+function setMarkerType(type,el){
+  markerType=type;
+  document.querySelectorAll('.marker-opt').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function makeMarkerIcon(color,type){
+  let svg;
+  if(type==='circle'){
+    svg=`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="${color}" stroke="white" stroke-width="2"/></svg>`;
+  }else if(type==='square'){
+    svg=`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="${color}" stroke="white" stroke-width="2"/></svg>`;
+  }else if(type==='star'){
+    svg=`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="${color}" stroke="white" stroke-width="1"/></svg>`;
+  }else{
+    svg=`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32"><path d="M12 0C7.13 0 3 4.13 3 9c0 7.25 9 23 9 23s9-15.75 9-23c0-4.87-4.13-9-9-9z" fill="${color}" stroke="white" stroke-width="1.5"/><circle cx="12" cy="9" r="3.5" fill="white"/></svg>`;
+  }
+  const size=type==='pin'?[24,32]:[24,24];
+  const anchor=type==='pin'?[12,32]:[12,12];
+  return L.divIcon({html:svg,className:'',iconSize:size,iconAnchor:anchor,popupAnchor:[0,type==='pin'?-28:-14]});
+}
+
+// ── BASE LAYERS ───────────────────────────────────
+const tileMap=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',subdomains:'abcd',maxZoom:20});
+const tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'&copy; <a href="https://www.esri.com/">Esri</a>',maxZoom:20});
 const map=L.map('map',{zoomControl:true}).setView([40.416,-3.703],6);
 tileMap.addTo(map);
 let activeBase='map';
@@ -421,14 +461,14 @@ function setBaseLayer(type){
 const drawnItems=new L.FeatureGroup().addTo(map);
 let activeTool=null,drawHandler=null;
 
-// MOUSE COORDS
+// ── MOUSE COORDS ─────────────────────────────────
 map.on('mousemove',e=>{
   document.getElementById('mouse-coords').textContent=
-    e.latlng.lat.toFixed(5)+'°N  '+e.latlng.lng.toFixed(5)+'°E';
+    e.latlng.lat.toFixed(5)+'&#176;N&#160;&#160;'+e.latlng.lng.toFixed(5)+'&#176;E';
 });
-map.on('mouseout',()=>{document.getElementById('mouse-coords').textContent='— , —';});
+map.on('mouseout',()=>{document.getElementById('mouse-coords').textContent='&#8212; , &#8212;';});
 
-// ─── RESIZE ───────────────────────────────────────
+// ── RESIZE ────────────────────────────────────────
 const RAIL_W=44,RAIL_THR=88;
 function initResize(handleId,side){
   const handle=document.getElementById(handleId);
@@ -441,25 +481,17 @@ function initResize(handleId,side){
     startW=side==='left'?parseInt(cols[0]):parseInt(cols[4]);
     const onMove=e=>{
       const dx=e.clientX-startX;
-      if(side==='left'){
-        const nw=Math.max(RAIL_W,Math.min(320,startW+dx));
-        app.style.setProperty('--left-w',nw+'px');
-        sidebar.classList.toggle('rail',nw<RAIL_THR);
-      }else{
-        const nw=Math.max(180,Math.min(520,startW-dx));
-        app.style.setProperty('--right-w',nw+'px');
-      }
+      if(side==='left'){const nw=Math.max(RAIL_W,Math.min(320,startW+dx));app.style.setProperty('--left-w',nw+'px');sidebar.classList.toggle('rail',nw<RAIL_THR);}
+      else{const nw=Math.max(180,Math.min(520,startW-dx));app.style.setProperty('--right-w',nw+'px');}
       map.invalidateSize();
     };
     const onUp=()=>{handle.classList.remove('dragging');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);map.invalidateSize();};
-    document.addEventListener('mousemove',onMove);
-    document.addEventListener('mouseup',onUp);
+    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
   });
 }
-initResize('handle-left','left');
-initResize('handle-right','right');
+initResize('handle-left','left');initResize('handle-right','right');
 
-// STATS
+// ── STATS ─────────────────────────────────────────
 function stats(){
   let pts=0,lns=0,pols=0;
   drawnItems.eachLayer(l=>{if(l instanceof L.Marker)pts++;else if(l instanceof L.Polygon)pols++;else if(l instanceof L.Polyline)lns++;});
@@ -470,12 +502,12 @@ function stats(){
 }
 function renderLayers(){
   const list=document.getElementById('layer-list');const layers=[];drawnItems.eachLayer(l=>layers.push(l));
-  if(!layers.length){list.innerHTML='<p class="empty-note">Aún no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>';return;}
+  if(!layers.length){list.innerHTML='<p class="empty-note">A&#250;n no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>';return;}
   list.innerHTML=layers.map((l,i)=>{
     let kind,color,name;
-    if(l instanceof L.Marker){kind='Punto';color='#1e99e6';name=l._manaName||('Punto '+(i+1));}
-    else if(l instanceof L.Polygon){kind='Polígono';color='#48ac98';name='Polígono '+(i+1);}
-    else{kind='Línea';color='#f5a623';name='Línea '+(i+1);}
+    if(l instanceof L.Marker){kind='Punto';color=l._manaColor||'#1e99e6';name=l._manaName||('Punto '+(i+1));}
+    else if(l instanceof L.Polygon){kind='Pol&#237;gono';color=(l.options&&l.options.color)||'#48ac98';name='Pol&#237;gono '+(i+1);}
+    else{kind='L&#237;nea';color=(l.options&&l.options.color)||'#f5a623';name='L&#237;nea '+(i+1);}
     return`<div class="layer-item" onclick="focusLayer(${i})"><div class="layer-dot" style="background:${color}"></div><span class="layer-name">${name}</span><span class="layer-type">${kind}</span></div>`;
   }).join('');
 }
@@ -484,7 +516,7 @@ function focusLayer(i){
   if(l.getBounds)map.fitBounds(l.getBounds(),{maxZoom:14});else map.setView(l.getLatLng(),14);
 }
 
-// TOOLS
+// ── TOOLS ─────────────────────────────────────────
 function stopAll(){
   if(drawHandler){try{drawHandler.disable();}catch(e){}drawHandler=null;}
   stopRuler();
@@ -496,25 +528,32 @@ function setTool(tool){
   if(activeTool===tool){stopAll();return;}stopAll();activeTool=tool;
   document.getElementById('btn-'+tool).classList.add('active');
   const hint=document.getElementById('draw-hint');hint.style.display='block';
-  const shapeOpts={shapeOptions:{color:'#30363b',weight:2,fillOpacity:.15}};
+  const shapeOpts={shapeOptions:{color:drawColor,weight:2,fillOpacity:.18}};
   if(tool==='point'){
-    hint.textContent='Haz clic en el mapa para añadir un punto';
-    map.once('click',e=>{const name=window.prompt('Nombre del punto:','Nuevo punto')||'Punto';const m=L.marker(e.latlng).addTo(drawnItems);m._manaName=name;m.bindPopup('<strong>'+name+'</strong>');stopAll();stats();});
+    hint.textContent='Haz clic en el mapa para a&#241;adir un punto';
+    map.once('click',e=>{
+      const name=window.prompt('Nombre del punto:','Nuevo punto')||'Punto';
+      const icon=makeMarkerIcon(drawColor,markerType);
+      const m=L.marker(e.latlng,{icon}).addTo(drawnItems);
+      m._manaName=name;m._manaColor=drawColor;
+      m.bindPopup('<strong>'+name+'</strong>');
+      stopAll();stats();
+    });
   }else if(tool==='line'){
-    hint.textContent='Clic para añadir vértices — doble clic para terminar';
+    hint.textContent='Clic para a&#241;adir v&#233;rtices &#8212; doble clic para terminar';
     drawHandler=new L.Draw.Polyline(map,shapeOpts);drawHandler.enable();
   }else if(tool==='polygon'){
-    hint.textContent='Clic para añadir vértices — cierra haciendo clic en el primer punto';
+    hint.textContent='Clic para a&#241;adir v&#233;rtices &#8212; cierra haciendo clic en el primer punto';
     drawHandler=new L.Draw.Polygon(map,shapeOpts);drawHandler.enable();
   }else if(tool==='ruler'){
-    hint.textContent='Clic para fijar puntos — doble clic para terminar y ver resultado';
+    hint.textContent='Clic para fijar puntos &#8212; doble clic para terminar y ver resultado';
     startRuler();
   }
 }
 map.on(L.Draw.Event.CREATED,e=>{drawnItems.addLayer(e.layer);stopAll();stats();});
-function clearAll(){closeCtx();if(confirm('¿Borrar todos los elementos del mapa?')){drawnItems.clearLayers();stats();}}
+function clearAll(){closeCtx();if(confirm('&#191;Borrar todos los elementos del mapa?')){drawnItems.clearLayers();stats();}}
 
-// RULER
+// ── RULER ─────────────────────────────────────────
 let rulerPoints=[],rulerLine=null,rulerMarkers=[];
 function startRuler(){rulerPoints=[];rulerMarkers=[];rulerLine=null;map.on('click',rulerClick);map.on('dblclick',rulerFinish);map.on('mousemove',rulerMove);}
 function stopRuler(){
@@ -547,7 +586,7 @@ function rulerFinish(e){
 function getTotalDist(pts){let d=0;for(let i=1;i<pts.length;i++)d+=pts[i].distanceTo(pts[i-1]);return d;}
 function formatDist(m){return m>=1000?(m/1000).toFixed(2)+' km':Math.round(m)+' m';}
 
-// CONTEXT MENU
+// ── CONTEXT MENU ──────────────────────────────────
 let ctxLatLng=null,ctxTargetLayer=null;
 map.on('contextmenu',e=>{
   L.DomEvent.preventDefault(e);ctxLatLng=e.latlng;ctxTargetLayer=null;
@@ -557,7 +596,8 @@ map.on('contextmenu',e=>{
       if(Math.hypot(pt.x-ep.x,pt.y-ep.y)<20)ctxTargetLayer=l;
     }else if(l.getBounds&&l.getBounds().contains(e.latlng))ctxTargetLayer=l;
   });
-  document.getElementById('ctx-coords').textContent=e.latlng.lat.toFixed(5)+', '+e.latlng.lng.toFixed(5);
+  const coordText=e.latlng.lat.toFixed(5)+', '+e.latlng.lng.toFixed(5);
+  document.getElementById('ctx-coords').textContent=coordText;
   document.getElementById('ctx-delete-layer').style.display=ctxTargetLayer?'flex':'none';
   const menu=document.getElementById('ctx-menu');
   menu.style.left=e.originalEvent.clientX+'px';menu.style.top=e.originalEvent.clientY+'px';
@@ -571,85 +611,87 @@ map.on('contextmenu',e=>{
 function closeCtx(){document.getElementById('ctx-menu').classList.remove('open');}
 document.addEventListener('click',closeCtx);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
-function ctxAddPoint(){if(!ctxLatLng)return;closeCtx();const name=window.prompt('Nombre del punto:','Nuevo punto')||'Punto';const m=L.marker(ctxLatLng).addTo(drawnItems);m._manaName=name;m.bindPopup('<strong>'+name+'</strong>');stats();}
+function ctxCopyCoords(){
+  const text=document.getElementById('ctx-coords').textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast('&#128203; Coordenadas copiadas')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('&#128203; Coordenadas copiadas');
+  });
+  closeCtx();
+}
+function ctxAddPoint(){
+  if(!ctxLatLng)return;closeCtx();
+  const name=window.prompt('Nombre del punto:','Nuevo punto')||'Punto';
+  const icon=makeMarkerIcon(drawColor,markerType);
+  const m=L.marker(ctxLatLng,{icon}).addTo(drawnItems);
+  m._manaName=name;m._manaColor=drawColor;
+  m.bindPopup('<strong>'+name+'</strong>');stats();
+}
 function ctxCenterHere(){if(!ctxLatLng)return;closeCtx();map.setView(ctxLatLng,map.getZoom());}
 function ctxDeleteLayer(){if(!ctxTargetLayer)return;closeCtx();drawnItems.removeLayer(ctxTargetLayer);ctxTargetLayer=null;stats();}
 
-// ─── MENUS (toggle genérico) ────────────────────────────
+// ── TOAST ─────────────────────────────────────────
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── MENUS ─────────────────────────────────────────
 function toggleMenu(id,e){e.stopPropagation();const m=document.getElementById(id);const wasOpen=m.classList.contains('open');document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));if(!wasOpen)m.classList.add('open');}
 document.addEventListener('click',()=>document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open')));
 
-// ─── DRAG & DROP sobre el mapa ────────────────────────────
+// ── DRAG & DROP ───────────────────────────────────
 (function(){
   const mapWrap=document.getElementById('map-wrap');
   const overlay=document.getElementById('drop-overlay');
   let dragCounter=0;
-
-  mapWrap.addEventListener('dragenter',e=>{
-    e.preventDefault();
-    dragCounter++;
-    overlay.classList.add('active');
-  });
-
-  mapWrap.addEventListener('dragleave',e=>{
-    dragCounter--;
-    if(dragCounter<=0){dragCounter=0;overlay.classList.remove('active');}
-  });
-
-  mapWrap.addEventListener('dragover',e=>{
-    e.preventDefault();
-    e.dataTransfer.dropEffect='copy';
-  });
-
+  mapWrap.addEventListener('dragenter',e=>{e.preventDefault();dragCounter++;overlay.classList.add('active');});
+  mapWrap.addEventListener('dragleave',e=>{dragCounter--;if(dragCounter<=0){dragCounter=0;overlay.classList.remove('active');}});
+  mapWrap.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';});
   mapWrap.addEventListener('drop',async e=>{
-    e.preventDefault();
-    dragCounter=0;
-    overlay.classList.remove('active');
-    const file=e.dataTransfer.files[0];
-    if(!file)return;
+    e.preventDefault();dragCounter=0;overlay.classList.remove('active');
+    const file=e.dataTransfer.files[0];if(!file)return;
     await processFile(file);
   });
 })();
 
-// ─── IMPORT ────────────────────────────────────────
+// ── IMPORT ────────────────────────────────────────
 function importTrigger(accept){
   document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));
-  const inp=document.getElementById('file-import');
-  inp.accept=accept;
-  inp.value='';
-  inp.click();
+  const inp=document.getElementById('file-import');inp.accept=accept;inp.value='';inp.click();
 }
-async function handleImport(e){
-  const file=e.target.files[0];if(!file)return;
-  await processFile(file);
-}
+async function handleImport(e){const file=e.target.files[0];if(!file)return;await processFile(file);}
 
 async function processFile(file){
   const name=file.name.toLowerCase();
   try{
     if(name.endsWith('.geojson')||name.endsWith('.json')){
-      const text=await file.text();
-      loadGeoJSON(JSON.parse(text));
+      loadGeoJSON(JSON.parse(await file.text()));
     }else if(name.endsWith('.kml')){
-      const text=await file.text();
-      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(text,'text/xml')));
+      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(await file.text(),'text/xml')));
     }else if(name.endsWith('.kmz')){
-      const buf=await file.arrayBuffer();
-      const zip=await JSZip.loadAsync(buf);
+      const zip=await JSZip.loadAsync(await file.arrayBuffer());
       const kmlFile=Object.keys(zip.files).find(n=>n.endsWith('.kml'));
-      if(!kmlFile)throw new Error('No se encontró un .kml dentro del KMZ');
-      const kmlText=await zip.files[kmlFile].async('string');
-      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(kmlText,'text/xml')));
+      if(!kmlFile)throw new Error('No se encontr&#243; un .kml dentro del KMZ');
+      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(await zip.files[kmlFile].async('string'),'text/xml')));
     }else if(name.endsWith('.zip')){
+      // Shapefile real: usar shpjs para parsear .shp + .dbf binarios
       const buf=await file.arrayBuffer();
-      const zip=await JSZip.loadAsync(buf);
-      const geoFile=Object.keys(zip.files).find(n=>n.endsWith('.geojson')||n.endsWith('.json'));
-      if(geoFile){
-        const txt=await zip.files[geoFile].async('string');
-        loadGeoJSON(JSON.parse(txt));
-      }else{
-        alert('No se encontró un GeoJSON dentro del ZIP.\nConvierte el Shapefile a GeoJSON antes de importar.');
+      let geo;
+      try{
+        geo=await shp(buf);
+      }catch(shpErr){
+        // Fallback: buscar GeoJSON dentro del zip
+        const zip=await JSZip.loadAsync(buf);
+        const geoFile=Object.keys(zip.files).find(n=>n.endsWith('.geojson')||n.endsWith('.json'));
+        if(geoFile){geo=JSON.parse(await zip.files[geoFile].async('string'));}
+        else throw new Error('No se pudo leer el Shapefile. Aseg&#250;rate de que el .zip contiene los archivos .shp, .dbf y .prj.');
       }
+      // shpjs puede devolver un array de FeatureCollections o una sola
+      if(Array.isArray(geo))geo.forEach(g=>loadGeoJSON(g));
+      else loadGeoJSON(geo);
     }else{
       alert('Formato no soportado. Usa GeoJSON, KML, KMZ o Shapefile (.zip).');
     }
@@ -657,22 +699,22 @@ async function processFile(file){
 }
 
 function loadGeoJSON(geo){
-  if(!geo||!geo.features&&geo.type!=='FeatureCollection'&&geo.type!=='Feature'){
-    alert('Formato no válido.');return;
-  }
+  if(!geo)return;
+  // Normalizar: Feature individual
+  if(geo.type==='Feature')geo={type:'FeatureCollection',features:[geo]};
+  if(!geo.features){alert('Formato GeoJSON no v&#225;lido.');return;}
   const layer=L.geoJSON(geo,{
-    style:{color:'#30363b',weight:2,fillOpacity:.15},
+    style:{color:drawColor,weight:2,fillOpacity:.18},
     pointToLayer:(f,ll)=>{
-      const m=L.marker(ll);
-      const name=(f.properties&&(f.properties.name||f.properties.Name||f.properties.NAME))||'Importado';
-      m._manaName=name;
-      m.bindPopup('<strong>'+name+'</strong>');
-      return m;
+      const n=(f.properties&&(f.properties.name||f.properties.Name||f.properties.NAME))||'Importado';
+      const icon=makeMarkerIcon(drawColor,markerType);
+      const m=L.marker(ll,{icon});m._manaName=n;m._manaColor=drawColor;
+      m.bindPopup('<strong>'+n+'</strong>');return m;
     },
     onEachFeature:(f,l)=>{
       if(!(l instanceof L.Marker)){
-        const name=(f.properties&&(f.properties.name||f.properties.Name||f.properties.NAME))||'';
-        if(name)l.bindPopup('<strong>'+name+'</strong>');
+        const n=(f.properties&&(f.properties.name||f.properties.Name||f.properties.NAME))||'';
+        if(n)l.bindPopup('<strong>'+n+'</strong>');
       }
     }
   });
@@ -682,7 +724,7 @@ function loadGeoJSON(geo){
   stats();
 }
 
-// KML → GeoJSON
+// KML &#8594; GeoJSON
 function kmlToGeoJSON(xmlDoc){
   const features=[];
   xmlDoc.querySelectorAll('Placemark').forEach(pm=>{
@@ -698,7 +740,7 @@ function kmlToGeoJSON(xmlDoc){
   return{type:'FeatureCollection',features};
 }
 
-// ─── EXPORT ──────────────────────────────────────
+// ── EXPORT ────────────────────────────────────────
 function exportAs(fmt){
   document.querySelectorAll('.drop-menu').forEach(x=>x.classList.remove('open'));
   const geo=drawnItems.toGeoJSON();
@@ -709,8 +751,8 @@ function exportAs(fmt){
   if(fmt==='shapefile')return exportShapefile(geo);
 }
 function dl(content,filename,mime,isBlob=false){const blob=isBlob?content:new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
-function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point')rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('\"'+String(v).replace(/"/g,'""')+'\"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
-function geoToKML(geo){const pm=geo.features.map((f,i)=>{const g=f.geometry,name=(f.properties&&f.properties.name)||('Elemento '+(i+1));if(g.type==='Point')return`<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`;if(g.type==='LineString'){const c=g.coordinates.map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`;}if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;}return'';}).join('\n');return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Maña Maps</name>\n${pm}\n</Document></kml>`;}
+function exportCSV(geo){const rows=[['id','type','name','longitude','latitude','coordinates']];geo.features.forEach((f,i)=>{const g=f.geometry,p=f.properties||{};const name=p.name||p.title||('Elemento '+(i+1));if(g.type==='Point')rows.push([i+1,'Point',name,g.coordinates[0],g.coordinates[1],'']);else rows.push([i+1,g.type,name,'','',JSON.stringify(g.coordinates)]);});dl(rows.map(r=>r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')).join('\n'),'mana-maps.csv','text/csv');}
+function geoToKML(geo){const pm=geo.features.map((f,i)=>{const g=f.geometry,name=(f.properties&&f.properties.name)||('Elemento '+(i+1));if(g.type==='Point')return`<Placemark><name>${name}</name><Point><coordinates>${g.coordinates[0]},${g.coordinates[1]},0</coordinates></Point></Placemark>`;if(g.type==='LineString'){const c=g.coordinates.map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><LineString><coordinates>${c}</coordinates></LineString></Placemark>`;}if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>c[0]+','+c[1]+',0').join(' ');return`<Placemark><name>${name}</name><Polygon><outerBoundaryIs><LinearRing><coordinates>${c}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`;}return'';}).join('\n');return`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma&#241;a Maps</name>\n${pm}\n</Document></kml>`;}
 async function exportKMZ(geo){const kml=geoToKML(geo);const zip=new JSZip();zip.file('doc.kml',kml);const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});dl(blob,'mana-maps.kmz','application/vnd.google-earth.kmz',true);}
 async function exportShapefile(geo){
   const points=geo.features.filter(f=>f.geometry.type==='Point');
@@ -731,28 +773,28 @@ async function exportShapefile(geo){
   dl(blob,'mana-maps-shp.zip','application/zip',true);
 }
 
-// GEOCODER
-async function geocode(q){const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q),{headers:{'Accept-Language':'es','User-Agent':'MañaMaps/1.0'}});return r.json();}
+// ── GEOCODER ──────────────────────────────────────
+async function geocode(q){const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q),{headers:{'Accept-Language':'es','User-Agent':'Ma&#241;aMaps/1.0'}});return r.json();}
 
-// CHAT
-function addMsg(text,isUser){const wrap=document.createElement('div');if(!isUser){const lbl=document.createElement('div');lbl.className='msg-label';lbl.textContent='Maña AI';wrap.appendChild(lbl);}const el=document.createElement('div');el.className='msg '+(isUser?'user':'bot');el.innerHTML=text;wrap.appendChild(el);const msgs=document.getElementById('chat-messages');msgs.appendChild(wrap);msgs.scrollTop=msgs.scrollHeight;return el;}
+// ── CHAT ──────────────────────────────────────────
+function addMsg(text,isUser){const wrap=document.createElement('div');if(!isUser){const lbl=document.createElement('div');lbl.className='msg-label';lbl.textContent='Ma\u00f1a AI';wrap.appendChild(lbl);}const el=document.createElement('div');el.className='msg '+(isUser?'user':'bot');el.innerHTML=text;wrap.appendChild(el);const msgs=document.getElementById('chat-messages');msgs.appendChild(wrap);msgs.scrollTop=msgs.scrollHeight;return el;}
 async function processCmd(raw){
   const cmd=raw.toLowerCase().trim();
-  if(/borra(r)? (todo|el mapa|todo el mapa)/.test(cmd)||cmd==='limpiar'){drawnItems.clearLayers();stats();return'Mapa limpiado ✓';}
+  if(/borra(r)? (todo|el mapa|todo el mapa)/.test(cmd)||cmd==='limpiar'){drawnItems.clearLayers();stats();return'Mapa limpiado &#10003;';}
   const centerM=cmd.match(/centra(r)? (?:el mapa )?en (.+)/);
-  if(centerM){const res=await geocode(centerM[2]);if(res.length){map.setView([+res[0].lat,+res[0].lon],12);return'Centrado en <strong>'+centerM[2]+'</strong> ✓';}return'No encontré ese lugar.';}
-  const ptM=cmd.match(/(?:dibuja|añade|pon|marca|agrega) (?:un )?punto (?:en|sobre|de) (.+)/);
-  if(ptM){const res=await geocode(ptM[1]);if(res.length){const ll=[+res[0].lat,+res[0].lon];const m=L.marker(ll).addTo(drawnItems);m._manaName=ptM[1];m.bindPopup('<strong>'+ptM[1]+'</strong>');map.setView(ll,12);stats();return'Punto en <strong>'+res[0].display_name.split(',')[0]+'</strong> ✓';}return'No encontré «'+ptM[1]+'».';}
-  const lineM=cmd.match(/(?:dibuja|traza) (?:una )?l[ií]nea (?:entre|de) (.+?) (?:y|a|hasta) (.+)/);
-  if(lineM){const[r1,r2]=await Promise.all([geocode(lineM[1]),geocode(lineM[2])]);if(r1.length&&r2.length){const ll1=[+r1[0].lat,+r1[0].lon],ll2=[+r2[0].lat,+r2[0].lon];const line=L.polyline([ll1,ll2],{color:'#30363b',weight:2}).addTo(drawnItems);map.fitBounds(line.getBounds());stats();return'Línea entre <strong>'+lineM[1]+'</strong> y <strong>'+lineM[2]+'</strong> ✓';}return'No pude encontrar uno de los lugares.';}
-  if(/sat[eé]lite/.test(cmd)){setBaseLayer('satellite');return'Vista satélite activada ✓';}
-  if(/mapa|callejero/.test(cmd)){setBaseLayer('map');return'Vista de mapa activada ✓';}
-  if(/mide|distancia|regla/.test(cmd)){setTool('ruler');return'Herramienta de medición activada — clic para medir, doble clic para terminar.';}
-  if(/acerca|zoom in/.test(cmd)){map.zoomIn();return'Zoom aumentado ✓';}
-  if(/aleja|zoom out/.test(cmd)){map.zoomOut();return'Zoom reducido ✓';}
-  return'No entendí ese comando. Prueba con <em>"dibuja un punto en Madrid"</em>, <em>"satélite"</em> o <em>"mide distancia"</em>.';
+  if(centerM){const res=await geocode(centerM[2]);if(res.length){map.setView([+res[0].lat,+res[0].lon],12);return'Centrado en <strong>'+centerM[2]+'</strong> &#10003;';}return'No encontr&#233; ese lugar.';}
+  const ptM=cmd.match(/(?:dibuja|a&#241;ade|pon|marca|agrega) (?:un )?punto (?:en|sobre|de) (.+)/);
+  if(ptM){const res=await geocode(ptM[1]);if(res.length){const ll=[+res[0].lat,+res[0].lon];const icon=makeMarkerIcon(drawColor,markerType);const m=L.marker(ll,{icon}).addTo(drawnItems);m._manaName=ptM[1];m._manaColor=drawColor;m.bindPopup('<strong>'+ptM[1]+'</strong>');map.setView(ll,12);stats();return'Punto en <strong>'+res[0].display_name.split(',')[0]+'</strong> &#10003;';}return'No encontr&#233; &#171;'+ptM[1]+'&#187;.';}
+  const lineM=cmd.match(/(?:dibuja|traza) (?:una )?l[i\u00ed]nea (?:entre|de) (.+?) (?:y|a|hasta) (.+)/);
+  if(lineM){const[r1,r2]=await Promise.all([geocode(lineM[1]),geocode(lineM[2])]);if(r1.length&&r2.length){const ll1=[+r1[0].lat,+r1[0].lon],ll2=[+r2[0].lat,+r2[0].lon];const line=L.polyline([ll1,ll2],{color:drawColor,weight:2}).addTo(drawnItems);map.fitBounds(line.getBounds());stats();return'L&#237;nea entre <strong>'+lineM[1]+'</strong> y <strong>'+lineM[2]+'</strong> &#10003;';}return'No pude encontrar uno de los lugares.';}
+  if(/sat[e\u00e9]lite/.test(cmd)){setBaseLayer('satellite');return'Vista sat&#233;lite activada &#10003;';}
+  if(/mapa|callejero/.test(cmd)){setBaseLayer('map');return'Vista de mapa activada &#10003;';}
+  if(/mide|distancia|regla/.test(cmd)){setTool('ruler');return'Herramienta de medici&#243;n activada &#8212; clic para medir, doble clic para terminar.';}
+  if(/acerca|zoom in/.test(cmd)){map.zoomIn();return'Zoom aumentado &#10003;';}
+  if(/aleja|zoom out/.test(cmd)){map.zoomOut();return'Zoom reducido &#10003;';}
+  return'No entend&#237; ese comando. Prueba con <em>"dibuja un punto en Madrid"</em>, <em>"sat&#233;lite"</em> o <em>"mide distancia"</em>.';
 }
-async function sendMsg(){const input=document.getElementById('chat-input');const text=input.value.trim();if(!text)return;input.value='';input.style.height='auto';addMsg(text,true);const bot=addMsg('<em>Procesando…</em>',false);bot.innerHTML=await processCmd(text);}
+async function sendMsg(){const input=document.getElementById('chat-input');const text=input.value.trim();if(!text)return;input.value='';input.style.height='auto';addMsg(text,true);const bot=addMsg('<em>Procesando&#8230;</em>',false);bot.innerHTML=await processCmd(text);}
 document.getElementById('chat-send').onclick=sendMsg;
 document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
 document.getElementById('chat-input').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';});
