@@ -1,0 +1,246 @@
+name: Pre-deployment Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ─── 1. Validate HTML structure ───────────────────────────────────────────
+  validate-html:
+    name: HTML Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install html-validate
+        run: npm install -g html-validate
+
+      - name: Create html-validate config
+        run: |
+          cat > .htmlvalidate.json << 'EOF'
+          {
+            "extends": ["html-validate:recommended"],
+            "rules": {
+              "require-sri": "off",
+              "long-title": "off",
+              "no-inline-style": "off",
+              "require-csp-nonce": "off",
+              "wcag/h37": "off",
+              "wcag/h67": "off",
+              "no-trailing-whitespace": "off",
+              "attr-quotes": "off"
+            }
+          }
+          EOF
+
+      - name: Validate index.html
+        run: html-validate index.html
+
+  # ─── 2. JS lint & syntax check ───────────────────────────────────────────
+  lint-js:
+    name: JavaScript Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check JS syntax (acorn)
+        run: |
+          npm install -g acorn
+          # Extract inline scripts and check syntax
+          node -e "
+            const fs = require('fs');
+            const html = fs.readFileSync('index.html', 'utf8');
+            const scriptRegex = /<script(?![^>]*src)[^>]*>([\\s\\S]*?)<\/script>/gi;
+            let match, count = 0;
+            const acorn = require('acorn');
+            while ((match = scriptRegex.exec(html)) !== null) {
+              if (match[1].trim()) {
+                try {
+                  acorn.parse(match[1], { ecmaVersion: 2020 });
+                  count++;
+                  console.log('Script block ' + count + ': OK');
+                } catch (e) {
+                  console.error('Syntax error in script block ' + (count+1) + ':', e.message);
+                  process.exit(1);
+                }
+              }
+            }
+            console.log('All ' + count + ' script blocks passed syntax check.');
+          "
+
+  # ─── 3. End-to-End tests with Playwright ────────────────────────────────
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Init package.json and install dependencies
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test serve
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Create Playwright config
+        run: |
+          cat > playwright.config.js << 'EOF'
+          const { defineConfig } = require('@playwright/test');
+          module.exports = defineConfig({
+            testDir: './tests',
+            timeout: 30000,
+            use: {
+              baseURL: 'http://localhost:3000',
+              headless: true,
+            },
+            webServer: {
+              command: 'npx serve . -p 3000 --no-clipboard',
+              url: 'http://localhost:3000',
+              reuseExistingServer: false,
+              timeout: 15000,
+            },
+          });
+          EOF
+
+      - name: Create test suite
+        run: |
+          mkdir -p tests
+          cat > tests/mana-maps.spec.js << 'EOF'
+          const { test, expect } = require('@playwright/test');
+
+          test.describe('Maña Maps - Core UI', () => {
+
+            test.beforeEach(async ({ page }) => {
+              await page.goto('/');
+              // Wait for Leaflet map to be ready
+              await page.waitForFunction(() => typeof L !== 'undefined' && document.getElementById('map')?._leaflet_id);
+            });
+
+            test('page title is correct', async ({ page }) => {
+              await expect(page).toHaveTitle(/Ma[nñ]a Maps/i);
+            });
+
+            test('topbar renders with logo and buttons', async ({ page }) => {
+              await expect(page.locator('#topbar')).toBeVisible();
+              await expect(page.locator('.logo-wordmark')).toBeVisible();
+              await expect(page.locator('button:has-text("Importar")')).toBeVisible();
+              await expect(page.locator('button:has-text("Exportar")')).toBeVisible();
+            });
+
+            test('map container is visible and loaded', async ({ page }) => {
+              await expect(page.locator('#map')).toBeVisible();
+              // Leaflet tiles container should exist
+              await expect(page.locator('.leaflet-container')).toBeVisible();
+            });
+
+            test('sidebar tools are visible', async ({ page }) => {
+              await expect(page.locator('#btn-point')).toBeVisible();
+              await expect(page.locator('#btn-line')).toBeVisible();
+              await expect(page.locator('#btn-polygon')).toBeVisible();
+              await expect(page.locator('#btn-ruler')).toBeVisible();
+            });
+
+            test('stat counters start at zero', async ({ page }) => {
+              await expect(page.locator('#cnt-points')).toHaveText('0');
+              await expect(page.locator('#cnt-lines')).toHaveText('0');
+              await expect(page.locator('#cnt-polygons')).toHaveText('0');
+            });
+
+            test('chat panel is visible with AI assistant', async ({ page }) => {
+              await expect(page.locator('#chat-panel')).toBeVisible();
+              await expect(page.locator('.chat-header-title')).toHaveText('Maña AI');
+              await expect(page.locator('#chat-input')).toBeVisible();
+              await expect(page.locator('#chat-send')).toBeVisible();
+            });
+
+            test('basemap selector works (satellite toggle)', async ({ page }) => {
+              const satBtn = page.locator('#bmc-sat');
+              await satBtn.click();
+              await expect(satBtn).toHaveClass(/active/);
+              const mapBtn = page.locator('#bmc-map');
+              await mapBtn.click();
+              await expect(mapBtn).toHaveClass(/active/);
+            });
+
+            test('color swatches change active state', async ({ page }) => {
+              const swatches = page.locator('.color-swatch');
+              const count = await swatches.count();
+              expect(count).toBeGreaterThan(0);
+              await swatches.nth(1).click();
+              await expect(swatches.nth(1)).toHaveClass(/active/);
+            });
+
+            test('marker type options are selectable', async ({ page }) => {
+              const opts = page.locator('.marker-opt');
+              await opts.nth(1).click();
+              await expect(opts.nth(1)).toHaveClass(/active/);
+            });
+
+            test('import menu opens on click', async ({ page }) => {
+              await page.locator('button:has-text("Importar")').click();
+              await expect(page.locator('#import-menu')).toHaveClass(/open/);
+            });
+
+            test('export menu opens on click', async ({ page }) => {
+              await page.locator('button:has-text("Exportar")').click();
+              await expect(page.locator('#export-menu')).toHaveClass(/open/);
+            });
+
+            test('empty layer list shows placeholder message', async ({ page }) => {
+              await expect(page.locator('.empty-note').first()).toBeVisible();
+            });
+
+            test('chat sends a satellite command', async ({ page }) => {
+              const input = page.locator('#chat-input');
+              await input.fill('satélite');
+              await page.locator('#chat-send').click();
+              // Wait for bot response
+              await page.waitForTimeout(1000);
+              const messages = page.locator('.msg.bot');
+              const last = messages.last();
+              await expect(last).toContainText(/sat/i);
+            });
+
+            test('mouse coordinates update on map hover', async ({ page }) => {
+              const mapEl = page.locator('#map');
+              await mapEl.hover();
+              await page.mouse.move(600, 400);
+              await page.waitForTimeout(300);
+              const coords = await page.locator('#mouse-coords').textContent();
+              expect(coords).not.toBe('— , —');
+            });
+
+          });
+          EOF
+
+      - name: Run Playwright tests
+        run: npx playwright test --reporter=list
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
