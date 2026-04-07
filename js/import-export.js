@@ -116,7 +116,8 @@ function loadGeoJSON(geo, groupName) {
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
   const gName = groupName || geo.fileName || 'Capa importada';
-  const featureCount = geo.features.length;
+  // Register group in metadata registry
+  registerGroupMeta(groupId, gName, drawColor);
 
   const layer = L.geoJSON(geo, {
     style: { color: drawColor, weight: 2, fillOpacity: .18 },
@@ -143,7 +144,12 @@ function loadGeoJSON(geo, groupName) {
     }
   });
 
-  layer.eachLayer(l => drawnItems.addLayer(l));
+  // Add to map and register each layer in group meta
+  layer.eachLayer(l => {
+    drawnItems.addLayer(l);
+    addLayerToGroupMeta(groupId, l);
+  });
+
   const bounds = layer.getBounds();
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
   stats();

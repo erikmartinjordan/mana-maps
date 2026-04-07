@@ -613,3 +613,87 @@ select.ai-input{cursor:pointer;appearance:auto;}
   padding:12px 20px 16px;display:flex;gap:8px;justify-content:flex-end;
   border-top:1px solid var(--border);
 }
+
+
+/* ── FILTER PANEL ────────────────────────────── */
+.filter-panel{
+  border-top:1px solid var(--border);padding:10px;
+  background:linear-gradient(to bottom,rgba(14,165,233,.03),transparent);
+}
+.filter-title{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--blue);margin-bottom:8px;
+}
+.filter-title svg{width:12px;height:12px;}
+.filter-empty{font-size:11px;color:var(--third);line-height:1.5;padding:2px 0 6px;}
+.filter-rule{
+  display:flex;gap:4px;align-items:center;margin-bottom:6px;
+  flex-wrap:wrap;
+}
+.filter-select{
+  border:1px solid var(--border);border-radius:6px;padding:5px 6px;
+  font-size:11px;font-family:'DM Sans',sans-serif;color:var(--primary);
+  background:var(--bg);outline:none;cursor:pointer;
+  transition:border-color .15s;min-width:0;
+}
+.filter-select:focus{border-color:var(--blue);}
+.filter-field{flex:1;min-width:60px;max-width:100px;}
+.filter-op{width:62px;flex-shrink:0;}
+.filter-value{
+  flex:1;min-width:60px;
+  border:1px solid var(--border);border-radius:6px;padding:5px 6px;
+  font-size:11px;font-family:'DM Sans',sans-serif;color:var(--primary);
+  background:var(--bg);outline:none;transition:border-color .15s;
+}
+.filter-value:focus{border-color:var(--blue);}
+.filter-rule-remove{
+  width:22px;height:22px;border-radius:5px;border:1px solid var(--border);
+  background:none;cursor:pointer;display:grid;place-items:center;
+  color:var(--third);transition:all .12s;flex-shrink:0;
+}
+.filter-rule-remove svg{width:11px;height:11px;}
+.filter-rule-remove:hover{background:#fff0f0;border-color:var(--red);color:var(--red);}
+
+/* ── Filter action buttons ── */
+.filter-actions{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.filter-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);background:var(--bg);
+  color:var(--primary);transition:all .12s;
+  font-family:'DM Sans',sans-serif;
+}
+.filter-btn svg{width:11px;height:11px;}
+.filter-btn-add:hover{border-color:var(--blue);color:var(--blue);background:rgba(14,165,233,.06);}
+.filter-btn-apply{background:var(--blue);color:white;border-color:var(--blue);}
+.filter-btn-apply:hover{opacity:.85;}
+.filter-btn-clear{color:var(--third);}
+.filter-btn-clear:hover{color:var(--red);border-color:var(--red);background:#fff0f0;}
+
+/* ── Active filter badge ── */
+.filter-active-badge{
+  font-size:9px;font-weight:700;padding:1px 6px;
+  border-radius:50px;background:var(--blue);color:white;
+  flex-shrink:0;letter-spacing:.02em;
+}
+.layer-group.has-filter{border-color:rgba(14,165,233,.3);}
+.layer-group.has-filter .layer-group-header{background:rgba(14,165,233,.03);}
+
+/* ── Filter hidden note ── */
+.filter-hidden-note{
+  padding:5px 12px 6px 30px;font-size:10px;color:var(--third);
+  font-style:italic;border-top:1px dashed var(--border);
+}
+
+/* ── Layer group action buttons (updated) ── */
+.layer-group-action-btn{
+  width:26px;height:26px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg);cursor:pointer;display:grid;place-items:center;
+  transition:background .12s,border-color .12s,color .12s;color:var(--third);
+}
+.layer-group-action-btn svg{width:13px;height:13px;}
+.layer-group-action-btn:hover{background:rgba(14,165,233,.1);border-color:var(--blue);color:var(--blue);}
+.layer-group-action-btn.active{background:rgba(14,165,233,.1);border-color:var(--blue);color:var(--blue);}
+.layer-group-action-btn.has-filter{background:var(--blue);color:white;border-color:var(--blue);}
+.layer-group-action-btn.danger:hover{background:#fff0f0;border-color:var(--red);color:var(--red);}
