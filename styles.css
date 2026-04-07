@@ -741,3 +741,60 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .mana-alert.show{top:58px;}
   .mana-alert{font-size:12px;padding:8px 14px;border-radius:10px;}
 }
+
+
+/* ── CONTEXT MENU STYLE SECTION ──────────────── */
+.ctx-section-label{
+  padding:6px 16px 4px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--blue);
+}
+.ctx-color-row{
+  display:flex;gap:5px;padding:6px 14px 8px;flex-wrap:wrap;
+}
+.ctx-swatch{
+  width:20px;height:20px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform .1s,border-color .1s;
+}
+.ctx-swatch:hover{transform:scale(1.2);border-color:rgba(0,0,0,.2);}
+.ctx-option-row{
+  display:flex;align-items:center;gap:8px;padding:5px 16px;
+}
+.ctx-option-label{
+  font-size:11px;color:var(--third);font-weight:600;min-width:50px;
+}
+.ctx-weight-opts{display:flex;gap:3px;}
+.ctx-weight-btn{
+  width:24px;height:24px;border-radius:5px;border:1px solid var(--border);
+  background:var(--bg);font-size:10px;font-weight:700;cursor:pointer;
+  display:grid;place-items:center;color:var(--primary);
+  transition:background .1s,border-color .1s;
+  font-family:'DM Sans',sans-serif;
+}
+.ctx-weight-btn:hover{border-color:var(--blue);background:rgba(14,165,233,.06);}
+.ctx-range{
+  flex:1;height:4px;-webkit-appearance:none;appearance:none;
+  background:var(--border);border-radius:2px;outline:none;cursor:pointer;
+}
+.ctx-range::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--blue);border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.2);
+  cursor:pointer;
+}
+.ctx-range::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--blue);border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.2);
+  cursor:pointer;
+}
+.ctx-range-val{
+  font-size:10px;font-weight:700;color:var(--third);min-width:30px;text-align:right;
+  font-family:'DM Mono',monospace;
+}
+.ctx-cat-item{
+  display:flex !important;justify-content:space-between;
+}
+.ctx-cat-field{
+  font-weight:600;
+}
+.ctx-cat-count{
+  font-size:10px;color:var(--third);font-weight:400;
+}

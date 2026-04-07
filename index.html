@@ -295,6 +295,63 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
     Centrar mapa aqu&#237;
   </button>
+
+  <!-- STYLE SECTION (visible when a layer is targeted) -->
+  <div id="ctx-style-section" style="display:none">
+    <div class="ctx-sep"></div>
+    <div class="ctx-section-label">Estilo del elemento</div>
+
+    <!-- Color picker -->
+    <div class="ctx-color-row">
+      <div class="ctx-swatch" style="background:#0ea5e9" onclick="ctxSetColor('#0ea5e9')"></div>
+      <div class="ctx-swatch" style="background:#6366f1" onclick="ctxSetColor('#6366f1')"></div>
+      <div class="ctx-swatch" style="background:#10b981" onclick="ctxSetColor('#10b981')"></div>
+      <div class="ctx-swatch" style="background:#f59e0b" onclick="ctxSetColor('#f59e0b')"></div>
+      <div class="ctx-swatch" style="background:#ef4444" onclick="ctxSetColor('#ef4444')"></div>
+      <div class="ctx-swatch" style="background:#ec4899" onclick="ctxSetColor('#ec4899')"></div>
+      <div class="ctx-swatch" style="background:#8b5cf6" onclick="ctxSetColor('#8b5cf6')"></div>
+      <div class="ctx-swatch" style="background:#64748b" onclick="ctxSetColor('#64748b')"></div>
+    </div>
+
+    <!-- Line weight (lines/polygons only) -->
+    <div id="ctx-weight-row" class="ctx-option-row">
+      <span class="ctx-option-label">Grosor</span>
+      <div class="ctx-weight-opts">
+        <button class="ctx-weight-btn" onclick="ctxSetWeight(1)">1</button>
+        <button class="ctx-weight-btn" onclick="ctxSetWeight(2)">2</button>
+        <button class="ctx-weight-btn" onclick="ctxSetWeight(3)">3</button>
+        <button class="ctx-weight-btn" onclick="ctxSetWeight(5)">5</button>
+        <button class="ctx-weight-btn" onclick="ctxSetWeight(8)">8</button>
+      </div>
+    </div>
+
+    <!-- Opacity -->
+    <div class="ctx-option-row">
+      <span class="ctx-option-label">Opacidad</span>
+      <input type="range" id="ctx-opacity" class="ctx-range" min="10" max="100" value="100" oninput="ctxSetOpacity(this.value)"/>
+      <span id="ctx-opacity-val" class="ctx-range-val">100%</span>
+    </div>
+
+    <!-- Rename -->
+    <button class="ctx-item" onclick="ctxRename()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+      Renombrar
+    </button>
+
+    <!-- Apply to group -->
+    <button class="ctx-item" id="ctx-style-group" onclick="ctxStyleGroup()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Aplicar estilo a toda la capa
+    </button>
+
+    <!-- Categorize by attribute -->
+    <div id="ctx-categorize-section" style="display:none">
+      <div class="ctx-sep"></div>
+      <div class="ctx-section-label">Categorizar por atributo</div>
+      <div id="ctx-categorize-list"></div>
+    </div>
+  </div>
+
   <div class="ctx-sep"></div>
   <button class="ctx-item danger" id="ctx-delete-layer" onclick="ctxDeleteLayer()" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>

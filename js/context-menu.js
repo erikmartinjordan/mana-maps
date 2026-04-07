@@ -87,8 +87,8 @@ map.on('contextmenu', e => {
 
   document.getElementById('ctx-coords').textContent =
     e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
-  document.getElementById('ctx-delete-layer').style.display =
-    ctxTargetLayer ? 'flex' : 'none';
+  // Update style section visibility and controls
+  updateCtxStyleSection();
 
   const menu = document.getElementById('ctx-menu');
   menu.style.left = e.originalEvent.clientX + 'px';
@@ -154,4 +154,186 @@ function ctxDeleteLayer() {
   drawnItems.removeLayer(ctxTargetLayer);
   ctxTargetLayer = null;
   stats();
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// LAYER STYLING (from context menu)
+// ═══════════════════════════════════════════════════════════════
+const CTX_PALETTE = [
+  '#0ea5e9','#6366f1','#10b981','#f59e0b','#ef4444','#ec4899',
+  '#8b5cf6','#64748b','#f97316','#14b8a6','#a855f7','#84cc16',
+  '#e11d48','#0284c7','#ca8a04','#7c3aed','#059669','#dc2626'
+];
+
+function ctxSetColor(color) {
+  if (!ctxTargetLayer) return;
+  if (ctxTargetLayer instanceof L.Marker) {
+    ctxTargetLayer._manaColor = color;
+    ctxTargetLayer.setIcon(makeMarkerIcon(color, markerType));
+  } else {
+    ctxTargetLayer.setStyle({ color: color });
+  }
+  stats(); showToast('Color aplicado');
+}
+
+function ctxSetWeight(w) {
+  if (!ctxTargetLayer || ctxTargetLayer instanceof L.Marker) return;
+  ctxTargetLayer.setStyle({ weight: w });
+  showToast('Grosor: ' + w + 'px');
+}
+
+function ctxSetOpacity(val) {
+  if (!ctxTargetLayer) return;
+  const op = val / 100;
+  document.getElementById('ctx-opacity-val').textContent = val + '%';
+  if (ctxTargetLayer instanceof L.Marker) {
+    ctxTargetLayer.setOpacity(op);
+  } else {
+    ctxTargetLayer.setStyle({ opacity: op, fillOpacity: op * 0.3 });
+  }
+}
+
+async function ctxRename() {
+  if (!ctxTargetLayer) return;
+  closeCtx();
+  const oldName = ctxTargetLayer._manaName || 'Elemento';
+  const name = await askName('Renombrar elemento', oldName);
+  if (name === null) return;
+  ctxTargetLayer._manaName = name;
+  if (ctxTargetLayer.getPopup()) {
+    ctxTargetLayer.setPopupContent('<strong>' + name + '</strong>');
+  }
+  stats(); showToast('Renombrado');
+}
+
+function ctxStyleGroup() {
+  if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
+  const gid = ctxTargetLayer._manaGroupId;
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+
+  // Get current style from target layer
+  let color, weight, opacity;
+  if (ctxTargetLayer instanceof L.Marker) {
+    color = ctxTargetLayer._manaColor || '#0ea5e9';
+    opacity = ctxTargetLayer.options.opacity || 1;
+  } else {
+    color = ctxTargetLayer.options.color || '#0ea5e9';
+    weight = ctxTargetLayer.options.weight || 2;
+    opacity = ctxTargetLayer.options.opacity || 1;
+  }
+
+  // Apply to all layers in group
+  meta.allLayers.forEach(l => {
+    if (l instanceof L.Marker) {
+      l._manaColor = color;
+      l.setIcon(makeMarkerIcon(color, markerType));
+      l.setOpacity(opacity);
+    } else {
+      l.setStyle({ color: color, weight: weight || 2, opacity: opacity, fillOpacity: opacity * 0.3 });
+    }
+  });
+  meta.color = color;
+  closeCtx(); stats();
+  showToast('Estilo aplicado a toda la capa');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CATEGORIZE BY ATTRIBUTE
+// ═══════════════════════════════════════════════════════════════
+function ctxCategorizeBy(field) {
+  if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
+  const gid = ctxTargetLayer._manaGroupId;
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+
+  // Collect unique values for this field
+  const valSet = new Set();
+  meta.allLayers.forEach(l => {
+    const v = (l._manaProperties || {})[field];
+    if (v !== null && v !== undefined && v !== '') valSet.add(String(v));
+  });
+
+  const uniqueVals = [...valSet].sort();
+  const colorMap = {};
+  uniqueVals.forEach((v, i) => {
+    colorMap[v] = CTX_PALETTE[i % CTX_PALETTE.length];
+  });
+
+  // Apply colors
+  meta.allLayers.forEach(l => {
+    const v = String((l._manaProperties || {})[field] || '');
+    const c = colorMap[v] || '#64748b';
+    if (l instanceof L.Marker) {
+      l._manaColor = c;
+      l.setIcon(makeMarkerIcon(c, markerType));
+    } else {
+      l.setStyle({ color: c, weight: l.options.weight || 2 });
+    }
+  });
+
+  closeCtx(); stats();
+  showToast('Categorizado por ' + field + ' (' + uniqueVals.length + ' valores)');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONTEXT MENU — show/hide style section dynamically
+// ═══════════════════════════════════════════════════════════════
+function updateCtxStyleSection() {
+  const section = document.getElementById('ctx-style-section');
+  const deleteBtn = document.getElementById('ctx-delete-layer');
+  const weightRow = document.getElementById('ctx-weight-row');
+  const styleGroupBtn = document.getElementById('ctx-style-group');
+  const catSection = document.getElementById('ctx-categorize-section');
+  const catList = document.getElementById('ctx-categorize-list');
+  const opacitySlider = document.getElementById('ctx-opacity');
+  const opacityVal = document.getElementById('ctx-opacity-val');
+
+  if (!ctxTargetLayer) {
+    section.style.display = 'none';
+    deleteBtn.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  deleteBtn.style.display = 'flex';
+
+  // Show weight row only for non-markers
+  weightRow.style.display = (ctxTargetLayer instanceof L.Marker) ? 'none' : 'flex';
+
+  // Set opacity slider to current value
+  let curOpacity = 100;
+  if (ctxTargetLayer instanceof L.Marker) {
+    curOpacity = Math.round((ctxTargetLayer.options.opacity || 1) * 100);
+  } else {
+    curOpacity = Math.round((ctxTargetLayer.options.opacity || 1) * 100);
+  }
+  opacitySlider.value = curOpacity;
+  opacityVal.textContent = curOpacity + '%';
+
+  // Show "apply to group" button if layer belongs to a group
+  const gid = ctxTargetLayer._manaGroupId;
+  if (gid && _manaGroupMeta[gid]) {
+    styleGroupBtn.style.display = 'flex';
+
+    // Build categorize options from group attributes
+    const meta = _manaGroupMeta[gid];
+    const attrs = Object.keys(meta.attrs);
+    if (attrs.length) {
+      catSection.style.display = 'block';
+      catList.innerHTML = attrs.map(a => {
+        const count = meta.attrs[a].values.size;
+        return '<button class="ctx-item ctx-cat-item" onclick="ctxCategorizeBy(\'' +
+          a.replace(/'/g, "\\'") + '\')">' +
+          '<span class="ctx-cat-field">' + a + '</span>' +
+          '<span class="ctx-cat-count">' + count + ' val.</span></button>';
+      }).join('');
+    } else {
+      catSection.style.display = 'none';
+    }
+  } else {
+    styleGroupBtn.style.display = 'none';
+    catSection.style.display = 'none';
+  }
 }
