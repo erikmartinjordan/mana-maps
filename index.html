@@ -197,21 +197,67 @@
   <div id="chat-panel">
     <div class="chat-header">
       <div class="chat-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-      <div><div class="chat-header-title">Ma&#241;a AI</div><div class="chat-header-sub">Escribe en lenguaje natural</div></div>
+      <div><div class="chat-header-title">Ma&#241;a AI <span class="ai-badge" id="ai-status-badge">IA</span></div><div class="chat-header-sub">Escribe en lenguaje natural</div></div>
+      <button class="chat-settings-btn" onclick="openAISettings()" title="Configurar IA">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
     </div>
     <div id="chat-messages">
       <div>
         <div class="msg-label">Ma&#241;a AI</div>
-        <div class="msg bot">&#161;Hola! Soy tu asistente de mapas. Puedes decirme cosas como:<br><br>
-        &#8226; <em>"dibuja un punto en Barcelona"</em><br>
-        &#8226; <em>"sat&#233;lite"</em> / <em>"mapa"</em> / <em>"globo 3D"</em><br>
-        &#8226; <em>"mide distancia"</em><br>
-        &#8226; <em>"borra todo"</em></div>
+        <div class="msg bot">&#161;Hola! Soy <strong>Ma&#241;a AI</strong>, tu asistente de mapas. Prueba con:<br><br>
+        &#128205; <em>"a&#241;ade un punto en Barcelona"</em><br>
+        &#128663; <em>"ruta de Madrid a Sevilla"</em><br>
+        &#128269; <em>"busca museos en Par&#237;s"</em><br>
+        &#127760; <em>"sat&#233;lite"</em> / <em>"globo 3D"</em><br>
+        &#127912; <em>"color rojo"</em><br>
+        &#128207; <em>"exporta como KML"</em><br><br>
+        &#9881;&#65039; <strong>Configura una clave API</strong> (&#9881;) para IA con lenguaje natural completo.</div>
       </div>
     </div>
     <div id="chat-input-area">
       <textarea id="chat-input" rows="1" placeholder="Escribe un comando..."></textarea>
       <button id="chat-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- AI SETTINGS MODAL -->
+<div id="ai-settings-modal" class="ai-modal">
+  <div class="ai-modal-content">
+    <div class="ai-modal-header">
+      <h4>&#9881;&#65039; Configurar IA</h4>
+      <button class="ai-modal-close" onclick="closeAISettings()">&times;</button>
+    </div>
+    <div class="ai-modal-body">
+      <label class="ai-label">Proveedor</label>
+      <select id="ai-provider" class="ai-input" onchange="toggleEndpointField(this.value)">
+        <option value="openai">OpenAI</option>
+        <option value="groq">Groq (gratis)</option>
+        <option value="together">Together AI</option>
+        <option value="custom">Personalizado</option>
+      </select>
+
+      <label class="ai-label">Clave API</label>
+      <input id="ai-key" type="password" class="ai-input" placeholder="sk-..." autocomplete="off"/>
+
+      <label class="ai-label">Modelo</label>
+      <input id="ai-model" type="text" class="ai-input" placeholder="gpt-4o-mini" autocomplete="off"/>
+
+      <div id="ai-endpoint-row" style="display:none">
+        <label class="ai-label">Endpoint</label>
+        <input id="ai-endpoint" type="text" class="ai-input" placeholder="https://..." autocomplete="off"/>
+      </div>
+
+      <div class="ai-hint">
+        &#128274; La clave se guarda solo en tu navegador (localStorage).<br>
+        &#128161; <strong>Groq</strong> ofrece una clave gratuita en <a href="https://console.groq.com" target="_blank">console.groq.com</a>
+      </div>
+    </div>
+    <div class="ai-modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeAISettings()">Cancelar</button>
+      <button class="modal-btn modal-btn-ok" onclick="saveAISettings()">Guardar</button>
     </div>
   </div>
 </div>
