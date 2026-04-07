@@ -513,7 +513,8 @@ async function processAI(userText) {
     // Fallback to regex on API error
     chatHistory.pop(); // remove failed user message
     const fallback = await processRegex(userText);
-    fallback.msg = '⚠️ Error de API. Usando modo local.\n\n' + fallback.msg;
+    const errDetail = err.message || String(err);
+    fallback.msg = '⚠️ ' + errDetail + '\n\nUsando modo local:\n' + fallback.msg;
     return fallback;
   }
 }
@@ -521,9 +522,8 @@ async function processAI(userText) {
 async function callAI(settings, messages) {
   const headers = { 'Content-Type': 'application/json' };
 
-  if (settings.provider === 'openai' || settings.provider === 'custom') {
-    headers['Authorization'] = 'Bearer ' + settings.apiKey;
-  }
+  // All providers use Bearer auth
+  headers['Authorization'] = 'Bearer ' + settings.apiKey;
 
   const body = {
     model: settings.model,
@@ -533,6 +533,11 @@ async function callAI(settings, messages) {
     temperature: 0.3,
     max_tokens: 1024,
   };
+
+  // Groq: disable parallel tool calls (not supported on all models)
+  if (settings.provider === 'groq') {
+    body.parallel_tool_calls = false;
+  }
 
   const resp = await fetch(settings.endpoint, {
     method: 'POST',
