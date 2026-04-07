@@ -264,3 +264,194 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity .2s,transform .2s;
   pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   RESPONSIVE – Mobile & Tablet
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── MOBILE TOGGLE BUTTONS (hidden by default) ── */
+.mobile-toggle{display:none;}
+
+/* ── MOBILE BACKDROP ── */
+#mobile-backdrop{
+  display:none;position:fixed;inset:0;z-index:1100;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(2px);
+  opacity:0;transition:opacity .25s ease;pointer-events:none;
+}
+#mobile-backdrop.active{display:block;opacity:1;pointer-events:auto;}
+
+/* ══ TABLET ≤ 1024px ═══════════════════════════════════════════ */
+@media (max-width:1024px){
+  :root{--left-w:220px;--right-w:260px;}
+  .topbar-right .btn{padding:7px 12px;font-size:12px;}
+}
+
+/* ══ MOBILE ≤ 768px ════════════════════════════════════════════ */
+@media (max-width:768px){
+
+  /* ── Topbar ── */
+  #topbar{padding:0 12px;gap:8px;height:50px;}
+  .mana-logo-icon{width:30px;height:30px;}
+  .mana-logo-icon span{font-size:13px;}
+  .logo-wordmark{font-size:15px;}
+  .logo-sub{font-size:9px;}
+
+  /* show mobile toggle buttons */
+  .mobile-toggle{
+    display:grid;place-items:center;
+    width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
+    background:none;cursor:pointer;color:var(--primary);flex-shrink:0;
+    transition:background .15s;
+  }
+  .mobile-toggle:hover,.mobile-toggle:active{background:var(--bgBox);}
+  .mobile-toggle svg{width:18px;height:18px;}
+
+  /* hide "Limpiar mapa" desktop button */
+  .topbar-right > .btn.btn-ghost:first-child{display:none;}
+
+  /* compact topbar buttons */
+  .topbar-right{gap:6px;}
+  .topbar-right .btn{padding:6px 10px;font-size:12px;gap:4px;}
+  .topbar-right .btn svg{width:12px;height:12px;}
+
+  /* ── Layout: single column ── */
+  #app{
+    grid-template-columns:1fr !important;
+    grid-template-rows:1fr;
+    height:calc(100vh - 50px);
+    position:relative;
+  }
+
+  /* hide resize handles */
+  .resize-handle{display:none !important;}
+
+  /* ── Sidebar: overlay from left ── */
+  #sidebar{
+    position:absolute;top:0;left:0;bottom:0;z-index:1200;
+    width:280px;max-width:85vw;
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow:none;border-right:1px solid var(--border);
+  }
+  #sidebar.mobile-open{
+    transform:translateX(0);
+    box-shadow:4px 0 24px rgba(0,0,0,.12);
+  }
+  /* reset rail mode on mobile – always show full sidebar when open */
+  #sidebar.rail.mobile-open{
+    position:absolute;top:0;left:0;bottom:0;z-index:1200;
+    width:280px;max-width:85vw;
+    transform:translateX(0);
+    box-shadow:4px 0 24px rgba(0,0,0,.12);
+    border-right:1px solid var(--border);
+    background:var(--bg);display:flex;flex-direction:column;overflow:hidden;
+  }
+  #sidebar.mobile-open .sidebar-title,
+  #sidebar.rail.mobile-open .sidebar-title{opacity:1 !important;max-height:20px !important;}
+  #sidebar.mobile-open .section-label,
+  #sidebar.rail.mobile-open .section-label{opacity:1 !important;max-height:20px !important;padding:0 4px 8px !important;}
+  #sidebar.mobile-open .tool-btn .btn-label,
+  #sidebar.rail.mobile-open .tool-btn .btn-label{max-width:200px !important;opacity:1 !important;}
+  #sidebar.mobile-open .tool-btn,
+  #sidebar.rail.mobile-open .tool-btn{justify-content:flex-start !important;padding:10px 12px !important;}
+  #sidebar.mobile-open .color-row,
+  #sidebar.rail.mobile-open .color-row,
+  #sidebar.mobile-open .marker-row,
+  #sidebar.rail.mobile-open .marker-row{display:flex !important;}
+  #sidebar.mobile-open .sidebar-footer-link,
+  #sidebar.rail.mobile-open .sidebar-footer-link{max-width:200px !important;opacity:1 !important;}
+  #sidebar.mobile-open .sidebar-footer,
+  #sidebar.rail.mobile-open .sidebar-footer{gap:14px !important;padding:10px 12px !important;}
+  #sidebar.mobile-open .sidebar-body,
+  #sidebar.rail.mobile-open .sidebar-body{padding:16px 12px 12px !important;}
+  #sidebar.mobile-open .sidebar-header,
+  #sidebar.rail.mobile-open .sidebar-header{padding:16px 16px 14px !important;}
+  #sidebar.mobile-open .basemap-grid,
+  #sidebar.rail.mobile-open .basemap-grid{grid-template-columns:1fr 1fr 1fr !important;}
+  #sidebar.mobile-open .basemap-thumb,
+  #sidebar.rail.mobile-open .basemap-thumb{height:56px !important;}
+  #sidebar.mobile-open .basemap-label,
+  #sidebar.rail.mobile-open .basemap-label{max-height:28px !important;opacity:1 !important;padding:5px 4px 6px !important;}
+  #sidebar.mobile-open .layer-item,
+  #sidebar.rail.mobile-open .layer-item{justify-content:flex-start !important;padding:8px 10px !important;}
+  #sidebar.mobile-open .layer-name,
+  #sidebar.mobile-open .layer-type,
+  #sidebar.rail.mobile-open .layer-name,
+  #sidebar.rail.mobile-open .layer-type{display:block !important;}
+  #sidebar.mobile-open .empty-note,
+  #sidebar.rail.mobile-open .empty-note{display:block !important;}
+  #sidebar.mobile-open .divider,
+  #sidebar.rail.mobile-open .divider{margin:12px 0 !important;}
+
+  /* ── Chat panel: overlay from right ── */
+  #chat-panel{
+    position:absolute;top:0;right:0;bottom:0;z-index:1200;
+    width:320px;max-width:90vw;
+    transform:translateX(100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow:none;border-left:1px solid var(--border);
+  }
+  #chat-panel.mobile-open{
+    transform:translateX(0);
+    box-shadow:-4px 0 24px rgba(0,0,0,.12);
+  }
+
+  /* ── Map full width ── */
+  #map-wrap{
+    grid-column:1;grid-row:1;
+    width:100%;height:100%;
+  }
+
+  /* ── Bottom bar ── */
+  #map-bottom-bar{padding:6px 8px;gap:4px;}
+  .stat-pill{padding:4px 8px;font-size:11px;}
+  #mouse-coords{display:none;}
+
+  /* ── Context menu ── */
+  #ctx-menu{max-width:calc(100vw - 24px);}
+
+  /* ── Name modal ── */
+  #name-modal{min-width:auto;max-width:calc(100vw - 32px);width:calc(100vw - 32px);}
+
+  /* ── Drop menus ── */
+  .drop-menu{min-width:150px;}
+
+  /* ── Globe controls ── */
+  #globe-controls{bottom:60px;right:8px;}
+
+  /* ── Draw hint ── */
+  #draw-hint{font-size:11px;padding:6px 12px;}
+
+  /* ── Toast ── */
+  #toast{bottom:50px;font-size:11px;padding:6px 14px;}
+}
+
+/* ══ SMALL MOBILE ≤ 480px ══════════════════════════════════════ */
+@media (max-width:480px){
+  #topbar{padding:0 8px;gap:6px;}
+  .mana-logo-icon{width:28px;height:28px;}
+  .logo-wordmark{font-size:14px;}
+
+  /* hide button text on very small screens, keep only icons */
+  .topbar-right .btn.btn-ghost .btn-text,
+  .topbar-right .btn.btn-primary .btn-text{display:none;}
+  .topbar-right .btn{padding:6px 8px;min-width:34px;justify-content:center;}
+
+  /* narrower sidebar */
+  #sidebar{width:260px;}
+  #chat-panel{width:calc(100vw - 40px);}
+  .stat-pill{padding:3px 6px;font-size:10px;}
+}
+
+/* ══ TOUCH IMPROVEMENTS ════════════════════════════════════════ */
+@media (hover:none) and (pointer:coarse){
+  .tool-btn{padding:12px 12px;min-height:44px;}
+  .drop-item{padding:12px 16px;min-height:44px;}
+  .ctx-item{padding:12px 16px;min-height:44px;}
+  .color-swatch{width:28px;height:28px;}
+  .marker-opt{width:38px;height:38px;}
+  .basemap-thumb{height:64px;}
+  #chat-input{font-size:16px;}  /* prevent iOS zoom */
+  #name-modal-input{font-size:16px;}
+}

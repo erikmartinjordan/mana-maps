@@ -39,11 +39,14 @@
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
+    <button class="mobile-toggle" id="mobile-sidebar-toggle" aria-label="Herramientas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <button class="btn btn-ghost" onclick="clearAll()">Limpiar mapa</button>
     <div class="menu-wrap">
       <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg>
-        Importar
+        <span class="btn-text">Importar</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="drop-menu" id="import-menu">
@@ -58,7 +61,7 @@
     <div class="menu-wrap">
       <button class="btn btn-primary" onclick="toggleMenu('export-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar
+        <span class="btn-text">Exportar</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="drop-menu" id="export-menu">
@@ -69,8 +72,14 @@
         <button class="drop-item" onclick="exportAs('shapefile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
       </div>
     </div>
+    <button class="mobile-toggle" id="mobile-chat-toggle" aria-label="Chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </button>
   </div>
 </div>
+
+<!-- MOBILE BACKDROP -->
+<div id="mobile-backdrop"></div>
 
 <!-- APP LAYOUT -->
 <div id="app">
@@ -249,5 +258,6 @@
 <script src="js/context-menu.js"></script> <!-- right-click menu, toast -->
 <script src="js/import-export.js"></script><!-- file import & export -->
 <script src="js/chat.js"></script>         <!-- chat & geocoding -->
+<script src="js/responsive.js"></script>  <!-- responsive / mobile -->
 </body>
 </html>
