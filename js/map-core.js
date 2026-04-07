@@ -51,6 +51,7 @@ let activeBase = 'map';
   if (style && L.maplibreGL) {
     const vectorLayer = L.maplibreGL({
       style: style,
+      interactive: false,
       attribution: '&copy; <a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
     });
     map.removeLayer(tileMapRaster);

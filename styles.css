@@ -798,3 +798,8 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .ctx-cat-count{
   font-size:10px;color:var(--third);font-weight:400;
 }
+
+/* Active weight button */
+.ctx-weight-btn.active{
+  background:var(--blue);color:white;border-color:var(--blue);
+}

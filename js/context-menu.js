@@ -70,25 +70,72 @@ document.addEventListener('click', () =>
 // ── CONTEXT MENU ──
 let ctxLatLng = null, ctxTargetLayer = null;
 
+// Helper: distance from point to polyline segment (in pixels)
+function distToSegment(p, a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+  let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+}
+
+function isNearPolyline(latlng, layer, threshold) {
+  threshold = threshold || 12;
+  const ep = map.latLngToContainerPoint(latlng);
+  const latlngs = layer.getLatLngs();
+  // Handle nested arrays (polygons, multi-polylines)
+  const rings = Array.isArray(latlngs[0]) && latlngs[0] instanceof L.LatLng
+    ? [latlngs] : (Array.isArray(latlngs[0]) ? latlngs : [latlngs]);
+  for (const ring of rings) {
+    const flat = Array.isArray(ring[0]) ? ring[0] : ring;
+    for (let i = 0; i < flat.length - 1; i++) {
+      const a = map.latLngToContainerPoint(flat[i]);
+      const b = map.latLngToContainerPoint(flat[i + 1]);
+      if (distToSegment(ep, a, b) < threshold) return true;
+    }
+  }
+  return false;
+}
+
 map.on('contextmenu', e => {
   L.DomEvent.preventDefault(e);
   ctxLatLng = e.latlng;
   ctxTargetLayer = null;
 
+  // Detect layer under click with proper proximity checks
+  let bestDist = Infinity;
   drawnItems.eachLayer(l => {
     if (l instanceof L.Marker) {
       const pt = map.latLngToContainerPoint(l.getLatLng());
       const ep = map.latLngToContainerPoint(e.latlng);
-      if (Math.hypot(pt.x - ep.x, pt.y - ep.y) < 20) ctxTargetLayer = l;
-    } else if (l.getBounds && l.getBounds().contains(e.latlng)) {
-      ctxTargetLayer = l;
+      const d = Math.hypot(pt.x - ep.x, pt.y - ep.y);
+      if (d < 24 && d < bestDist) { bestDist = d; ctxTargetLayer = l; }
+    } else if (l instanceof L.Polygon) {
+      // For polygons: check fill area OR border proximity
+      if (l.getBounds().contains(e.latlng)) {
+        ctxTargetLayer = l; bestDist = 0;
+      } else if (isNearPolyline(e.latlng, l, 12)) {
+        ctxTargetLayer = l; bestDist = 5;
+      }
+    } else if (l instanceof L.Polyline) {
+      if (isNearPolyline(e.latlng, l, 14)) {
+        ctxTargetLayer = l; bestDist = 5;
+      }
+    } else if (l instanceof L.Circle) {
+      const center = l.getLatLng();
+      const dist = e.latlng.distanceTo(center);
+      if (dist <= l.getRadius()) {
+        ctxTargetLayer = l; bestDist = 0;
+      }
     }
   });
 
   document.getElementById('ctx-coords').textContent =
     e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
+
   // Update style section visibility and controls
-  updateCtxStyleSection();
+  try { updateCtxStyleSection(); } catch(err) { console.warn('ctx style error:', err); }
 
   const menu = document.getElementById('ctx-menu');
   menu.style.left = e.originalEvent.clientX + 'px';
@@ -108,7 +155,22 @@ function closeCtx() {
   document.getElementById('ctx-menu').classList.remove('open');
 }
 
-document.addEventListener('click', closeCtx);
+// Prevent clicks INSIDE the context menu from closing it
+document.getElementById('ctx-menu').addEventListener('click', e => {
+  e.stopPropagation();
+});
+document.getElementById('ctx-menu').addEventListener('mousedown', e => {
+  e.stopPropagation();
+});
+
+// Close menu when clicking outside or pressing Escape
+document.addEventListener('click', e => {
+  const menu = document.getElementById('ctx-menu');
+  if (!menu.contains(e.target)) closeCtx();
+});
+document.addEventListener('contextmenu', e => {
+  // Don't close on right-click (the handler will reopen it)
+});
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeCtx(); modalCancel(); }
 });
@@ -174,12 +236,21 @@ function ctxSetColor(color) {
   } else {
     ctxTargetLayer.setStyle({ color: color });
   }
+  // Highlight selected swatch
+  document.querySelectorAll('.ctx-swatch').forEach(s => {
+    s.style.borderColor = (s.style.backgroundColor && s.onclick.toString().includes(color))
+      ? 'white' : 'transparent';
+  });
   stats(); showToast('Color aplicado');
 }
 
 function ctxSetWeight(w) {
   if (!ctxTargetLayer || ctxTargetLayer instanceof L.Marker) return;
   ctxTargetLayer.setStyle({ weight: w });
+  // Highlight selected weight
+  document.querySelectorAll('.ctx-weight-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === String(w));
+  });
   showToast('Grosor: ' + w + 'px');
 }
 
