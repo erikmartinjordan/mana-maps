@@ -1,5 +1,8 @@
 // ── import-export.js ─ File import, export & drag-and-drop ──
 
+// ── LAYER GROUP COUNTER ──
+let _manaGroupCounter = 0;
+
 // ── DRAG & DROP ──
 (function () {
   const mapWrap = document.getElementById('map-wrap');
@@ -38,20 +41,29 @@ async function handleImport(e) {
   await processFile(file);
 }
 
+// ── Derive a clean layer name from a filename ──
+function layerNameFromFile(filename) {
+  return filename
+    .replace(/\.[^/.]+$/, '')          // strip extension
+    .replace(/[_\-]+/g, ' ')           // dashes/underscores → spaces
+    .replace(/\b\w/g, c => c.toUpperCase()); // title-case
+}
+
 async function processFile(file) {
   const name = file.name.toLowerCase();
+  const layerName = layerNameFromFile(file.name);
   try {
     if (name.endsWith('.geojson') || name.endsWith('.json')) {
-      loadGeoJSON(JSON.parse(await file.text()));
+      loadGeoJSON(JSON.parse(await file.text()), layerName);
     } else if (name.endsWith('.kml')) {
-      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(await file.text(), 'text/xml')));
+      loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(await file.text(), 'text/xml')), layerName);
     } else if (name.endsWith('.kmz')) {
       const zip = await JSZip.loadAsync(await file.arrayBuffer());
       const kmlFile = Object.keys(zip.files).find(n => n.endsWith('.kml'));
       if (!kmlFile) throw new Error('No se encontr\u00F3 un .kml dentro del KMZ');
       loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(
         await zip.files[kmlFile].async('string'), 'text/xml'
-      )));
+      )), layerName);
     } else if (name.endsWith('.zip')) {
       const buf = await file.arrayBuffer();
       let geo;
@@ -61,17 +73,50 @@ async function processFile(file) {
         if (geoFile) { geo = JSON.parse(await zip.files[geoFile].async('string')); }
         else throw new Error('No se pudo leer el Shapefile. Aseg\u00FArate de que el .zip contiene .shp, .dbf y .prj.');
       }
-      if (Array.isArray(geo)) geo.forEach(g => loadGeoJSON(g)); else loadGeoJSON(geo);
+      // For shapefiles: use the shapefile's internal name if available, else the zip filename
+      if (Array.isArray(geo)) {
+        geo.forEach(g => {
+          const shpName = (g.fileName) ? layerNameFromFile(g.fileName) : layerName;
+          loadGeoJSON(g, shpName);
+        });
+      } else {
+        loadGeoJSON(geo, layerName);
+      }
     } else {
       alert('Formato no soportado.');
     }
   } catch (err) { alert('Error al importar: ' + err.message); }
 }
 
-function loadGeoJSON(geo) {
+// ── Build attribute popup HTML ──
+function buildAttrPopup(properties, geomType) {
+  if (!properties || Object.keys(properties).length === 0) {
+    return '<div class="attr-popup"><p class="attr-empty">Sin atributos</p></div>';
+  }
+  let html = '<div class="attr-popup"><table class="attr-table">';
+  for (const [key, val] of Object.entries(properties)) {
+    if (val === null || val === undefined || val === '') continue;
+    // Skip internal/geometry fields
+    if (key.startsWith('_') || key === 'bbox') continue;
+    const safeKey = String(key).replace(/</g, '&lt;');
+    let safeVal = String(val).replace(/</g, '&lt;');
+    // Truncate very long values
+    if (safeVal.length > 120) safeVal = safeVal.substring(0, 117) + '...';
+    html += '<tr><td class="attr-key">' + safeKey + '</td><td class="attr-val">' + safeVal + '</td></tr>';
+  }
+  html += '</table></div>';
+  return html;
+}
+
+function loadGeoJSON(geo, groupName) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
   if (!geo.features) { alert('GeoJSON no v\u00E1lido.'); return; }
+
+  // Assign a unique group ID for this imported layer
+  const groupId = ++_manaGroupCounter;
+  const gName = groupName || geo.fileName || 'Capa importada';
+  const featureCount = geo.features.length;
 
   const layer = L.geoJSON(geo, {
     style: { color: drawColor, weight: 2, fillOpacity: .18 },
@@ -80,13 +125,20 @@ function loadGeoJSON(geo) {
       const icon = makeMarkerIcon(drawColor, markerType);
       const m = L.marker(ll, { icon });
       m._manaName = n; m._manaColor = drawColor;
-      m.bindPopup('<strong>' + n + '</strong>');
+      m._manaGroupId = groupId;
+      m._manaGroupName = gName;
+      m._manaProperties = f.properties || {};
+      m.bindPopup(buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
       return m;
     },
     onEachFeature: (f, l) => {
+      l._manaGroupId = groupId;
+      l._manaGroupName = gName;
+      l._manaProperties = f.properties || {};
       if (!(l instanceof L.Marker)) {
         const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || '';
-        if (n) { l._manaName = n; l.bindPopup('<strong>' + n + '</strong>'); }
+        if (n) l._manaName = n;
+        l.bindPopup(buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
       }
     }
   });
