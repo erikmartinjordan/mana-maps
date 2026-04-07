@@ -280,6 +280,73 @@
   </div>
 </div>
 
+<!-- LAYER CONTEXT MENU (sidebar right-click) -->
+<div id="layer-ctx-menu" class="ctx-menu-float">
+  <div id="lctx-title" class="ctx-section-label" style="padding-top:10px"></div>
+
+  <!-- Color picker -->
+  <div class="ctx-color-row">
+    <div class="ctx-swatch" style="background:#0ea5e9" onclick="lctxSetColor('#0ea5e9')"></div>
+    <div class="ctx-swatch" style="background:#6366f1" onclick="lctxSetColor('#6366f1')"></div>
+    <div class="ctx-swatch" style="background:#10b981" onclick="lctxSetColor('#10b981')"></div>
+    <div class="ctx-swatch" style="background:#f59e0b" onclick="lctxSetColor('#f59e0b')"></div>
+    <div class="ctx-swatch" style="background:#ef4444" onclick="lctxSetColor('#ef4444')"></div>
+    <div class="ctx-swatch" style="background:#ec4899" onclick="lctxSetColor('#ec4899')"></div>
+    <div class="ctx-swatch" style="background:#8b5cf6" onclick="lctxSetColor('#8b5cf6')"></div>
+    <div class="ctx-swatch" style="background:#f97316" onclick="lctxSetColor('#f97316')"></div>
+    <div class="ctx-swatch" style="background:#64748b" onclick="lctxSetColor('#64748b')"></div>
+    <div class="ctx-swatch" style="background:#30363b" onclick="lctxSetColor('#30363b')"></div>
+  </div>
+
+  <!-- Line weight (hidden for marker-only groups) -->
+  <div id="lctx-weight-row" class="ctx-option-row">
+    <span class="ctx-option-label">Grosor</span>
+    <div class="ctx-weight-opts">
+      <button class="ctx-weight-btn" onclick="lctxSetWeight(1)">1</button>
+      <button class="ctx-weight-btn" onclick="lctxSetWeight(2)">2</button>
+      <button class="ctx-weight-btn" onclick="lctxSetWeight(3)">3</button>
+      <button class="ctx-weight-btn" onclick="lctxSetWeight(5)">5</button>
+      <button class="ctx-weight-btn" onclick="lctxSetWeight(8)">8</button>
+    </div>
+  </div>
+
+  <!-- Opacity -->
+  <div class="ctx-option-row">
+    <span class="ctx-option-label">Opacidad</span>
+    <input type="range" id="lctx-opacity" class="ctx-range" min="10" max="100" value="100" oninput="lctxSetOpacity(this.value)"/>
+    <span id="lctx-opacity-val" class="ctx-range-val">100%</span>
+  </div>
+
+  <div class="ctx-sep"></div>
+
+  <!-- Rename -->
+  <button class="ctx-item" onclick="lctxRename()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+    Renombrar
+  </button>
+
+  <!-- Zoom -->
+  <button class="ctx-item" onclick="lctxZoom()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Zoom a la capa
+  </button>
+
+  <!-- Categorize by attribute (groups only) -->
+  <div id="lctx-categorize" style="display:none">
+    <div class="ctx-sep"></div>
+    <div class="ctx-section-label">Categorizar por atributo</div>
+    <div id="lctx-cat-list"></div>
+  </div>
+
+  <div class="ctx-sep"></div>
+
+  <!-- Delete -->
+  <button class="ctx-item danger" onclick="lctxDelete()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+    Eliminar
+  </button>
+</div>
+
 <!-- CONTEXT MENU -->
 <div id="ctx-menu">
   <div class="ctx-coords" id="ctx-coords">0.00000, 0.00000</div>

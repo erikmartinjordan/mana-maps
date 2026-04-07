@@ -803,3 +803,15 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .ctx-weight-btn.active{
   background:var(--blue);color:white;border-color:var(--blue);
 }
+
+/* ── SIDEBAR LAYER CONTEXT MENU ─────────────── */
+.ctx-menu-float{
+  display:none;position:fixed;z-index:10000;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.15);
+  min-width:220px;max-width:280px;padding:4px 0;
+  max-height:70vh;overflow-y:auto;
+  animation:ctx-in .12s ease-out;
+}
+.ctx-menu-float.open{display:block;}
+@keyframes ctx-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}

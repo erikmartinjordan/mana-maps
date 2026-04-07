@@ -3,7 +3,7 @@
 // ── BASE LAYERS ──
 
 // Vector basemap with Spanish labels (OpenFreeMap + MapLibre GL)
-const SPANISH_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+const SPANISH_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
 let _spanishStyleCache = null;
 
 async function getSpanishStyle() {
@@ -354,6 +354,7 @@ const ICON = {
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
   filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+  palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.1-.7-.4-1-.3-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5.5-4.5-9-10-9z"/><circle cx="7.5" cy="11.5" r="1.5" fill="currentColor"/><circle cx="10.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="14.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor"/></svg>',
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
 };
@@ -435,7 +436,7 @@ function renderLayers() {
     html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + '">';
 
     // ── Header
-    html += '<div class="layer-group-header" onclick="toggleLayerGroup(' + gid + ')">';
+    html += '<div class="layer-group-header" onclick="toggleLayerGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
     html += '  <div class="layer-dot" style="background:' + g.color + '"></div>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
     html += '  ' + filterBadge;
@@ -456,7 +457,7 @@ function renderLayers() {
         } else {
           kind = 'L\u00EDnea'; name = layer._manaName || ('L\u00EDnea ' + (fi + 1));
         }
-        html += '<div class="layer-item layer-child" onclick="focusLayer(' + index + ')">';
+        html += '<div class="layer-item layer-child" onclick="focusLayer(' + index + ')" oncontextmenu="showLayerCtx(event,\'layer\',' + index + ')">';
         html += '  <span class="layer-name">' + esc(name) + '</span>';
         html += '  <span class="layer-type">' + kind + '</span>';
         html += '</div>';
@@ -474,6 +475,7 @@ function renderLayers() {
 
     // ── Actions row
     html += '<div class="layer-group-actions">';
+    html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="Estilo y categorización">' + ICON.palette + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="Filtrar atributos">' + ICON.filter + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="Zoom a la capa">' + ICON.search + '</button>';
     html += '  <button class="layer-group-action-btn danger" onclick="deleteGroup(' + gid + ')" title="Eliminar capa">' + ICON.trash + '</button>';
@@ -494,7 +496,7 @@ function renderLayers() {
       kind = 'L\u00EDnea'; color = (layer.options && layer.options.color) || '#f59e0b';
       name = layer._manaName || ('L\u00EDnea ' + (index + 1));
     }
-    html += '<div class="layer-item" onclick="focusLayer(' + index + ')">';
+    html += '<div class="layer-item" onclick="focusLayer(' + index + ')" oncontextmenu="showLayerCtx(event,\'layer\',' + index + ')">';
     html += '  <div class="layer-dot" style="background:' + color + '"></div>';
     html += '  <span class="layer-name">' + esc(name) + '</span>';
     html += '  <span class="layer-type">' + kind + '</span>';

@@ -408,3 +408,250 @@ function updateCtxStyleSection() {
     catSection.style.display = 'none';
   }
 }
+
+
+// ═══════════════════════════════════════════════════════════════
+// SIDEBAR LAYER CONTEXT MENU
+// ═══════════════════════════════════════════════════════════════
+let _lctxType = null;   // 'group' | 'layer'
+let _lctxId = null;     // group id or layer index
+
+function closeLayerCtx() {
+  document.getElementById('layer-ctx-menu').classList.remove('open');
+}
+
+// Show from right-click
+function showLayerCtx(e, type, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  _openLayerCtx(e.clientX, e.clientY, type, id);
+}
+
+// Show from palette button click
+function showLayerCtxBtn(e, type, id) {
+  e.stopPropagation();
+  const rect = e.currentTarget.getBoundingClientRect();
+  _openLayerCtx(rect.left, rect.bottom + 4, type, id);
+}
+
+function _openLayerCtx(x, y, type, id) {
+  _lctxType = type;
+  _lctxId = id;
+
+  const menu = document.getElementById('layer-ctx-menu');
+  const title = document.getElementById('lctx-title');
+  const weightRow = document.getElementById('lctx-weight-row');
+  const catSection = document.getElementById('lctx-categorize');
+  const catList = document.getElementById('lctx-cat-list');
+  const opSlider = document.getElementById('lctx-opacity');
+  const opVal = document.getElementById('lctx-opacity-val');
+
+  if (type === 'group') {
+    const meta = _manaGroupMeta[id];
+    if (!meta) return;
+    title.textContent = meta.name;
+
+    // Check if group has non-marker layers (for weight control)
+    let hasLines = false;
+    meta.allLayers.forEach(l => {
+      if (!(l instanceof L.Marker)) hasLines = true;
+    });
+    weightRow.style.display = hasLines ? 'flex' : 'none';
+
+    // Opacity: use first layer's opacity
+    let curOp = 100;
+    if (meta.allLayers.length) {
+      const first = meta.allLayers[0];
+      curOp = Math.round(((first instanceof L.Marker ? first.options.opacity : first.options.opacity) || 1) * 100);
+    }
+    opSlider.value = curOp;
+    opVal.textContent = curOp + '%';
+
+    // Build categorize options
+    const attrs = Object.keys(meta.attrs);
+    if (attrs.length) {
+      catSection.style.display = 'block';
+      catList.innerHTML = attrs.map(a => {
+        const count = meta.attrs[a].values.size;
+        return '<button class="ctx-item ctx-cat-item" onclick="lctxCategorize(\'' +
+          a.replace(/'/g, "\\'") + '\')">' +
+          '<span class="ctx-cat-field">' + a + '</span>' +
+          '<span class="ctx-cat-count">' + count + ' val.</span></button>';
+      }).join('');
+    } else {
+      catSection.style.display = 'none';
+    }
+  } else {
+    // Individual layer
+    const layers = [];
+    drawnItems.eachLayer(l => layers.push(l));
+    const layer = layers[id];
+    if (!layer) return;
+    title.textContent = layer._manaName || 'Elemento';
+    weightRow.style.display = (layer instanceof L.Marker) ? 'none' : 'flex';
+
+    let curOp = 100;
+    if (layer instanceof L.Marker) {
+      curOp = Math.round((layer.options.opacity || 1) * 100);
+    } else {
+      curOp = Math.round((layer.options.opacity || 1) * 100);
+    }
+    opSlider.value = curOp;
+    opVal.textContent = curOp + '%';
+
+    catSection.style.display = 'none';
+  }
+
+  // Position and show
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+  menu.classList.add('open');
+
+  // Adjust if overflows
+  requestAnimationFrame(() => {
+    const r = menu.getBoundingClientRect();
+    if (r.right > window.innerWidth) menu.style.left = (x - r.width) + 'px';
+    if (r.bottom > window.innerHeight) menu.style.top = (y - r.height) + 'px';
+  });
+}
+
+// ── Actions ──
+function _getLctxLayers() {
+  if (_lctxType === 'group') {
+    const meta = _manaGroupMeta[_lctxId];
+    return meta ? meta.allLayers : [];
+  } else {
+    const layers = [];
+    drawnItems.eachLayer(l => layers.push(l));
+    return layers[_lctxId] ? [layers[_lctxId]] : [];
+  }
+}
+
+function lctxSetColor(color) {
+  _getLctxLayers().forEach(l => {
+    if (l instanceof L.Marker) {
+      l._manaColor = color;
+      l.setIcon(makeMarkerIcon(color, markerType));
+    } else {
+      l.setStyle({ color: color });
+    }
+  });
+  if (_lctxType === 'group' && _manaGroupMeta[_lctxId]) {
+    _manaGroupMeta[_lctxId].color = color;
+  }
+  stats(); showToast('Color aplicado');
+}
+
+function lctxSetWeight(w) {
+  _getLctxLayers().forEach(l => {
+    if (!(l instanceof L.Marker)) l.setStyle({ weight: w });
+  });
+  document.querySelectorAll('#layer-ctx-menu .ctx-weight-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === String(w));
+  });
+  showToast('Grosor: ' + w + 'px');
+}
+
+function lctxSetOpacity(val) {
+  const op = val / 100;
+  document.getElementById('lctx-opacity-val').textContent = val + '%';
+  _getLctxLayers().forEach(l => {
+    if (l instanceof L.Marker) {
+      l.setOpacity(op);
+    } else {
+      l.setStyle({ opacity: op, fillOpacity: op * 0.3 });
+    }
+  });
+}
+
+async function lctxRename() {
+  closeLayerCtx();
+  if (_lctxType === 'group') {
+    const meta = _manaGroupMeta[_lctxId];
+    if (!meta) return;
+    const name = await askName('Renombrar capa', meta.name);
+    if (name === null) return;
+    meta.name = name;
+  } else {
+    const layers = [];
+    drawnItems.eachLayer(l => layers.push(l));
+    const layer = layers[_lctxId];
+    if (!layer) return;
+    const name = await askName('Renombrar elemento', layer._manaName || 'Elemento');
+    if (name === null) return;
+    layer._manaName = name;
+    if (layer.getPopup && layer.getPopup()) {
+      layer.setPopupContent('<strong>' + name + '</strong>');
+    }
+  }
+  stats(); showToast('Renombrado');
+}
+
+function lctxZoom() {
+  closeLayerCtx();
+  if (_lctxType === 'group') {
+    focusGroup(_lctxId);
+  } else {
+    focusLayer(_lctxId);
+  }
+}
+
+function lctxCategorize(field) {
+  if (_lctxType !== 'group') return;
+  const meta = _manaGroupMeta[_lctxId];
+  if (!meta) return;
+
+  const valSet = new Set();
+  meta.allLayers.forEach(l => {
+    const v = (l._manaProperties || {})[field];
+    if (v !== null && v !== undefined && v !== '') valSet.add(String(v));
+  });
+
+  const uniqueVals = [...valSet].sort();
+  const colorMap = {};
+  uniqueVals.forEach((v, i) => {
+    colorMap[v] = CTX_PALETTE[i % CTX_PALETTE.length];
+  });
+
+  meta.allLayers.forEach(l => {
+    const v = String((l._manaProperties || {})[field] || '');
+    const c = colorMap[v] || '#64748b';
+    if (l instanceof L.Marker) {
+      l._manaColor = c;
+      l.setIcon(makeMarkerIcon(c, markerType));
+    } else {
+      l.setStyle({ color: c, weight: l.options.weight || 2 });
+    }
+  });
+
+  closeLayerCtx(); stats();
+  showToast('Categorizado por ' + field + ' (' + uniqueVals.length + ' valores)');
+}
+
+async function lctxDelete() {
+  closeLayerCtx();
+  if (_lctxType === 'group') {
+    deleteGroup(_lctxId);
+  } else {
+    const layers = [];
+    drawnItems.eachLayer(l => layers.push(l));
+    const layer = layers[_lctxId];
+    if (!layer) return;
+    drawnItems.removeLayer(layer);
+    stats();
+    showToast('Elemento eliminado');
+  }
+}
+
+// ── Close & propagation ──
+document.getElementById('layer-ctx-menu').addEventListener('click', e => e.stopPropagation());
+document.getElementById('layer-ctx-menu').addEventListener('mousedown', e => e.stopPropagation());
+document.addEventListener('click', e => {
+  const lm = document.getElementById('layer-ctx-menu');
+  if (lm && !lm.contains(e.target)) closeLayerCtx();
+});
+document.addEventListener('contextmenu', e => {
+  // If right-clicking outside the layer-ctx-menu, close it
+  const lm = document.getElementById('layer-ctx-menu');
+  if (lm && !lm.contains(e.target)) closeLayerCtx();
+});
