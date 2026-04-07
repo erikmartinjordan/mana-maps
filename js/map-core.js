@@ -1,7 +1,39 @@
 // ── map-core.js ─ Map init, base layers, resize, stats, utilities ──
 
 // ── BASE LAYERS ──
-const tileMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+
+// Vector basemap with Spanish labels (OpenFreeMap + MapLibre GL)
+const SPANISH_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+let _spanishStyleCache = null;
+
+async function getSpanishStyle() {
+  if (_spanishStyleCache) return _spanishStyleCache;
+  try {
+    const resp = await fetch(SPANISH_STYLE_URL);
+    const style = await resp.json();
+    // Rewrite text-field properties to prefer Spanish names
+    style.layers.forEach(layer => {
+      if (layer.layout && layer.layout['text-field']) {
+        const tf = layer.layout['text-field'];
+        if (typeof tf === 'string') {
+          // Replace {name} or {name:latin} with coalesce expression
+          layer.layout['text-field'] = ['coalesce', ['get', 'name:es'], ['get', 'name']];
+        } else if (Array.isArray(tf)) {
+          // Already an expression — wrap with coalesce for Spanish
+          layer.layout['text-field'] = ['coalesce', ['get', 'name:es'], ['get', 'name']];
+        }
+      }
+    });
+    _spanishStyleCache = style;
+    return style;
+  } catch (e) {
+    console.warn('Failed to load vector style, falling back to raster:', e);
+    return null;
+  }
+}
+
+// Raster fallback
+const tileMapRaster = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 20
 });
 const tileSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -9,8 +41,23 @@ const tileSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/service
 });
 
 const map = L.map('map', { zoomControl: true }).setView([40.416, -3.703], 6);
+let tileMap = tileMapRaster; // will be replaced once vector style loads
 tileMap.addTo(map);
 let activeBase = 'map';
+
+// Async init: replace raster with vector Spanish basemap
+(async function initSpanishBasemap() {
+  const style = await getSpanishStyle();
+  if (style && L.maplibreGL) {
+    const vectorLayer = L.maplibreGL({
+      style: style,
+      attribution: '&copy; <a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    });
+    map.removeLayer(tileMapRaster);
+    vectorLayer.addTo(map);
+    tileMap = vectorLayer;
+  }
+})();
 
 const drawnItems = new L.FeatureGroup().addTo(map);
 
@@ -198,8 +245,8 @@ function setBaseLayer(type) {
     document.getElementById('globe-spin-indicator').style.display = 'none';
     mapEl.style.display = 'block';
     document.getElementById('map-bottom-bar').style.display = 'flex';
-    if (type === 'map') { map.removeLayer(tileSat); tileMap.addTo(map); }
-    else { map.removeLayer(tileMap); tileSat.addTo(map); }
+    if (type === 'map') { map.removeLayer(tileSat); tileMap.addTo(map); map.getContainer().classList.remove('sat-mode'); }
+    else { map.removeLayer(tileMap); tileSat.addTo(map); map.getContainer().classList.add('sat-mode'); }
     setTimeout(function(){ map.invalidateSize(); }, 50);
     if (globeMap) {
       var c = globeMap.getCenter();
