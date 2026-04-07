@@ -554,8 +554,9 @@ function focusGroup(gid) {
   if (allBounds.isValid()) map.fitBounds(allBounds, { maxZoom: 14, padding: [24, 24] });
 }
 
-function deleteGroup(gid) {
-  if (!confirm('\u00BFEliminar toda la capa importada?')) return;
+async function deleteGroup(gid) {
+  const ok = await manaConfirm('\u00BFEliminar toda la capa importada?');
+  if (!ok) return;
   const meta = _manaGroupMeta[gid];
   if (meta) {
     meta.allLayers.forEach(l => {

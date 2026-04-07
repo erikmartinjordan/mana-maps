@@ -58,7 +58,7 @@ function initGlobe() {
     globeMap.on('touchstart', function() { if (spinActive) toggleSpin(); });
   } catch(e) {
     console.error('Error initializing 3D globe:', e);
-    alert('Error al inicializar el globo 3D: ' + e.message);
+    manaAlert('Error al inicializar el globo 3D: ' + e.message, 'error');
   }
 }
 

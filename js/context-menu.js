@@ -1,4 +1,47 @@
-// ── context-menu.js ─ Right-click menu & toast notifications ──
+// ── context-menu.js ─ Right-click menu, toast, & in-app dialogs ──
+
+// ═══════════════════════════════════════════════════════════════
+// IN-APP CONFIRM DIALOG (replaces browser confirm())
+// ═══════════════════════════════════════════════════════════════
+let _confirmResolve = null;
+
+function manaConfirm(msg) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    const modal = document.getElementById('confirm-modal');
+    document.getElementById('confirm-modal-msg').innerHTML = msg;
+    modal.classList.add('open');
+  });
+}
+
+function confirmOk() {
+  document.getElementById('confirm-modal').classList.remove('open');
+  if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+}
+
+function confirmCancel() {
+  document.getElementById('confirm-modal').classList.remove('open');
+  if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// IN-APP ALERT / NOTIFICATION (replaces browser alert())
+// ═══════════════════════════════════════════════════════════════
+let _alertTimer = null;
+
+function manaAlert(msg, type) {
+  type = type || 'info';
+  const el = document.getElementById('mana-alert');
+  const icon = type === 'error' ? '\u26A0\uFE0F'
+             : type === 'warning' ? '\u26A0\uFE0F'
+             : '\u2139\uFE0F';
+  el.innerHTML = '<span class="mana-alert-icon">' + icon + '</span><span class="mana-alert-text">' + msg + '</span>';
+  el.className = 'mana-alert show ' + type;
+  if (_alertTimer) clearTimeout(_alertTimer);
+  _alertTimer = setTimeout(() => el.classList.remove('show'), type === 'error' ? 5000 : 3500);
+}
+
+
 
 // ── TOAST ──
 let toastTimer = null;

@@ -83,9 +83,9 @@ async function processFile(file) {
         loadGeoJSON(geo, layerName);
       }
     } else {
-      alert('Formato no soportado.');
+      manaAlert('Formato no soportado.', 'warning');
     }
-  } catch (err) { alert('Error al importar: ' + err.message); }
+  } catch (err) { manaAlert('Error al importar: ' + err.message, 'error'); }
 }
 
 // ── Build attribute popup HTML ──
@@ -111,7 +111,7 @@ function buildAttrPopup(properties, geomType) {
 function loadGeoJSON(geo, groupName) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
-  if (!geo.features) { alert('GeoJSON no v\u00E1lido.'); return; }
+  if (!geo.features) { manaAlert('GeoJSON no v\u00E1lido.', 'error'); return; }
 
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
@@ -197,7 +197,7 @@ function hexToKmlColor(hex, alpha) {
 function exportAs(fmt) {
   document.querySelectorAll('.drop-menu').forEach(x => x.classList.remove('open'));
   const geo = getEnrichedGeoJSON();
-  if (!geo.features.length) { alert('No hay elementos en el mapa.'); return; }
+  if (!geo.features.length) { manaAlert('No hay elementos para exportar.', 'warning'); return; }
   if (fmt === 'geojson') return dl(JSON.stringify(geo, null, 2), 'mana-maps.geojson', 'application/json');
   if (fmt === 'csv') return exportCSV(geo);
   if (fmt === 'kml') return exportKMZ(geo);

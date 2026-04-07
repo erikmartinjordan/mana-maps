@@ -15,6 +15,23 @@
 <body>
 <div id="toast"></div>
 
+<!-- IN-APP ALERT NOTIFICATION -->
+<div id="mana-alert" class="mana-alert">
+  <span class="mana-alert-icon"></span>
+  <span class="mana-alert-text"></span>
+</div>
+
+<!-- IN-APP CONFIRM DIALOG -->
+<div id="confirm-modal" class="confirm-modal">
+  <div class="confirm-modal-box">
+    <p id="confirm-modal-msg"></p>
+    <div class="confirm-modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="confirmCancel()">Cancelar</button>
+      <button class="modal-btn modal-btn-ok" onclick="confirmOk()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL NOMBRE -->
 <div id="name-modal">
   <h4 id="name-modal-title">Nombre del elemento</h4>

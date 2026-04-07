@@ -57,10 +57,13 @@ map.on(L.Draw.Event.CREATED, async e => {
   stats();
 });
 
-function clearAll() {
+async function clearAll() {
   closeCtx();
-  if (confirm('\u00BFBorrar todos los elementos del mapa?')) {
+  const ok = await manaConfirm('\u00BFBorrar todos los elementos del mapa?');
+  if (ok) {
     drawnItems.clearLayers();
+    // Also clear group meta registry
+    for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
     stats();
   }
 }
