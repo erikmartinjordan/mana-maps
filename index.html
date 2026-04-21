@@ -74,84 +74,6 @@
   white-space: nowrap;
 }
 
-/* ── Attribute table drawer ── */
-.attr-drawer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-height: 0;
-  overflow: hidden;
-  background: var(--color-background-primary, #16161e);
-  border-top: 1px solid var(--color-border-tertiary, rgba(255,255,255,.12));
-  z-index: 800;
-  transition: max-height .3s ease;
-}
-.attr-drawer.open {
-  max-height: 40vh;
-}
-.attr-drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--color-border-tertiary, rgba(255,255,255,.12));
-  position: sticky;
-  top: 0;
-  background: var(--color-background-primary, #16161e);
-  z-index: 1;
-}
-.attr-drawer-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-primary, #e2e8f0);
-}
-.attr-drawer-close {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary, #94a3b8);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
-}
-.attr-drawer-close:hover { color: var(--color-text-primary, #e2e8f0); }
-.attr-drawer-body {
-  overflow: auto;
-  max-height: calc(40vh - 42px);
-}
-.attr-drawer-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.attr-drawer-table th {
-  position: sticky;
-  top: 0;
-  background: var(--color-background-secondary, #1e1e2e);
-  color: var(--color-text-secondary, #94a3b8);
-  font-weight: 600;
-  text-align: left;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--color-border-tertiary, rgba(255,255,255,.12));
-  white-space: nowrap;
-}
-.attr-drawer-table td {
-  padding: 5px 10px;
-  color: var(--color-text-primary, #e2e8f0);
-  border-bottom: 1px solid rgba(255,255,255,.05);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.attr-drawer-table tr {
-  cursor: pointer;
-  transition: background .15s;
-}
-.attr-drawer-table tbody tr:hover {
-  background: rgba(14, 165, 233, .1);
-}
 </style>
 </head>
 <body>
@@ -359,16 +281,29 @@
       <span>Suelta para importar</span>
     </div>
     <!-- ATTRIBUTE TABLE DRAWER -->
-    <div id="attr-drawer" class="attr-drawer">
-      <div class="attr-drawer-header">
-        <span class="attr-drawer-title">Tabla de atributos</span>
-        <button class="attr-drawer-close" onclick="closeAttributeDrawer()">&times;</button>
-      </div>
-      <div class="attr-drawer-body">
-        <table class="attr-drawer-table">
-          <thead id="attr-table-head"></thead>
-          <tbody id="attr-table-body"></tbody>
-        </table>
+    <!-- ATTRIBUTE TABLE MODAL -->
+    <div id="attr-modal" class="attr-modal">
+      <div class="attr-modal-box">
+        <div class="attr-modal-header">
+          <span class="attr-modal-title" id="attr-modal-title">Tabla de atributos</span>
+          <div class="attr-modal-actions">
+            <button class="attr-action-btn" onclick="attrAddColumn()" title="Añadir campo">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Campo
+            </button>
+            <button class="attr-action-btn" onclick="attrAddRow()" title="Añadir fila">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Fila
+            </button>
+          </div>
+          <button class="attr-modal-close" onclick="closeAttrModal()">&times;</button>
+        </div>
+        <div class="attr-modal-body">
+          <table class="attr-table-edit">
+            <thead id="attr-table-head"></thead>
+            <tbody id="attr-table-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 

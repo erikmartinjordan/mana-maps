@@ -1228,3 +1228,237 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .stat-pill:hover {
   background: rgba(14, 165, 233, 0.08);
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ATTRIBUTE TABLE MODAL — editable, centered
+   ═══════════════════════════════════════════════════════════════ */
+.attr-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(3px);
+  align-items: center;
+  justify-content: center;
+}
+.attr-modal.open { display: flex; }
+
+.attr-modal-box {
+  background: var(--bg);
+  border-radius: 16px;
+  box-shadow: rgb(15 15 15/15%) 0 10px 40px;
+  width: 720px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn .2s ease;
+}
+
+/* ── Header ── */
+.attr-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.attr-modal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  flex: 1;
+}
+.attr-modal-actions {
+  display: flex;
+  gap: 6px;
+}
+.attr-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bgBox);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all .15s;
+}
+.attr-action-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(14,165,233,.05);
+}
+.attr-modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--third);
+  display: grid;
+  place-items: center;
+  transition: all .12s;
+  flex-shrink: 0;
+}
+.attr-modal-close:hover {
+  background: var(--bgBox);
+  color: var(--red);
+}
+
+/* ── Body / Table ── */
+.attr-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+.attr-table-edit {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Header cells (editable field names) ── */
+.attr-table-edit th {
+  position: sticky;
+  top: 0;
+  background: var(--bgBox);
+  z-index: 2;
+  text-align: left;
+  padding: 0;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.attr-th-wrap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 10px;
+}
+.attr-th-name {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--third);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 2px 0;
+  font-family: 'DM Sans', sans-serif;
+  min-width: 40px;
+}
+.attr-th-name:focus {
+  color: var(--primary);
+  border-bottom: 1.5px solid var(--blue);
+}
+.attr-th-del {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  color: var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  transition: all .12s;
+  opacity: 0;
+}
+.attr-th-wrap:hover .attr-th-del { opacity: 1; }
+.attr-th-del:hover {
+  background: rgba(239,68,68,.1);
+  color: var(--red);
+}
+/* Actions column header */
+.attr-th-actions {
+  width: 36px;
+  padding: 0;
+  text-align: center;
+}
+
+/* ── Data cells (editable) ── */
+.attr-table-edit td {
+  padding: 0;
+  border-bottom: 1px solid rgba(0,0,0,.05);
+  max-width: 200px;
+}
+.attr-cell-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--primary);
+  transition: background .1s;
+}
+.attr-cell-input:focus {
+  background: rgba(14,165,233,.04);
+}
+.attr-cell-input::placeholder {
+  color: var(--border);
+}
+
+/* ── Row actions (delete row) ── */
+.attr-row-del {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: none;
+  color: var(--border);
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  transition: all .12s;
+  opacity: 0;
+}
+.attr-table-edit tr:hover .attr-row-del { opacity: 1; }
+.attr-row-del:hover {
+  background: rgba(239,68,68,.1);
+  color: var(--red);
+}
+
+/* ── Hover row ── */
+.attr-table-edit tbody tr {
+  transition: background .1s;
+}
+.attr-table-edit tbody tr:hover {
+  background: rgba(14,165,233,.03);
+}
+
+/* ── Empty state ── */
+.attr-empty-msg {
+  padding: 32px;
+  text-align: center;
+  color: var(--third);
+  font-size: 13px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .attr-modal-box {
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 40px);
+    border-radius: 12px;
+  }
+  .attr-action-btn span { display: none; }
+}

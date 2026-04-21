@@ -723,109 +723,276 @@ async function lctxDelete() {
 
 
 // ═══════════════════════════════════════════════════════════════
-// ATTRIBUTE TABLE DRAWER
+// ATTRIBUTE TABLE — Modal editable
 // ═══════════════════════════════════════════════════════════════
-let _attrHighlightLayer = null;
+var _attrLayers = [];      // layers being edited
+var _attrColumns = [];     // current column names
+var _attrHighlightLayer = null;
 
+// ── Open modal ──
 function lctxShowAttrTable() {
   closeLayerCtx();
-  const layersList = _getLctxLayers();
-  if (!layersList.length) return;
-
-  const drawer = document.getElementById('attr-drawer');
-  const tbody = document.getElementById('attr-table-body');
-  const thead = document.getElementById('attr-table-head');
-  if (!drawer) return;
-
-  // Collect all property keys
-  const keys = new Set();
-  layersList.forEach(l => {
-    const props = l._manaProperties || {};
-    Object.keys(props).forEach(k => {
-      if (!k.startsWith('_') && k !== 'bbox') keys.add(k);
-    });
-  });
-  // For ungrouped layers, add _manaName
-  if (!keys.size) {
-    keys.add('name');
-  }
-
-  const cols = [...keys];
-
-  // Build header
-  thead.innerHTML = '<tr>' + cols.map(c =>
-    '<th>' + c.replace(/</g, '&lt;') + '</th>'
-  ).join('') + '</tr>';
-
-  // Build rows
-  tbody.innerHTML = '';
-  layersList.forEach((l, i) => {
-    const props = l._manaProperties || {};
-    const tr = document.createElement('tr');
-    tr.dataset.layerIndex = i;
-    cols.forEach(c => {
-      const td = document.createElement('td');
-      let val = props[c];
-      if (c === 'name' && val === undefined) val = l._manaName || '';
-      td.textContent = val !== null && val !== undefined ? String(val).substring(0, 120) : '';
-      tr.appendChild(td);
-    });
-    tr.onclick = function() { _attrTableRowClick(layersList[i]); };
-    tbody.appendChild(tr);
-  });
-
-  drawer.classList.add('open');
+  _attrLayers = _getLctxLayers();
+  if (!_attrLayers.length) return;
+  _attrBuildTable();
+  document.getElementById('attr-modal').classList.add('open');
 }
 
-function _attrTableRowClick(layer) {
+// ── Close modal ──
+function closeAttrModal() {
+  document.getElementById('attr-modal').classList.remove('open');
+  if (_attrHighlightLayer) {
+    try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
+    _attrHighlightLayer = null;
+  }
+}
+// Compat alias
+function closeAttributeDrawer() { closeAttrModal(); }
+
+// ── Build/render table ──
+function _attrBuildTable() {
+  var thead = document.getElementById('attr-table-head');
+  var tbody = document.getElementById('attr-table-body');
+  var title = document.getElementById('attr-modal-title');
+
+  // Collect all property keys across layers
+  var keySet = {};
+  _attrLayers.forEach(function(l) {
+    var props = l._manaProperties || {};
+    Object.keys(props).forEach(function(k) {
+      if (!k.startsWith('_') && k !== 'bbox') keySet[k] = true;
+    });
+  });
+  _attrColumns = Object.keys(keySet);
+
+  // Always include 'name' as first column
+  if (_attrColumns.indexOf('name') === -1) _attrColumns.unshift('name');
+  else {
+    _attrColumns.splice(_attrColumns.indexOf('name'), 1);
+    _attrColumns.unshift('name');
+  }
+
+  // Title
+  if (title) {
+    var groupName = '';
+    if (_attrLayers[0] && _attrLayers[0]._manaGroupId) {
+      var meta = _manaGroupMeta[_attrLayers[0]._manaGroupId];
+      if (meta) groupName = meta.name;
+    }
+    title.textContent = groupName ? groupName + ' — ' + _attrLayers.length + ' elementos' : 'Tabla de atributos';
+  }
+
+  // Header
+  var hhtml = '<tr>';
+  _attrColumns.forEach(function(col, ci) {
+    hhtml += '<th><div class="attr-th-wrap">';
+    hhtml += '<input class="attr-th-name" value="' + col.replace(/"/g, '&quot;') + '" '
+           + 'onchange="attrRenameColumn(' + ci + ', this.value)" spellcheck="false"/>';
+    if (col !== 'name') {
+      hhtml += '<button class="attr-th-del" onclick="attrDeleteColumn(' + ci + ')" title="Eliminar campo">&times;</button>';
+    }
+    hhtml += '</div></th>';
+  });
+  hhtml += '<th class="attr-th-actions"></th></tr>';
+  thead.innerHTML = hhtml;
+
+  // Body
+  var bhtml = '';
+  _attrLayers.forEach(function(l, ri) {
+    var props = l._manaProperties || {};
+    bhtml += '<tr onclick="_attrRowClick(' + ri + ')">';
+    _attrColumns.forEach(function(col, ci) {
+      var val = '';
+      if (col === 'name') {
+        val = l._manaName || props['name'] || '';
+      } else {
+        val = (props[col] !== undefined && props[col] !== null) ? String(props[col]) : '';
+      }
+      bhtml += '<td><input class="attr-cell-input" value="' + val.replace(/"/g, '&quot;') + '" '
+             + 'placeholder="\u2014" '
+             + 'onchange="attrCellChange(' + ri + ',' + ci + ',this.value)" '
+             + 'onclick="event.stopPropagation()" spellcheck="false"/></td>';
+    });
+    bhtml += '<td><button class="attr-row-del" onclick="event.stopPropagation();attrDeleteRow(' + ri + ')" title="Eliminar fila">&times;</button></td>';
+    bhtml += '</tr>';
+  });
+
+  if (!_attrLayers.length) {
+    bhtml = '<tr><td colspan="' + (_attrColumns.length + 1) + '"><div class="attr-empty-msg">Sin elementos</div></td></tr>';
+  }
+
+  tbody.innerHTML = bhtml;
+}
+
+// ── Edit a cell value ──
+function attrCellChange(rowIdx, colIdx, newVal) {
+  var layer = _attrLayers[rowIdx];
   if (!layer) return;
-  // Pan to layer
+  var col = _attrColumns[colIdx];
+
+  if (col === 'name') {
+    layer._manaName = newVal;
+    if (layer.getPopup && layer.getPopup()) {
+      layer.setPopupContent('<strong>' + newVal + '</strong>');
+    }
+  } else {
+    if (!layer._manaProperties) layer._manaProperties = {};
+    // Try to keep numeric type if it looks numeric
+    var num = parseFloat(newVal);
+    layer._manaProperties[col] = (newVal !== '' && !isNaN(num) && String(num) === newVal) ? num : newVal;
+  }
+
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Rename a column ──
+function attrRenameColumn(colIdx, newName) {
+  var oldName = _attrColumns[colIdx];
+  if (!newName || newName === oldName) return;
+  if (oldName === 'name') return; // Can't rename 'name'
+
+  _attrLayers.forEach(function(l) {
+    if (!l._manaProperties) return;
+    if (l._manaProperties.hasOwnProperty(oldName)) {
+      l._manaProperties[newName] = l._manaProperties[oldName];
+      delete l._manaProperties[oldName];
+    }
+  });
+
+  // Update group meta if exists
+  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
+  if (gid && _manaGroupMeta[gid] && _manaGroupMeta[gid].attrs[oldName]) {
+    _manaGroupMeta[gid].attrs[newName] = _manaGroupMeta[gid].attrs[oldName];
+    delete _manaGroupMeta[gid].attrs[oldName];
+  }
+
+  _attrColumns[colIdx] = newName;
+  _attrBuildTable();
+  showToast('Campo renombrado: ' + newName);
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Add a new column ──
+async function attrAddColumn() {
+  var name = await askName('Nombre del nuevo campo', 'campo_nuevo');
+  if (!name) return;
+
+  // Add empty value to all layers
+  _attrLayers.forEach(function(l) {
+    if (!l._manaProperties) l._manaProperties = {};
+    l._manaProperties[name] = '';
+  });
+
+  // Update group meta
+  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
+  if (gid && _manaGroupMeta[gid]) {
+    _manaGroupMeta[gid].attrs[name] = { type: 'string', values: new Set() };
+  }
+
+  _attrBuildTable();
+  showToast('Campo a\u00f1adido: ' + name);
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Delete a column ──
+function attrDeleteColumn(colIdx) {
+  var col = _attrColumns[colIdx];
+  if (col === 'name') return;
+
+  _attrLayers.forEach(function(l) {
+    if (l._manaProperties) delete l._manaProperties[col];
+  });
+
+  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
+  if (gid && _manaGroupMeta[gid]) delete _manaGroupMeta[gid].attrs[col];
+
+  _attrBuildTable();
+  showToast('Campo eliminado: ' + col);
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Add a new row (empty feature) ──
+function attrAddRow() {
+  // Create a new marker at the map center with empty properties
+  var center = map.getCenter();
+  var props = {};
+  _attrColumns.forEach(function(c) { if (c !== 'name') props[c] = ''; });
+
+  var icon = makeMarkerIcon(drawColor, markerType);
+  var m = L.marker(center, { icon: icon }).addTo(drawnItems);
+  m._manaName = 'Nuevo elemento';
+  m._manaColor = drawColor;
+  m._manaProperties = props;
+  m.bindPopup('<strong>Nuevo elemento</strong>');
+
+  // If editing a group, add to group
+  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
+  if (gid) {
+    m._manaGroupId = gid;
+    if (_manaGroupMeta[gid]) {
+      _manaGroupMeta[gid].allLayers.push(m);
+      addLayerToGroupMeta(gid, m);
+    }
+  }
+
+  _attrLayers.push(m);
+  _attrBuildTable();
+  stats();
+  showToast('Fila a\u00f1adida');
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Delete a row ──
+function attrDeleteRow(rowIdx) {
+  var layer = _attrLayers[rowIdx];
+  if (!layer) return;
+
+  drawnItems.removeLayer(layer);
+
+  // Remove from group meta
+  var gid = layer._manaGroupId;
+  if (gid && _manaGroupMeta[gid]) {
+    var arr = _manaGroupMeta[gid].allLayers;
+    var i = arr.indexOf(layer);
+    if (i > -1) arr.splice(i, 1);
+  }
+
+  _attrLayers.splice(rowIdx, 1);
+  _attrBuildTable();
+  stats();
+  showToast('Fila eliminada');
+  if (typeof saveState === 'function') saveState();
+}
+
+// ── Row click → zoom to feature ──
+function _attrRowClick(rowIdx) {
+  var layer = _attrLayers[rowIdx];
+  if (!layer) return;
+
   if (layer.getBounds) map.fitBounds(layer.getBounds(), { maxZoom: 15, padding: [24, 24] });
   else if (layer.getLatLng) map.setView(layer.getLatLng(), 15);
 
   // Flash highlight
   if (_attrHighlightLayer) {
     try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
-    _attrHighlightLayer = null;
   }
-
   if (layer instanceof L.Marker) {
-    const ll = layer.getLatLng();
-    _attrHighlightLayer = L.circleMarker(ll, {
+    _attrHighlightLayer = L.circleMarker(layer.getLatLng(), {
       radius: 18, color: '#f59e0b', weight: 3, fillOpacity: 0.2, dashArray: '4 4'
     }).addTo(map);
   } else if (layer.getLatLngs) {
-    _attrHighlightLayer = L.polyline(layer.getLatLngs(), {
-      color: '#f59e0b', weight: 5, opacity: 0.8, dashArray: '6 4'
+    var Cls = (layer instanceof L.Polygon) ? L.polygon : L.polyline;
+    _attrHighlightLayer = Cls(layer.getLatLngs(), {
+      color: '#f59e0b', weight: 5, fillOpacity: 0.2, dashArray: '6 4'
     }).addTo(map);
-    if (layer instanceof L.Polygon) {
-      _attrHighlightLayer = L.polygon(layer.getLatLngs(), {
-        color: '#f59e0b', weight: 4, fillOpacity: 0.25, dashArray: '6 4'
-      }).addTo(map);
-    }
   }
-
-  // Bring layer to front
-  if (layer.bringToFront) layer.bringToFront();
-
-  // Remove flash after 2s
-  setTimeout(() => {
+  setTimeout(function() {
     if (_attrHighlightLayer) {
       try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
       _attrHighlightLayer = null;
     }
   }, 2000);
 }
-
-function closeAttributeDrawer() {
-  const drawer = document.getElementById('attr-drawer');
-  if (drawer) drawer.classList.remove('open');
-  if (_attrHighlightLayer) {
-    try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
-    _attrHighlightLayer = null;
-  }
-}
-
 
 // ── Close & propagation ──
 document.getElementById('layer-ctx-menu').addEventListener('click', e => e.stopPropagation());
