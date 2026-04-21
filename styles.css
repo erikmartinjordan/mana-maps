@@ -273,7 +273,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-
 /* ══════════════════════════════════════════════════════════════════
    RESPONSIVE – Mobile & Tablet
    ══════════════════════════════════════════════════════════════════ */
@@ -464,7 +463,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   #name-modal-input{font-size:16px;}
 }
 
-
 /* ── LAYER GROUPS (imported layers) ──────────── */
 .layer-group{
   border:1px solid var(--border);border-radius:10px;background:var(--bgBox);
@@ -543,7 +541,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   padding:16px;text-align:center;color:var(--third);font-size:12px;
 }
 
-
 /* ── AI BADGE ────────────────────────────────── */
 .ai-badge{
   display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;
@@ -621,7 +618,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   padding:12px 20px 16px;display:flex;gap:8px;justify-content:flex-end;
   border-top:1px solid var(--border);
 }
-
 
 /* ── FILTER PANEL ────────────────────────────── */
 .filter-panel{
@@ -706,7 +702,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .layer-group-action-btn.has-filter{background:var(--blue);color:white;border-color:var(--blue);}
 .layer-group-action-btn.danger:hover{background:#fff0f0;border-color:var(--red);color:var(--red);}
 
-
 /* ── IN-APP ALERT NOTIFICATION ───────────────── */
 .mana-alert{
   position:fixed;top:-60px;left:50%;transform:translateX(-50%);z-index:9999;
@@ -749,7 +744,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .mana-alert.show{top:58px;}
   .mana-alert{font-size:12px;padding:8px 14px;border-radius:10px;}
 }
-
 
 /* ── CONTEXT MENU STYLE SECTION ──────────────── */
 .ctx-section-label{
@@ -823,9 +817,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
 }
 .ctx-menu-float.open{display:block;}
 @keyframes ctx-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-
-
-
 
 /* ═══════════════════════════════════════════════════════════════
    OGC SERVICES
@@ -964,11 +955,9 @@ select.ai-input{cursor:pointer;appearance:auto;}
    PANEL DE ESTADÍSTICAS — Stats Panel
    ═══════════════════════════════════════════════════════════════ */
 
-
 /* ═══════════════════════════════════════════════════════════════
    PANEL DE ESTADÍSTICAS — Stats Panel
    ═══════════════════════════════════════════════════════════════ */
-
 
 /* ═══════════════════════════════════════════════════════════════
    OGC SERVICES — Diseño plano acorde al sidebar
@@ -1244,7 +1233,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .stats-attr-meta { font-size: 10px; }
 }
 
-
 /* --- Stat-pills clicables --- */
 .stat-pill {
   cursor: pointer;
@@ -1519,7 +1507,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   border-style: solid;
 }
 
-
 /* New row insertion animation */
 .prop-row-new {
   animation: propRowIn .15s ease-out;
@@ -1542,17 +1529,9 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .prop-key { width: 110px; min-width: 90px; padding-left: 12px; }
 }
 
-
 /* ═══════════════════════════════════════════════════════════════ */
 /* NEW FEATURES STYLES                                            */
 /* ═══════════════════════════════════════════════════════════════ */
-
-/* ── P1.1: Undo/Redo buttons ── */
-.undo-redo-row{display:flex;gap:4px;margin-bottom:4px;}
-.undo-redo-row .tool-btn{flex:1;justify-content:center;padding:8px 6px;font-size:12px;}
-.undo-redo-row .tool-btn svg{width:14px;height:14px;}
-.undo-redo-btn.disabled{opacity:0.35;cursor:not-allowed;pointer-events:none;}
-.undo-redo-btn:not(.disabled):hover{background:var(--bgBox);}
 
 /* ── P1.2: Edit mode active state ── */
 #btn-edit.active{background:var(--blue);color:white;}
@@ -1605,10 +1584,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .sidebar-clear-btn{border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
 .sidebar-clear-btn:hover{color:var(--red);}
 
-/* ── Undo/redo: rail mode adjustments ── */
-#sidebar.rail .undo-redo-row{flex-direction:column;gap:2px;}
-#sidebar.rail .undo-redo-row .tool-btn .btn-label{max-width:0;opacity:0;}
-
 /* ── Search: mobile adjustments ── */
 @media (max-width:768px){
   .search-wrap{position:static;transform:none;width:auto;max-width:none;flex:1;margin:0 8px;}
@@ -1616,23 +1591,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
 }
 
 /* ── Target layer selector (draw into group) ── */
-.target-layer-row{display:flex;gap:4px;margin-bottom:8px;align-items:center;}
-.target-layer-select{flex:1;border:1px solid var(--border);border-radius:8px;
-  background:var(--bgBox);color:var(--primary);font-size:12px;font-family:'DM Sans',sans-serif;
-  padding:7px 10px;outline:none;cursor:pointer;transition:border-color .15s;
-  appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23828c99' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 8px center;background-size:12px;
-  padding-right:26px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.target-layer-select:focus{border-color:var(--blue);}
-.target-layer-add{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
-  background:var(--bgBox);color:var(--third);cursor:pointer;display:flex;
-  align-items:center;justify-content:center;transition:border-color .12s,color .12s;flex-shrink:0;}
-.target-layer-add svg{width:14px;height:14px;}
-.target-layer-add:hover{border-color:var(--blue);color:var(--blue);}
-
-/* Rail mode: hide the selector */
-#sidebar.rail .target-layer-row{display:none;}
 
 /* ── Layer drag-and-drop reordering ── */
 .layer-drag-handle{cursor:grab;color:var(--third);font-size:12px;letter-spacing:-2px;

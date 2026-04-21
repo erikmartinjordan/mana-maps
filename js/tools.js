@@ -4,65 +4,6 @@ let activeTool = null, drawHandler = null;
 
 // ── P1.2: Edit mode state ──
 let editMode = false;
-// ═══════════════════════════════════════════════════════════════
-// TARGET LAYER — draw into an existing group (QGIS-style)
-// ═══════════════════════════════════════════════════════════════
-let _activeTargetGroup = null; // null = ungrouped, number = group id
-
-// Called when the dropdown changes
-function onTargetLayerChange(val) {
-  _activeTargetGroup = val ? Number(val) : null;
-  // Sync draw color with the target group's color
-  if (_activeTargetGroup && _manaGroupMeta[_activeTargetGroup]) {
-    drawColor = _manaGroupMeta[_activeTargetGroup].color || drawColor;
-    // Highlight the matching sidebar swatch
-    document.querySelectorAll('.color-swatch').forEach(s => {
-      s.classList.toggle('active', s.dataset.color === drawColor);
-    });
-  }
-}
-
-// Create a brand-new empty layer group for drawing
-async function createDrawLayer() {
-  const name = await askName('Nombre de la nueva capa', 'Capa ' + (_manaGroupCounter + 1));
-  if (name === null) return;
-  const gid = ++_manaGroupCounter;
-  registerGroupMeta(gid, name, drawColor);
-  _activeTargetGroup = gid;
-  _rebuildTargetLayerSelect();
-  stats();
-  showToast('Capa "' + name + '" creada');
-}
-
-// Rebuild the <select> options from current groups
-function _rebuildTargetLayerSelect() {
-  const sel = document.getElementById('target-layer-select');
-  if (!sel) return;
-  const prev = _activeTargetGroup;
-  sel.innerHTML = '<option value="">\u2014 Sin capa \u2014</option>';
-  for (const gid in _manaGroupMeta) {
-    const meta = _manaGroupMeta[gid];
-    const opt = document.createElement('option');
-    opt.value = gid;
-    opt.textContent = meta.name;
-    opt.style.color = meta.color;
-    if (Number(gid) === prev) opt.selected = true;
-    sel.appendChild(opt);
-  }
-}
-
-// Assign a newly-drawn layer to the active target group
-function _assignToTargetGroup(layer) {
-  if (!_activeTargetGroup) return;
-  const gid = _activeTargetGroup;
-  const meta = _manaGroupMeta[gid];
-  if (!meta) return;
-  layer._manaGroupId = gid;
-  layer._manaGroupName = meta.name;
-  addLayerToGroupMeta(gid, layer);
-}
-
-
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
@@ -95,7 +36,6 @@ function setTool(tool) {
       const m = L.marker(e.latlng, { icon }).addTo(drawnItems);
       m._manaName = name; m._manaColor = drawColor;
       m.bindPopup('<strong>' + name + '</strong>');
-      _assignToTargetGroup(m);
       stats();
       if (typeof saveState === 'function') saveState();
     });
@@ -122,13 +62,7 @@ map.on(L.Draw.Event.CREATED, async e => {
   const name = await askName('Nombre de la ' + (isLine ? 'l\u00EDnea' : 'forma'), label + ' 1');
   if (typeof pushUndo === 'function') pushUndo();
   layer._manaName = name || label;
-  // Apply target group color if active
-  if (_activeTargetGroup && _manaGroupMeta[_activeTargetGroup]) {
-    const gc = _manaGroupMeta[_activeTargetGroup].color;
-    if (gc) layer.setStyle({ color: gc, weight: 2, fillOpacity: .18 });
-  }
   drawnItems.addLayer(layer);
-  _assignToTargetGroup(layer);
   stats();
   if (typeof saveState === 'function') saveState();
 });
@@ -259,11 +193,3 @@ function formatDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
 }
 
-// Rebuild target layer dropdown whenever the layer list updates
-(function() {
-  const _origStats = stats;
-  stats = function() {
-    _origStats();
-    _rebuildTargetLayerSelect();
-  };
-})();
