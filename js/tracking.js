@@ -30,7 +30,7 @@
       name: name,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       params: params
-    }).catch(function() {});
+    }).catch(function(err) { console.error('[MañaTrack]', name, err); });
   }
 
   // Expose globally
@@ -40,8 +40,9 @@
   track('sessionstart');
 
   // ── 2. Export — wrap exportAs ──
-  var _exp = window.exportAs;
-  if (_exp) {
+  // exportAs is a function declaration → available both as global and window.*
+  if (typeof exportAs === 'function') {
+    var _exp = exportAs;
     window.exportAs = function(fmt) {
       track('export', { format: fmt });
       return _exp(fmt);
@@ -49,8 +50,9 @@
   }
 
   // ── 3. Features drawn ──
-  // Lines & polygons via Leaflet.Draw
-  if (window.map) {
+  // map & drawnItems are declared with const → NOT on window, but accessible
+  // as global lexical variables via typeof check
+  if (typeof map !== 'undefined') {
     map.on('draw:created', function(e) {
       track('featuredrawn', { tool: e.layerType || 'unknown' });
     });
@@ -58,14 +60,14 @@
 
   // Points via manual tool — wrap setTool + watch layeradd
   var _ptActive = false;
-  var _st = window.setTool;
-  if (_st) {
+  if (typeof setTool === 'function') {
+    var _st = setTool;
     window.setTool = function(t) {
       _ptActive = (t === 'point');
       return _st(t);
     };
   }
-  if (window.drawnItems) {
+  if (typeof drawnItems !== 'undefined') {
     drawnItems.on('layeradd', function(e) {
       if (_ptActive && !window.chatBusy && e.layer instanceof L.Marker && !e.layer._manaGroupId) {
         _ptActive = false;
@@ -75,8 +77,8 @@
   }
 
   // ── 4. Chat messages — wrap sendMsg ──
-  var _sm = window.sendMsg;
-  if (_sm) {
+  if (typeof sendMsg === 'function') {
+    var _sm = sendMsg;
     window.sendMsg = function() {
       var p = 'local';
       try { if (hasAIKey()) p = manaSettings().provider || 'openai'; } catch(e) {}
