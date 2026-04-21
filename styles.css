@@ -221,7 +221,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
 /* ── NAME MODAL ──────────────────────────────── */
 #name-modal{
-  display:none;position:absolute;z-index:1500;
+  display:none;position:absolute;z-index:6000;
   left:50%;top:50%;transform:translate(-50%,-50%);
   background:var(--bg);border:1px solid var(--border);border-radius:16px;
   box-shadow:rgb(15 15 15/12%) 0 8px 32px,rgb(15 15 15/6%) 0 2px 8px;

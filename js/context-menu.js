@@ -823,7 +823,7 @@ function _buildPropEditor() {
 
     var icon = document.createElement("span");
     icon.className = "prop-icon";
-    icon.textContent = isName ? "\u1D5A7" : "\u2261";
+    icon.textContent = isName ? "Aa" : "\u2261";
     keyDiv.appendChild(icon);
 
     var keyText = document.createElement("span");
