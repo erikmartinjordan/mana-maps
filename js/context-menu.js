@@ -962,24 +962,85 @@ function _propValKey(e, el) {
   } else if (e.key === "Escape") { el.blur(); }
 }
 
-async function attrAddProperty() {
+function attrAddProperty() {
   if (!_propLayer) return;
-  var name = await askName("Nombre del atributo", "nuevo_campo");
-  if (!name) return;
   if (!_propLayer._manaProperties) _propLayer._manaProperties = {};
-  _propLayer._manaProperties[name] = "";
-  var gid = _propLayer._manaGroupId;
-  if (gid && _manaGroupMeta[gid] && !_manaGroupMeta[gid].attrs[name]) {
-    _manaGroupMeta[gid].attrs[name] = { type: "string", values: new Set() };
-  }
-  _buildPropEditor();
-  requestAnimationFrame(function() {
-    var all = document.querySelectorAll(".prop-val-text");
-    if (all.length) all[all.length - 1].focus();
+
+  var body = document.getElementById("attr-modal-body");
+
+  // Remove "sin atributos" message if present
+  var empty = body.querySelector(".prop-empty");
+  if (empty) empty.remove();
+
+  // Build new row using DOM
+  var idx = body.querySelectorAll(".prop-row").length;
+  var row = document.createElement("div");
+  row.className = "prop-row prop-row-new";
+  row.setAttribute("data-idx", idx);
+
+  // Key column
+  var keyDiv = document.createElement("div");
+  keyDiv.className = "prop-key";
+  var icon = document.createElement("span");
+  icon.className = "prop-icon";
+  icon.textContent = "\u2261";
+  keyDiv.appendChild(icon);
+  var keyText = document.createElement("span");
+  keyText.className = "prop-key-text";
+  keyText.contentEditable = "true";
+  keyText.spellcheck = false;
+  keyText.setAttribute("data-newrow", "true");
+  keyText.addEventListener("blur", function() {
+    var name = this.textContent.trim();
+    if (!name) { row.remove(); return; }
+    // Commit: save to layer properties
+    _propLayer._manaProperties[name] = "";
+    var gid = _propLayer._manaGroupId;
+    if (gid && _manaGroupMeta[gid] && !_manaGroupMeta[gid].attrs[name]) {
+      _manaGroupMeta[gid].attrs[name] = { type: "string", values: new Set() };
+    }
+    if (typeof saveState === "function") saveState();
+    // Rebuild so it gets proper event handlers
+    _buildPropEditor();
+    // Focus the value of the newly added row
+    requestAnimationFrame(function() {
+      var allVals = document.querySelectorAll(".prop-val-text");
+      if (allVals.length) allVals[allVals.length - 1].focus();
+    });
   });
-  showToast("Atributo a\u00f1adido");
-  if (typeof saveState === "function") saveState();
+  keyText.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      this.blur();
+    } else if (e.key === "Escape") {
+      this.textContent = "";
+      this.blur();
+    }
+  });
+  keyDiv.appendChild(keyText);
+  row.appendChild(keyDiv);
+
+  // Value column (placeholder until key is committed)
+  var valDiv = document.createElement("div");
+  valDiv.className = "prop-val";
+  var valText = document.createElement("span");
+  valText.className = "prop-val-text prop-val-placeholder";
+  valText.textContent = "";
+  valDiv.appendChild(valText);
+  row.appendChild(valDiv);
+
+  // Delete placeholder
+  var ph = document.createElement("div");
+  ph.className = "prop-del-ph";
+  row.appendChild(ph);
+
+  body.appendChild(row);
+
+  // Scroll to bottom and focus the key field
+  body.scrollTop = body.scrollHeight;
+  requestAnimationFrame(function() { keyText.focus(); });
 }
+
 
 function _propDeleteAttr(key) {
   if (!_propLayer || key === "name") return;

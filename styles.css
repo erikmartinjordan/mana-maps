@@ -1493,6 +1493,23 @@ select.ai-input{cursor:pointer;appearance:auto;}
   border-style: solid;
 }
 
+
+/* New row insertion animation */
+.prop-row-new {
+  animation: propRowIn .15s ease-out;
+  background: rgba(14,165,233,.03);
+}
+@keyframes propRowIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.prop-row-new .prop-key-text:empty::before {
+  content: 'nombre del campo...';
+  color: var(--border);
+  font-style: italic;
+  pointer-events: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .attr-modal-box { width: calc(100vw - 12px); }
