@@ -722,10 +722,9 @@ async function lctxDelete() {
 }
 
 
-// ═══════════════════════════════════════════════════════════════
-// PROPERTY EDITOR — Notion-style key-value table
-// One row per attribute: Campo | Valor
-// ═══════════════════════════════════════════════════════════════
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// PROPERTY EDITOR \u2014 Notion-style key-value modal
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 var _propLayer = null;
 var _propGroupLayers = [];
 var _propHighlight = null;
@@ -734,13 +733,8 @@ function lctxShowAttrTable() {
   closeLayerCtx();
   var layers = _getLctxLayers();
   if (!layers.length) return;
-  if (layers.length === 1) {
-    _propGroupLayers = [];
-    _propLayer = layers[0];
-  } else {
-    _propGroupLayers = layers;
-    _propLayer = layers[0];
-  }
+  _propGroupLayers = layers.length > 1 ? layers : [];
+  _propLayer = layers[0];
   _openPropModal();
 }
 
@@ -750,21 +744,20 @@ function ctxShowAttrTable() {
   var gid = ctxTargetLayer._manaGroupId;
   if (gid && _manaGroupMeta[gid]) {
     _propGroupLayers = _manaGroupMeta[gid].allLayers.slice();
-    _propLayer = ctxTargetLayer;
   } else {
     _propGroupLayers = [];
-    _propLayer = ctxTargetLayer;
   }
+  _propLayer = ctxTargetLayer;
   _openPropModal();
 }
 
 function _openPropModal() {
   _buildPropEditor();
-  document.getElementById('attr-modal').classList.add('open');
+  document.getElementById("attr-modal").classList.add("open");
 }
 
 function closeAttrModal() {
-  document.getElementById('attr-modal').classList.remove('open');
+  document.getElementById("attr-modal").classList.remove("open");
   _propLayer = null;
   _propGroupLayers = [];
   if (_propHighlight) {
@@ -774,97 +767,123 @@ function closeAttrModal() {
 }
 function closeAttributeDrawer() { closeAttrModal(); }
 
-document.addEventListener('DOMContentLoaded', function() {
-  var modal = document.getElementById('attr-modal');
-  if (modal) modal.addEventListener('mousedown', function(e) {
+document.addEventListener("DOMContentLoaded", function() {
+  var modal = document.getElementById("attr-modal");
+  if (modal) modal.addEventListener("mousedown", function(e) {
     if (e.target === modal) closeAttrModal();
   });
 });
 
-// ═══ BUILD PROPERTY EDITOR ═══
+// \u2550\u2550\u2550 BUILD \u2550\u2550\u2550
 function _buildPropEditor() {
   if (!_propLayer) return;
-  var title = document.getElementById('attr-modal-title');
-  var body = document.getElementById('attr-modal-body');
-  var selector = document.getElementById('attr-elem-selector');
+  var title = document.getElementById("attr-modal-title");
+  var body = document.getElementById("attr-modal-body");
+  var selector = document.getElementById("attr-elem-selector");
 
-  title.textContent = _propLayer._manaName || 'Propiedades';
+  title.textContent = _propLayer._manaName || "Propiedades";
 
   // Element selector for groups
   if (_propGroupLayers.length > 1) {
-    selector.style.display = 'flex';
-    var sh = '';
+    selector.style.display = "flex";
+    selector.innerHTML = "";
     _propGroupLayers.forEach(function(l, i) {
-      var nm = l._manaName || ('Elemento ' + (i + 1));
-      var ac = (l === _propLayer) ? ' active' : '';
-      sh += '<button class="attr-elem-btn' + ac + '" onclick="_propSelectElem(' + i + ')">' + _esc(nm.length > 20 ? nm.substring(0,18) + '\u2026' : nm) + '</button>';
+      var btn = document.createElement("button");
+      btn.className = "attr-elem-btn" + (l === _propLayer ? " active" : "");
+      var nm = l._manaName || ("Elemento " + (i + 1));
+      btn.textContent = nm.length > 20 ? nm.substring(0, 18) + "\u2026" : nm;
+      btn.setAttribute("data-idx", i);
+      btn.onclick = function() { _propSelectElem(+this.dataset.idx); };
+      selector.appendChild(btn);
     });
-    selector.innerHTML = sh;
   } else {
-    selector.style.display = 'none';
+    selector.style.display = "none";
   }
 
   // Collect properties
   var props = _propLayer._manaProperties || {};
-  var entries = [{ key: 'name', val: _propLayer._manaName || '' }];
+  var entries = [{ key: "name", val: _propLayer._manaName || "" }];
   Object.keys(props).forEach(function(k) {
-    if (k.startsWith('_') || k === 'bbox' || k === 'name') return;
+    if (k.charAt(0) === "_" || k === "bbox" || k === "name") return;
     var v = props[k];
-    entries.push({ key: k, val: (v !== null && v !== undefined) ? String(v) : '' });
+    entries.push({ key: k, val: (v !== null && v !== undefined) ? String(v) : "" });
   });
 
-  // Build rows
-  var h = '';
+  // Build rows using DOM (avoids all quoting issues)
+  body.innerHTML = "";
   entries.forEach(function(entry, i) {
-    var isName = (entry.key === 'name');
-    h += '<div class="prop-row" data-idx="' + i + '">';
-    h += '<div class="prop-key">';
-    h += '<span class="prop-icon">' + (isName ? '\u1D5A7' : '\u2261') + '</span>';
-    if (isName) {
-      h += '<span class="prop-key-text is-fixed">nombre</span>';
-    } else {
-      h += '<span class="prop-key-text" contenteditable="true" spellcheck="false" '
-         + 'data-idx="' + i + '" data-oldkey="' + _escAttr(entry.key) + '" '
-         + 'onblur="_propRenameKey(this)" '
-         + 'onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"'
-         + '>' + _esc(entry.key) + '</span>';
-    }
-    h += '</div>';
-    h += '<div class="prop-val">';
-    h += '<span class="prop-val-text" contenteditable="true" spellcheck="false" '
-       + 'data-idx="' + i + '" data-key="' + _escAttr(entry.key) + '" '
-       + 'onblur="_propSaveVal(this)" '
-       + 'onkeydown="_propValKey(event,this)"'
-       + '>' + _esc(entry.val) + '</span>';
-    h += '</div>';
+    var isName = (entry.key === "name");
+    var row = document.createElement("div");
+    row.className = "prop-row";
+    row.setAttribute("data-idx", i);
+
+    // \u2500 Key column \u2500
+    var keyDiv = document.createElement("div");
+    keyDiv.className = "prop-key";
+
+    var icon = document.createElement("span");
+    icon.className = "prop-icon";
+    icon.textContent = isName ? "\u1D5A7" : "\u2261";
+    keyDiv.appendChild(icon);
+
+    var keyText = document.createElement("span");
+    keyText.className = "prop-key-text" + (isName ? " is-fixed" : "");
+    keyText.textContent = isName ? "nombre" : entry.key;
     if (!isName) {
-      h += '<button class="prop-del" onclick="_propDeleteAttr('' + _escAttr(entry.key).replace(/'/g, "\\'") + '')" title="Eliminar">';
-      h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      h += '</button>';
-    } else {
-      h += '<div class="prop-del-ph"></div>';
+      keyText.contentEditable = "true";
+      keyText.spellcheck = false;
+      keyText.setAttribute("data-oldkey", entry.key);
+      keyText.addEventListener("blur", function() { _propRenameKey(this); });
+      keyText.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") { e.preventDefault(); this.blur(); }
+      });
     }
-    h += '</div>';
+    keyDiv.appendChild(keyText);
+    row.appendChild(keyDiv);
+
+    // \u2500 Value column \u2500
+    var valDiv = document.createElement("div");
+    valDiv.className = "prop-val";
+
+    var valText = document.createElement("span");
+    valText.className = "prop-val-text";
+    valText.contentEditable = "true";
+    valText.spellcheck = false;
+    valText.textContent = entry.val;
+    valText.setAttribute("data-idx", i);
+    valText.setAttribute("data-key", entry.key);
+    valText.addEventListener("blur", function() { _propSaveVal(this); });
+    valText.addEventListener("keydown", function(e) { _propValKey(e, this); });
+    valDiv.appendChild(valText);
+    row.appendChild(valDiv);
+
+    // \u2500 Delete button \u2500
+    if (!isName) {
+      var del = document.createElement("button");
+      del.className = "prop-del";
+      del.title = "Eliminar";
+      del.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      del.setAttribute("data-key", entry.key);
+      del.onclick = function() { _propDeleteAttr(this.dataset.key); };
+      row.appendChild(del);
+    } else {
+      var ph = document.createElement("div");
+      ph.className = "prop-del-ph";
+      row.appendChild(ph);
+    }
+
+    body.appendChild(row);
   });
 
   if (entries.length <= 1) {
-    h += '<div class="prop-empty">Sin atributos adicionales</div>';
+    var empty = document.createElement("div");
+    empty.className = "prop-empty";
+    empty.textContent = "Sin atributos adicionales";
+    body.appendChild(empty);
   }
-
-  body.innerHTML = h;
 }
 
-function _esc(s) {
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-function _escAttr(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ═══ ELEMENT SELECTOR ═══
+// \u2550\u2550\u2550 ELEMENT SELECTOR \u2550\u2550\u2550
 function _propSelectElem(idx) {
   _propLayer = _propGroupLayers[idx];
   _buildPropEditor();
@@ -872,34 +891,40 @@ function _propSelectElem(idx) {
   else if (_propLayer.getLatLng) map.setView(_propLayer.getLatLng(), 15);
   if (_propHighlight) { try { map.removeLayer(_propHighlight); } catch(e) {} }
   if (_propLayer instanceof L.Marker) {
-    _propHighlight = L.circleMarker(_propLayer.getLatLng(), { radius: 18, color: '#0ea5e9', weight: 3, fillOpacity: 0.15, dashArray: '4 4' }).addTo(map);
+    _propHighlight = L.circleMarker(_propLayer.getLatLng(), {
+      radius: 18, color: "#0ea5e9", weight: 3, fillOpacity: 0.15, dashArray: "4 4"
+    }).addTo(map);
   } else if (_propLayer.getLatLngs) {
     var C = (_propLayer instanceof L.Polygon) ? L.polygon : L.polyline;
-    _propHighlight = C(_propLayer.getLatLngs(), { color: '#0ea5e9', weight: 5, fillOpacity: 0.12, dashArray: '6 4' }).addTo(map);
+    _propHighlight = C(_propLayer.getLatLngs(), {
+      color: "#0ea5e9", weight: 5, fillOpacity: 0.12, dashArray: "6 4"
+    }).addTo(map);
   }
-  setTimeout(function() { if (_propHighlight) { try { map.removeLayer(_propHighlight); } catch(e) {} _propHighlight = null; } }, 2500);
+  setTimeout(function() {
+    if (_propHighlight) { try { map.removeLayer(_propHighlight); } catch(e) {} _propHighlight = null; }
+  }, 2500);
 }
 
-// ═══ EDITING ═══
+// \u2550\u2550\u2550 EDITING \u2550\u2550\u2550
 function _propSaveVal(el) {
   if (!_propLayer) return;
   var key = el.dataset.key;
   var newVal = el.textContent.trim();
-  if (key === 'name') {
+  if (key === "name") {
     _propLayer._manaName = newVal;
-    if (_propLayer.getPopup && _propLayer.getPopup()) _propLayer.setPopupContent('<strong>' + newVal + '</strong>');
-    document.getElementById('attr-modal-title').textContent = newVal || 'Propiedades';
+    if (_propLayer.getPopup && _propLayer.getPopup()) _propLayer.setPopupContent("<strong>" + newVal + "</strong>");
+    document.getElementById("attr-modal-title").textContent = newVal || "Propiedades";
     if (_propGroupLayers.length > 1) {
       var idx = _propGroupLayers.indexOf(_propLayer);
-      var btns = document.querySelectorAll('.attr-elem-btn');
-      if (btns[idx]) btns[idx].textContent = newVal.length > 20 ? newVal.substring(0,18) + '\u2026' : newVal;
+      var btns = document.querySelectorAll(".attr-elem-btn");
+      if (btns[idx]) btns[idx].textContent = newVal.length > 20 ? newVal.substring(0,18) + "\u2026" : newVal;
     }
   } else {
     if (!_propLayer._manaProperties) _propLayer._manaProperties = {};
     var num = parseFloat(newVal);
-    _propLayer._manaProperties[key] = (newVal !== '' && !isNaN(num) && String(num) === newVal) ? num : newVal;
+    _propLayer._manaProperties[key] = (newVal !== "" && !isNaN(num) && String(num) === newVal) ? num : newVal;
   }
-  if (typeof saveState === 'function') saveState();
+  if (typeof saveState === "function") saveState();
 }
 
 function _propRenameKey(el) {
@@ -918,12 +943,12 @@ function _propRenameKey(el) {
     delete _manaGroupMeta[gid].attrs[oldKey];
   }
   _buildPropEditor();
-  showToast('Renombrado: ' + newKey);
-  if (typeof saveState === 'function') saveState();
+  showToast("Renombrado: " + newKey);
+  if (typeof saveState === "function") saveState();
 }
 
 function _propValKey(e, el) {
-  if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
+  if (e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) {
     e.preventDefault();
     el.blur();
     var idx = +el.dataset.idx;
@@ -934,36 +959,36 @@ function _propValKey(e, el) {
       var r = document.createRange(); r.selectNodeContents(nextEl);
       var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
     }
-  } else if (e.key === 'Escape') { el.blur(); }
+  } else if (e.key === "Escape") { el.blur(); }
 }
 
 async function attrAddProperty() {
   if (!_propLayer) return;
-  var name = await askName('Nombre del atributo', 'nuevo_campo');
+  var name = await askName("Nombre del atributo", "nuevo_campo");
   if (!name) return;
   if (!_propLayer._manaProperties) _propLayer._manaProperties = {};
-  _propLayer._manaProperties[name] = '';
+  _propLayer._manaProperties[name] = "";
   var gid = _propLayer._manaGroupId;
   if (gid && _manaGroupMeta[gid] && !_manaGroupMeta[gid].attrs[name]) {
-    _manaGroupMeta[gid].attrs[name] = { type: 'string', values: new Set() };
+    _manaGroupMeta[gid].attrs[name] = { type: "string", values: new Set() };
   }
   _buildPropEditor();
   requestAnimationFrame(function() {
-    var all = document.querySelectorAll('.prop-val-text');
+    var all = document.querySelectorAll(".prop-val-text");
     if (all.length) all[all.length - 1].focus();
   });
-  showToast('Atributo a\u00f1adido');
-  if (typeof saveState === 'function') saveState();
+  showToast("Atributo a\u00f1adido");
+  if (typeof saveState === "function") saveState();
 }
 
 function _propDeleteAttr(key) {
-  if (!_propLayer || key === 'name') return;
+  if (!_propLayer || key === "name") return;
   if (_propLayer._manaProperties) delete _propLayer._manaProperties[key];
   var gid = _propLayer._manaGroupId;
   if (gid && _manaGroupMeta[gid]) delete _manaGroupMeta[gid].attrs[key];
   _buildPropEditor();
-  showToast('Atributo eliminado');
-  if (typeof saveState === 'function') saveState();
+  showToast("Atributo eliminado");
+  if (typeof saveState === "function") saveState();
 }
 
 
