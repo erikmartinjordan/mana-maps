@@ -723,17 +723,37 @@ async function lctxDelete() {
 
 
 // ═══════════════════════════════════════════════════════════════
-// ATTRIBUTE TABLE — Modal editable
+// ATTRIBUTE TABLE — Notion-style editable modal
 // ═══════════════════════════════════════════════════════════════
-var _attrLayers = [];      // layers being edited
-var _attrColumns = [];     // current column names
+var _attrLayers = [];
+var _attrColumns = [];
 var _attrHighlightLayer = null;
+var _attrActiveCell = null;   // currently focused cell {row, col}
 
-// ── Open modal ──
+// ── Open from SIDEBAR right-click (existing) ──
 function lctxShowAttrTable() {
   closeLayerCtx();
   _attrLayers = _getLctxLayers();
   if (!_attrLayers.length) return;
+  _openAttrModal();
+}
+
+// ── Open from MAP right-click (new) ──
+function ctxShowAttrTable() {
+  if (!ctxTargetLayer) return;
+  closeCtx();
+
+  // If layer belongs to a group, show the whole group
+  var gid = ctxTargetLayer._manaGroupId;
+  if (gid && _manaGroupMeta[gid]) {
+    _attrLayers = _manaGroupMeta[gid].allLayers.slice();
+  } else {
+    _attrLayers = [ctxTargetLayer];
+  }
+  _openAttrModal();
+}
+
+function _openAttrModal() {
   _attrBuildTable();
   document.getElementById('attr-modal').classList.add('open');
 }
@@ -741,21 +761,34 @@ function lctxShowAttrTable() {
 // ── Close modal ──
 function closeAttrModal() {
   document.getElementById('attr-modal').classList.remove('open');
+  _attrActiveCell = null;
   if (_attrHighlightLayer) {
     try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
     _attrHighlightLayer = null;
   }
 }
-// Compat alias
 function closeAttributeDrawer() { closeAttrModal(); }
 
-// ── Build/render table ──
+// Click backdrop to close
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.getElementById('attr-modal');
+  if (modal) {
+    modal.addEventListener('mousedown', function(e) {
+      if (e.target === modal) closeAttrModal();
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// BUILD / RENDER TABLE
+// ═══════════════════════════════════════════════════════════════
 function _attrBuildTable() {
   var thead = document.getElementById('attr-table-head');
   var tbody = document.getElementById('attr-table-body');
   var title = document.getElementById('attr-modal-title');
+  var counter = document.getElementById('attr-modal-count');
 
-  // Collect all property keys across layers
+  // Collect all property keys
   var keySet = {};
   _attrLayers.forEach(function(l) {
     var props = l._manaProperties || {};
@@ -764,43 +797,50 @@ function _attrBuildTable() {
     });
   });
   _attrColumns = Object.keys(keySet);
-
-  // Always include 'name' as first column
   if (_attrColumns.indexOf('name') === -1) _attrColumns.unshift('name');
   else {
     _attrColumns.splice(_attrColumns.indexOf('name'), 1);
     _attrColumns.unshift('name');
   }
 
-  // Title
+  // Title + counter
   if (title) {
-    var groupName = '';
+    var gName = '';
     if (_attrLayers[0] && _attrLayers[0]._manaGroupId) {
       var meta = _manaGroupMeta[_attrLayers[0]._manaGroupId];
-      if (meta) groupName = meta.name;
+      if (meta) gName = meta.name;
     }
-    title.textContent = groupName ? groupName + ' — ' + _attrLayers.length + ' elementos' : 'Tabla de atributos';
+    title.textContent = gName || 'Tabla de atributos';
   }
+  if (counter) counter.textContent = _attrLayers.length + ' filas · ' + _attrColumns.length + ' campos';
 
-  // Header
-  var hhtml = '<tr>';
+  // ── Header ──
+  var hh = '<tr><th class="attr-th-rownum">#</th>';
   _attrColumns.forEach(function(col, ci) {
-    hhtml += '<th><div class="attr-th-wrap">';
-    hhtml += '<input class="attr-th-name" value="' + col.replace(/"/g, '&quot;') + '" '
-           + 'onchange="attrRenameColumn(' + ci + ', this.value)" spellcheck="false"/>';
+    hh += '<th class="attr-th-cell">';
+    hh += '<div class="attr-th-inner">';
+    hh += '<span class="attr-th-type">' + _attrColIcon(col) + '</span>';
+    hh += '<span class="attr-th-text" contenteditable="true" spellcheck="false" ';
+    hh += 'data-col="' + ci + '" ';
+    hh += 'onblur="attrRenameColumn(' + ci + ',this.textContent)" ';
+    hh += 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"';
+    hh += '>' + _esc(col) + '</span>';
     if (col !== 'name') {
-      hhtml += '<button class="attr-th-del" onclick="attrDeleteColumn(' + ci + ')" title="Eliminar campo">&times;</button>';
+      hh += '<button class="attr-th-del" onclick="attrDeleteColumn(' + ci + ')" title="Eliminar campo">';
+      hh += '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      hh += '</button>';
     }
-    hhtml += '</div></th>';
+    hh += '</div></th>';
   });
-  hhtml += '<th class="attr-th-actions"></th></tr>';
-  thead.innerHTML = hhtml;
+  hh += '<th class="attr-th-end"></th></tr>';
+  thead.innerHTML = hh;
 
-  // Body
-  var bhtml = '';
+  // ── Body ──
+  var bh = '';
   _attrLayers.forEach(function(l, ri) {
     var props = l._manaProperties || {};
-    bhtml += '<tr onclick="_attrRowClick(' + ri + ')">';
+    bh += '<tr data-row="' + ri + '">';
+    bh += '<td class="attr-td-rownum" onclick="_attrRowClick(' + ri + ')">' + (ri + 1) + '</td>';
     _attrColumns.forEach(function(col, ci) {
       var val = '';
       if (col === 'name') {
@@ -808,27 +848,104 @@ function _attrBuildTable() {
       } else {
         val = (props[col] !== undefined && props[col] !== null) ? String(props[col]) : '';
       }
-      bhtml += '<td><input class="attr-cell-input" value="' + val.replace(/"/g, '&quot;') + '" '
-             + 'placeholder="\u2014" '
-             + 'onchange="attrCellChange(' + ri + ',' + ci + ',this.value)" '
-             + 'onclick="event.stopPropagation()" spellcheck="false"/></td>';
+      bh += '<td class="attr-td-cell">';
+      bh += '<div class="attr-cell" contenteditable="true" spellcheck="false" ';
+      bh += 'data-row="' + ri + '" data-col="' + ci + '" ';
+      bh += 'onblur="_attrCellBlur(this)" ';
+      bh += 'onfocus="_attrCellFocus(this)" ';
+      bh += 'onkeydown="_attrCellKey(event,this)"';
+      bh += '>' + _esc(val) + '</div>';
+      bh += '</td>';
     });
-    bhtml += '<td><button class="attr-row-del" onclick="event.stopPropagation();attrDeleteRow(' + ri + ')" title="Eliminar fila">&times;</button></td>';
-    bhtml += '</tr>';
+    bh += '<td class="attr-td-actions"><button class="attr-row-del" onclick="attrDeleteRow(' + ri + ')" title="Eliminar fila">';
+    bh += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    bh += '</button></td>';
+    bh += '</tr>';
   });
 
   if (!_attrLayers.length) {
-    bhtml = '<tr><td colspan="' + (_attrColumns.length + 1) + '"><div class="attr-empty-msg">Sin elementos</div></td></tr>';
+    bh = '<tr><td colspan="' + (_attrColumns.length + 2) + '">';
+    bh += '<div class="attr-empty">Sin elementos. Haz clic en <strong>+ Fila</strong> para empezar.</div>';
+    bh += '</td></tr>';
   }
-
-  tbody.innerHTML = bhtml;
+  tbody.innerHTML = bh;
 }
 
-// ── Edit a cell value ──
-function attrCellChange(rowIdx, colIdx, newVal) {
-  var layer = _attrLayers[rowIdx];
+// Helper — HTML escape
+function _esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Helper — column type icon
+function _attrColIcon(col) {
+  if (col === 'name') return '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>';
+  return '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/></svg>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CELL EDITING — Notion-style inline
+// ═══════════════════════════════════════════════════════════════
+function _attrCellFocus(el) {
+  _attrActiveCell = { row: +el.dataset.row, col: +el.dataset.col };
+  el.closest('td').classList.add('is-focused');
+  // Select all text on focus
+  var range = document.createRange();
+  range.selectNodeContents(el);
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function _attrCellBlur(el) {
+  el.closest('td').classList.remove('is-focused');
+  var ri = +el.dataset.row, ci = +el.dataset.col;
+  var newVal = el.textContent;
+  _attrSaveCell(ri, ci, newVal);
+}
+
+function _attrCellKey(e, el) {
+  var ri = +el.dataset.row, ci = +el.dataset.col;
+
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    el.blur();
+    // Move to next/prev cell
+    var nextCol = e.shiftKey ? ci - 1 : ci + 1;
+    var nextRow = ri;
+    if (nextCol >= _attrColumns.length) { nextCol = 0; nextRow++; }
+    if (nextCol < 0) { nextCol = _attrColumns.length - 1; nextRow--; }
+    if (nextRow >= 0 && nextRow < _attrLayers.length) {
+      var next = document.querySelector('.attr-cell[data-row="' + nextRow + '"][data-col="' + nextCol + '"]');
+      if (next) next.focus();
+    }
+  } else if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    el.blur();
+    // Move down
+    var nextR = ri + 1;
+    if (nextR < _attrLayers.length) {
+      var next = document.querySelector('.attr-cell[data-row="' + nextR + '"][data-col="' + ci + '"]');
+      if (next) next.focus();
+    }
+  } else if (e.key === 'Escape') {
+    el.blur();
+  } else if (e.key === 'ArrowDown' && !el.textContent) {
+    e.preventDefault();
+    var next = document.querySelector('.attr-cell[data-row="' + (ri+1) + '"][data-col="' + ci + '"]');
+    if (next) { el.blur(); next.focus(); }
+  } else if (e.key === 'ArrowUp' && !el.textContent) {
+    e.preventDefault();
+    var next = document.querySelector('.attr-cell[data-row="' + (ri-1) + '"][data-col="' + ci + '"]');
+    if (next) { el.blur(); next.focus(); }
+  }
+}
+
+function _attrSaveCell(ri, ci, newVal) {
+  var layer = _attrLayers[ri];
   if (!layer) return;
-  var col = _attrColumns[colIdx];
+  var col = _attrColumns[ci];
 
   if (col === 'name') {
     layer._manaName = newVal;
@@ -837,19 +954,20 @@ function attrCellChange(rowIdx, colIdx, newVal) {
     }
   } else {
     if (!layer._manaProperties) layer._manaProperties = {};
-    // Try to keep numeric type if it looks numeric
     var num = parseFloat(newVal);
-    layer._manaProperties[col] = (newVal !== '' && !isNaN(num) && String(num) === newVal) ? num : newVal;
+    layer._manaProperties[col] = (newVal !== '' && !isNaN(num) && String(num) === newVal.trim()) ? num : newVal;
   }
-
   if (typeof saveState === 'function') saveState();
 }
 
-// ── Rename a column ──
-function attrRenameColumn(colIdx, newName) {
-  var oldName = _attrColumns[colIdx];
+// ═══════════════════════════════════════════════════════════════
+// COLUMN OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+function attrRenameColumn(ci, newName) {
+  var oldName = _attrColumns[ci];
+  newName = (newName || '').trim();
   if (!newName || newName === oldName) return;
-  if (oldName === 'name') return; // Can't rename 'name'
+  if (oldName === 'name') return;
 
   _attrLayers.forEach(function(l) {
     if (!l._manaProperties) return;
@@ -858,74 +976,59 @@ function attrRenameColumn(colIdx, newName) {
       delete l._manaProperties[oldName];
     }
   });
-
-  // Update group meta if exists
   var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
   if (gid && _manaGroupMeta[gid] && _manaGroupMeta[gid].attrs[oldName]) {
     _manaGroupMeta[gid].attrs[newName] = _manaGroupMeta[gid].attrs[oldName];
     delete _manaGroupMeta[gid].attrs[oldName];
   }
-
-  _attrColumns[colIdx] = newName;
+  _attrColumns[ci] = newName;
   _attrBuildTable();
-  showToast('Campo renombrado: ' + newName);
+  showToast('Campo renombrado');
   if (typeof saveState === 'function') saveState();
 }
 
-// ── Add a new column ──
 async function attrAddColumn() {
   var name = await askName('Nombre del nuevo campo', 'campo_nuevo');
   if (!name) return;
-
-  // Add empty value to all layers
   _attrLayers.forEach(function(l) {
     if (!l._manaProperties) l._manaProperties = {};
     l._manaProperties[name] = '';
   });
-
-  // Update group meta
   var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
   if (gid && _manaGroupMeta[gid]) {
     _manaGroupMeta[gid].attrs[name] = { type: 'string', values: new Set() };
   }
-
   _attrBuildTable();
   showToast('Campo a\u00f1adido: ' + name);
   if (typeof saveState === 'function') saveState();
 }
 
-// ── Delete a column ──
-function attrDeleteColumn(colIdx) {
-  var col = _attrColumns[colIdx];
+function attrDeleteColumn(ci) {
+  var col = _attrColumns[ci];
   if (col === 'name') return;
-
   _attrLayers.forEach(function(l) {
     if (l._manaProperties) delete l._manaProperties[col];
   });
-
   var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
   if (gid && _manaGroupMeta[gid]) delete _manaGroupMeta[gid].attrs[col];
-
   _attrBuildTable();
-  showToast('Campo eliminado: ' + col);
+  showToast('Campo eliminado');
   if (typeof saveState === 'function') saveState();
 }
 
-// ── Add a new row (empty feature) ──
+// ═══════════════════════════════════════════════════════════════
+// ROW OPERATIONS
+// ═══════════════════════════════════════════════════════════════
 function attrAddRow() {
-  // Create a new marker at the map center with empty properties
   var center = map.getCenter();
   var props = {};
   _attrColumns.forEach(function(c) { if (c !== 'name') props[c] = ''; });
-
   var icon = makeMarkerIcon(drawColor, markerType);
   var m = L.marker(center, { icon: icon }).addTo(drawnItems);
-  m._manaName = 'Nuevo elemento';
+  m._manaName = 'Nuevo';
   m._manaColor = drawColor;
   m._manaProperties = props;
-  m.bindPopup('<strong>Nuevo elemento</strong>');
-
-  // If editing a group, add to group
+  m.bindPopup('<strong>Nuevo</strong>');
   var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
   if (gid) {
     m._manaGroupId = gid;
@@ -934,56 +1037,62 @@ function attrAddRow() {
       addLayerToGroupMeta(gid, m);
     }
   }
-
   _attrLayers.push(m);
   _attrBuildTable();
   stats();
-  showToast('Fila a\u00f1adida');
+  // Focus the name cell of the new row
+  requestAnimationFrame(function() {
+    var newCell = document.querySelector('.attr-cell[data-row="' + (_attrLayers.length - 1) + '"][data-col="0"]');
+    if (newCell) newCell.focus();
+  });
   if (typeof saveState === 'function') saveState();
 }
 
-// ── Delete a row ──
-function attrDeleteRow(rowIdx) {
-  var layer = _attrLayers[rowIdx];
+function attrDeleteRow(ri) {
+  var layer = _attrLayers[ri];
   if (!layer) return;
-
   drawnItems.removeLayer(layer);
-
-  // Remove from group meta
   var gid = layer._manaGroupId;
   if (gid && _manaGroupMeta[gid]) {
     var arr = _manaGroupMeta[gid].allLayers;
     var i = arr.indexOf(layer);
     if (i > -1) arr.splice(i, 1);
   }
-
-  _attrLayers.splice(rowIdx, 1);
+  _attrLayers.splice(ri, 1);
   _attrBuildTable();
   stats();
   showToast('Fila eliminada');
   if (typeof saveState === 'function') saveState();
 }
 
-// ── Row click → zoom to feature ──
-function _attrRowClick(rowIdx) {
-  var layer = _attrLayers[rowIdx];
+// ═══════════════════════════════════════════════════════════════
+// ROW CLICK → zoom + highlight
+// ═══════════════════════════════════════════════════════════════
+function _attrRowClick(ri) {
+  var layer = _attrLayers[ri];
   if (!layer) return;
+
+  // Highlight row visually
+  document.querySelectorAll('.attr-table-edit tbody tr').forEach(function(tr) {
+    tr.classList.remove('is-selected');
+  });
+  var tr = document.querySelector('.attr-table-edit tbody tr[data-row="' + ri + '"]');
+  if (tr) tr.classList.add('is-selected');
 
   if (layer.getBounds) map.fitBounds(layer.getBounds(), { maxZoom: 15, padding: [24, 24] });
   else if (layer.getLatLng) map.setView(layer.getLatLng(), 15);
 
-  // Flash highlight
   if (_attrHighlightLayer) {
     try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
   }
   if (layer instanceof L.Marker) {
     _attrHighlightLayer = L.circleMarker(layer.getLatLng(), {
-      radius: 18, color: '#f59e0b', weight: 3, fillOpacity: 0.2, dashArray: '4 4'
+      radius: 18, color: '#0ea5e9', weight: 3, fillOpacity: 0.15, dashArray: '4 4'
     }).addTo(map);
   } else if (layer.getLatLngs) {
     var Cls = (layer instanceof L.Polygon) ? L.polygon : L.polyline;
     _attrHighlightLayer = Cls(layer.getLatLngs(), {
-      color: '#f59e0b', weight: 5, fillOpacity: 0.2, dashArray: '6 4'
+      color: '#0ea5e9', weight: 5, fillOpacity: 0.12, dashArray: '6 4'
     }).addTo(map);
   }
   setTimeout(function() {
@@ -991,8 +1100,9 @@ function _attrRowClick(rowIdx) {
       try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
       _attrHighlightLayer = null;
     }
-  }, 2000);
+  }, 2500);
 }
+
 
 // ── Close & propagation ──
 document.getElementById('layer-ctx-menu').addEventListener('click', e => e.stopPropagation());

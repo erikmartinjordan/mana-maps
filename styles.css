@@ -1231,51 +1231,67 @@ select.ai-input{cursor:pointer;appearance:auto;}
 
 
 /* ═══════════════════════════════════════════════════════════════
-   ATTRIBUTE TABLE MODAL — editable, centered
+   ATTRIBUTE TABLE — Notion-style editable modal
    ═══════════════════════════════════════════════════════════════ */
+
+/* ── Backdrop ── */
 .attr-modal {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 5000;
-  background: rgba(0,0,0,.35);
-  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(4px);
   align-items: center;
   justify-content: center;
 }
 .attr-modal.open { display: flex; }
 
+/* ── Modal box ── */
 .attr-modal-box {
   background: var(--bg);
-  border-radius: 16px;
-  box-shadow: rgb(15 15 15/15%) 0 10px 40px;
-  width: 720px;
-  max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 80px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  width: 800px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: modalIn .2s ease;
+  animation: attrModalIn .18s ease-out;
+}
+@keyframes attrModalIn {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── Header ── */
 .attr-modal-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  padding: 16px 20px 12px;
   flex-shrink: 0;
 }
 .attr-modal-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--primary);
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.attr-modal-count {
+  font-size: 11px;
+  color: var(--third);
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
 }
 .attr-modal-actions {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 .attr-action-btn {
   display: inline-flex;
@@ -1283,87 +1299,118 @@ select.ai-input{cursor:pointer;appearance:auto;}
   gap: 4px;
   padding: 5px 10px;
   border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--bgBox);
+  border-radius: 6px;
+  background: transparent;
   font-size: 11px;
   font-weight: 600;
   font-family: 'DM Sans', sans-serif;
   color: var(--secondary);
   cursor: pointer;
-  transition: all .15s;
+  transition: all .12s;
+  white-space: nowrap;
 }
 .attr-action-btn:hover {
   border-color: var(--blue);
   color: var(--blue);
-  background: rgba(14,165,233,.05);
+  background: rgba(14,165,233,.06);
 }
 .attr-modal-close {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: 6px;
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   color: var(--third);
   display: grid;
   place-items: center;
-  transition: all .12s;
+  transition: all .1s;
   flex-shrink: 0;
 }
 .attr-modal-close:hover {
-  background: var(--bgBox);
+  background: rgba(239,68,68,.08);
   color: var(--red);
 }
 
-/* ── Body / Table ── */
+/* ── Body / scroll ── */
 .attr-modal-body {
   flex: 1;
   overflow: auto;
-  padding: 0;
 }
+
+/* ── Table base ── */
 .attr-table-edit {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
   font-family: 'DM Sans', sans-serif;
+  table-layout: auto;
 }
 
-/* ── Header cells (editable field names) ── */
+/* ═══ HEADER CELLS ═══ */
 .attr-table-edit th {
   position: sticky;
   top: 0;
+  z-index: 3;
   background: var(--bgBox);
-  z-index: 2;
   text-align: left;
+  border-bottom: 1px solid var(--border);
   padding: 0;
-  border-bottom: 2px solid var(--border);
-  white-space: nowrap;
+  font-weight: 500;
 }
-.attr-th-wrap {
+/* Row number column header */
+.attr-th-rownum {
+  width: 42px;
+  min-width: 42px;
+  text-align: center;
+  color: var(--third);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  user-select: none;
+}
+/* End spacer */
+.attr-th-end { width: 40px; }
+
+/* Column header cell */
+.attr-th-cell { border-right: 1px solid rgba(0,0,0,.04); }
+.attr-th-inner {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 7px 10px;
+  gap: 5px;
+  padding: 8px 10px;
+  min-width: 80px;
 }
-.attr-th-name {
+/* Type icon */
+.attr-th-type {
+  flex-shrink: 0;
+  color: var(--third);
+  display: flex;
+  align-items: center;
+  opacity: .7;
+}
+/* Editable column name */
+.attr-th-text {
   flex: 1;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--third);
   text-transform: uppercase;
-  letter-spacing: .04em;
-  border: none;
-  background: none;
+  letter-spacing: .03em;
   outline: none;
-  padding: 2px 0;
-  font-family: 'DM Sans', sans-serif;
-  min-width: 40px;
+  padding: 1px 2px;
+  border-radius: 3px;
+  transition: all .1s;
+  cursor: text;
+  min-width: 30px;
 }
-.attr-th-name:focus {
+.attr-th-text:focus {
   color: var(--primary);
-  border-bottom: 1.5px solid var(--blue);
+  background: rgba(14,165,233,.06);
+  text-transform: none;
 }
+/* Delete column button */
 .attr-th-del {
   width: 18px;
   height: 18px;
@@ -1371,94 +1418,132 @@ select.ai-input{cursor:pointer;appearance:auto;}
   background: none;
   color: var(--border);
   cursor: pointer;
-  font-size: 13px;
-  line-height: 1;
   border-radius: 4px;
   display: grid;
   place-items: center;
-  transition: all .12s;
+  transition: all .1s;
   opacity: 0;
+  flex-shrink: 0;
 }
-.attr-th-wrap:hover .attr-th-del { opacity: 1; }
+.attr-th-inner:hover .attr-th-del { opacity: 1; }
 .attr-th-del:hover {
   background: rgba(239,68,68,.1);
   color: var(--red);
 }
-/* Actions column header */
-.attr-th-actions {
-  width: 36px;
-  padding: 0;
-  text-align: center;
-}
 
-/* ── Data cells (editable) ── */
-.attr-table-edit td {
-  padding: 0;
-  border-bottom: 1px solid rgba(0,0,0,.05);
-  max-width: 200px;
-}
-.attr-cell-input {
-  width: 100%;
-  padding: 6px 10px;
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--primary);
+/* ═══ BODY CELLS ═══ */
+.attr-table-edit td { padding: 0; }
+
+/* Row number */
+.attr-td-rownum {
+  width: 42px;
+  min-width: 42px;
+  text-align: center;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--third);
+  border-right: 1px solid var(--border);
+  background: var(--bgBox);
+  cursor: pointer;
+  user-select: none;
   transition: background .1s;
 }
-.attr-cell-input:focus {
-  background: rgba(14,165,233,.04);
-}
-.attr-cell-input::placeholder {
-  color: var(--border);
+.attr-td-rownum:hover {
+  background: rgba(14,165,233,.08);
+  color: var(--blue);
 }
 
-/* ── Row actions (delete row) ── */
+/* Data cell */
+.attr-td-cell {
+  border-bottom: 1px solid rgba(0,0,0,.04);
+  border-right: 1px solid rgba(0,0,0,.04);
+  position: relative;
+}
+.attr-td-cell.is-focused {
+  box-shadow: inset 0 0 0 2px var(--blue);
+  border-radius: 1px;
+}
+
+/* Contenteditable cell */
+.attr-cell {
+  padding: 7px 10px;
+  outline: none;
+  min-height: 20px;
+  color: var(--primary);
+  line-height: 1.4;
+  cursor: text;
+  word-break: break-word;
+  transition: background .1s;
+}
+.attr-cell:hover {
+  background: rgba(14,165,233,.02);
+}
+.attr-cell:focus {
+  background: rgba(14,165,233,.04);
+}
+.attr-cell:empty::before {
+  content: attr(data-placeholder);
+  color: var(--border);
+  pointer-events: none;
+}
+
+/* Actions column (delete row) */
+.attr-td-actions {
+  width: 36px;
+  text-align: center;
+  padding: 0 4px;
+}
 .attr-row-del {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border: none;
   background: none;
   color: var(--border);
   cursor: pointer;
-  font-size: 14px;
-  border-radius: 5px;
-  display: grid;
+  border-radius: 4px;
+  display: inline-grid;
   place-items: center;
-  margin: 0 auto;
-  transition: all .12s;
+  transition: all .1s;
   opacity: 0;
 }
-.attr-table-edit tr:hover .attr-row-del { opacity: 1; }
+.attr-table-edit tbody tr:hover .attr-row-del { opacity: 1; }
 .attr-row-del:hover {
   background: rgba(239,68,68,.1);
   color: var(--red);
 }
 
-/* ── Hover row ── */
+/* ═══ ROW STATES ═══ */
 .attr-table-edit tbody tr {
-  transition: background .1s;
+  transition: background .08s;
 }
 .attr-table-edit tbody tr:hover {
-  background: rgba(14,165,233,.03);
+  background: rgba(14,165,233,.025);
+}
+.attr-table-edit tbody tr.is-selected {
+  background: rgba(14,165,233,.06);
+}
+.attr-table-edit tbody tr.is-selected .attr-td-rownum {
+  background: rgba(14,165,233,.12);
+  color: var(--blue);
+  font-weight: 700;
 }
 
-/* ── Empty state ── */
-.attr-empty-msg {
-  padding: 32px;
+/* ═══ EMPTY STATE ═══ */
+.attr-empty {
+  padding: 40px 24px;
   text-align: center;
   color: var(--third);
   font-size: 13px;
+  line-height: 1.6;
 }
 
-/* ── Responsive ── */
+/* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
   .attr-modal-box {
-    width: calc(100vw - 16px);
-    max-height: calc(100vh - 40px);
-    border-radius: 12px;
+    width: calc(100vw - 12px);
+    max-height: calc(100vh - 24px);
+    border-radius: 10px;
   }
-  .attr-action-btn span { display: none; }
+  .attr-modal-header { padding: 12px 14px 8px; }
+  .attr-modal-count { display: none; }
 }
