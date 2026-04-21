@@ -149,12 +149,7 @@
     </div>
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
-  <!-- Project name -->
-  <div class="topbar-project-name">
-    <span class="topbar-project-sep">/</span>
-    <input type="text" id="project-name-input" class="topbar-project-input" placeholder="mana-maps" maxlength="40" autocomplete="off"
-      onchange="setProjectName(this.value)"/>
-  </div>
+
   <!-- P2.6: Place search bar -->
   <div class="search-wrap" id="search-wrap">
     <div class="search-input-wrap">
@@ -217,7 +212,11 @@
 <div id="app">
   <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sidebar-header"><span class="sidebar-title">Herramientas</span></div>
+    <div class="sidebar-header">
+      <input type="text" id="project-name-input" class="sidebar-project-input" placeholder="mana-maps" maxlength="40" autocomplete="off"
+        onchange="setProjectName(this.value)"/>
+      <span class="sidebar-title">Herramientas</span>
+    </div>
     <div class="sidebar-body">
 
       <div class="section-label">Dibujar</div>
@@ -385,13 +384,13 @@
       <div>
         <div class="msg-label">Ma&#241;a AI</div>
         <div class="msg bot">&#161;Hola! Soy <strong>Ma&#241;a AI</strong>, tu asistente de mapas. Prueba con:<br><br>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">a&#241;ade un punto en Barcelona</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">ruta de Madrid a Sevilla</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">busca museos en Par&#237;s</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">sat&#233;lite</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">globo 3D</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">color rojo</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">exporta como KML</button><br><br>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">📍 a&#241;ade un punto en Barcelona</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🛣️ ruta de Madrid a Sevilla</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🏛️ busca museos en Par&#237;s</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🛰️ sat&#233;lite</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🌍 globo 3D</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🎨 color rojo</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">📦 exporta como KML</button><br><br>
         &#9881;&#65039; <strong>Configura una clave API</strong> (&#9881;) para IA con lenguaje natural completo.</div>
       </div>
     </div>

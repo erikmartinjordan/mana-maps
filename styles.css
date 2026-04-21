@@ -49,7 +49,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
 /* ── SIDEBAR ─────────────────────────────────── */
 #sidebar{border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;overflow:hidden;min-width:var(--rail-w);}
-.sidebar-header{padding:16px 16px 14px;border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;transition:padding .18s;}
+.sidebar-header{padding:16px 12px 10px;border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;transition:padding .18s;}
 .sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--third);
   white-space:nowrap;overflow:hidden;transition:opacity .15s,max-height .15s;max-height:20px;opacity:1;}
 .sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 12px 12px;}
@@ -91,6 +91,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
 /* ── RAIL MODE ───────────────────────────────── */
 #sidebar.rail .sidebar-title{opacity:0;max-height:0;overflow:hidden;}
+#sidebar.rail .sidebar-project-input{display:none;}
 #sidebar.rail .sidebar-header{padding:12px 0 10px;}
 #sidebar.rail .section-label{opacity:0;max-height:0;overflow:hidden;padding:0;}
 #sidebar.rail .divider{margin:4px 0;}
@@ -439,7 +440,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   #topbar{padding:0 8px;gap:6px;}
   .mana-logo-icon{width:28px;height:28px;}
   .logo-wordmark{font-size:14px;}
-  .topbar-project-name{display:none;}
 
   /* hide button text on very small screens, keep only icons */
   .topbar-right .btn.btn-ghost .btn-text,
@@ -1592,17 +1592,15 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .tool-btn:focus-visible,.basemap-card:focus-visible,.color-swatch:focus-visible,.marker-opt:focus-visible,
 .btn:focus-visible,.chat-suggestion:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px;}
 
-/* ── P3.11: Project name in topbar ── */
-.topbar-project-name{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.topbar-project-sep{color:var(--border);font-size:18px;font-weight:300;user-select:none;}
-.topbar-project-input{border:none;background:none;color:var(--secondary);font-size:14px;
-  font-family:'DM Sans',sans-serif;font-weight:500;padding:4px 6px;border-radius:6px;
-  outline:none;transition:background .15s,color .15s,border-color .15s;width:140px;
-  text-overflow:ellipsis;border:1px solid transparent;}
-.topbar-project-input:hover{background:var(--bgBox);color:var(--primary);}
-.topbar-project-input:focus{background:var(--bgBox);color:var(--primary);
-  border-color:var(--blue);box-shadow:0 0 0 3px rgba(14,165,233,.1);}
-.topbar-project-input::placeholder{color:var(--third);font-weight:400;}
+/* ── P3.11: Project name in sidebar header ── */
+.sidebar-project-input{width:100%;border:1px solid transparent;background:none;
+  color:var(--primary);font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;
+  padding:4px 8px;border-radius:8px;outline:none;letter-spacing:-.2px;
+  transition:background .15s,border-color .15s;text-overflow:ellipsis;margin-bottom:6px;}
+.sidebar-project-input:hover{background:var(--bgBox);border-color:var(--border);}
+.sidebar-project-input:focus{background:var(--bgBox);border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(14,165,233,.1);}
+.sidebar-project-input::placeholder{color:var(--third);font-weight:500;font-style:italic;}
 .sidebar-footer-links{display:flex;gap:14px;flex-wrap:wrap;}
 .sidebar-clear-btn{border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
 .sidebar-clear-btn:hover{color:var(--red);}
@@ -1615,5 +1613,4 @@ select.ai-input{cursor:pointer;appearance:auto;}
 @media (max-width:768px){
   .search-wrap{position:static;transform:none;width:auto;max-width:none;flex:1;margin:0 8px;}
   .search-input{font-size:14px;}
-  .topbar-project-name{display:none;}
 }
