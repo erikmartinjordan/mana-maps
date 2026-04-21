@@ -1,341 +1,353 @@
-// ── ogc-loader.js ─ WMS/WFS & ArcGIS Feature Service loader ──
+// ── ogc-loader.js ─ WMS / WFS / ArcGIS loader ──────────────────
 
-// ═══════════════════════════════════════════════════════════════
-// WMS OVERLAY TRACKING
-// ═══════════════════════════════════════════════════════════════
-const _wmsOverlays = [];  // { id, label, layer, visible }
+const _wmsServices = [];   // { id, baseUrl, hostname, layers[], activeLayers:{name:L.tileLayer} }
 let _wmsIdCounter = 0;
 let _ogcCatalogOpen = false;
 
-function _hostnameFromURL(url) {
-  try { return new URL(url).hostname; } catch(e) { return url.substring(0, 40); }
+function _host(url) {
+  try { return new URL(url).hostname; } catch(e) { return url.substring(0,30); }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CATÁLOGO DE SERVICIOS PRECONFIGURADOS
-// URLs completas y testeadas para cada servicio
-// ═══════════════════════════════════════════════════════════════
+// ── CATÁLOGO ────────────────────────────────────────────────────
 const OGC_CATALOG = [
   { section: 'ICGC · Catalunya' },
-  { name: 'Mapa topogràfic',        type: 'wms', url: 'https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms' },
+  { name: 'Topogràfic',             type: 'wms', url: 'https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms' },
   { name: 'Ortofotos',              type: 'wms', url: 'https://geoserveis.icgc.cat/servei/catalunya/ortofoto/wms' },
-  { name: 'Mapa geològic 1:50.000', type: 'wms', url: 'https://geoserveis.icgc.cat/servei/catalunya/mapa-geologic/wms' },
+  { name: 'Geològic 1:50 000',      type: 'wms', url: 'https://geoserveis.icgc.cat/servei/catalunya/mapa-geologic/wms' },
   { section: 'IGN · España' },
-  { name: 'Mapa base raster',       type: 'wms', url: 'https://www.ign.es/wms-inspire/mapa-raster' },
-  { name: 'Ortoimágenes PNOA',      type: 'wms', url: 'https://www.ign.es/wms-inspire/pnoa-ma' },
+  { name: 'Mapa raster',            type: 'wms', url: 'https://www.ign.es/wms-inspire/mapa-raster' },
+  { name: 'PNOA Ortoimágenes',      type: 'wms', url: 'https://www.ign.es/wms-inspire/pnoa-ma' },
   { name: 'Hidrografía',            type: 'wms', url: 'https://servicios.idee.es/wms-inspire/hidrografia' },
-  { section: 'INSPIRE · EU' },
-  { name: 'Catastro parcelas',      type: 'wms', url: 'https://ovc.catastro.meh.es/cartografia/INSPIRE/spadgcwms.aspx' },
+  { section: 'Otros' },
+  { name: 'Catastro INSPIRE',       type: 'wms', url: 'https://ovc.catastro.meh.es/cartografia/INSPIRE/spadgcwms.aspx' },
 ];
 
-// ═══════════════════════════════════════════════════════════════
-// DETECCIÓN AUTOMÁTICA DE TIPO
-// ═══════════════════════════════════════════════════════════════
-function detectServiceType(url) {
-  if (!url) return 'unknown';
-  const u = url.toLowerCase();
+// ── DETECCIÓN DE TIPO ───────────────────────────────────────────
+function _detectType(url) {
+  var u = (url || '').toLowerCase();
   if (u.includes('/rest/services/') || u.includes('/mapserver') || u.includes('/featureserver')) return 'arcgis';
   if (u.includes('/wfs') || u.includes('service=wfs')) return 'wfs';
-  if (u.includes('/wms') || u.includes('service=wms')) return 'wms';
-  return 'unknown';
+  return 'wms';
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CARGA UNIFICADA (entry point)
-// ═══════════════════════════════════════════════════════════════
+// ── ENTRY POINT ─────────────────────────────────────────────────
 async function loadUnifiedOGC() {
   var input = document.getElementById('ogc-url-input');
   var btn   = document.getElementById('ogc-add-btn');
   if (!input) return;
   var url = input.value.trim();
-  if (!url) { manaAlert('Introduce una URL de servicio WMS, WFS o ArcGIS.', 'warning'); return; }
+  if (!url) { manaAlert('Introduce una URL de servicio OGC.', 'warning'); return; }
 
-  var type = detectServiceType(url);
-
-  // Spinner
-  if (btn) { btn.disabled = true; btn.textContent = 'Cargando…'; }
-
+  if (btn) { btn.disabled = true; btn.classList.add('loading'); }
   try {
+    var type = _detectType(url);
     if (type === 'wfs')         await _loadWFS(url);
     else if (type === 'arcgis') await _loadArcGIS(url);
-    else                        _loadWMS(url);
-
+    else                        await _loadWMS(url);
     input.value = '';
-  } catch (err) {
-    console.error('OGC error:', err);
-    manaAlert('Error: ' + (err.message || 'No se pudo cargar el servicio'), 'error');
+  } catch (e) {
+    console.error('OGC:', e);
+    manaAlert('Error: ' + e.message, 'error');
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Añadir'; }
+    if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
   }
 }
 
-// Bind Enter key
 document.addEventListener('DOMContentLoaded', function() {
   var inp = document.getElementById('ogc-url-input');
   if (inp) inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') loadUnifiedOGC(); });
 });
 
-// ═══════════════════════════════════════════════════════════════
-// WMS LOADER (tile overlay — works well)
-// ═══════════════════════════════════════════════════════════════
-function _loadWMS(url) {
+// ═════════════════════════════════════════════════════════════════
+// WMS — GetCapabilities → checkboxes de capas
+// ═════════════════════════════════════════════════════════════════
+async function _loadWMS(url) {
+  showToast('Conectando WMS\u2026');
+
+  // Limpiar la URL base
+  var baseUrl = url.split('?')[0];
+  var requestedLayers = '';
   try {
-    var layers = '';
-    try {
-      var parsed = new URL(url);
-      if (parsed.searchParams.has('layers')) {
-        layers = parsed.searchParams.get('layers');
-        parsed.searchParams.delete('layers');
-      }
-      parsed.searchParams.delete('request');
-      parsed.searchParams.delete('service');
-      parsed.searchParams.delete('version');
-    } catch(e) {}
+    var p = new URL(url);
+    requestedLayers = p.searchParams.get('layers') || '';
+    baseUrl = p.origin + p.pathname;
+  } catch(e) {}
 
-    var wmsLayer = L.tileLayer.wms(url.split('?')[0], {
-      layers: layers,
-      format: 'image/png',
-      transparent: true,
-      attribution: _hostnameFromURL(url),
-    }).addTo(map);
-
-    var id = ++_wmsIdCounter;
-    var label = _hostnameFromURL(url) + (layers ? ' (' + layers + ')' : '');
-    _wmsOverlays.push({ id: id, label: label, layer: wmsLayer, visible: true });
-    _renderWMSLayers();
-    showToast('WMS añadido ✓');
+  // Si el usuario ya especificó capas, añadir directamente
+  if (requestedLayers) {
+    _addDirectWMS(baseUrl, requestedLayers, requestedLayers);
+    showToast('WMS a\u00f1adido \u2713');
     if (typeof saveState === 'function') saveState();
-  } catch (e) {
-    manaAlert('Error WMS: ' + e.message, 'error');
+    return;
   }
+
+  // GetCapabilities para descubrir capas
+  var capsUrl = baseUrl + '?service=WMS&request=GetCapabilities';
+  var resp, text;
+  try {
+    resp = await fetch(capsUrl);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    text = await resp.text();
+  } catch(e) {
+    // Intentar via proxy CORS
+    try {
+      resp = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(capsUrl));
+      if (!resp.ok) throw new Error('Proxy HTTP ' + resp.status);
+      text = await resp.text();
+    } catch(e2) {
+      throw new Error('No se pudo conectar al servicio WMS (posible bloqueo CORS)');
+    }
+  }
+
+  var parser = new DOMParser();
+  var xml = parser.parseFromString(text, 'text/xml');
+
+  // Parsear capas disponibles
+  var layerEls = xml.querySelectorAll('Layer > Layer');
+  var layers = [];
+  layerEls.forEach(function(el) {
+    var name  = el.querySelector(':scope > Name');
+    var title = el.querySelector(':scope > Title');
+    if (name && name.textContent) {
+      layers.push({
+        name:  name.textContent,
+        title: (title ? title.textContent : name.textContent)
+      });
+    }
+  });
+
+  if (!layers.length) {
+    // Fallback: intentar añadir sin capas (algunos WMS devuelven mapa compuesto)
+    _addDirectWMS(baseUrl, '', _host(url));
+    showToast('WMS a\u00f1adido (sin lista de capas)');
+    return;
+  }
+
+  // Registrar servicio con sus capas
+  var svc = {
+    id: ++_wmsIdCounter,
+    baseUrl: baseUrl,
+    hostname: _host(url),
+    layers: layers,
+    activeLayers: {}
+  };
+  _wmsServices.push(svc);
+
+  // Activar la primera capa por defecto
+  _toggleWMSCap(svc.id, layers[0].name, true);
+
+  _renderWMSPanel();
+  showToast(layers.length + ' capas WMS disponibles');
+  if (typeof saveState === 'function') saveState();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// WFS LOADER — robusto: intenta múltiples formatos y proxy CORS
-// ═══════════════════════════════════════════════════════════════
-async function _loadWFS(url) {
-  showToast('Cargando WFS…');
+// Añadir WMS directo (con layers ya conocidos)
+function _addDirectWMS(baseUrl, layers, label) {
+  var tl = L.tileLayer.wms(baseUrl, {
+    layers: layers,
+    format: 'image/png',
+    transparent: true,
+    attribution: _host(baseUrl)
+  }).addTo(map);
 
-  // Si la URL ya tiene request=GetFeature completo, usarla tal cual
+  var svc = {
+    id: ++_wmsIdCounter,
+    baseUrl: baseUrl,
+    hostname: label,
+    layers: [{ name: layers, title: label }],
+    activeLayers: {}
+  };
+  svc.activeLayers[layers] = tl;
+  _wmsServices.push(svc);
+  _renderWMSPanel();
+}
+
+// Toggle una capa individual dentro de un servicio
+function _toggleWMSCap(svcId, layerName, forceOn) {
+  var svc = _wmsServices.find(function(s) { return s.id === svcId; });
+  if (!svc) return;
+
+  if (svc.activeLayers[layerName] && !forceOn) {
+    // Desactivar
+    map.removeLayer(svc.activeLayers[layerName]);
+    delete svc.activeLayers[layerName];
+  } else if (!svc.activeLayers[layerName]) {
+    // Activar
+    var tl = L.tileLayer.wms(svc.baseUrl, {
+      layers: layerName,
+      format: 'image/png',
+      transparent: true,
+      attribution: svc.hostname
+    }).addTo(map);
+    svc.activeLayers[layerName] = tl;
+  }
+  _renderWMSPanel();
+}
+
+// Eliminar un servicio completo
+function _removeWMSService(svcId) {
+  var idx = _wmsServices.findIndex(function(s) { return s.id === svcId; });
+  if (idx === -1) return;
+  var svc = _wmsServices[idx];
+  Object.keys(svc.activeLayers).forEach(function(k) {
+    if (map.hasLayer(svc.activeLayers[k])) map.removeLayer(svc.activeLayers[k]);
+  });
+  _wmsServices.splice(idx, 1);
+  _renderWMSPanel();
+  showToast('Servicio WMS eliminado');
+}
+
+// ── Render panel de capas WMS ──
+function _renderWMSPanel() {
+  var el = document.getElementById('wms-layer-list');
+  if (!el) return;
+  if (!_wmsServices.length) { el.innerHTML = ''; return; }
+
+  var html = '';
+  _wmsServices.forEach(function(svc) {
+    var activeCount = Object.keys(svc.activeLayers).length;
+    html += '<div class="wms-svc">';
+    html += '<div class="wms-svc-header">';
+    html += '<span class="wms-svc-name">' + svc.hostname + '</span>';
+    html += '<span class="wms-svc-count">' + activeCount + '/' + svc.layers.length + '</span>';
+    html += '<button class="wms-svc-del" onclick="_removeWMSService(' + svc.id + ')" title="Eliminar servicio">&times;</button>';
+    html += '</div>';
+
+    // Mostrar capas (máximo 12 para no saturar)
+    var show = svc.layers.slice(0, 12);
+    show.forEach(function(l) {
+      var active = !!svc.activeLayers[l.name];
+      html += '<label class="wms-layer-check">';
+      html += '<input type="checkbox" ' + (active ? 'checked' : '') +
+        ' onchange="_toggleWMSCap(' + svc.id + ',\'' + l.name.replace(/'/g, "\\'") + '\')">';
+      html += '<span class="wms-layer-name">' + l.title + '</span>';
+      html += '</label>';
+    });
+    if (svc.layers.length > 12) {
+      html += '<div class="wms-more">+ ' + (svc.layers.length - 12) + ' capas m\u00e1s</div>';
+    }
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ═════════════════════════════════════════════════════════════════
+// WFS — robusto con múltiples intentos y proxy CORS
+// ═════════════════════════════════════════════════════════════════
+async function _loadWFS(url) {
+  showToast('Cargando WFS\u2026');
+
   if (url.toLowerCase().includes('request=getfeature')) {
     return await _fetchWFS(url);
   }
 
-  // Construir petición GetFeature con distintos formatos
   var base = url.split('?')[0];
-  var sep = '?';
-
-  // Lista de combinaciones a intentar (formato salida)
   var attempts = [
-    base + sep + 'service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&count=2000',
-    base + sep + 'service=WFS&version=1.1.0&request=GetFeature&outputFormat=application/json&maxFeatures=2000',
-    base + sep + 'service=WFS&version=2.0.0&request=GetFeature&outputFormat=geojson&count=2000',
+    base + '?service=WFS&version=2.0.0&request=GetFeature&outputFormat=application/json&count=2000',
+    base + '?service=WFS&version=1.1.0&request=GetFeature&outputFormat=application/json&maxFeatures=2000',
+    base + '?service=WFS&version=2.0.0&request=GetFeature&outputFormat=geojson&count=2000',
   ];
 
-  var lastError = null;
+  var lastErr;
   for (var i = 0; i < attempts.length; i++) {
-    try {
-      await _fetchWFS(attempts[i]);
-      return; // Éxito
-    } catch(e) {
-      lastError = e;
-      console.warn('WFS intento ' + (i+1) + ' falló:', e.message);
-    }
+    try { await _fetchWFS(attempts[i]); return; }
+    catch(e) { lastErr = e; }
   }
 
-  // Si todo falló, intentar vía proxy CORS
+  // Proxy CORS
   try {
-    var proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(attempts[0]);
-    await _fetchWFS(proxyUrl);
+    await _fetchWFS('https://api.allorigins.win/raw?url=' + encodeURIComponent(attempts[0]));
     return;
-  } catch(e) {
-    console.warn('WFS proxy CORS también falló:', e.message);
-  }
+  } catch(e) { /* ignore */ }
 
-  // Error final con mensaje útil
-  throw new Error(
-    'No se pudo cargar el WFS. Posibles causas:\n' +
-    '• El servidor bloquea peticiones del navegador (CORS)\n' +
-    '• El servicio requiere parámetros adicionales (typeNames)\n' +
-    '• Formato de salida no soportado\n\n' +
-    'Último error: ' + (lastError ? lastError.message : 'desconocido')
-  );
+  throw new Error('WFS no accesible. ' + (lastErr ? lastErr.message : 'CORS o par\u00e1metros incorrectos'));
 }
 
 async function _fetchWFS(fetchUrl) {
   var resp = await fetch(fetchUrl);
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
-
   var text = await resp.text();
 
-  // Comprobar si es XML de error (muchos WFS devuelven XML cuando falla)
-  if (text.trim().startsWith('<') && (text.includes('ExceptionReport') || text.includes('ServiceException'))) {
-    // Extraer mensaje de error del XML
-    var match = text.match(/<(?:ows:)?ExceptionText>([\s\S]*?)<\/(?:ows:)?ExceptionText>/);
-    if (!match) match = text.match(/<ServiceException[^>]*>([\s\S]*?)<\/ServiceException>/);
-    var xmlErr = match ? match[1].trim() : 'El servidor devolvió un error XML';
-    throw new Error(xmlErr);
+  // Detectar error XML
+  if (text.trim().charAt(0) === '<' && (text.indexOf('Exception') > -1)) {
+    var m = text.match(/<(?:ows:)?ExceptionText>([\s\S]*?)<\/(?:ows:)?ExceptionText>/);
+    throw new Error(m ? m[1].trim() : 'Error XML del servidor');
   }
 
-  // Intentar parsear como JSON
   var geo;
-  try {
-    geo = JSON.parse(text);
-  } catch(e) {
-    throw new Error('La respuesta no es JSON válido (posiblemente GML/XML)');
+  try { geo = JSON.parse(text); } catch(e) {
+    throw new Error('Respuesta no es JSON (posiblemente GML)');
   }
+  if (!geo.features || !geo.features.length) throw new Error('Sin features');
 
-  if (!geo.features || !geo.features.length) {
-    throw new Error('El servicio no devolvió features');
-  }
-
-  var label = _hostnameFromURL(fetchUrl);
-  loadGeoJSON(geo, 'WFS: ' + label);
-  showToast(geo.features.length + ' features WFS cargados ✓');
+  loadGeoJSON(geo, 'WFS: ' + _host(fetchUrl));
+  showToast(geo.features.length + ' features WFS \u2713');
   if (typeof saveState === 'function') saveState();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ARCGIS FEATURE SERVICE LOADER
-// ═══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
+// ArcGIS Feature Service
+// ═════════════════════════════════════════════════════════════════
 async function _loadArcGIS(url) {
-  showToast('Cargando ArcGIS…');
+  showToast('Cargando ArcGIS\u2026');
   url = url.replace(/\/$/, '');
-
-  var allFeatures = [];
-  var offset = 0;
-  var limit = 1000;
-  var hasMore = true;
-
-  try {
-    while (hasMore) {
-      var sep = url.includes('?') ? '&' : '?';
-      var fetchUrl = url + '/query' + sep +
-        'where=1%3D1&outFields=*&f=geojson' +
-        '&resultOffset=' + offset +
-        '&resultRecordCount=' + limit;
-
-      var resp = await fetch(fetchUrl);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      var data = await resp.json();
-
-      if (data.features && data.features.length) {
-        allFeatures.push.apply(allFeatures, data.features);
-        offset += data.features.length;
-      }
-
-      if (data.exceededTransferLimit === true && data.features && data.features.length === limit) {
-        hasMore = true;
-        showToast('Cargando ArcGIS… (' + allFeatures.length + ' elementos)');
-      } else {
-        hasMore = false;
-      }
-    }
-
-    if (!allFeatures.length) {
-      manaAlert('El servicio ArcGIS no devolvió datos.', 'warning');
-      return;
-    }
-
-    var fc = { type: 'FeatureCollection', features: allFeatures };
-    var label = _hostnameFromURL(url);
-    loadGeoJSON(fc, 'ArcGIS: ' + label);
-    showToast(allFeatures.length + ' elementos cargados ✓');
-    if (typeof saveState === 'function') saveState();
-  } catch (e) {
-    manaAlert('Error ArcGIS: ' + e.message, 'error');
+  var all = [], offset = 0, limit = 1000, more = true;
+  while (more) {
+    var sep = url.includes('?') ? '&' : '?';
+    var r = await fetch(url + '/query' + sep + 'where=1%3D1&outFields=*&f=geojson&resultOffset=' + offset + '&resultRecordCount=' + limit);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    var d = await r.json();
+    if (d.features && d.features.length) { all.push.apply(all, d.features); offset += d.features.length; }
+    more = d.exceededTransferLimit === true && d.features && d.features.length === limit;
+    if (more) showToast('ArcGIS\u2026 ' + all.length + ' elementos');
   }
+  if (!all.length) { manaAlert('Sin datos.', 'warning'); return; }
+  loadGeoJSON({ type: 'FeatureCollection', features: all }, 'ArcGIS: ' + _host(url));
+  showToast(all.length + ' elementos \u2713');
+  if (typeof saveState === 'function') saveState();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// WMS OVERLAY MANAGEMENT
-// ═══════════════════════════════════════════════════════════════
-function toggleWMSLayer(id) {
-  var item = _wmsOverlays.find(function(w) { return w.id === id; });
-  if (!item) return;
-  if (item.visible) {
-    map.removeLayer(item.layer);
-    item.visible = false;
-  } else {
-    item.layer.addTo(map);
-    item.visible = true;
-  }
-  _renderWMSLayers();
-}
-
-function removeWMSLayer(id) {
-  var idx = _wmsOverlays.findIndex(function(w) { return w.id === id; });
-  if (idx === -1) return;
-  var item = _wmsOverlays[idx];
-  if (map.hasLayer(item.layer)) map.removeLayer(item.layer);
-  _wmsOverlays.splice(idx, 1);
-  _renderWMSLayers();
-  showToast('Capa WMS eliminada');
-}
-
-function _renderWMSLayers() {
-  var container = document.getElementById('wms-layer-list');
-  if (!container) return;
-  if (!_wmsOverlays.length) { container.innerHTML = ''; return; }
-  container.innerHTML = _wmsOverlays.map(function(w) {
-    var eyeIcon = w.visible
-      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg>';
-    return '<div class="wms-layer-item">' +
-      '<button class="wms-eye-btn' + (w.visible ? '' : ' off') + '" onclick="toggleWMSLayer(' + w.id + ')" title="Mostrar/ocultar">' + eyeIcon + '</button>' +
-      '<span class="wms-layer-label">' + w.label + '</span>' +
-      '<button class="wms-remove-btn" onclick="removeWMSLayer(' + w.id + ')" title="Eliminar">&times;</button>' +
-      '</div>';
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════════════
-// CATÁLOGO — render y toggle
-// ═══════════════════════════════════════════════════════════════
+// ── CATÁLOGO ────────────────────────────────────────────────────
 function toggleOGCCatalog() {
   var el = document.getElementById('ogc-catalog-list');
-  var arrow = document.getElementById('ogc-catalog-arrow');
+  var arrow = document.getElementById('ogc-cat-chevron');
   if (!el) return;
   _ogcCatalogOpen = !_ogcCatalogOpen;
-  if (_ogcCatalogOpen) {
-    _renderOGCCatalog();
-    el.style.display = 'block';
-    if (arrow) arrow.style.transform = 'rotate(90deg)';
-  } else {
-    el.style.display = 'none';
-    if (arrow) arrow.style.transform = '';
-  }
+  el.style.display = _ogcCatalogOpen ? 'block' : 'none';
+  if (arrow) arrow.classList.toggle('open', _ogcCatalogOpen);
+  if (_ogcCatalogOpen && !el.innerHTML) _renderCatalog();
 }
 
-function _renderOGCCatalog() {
+function _renderCatalog() {
   var el = document.getElementById('ogc-catalog-list');
   if (!el) return;
-  var html = '';
+  var h = '';
   OGC_CATALOG.forEach(function(item) {
     if (item.section) {
-      html += '<div class="ogc-cat-section">' + item.section + '</div>';
+      h += '<div class="ogc-cat-hd">' + item.section + '</div>';
     } else {
-      var badge = item.type === 'wms'
-        ? '<span class="ogc-cat-badge ogc-cat-wms">WMS</span>'
-        : item.type === 'wfs'
-        ? '<span class="ogc-cat-badge ogc-cat-wfs">WFS</span>'
-        : '<span class="ogc-cat-badge">???</span>';
-      html += '<div class="ogc-cat-item" onclick="loadFromCatalog(\'' + item.url + '\')" title="' + item.url + '">' +
-        '<span class="ogc-cat-name">' + item.name + '</span>' + badge + '</div>';
+      h += '<button class="tool-btn ogc-cat-btn" onclick="loadFromCatalog(\'' + item.url + '\')" title="' + item.url + '">';
+      h += '<span class="ogc-cat-badge ogc-badge-' + item.type + '">' + item.type.toUpperCase() + '</span>';
+      h += '<span class="btn-label">' + item.name + '</span>';
+      h += '</button>';
     }
   });
-  el.innerHTML = html;
+  el.innerHTML = h;
 }
 
 function loadFromCatalog(url) {
-  var input = document.getElementById('ogc-url-input');
-  if (input) input.value = url;
-  toggleOGCCatalog();
+  var inp = document.getElementById('ogc-url-input');
+  if (inp) inp.value = url;
+  if (_ogcCatalogOpen) toggleOGCCatalog();
   loadUnifiedOGC();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// BACKWARD COMPAT
-// ═══════════════════════════════════════════════════════════════
+// ── BACKWARD COMPAT ─────────────────────────────────────────────
 function loadOGCService() { loadUnifiedOGC(); }
 function loadArcGISService() { loadUnifiedOGC(); }
+
+// Compat con _wmsOverlays antiguo (usado por persistence.js)
+var _wmsOverlays = [];
+function toggleWMSLayer() {}
+function removeWMSLayer() {}
+function _renderWMSLayers() { _renderWMSPanel(); }

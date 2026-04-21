@@ -311,15 +311,21 @@
       </div>
       <div id="ogc-section">
         <div class="ogc-input-row">
-          <input type="text" id="ogc-url-input" class="ogc-input" placeholder="URL del servicio WMS / WFS / ArcGIS…" autocomplete="off" spellcheck="false"/>
-          <button class="tool-btn ogc-add-btn" id="ogc-add-btn" onclick="loadUnifiedOGC()">Añadir</button>
+          <input type="text" id="ogc-url-input" class="ogc-input" placeholder="URL WMS, WFS o ArcGIS…" autocomplete="off" spellcheck="false"/>
+          <button class="tool-btn ogc-load-btn" id="ogc-add-btn" onclick="loadUnifiedOGC()">
+            <svg class="ogc-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span class="ogc-btn-text">Añadir</span>
+            <span class="ogc-btn-loading" style="display:none">…</span>
+          </button>
         </div>
+
         <div id="wms-layer-list"></div>
-        <div class="ogc-catalog-row" onclick="toggleOGCCatalog()">
-          <svg id="ogc-catalog-arrow" class="ogc-catalog-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>
-          <span>Catálogo de servicios</span>
-        </div>
-        <div id="ogc-catalog-list" style="display:none;"></div>
+
+        <button class="tool-btn ogc-catalog-toggle" onclick="toggleOGCCatalog()">
+          <svg id="ogc-cat-chevron" class="ogc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <span class="btn-label">Catálogo de servicios</span>
+        </button>
+        <div id="ogc-catalog-list" style="display:none"></div>
       </div>
 
       <div class="divider"></div>

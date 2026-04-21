@@ -817,6 +817,169 @@ select.ai-input{cursor:pointer;appearance:auto;}
 @keyframes ctx-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
 
+
+/* ═══════════════════════════════════════════════════════════════
+   OGC SERVICES
+   ═══════════════════════════════════════════════════════════════ */
+#ogc-section { padding: 0 4px; }
+#ogc-section.collapsed { display: none; }
+
+/* ── Input row ── */
+.ogc-input-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.ogc-input {
+  flex: 1;
+  background: var(--bgBox);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  min-width: 0;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ogc-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(14,165,233,.08);
+}
+.ogc-input::placeholder { color: var(--third); }
+
+/* ── Add button ── */
+.ogc-load-btn {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+  gap: 5px !important;
+}
+.ogc-load-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.ogc-load-btn.loading .ogc-btn-icon,
+.ogc-load-btn.loading .ogc-btn-text { display: none; }
+.ogc-load-btn.loading .ogc-btn-loading { display: inline !important; }
+
+/* ── Catalog toggle (same style as tool-btn) ── */
+.ogc-catalog-toggle {
+  margin-top: 2px;
+  color: var(--third) !important;
+  font-size: 12px !important;
+}
+.ogc-catalog-toggle:hover { color: var(--primary) !important; }
+.ogc-chevron {
+  width: 14px; height: 14px;
+  transition: transform .2s ease;
+}
+.ogc-chevron.open { transform: rotate(180deg); }
+
+/* ── Catalog list ── */
+#ogc-catalog-list { padding: 0 0 4px; }
+.ogc-cat-hd {
+  padding: 10px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--third);
+}
+.ogc-cat-btn {
+  font-size: 12px !important;
+  gap: 8px !important;
+  padding: 8px 12px !important;
+}
+.ogc-cat-badge {
+  font-size: 9px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .03em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.ogc-badge-wms { background: rgba(14,165,233,.1); color: var(--blue); }
+.ogc-badge-wfs { background: rgba(16,185,129,.1); color: var(--green); }
+
+/* ── WMS services & layer checkboxes ── */
+.wms-svc {
+  margin: 6px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bgBox);
+  overflow: hidden;
+}
+.wms-svc-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.wms-svc-name {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wms-svc-count {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--third);
+}
+.wms-svc-del {
+  background: none;
+  border: none;
+  color: var(--third);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color .12s;
+}
+.wms-svc-del:hover { color: var(--red); }
+
+.wms-layer-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: background .1s;
+}
+.wms-layer-check:hover { background: rgba(14,165,233,.04); }
+.wms-layer-check input[type="checkbox"] {
+  accent-color: var(--blue);
+  margin: 0;
+  flex-shrink: 0;
+}
+.wms-layer-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wms-more {
+  padding: 4px 10px 6px;
+  font-size: 10px;
+  color: var(--third);
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PANEL DE ESTADÍSTICAS — Stats Panel
+   ═══════════════════════════════════════════════════════════════ */
+
+
 /* ═══════════════════════════════════════════════════════════════
    PANEL DE ESTADÍSTICAS — Stats Panel
    ═══════════════════════════════════════════════════════════════ */
