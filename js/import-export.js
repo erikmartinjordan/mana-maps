@@ -190,142 +190,329 @@ function kmlToGeoJSON(xmlDoc) {
 
 // ── EXPORT ──
 function hexToKmlColor(hex, alpha) {
-  alpha = alpha || 'ff';
-  const r = hex.slice(1, 3), g = hex.slice(3, 5), b = hex.slice(5, 7);
+  alpha = alpha || "ff";
+  var r = hex.slice(1, 3), g = hex.slice(3, 5), b = hex.slice(5, 7);
   return alpha + b + g + r;
 }
 
 function exportAs(fmt) {
-  document.querySelectorAll('.drop-menu').forEach(x => x.classList.remove('open'));
-  const geo = getEnrichedGeoJSON();
-  if (!geo.features.length) { manaAlert('No hay elementos para exportar.', 'warning'); return; }
-  if (fmt === 'geojson') return dl(JSON.stringify(geo, null, 2), 'mana-maps.geojson', 'application/json');
-  if (fmt === 'csv') return exportCSV(geo);
-  if (fmt === 'kml') return exportKMZ(geo);
-  if (fmt === 'shapefile') return exportShapefile(geo);
+  document.querySelectorAll(".drop-menu").forEach(function(x) { x.classList.remove("open"); });
+  var geo = getEnrichedGeoJSON();
+  if (!geo.features.length) { manaAlert("No hay elementos para exportar.", "warning"); return; }
+  if (fmt === "geojson") return dl(JSON.stringify(geo, null, 2), "mana-maps.geojson", "application/json");
+  if (fmt === "csv") return exportCSV(geo);
+  if (fmt === "kml") return exportKMZ(geo);
+  if (fmt === "shapefile") return exportShapefile(geo);
 }
 
 function dl(content, filename, mime, isBlob) {
-  isBlob = isBlob || false;
-  const blob = isBlob ? content : new Blob([content], { type: mime });
-  const a = document.createElement('a');
+  var blob = isBlob ? content : new Blob([content], { type: mime });
+  var a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 5000);
 }
 
+// ===================== CSV =====================
 function exportCSV(geo) {
-  const rows = [['id', 'type', 'name', 'longitude', 'latitude', 'coordinates']];
-  geo.features.forEach((f, i) => {
-    const g = f.geometry, p = f.properties || {};
-    const name = p.name || p.title || ('Elemento ' + (i + 1));
-    if (g.type === 'Point') rows.push([i + 1, 'Point', name, g.coordinates[0], g.coordinates[1], '']);
-    else rows.push([i + 1, g.type, name, '', '', JSON.stringify(g.coordinates)]);
+  var allKeys = {};
+  geo.features.forEach(function(f) {
+    var p = f.properties || {};
+    Object.keys(p).forEach(function(k) { if (k !== "color") allKeys[k] = true; });
   });
-  dl(rows.map(r => r.map(v => ('"' + String(v).replace(/"/g, '""') + '"')).join(',')).join('\n'),
-    'mana-maps.csv', 'text/csv');
+  var keys = Object.keys(allKeys);
+  var header = ["id", "type", "latitude", "longitude"].concat(keys);
+  var rows = [header.map(function(h) { return '"' + h + '"'; }).join(",")];
+  geo.features.forEach(function(f, i) {
+    var g = f.geometry, p = f.properties || {};
+    var lat = "", lng = "";
+    if (g.type === "Point") { lng = g.coordinates[0]; lat = g.coordinates[1]; }
+    var row = [i + 1, g.type, lat, lng];
+    keys.forEach(function(k) {
+      var v = p[k]; if (v === null || v === undefined) v = "";
+      row.push(v);
+    });
+    rows.push(row.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","));
+  });
+  dl(rows.join("\n"), "mana-maps.csv", "text/csv");
+}
+
+// ===================== KML / KMZ =====================
+function _coordsToKml(coords) {
+  return coords.map(function(p) { return p[0] + "," + p[1] + ",0"; }).join(" ");
+}
+
+function _geomToKml(g) {
+  if (!g) return "";
+  switch (g.type) {
+    case "Point":
+      return "<Point><coordinates>" + g.coordinates[0] + "," + g.coordinates[1] + ",0</coordinates></Point>";
+    case "MultiPoint":
+      return "<MultiGeometry>" + g.coordinates.map(function(c) {
+        return "<Point><coordinates>" + c[0] + "," + c[1] + ",0</coordinates></Point>";
+      }).join("") + "</MultiGeometry>";
+    case "LineString":
+      return "<LineString><coordinates>" + _coordsToKml(g.coordinates) + "</coordinates></LineString>";
+    case "MultiLineString":
+      return "<MultiGeometry>" + g.coordinates.map(function(line) {
+        return "<LineString><coordinates>" + _coordsToKml(line) + "</coordinates></LineString>";
+      }).join("") + "</MultiGeometry>";
+    case "Polygon":
+      var outer = "<outerBoundaryIs><LinearRing><coordinates>" + _coordsToKml(g.coordinates[0]) + "</coordinates></LinearRing></outerBoundaryIs>";
+      var inner = g.coordinates.slice(1).map(function(ring) {
+        return "<innerBoundaryIs><LinearRing><coordinates>" + _coordsToKml(ring) + "</coordinates></LinearRing></innerBoundaryIs>";
+      }).join("");
+      return "<Polygon>" + outer + inner + "</Polygon>";
+    case "MultiPolygon":
+      return "<MultiGeometry>" + g.coordinates.map(function(poly) {
+        var o = "<outerBoundaryIs><LinearRing><coordinates>" + _coordsToKml(poly[0]) + "</coordinates></LinearRing></outerBoundaryIs>";
+        var inn = poly.slice(1).map(function(ring) {
+          return "<innerBoundaryIs><LinearRing><coordinates>" + _coordsToKml(ring) + "</coordinates></LinearRing></innerBoundaryIs>";
+        }).join("");
+        return "<Polygon>" + o + inn + "</Polygon>";
+      }).join("") + "</MultiGeometry>";
+    default: return "";
+  }
 }
 
 function geoToKML(geo) {
-  const parts = geo.features.map(function(f, i) {
-    const g = f.geometry;
-    const name = (f.properties && f.properties.name) || ('Elemento ' + (i + 1));
-    const hex = (f.properties && f.properties.color) || '#0ea5e9';
-    const kmlColor = hexToKmlColor(hex);
-    const fillColor = '66' + hex.slice(5, 7) + hex.slice(3, 5) + hex.slice(1, 3);
-    const styleId = 'style' + i;
-    let styleTag = '';
+  var parts = [];
+  geo.features.forEach(function(f, i) {
+    var g = f.geometry;
+    var name = (f.properties && f.properties.name) || ("Elemento " + (i + 1));
+    var hex = (f.properties && f.properties.color) || "#0ea5e9";
+    var kmlColor = hexToKmlColor(hex);
+    var fillColor = "66" + hex.slice(5, 7) + hex.slice(3, 5) + hex.slice(1, 3);
+    var sid = "s" + i;
+    var isPoint = (g.type === "Point" || g.type === "MultiPoint");
+    var style = isPoint
+      ? '<Style id="' + sid + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>'
+      : '<Style id="' + sid + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
 
-    if (g.type === 'Point') {
-      styleTag = '<Style id="' + styleId + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle><LabelStyle><scale>0.8</scale></LabelStyle></Style>';
-    } else {
-      styleTag = '<Style id="' + styleId + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
+    var extData = "";
+    var props = f.properties || {};
+    var propKeys = Object.keys(props).filter(function(k) { return k !== "color" && k !== "name"; });
+    if (propKeys.length) {
+      extData = "<ExtendedData>" + propKeys.map(function(k) {
+        var v = props[k]; if (v === null || v === undefined) v = "";
+        return '<Data name="' + k.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '"><value>' + String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</value></Data>';
+      }).join("") + "</ExtendedData>";
     }
 
-    let geomTag = '';
-    if (g.type === 'Point') {
-      geomTag = '<Point><coordinates>' + g.coordinates[0] + ',' + g.coordinates[1] + ',0</coordinates></Point>';
-    } else if (g.type === 'LineString') {
-      const c = g.coordinates.map(function(p) { return p[0] + ',' + p[1] + ',0'; }).join(' ');
-      geomTag = '<LineString><coordinates>' + c + '</coordinates></LineString>';
-    } else if (g.type === 'Polygon') {
-      const c = g.coordinates[0].map(function(p) { return p[0] + ',' + p[1] + ',0'; }).join(' ');
-      geomTag = '<Polygon><outerBoundaryIs><LinearRing><coordinates>' + c + '</coordinates></LinearRing></outerBoundaryIs></Polygon>';
+    var geomTag = _geomToKml(g);
+    if (geomTag) {
+      parts.push(style + "\n<Placemark><name>" + name.replace(/&/g,"&amp;").replace(/</g,"&lt;") + "</name><styleUrl>#" + sid + "</styleUrl>" + extData + geomTag + "</Placemark>");
     }
-    return styleTag + '\n<Placemark><name>' + name + '</name><styleUrl>#' + styleId + '</styleUrl>' + geomTag + '</Placemark>';
   });
-  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00F1a Maps</name>\n' + parts.join('\n') + '\n</Document></kml>';
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00F1a Maps</name>\n' + parts.join("\n") + "\n</Document></kml>";
 }
 
 async function exportKMZ(geo) {
-  const kml = geoToKML(geo);
-  const zip = new JSZip();
-  zip.file('doc.kml', kml);
-  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-  dl(blob, 'mana-maps.kmz', 'application/vnd.google-earth.kmz', true);
+  var kml = geoToKML(geo);
+  var zip = new JSZip();
+  zip.file("doc.kml", kml);
+  var blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+  dl(blob, "mana-maps.kmz", "application/vnd.google-earth.kmz", true);
 }
 
+// ===================== SHAPEFILE =====================
+function _flattenFeatures(features) {
+  var out = [];
+  features.forEach(function(f) {
+    var g = f.geometry, p = f.properties;
+    if (g.type === "MultiPoint") {
+      g.coordinates.forEach(function(c) { out.push({ type: "Feature", properties: p, geometry: { type: "Point", coordinates: c } }); });
+    } else if (g.type === "MultiLineString") {
+      g.coordinates.forEach(function(line) { out.push({ type: "Feature", properties: p, geometry: { type: "LineString", coordinates: line } }); });
+    } else if (g.type === "MultiPolygon") {
+      g.coordinates.forEach(function(poly) { out.push({ type: "Feature", properties: p, geometry: { type: "Polygon", coordinates: poly } }); });
+    } else {
+      out.push(f);
+    }
+  });
+  return out;
+}
+
+function _shpHeader(fileLen, shapeType, bb) {
+  var hdr = new ArrayBuffer(100);
+  var dv = new DataView(hdr);
+  dv.setInt32(0, 9994, false);
+  dv.setInt32(24, fileLen / 2, false);
+  dv.setInt32(28, 1000, true);
+  dv.setInt32(32, shapeType, true);
+  dv.setFloat64(36, bb.xmin, true);
+  dv.setFloat64(44, bb.ymin, true);
+  dv.setFloat64(52, bb.xmax, true);
+  dv.setFloat64(60, bb.ymax, true);
+  return hdr;
+}
+
+function _calcBbox(feats, fn) {
+  var xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity;
+  feats.forEach(function(f) {
+    fn(f).forEach(function(c) {
+      if (c[0] < xmin) xmin = c[0]; if (c[0] > xmax) xmax = c[0];
+      if (c[1] < ymin) ymin = c[1]; if (c[1] > ymax) ymax = c[1];
+    });
+  });
+  return { xmin: xmin, ymin: ymin, xmax: xmax, ymax: ymax };
+}
+
+function _collectFields(feats) {
+  var fields = [{ name: "NAME", width: 80 }];
+  var seen = { name: 1, Name: 1, NAME: 1, color: 1 };
+  feats.forEach(function(f) {
+    Object.keys(f.properties || {}).forEach(function(k) {
+      if (seen[k]) return; seen[k] = 1;
+      var maxW = 10;
+      feats.forEach(function(f2) {
+        var v = (f2.properties || {})[k];
+        if (v !== null && v !== undefined) { var l = String(v).length; if (l > maxW) maxW = l; }
+      });
+      fields.push({ name: k.substring(0, 10).toUpperCase(), width: Math.min(Math.max(maxW, 10), 254) });
+    });
+  });
+  return fields;
+}
+
+function _buildDBF(feats, fields) {
+  var n = feats.length, nf = fields.length;
+  var hs = 32 + nf * 32 + 1;
+  var rs = 1; fields.forEach(function(fd) { rs += fd.width; });
+  var buf = new ArrayBuffer(hs + n * rs);
+  var dv = new DataView(buf);
+  var enc = new TextEncoder();
+  dv.setUint8(0, 3);
+  dv.setInt32(4, n, true);
+  dv.setUint16(8, hs, true);
+  dv.setUint16(10, rs, true);
+  fields.forEach(function(fd, fi) {
+    var off = 32 + fi * 32;
+    var nb = enc.encode(fd.name.substring(0, 10));
+    for (var j = 0; j < nb.length && j < 11; j++) dv.setUint8(off + j, nb[j]);
+    dv.setUint8(off + 11, 67);
+    dv.setUint8(off + 16, fd.width);
+  });
+  dv.setUint8(hs - 1, 13);
+  feats.forEach(function(f, ri) {
+    var off = hs + ri * rs;
+    dv.setUint8(off, 32);
+    var pos = off + 1;
+    fields.forEach(function(fd) {
+      var p = f.properties || {};
+      var val = "";
+      if (fd.name === "NAME") val = p.name || p.Name || p.NAME || "";
+      else {
+        // Find original key (case-insensitive match)
+        var origKey = Object.keys(p).find(function(k) { return k.substring(0,10).toUpperCase() === fd.name; });
+        if (origKey) { var v = p[origKey]; val = (v !== null && v !== undefined) ? String(v) : ""; }
+      }
+      val = val.substring(0, fd.width);
+      var vb = enc.encode(val);
+      for (var j = 0; j < vb.length && j < fd.width; j++) dv.setUint8(pos + j, vb[j]);
+      pos += fd.width;
+    });
+  });
+  return buf;
+}
+
+function _buildPointShp(feats) {
+  var bb = _calcBbox(feats, function(f) { return [f.geometry.coordinates]; });
+  var recSize = 28; // header(8) + shpType(4) + x(8) + y(8)
+  var fileLen = 100 + feats.length * recSize;
+  var shp = new ArrayBuffer(fileLen);
+  var shx = new ArrayBuffer(100 + feats.length * 8);
+  var sd = new DataView(shp), xd = new DataView(shx);
+  var h1 = _shpHeader(fileLen, 1, bb);
+  new Uint8Array(shp).set(new Uint8Array(h1));
+  var h2 = _shpHeader(100 + feats.length * 8, 1, bb);
+  new Uint8Array(shx).set(new Uint8Array(h2));
+  feats.forEach(function(f, i) {
+    var off = 100 + i * recSize;
+    sd.setInt32(off, i + 1, false);
+    sd.setInt32(off + 4, 10, false); // content len in 16-bit words: 20/2=10
+    sd.setInt32(off + 8, 1, true);
+    sd.setFloat64(off + 12, f.geometry.coordinates[0], true);
+    sd.setFloat64(off + 20, f.geometry.coordinates[1], true);
+    xd.setInt32(100 + i * 8, off / 2, false);
+    xd.setInt32(100 + i * 8 + 4, 10, false);
+  });
+  return { shp: shp, shx: shx };
+}
+
+function _buildPolyShp(feats, shapeType) {
+  var bb = _calcBbox(feats, function(f) {
+    var c = f.geometry.coordinates;
+    return shapeType === 5 ? c[0] : c;
+  });
+  var recs = feats.map(function(f) {
+    var rings = shapeType === 5 ? f.geometry.coordinates : [f.geometry.coordinates];
+    var nParts = rings.length;
+    var nPts = rings.reduce(function(s, r) { return s + r.length; }, 0);
+    return { rings: rings, nParts: nParts, nPts: nPts, contentSize: 44 + nParts * 4 + nPts * 16 };
+  });
+  var fileLen = 100;
+  recs.forEach(function(r) { fileLen += 8 + r.contentSize; });
+  var shp = new ArrayBuffer(fileLen);
+  var shx = new ArrayBuffer(100 + feats.length * 8);
+  var sd = new DataView(shp), xd = new DataView(shx);
+  new Uint8Array(shp).set(new Uint8Array(_shpHeader(fileLen, shapeType, bb)));
+  new Uint8Array(shx).set(new Uint8Array(_shpHeader(100 + feats.length * 8, shapeType, bb)));
+  var off = 100;
+  recs.forEach(function(rec, i) {
+    sd.setInt32(off, i + 1, false);
+    sd.setInt32(off + 4, rec.contentSize / 2, false);
+    var co = off + 8;
+    sd.setInt32(co, shapeType, true); co += 4;
+    var rxn = Infinity, ryn = Infinity, rxx = -Infinity, ryx = -Infinity;
+    rec.rings.forEach(function(r) { r.forEach(function(p) {
+      if (p[0]<rxn) rxn=p[0]; if (p[0]>rxx) rxx=p[0];
+      if (p[1]<ryn) ryn=p[1]; if (p[1]>ryx) ryx=p[1];
+    }); });
+    sd.setFloat64(co, rxn, true); co+=8;
+    sd.setFloat64(co, ryn, true); co+=8;
+    sd.setFloat64(co, rxx, true); co+=8;
+    sd.setFloat64(co, ryx, true); co+=8;
+    sd.setInt32(co, rec.nParts, true); co+=4;
+    sd.setInt32(co, rec.nPts, true); co+=4;
+    var ptIdx = 0;
+    rec.rings.forEach(function(ring) { sd.setInt32(co, ptIdx, true); co+=4; ptIdx += ring.length; });
+    rec.rings.forEach(function(ring) { ring.forEach(function(p) {
+      sd.setFloat64(co, p[0], true); co+=8;
+      sd.setFloat64(co, p[1], true); co+=8;
+    }); });
+    xd.setInt32(100 + i * 8, off / 2, false);
+    xd.setInt32(100 + i * 8 + 4, rec.contentSize / 2, false);
+    off += 8 + rec.contentSize;
+  });
+  return { shp: shp, shx: shx };
+}
+
+var SHP_PRJ = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]';
+
 async function exportShapefile(geo) {
-  const points = geo.features.filter(f => f.geometry.type === 'Point');
-  const lines = geo.features.filter(f => f.geometry.type === 'LineString');
-  const polygons = geo.features.filter(f => f.geometry.type === 'Polygon');
-  const zip = new JSZip();
-  const prj = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]';
-
-  function w32le(v) { const b = new ArrayBuffer(4); new DataView(b).setInt32(0, v, true); return b; }
-  function w32be(v) { const b = new ArrayBuffer(4); new DataView(b).setInt32(0, v, false); return b; }
-  function wdbl(v) { const b = new ArrayBuffer(8); new DataView(b).setFloat64(0, v, true); return b; }
-  function concat(...bs) {
-    const t = bs.reduce((s, b) => s + b.byteLength, 0);
-    const o = new Uint8Array(t); let f = 0;
-    bs.forEach(b => { o.set(new Uint8Array(b), f); f += b.byteLength; });
-    return o.buffer;
+  var flat = _flattenFeatures(geo.features);
+  var pts = flat.filter(function(f) { return f.geometry.type === "Point"; });
+  var lns = flat.filter(function(f) { return f.geometry.type === "LineString"; });
+  var pgs = flat.filter(function(f) { return f.geometry.type === "Polygon"; });
+  var zip = new JSZip();
+  if (pts.length) {
+    var ps = _buildPointShp(pts), pf = _collectFields(pts);
+    zip.file("points.shp", ps.shp); zip.file("points.shx", ps.shx);
+    zip.file("points.dbf", _buildDBF(pts, pf)); zip.file("points.prj", SHP_PRJ);
   }
-
-  function buildPointShp(feats) {
-    const recs = feats.map((f, i) => {
-      const [x, y] = f.geometry.coordinates;
-      const c = concat(w32le(1), wdbl(x), wdbl(y));
-      return concat(w32be(i + 1), w32be(c.byteLength / 2), c);
-    });
-    const cLen = recs.reduce((s, r) => s + r.byteLength, 0);
-    const fLen = 100 + cLen;
-    const hdr = new ArrayBuffer(100);
-    const dv = new DataView(hdr);
-    dv.setInt32(0, 9994, false);
-    dv.setInt32(24, fLen / 2, false);
-    dv.setInt32(28, 1000, true);
-    dv.setInt32(32, 1, true);
-    return concat(hdr, ...recs);
+  if (lns.length) {
+    var ls = _buildPolyShp(lns, 3), lf = _collectFields(lns);
+    zip.file("lines.shp", ls.shp); zip.file("lines.shx", ls.shx);
+    zip.file("lines.dbf", _buildDBF(lns, lf)); zip.file("lines.prj", SHP_PRJ);
   }
-
-  function buildDBF(feats) {
-    const recs = feats.map((f, i) => {
-      const name = (f.properties && (f.properties.name || f.properties.title)) || ('Elem ' + (i + 1));
-      return name.substring(0, 50).padEnd(50, ' ');
-    });
-    const n = recs.length, fl = 50, hs = 32 + 32 + 1, rs = 1 + fl;
-    const buf = new ArrayBuffer(hs + n * rs);
-    const dv = new DataView(buf);
-    dv.setUint8(0, 3); dv.setUint16(8, hs, true); dv.setUint16(10, rs, true); dv.setInt32(4, n, true);
-    const enc = new TextEncoder();
-    enc.encode('NAME      ').forEach((b, i) => dv.setUint8(32 + i, b));
-    dv.setUint8(32 + 11, 67); dv.setUint8(32 + 16, fl); dv.setUint8(32 + 32, 13);
-    recs.forEach((r, i) => {
-      const o = hs + i * rs; dv.setUint8(o, 32);
-      enc.encode(r).forEach((b, j) => dv.setUint8(o + 1 + j, b));
-    });
-    return buf;
+  if (pgs.length) {
+    var gs = _buildPolyShp(pgs, 5), gf = _collectFields(pgs);
+    zip.file("polygons.shp", gs.shp); zip.file("polygons.shx", gs.shx);
+    zip.file("polygons.dbf", _buildDBF(pgs, gf)); zip.file("polygons.prj", SHP_PRJ);
   }
-
-  if (points.length) {
-    zip.file('puntos.shp', buildPointShp(points));
-    zip.file('puntos.dbf', buildDBF(points));
-    zip.file('puntos.prj', prj);
+  if (!pts.length && !lns.length && !pgs.length) {
+    manaAlert("No hay geometr\u00EDas exportables.", "warning"); return;
   }
-  if (lines.length)
-    zip.file('lineas.geojson', JSON.stringify({ type: 'FeatureCollection', features: lines }, null, 2));
-  if (polygons.length)
-    zip.file('poligonos.geojson', JSON.stringify({ type: 'FeatureCollection', features: polygons }, null, 2));
-
-  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-  dl(blob, 'mana-maps-shp.zip', 'application/zip', true);
+  var blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+  dl(blob, "mana-maps.zip", "application/zip", true);
 }
