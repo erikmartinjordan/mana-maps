@@ -1219,6 +1219,31 @@ select.ai-input{cursor:pointer;appearance:auto;}
   border-radius: 4px;
 }
 
+/* ── Stats panel mobile ── */
+@media (max-width: 768px) {
+  .stats-panel {
+    width: calc(100vw - 24px);
+    max-width: 320px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px) scale(0.97);
+    bottom: 56px;
+  }
+  .stats-panel.open {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .stats-card-val { font-size: 16px; }
+  .stats-card-label { font-size: 9px; }
+  .stats-row { font-size: 11px; }
+  .stats-row strong { font-size: 10.5px; }
+  .stats-mono { font-size: 9px; }
+  .stats-attr-field { font-size: 11px; }
+  .stats-attr-meta { font-size: 10px; }
+}
+
+
 /* --- Stat-pills clicables --- */
 .stat-pill {
   cursor: pointer;
