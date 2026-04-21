@@ -818,20 +818,16 @@ select.ai-input{cursor:pointer;appearance:auto;}
 
 
 
+
 /* ═══════════════════════════════════════════════════════════════
    OGC SERVICES
    ═══════════════════════════════════════════════════════════════ */
 #ogc-section { padding: 0 4px; }
 #ogc-section.collapsed { display: none; }
 
-/* ── Input row ── */
-.ogc-input-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 4px;
-}
+/* ── Input (solo, sin botón) ── */
 .ogc-input {
-  flex: 1;
+  width: 100%;
   background: var(--bgBox);
   border: 1px solid var(--border);
   color: var(--primary);
@@ -840,34 +836,21 @@ select.ai-input{cursor:pointer;appearance:auto;}
   font-size: 12px;
   font-family: 'DM Sans', sans-serif;
   outline: none;
-  min-width: 0;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color .15s, box-shadow .15s, opacity .15s;
 }
 .ogc-input:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(14,165,233,.08);
 }
 .ogc-input::placeholder { color: var(--third); }
-
-/* ── Add button ── */
-.ogc-load-btn {
-  padding: 6px 12px !important;
-  font-size: 12px !important;
-  white-space: nowrap;
-  flex-shrink: 0;
-  gap: 5px !important;
+.ogc-input.ogc-loading {
+  opacity: .55;
+  pointer-events: none;
 }
-.ogc-load-btn svg {
-  width: 14px;
-  height: 14px;
-}
-.ogc-load-btn.loading .ogc-btn-icon,
-.ogc-load-btn.loading .ogc-btn-text { display: none; }
-.ogc-load-btn.loading .ogc-btn-loading { display: inline !important; }
 
-/* ── Catalog toggle (same style as tool-btn) ── */
+/* ── Catalog toggle ── */
 .ogc-catalog-toggle {
-  margin-top: 2px;
+  margin-top: 4px;
   color: var(--third) !important;
   font-size: 12px !important;
 }
@@ -935,17 +918,12 @@ select.ai-input{cursor:pointer;appearance:auto;}
   color: var(--third);
 }
 .wms-svc-del {
-  background: none;
-  border: none;
-  color: var(--third);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0 2px;
-  transition: color .12s;
+  background: none; border: none;
+  color: var(--third); cursor: pointer;
+  font-size: 16px; line-height: 1;
+  padding: 0 2px; transition: color .12s;
 }
 .wms-svc-del:hover { color: var(--red); }
-
 .wms-layer-check {
   display: flex;
   align-items: center;
@@ -959,8 +937,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .wms-layer-check:hover { background: rgba(14,165,233,.04); }
 .wms-layer-check input[type="checkbox"] {
   accent-color: var(--blue);
-  margin: 0;
-  flex-shrink: 0;
+  margin: 0; flex-shrink: 0;
 }
 .wms-layer-name {
   flex: 1;
@@ -992,12 +969,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   padding: 0 4px;
 }
 #ogc-section.collapsed { display: none; }
-
-.ogc-input-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 6px;
-}
 .ogc-input {
   flex: 1;
   background: var(--bgBox);
