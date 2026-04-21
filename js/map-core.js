@@ -228,14 +228,44 @@ function getEnrichedGeoJSON() {
   return { type: 'FeatureCollection', features: features };
 }
 
-// ── MOUSE COORDS ──
+// ── MOUSE COORDS WITH DMS TOGGLE ──
+let _coordFormat = localStorage.getItem('mana-coords-format') || 'DD';
+
+function _toDMS(deg, isLat) {
+  const abs = Math.abs(deg);
+  const d = Math.floor(abs);
+  const mf = (abs - d) * 60;
+  const m = Math.floor(mf);
+  const s = ((mf - m) * 60).toFixed(1);
+  const dir = isLat ? (deg >= 0 ? 'N' : 'S') : (deg >= 0 ? 'E' : 'W');
+  return d + '\u00B0' + String(m).padStart(2, '0') + '\'' + String(s).padStart(4, '0') + '"' + dir;
+}
+
+function _formatCoords(lat, lng) {
+  if (_coordFormat === 'DMS') {
+    return _toDMS(lat, true) + '  ' + _toDMS(lng, false);
+  }
+  return lat.toFixed(5) + '\u00B0N  ' + lng.toFixed(5) + '\u00B0E';
+}
+
+function toggleCoordsFormat() {
+  _coordFormat = _coordFormat === 'DD' ? 'DMS' : 'DD';
+  localStorage.setItem('mana-coords-format', _coordFormat);
+  const btn = document.getElementById('coords-format-btn');
+  if (btn) btn.textContent = _coordFormat === 'DD' ? 'DMS' : 'DD';
+}
+
 map.on('mousemove', e => {
-  const lat = e.latlng.lat.toFixed(5);
-  const lng = e.latlng.lng.toFixed(5);
-  document.getElementById('mouse-coords').textContent = lat + '\u00B0N  ' + lng + '\u00B0E';
+  document.getElementById('mouse-coords').textContent = _formatCoords(e.latlng.lat, e.latlng.lng);
 });
 map.on('mouseout', () => {
   document.getElementById('mouse-coords').textContent = '\u2014 , \u2014';
+});
+
+// Init coords format button text on load
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('coords-format-btn');
+  if (btn) btn.textContent = _coordFormat === 'DD' ? 'DMS' : 'DD';
 });
 
 // ── RESIZE HANDLES ──
@@ -569,6 +599,7 @@ async function deleteGroup(gid) {
   delete _expandedGroups[gid];
   delete _filterOpen[gid];
   stats();
+  if (typeof saveState === 'function') saveState();
 }
 
 function focusLayer(i) {

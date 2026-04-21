@@ -30,6 +30,7 @@ function setTool(tool) {
       m._manaName = name; m._manaColor = drawColor;
       m.bindPopup('<strong>' + name + '</strong>');
       stats();
+      if (typeof saveState === 'function') saveState();
     });
   } else if (tool === 'line') {
     hint.textContent = 'Clic para a\u00F1adir v\u00E9rtices \u2014 doble clic para terminar';
@@ -55,16 +56,23 @@ map.on(L.Draw.Event.CREATED, async e => {
   layer._manaName = name || label;
   drawnItems.addLayer(layer);
   stats();
+  if (typeof saveState === 'function') saveState();
 });
 
 async function clearAll() {
   closeCtx();
-  const ok = await manaConfirm('\u00BFBorrar todos los elementos del mapa?');
+  const ok = await manaConfirm('\u00BFSeguro que quieres borrar todo?');
   if (ok) {
     drawnItems.clearLayers();
     // Also clear group meta registry
     for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
+    // Clear WMS overlay layers
+    if (typeof _wmsOverlays !== 'undefined') {
+      _wmsOverlays.forEach(item => { if (map.hasLayer(item.layer)) map.removeLayer(item.layer); });
+      _wmsOverlays.length = 0;
+    }
     stats();
+    if (typeof saveState === 'function') saveState();
   }
 }
 

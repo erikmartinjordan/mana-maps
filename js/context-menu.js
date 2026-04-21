@@ -1,6 +1,80 @@
 // ── context-menu.js ─ Right-click menu, toast, & in-app dialogs ──
 
 // ═══════════════════════════════════════════════════════════════
+// CENTRALIZED COLOR PALETTE
+// Adding a new color: edit only this array.
+// ═══════════════════════════════════════════════════════════════
+const SWATCH_PALETTE = [
+  { hex: '#0ea5e9', name: 'Azul' },
+  { hex: '#6366f1', name: '\u00CDndigo' },
+  { hex: '#10b981', name: 'Menta' },
+  { hex: '#f59e0b', name: 'Dorado' },
+  { hex: '#ef4444', name: 'Rojo' },
+  { hex: '#ec4899', name: 'Rosa' },
+  { hex: '#8b5cf6', name: 'P\u00FArpura' },
+  { hex: '#64748b', name: 'Pizarra' },
+];
+
+const LAYER_CTX_PALETTE = [
+  { hex: '#0ea5e9' }, { hex: '#6366f1' }, { hex: '#10b981' },
+  { hex: '#f59e0b' }, { hex: '#ef4444' }, { hex: '#ec4899' },
+  { hex: '#8b5cf6' }, { hex: '#f97316' }, { hex: '#64748b' },
+  { hex: '#30363b' },
+];
+
+// Extended palette for categorization
+const CTX_PALETTE = [
+  '#0ea5e9','#6366f1','#10b981','#f59e0b','#ef4444','#ec4899',
+  '#8b5cf6','#64748b','#f97316','#14b8a6','#a855f7','#84cc16',
+  '#e11d48','#0284c7','#ca8a04','#7c3aed','#059669','#dc2626'
+];
+
+// Render swatches programmatically on load
+document.addEventListener('DOMContentLoaded', () => {
+  // ── Sidebar color row ──
+  const sidebarRow = document.getElementById('color-row');
+  if (sidebarRow) {
+    sidebarRow.innerHTML = '';
+    SWATCH_PALETTE.forEach((s, i) => {
+      const div = document.createElement('div');
+      div.className = 'color-swatch' + (i === 0 ? ' active' : '');
+      div.dataset.color = s.hex;
+      div.style.background = s.hex;
+      div.title = s.name;
+      div.onclick = function() { setDrawColor(s.hex, this); };
+      sidebarRow.appendChild(div);
+    });
+  }
+
+  // ── Context menu (#ctx-menu) color row ──
+  const ctxRow = document.querySelector('#ctx-style-section .ctx-color-row');
+  if (ctxRow) {
+    ctxRow.innerHTML = '';
+    SWATCH_PALETTE.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'ctx-swatch';
+      div.style.background = s.hex;
+      div.onclick = function() { ctxSetColor(s.hex); };
+      ctxRow.appendChild(div);
+    });
+  }
+
+  // ── Layer context menu (#layer-ctx-menu) color row ──
+  const lctxRow = document.querySelector('#layer-ctx-menu .ctx-color-row');
+  if (lctxRow) {
+    lctxRow.innerHTML = '';
+    LAYER_CTX_PALETTE.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'ctx-swatch';
+      div.style.background = s.hex;
+      div.onclick = function() { lctxSetColor(s.hex); };
+      lctxRow.appendChild(div);
+    });
+  }
+});
+
+
+// ═══════════════════════════════════════════════════════════════
 // IN-APP CONFIRM DIALOG (replaces browser confirm())
 // ═══════════════════════════════════════════════════════════════
 let _confirmResolve = null;
@@ -172,7 +246,7 @@ document.addEventListener('contextmenu', e => {
   // Don't close on right-click (the handler will reopen it)
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeCtx(); modalCancel(); }
+  if (e.key === 'Escape') { closeCtx(); closeAttributeDrawer(); }
 });
 
 function ctxCopyCoords() {
@@ -202,6 +276,7 @@ async function ctxAddPoint() {
   m._manaColor = drawColor;
   m.bindPopup('<strong>' + name + '</strong>');
   stats();
+  if (typeof saveState === 'function') saveState();
 }
 
 function ctxCenterHere() {
@@ -216,17 +291,13 @@ function ctxDeleteLayer() {
   drawnItems.removeLayer(ctxTargetLayer);
   ctxTargetLayer = null;
   stats();
+  if (typeof saveState === 'function') saveState();
 }
 
 
 // ═══════════════════════════════════════════════════════════════
 // LAYER STYLING (from context menu)
 // ═══════════════════════════════════════════════════════════════
-const CTX_PALETTE = [
-  '#0ea5e9','#6366f1','#10b981','#f59e0b','#ef4444','#ec4899',
-  '#8b5cf6','#64748b','#f97316','#14b8a6','#a855f7','#84cc16',
-  '#e11d48','#0284c7','#ca8a04','#7c3aed','#059669','#dc2626'
-];
 
 function ctxSetColor(color) {
   if (!ctxTargetLayer) return;
@@ -236,22 +307,19 @@ function ctxSetColor(color) {
   } else {
     ctxTargetLayer.setStyle({ color: color });
   }
-  // Highlight selected swatch
-  document.querySelectorAll('.ctx-swatch').forEach(s => {
-    s.style.borderColor = (s.style.backgroundColor && s.onclick.toString().includes(color))
-      ? 'white' : 'transparent';
-  });
   stats(); showToast('Color aplicado');
+  if (typeof saveState === 'function') saveState();
 }
 
 function ctxSetWeight(w) {
   if (!ctxTargetLayer || ctxTargetLayer instanceof L.Marker) return;
   ctxTargetLayer.setStyle({ weight: w });
   // Highlight selected weight
-  document.querySelectorAll('.ctx-weight-btn').forEach(b => {
+  document.querySelectorAll('#ctx-menu .ctx-weight-btn').forEach(b => {
     b.classList.toggle('active', b.textContent.trim() === String(w));
   });
   showToast('Grosor: ' + w + 'px');
+  if (typeof saveState === 'function') saveState();
 }
 
 function ctxSetOpacity(val) {
@@ -263,6 +331,7 @@ function ctxSetOpacity(val) {
   } else {
     ctxTargetLayer.setStyle({ opacity: op, fillOpacity: op * 0.3 });
   }
+  if (typeof saveState === 'function') saveState();
 }
 
 async function ctxRename() {
@@ -276,6 +345,7 @@ async function ctxRename() {
     ctxTargetLayer.setPopupContent('<strong>' + name + '</strong>');
   }
   stats(); showToast('Renombrado');
+  if (typeof saveState === 'function') saveState();
 }
 
 function ctxStyleGroup() {
@@ -308,6 +378,7 @@ function ctxStyleGroup() {
   meta.color = color;
   closeCtx(); stats();
   showToast('Estilo aplicado a toda la capa');
+  if (typeof saveState === 'function') saveState();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -346,6 +417,7 @@ function ctxCategorizeBy(field) {
 
   closeCtx(); stats();
   showToast('Categorizado por ' + field + ' (' + uniqueVals.length + ' valores)');
+  if (typeof saveState === 'function') saveState();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -540,6 +612,7 @@ function lctxSetColor(color) {
     _manaGroupMeta[_lctxId].color = color;
   }
   stats(); showToast('Color aplicado');
+  if (typeof saveState === 'function') saveState();
 }
 
 function lctxSetWeight(w) {
@@ -550,6 +623,7 @@ function lctxSetWeight(w) {
     b.classList.toggle('active', b.textContent.trim() === String(w));
   });
   showToast('Grosor: ' + w + 'px');
+  if (typeof saveState === 'function') saveState();
 }
 
 function lctxSetOpacity(val) {
@@ -562,6 +636,7 @@ function lctxSetOpacity(val) {
       l.setStyle({ opacity: op, fillOpacity: op * 0.3 });
     }
   });
+  if (typeof saveState === 'function') saveState();
 }
 
 async function lctxRename() {
@@ -585,6 +660,7 @@ async function lctxRename() {
     }
   }
   stats(); showToast('Renombrado');
+  if (typeof saveState === 'function') saveState();
 }
 
 function lctxZoom() {
@@ -626,6 +702,7 @@ function lctxCategorize(field) {
 
   closeLayerCtx(); stats();
   showToast('Categorizado por ' + field + ' (' + uniqueVals.length + ' valores)');
+  if (typeof saveState === 'function') saveState();
 }
 
 async function lctxDelete() {
@@ -640,8 +717,115 @@ async function lctxDelete() {
     drawnItems.removeLayer(layer);
     stats();
     showToast('Elemento eliminado');
+    if (typeof saveState === 'function') saveState();
   }
 }
+
+
+// ═══════════════════════════════════════════════════════════════
+// ATTRIBUTE TABLE DRAWER
+// ═══════════════════════════════════════════════════════════════
+let _attrHighlightLayer = null;
+
+function lctxShowAttrTable() {
+  closeLayerCtx();
+  const layersList = _getLctxLayers();
+  if (!layersList.length) return;
+
+  const drawer = document.getElementById('attr-drawer');
+  const tbody = document.getElementById('attr-table-body');
+  const thead = document.getElementById('attr-table-head');
+  if (!drawer) return;
+
+  // Collect all property keys
+  const keys = new Set();
+  layersList.forEach(l => {
+    const props = l._manaProperties || {};
+    Object.keys(props).forEach(k => {
+      if (!k.startsWith('_') && k !== 'bbox') keys.add(k);
+    });
+  });
+  // For ungrouped layers, add _manaName
+  if (!keys.size) {
+    keys.add('name');
+  }
+
+  const cols = [...keys];
+
+  // Build header
+  thead.innerHTML = '<tr>' + cols.map(c =>
+    '<th>' + c.replace(/</g, '&lt;') + '</th>'
+  ).join('') + '</tr>';
+
+  // Build rows
+  tbody.innerHTML = '';
+  layersList.forEach((l, i) => {
+    const props = l._manaProperties || {};
+    const tr = document.createElement('tr');
+    tr.dataset.layerIndex = i;
+    cols.forEach(c => {
+      const td = document.createElement('td');
+      let val = props[c];
+      if (c === 'name' && val === undefined) val = l._manaName || '';
+      td.textContent = val !== null && val !== undefined ? String(val).substring(0, 120) : '';
+      tr.appendChild(td);
+    });
+    tr.onclick = function() { _attrTableRowClick(layersList[i]); };
+    tbody.appendChild(tr);
+  });
+
+  drawer.classList.add('open');
+}
+
+function _attrTableRowClick(layer) {
+  if (!layer) return;
+  // Pan to layer
+  if (layer.getBounds) map.fitBounds(layer.getBounds(), { maxZoom: 15, padding: [24, 24] });
+  else if (layer.getLatLng) map.setView(layer.getLatLng(), 15);
+
+  // Flash highlight
+  if (_attrHighlightLayer) {
+    try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
+    _attrHighlightLayer = null;
+  }
+
+  if (layer instanceof L.Marker) {
+    const ll = layer.getLatLng();
+    _attrHighlightLayer = L.circleMarker(ll, {
+      radius: 18, color: '#f59e0b', weight: 3, fillOpacity: 0.2, dashArray: '4 4'
+    }).addTo(map);
+  } else if (layer.getLatLngs) {
+    _attrHighlightLayer = L.polyline(layer.getLatLngs(), {
+      color: '#f59e0b', weight: 5, opacity: 0.8, dashArray: '6 4'
+    }).addTo(map);
+    if (layer instanceof L.Polygon) {
+      _attrHighlightLayer = L.polygon(layer.getLatLngs(), {
+        color: '#f59e0b', weight: 4, fillOpacity: 0.25, dashArray: '6 4'
+      }).addTo(map);
+    }
+  }
+
+  // Bring layer to front
+  if (layer.bringToFront) layer.bringToFront();
+
+  // Remove flash after 2s
+  setTimeout(() => {
+    if (_attrHighlightLayer) {
+      try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
+      _attrHighlightLayer = null;
+    }
+  }, 2000);
+}
+
+function closeAttributeDrawer() {
+  const drawer = document.getElementById('attr-drawer');
+  if (drawer) drawer.classList.remove('open');
+  if (_attrHighlightLayer) {
+    try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
+    _attrHighlightLayer = null;
+  }
+}
+
 
 // ── Close & propagation ──
 document.getElementById('layer-ctx-menu').addEventListener('click', e => e.stopPropagation());

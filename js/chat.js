@@ -556,6 +556,37 @@ async function callAI(settings, messages) {
 // ═══════════════════════════════════════════════════════════════
 // SEND MESSAGE
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// CHAT INPUT HISTORY (↑ / ↓ navigation)
+// ═══════════════════════════════════════════════════════════════
+const CHAT_HISTORY_MAX = 50;
+let _sentHistory = [];
+let _historyIdx = -1;
+let _historyDraft = '';
+
+try {
+  const stored = JSON.parse(localStorage.getItem('mana-chat-history') || '[]');
+  if (Array.isArray(stored)) _sentHistory = stored.slice(-CHAT_HISTORY_MAX);
+} catch(e) {}
+
+function _saveChatHistory() {
+  try { localStorage.setItem('mana-chat-history', JSON.stringify(_sentHistory)); } catch(e) {}
+}
+
+function _pushChatHistory(text) {
+  if (!text) return;
+  // Avoid duplicating the last entry
+  if (_sentHistory.length && _sentHistory[_sentHistory.length - 1] === text) return;
+  _sentHistory.push(text);
+  if (_sentHistory.length > CHAT_HISTORY_MAX) _sentHistory.shift();
+  _historyIdx = -1;
+  _historyDraft = '';
+  _saveChatHistory();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEND MESSAGE
+// ═══════════════════════════════════════════════════════════════
 let chatBusy = false;
 
 async function sendMsg() {
@@ -563,6 +594,7 @@ async function sendMsg() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text) return;
+  _pushChatHistory(text);
   input.value = '';
   input.style.height = 'auto';
   addMsg(text, true);
@@ -585,12 +617,39 @@ async function sendMsg() {
 document.getElementById('chat-send').onclick = sendMsg;
 
 document.getElementById('chat-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); return; }
+
+  // ↑ / ↓ history navigation
+  if (e.key === 'ArrowUp' && !_sentHistory.length) return;
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    if (_historyIdx === -1) _historyDraft = input.value;
+    if (_historyIdx < _sentHistory.length - 1) {
+      _historyIdx++;
+      input.value = _sentHistory[_sentHistory.length - 1 - _historyIdx];
+    }
+    return;
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    if (_historyIdx > 0) {
+      _historyIdx--;
+      input.value = _sentHistory[_sentHistory.length - 1 - _historyIdx];
+    } else if (_historyIdx === 0) {
+      _historyIdx = -1;
+      input.value = _historyDraft;
+    }
+    return;
+  }
 });
 
 document.getElementById('chat-input').addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  // Reset history navigation when user types
+  _historyIdx = -1;
 });
 
 // ═══════════════════════════════════════════════════════════════

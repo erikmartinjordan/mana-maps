@@ -153,6 +153,7 @@ function loadGeoJSON(geo, groupName) {
   const bounds = layer.getBounds();
   if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
   stats();
+  if (typeof saveState === 'function') saveState();
 }
 
 // ── KML PARSER ──
