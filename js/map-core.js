@@ -242,6 +242,19 @@ function getEnrichedGeoJSON() {
   const features = [];
   drawnItems.eachLayer(function(l) {
     const f = l.toGeoJSON();
+    // Merge attribute table data (_manaProperties) into exported properties
+    // Start from toGeoJSON() base (may have original import props), then overlay edits
+    if (l._manaProperties) {
+      const mp = l._manaProperties;
+      for (const k in mp) {
+        // Skip internal metadata keys
+        if (k.startsWith('_') || k === 'bbox') continue;
+        if (mp[k] !== null && mp[k] !== undefined) {
+          f.properties[k] = mp[k];
+        }
+      }
+    }
+    // Set color and name last (these are Maña-specific display properties)
     if (l instanceof L.Marker) {
       f.properties.color = l._manaColor || '#0ea5e9';
     } else {

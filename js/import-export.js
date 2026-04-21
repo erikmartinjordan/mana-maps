@@ -200,7 +200,15 @@ function exportAs(fmt) {
   var geo = getEnrichedGeoJSON();
   if (!geo.features.length) { manaAlert("No hay elementos para exportar.", "warning"); return; }
   var prefix = (typeof getProjectName === "function") ? getProjectName() : "mana-maps";
-  if (fmt === "geojson") return dl(JSON.stringify(geo, null, 2), prefix + ".geojson", "application/json");
+  if (fmt === "geojson") {
+    // Strip internal _-prefixed keys from properties for clean GeoJSON export
+    var cleanGeo = JSON.parse(JSON.stringify(geo));
+    cleanGeo.features.forEach(function(f) {
+      var p = f.properties || {};
+      Object.keys(p).forEach(function(k) { if (k.charAt(0) === "_") delete p[k]; });
+    });
+    return dl(JSON.stringify(cleanGeo, null, 2), prefix + ".geojson", "application/json");
+  }
   if (fmt === "csv") return exportCSV(geo, prefix);
   if (fmt === "kml") return exportKMZ(geo, prefix);
   if (fmt === "shapefile") return exportShapefile(geo, prefix);
@@ -219,7 +227,7 @@ function exportCSV(geo, prefix) {
   var allKeys = {};
   geo.features.forEach(function(f) {
     var p = f.properties || {};
-    Object.keys(p).forEach(function(k) { if (k !== "color") allKeys[k] = true; });
+    Object.keys(p).forEach(function(k) { if (k !== "color" && k.charAt(0) !== "_") allKeys[k] = true; });
   });
   var keys = Object.keys(allKeys);
   var header = ["id", "type", "latitude", "longitude"].concat(keys);
@@ -292,7 +300,7 @@ function geoToKML(geo) {
 
     var extData = "";
     var props = f.properties || {};
-    var propKeys = Object.keys(props).filter(function(k) { return k !== "color" && k !== "name"; });
+    var propKeys = Object.keys(props).filter(function(k) { return k !== "color" && k !== "name" && k.charAt(0) !== "_"; });
     if (propKeys.length) {
       extData = "<ExtendedData>" + propKeys.map(function(k) {
         var v = props[k]; if (v === null || v === undefined) v = "";
@@ -362,10 +370,10 @@ function _calcBbox(feats, fn) {
 
 function _collectFields(feats) {
   var fields = [{ name: "NAME", width: 80 }];
-  var seen = { name: 1, Name: 1, NAME: 1, color: 1 };
+  var seen = { name: 1, Name: 1, NAME: 1, color: 1, _skip: 1 };
   feats.forEach(function(f) {
     Object.keys(f.properties || {}).forEach(function(k) {
-      if (seen[k]) return; seen[k] = 1;
+      if (seen[k] || k.charAt(0) === '_') return; seen[k] = 1;
       var maxW = 10;
       feats.forEach(function(f2) {
         var v = (f2.properties || {})[k];

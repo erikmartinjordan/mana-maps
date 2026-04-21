@@ -47,6 +47,17 @@ function restoreState() {
   }
 }
 
+
+// Build clean user attributes from saved properties (filtering internal keys)
+function _extractUserAttrs(props) {
+  var attrs = {};
+  for (var k in props) {
+    if (k.charAt(0) === '_' || k === 'color' || k === 'bbox' || k === 'name' || k === 'Name' || k === 'NAME') continue;
+    if (props[k] !== null && props[k] !== undefined) attrs[k] = props[k];
+  }
+  return Object.keys(attrs).length ? attrs : null;
+}
+
 function _importRestoredGeoJSON(geo) {
   if (!geo || !geo.features) return;
 
@@ -90,6 +101,8 @@ function _importRestoredGeoJSON(geo) {
       const m = L.marker(ll, { icon }).addTo(drawnItems);
       m._manaName = name;
       m._manaColor = color;
+      const ptAttrs = _extractUserAttrs(props);
+      if (ptAttrs) m._manaProperties = ptAttrs;
       m.bindPopup('<strong>' + name + '</strong>');
     } else if (g.type === 'LineString') {
       const lls = g.coordinates.map(c => [c[1], c[0]]);
@@ -97,12 +110,16 @@ function _importRestoredGeoJSON(geo) {
       const opacity = props._manaOpacity || 1;
       const line = L.polyline(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 }).addTo(drawnItems);
       line._manaName = name;
+      const lnAttrs = _extractUserAttrs(props);
+      if (lnAttrs) line._manaProperties = lnAttrs;
     } else if (g.type === 'Polygon') {
       const lls = g.coordinates[0].map(c => [c[1], c[0]]);
       const weight = props._manaWeight || 2;
       const opacity = props._manaOpacity || 1;
       const poly = L.polygon(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 }).addTo(drawnItems);
       poly._manaName = name;
+      const pgAttrs = _extractUserAttrs(props);
+      if (pgAttrs) poly._manaProperties = pgAttrs;
     }
   });
 

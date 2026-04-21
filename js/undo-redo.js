@@ -70,10 +70,14 @@ function _restoreSnapshot(json) {
       layer._manaName = name;
     }
 
+    // Restore _manaProperties for all layers (grouped and ungrouped)
+    if (layer && props._manaProperties) {
+      layer._manaProperties = props._manaProperties;
+    }
+
     if (layer && props._manaGroupId) {
       layer._manaGroupId = props._manaGroupId;
       layer._manaGroupName = props._manaGroupName || '';
-      if (props._manaProperties) layer._manaProperties = props._manaProperties;
       // Register in group meta
       const gid = props._manaGroupId;
       if (!_manaGroupMeta[gid]) {
