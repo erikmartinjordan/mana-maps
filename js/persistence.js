@@ -38,6 +38,10 @@ function restoreState() {
     const geo = JSON.parse(raw);
     if (!geo || !geo.features || !geo.features.length) return;
     _importRestoredGeoJSON(geo);
+    // P1.5: Show discreet toast on restore
+    setTimeout(() => {
+      if (typeof showToast === 'function') showToast('Mapa restaurat de la sessi\u00F3 anterior');
+    }, 500);
   } catch (e) {
     console.warn('restoreState error:', e);
   }
@@ -171,6 +175,31 @@ function restoreFromHash() {
   return false;
 }
 
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// P1.5: CLEAR SAVED DATA
+// ═══════════════════════════════════════════════════════════════
+function clearSavedData() {
+  localStorage.removeItem('mana-maps-state');
+  showToast('Dades guardades eliminades \u2713');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// P3.11: PROJECT NAME FOR EXPORTS
+// ═══════════════════════════════════════════════════════════════
+function getProjectName() {
+  return localStorage.getItem('mana-project-name') || 'mana-maps';
+}
+
+function setProjectName(name) {
+  const clean = name.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '-') || 'mana-maps';
+  localStorage.setItem('mana-project-name', clean);
+  const input = document.getElementById('project-name-input');
+  if (input) input.value = clean;
+  showToast('Nom del projecte: ' + clean);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // INIT: restore from URL hash first, then localStorage

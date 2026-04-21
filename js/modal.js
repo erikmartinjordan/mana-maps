@@ -8,7 +8,12 @@ function askName(title, defaultVal) {
     document.getElementById('name-modal-title').textContent = title;
     const inp = document.getElementById('name-modal-input');
     inp.value = defaultVal || '';
-    document.getElementById('name-modal').classList.add('open');
+    const modal = document.getElementById('name-modal');
+    // P3.10: Accessibility
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', title);
+    modal.classList.add('open');
     setTimeout(() => { inp.focus(); inp.select(); }, 50);
   });
 }

@@ -1540,3 +1540,75 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .attr-modal-box { width: calc(100vw - 12px); }
   .prop-key { width: 110px; min-width: 90px; padding-left: 12px; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* NEW FEATURES STYLES                                            */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* ── P1.1: Undo/Redo buttons ── */
+.undo-redo-row{display:flex;gap:4px;margin-bottom:4px;}
+.undo-redo-row .tool-btn{flex:1;justify-content:center;padding:8px 6px;font-size:12px;}
+.undo-redo-row .tool-btn svg{width:14px;height:14px;}
+.undo-redo-btn.disabled{opacity:0.35;cursor:not-allowed;pointer-events:none;}
+.undo-redo-btn:not(.disabled):hover{background:var(--bgBox);}
+
+/* ── P1.2: Edit mode active state ── */
+#btn-edit.active{background:var(--blue);color:white;}
+#btn-edit.active svg{color:white;}
+
+/* ── P2.6: Search bar ── */
+.search-wrap{position:relative;flex:1;max-width:340px;margin:0 12px;}
+.search-input-wrap{display:flex;align-items:center;background:var(--bgBox);
+  border:1px solid var(--border);border-radius:50px;padding:0 12px;transition:border-color .15s,box-shadow .15s;}
+.search-input-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(14,165,233,.12);}
+.search-icon{width:14px;height:14px;color:var(--third);flex-shrink:0;}
+.search-input{border:none;background:none;outline:none;padding:7px 8px;font-size:13px;
+  font-family:'DM Sans',sans-serif;color:var(--primary);width:100%;}
+.search-input::placeholder{color:var(--third);}
+.search-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--shadow),rgb(15 15 15/12%) 0 8px 24px;overflow:hidden;z-index:2000;max-height:280px;overflow-y:auto;}
+.search-dropdown.open{display:block;}
+.search-result{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;
+  font-size:13px;color:var(--primary);transition:background .12s;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;}
+.search-result:hover{background:var(--bgBox);}
+.search-result-icon{width:14px;height:14px;color:var(--third);flex-shrink:0;}
+.search-result-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.search-result-type{font-size:10px;color:var(--third);flex-shrink:0;}
+.search-no-results{padding:12px 14px;font-size:13px;color:var(--third);text-align:center;}
+
+/* ── P2.7: Chat suggestion buttons ── */
+.chat-suggestion{display:inline-block;margin:3px 4px 3px 0;padding:5px 12px;border-radius:50px;
+  border:1px solid var(--border);background:var(--bgBox);color:var(--primary);
+  font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .12s,border-color .12s;}
+.chat-suggestion:hover{background:var(--blue);color:white;border-color:var(--blue);}
+
+/* ── P2.9: 2D/3D transition ── */
+#map,#globe{transition:opacity 0.2s ease;}
+
+/* ── P3.10: Accessibility focus styles ── */
+.tool-btn:focus-visible,.basemap-card:focus-visible,.color-swatch:focus-visible,.marker-opt:focus-visible,
+.btn:focus-visible,.chat-suggestion:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px;}
+
+/* ── P3.11: Project name in footer ── */
+.project-name-row{width:100%;margin-bottom:6px;}
+.project-name-label{display:block;font-size:10px;color:var(--third);font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.project-name-input{width:100%;border:1px solid var(--border);border-radius:6px;
+  background:var(--bgBox);color:var(--primary);font-size:12px;font-family:'DM Sans',sans-serif;
+  padding:5px 8px;outline:none;transition:border-color .15s;}
+.project-name-input:focus{border-color:var(--blue);}
+.sidebar-footer-links{display:flex;gap:14px;flex-wrap:wrap;}
+.sidebar-clear-btn{border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;}
+.sidebar-clear-btn:hover{color:var(--red);}
+
+/* ── Undo/redo: rail mode adjustments ── */
+#sidebar.rail .undo-redo-row{flex-direction:column;gap:2px;}
+#sidebar.rail .undo-redo-row .tool-btn .btn-label{max-width:0;opacity:0;}
+
+/* ── Search: mobile adjustments ── */
+@media (max-width:768px){
+  .search-wrap{max-width:none;margin:0 8px;flex:1;}
+  .search-input{font-size:14px;}
+}

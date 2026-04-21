@@ -1,6 +1,9 @@
-// ── tools.js ─ Drawing tools & ruler ──
+// ── tools.js ─ Drawing tools, ruler & geometry editing ──
 
 let activeTool = null, drawHandler = null;
+
+// ── P1.2: Edit mode state ──
+let editMode = false;
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
@@ -11,6 +14,9 @@ function stopAll() {
 }
 
 function setTool(tool) {
+  // Exit edit mode if entering a draw tool
+  if (editMode) stopEdit();
+
   if (activeTool === tool) { stopAll(); return; }
   stopAll();
   activeTool = tool;
@@ -25,6 +31,7 @@ function setTool(tool) {
       stopAll();
       const name = await askName('Nombre del punto', 'Nuevo punto');
       if (name === null) return;
+      if (typeof pushUndo === 'function') pushUndo();
       const icon = makeMarkerIcon(drawColor, markerType);
       const m = L.marker(e.latlng, { icon }).addTo(drawnItems);
       m._manaName = name; m._manaColor = drawColor;
@@ -53,6 +60,7 @@ map.on(L.Draw.Event.CREATED, async e => {
   stopAll();
   const label = isLine ? 'L\u00EDnea' : 'Pol\u00EDgono';
   const name = await askName('Nombre de la ' + (isLine ? 'l\u00EDnea' : 'forma'), label + ' 1');
+  if (typeof pushUndo === 'function') pushUndo();
   layer._manaName = name || label;
   drawnItems.addLayer(layer);
   stats();
@@ -63,6 +71,7 @@ async function clearAll() {
   closeCtx();
   const ok = await manaConfirm('\u00BFSeguro que quieres borrar todo?');
   if (ok) {
+    if (typeof pushUndo === 'function') pushUndo();
     drawnItems.clearLayers();
     // Also clear group meta registry
     for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
@@ -74,6 +83,50 @@ async function clearAll() {
     stats();
     if (typeof saveState === 'function') saveState();
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// P1.2: GEOMETRY EDIT MODE
+// ═══════════════════════════════════════════════════════════════
+
+function toggleEdit() {
+  if (editMode) stopEdit();
+  else startEdit();
+}
+
+function startEdit() {
+  stopAll(); // stop drawing tools
+  editMode = true;
+  const btn = document.getElementById('btn-edit');
+  if (btn) btn.classList.add('active');
+
+  // Show hint
+  const hint = document.getElementById('draw-hint');
+  hint.textContent = 'Arrastra los v\u00E9rtices para editar. Clic en "Editar" de nuevo para terminar.';
+  hint.style.display = 'block';
+
+  // Save state before editing
+  if (typeof pushUndo === 'function') pushUndo();
+
+  // Enable editing on all layers
+  drawnItems.eachLayer(l => {
+    if (l.editing) l.editing.enable();
+  });
+}
+
+function stopEdit() {
+  editMode = false;
+  const btn = document.getElementById('btn-edit');
+  if (btn) btn.classList.remove('active');
+  document.getElementById('draw-hint').style.display = 'none';
+
+  // Disable editing on all layers
+  drawnItems.eachLayer(l => {
+    if (l.editing) l.editing.disable();
+  });
+
+  stats();
+  if (typeof saveState === 'function') saveState();
 }
 
 // ── RULER ──

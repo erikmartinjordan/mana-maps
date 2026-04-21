@@ -92,7 +92,7 @@
 </style>
 </head>
 <body>
-<div id="toast"></div>
+<div id="toast" aria-live="polite"></div>
 
 <!-- IN-APP ALERT NOTIFICATION -->
 <div id="mana-alert" class="mana-alert">
@@ -149,6 +149,14 @@
     </div>
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
+  <!-- P2.6: Place search bar -->
+  <div class="search-wrap" id="search-wrap">
+    <div class="search-input-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" class="search-input" placeholder="Buscar lugar..." autocomplete="off" spellcheck="false"/>
+    </div>
+    <div class="search-dropdown" id="search-dropdown"></div>
+  </div>
   <div class="topbar-right">
     <button class="mobile-toggle" id="mobile-sidebar-toggle" aria-label="Herramientas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -204,6 +212,17 @@
     <div class="sidebar-body">
 
       <div class="section-label">Dibujar</div>
+      <!-- P1.1: Undo/Redo buttons -->
+      <div class="undo-redo-row">
+        <button class="tool-btn undo-redo-btn disabled" id="btn-undo" onclick="undo()" title="Nada que deshacer" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 105.7-10.36L1 10"/></svg>
+          <span class="btn-label">Deshacer</span>
+        </button>
+        <button class="tool-btn undo-redo-btn disabled" id="btn-redo" onclick="redo()" title="Nada que rehacer" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-5.7-10.36L23 10"/></svg>
+          <span class="btn-label">Rehacer</span>
+        </button>
+      </div>
       <button class="tool-btn" id="btn-point" onclick="setTool('point')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
         <span class="btn-label">A&#241;adir punto</span>
@@ -219,6 +238,11 @@
       <button class="tool-btn" id="btn-ruler" onclick="setTool('ruler')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
         <span class="btn-label">Medir distancia</span>
+      </button>
+      <!-- P1.2: Edit geometry button -->
+      <button class="tool-btn" id="btn-edit" onclick="toggleEdit()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        <span class="btn-label">Editar geometr&iacute;a</span>
       </button>
 
       <div class="divider"></div>
@@ -278,9 +302,19 @@
       </div>
     </div>
     <div class="sidebar-footer">
-      <a class="sidebar-footer-link" href="/about">Acerca de</a>
-      <a class="sidebar-footer-link" href="/changelog">Changelog</a>
-      <a class="sidebar-footer-link" href="/open">Estadísticas</a>
+      <!-- P3.11: Project name input -->
+      <div class="project-name-row">
+        <label class="project-name-label" for="project-name-input">Nom del projecte</label>
+        <input type="text" id="project-name-input" class="project-name-input" placeholder="mana-maps" maxlength="40" autocomplete="off"
+          onchange="setProjectName(this.value)"/>
+      </div>
+      <div class="sidebar-footer-links">
+        <a class="sidebar-footer-link" href="/about">Acerca de</a>
+        <a class="sidebar-footer-link" href="/changelog">Changelog</a>
+        <a class="sidebar-footer-link" href="/open">Estad&iacute;sticas</a>
+        <!-- P1.5: Clear saved data button -->
+        <button class="sidebar-footer-link sidebar-clear-btn" onclick="clearSavedData()">Netejar dades</button>
+      </div>
     </div>
   </div>
 
@@ -358,12 +392,13 @@
       <div>
         <div class="msg-label">Ma&#241;a AI</div>
         <div class="msg bot">&#161;Hola! Soy <strong>Ma&#241;a AI</strong>, tu asistente de mapas. Prueba con:<br><br>
-        &#128205; <em>"a&#241;ade un punto en Barcelona"</em><br>
-        &#128663; <em>"ruta de Madrid a Sevilla"</em><br>
-        &#128269; <em>"busca museos en Par&#237;s"</em><br>
-        &#127760; <em>"sat&#233;lite"</em> / <em>"globo 3D"</em><br>
-        &#127912; <em>"color rojo"</em><br>
-        &#128207; <em>"exporta como KML"</em><br><br>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">a&#241;ade un punto en Barcelona</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">ruta de Madrid a Sevilla</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">busca museos en Par&#237;s</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">sat&#233;lite</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">globo 3D</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">color rojo</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">exporta como KML</button><br><br>
         &#9881;&#65039; <strong>Configura una clave API</strong> (&#9881;) para IA con lenguaje natural completo.</div>
       </div>
     </div>
@@ -576,6 +611,7 @@
 <script src="js/context-menu.js"></script> <!-- right-click menu, toast -->
 <script src="js/import-export.js"></script><!-- file import & export -->
 <script src="js/chat.js"></script>         <!-- chat & geocoding -->
+<script src="js/undo-redo.js"></script>    <!-- undo/redo system -->
 <script src="js/persistence.js"></script>  <!-- localStorage persistence & URL share -->
 <script src="js/ogc-loader.js"></script>   <!-- WMS/WFS & ArcGIS loader -->
 <script src="js/responsive.js"></script>  <!-- responsive / mobile -->
@@ -585,5 +621,84 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/tracking.js"></script>
 <script src="js/plans.js"></script>
+
+<!-- P2.6: Place search logic -->
+<script>
+(function() {
+  var searchInput = document.getElementById('search-input');
+  var searchDropdown = document.getElementById('search-dropdown');
+  var searchDebounce = null;
+
+  if (!searchInput) return;
+
+  searchInput.addEventListener('input', function() {
+    var q = this.value.trim();
+    if (searchDebounce) clearTimeout(searchDebounce);
+    if (q.length < 2) { searchDropdown.classList.remove('open'); return; }
+    searchDebounce = setTimeout(function() { doSearch(q); }, 350);
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { searchDropdown.classList.remove('open'); this.blur(); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var first = searchDropdown.querySelector('.search-result');
+      if (first) first.click();
+    }
+  });
+
+  // Close dropdown on click outside
+  document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('search-wrap');
+    if (wrap && !wrap.contains(e.target)) searchDropdown.classList.remove('open');
+  });
+
+  async function doSearch(q) {
+    try {
+      var r = await fetch(
+        'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=5',
+        { headers: { 'Accept-Language': 'es', 'User-Agent': 'ManaMaps/1.0' } }
+      );
+      var results = await r.json();
+      if (!results.length) {
+        searchDropdown.innerHTML = '<div class="search-no-results">Sin resultados</div>';
+        searchDropdown.classList.add('open');
+        return;
+      }
+      searchDropdown.innerHTML = results.map(function(r) {
+        var name = r.display_name.length > 70 ? r.display_name.substring(0,67) + '...' : r.display_name;
+        var type = r.type || r.class || '';
+        return '<button class="search-result" data-lat="' + r.lat + '" data-lng="' + r.lon + '">' +
+          '<svg class="search-result-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+          '<span class="search-result-text">' + name.replace(/</g,'&lt;') + '</span>' +
+          '<span class="search-result-type">' + type + '</span>' +
+          '</button>';
+      }).join('');
+      searchDropdown.classList.add('open');
+
+      // Bind click events
+      searchDropdown.querySelectorAll('.search-result').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var lat = parseFloat(this.dataset.lat);
+          var lng = parseFloat(this.dataset.lng);
+          map.setView([lat, lng], 14);
+          searchDropdown.classList.remove('open');
+          searchInput.value = '';
+          searchInput.blur();
+        });
+      });
+    } catch(e) {
+      console.warn('Search error:', e);
+    }
+  }
+
+  // P3.11: Init project name input
+  var projInput = document.getElementById('project-name-input');
+  if (projInput && typeof getProjectName === 'function') {
+    projInput.value = getProjectName();
+  }
+})();
+</script>
+
 </body>
 </html>

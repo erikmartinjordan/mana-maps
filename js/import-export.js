@@ -199,10 +199,11 @@ function exportAs(fmt) {
   document.querySelectorAll(".drop-menu").forEach(function(x) { x.classList.remove("open"); });
   var geo = getEnrichedGeoJSON();
   if (!geo.features.length) { manaAlert("No hay elementos para exportar.", "warning"); return; }
-  if (fmt === "geojson") return dl(JSON.stringify(geo, null, 2), "mana-maps.geojson", "application/json");
-  if (fmt === "csv") return exportCSV(geo);
-  if (fmt === "kml") return exportKMZ(geo);
-  if (fmt === "shapefile") return exportShapefile(geo);
+  var prefix = (typeof getProjectName === "function") ? getProjectName() : "mana-maps";
+  if (fmt === "geojson") return dl(JSON.stringify(geo, null, 2), prefix + ".geojson", "application/json");
+  if (fmt === "csv") return exportCSV(geo, prefix);
+  if (fmt === "kml") return exportKMZ(geo, prefix);
+  if (fmt === "shapefile") return exportShapefile(geo, prefix);
 }
 
 function dl(content, filename, mime, isBlob) {
@@ -213,7 +214,8 @@ function dl(content, filename, mime, isBlob) {
 }
 
 // ===================== CSV =====================
-function exportCSV(geo) {
+function exportCSV(geo, prefix) {
+  prefix = prefix || "mana-maps";
   var allKeys = {};
   geo.features.forEach(function(f) {
     var p = f.properties || {};
@@ -233,7 +235,7 @@ function exportCSV(geo) {
     });
     rows.push(row.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","));
   });
-  dl(rows.join("\n"), "mana-maps.csv", "text/csv");
+  dl(rows.join("\n"), prefix + ".csv", "text/csv");
 }
 
 // ===================== KML / KMZ =====================
@@ -306,12 +308,13 @@ function geoToKML(geo) {
   return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00F1a Maps</name>\n' + parts.join("\n") + "\n</Document></kml>";
 }
 
-async function exportKMZ(geo) {
+async function exportKMZ(geo, prefix) {
+  prefix = prefix || "mana-maps";
   var kml = geoToKML(geo);
   var zip = new JSZip();
   zip.file("doc.kml", kml);
   var blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
-  dl(blob, "mana-maps.kmz", "application/vnd.google-earth.kmz", true);
+  dl(blob, prefix + ".kmz", "application/vnd.google-earth.kmz", true);
 }
 
 // ===================== SHAPEFILE =====================
@@ -489,7 +492,8 @@ function _buildPolyShp(feats, shapeType) {
 
 var SHP_PRJ = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]';
 
-async function exportShapefile(geo) {
+async function exportShapefile(geo, prefix) {
+  prefix = prefix || "mana-maps";
   var flat = _flattenFeatures(geo.features);
   var pts = flat.filter(function(f) { return f.geometry.type === "Point"; });
   var lns = flat.filter(function(f) { return f.geometry.type === "LineString"; });
@@ -514,5 +518,5 @@ async function exportShapefile(geo) {
     manaAlert("No hay geometr\u00EDas exportables.", "warning"); return;
   }
   var blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
-  dl(blob, "mana-maps.zip", "application/zip", true);
+  dl(blob, prefix + ".zip", "application/zip", true);
 }

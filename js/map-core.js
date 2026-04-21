@@ -182,29 +182,54 @@ function setBaseLayer(type) {
   var globeAtmo = document.getElementById('globe-atmo');
   var globeCtrl = document.getElementById('globe-controls');
 
-  if (type === 'globe') {
-    mapEl.style.display = 'none';
-    globeEl.style.display = 'block';
-    globeAtmo.style.display = 'block';
-    globeCtrl.style.display = 'flex';
-    document.getElementById('map-bottom-bar').style.display = 'none';
-    if (!globeMap) { requestAnimationFrame(function(){ initGlobe(); }); }
-    else { requestAnimationFrame(function(){ globeMap.resize(); syncToGlobe(); }); }
+  // P2.9: Animated transition between 2D and 3D
+  var isGoing3D = (type === 'globe');
+  var isLeaving3D = (activeBase === 'globe' && type !== 'globe');
+
+  if (isGoing3D) {
+    // Fade out map, then show globe
+    mapEl.style.transition = 'opacity 0.2s ease';
+    mapEl.style.opacity = '0';
+    setTimeout(function() {
+      mapEl.style.display = 'none';
+      globeEl.style.display = 'block';
+      globeAtmo.style.display = 'block';
+      globeCtrl.style.display = 'flex';
+      document.getElementById('map-bottom-bar').style.display = 'none';
+      globeEl.style.opacity = '0';
+      globeEl.style.transition = 'opacity 0.2s ease';
+      if (!globeMap) { requestAnimationFrame(function(){ initGlobe(); }); }
+      else { requestAnimationFrame(function(){ globeMap.resize(); syncToGlobe(); }); }
+      requestAnimationFrame(function() { globeEl.style.opacity = '1'; });
+    }, 200);
+  } else if (isLeaving3D) {
+    // Fade out globe, then show map
+    globeEl.style.transition = 'opacity 0.2s ease';
+    globeEl.style.opacity = '0';
+    setTimeout(function() {
+      globeEl.style.display = 'none';
+      globeAtmo.style.display = 'none';
+      globeCtrl.style.display = 'none';
+      if (spinActive) toggleSpin();
+      document.getElementById('globe-spin-indicator').style.display = 'none';
+      mapEl.style.display = 'block';
+      document.getElementById('map-bottom-bar').style.display = 'flex';
+      mapEl.style.opacity = '0';
+      mapEl.style.transition = 'opacity 0.2s ease';
+      if (type === 'map') { map.removeLayer(tileSat); tileMap.addTo(map); }
+      else { map.removeLayer(tileMap); tileSat.addTo(map); }
+      setTimeout(function(){ map.invalidateSize(); }, 50);
+      if (globeMap) {
+        var c = globeMap.getCenter();
+        map.setView([c.lat, c.lng], Math.min(18, Math.round(globeMap.getZoom()) + 1));
+      }
+      requestAnimationFrame(function() { mapEl.style.opacity = '1'; });
+    }, 200);
   } else {
-    globeEl.style.display = 'none';
-    globeAtmo.style.display = 'none';
-    globeCtrl.style.display = 'none';
-    if (spinActive) toggleSpin();
-    document.getElementById('globe-spin-indicator').style.display = 'none';
-    mapEl.style.display = 'block';
-    document.getElementById('map-bottom-bar').style.display = 'flex';
+    // Switching between map/satellite (no globe involved)
     if (type === 'map') { map.removeLayer(tileSat); tileMap.addTo(map); }
     else { map.removeLayer(tileMap); tileSat.addTo(map); }
     setTimeout(function(){ map.invalidateSize(); }, 50);
-    if (globeMap) {
-      var c = globeMap.getCenter();
-      map.setView([c.lat, c.lng], Math.min(18, Math.round(globeMap.getZoom()) + 1));
-    }
   }
   activeBase = type;
   document.getElementById('bmc-map').classList.toggle('active', type === 'map');
@@ -223,6 +248,18 @@ function getEnrichedGeoJSON() {
       f.properties.color = (l.options && l.options.color) || '#0ea5e9';
     }
     f.properties.name = l._manaName || f.properties.name || 'Elemento';
+    features.push(f);
+  });
+  return { type: 'FeatureCollection', features: features };
+}
+
+// ── P1.3: Get current GeoJSON for AI context ──
+function getCurrentGeoJSON() {
+  const features = [];
+  drawnItems.eachLayer(function(l) {
+    const f = l.toGeoJSON();
+    f.properties.name = l._manaName || f.properties.name || 'Elemento';
+    f.properties.color = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : (l.options.color || '#0ea5e9');
     features.push(f);
   });
   return { type: 'FeatureCollection', features: features };

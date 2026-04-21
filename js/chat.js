@@ -467,6 +467,12 @@ async function processRegex(cmd) {
 // ═══════════════════════════════════════════════════════════════
 async function processAI(userText) {
   const settings = manaSettings();
+
+  // P1.3: Update system prompt with current map state
+  const mapContext = typeof getCurrentGeoJSON === 'function' ? JSON.stringify(getCurrentGeoJSON()) : '{}';
+  const dynamicSystem = SYSTEM_PROMPT + '\n\nEl mapa actual contiene: ' + mapContext + '. Pots fer refer\u00E8ncia a elements existents.';
+  chatHistory[0] = { role: 'system', content: dynamicSystem };
+
   chatHistory.push({ role: 'user', content: userText });
 
   // Keep history manageable (last 20 messages + system)
@@ -587,6 +593,16 @@ function _pushChatHistory(text) {
 // ═══════════════════════════════════════════════════════════════
 // SEND MESSAGE
 // ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// P2.7: CLICKABLE CHAT SUGGESTIONS
+// ═══════════════════════════════════════════════════════════════
+function sendChatSuggestion(text) {
+  const input = document.getElementById('chat-input');
+  input.value = text;
+  sendMsg();
+}
+
 let chatBusy = false;
 
 async function sendMsg() {

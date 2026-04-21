@@ -31,6 +31,10 @@ const CTX_PALETTE = [
 
 // Render swatches programmatically on load
 document.addEventListener('DOMContentLoaded', () => {
+  // P3.10: Accessibility - add aria-live to toast
+  const toastEl = document.getElementById('toast');
+  if (toastEl) toastEl.setAttribute('aria-live', 'polite');
+
   // ── Sidebar color row ──
   const sidebarRow = document.getElementById('color-row');
   if (sidebarRow) {
@@ -288,6 +292,7 @@ function ctxCenterHere() {
 function ctxDeleteLayer() {
   if (!ctxTargetLayer) return;
   closeCtx();
+  if (typeof pushUndo === 'function') pushUndo();
   drawnItems.removeLayer(ctxTargetLayer);
   ctxTargetLayer = null;
   stats();
@@ -301,6 +306,7 @@ function ctxDeleteLayer() {
 
 function ctxSetColor(color) {
   if (!ctxTargetLayer) return;
+  if (typeof pushUndo === 'function') pushUndo();
   if (ctxTargetLayer instanceof L.Marker) {
     ctxTargetLayer._manaColor = color;
     ctxTargetLayer.setIcon(makeMarkerIcon(color, markerType));
@@ -337,6 +343,7 @@ function ctxSetOpacity(val) {
 async function ctxRename() {
   if (!ctxTargetLayer) return;
   closeCtx();
+  if (typeof pushUndo === 'function') pushUndo();
   const oldName = ctxTargetLayer._manaName || 'Elemento';
   const name = await askName('Renombrar elemento', oldName);
   if (name === null) return;
@@ -386,6 +393,7 @@ function ctxStyleGroup() {
 // ═══════════════════════════════════════════════════════════════
 function ctxCategorizeBy(field) {
   if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
+  if (typeof pushUndo === 'function') pushUndo();
   const gid = ctxTargetLayer._manaGroupId;
   const meta = _manaGroupMeta[gid];
   if (!meta) return;
@@ -600,6 +608,7 @@ function _getLctxLayers() {
 }
 
 function lctxSetColor(color) {
+  if (typeof pushUndo === 'function') pushUndo();
   _getLctxLayers().forEach(l => {
     if (l instanceof L.Marker) {
       l._manaColor = color;
@@ -641,6 +650,7 @@ function lctxSetOpacity(val) {
 
 async function lctxRename() {
   closeLayerCtx();
+  if (typeof pushUndo === 'function') pushUndo();
   if (_lctxType === 'group') {
     const meta = _manaGroupMeta[_lctxId];
     if (!meta) return;
@@ -674,6 +684,7 @@ function lctxZoom() {
 
 function lctxCategorize(field) {
   if (_lctxType !== 'group') return;
+  if (typeof pushUndo === 'function') pushUndo();
   const meta = _manaGroupMeta[_lctxId];
   if (!meta) return;
 
@@ -707,6 +718,7 @@ function lctxCategorize(field) {
 
 async function lctxDelete() {
   closeLayerCtx();
+  if (typeof pushUndo === 'function') pushUndo();
   if (_lctxType === 'group') {
     deleteGroup(_lctxId);
   } else {
