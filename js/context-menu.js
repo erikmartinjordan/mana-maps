@@ -402,7 +402,7 @@ function ctxCategorizeBy(field) {
   const valSet = new Set();
   meta.allLayers.forEach(l => {
     const v = (l._manaProperties || {})[field];
-    if (v !== null && v !== undefined && v !== '') valSet.add(String(v));
+    if (v !== null && v !== undefined && String(v) !== '') valSet.add(String(v));
   });
 
   const uniqueVals = [...valSet].sort();
@@ -413,7 +413,8 @@ function ctxCategorizeBy(field) {
 
   // Apply colors
   meta.allLayers.forEach(l => {
-    const v = String((l._manaProperties || {})[field] || '');
+    const raw = (l._manaProperties || {})[field];
+    const v = (raw !== null && raw !== undefined) ? String(raw) : '';
     const c = colorMap[v] || '#64748b';
     if (l instanceof L.Marker) {
       l._manaColor = c;
@@ -691,7 +692,7 @@ function lctxCategorize(field) {
   const valSet = new Set();
   meta.allLayers.forEach(l => {
     const v = (l._manaProperties || {})[field];
-    if (v !== null && v !== undefined && v !== '') valSet.add(String(v));
+    if (v !== null && v !== undefined && String(v) !== '') valSet.add(String(v));
   });
 
   const uniqueVals = [...valSet].sort();
@@ -701,7 +702,8 @@ function lctxCategorize(field) {
   });
 
   meta.allLayers.forEach(l => {
-    const v = String((l._manaProperties || {})[field] || '');
+    const raw = (l._manaProperties || {})[field];
+    const v = (raw !== null && raw !== undefined) ? String(raw) : '';
     const c = colorMap[v] || '#64748b';
     if (l instanceof L.Marker) {
       l._manaColor = c;

@@ -128,14 +128,14 @@ function loadGeoJSON(geo, groupName) {
       m._manaName = n; m._manaColor = drawColor;
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
-      m._manaProperties = f.properties || {};
+      m._manaProperties = JSON.parse(JSON.stringify(f.properties || {}));
       m.bindPopup(buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
       return m;
     },
     onEachFeature: (f, l) => {
       l._manaGroupId = groupId;
       l._manaGroupName = gName;
-      l._manaProperties = f.properties || {};
+      l._manaProperties = JSON.parse(JSON.stringify(f.properties || {}));
       if (!(l instanceof L.Marker)) {
         const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || '';
         if (n) l._manaName = n;

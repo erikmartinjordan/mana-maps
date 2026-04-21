@@ -49,14 +49,20 @@ function addLayerToGroupMeta(gid, layer) {
   const props = layer._manaProperties || {};
   for (const [key, val] of Object.entries(props)) {
     if (key.startsWith('_') || key === 'bbox') continue;
-    if (val === null || val === undefined) continue;
+    // Register the key even if this feature's value is null (other features may have values)
     if (!meta.attrs[key]) {
-      meta.attrs[key] = { type: typeof val === 'number' ? 'number' : 'string', values: new Set() };
+      const isNum = (val !== null && val !== undefined && typeof val === 'number');
+      meta.attrs[key] = { type: isNum ? 'number' : 'string', values: new Set() };
     }
-    const sv = String(val);
-    if (meta.attrs[key].values.size < 500) meta.attrs[key].values.add(sv);
+    // Only add non-null values to the value set
+    if (val !== null && val !== undefined && val !== '') {
+      const sv = String(val);
+      if (meta.attrs[key].values.size < 500) meta.attrs[key].values.add(sv);
+    }
     // Promote type to number if it looks numeric
-    if (meta.attrs[key].type === 'string' && typeof val === 'number') meta.attrs[key].type = 'number';
+    if (val !== null && val !== undefined && typeof val === 'number') {
+      meta.attrs[key].type = 'number';
+    }
   }
 }
 
@@ -380,6 +386,37 @@ function stats() {
 const _expandedGroups = {};
 const _filterOpen = {};
 
+// ── Layer ordering (drag & drop) ──
+let _groupOrder = []; // ordered array of group IDs for sidebar rendering
+
+function _syncGroupOrder() {
+  // Add any new groups not yet in the order array
+  for (const gid in _manaGroupMeta) {
+    if (!_groupOrder.includes(Number(gid))) _groupOrder.push(Number(gid));
+  }
+  // Remove deleted groups
+  _groupOrder = _groupOrder.filter(gid => _manaGroupMeta[gid]);
+}
+
+// Move a group from one position to another
+function reorderGroup(fromIdx, toIdx) {
+  if (fromIdx === toIdx) return;
+  const item = _groupOrder.splice(fromIdx, 1)[0];
+  _groupOrder.splice(toIdx, 0, item);
+  // Reorder layers on the map (bring later groups to front)
+  _groupOrder.forEach(gid => {
+    const meta = _manaGroupMeta[gid];
+    if (!meta) return;
+    meta.allLayers.forEach(l => {
+      if (drawnItems.hasLayer(l) && l.bringToFront) {
+        try { l.bringToFront(); } catch(e) {}
+      }
+    });
+  });
+  renderLayers();
+  if (typeof saveState === 'function') saveState();
+}
+
 // ── SVG ICONS ──
 const ICON = {
   chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>',
@@ -414,10 +451,11 @@ function renderLayers() {
   const groups = {};
   const ungrouped = [];
 
-  // First pass: collect from meta registry
-  for (const gid in _manaGroupMeta) {
+  // First pass: collect from meta registry, using persistent order
+  _syncGroupOrder();
+  for (const gid of _groupOrder) {
     const meta = _manaGroupMeta[gid];
-    if (!meta.allLayers.length) continue;
+    if (!meta || !meta.allLayers.length) continue;
     groups[gid] = {
       name: meta.name,
       color: meta.color,
@@ -465,10 +503,12 @@ function renderLayers() {
       ? '<span class="filter-active-badge">' + g.visibleCount + '/' + g.totalCount + '</span>'
       : '';
 
-    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + '">';
+    var orderIdx = _groupOrder.indexOf(gid);
+    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
 
     // ── Header
     html += '<div class="layer-group-header" onclick="toggleLayerGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
+    html += '  <span class="layer-drag-handle" title="Arrastra para reordenar">&#8942;&#8942;</span>';
     html += '  <div class="layer-dot" style="background:' + g.color + '"></div>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
     html += '  ' + filterBadge;
@@ -662,4 +702,47 @@ function focusLayer(i) {
   if (l.getPopup && l.getPopup()) {
     setTimeout(() => l.openPopup(), 200);
   }
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// LAYER DRAG & DROP REORDERING
+// ═══════════════════════════════════════════════════════════════
+let _dragFromIdx = null;
+
+function onLayerDragStart(e, idx) {
+  _dragFromIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', idx);
+  // Add visual feedback
+  setTimeout(() => { e.target.classList.add('dragging'); }, 0);
+}
+
+function onLayerDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  // Highlight drop target
+  const group = e.target.closest('.layer-group');
+  document.querySelectorAll('.layer-group').forEach(g => g.classList.remove('drag-over'));
+  if (group) group.classList.add('drag-over');
+}
+
+function onLayerDrop(e, toIdx) {
+  e.preventDefault();
+  document.querySelectorAll('.layer-group').forEach(g => {
+    g.classList.remove('drag-over');
+    g.classList.remove('dragging');
+  });
+  if (_dragFromIdx !== null && _dragFromIdx !== toIdx) {
+    reorderGroup(_dragFromIdx, toIdx);
+  }
+  _dragFromIdx = null;
+}
+
+function onLayerDragEnd(e) {
+  document.querySelectorAll('.layer-group').forEach(g => {
+    g.classList.remove('drag-over');
+    g.classList.remove('dragging');
+  });
+  _dragFromIdx = null;
 }

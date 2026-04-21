@@ -1633,3 +1633,12 @@ select.ai-input{cursor:pointer;appearance:auto;}
 
 /* Rail mode: hide the selector */
 #sidebar.rail .target-layer-row{display:none;}
+
+/* ── Layer drag-and-drop reordering ── */
+.layer-drag-handle{cursor:grab;color:var(--third);font-size:12px;letter-spacing:-2px;
+  opacity:0.4;transition:opacity .15s;user-select:none;padding:0 2px;flex-shrink:0;}
+.layer-group-header:hover .layer-drag-handle{opacity:0.8;}
+.layer-drag-handle:active{cursor:grabbing;}
+.layer-group{transition:transform .15s,opacity .15s,box-shadow .15s;border-radius:10px;}
+.layer-group.dragging{opacity:0.4;transform:scale(0.97);}
+.layer-group.drag-over{box-shadow:0 -2px 0 0 var(--blue);border-radius:10px;}
