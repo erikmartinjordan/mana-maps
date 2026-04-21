@@ -207,11 +207,11 @@ function clearSavedData() {
 // P3.11: PROJECT NAME FOR EXPORTS
 // ═══════════════════════════════════════════════════════════════
 function getProjectName() {
-  return localStorage.getItem('mana-project-name') || 'mana-maps';
+  return localStorage.getItem('mana-project-name') || 'Mapa sin título';
 }
 
 function setProjectName(name) {
-  const clean = name.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '-') || 'mana-maps';
+  const clean = name.trim() || 'Mapa sin título';
   localStorage.setItem('mana-project-name', clean);
   const input = document.getElementById('project-name-input');
   if (input) input.value = clean;

@@ -213,13 +213,35 @@
   <!-- SIDEBAR -->
   <div id="sidebar">
     <div class="sidebar-header">
-      <input type="text" id="project-name-input" class="sidebar-project-input" placeholder="mana-maps" maxlength="40" autocomplete="off"
+      <input type="text" id="project-name-input" class="sidebar-project-input" placeholder="Mapa sin título" maxlength="40" autocomplete="off"
         onchange="setProjectName(this.value)"/>
       <span class="sidebar-title">Herramientas</span>
     </div>
     <div class="sidebar-body">
 
       <div class="section-label">Dibujar</div>
+
+      <!-- Target layer selector -->
+      <div class="target-layer-row">
+        <select id="target-layer-select" class="target-layer-select" onchange="onTargetLayerChange(this.value)">
+          <option value="">&#8212; Sin capa &#8212;</option>
+        </select>
+        <button class="target-layer-add" onclick="createDrawLayer()" title="Crear nueva capa">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+
+      <!-- Undo/Redo buttons -->
+      <div class="undo-redo-row">
+        <button class="tool-btn undo-redo-btn disabled" id="btn-undo" onclick="undo()" title="Nada que deshacer" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 105.7-10.36L1 10"/></svg>
+          <span class="btn-label">Deshacer</span>
+        </button>
+        <button class="tool-btn undo-redo-btn disabled" id="btn-redo" onclick="redo()" title="Nada que rehacer" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-5.7-10.36L23 10"/></svg>
+          <span class="btn-label">Rehacer</span>
+        </button>
+      </div>
 
       <button class="tool-btn" id="btn-point" onclick="setTool('point')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
