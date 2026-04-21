@@ -149,6 +149,12 @@
     </div>
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
+  <!-- Project name -->
+  <div class="topbar-project-name">
+    <span class="topbar-project-sep">/</span>
+    <input type="text" id="project-name-input" class="topbar-project-input" placeholder="mana-maps" maxlength="40" autocomplete="off"
+      onchange="setProjectName(this.value)"/>
+  </div>
   <!-- P2.6: Place search bar -->
   <div class="search-wrap" id="search-wrap">
     <div class="search-input-wrap">
@@ -215,17 +221,7 @@
     <div class="sidebar-body">
 
       <div class="section-label">Dibujar</div>
-      <!-- P1.1: Undo/Redo buttons -->
-      <div class="undo-redo-row">
-        <button class="tool-btn undo-redo-btn disabled" id="btn-undo" onclick="undo()" title="Nada que deshacer" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 105.7-10.36L1 10"/></svg>
-          <span class="btn-label">Deshacer</span>
-        </button>
-        <button class="tool-btn undo-redo-btn disabled" id="btn-redo" onclick="redo()" title="Nada que rehacer" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-5.7-10.36L23 10"/></svg>
-          <span class="btn-label">Rehacer</span>
-        </button>
-      </div>
+
       <button class="tool-btn" id="btn-point" onclick="setTool('point')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
         <span class="btn-label">A&#241;adir punto</span>
@@ -305,18 +301,12 @@
       </div>
     </div>
     <div class="sidebar-footer">
-      <!-- P3.11: Project name input -->
-      <div class="project-name-row">
-        <label class="project-name-label" for="project-name-input">Nom del projecte</label>
-        <input type="text" id="project-name-input" class="project-name-input" placeholder="mana-maps" maxlength="40" autocomplete="off"
-          onchange="setProjectName(this.value)"/>
-      </div>
+
       <div class="sidebar-footer-links">
         <a class="sidebar-footer-link" href="/about">Acerca de</a>
         <a class="sidebar-footer-link" href="/changelog">Changelog</a>
         <a class="sidebar-footer-link" href="/open">Estad&iacute;sticas</a>
-        <!-- P1.5: Clear saved data button -->
-        <button class="sidebar-footer-link sidebar-clear-btn" onclick="clearSavedData()">Netejar dades</button>
+
       </div>
     </div>
   </div>
