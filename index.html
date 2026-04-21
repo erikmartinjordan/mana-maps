@@ -337,6 +337,10 @@
   <!-- MAP -->
   <div id="map-wrap">
     <div id="map"></div>
+    <div id="coords-overlay">
+      <div id="mouse-coords">&#8212; , &#8212;</div>
+      <button id="coords-format-btn" class="coords-toggle-btn" onclick="toggleCoordsFormat()" title="Alternar DD / DMS">DMS</button>
+    </div>
     <div id="globe"></div>
     <div class="globe-atmosphere" id="globe-atmo"></div>
     <div id="globe-controls">
@@ -376,10 +380,6 @@
       <div class="stat-pill">L&#237;neas <span id="cnt-lines">0</span></div>
       <div class="stat-pill">Pol&#237;gonos <span id="cnt-polygons">0</span></div>
       <div class="stat-pill autosave-pill" id="autosave-pill">Auto-guardado</div>
-      <div style="display:flex;align-items:center;gap:4px;margin-left:auto">
-        <div id="mouse-coords">&#8212; , &#8212;</div>
-        <button id="coords-format-btn" class="coords-toggle-btn" onclick="toggleCoordsFormat()" title="Alternar DD / DMS">DMS</button>
-      </div>
     </div>
   </div>
 
