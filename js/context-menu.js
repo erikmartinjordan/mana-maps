@@ -723,384 +723,247 @@ async function lctxDelete() {
 
 
 // ═══════════════════════════════════════════════════════════════
-// ATTRIBUTE TABLE — Notion-style editable modal
+// PROPERTY EDITOR — Notion-style key-value table
+// One row per attribute: Campo | Valor
 // ═══════════════════════════════════════════════════════════════
-var _attrLayers = [];
-var _attrColumns = [];
-var _attrHighlightLayer = null;
-var _attrActiveCell = null;   // currently focused cell {row, col}
+var _propLayer = null;
+var _propGroupLayers = [];
+var _propHighlight = null;
 
-// ── Open from SIDEBAR right-click (existing) ──
 function lctxShowAttrTable() {
   closeLayerCtx();
-  _attrLayers = _getLctxLayers();
-  if (!_attrLayers.length) return;
-  _openAttrModal();
+  var layers = _getLctxLayers();
+  if (!layers.length) return;
+  if (layers.length === 1) {
+    _propGroupLayers = [];
+    _propLayer = layers[0];
+  } else {
+    _propGroupLayers = layers;
+    _propLayer = layers[0];
+  }
+  _openPropModal();
 }
 
-// ── Open from MAP right-click (new) ──
 function ctxShowAttrTable() {
   if (!ctxTargetLayer) return;
   closeCtx();
-
-  // If layer belongs to a group, show the whole group
   var gid = ctxTargetLayer._manaGroupId;
   if (gid && _manaGroupMeta[gid]) {
-    _attrLayers = _manaGroupMeta[gid].allLayers.slice();
+    _propGroupLayers = _manaGroupMeta[gid].allLayers.slice();
+    _propLayer = ctxTargetLayer;
   } else {
-    _attrLayers = [ctxTargetLayer];
+    _propGroupLayers = [];
+    _propLayer = ctxTargetLayer;
   }
-  _openAttrModal();
+  _openPropModal();
 }
 
-function _openAttrModal() {
-  _attrBuildTable();
+function _openPropModal() {
+  _buildPropEditor();
   document.getElementById('attr-modal').classList.add('open');
 }
 
-// ── Close modal ──
 function closeAttrModal() {
   document.getElementById('attr-modal').classList.remove('open');
-  _attrActiveCell = null;
-  if (_attrHighlightLayer) {
-    try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
-    _attrHighlightLayer = null;
+  _propLayer = null;
+  _propGroupLayers = [];
+  if (_propHighlight) {
+    try { map.removeLayer(_propHighlight); } catch(e) {}
+    _propHighlight = null;
   }
 }
 function closeAttributeDrawer() { closeAttrModal(); }
 
-// Click backdrop to close
 document.addEventListener('DOMContentLoaded', function() {
   var modal = document.getElementById('attr-modal');
-  if (modal) {
-    modal.addEventListener('mousedown', function(e) {
-      if (e.target === modal) closeAttrModal();
-    });
-  }
+  if (modal) modal.addEventListener('mousedown', function(e) {
+    if (e.target === modal) closeAttrModal();
+  });
 });
 
-// ═══════════════════════════════════════════════════════════════
-// BUILD / RENDER TABLE
-// ═══════════════════════════════════════════════════════════════
-function _attrBuildTable() {
-  var thead = document.getElementById('attr-table-head');
-  var tbody = document.getElementById('attr-table-body');
+// ═══ BUILD PROPERTY EDITOR ═══
+function _buildPropEditor() {
+  if (!_propLayer) return;
   var title = document.getElementById('attr-modal-title');
-  var counter = document.getElementById('attr-modal-count');
+  var body = document.getElementById('attr-modal-body');
+  var selector = document.getElementById('attr-elem-selector');
 
-  // Collect all property keys
-  var keySet = {};
-  _attrLayers.forEach(function(l) {
-    var props = l._manaProperties || {};
-    Object.keys(props).forEach(function(k) {
-      if (!k.startsWith('_') && k !== 'bbox') keySet[k] = true;
+  title.textContent = _propLayer._manaName || 'Propiedades';
+
+  // Element selector for groups
+  if (_propGroupLayers.length > 1) {
+    selector.style.display = 'flex';
+    var sh = '';
+    _propGroupLayers.forEach(function(l, i) {
+      var nm = l._manaName || ('Elemento ' + (i + 1));
+      var ac = (l === _propLayer) ? ' active' : '';
+      sh += '<button class="attr-elem-btn' + ac + '" onclick="_propSelectElem(' + i + ')">' + _esc(nm.length > 20 ? nm.substring(0,18) + '\u2026' : nm) + '</button>';
     });
-  });
-  _attrColumns = Object.keys(keySet);
-  if (_attrColumns.indexOf('name') === -1) _attrColumns.unshift('name');
-  else {
-    _attrColumns.splice(_attrColumns.indexOf('name'), 1);
-    _attrColumns.unshift('name');
+    selector.innerHTML = sh;
+  } else {
+    selector.style.display = 'none';
   }
 
-  // Title + counter
-  if (title) {
-    var gName = '';
-    if (_attrLayers[0] && _attrLayers[0]._manaGroupId) {
-      var meta = _manaGroupMeta[_attrLayers[0]._manaGroupId];
-      if (meta) gName = meta.name;
+  // Collect properties
+  var props = _propLayer._manaProperties || {};
+  var entries = [{ key: 'name', val: _propLayer._manaName || '' }];
+  Object.keys(props).forEach(function(k) {
+    if (k.startsWith('_') || k === 'bbox' || k === 'name') return;
+    var v = props[k];
+    entries.push({ key: k, val: (v !== null && v !== undefined) ? String(v) : '' });
+  });
+
+  // Build rows
+  var h = '';
+  entries.forEach(function(entry, i) {
+    var isName = (entry.key === 'name');
+    h += '<div class="prop-row" data-idx="' + i + '">';
+    h += '<div class="prop-key">';
+    h += '<span class="prop-icon">' + (isName ? '\u1D5A7' : '\u2261') + '</span>';
+    if (isName) {
+      h += '<span class="prop-key-text is-fixed">nombre</span>';
+    } else {
+      h += '<span class="prop-key-text" contenteditable="true" spellcheck="false" '
+         + 'data-idx="' + i + '" data-oldkey="' + _escAttr(entry.key) + '" '
+         + 'onblur="_propRenameKey(this)" '
+         + 'onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"'
+         + '>' + _esc(entry.key) + '</span>';
     }
-    title.textContent = gName || 'Tabla de atributos';
-  }
-  if (counter) counter.textContent = _attrLayers.length + ' filas · ' + _attrColumns.length + ' campos';
-
-  // ── Header ──
-  var hh = '<tr><th class="attr-th-rownum">#</th>';
-  _attrColumns.forEach(function(col, ci) {
-    hh += '<th class="attr-th-cell">';
-    hh += '<div class="attr-th-inner">';
-    hh += '<span class="attr-th-type">' + _attrColIcon(col) + '</span>';
-    hh += '<span class="attr-th-text" contenteditable="true" spellcheck="false" ';
-    hh += 'data-col="' + ci + '" ';
-    hh += 'onblur="attrRenameColumn(' + ci + ',this.textContent)" ';
-    hh += 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"';
-    hh += '>' + _esc(col) + '</span>';
-    if (col !== 'name') {
-      hh += '<button class="attr-th-del" onclick="attrDeleteColumn(' + ci + ')" title="Eliminar campo">';
-      hh += '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      hh += '</button>';
+    h += '</div>';
+    h += '<div class="prop-val">';
+    h += '<span class="prop-val-text" contenteditable="true" spellcheck="false" '
+       + 'data-idx="' + i + '" data-key="' + _escAttr(entry.key) + '" '
+       + 'onblur="_propSaveVal(this)" '
+       + 'onkeydown="_propValKey(event,this)"'
+       + '>' + _esc(entry.val) + '</span>';
+    h += '</div>';
+    if (!isName) {
+      h += '<button class="prop-del" onclick="_propDeleteAttr('' + _escAttr(entry.key).replace(/'/g, "\\'") + '')" title="Eliminar">';
+      h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      h += '</button>';
+    } else {
+      h += '<div class="prop-del-ph"></div>';
     }
-    hh += '</div></th>';
-  });
-  hh += '<th class="attr-th-end"></th></tr>';
-  thead.innerHTML = hh;
-
-  // ── Body ──
-  var bh = '';
-  _attrLayers.forEach(function(l, ri) {
-    var props = l._manaProperties || {};
-    bh += '<tr data-row="' + ri + '">';
-    bh += '<td class="attr-td-rownum" onclick="_attrRowClick(' + ri + ')">' + (ri + 1) + '</td>';
-    _attrColumns.forEach(function(col, ci) {
-      var val = '';
-      if (col === 'name') {
-        val = l._manaName || props['name'] || '';
-      } else {
-        val = (props[col] !== undefined && props[col] !== null) ? String(props[col]) : '';
-      }
-      bh += '<td class="attr-td-cell">';
-      bh += '<div class="attr-cell" contenteditable="true" spellcheck="false" ';
-      bh += 'data-row="' + ri + '" data-col="' + ci + '" ';
-      bh += 'onblur="_attrCellBlur(this)" ';
-      bh += 'onfocus="_attrCellFocus(this)" ';
-      bh += 'onkeydown="_attrCellKey(event,this)"';
-      bh += '>' + _esc(val) + '</div>';
-      bh += '</td>';
-    });
-    bh += '<td class="attr-td-actions"><button class="attr-row-del" onclick="attrDeleteRow(' + ri + ')" title="Eliminar fila">';
-    bh += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-    bh += '</button></td>';
-    bh += '</tr>';
+    h += '</div>';
   });
 
-  if (!_attrLayers.length) {
-    bh = '<tr><td colspan="' + (_attrColumns.length + 2) + '">';
-    bh += '<div class="attr-empty">Sin elementos. Haz clic en <strong>+ Fila</strong> para empezar.</div>';
-    bh += '</td></tr>';
+  if (entries.length <= 1) {
+    h += '<div class="prop-empty">Sin atributos adicionales</div>';
   }
-  tbody.innerHTML = bh;
+
+  body.innerHTML = h;
 }
 
-// Helper — HTML escape
 function _esc(s) {
   var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
 }
 
-// Helper — column type icon
-function _attrColIcon(col) {
-  if (col === 'name') return '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>';
-  return '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/></svg>';
+function _escAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CELL EDITING — Notion-style inline
-// ═══════════════════════════════════════════════════════════════
-function _attrCellFocus(el) {
-  _attrActiveCell = { row: +el.dataset.row, col: +el.dataset.col };
-  el.closest('td').classList.add('is-focused');
-  // Select all text on focus
-  var range = document.createRange();
-  range.selectNodeContents(el);
-  var sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-}
-
-function _attrCellBlur(el) {
-  el.closest('td').classList.remove('is-focused');
-  var ri = +el.dataset.row, ci = +el.dataset.col;
-  var newVal = el.textContent;
-  _attrSaveCell(ri, ci, newVal);
-}
-
-function _attrCellKey(e, el) {
-  var ri = +el.dataset.row, ci = +el.dataset.col;
-
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    el.blur();
-    // Move to next/prev cell
-    var nextCol = e.shiftKey ? ci - 1 : ci + 1;
-    var nextRow = ri;
-    if (nextCol >= _attrColumns.length) { nextCol = 0; nextRow++; }
-    if (nextCol < 0) { nextCol = _attrColumns.length - 1; nextRow--; }
-    if (nextRow >= 0 && nextRow < _attrLayers.length) {
-      var next = document.querySelector('.attr-cell[data-row="' + nextRow + '"][data-col="' + nextCol + '"]');
-      if (next) next.focus();
-    }
-  } else if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    el.blur();
-    // Move down
-    var nextR = ri + 1;
-    if (nextR < _attrLayers.length) {
-      var next = document.querySelector('.attr-cell[data-row="' + nextR + '"][data-col="' + ci + '"]');
-      if (next) next.focus();
-    }
-  } else if (e.key === 'Escape') {
-    el.blur();
-  } else if (e.key === 'ArrowDown' && !el.textContent) {
-    e.preventDefault();
-    var next = document.querySelector('.attr-cell[data-row="' + (ri+1) + '"][data-col="' + ci + '"]');
-    if (next) { el.blur(); next.focus(); }
-  } else if (e.key === 'ArrowUp' && !el.textContent) {
-    e.preventDefault();
-    var next = document.querySelector('.attr-cell[data-row="' + (ri-1) + '"][data-col="' + ci + '"]');
-    if (next) { el.blur(); next.focus(); }
+// ═══ ELEMENT SELECTOR ═══
+function _propSelectElem(idx) {
+  _propLayer = _propGroupLayers[idx];
+  _buildPropEditor();
+  if (_propLayer.getBounds) map.fitBounds(_propLayer.getBounds(), { maxZoom: 15, padding: [24,24] });
+  else if (_propLayer.getLatLng) map.setView(_propLayer.getLatLng(), 15);
+  if (_propHighlight) { try { map.removeLayer(_propHighlight); } catch(e) {} }
+  if (_propLayer instanceof L.Marker) {
+    _propHighlight = L.circleMarker(_propLayer.getLatLng(), { radius: 18, color: '#0ea5e9', weight: 3, fillOpacity: 0.15, dashArray: '4 4' }).addTo(map);
+  } else if (_propLayer.getLatLngs) {
+    var C = (_propLayer instanceof L.Polygon) ? L.polygon : L.polyline;
+    _propHighlight = C(_propLayer.getLatLngs(), { color: '#0ea5e9', weight: 5, fillOpacity: 0.12, dashArray: '6 4' }).addTo(map);
   }
+  setTimeout(function() { if (_propHighlight) { try { map.removeLayer(_propHighlight); } catch(e) {} _propHighlight = null; } }, 2500);
 }
 
-function _attrSaveCell(ri, ci, newVal) {
-  var layer = _attrLayers[ri];
-  if (!layer) return;
-  var col = _attrColumns[ci];
-
-  if (col === 'name') {
-    layer._manaName = newVal;
-    if (layer.getPopup && layer.getPopup()) {
-      layer.setPopupContent('<strong>' + newVal + '</strong>');
+// ═══ EDITING ═══
+function _propSaveVal(el) {
+  if (!_propLayer) return;
+  var key = el.dataset.key;
+  var newVal = el.textContent.trim();
+  if (key === 'name') {
+    _propLayer._manaName = newVal;
+    if (_propLayer.getPopup && _propLayer.getPopup()) _propLayer.setPopupContent('<strong>' + newVal + '</strong>');
+    document.getElementById('attr-modal-title').textContent = newVal || 'Propiedades';
+    if (_propGroupLayers.length > 1) {
+      var idx = _propGroupLayers.indexOf(_propLayer);
+      var btns = document.querySelectorAll('.attr-elem-btn');
+      if (btns[idx]) btns[idx].textContent = newVal.length > 20 ? newVal.substring(0,18) + '\u2026' : newVal;
     }
   } else {
-    if (!layer._manaProperties) layer._manaProperties = {};
+    if (!_propLayer._manaProperties) _propLayer._manaProperties = {};
     var num = parseFloat(newVal);
-    layer._manaProperties[col] = (newVal !== '' && !isNaN(num) && String(num) === newVal.trim()) ? num : newVal;
+    _propLayer._manaProperties[key] = (newVal !== '' && !isNaN(num) && String(num) === newVal) ? num : newVal;
   }
   if (typeof saveState === 'function') saveState();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// COLUMN OPERATIONS
-// ═══════════════════════════════════════════════════════════════
-function attrRenameColumn(ci, newName) {
-  var oldName = _attrColumns[ci];
-  newName = (newName || '').trim();
-  if (!newName || newName === oldName) return;
-  if (oldName === 'name') return;
+function _propRenameKey(el) {
+  if (!_propLayer) return;
+  var oldKey = el.dataset.oldkey;
+  var newKey = el.textContent.trim();
+  if (!newKey || newKey === oldKey) { el.textContent = oldKey; return; }
+  if (!_propLayer._manaProperties) return;
+  if (_propLayer._manaProperties.hasOwnProperty(oldKey)) {
+    _propLayer._manaProperties[newKey] = _propLayer._manaProperties[oldKey];
+    delete _propLayer._manaProperties[oldKey];
+  }
+  var gid = _propLayer._manaGroupId;
+  if (gid && _manaGroupMeta[gid] && _manaGroupMeta[gid].attrs[oldKey]) {
+    _manaGroupMeta[gid].attrs[newKey] = _manaGroupMeta[gid].attrs[oldKey];
+    delete _manaGroupMeta[gid].attrs[oldKey];
+  }
+  _buildPropEditor();
+  showToast('Renombrado: ' + newKey);
+  if (typeof saveState === 'function') saveState();
+}
 
-  _attrLayers.forEach(function(l) {
-    if (!l._manaProperties) return;
-    if (l._manaProperties.hasOwnProperty(oldName)) {
-      l._manaProperties[newName] = l._manaProperties[oldName];
-      delete l._manaProperties[oldName];
+function _propValKey(e, el) {
+  if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
+    e.preventDefault();
+    el.blur();
+    var idx = +el.dataset.idx;
+    var next = e.shiftKey ? idx - 1 : idx + 1;
+    var nextEl = document.querySelector('.prop-val-text[data-idx="' + next + '"]');
+    if (nextEl) {
+      nextEl.focus();
+      var r = document.createRange(); r.selectNodeContents(nextEl);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
     }
-  });
-  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
-  if (gid && _manaGroupMeta[gid] && _manaGroupMeta[gid].attrs[oldName]) {
-    _manaGroupMeta[gid].attrs[newName] = _manaGroupMeta[gid].attrs[oldName];
-    delete _manaGroupMeta[gid].attrs[oldName];
-  }
-  _attrColumns[ci] = newName;
-  _attrBuildTable();
-  showToast('Campo renombrado');
-  if (typeof saveState === 'function') saveState();
+  } else if (e.key === 'Escape') { el.blur(); }
 }
 
-async function attrAddColumn() {
-  var name = await askName('Nombre del nuevo campo', 'campo_nuevo');
+async function attrAddProperty() {
+  if (!_propLayer) return;
+  var name = await askName('Nombre del atributo', 'nuevo_campo');
   if (!name) return;
-  _attrLayers.forEach(function(l) {
-    if (!l._manaProperties) l._manaProperties = {};
-    l._manaProperties[name] = '';
-  });
-  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
-  if (gid && _manaGroupMeta[gid]) {
+  if (!_propLayer._manaProperties) _propLayer._manaProperties = {};
+  _propLayer._manaProperties[name] = '';
+  var gid = _propLayer._manaGroupId;
+  if (gid && _manaGroupMeta[gid] && !_manaGroupMeta[gid].attrs[name]) {
     _manaGroupMeta[gid].attrs[name] = { type: 'string', values: new Set() };
   }
-  _attrBuildTable();
-  showToast('Campo a\u00f1adido: ' + name);
-  if (typeof saveState === 'function') saveState();
-}
-
-function attrDeleteColumn(ci) {
-  var col = _attrColumns[ci];
-  if (col === 'name') return;
-  _attrLayers.forEach(function(l) {
-    if (l._manaProperties) delete l._manaProperties[col];
-  });
-  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
-  if (gid && _manaGroupMeta[gid]) delete _manaGroupMeta[gid].attrs[col];
-  _attrBuildTable();
-  showToast('Campo eliminado');
-  if (typeof saveState === 'function') saveState();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ROW OPERATIONS
-// ═══════════════════════════════════════════════════════════════
-function attrAddRow() {
-  var center = map.getCenter();
-  var props = {};
-  _attrColumns.forEach(function(c) { if (c !== 'name') props[c] = ''; });
-  var icon = makeMarkerIcon(drawColor, markerType);
-  var m = L.marker(center, { icon: icon }).addTo(drawnItems);
-  m._manaName = 'Nuevo';
-  m._manaColor = drawColor;
-  m._manaProperties = props;
-  m.bindPopup('<strong>Nuevo</strong>');
-  var gid = _attrLayers[0] && _attrLayers[0]._manaGroupId;
-  if (gid) {
-    m._manaGroupId = gid;
-    if (_manaGroupMeta[gid]) {
-      _manaGroupMeta[gid].allLayers.push(m);
-      addLayerToGroupMeta(gid, m);
-    }
-  }
-  _attrLayers.push(m);
-  _attrBuildTable();
-  stats();
-  // Focus the name cell of the new row
+  _buildPropEditor();
   requestAnimationFrame(function() {
-    var newCell = document.querySelector('.attr-cell[data-row="' + (_attrLayers.length - 1) + '"][data-col="0"]');
-    if (newCell) newCell.focus();
+    var all = document.querySelectorAll('.prop-val-text');
+    if (all.length) all[all.length - 1].focus();
   });
+  showToast('Atributo a\u00f1adido');
   if (typeof saveState === 'function') saveState();
 }
 
-function attrDeleteRow(ri) {
-  var layer = _attrLayers[ri];
-  if (!layer) return;
-  drawnItems.removeLayer(layer);
-  var gid = layer._manaGroupId;
-  if (gid && _manaGroupMeta[gid]) {
-    var arr = _manaGroupMeta[gid].allLayers;
-    var i = arr.indexOf(layer);
-    if (i > -1) arr.splice(i, 1);
-  }
-  _attrLayers.splice(ri, 1);
-  _attrBuildTable();
-  stats();
-  showToast('Fila eliminada');
+function _propDeleteAttr(key) {
+  if (!_propLayer || key === 'name') return;
+  if (_propLayer._manaProperties) delete _propLayer._manaProperties[key];
+  var gid = _propLayer._manaGroupId;
+  if (gid && _manaGroupMeta[gid]) delete _manaGroupMeta[gid].attrs[key];
+  _buildPropEditor();
+  showToast('Atributo eliminado');
   if (typeof saveState === 'function') saveState();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ROW CLICK → zoom + highlight
-// ═══════════════════════════════════════════════════════════════
-function _attrRowClick(ri) {
-  var layer = _attrLayers[ri];
-  if (!layer) return;
-
-  // Highlight row visually
-  document.querySelectorAll('.attr-table-edit tbody tr').forEach(function(tr) {
-    tr.classList.remove('is-selected');
-  });
-  var tr = document.querySelector('.attr-table-edit tbody tr[data-row="' + ri + '"]');
-  if (tr) tr.classList.add('is-selected');
-
-  if (layer.getBounds) map.fitBounds(layer.getBounds(), { maxZoom: 15, padding: [24, 24] });
-  else if (layer.getLatLng) map.setView(layer.getLatLng(), 15);
-
-  if (_attrHighlightLayer) {
-    try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
-  }
-  if (layer instanceof L.Marker) {
-    _attrHighlightLayer = L.circleMarker(layer.getLatLng(), {
-      radius: 18, color: '#0ea5e9', weight: 3, fillOpacity: 0.15, dashArray: '4 4'
-    }).addTo(map);
-  } else if (layer.getLatLngs) {
-    var Cls = (layer instanceof L.Polygon) ? L.polygon : L.polyline;
-    _attrHighlightLayer = Cls(layer.getLatLngs(), {
-      color: '#0ea5e9', weight: 5, fillOpacity: 0.12, dashArray: '6 4'
-    }).addTo(map);
-  }
-  setTimeout(function() {
-    if (_attrHighlightLayer) {
-      try { map.removeLayer(_attrHighlightLayer); } catch(e) {}
-      _attrHighlightLayer = null;
-    }
-  }, 2500);
 }
 
 

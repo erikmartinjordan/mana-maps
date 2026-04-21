@@ -1229,9 +1229,8 @@ select.ai-input{cursor:pointer;appearance:auto;}
   background: rgba(14, 165, 233, 0.08);
 }
 
-
 /* ═══════════════════════════════════════════════════════════════
-   ATTRIBUTE TABLE — Notion-style editable modal
+   PROPERTY EDITOR — Notion-style key-value modal
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Backdrop ── */
@@ -1252,17 +1251,17 @@ select.ai-input{cursor:pointer;appearance:auto;}
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 24px 80px rgba(0,0,0,.25);
-  width: 800px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  width: 480px;
   max-width: calc(100vw - 24px);
   max-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: attrModalIn .18s ease-out;
+  animation: propIn .16s ease-out;
 }
-@keyframes attrModalIn {
-  from { opacity: 0; transform: translateY(8px) scale(.98); }
+@keyframes propIn {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -1270,49 +1269,18 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .attr-modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 20px 12px;
+  gap: 10px;
+  padding: 18px 20px 14px;
   flex-shrink: 0;
 }
 .attr-modal-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--primary);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.attr-modal-count {
-  font-size: 11px;
-  color: var(--third);
-  font-family: 'DM Mono', monospace;
-  white-space: nowrap;
-}
-.attr-modal-actions {
-  display: flex;
-  gap: 5px;
-}
-.attr-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  font-size: 11px;
-  font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--secondary);
-  cursor: pointer;
-  transition: all .12s;
-  white-space: nowrap;
-}
-.attr-action-btn:hover {
-  border-color: var(--blue);
-  color: var(--blue);
-  background: rgba(14,165,233,.06);
 }
 .attr-modal-close {
   width: 28px;
@@ -1333,217 +1301,200 @@ select.ai-input{cursor:pointer;appearance:auto;}
   color: var(--red);
 }
 
-/* ── Body / scroll ── */
-.attr-modal-body {
-  flex: 1;
-  overflow: auto;
+/* ── Element selector (for groups) ── */
+.attr-elem-selector {
+  display: flex;
+  gap: 4px;
+  padding: 0 18px 10px;
+  overflow-x: auto;
+  flex-shrink: 0;
 }
-
-/* ── Table base ── */
-.attr-table-edit {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  table-layout: auto;
-}
-
-/* ═══ HEADER CELLS ═══ */
-.attr-table-edit th {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  background: var(--bgBox);
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  padding: 0;
+.attr-elem-selector::-webkit-scrollbar { height: 3px; }
+.attr-elem-selector::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.attr-elem-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 11px;
   font-weight: 500;
-}
-/* Row number column header */
-.attr-th-rownum {
-  width: 42px;
-  min-width: 42px;
-  text-align: center;
+  font-family: 'DM Sans', sans-serif;
   color: var(--third);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .05em;
-  user-select: none;
-}
-/* End spacer */
-.attr-th-end { width: 40px; }
-
-/* Column header cell */
-.attr-th-cell { border-right: 1px solid rgba(0,0,0,.04); }
-.attr-th-inner {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 10px;
-  min-width: 80px;
-}
-/* Type icon */
-.attr-th-type {
-  flex-shrink: 0;
-  color: var(--third);
-  display: flex;
-  align-items: center;
-  opacity: .7;
-}
-/* Editable column name */
-.attr-th-text {
-  flex: 1;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--third);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  outline: none;
-  padding: 1px 2px;
-  border-radius: 3px;
-  transition: all .1s;
-  cursor: text;
-  min-width: 30px;
-}
-.attr-th-text:focus {
-  color: var(--primary);
-  background: rgba(14,165,233,.06);
-  text-transform: none;
-}
-/* Delete column button */
-.attr-th-del {
-  width: 18px;
-  height: 18px;
-  border: none;
-  background: none;
-  color: var(--border);
   cursor: pointer;
-  border-radius: 4px;
-  display: grid;
-  place-items: center;
+  white-space: nowrap;
   transition: all .1s;
-  opacity: 0;
   flex-shrink: 0;
 }
-.attr-th-inner:hover .attr-th-del { opacity: 1; }
-.attr-th-del:hover {
-  background: rgba(239,68,68,.1);
-  color: var(--red);
-}
-
-/* ═══ BODY CELLS ═══ */
-.attr-table-edit td { padding: 0; }
-
-/* Row number */
-.attr-td-rownum {
-  width: 42px;
-  min-width: 42px;
-  text-align: center;
-  font-size: 11px;
-  font-family: 'DM Mono', monospace;
-  color: var(--third);
-  border-right: 1px solid var(--border);
-  background: var(--bgBox);
-  cursor: pointer;
-  user-select: none;
-  transition: background .1s;
-}
-.attr-td-rownum:hover {
-  background: rgba(14,165,233,.08);
+.attr-elem-btn:hover {
+  border-color: var(--blue);
   color: var(--blue);
 }
+.attr-elem-btn.active {
+  background: rgba(14,165,233,.08);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 600;
+}
 
-/* Data cell */
-.attr-td-cell {
-  border-bottom: 1px solid rgba(0,0,0,.04);
+/* ── Body (scrollable property rows) ── */
+.attr-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 4px;
+}
+
+/* ── Property row ── */
+.prop-row {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid rgba(0,0,0,.04);
+  min-height: 38px;
+  transition: background .08s;
+}
+.prop-row:hover {
+  background: rgba(14,165,233,.02);
+}
+.prop-row:first-child { border-top: 1px solid var(--border); }
+
+/* ── Key (field name) ── */
+.prop-key {
+  width: 160px;
+  min-width: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px 7px 18px;
+  background: rgba(0,0,0,.015);
   border-right: 1px solid rgba(0,0,0,.04);
-  position: relative;
 }
-.attr-td-cell.is-focused {
-  box-shadow: inset 0 0 0 2px var(--blue);
-  border-radius: 1px;
+.prop-icon {
+  font-size: 13px;
+  color: var(--third);
+  opacity: .5;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+.prop-key-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--third);
+  outline: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: text;
+  min-width: 30px;
+  word-break: break-word;
+  line-height: 1.3;
+  transition: all .1s;
+}
+.prop-key-text:focus {
+  color: var(--primary);
+  background: rgba(14,165,233,.06);
+}
+.prop-key-text.is-fixed {
+  cursor: default;
+  color: var(--secondary);
+  font-weight: 700;
 }
 
-/* Contenteditable cell */
-.attr-cell {
-  padding: 7px 10px;
-  outline: none;
-  min-height: 20px;
+/* ── Value ── */
+.prop-val {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  min-width: 0;
+}
+.prop-val-text {
+  width: 100%;
+  padding: 7px 12px;
+  font-size: 13px;
   color: var(--primary);
+  outline: none;
+  min-height: 24px;
   line-height: 1.4;
   cursor: text;
   word-break: break-word;
   transition: background .1s;
+  border-radius: 0;
 }
-.attr-cell:hover {
+.prop-val-text:hover {
   background: rgba(14,165,233,.02);
 }
-.attr-cell:focus {
-  background: rgba(14,165,233,.04);
+.prop-val-text:focus {
+  background: rgba(14,165,233,.05);
+  box-shadow: inset 0 0 0 1.5px var(--blue);
+  border-radius: 2px;
 }
-.attr-cell:empty::before {
-  content: attr(data-placeholder);
+.prop-val-text:empty::before {
+  content: 'Vacío';
   color: var(--border);
+  font-style: italic;
   pointer-events: none;
 }
 
-/* Actions column (delete row) */
-.attr-td-actions {
-  width: 36px;
-  text-align: center;
-  padding: 0 4px;
-}
-.attr-row-del {
-  width: 22px;
-  height: 22px;
+/* ── Delete button ── */
+.prop-del {
+  width: 30px;
+  flex-shrink: 0;
   border: none;
   background: none;
   color: var(--border);
   cursor: pointer;
-  border-radius: 4px;
-  display: inline-grid;
+  display: grid;
   place-items: center;
   transition: all .1s;
   opacity: 0;
 }
-.attr-table-edit tbody tr:hover .attr-row-del { opacity: 1; }
-.attr-row-del:hover {
-  background: rgba(239,68,68,.1);
+.prop-row:hover .prop-del { opacity: 1; }
+.prop-del:hover {
   color: var(--red);
+  background: rgba(239,68,68,.06);
 }
+.prop-del-ph { width: 30px; flex-shrink: 0; }
 
-/* ═══ ROW STATES ═══ */
-.attr-table-edit tbody tr {
-  transition: background .08s;
-}
-.attr-table-edit tbody tr:hover {
-  background: rgba(14,165,233,.025);
-}
-.attr-table-edit tbody tr.is-selected {
-  background: rgba(14,165,233,.06);
-}
-.attr-table-edit tbody tr.is-selected .attr-td-rownum {
-  background: rgba(14,165,233,.12);
-  color: var(--blue);
-  font-weight: 700;
-}
-
-/* ═══ EMPTY STATE ═══ */
-.attr-empty {
-  padding: 40px 24px;
+/* ── Empty state ── */
+.prop-empty {
+  padding: 20px;
   text-align: center;
   color: var(--third);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  font-style: italic;
 }
 
-/* ═══ RESPONSIVE ═══ */
+/* ── Footer (add button) ── */
+.attr-modal-footer {
+  padding: 8px 18px 14px;
+  flex-shrink: 0;
+}
+.attr-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--third);
+  cursor: pointer;
+  transition: all .12s;
+  justify-content: center;
+}
+.attr-add-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(14,165,233,.04);
+  border-style: solid;
+}
+
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .attr-modal-box {
-    width: calc(100vw - 12px);
-    max-height: calc(100vh - 24px);
-    border-radius: 10px;
-  }
-  .attr-modal-header { padding: 12px 14px 8px; }
-  .attr-modal-count { display: none; }
+  .attr-modal-box { width: calc(100vw - 12px); }
+  .prop-key { width: 110px; min-width: 90px; padding-left: 12px; }
 }
