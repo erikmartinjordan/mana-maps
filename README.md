@@ -1,14 +1,14 @@
-# Maña Maps
+# 🗺️ Maña Maps
 
 Interactive map editor built with [Leaflet.js](https://leafletjs.com/) and integrated conversational AI.
 
-**Live demo:** [mana.com/maps](https://maña.com)
+🔗 **Live demo:** [maña.com](https://maña.com)
 
 ---
 
-## Features
+## ✨ Features
 
-### Drawing tools
+### 🖊️ Drawing tools
 
 | Tool | Description |
 |---|---|
@@ -18,7 +18,7 @@ Interactive map editor built with [Leaflet.js](https://leafletjs.com/) and integ
 | Measure distance | Click to set waypoints, double-click to see total distance |
 | Edit geometry | Move vertices of existing elements (points, lines, polygons) |
 
-### Undo / Redo
+### ↩️ Undo / Redo
 
 | Action | Shortcut |
 |---|---|
@@ -27,7 +27,7 @@ Interactive map editor built with [Leaflet.js](https://leafletjs.com/) and integ
 
 History keeps up to 50 steps. Every draw, delete, rename, style change or geometry edit is recorded. Buttons in the sidebar show the available steps and become disabled when the stack is empty.
 
-### Style customisation
+### 🎨 Style customisation
 
 | Option | Values |
 |---|---|
@@ -37,7 +37,7 @@ History keeps up to 50 steps. Every draw, delete, rename, style change or geomet
 | Opacity | 10 – 100 % slider (per-element via context menu) |
 | Categorise by attribute | Automatic colour assignment from any attribute field |
 
-### Map types
+### 🗺️ Map types
 
 | Type | Source |
 |---|---|
@@ -47,11 +47,11 @@ History keeps up to 50 steps. Every draw, delete, rename, style change or geomet
 
 Switching between 2D and 3D uses a fade transition (~400 ms).
 
-### Place search
+### 🔍 Place search
 
 A search bar in the top bar queries [Nominatim](https://nominatim.openstreetmap.org/) and shows up to 5 results. Click a result to fly to the location at zoom 14. Works without an AI key.
 
-### Import
+### 📥 Import
 
 | Format | Extension |
 |---|---|
@@ -62,7 +62,7 @@ A search bar in the top bar queries [Nominatim](https://nominatim.openstreetmap.
 
 Files can also be dropped directly onto the map. Imported layers appear as named groups with attribute metadata, filters and categorisation.
 
-### Export
+### 📤 Export
 
 | Format | Contents |
 |---|---|
@@ -73,11 +73,11 @@ Files can also be dropped directly onto the map. Imported layers appear as named
 
 All exports use the **project name** defined in the sidebar footer as the filename prefix (default: `mana-maps`). Attribute table data is preserved across all formats; internal metadata keys are filtered automatically.
 
-### OGC services
+### 🌐 OGC services
 
 Connect to external WMS or WFS endpoints. A built-in catalogue provides quick access to common Spanish SDI services.
 
-### Attribute table
+### 📋 Attribute table
 
 Notion-style key/value editor accessible from the context menu or the layer list. Supports:
 
@@ -86,11 +86,11 @@ Notion-style key/value editor accessible from the context menu or the layer list
 - Navigating between elements of a group
 - Visual highlight of the selected element on the map
 
-### Filter engine
+### 🔎 Filter engine
 
 Per-group attribute filters with AND logic. Operators: `=`, `≠`, `>`, `<`, `≥`, `≤`, `contains`, `starts`. Hidden elements are excluded from the map but preserved in exports.
 
-### AI Chat
+### 🤖 AI Chat
 
 The right-side panel accepts natural language in Spanish (or any language with an API key):
 
@@ -108,7 +108,7 @@ The right-side panel accepts natural language in Spanish (or any language with a
 
 The welcome message shows clickable suggestion buttons. Chat input supports `↑` / `↓` history navigation (last 50 messages).
 
-### Persistence
+### 💾 Persistence
 
 | Feature | Detail |
 |---|---|
@@ -117,7 +117,7 @@ The welcome message shows clickable suggestion buttons. Chat input supports `↑
 | Share via URL | `#map=` hash encoding (one-click copy) |
 | Clear saved data | Button in sidebar footer |
 
-### Accessibility
+### ♿ Accessibility
 
 - `aria-live="polite"` on the toast container
 - `role="dialog"` and `aria-modal="true"` on the name modal
@@ -127,7 +127,7 @@ The welcome message shows clickable suggestion buttons. Chat input supports `↑
 
 ---
 
-## Local usage
+## 🚀 Local usage
 
 No installation or server required:
 
@@ -142,7 +142,7 @@ open index.html   # macOS
 
 ---
 
-## Tech stack
+## 🛠️ Tech stack
 
 | Library | Version | Purpose |
 |---|---|---|
@@ -160,7 +160,7 @@ No frameworks. Vanilla JS + CSS (DM Sans / DM Mono).
 
 ---
 
-## Project structure
+## 📁 Project structure
 
 ```
 mana-maps/
@@ -194,6 +194,6 @@ mana-maps/
 
 ---
 
-## License
+## 📄 License
 
 MIT © [Erik Martín Jordán](https://github.com/erikmartinjordan)
