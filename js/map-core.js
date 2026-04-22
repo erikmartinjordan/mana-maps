@@ -325,51 +325,209 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── RESIZE HANDLES ──
-const RAIL_W = 44, RAIL_THR = 88;
+// Unified resize + collapse system for left (sidebar) and right (chat) panels.
+// Both support drag (mouse + touch), dblclick collapse/expand, and localStorage persistence.
 
-function initResize(handleId) {
-  const handle = document.getElementById(handleId);
-  if (!handle) return;
-  const app = document.getElementById('app');
-  let startX, startW;
+(function () {
+  var MIN_W = 160, MAX_W = 520;
+  var DEFAULT_LEFT = 288; // toolbar(52) + panel(236)
+  var DEFAULT_RIGHT = 320;
+  var app = document.getElementById('app');
 
-  handle.addEventListener('mousedown', function (e) {
-    e.preventDefault();
-    handle.classList.add('dragging');
-    startX = e.clientX;
-    var cols = getComputedStyle(app).gridTemplateColumns.split(' ');
-    startW = parseInt(cols[cols.length - 1]) || 320;
+  // Saved widths for restore after collapse
+  var _prevLeft = parseInt(localStorage.getItem('mana_sidebar_width')) || DEFAULT_LEFT;
+  var _prevRight = parseInt(localStorage.getItem('mana_chat_width')) || DEFAULT_RIGHT;
 
-    var onMove = function (e) {
-      var dx = e.clientX - startX;
-      var nw = Math.max(180, Math.min(520, startW - dx));
-      app.style.setProperty('--right-w', nw + 'px');
-      map.invalidateSize();
-    };
+  // ────── HELPERS ──────
+  function getX(e) {
+    return e.touches ? e.touches[0].clientX : e.clientX;
+  }
 
-    var onUp = function () {
-      handle.classList.remove('dragging');
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      map.invalidateSize();
-    };
+  function persist(key, val) {
+    try { localStorage.setItem(key, String(Math.round(val))); } catch (e) {}
+  }
 
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-  });
+  function getSidebarWidth() {
+    var sb = document.getElementById('sidebar');
+    return sb ? sb.getBoundingClientRect().width : DEFAULT_LEFT;
+  }
 
-  // Double-click: toggle chat panel visibility
-  handle.addEventListener('dblclick', function () {
+  function getChatWidth() {
+    return parseInt(getComputedStyle(app).getPropertyValue('--right-w')) || DEFAULT_RIGHT;
+  }
+
+  // ────── LEFT HANDLE (sidebar) ──────
+  function initLeftHandle() {
+    var handle = document.getElementById('handle-left');
+    if (!handle) return;
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    var startX, startW, collapsed = false;
+
+    // Restore persisted width
+    var saved = parseInt(localStorage.getItem('mana_sidebar_width'));
+    if (saved === 0) {
+      collapsed = true;
+      sidebar.style.width = '0px';
+      sidebar.style.overflow = 'hidden';
+      handle.classList.add('handle-collapsed');
+      handle.title = 'Doble clic para expandir';
+    }
+
+    // ── Drag ──
+    function onStart(e) {
+      if (collapsed) return;
+      e.preventDefault();
+      handle.classList.add('dragging');
+      startX = getX(e);
+      startW = getSidebarWidth();
+
+      function onMove(ev) {
+        var dx = getX(ev) - startX;
+        var nw = Math.max(MIN_W, Math.min(MAX_W, startW + dx));
+        sidebar.style.width = nw + 'px';
+        map.invalidateSize();
+      }
+      function onEnd() {
+        handle.classList.remove('dragging');
+        var w = getSidebarWidth();
+        _prevLeft = w;
+        persist('mana_sidebar_width', w);
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+        map.invalidateSize();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd);
+    }
+
+    handle.addEventListener('mousedown', onStart);
+    handle.addEventListener('touchstart', onStart, { passive: false });
+
+    // ── Double-click collapse/expand ──
+    handle.addEventListener('dblclick', function () {
+      if (!collapsed) {
+        // Collapse
+        _prevLeft = getSidebarWidth();
+        persist('mana_sidebar_width', 0);
+        sidebar.classList.add('collapsing');
+        sidebar.style.width = '0px';
+        sidebar.style.overflow = 'hidden';
+        handle.classList.add('handle-collapsed');
+        handle.title = 'Doble clic para expandir';
+        collapsed = true;
+        setTimeout(function () { sidebar.classList.remove('collapsing'); map.invalidateSize(); }, 220);
+      } else {
+        // Expand
+        var w = _prevLeft || DEFAULT_LEFT;
+        persist('mana_sidebar_width', w);
+        sidebar.classList.add('collapsing');
+        sidebar.style.width = w + 'px';
+        handle.classList.remove('handle-collapsed');
+        handle.title = '';
+        collapsed = false;
+        setTimeout(function () {
+          sidebar.classList.remove('collapsing');
+          sidebar.style.overflow = '';
+          map.invalidateSize();
+        }, 220);
+      }
+    });
+  }
+
+  // ────── RIGHT HANDLE (chat) ──────
+  function initRightHandle() {
+    var handle = document.getElementById('handle-right');
+    if (!handle) return;
     var chat = document.getElementById('chat-panel');
     if (!chat) return;
-    var hidden = chat.style.display === 'none';
-    chat.style.display = hidden ? '' : 'none';
-    handle.style.display = hidden ? '' : 'none';
-    map.invalidateSize();
-  });
-}
+    var startX, startW, collapsed = false;
 
-initResize('handle-right');
+    // Restore persisted width
+    var saved = parseInt(localStorage.getItem('mana_chat_width'));
+    if (saved === 0) {
+      collapsed = true;
+      app.style.setProperty('--right-w', '0px');
+      chat.style.overflow = 'hidden';
+      handle.classList.add('handle-collapsed');
+      handle.title = 'Doble clic para expandir';
+    } else if (saved > 0) {
+      app.style.setProperty('--right-w', saved + 'px');
+      _prevRight = saved;
+    }
+
+    // ── Drag ──
+    function onStart(e) {
+      if (collapsed) return;
+      e.preventDefault();
+      handle.classList.add('dragging');
+      startX = getX(e);
+      startW = getChatWidth();
+
+      function onMove(ev) {
+        var dx = getX(ev) - startX;
+        var nw = Math.max(MIN_W, Math.min(MAX_W, startW - dx));
+        app.style.setProperty('--right-w', nw + 'px');
+        map.invalidateSize();
+      }
+      function onEnd() {
+        handle.classList.remove('dragging');
+        var w = getChatWidth();
+        _prevRight = w;
+        persist('mana_chat_width', w);
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+        map.invalidateSize();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd);
+    }
+
+    handle.addEventListener('mousedown', onStart);
+    handle.addEventListener('touchstart', onStart, { passive: false });
+
+    // ── Double-click collapse/expand ──
+    handle.addEventListener('dblclick', function () {
+      if (!collapsed) {
+        // Collapse
+        _prevRight = getChatWidth();
+        persist('mana_chat_width', 0);
+        chat.classList.add('collapsing');
+        app.style.setProperty('--right-w', '0px');
+        chat.style.overflow = 'hidden';
+        handle.classList.add('handle-collapsed');
+        handle.title = 'Doble clic para expandir';
+        collapsed = true;
+        setTimeout(function () { chat.classList.remove('collapsing'); map.invalidateSize(); }, 220);
+      } else {
+        // Expand
+        var w = _prevRight || DEFAULT_RIGHT;
+        persist('mana_chat_width', w);
+        chat.classList.add('collapsing');
+        app.style.setProperty('--right-w', w + 'px');
+        handle.classList.remove('handle-collapsed');
+        handle.title = '';
+        collapsed = false;
+        setTimeout(function () {
+          chat.classList.remove('collapsing');
+          chat.style.overflow = '';
+          map.invalidateSize();
+        }, 220);
+      }
+    });
+  }
+
+  initLeftHandle();
+  initRightHandle();
+})();
 
 // ── STATS & LAYER LIST ──
 function stats() {
