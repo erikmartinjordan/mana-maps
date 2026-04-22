@@ -85,6 +85,10 @@ async function clearAll() {
       _wmsOverlays.forEach(item => { if (map.hasLayer(item.layer)) map.removeLayer(item.layer); });
       _wmsOverlays.length = 0;
     }
+    // Reset project name
+    var projInput = document.getElementById('project-name-input');
+    if (projInput) projInput.value = '';
+    if (typeof setProjectName === 'function') setProjectName('');
     stats();
     if (typeof saveState === 'function') saveState();
   }
