@@ -73,8 +73,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .toolbar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:4px;}
 
 /* ── FLOAT PANEL ── */
-#float-panel{width:var(--panel-w);background:var(--bg);border-right:1px solid var(--border);
-  display:none;flex-direction:column;overflow:hidden;flex-shrink:0;
+#float-panel{flex:1;min-width:var(--panel-w);background:var(--bg);border-right:1px solid var(--border);
+  display:none;flex-direction:column;overflow:hidden;
   animation:panelSlideIn .18s ease;}
 #float-panel.open{display:flex;}
 @keyframes panelSlideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}

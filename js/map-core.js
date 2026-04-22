@@ -55,11 +55,21 @@ function getOrCreateActiveGroup() {
 }
 
 // Add a drawn layer (point, line, polygon) to the active group
+// Inherits the group's attribute schema (QGIS-style)
 function addDrawnLayerToGroup(layer) {
   const gid = getOrCreateActiveGroup();
   const meta = _manaGroupMeta[gid];
   layer._manaGroupId = gid;
   layer._manaGroupName = meta.name;
+
+  // Initialize _manaProperties from group schema (all existing columns, empty values)
+  if (!layer._manaProperties) layer._manaProperties = {};
+  for (const key in meta.attrs) {
+    if (!(key in layer._manaProperties)) {
+      layer._manaProperties[key] = '';
+    }
+  }
+
   drawnItems.addLayer(layer);
   addLayerToGroupMeta(gid, layer);
   stats();

@@ -952,9 +952,18 @@ function _propRenameKey(el) {
     delete _propLayer._manaProperties[oldKey];
   }
   var gid = _propLayer._manaGroupId;
-  if (gid && _manaGroupMeta[gid] && _manaGroupMeta[gid].attrs[oldKey]) {
-    _manaGroupMeta[gid].attrs[newKey] = _manaGroupMeta[gid].attrs[oldKey];
-    delete _manaGroupMeta[gid].attrs[oldKey];
+  if (gid && _manaGroupMeta[gid]) {
+    if (_manaGroupMeta[gid].attrs[oldKey]) {
+      _manaGroupMeta[gid].attrs[newKey] = _manaGroupMeta[gid].attrs[oldKey];
+      delete _manaGroupMeta[gid].attrs[oldKey];
+    }
+    // Rename in ALL features of the group (QGIS-style schema)
+    _manaGroupMeta[gid].allLayers.forEach(function(l) {
+      if (l._manaProperties && l._manaProperties.hasOwnProperty(oldKey)) {
+        l._manaProperties[newKey] = l._manaProperties[oldKey];
+        delete l._manaProperties[oldKey];
+      }
+    });
   }
   _buildPropEditor();
   showToast("Renombrado: " + newKey);
@@ -1007,11 +1016,18 @@ function attrAddProperty() {
   keyText.addEventListener("blur", function() {
     var name = this.textContent.trim();
     if (!name) { row.remove(); return; }
-    // Commit: save to layer properties
+    // Commit: save to ALL features in the group (QGIS-style schema)
     _propLayer._manaProperties[name] = "";
     var gid = _propLayer._manaGroupId;
-    if (gid && _manaGroupMeta[gid] && !_manaGroupMeta[gid].attrs[name]) {
-      _manaGroupMeta[gid].attrs[name] = { type: "string", values: new Set() };
+    if (gid && _manaGroupMeta[gid]) {
+      if (!_manaGroupMeta[gid].attrs[name]) {
+        _manaGroupMeta[gid].attrs[name] = { type: "string", values: new Set() };
+      }
+      // Propagate to all features in the group
+      _manaGroupMeta[gid].allLayers.forEach(function(l) {
+        if (!l._manaProperties) l._manaProperties = {};
+        if (!(name in l._manaProperties)) l._manaProperties[name] = "";
+      });
     }
     if (typeof saveState === "function") saveState();
     // Rebuild so it gets proper event handlers
@@ -1060,7 +1076,13 @@ function _propDeleteAttr(key) {
   if (!_propLayer || key === "name") return;
   if (_propLayer._manaProperties) delete _propLayer._manaProperties[key];
   var gid = _propLayer._manaGroupId;
-  if (gid && _manaGroupMeta[gid]) delete _manaGroupMeta[gid].attrs[key];
+  if (gid && _manaGroupMeta[gid]) {
+    delete _manaGroupMeta[gid].attrs[key];
+    // Remove from ALL features in the group (QGIS-style schema)
+    _manaGroupMeta[gid].allLayers.forEach(function(l) {
+      if (l._manaProperties) delete l._manaProperties[key];
+    });
+  }
   _buildPropEditor();
   showToast("Atributo eliminado");
   if (typeof saveState === "function") saveState();
