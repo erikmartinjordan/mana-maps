@@ -1719,7 +1719,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .attr-table-panel{
   position:absolute;bottom:0;left:0;right:0;height:280px;
   background:var(--bgBox,#fff);border-top:2px solid var(--border,#e8e5e0);
-  z-index:800;display:none;flex-direction:column;
+  z-index:1050;display:none;flex-direction:column;
   box-shadow:0 -4px 16px rgba(0,0,0,.08);
   transition:transform .18s ease;
 }

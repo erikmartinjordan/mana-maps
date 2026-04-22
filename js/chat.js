@@ -263,7 +263,7 @@ const toolActions = {
   },
 
   help() {
-    return { ok: true, msg: window.t('ai_help')\n\n' +
+    return { ok: true, msg: window.t('ai_help') + '\n\n' +
       '📍 *"añade un punto en Barcelona"*\n' +
       '📍 *"marca Madrid, Sevilla y Valencia"*\n' +
       '🔵 *"color rojo"* / *"color #ff6600"*\n' +
