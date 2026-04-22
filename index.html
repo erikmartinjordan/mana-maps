@@ -88,82 +88,6 @@
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css"/>
 
-<!-- ═══ Estilos de componentes ═══ -->
-<style>
-/* ── Auto-save pill ── */
-.autosave-pill {
-  opacity: 0.5;
-  transition: opacity .3s, background .3s;
-  font-size: 11px;
-}
-.autosave-pill.flash {
-  opacity: 1;
-  background: var(--color-accent, #0ea5e9);
-  color: #fff;
-}
-
-/* ── Coordinate toggle button ── */
-.coords-toggle-btn {
-  background: var(--color-background-secondary, rgba(255,255,255,.08));
-  border: 1px solid var(--color-border-tertiary, rgba(255,255,255,.12));
-  color: var(--color-text-secondary, #94a3b8);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: 'DM Mono', monospace;
-  line-height: 1.4;
-}
-.coords-toggle-btn:hover {
-  background: var(--color-background-tertiary, rgba(255,255,255,.14));
-  color: var(--color-text-primary, #e2e8f0);
-}
-
-/* ── WMS layer list ── */
-.wms-layer-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 0;
-  font-size: 12px;
-  color: var(--color-text-secondary, #94a3b8);
-}
-.wms-eye-btn, .wms-remove-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary, #94a3b8);
-  cursor: pointer;
-  padding: 2px;
-  display: flex;
-  align-items: center;
-}
-.wms-eye-btn svg, .wms-remove-btn svg { width: 14px; height: 14px; }
-.wms-eye-btn.off { opacity: 0.4; }
-.wms-eye-btn:hover, .wms-remove-btn:hover { color: var(--color-text-primary, #e2e8f0); }
-.wms-remove-btn { font-size: 16px; margin-left: auto; }
-.wms-layer-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Upgrade modal ── */
-.upgrade-modal{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;}
-.upgrade-modal.open{display:flex;}
-.upgrade-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);}
-.upgrade-box{position:relative;background:var(--color-background-primary,#16161e);border:1px solid var(--color-border-tertiary,rgba(255,255,255,.12));border-radius:14px;padding:28px 24px 22px;max-width:300px;width:90%;text-align:center;z-index:1;box-shadow:0 16px 48px rgba(0,0,0,.4);}
-.upgrade-box h3{font-size:15px;font-weight:700;color:var(--color-text-primary,#e2e8f0);margin-bottom:6px;}
-.upgrade-box p{font-size:12px;color:var(--color-text-secondary,#94a3b8);line-height:1.5;margin-bottom:16px;}
-.upgrade-price{font-family:'DM Mono',monospace;font-size:28px;font-weight:600;color:var(--color-text-primary,#e2e8f0);letter-spacing:-1px;}
-.upgrade-period{font-size:11px;color:var(--color-text-secondary,#94a3b8);margin-left:2px;}
-.upgrade-row{margin-bottom:18px;}
-.upgrade-cta{display:block;width:100%;padding:10px;border:none;border-radius:50px;background:var(--color-accent,#0ea5e9);color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:opacity .15s;}
-.upgrade-cta:hover{opacity:.85;}
-.upgrade-skip{display:block;width:100%;padding:6px;border:none;background:none;color:var(--color-text-secondary,#94a3b8);font-size:11px;cursor:pointer;}
-.upgrade-skip:hover{color:var(--color-text-primary,#e2e8f0);}
-</style>
 </head>
 <body>
 <div id="toast" aria-live="polite"></div>
@@ -184,7 +108,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- ═══ Modal upsell ═══ -->
 <div id="upsell-modal" class="upsell-modal">
@@ -452,7 +375,6 @@
           <div id="ogc-catalog-list" style="display:none"></div>
         </div>
       </div>
-
 
         <div class="panel-footer">
           <div id="pro-indicator" class="pro-indicator not-configured" onclick="showUpsell()">
@@ -750,32 +672,32 @@
 <!-- ═══ Librerías externas ═══ -->
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script defer src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<script defer src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 
 <!-- ═══ Módulos de la app (el orden importa) ═══ -->
-<script src="js/i18n.js"></script>      <!-- i18n: must load first -->
-<script src="js/markers.js"></script>      <!-- color y marcadores -->
-<script src="js/modal.js"></script>        <!-- diálogo de nombre -->
-<script src="js/map-core.js"></script>     <!-- mapa, capas, stats -->
-<script src="js/stats.js"></script>      <!-- panel de estadísticas -->
-<script src="js/globe.js"></script>        <!-- globo 3D -->
-<script src="js/tools.js"></script>        <!-- herramientas de dibujo -->
-<script src="js/context-menu.js"></script> <!-- menú contextual -->
-<script src="js/import-export.js"></script><!-- importar y exportar -->
-<script src="js/chat.js"></script>         <!-- chat y geocodificación -->
-<script src="js/undo-redo.js"></script>    <!-- deshacer/rehacer -->
-<script src="js/persistence.js"></script>  <!-- persistencia y compartir -->
-<script src="js/ogc-loader.js"></script>   <!-- cargador OGC -->
-<script src="js/responsive.js"></script>  <!-- responsive / móvil -->
+<script defer src="js/i18n.js"></script>      <!-- i18n: must load first -->
+<script defer src="js/markers.js"></script>      <!-- color y marcadores -->
+<script defer src="js/modal.js"></script>        <!-- diálogo de nombre -->
+<script defer src="js/map-core.js"></script>     <!-- mapa, capas, stats -->
+<script defer src="js/stats.js"></script>      <!-- panel de estadísticas -->
+<script defer src="js/globe.js"></script>        <!-- globo 3D -->
+<script defer src="js/tools.js"></script>        <!-- herramientas de dibujo -->
+<script defer src="js/context-menu.js"></script> <!-- menú contextual -->
+<script defer src="js/import-export.js"></script><!-- importar y exportar -->
+<script defer src="js/chat.js"></script>         <!-- chat y geocodificación -->
+<script defer src="js/undo-redo.js"></script>    <!-- deshacer/rehacer -->
+<script defer src="js/persistence.js"></script>  <!-- persistencia y compartir -->
+<script defer src="js/ogc-loader.js"></script>   <!-- cargador OGC -->
+<script defer src="js/responsive.js"></script>  <!-- responsive / móvil -->
 
 <!-- ═══ Firebase y tracking ═══ -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="js/tracking.js"></script>
-<script src="js/plans.js"></script>
-<script src="js/upsell.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script defer src="js/tracking.js"></script>
+<script defer src="js/plans.js"></script>
+<script defer src="js/upsell.js"></script>
 
 <!-- ═══ Lógica de búsqueda ═══ -->
 <script>

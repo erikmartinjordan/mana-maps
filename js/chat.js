@@ -12,12 +12,18 @@ const MANA_DEFAULTS = {
 
 function manaSettings() {
   try {
-    return Object.assign({}, MANA_DEFAULTS, JSON.parse(localStorage.getItem('mana_ai_settings') || '{}'));
+    const obj = Object.assign({}, MANA_DEFAULTS, JSON.parse(localStorage.getItem('mana_ai_settings') || '{}'));
+    if (obj.apiKey) {
+      try { obj.apiKey = atob(obj.apiKey); } catch(e) { /* already plain text (legacy) */ }
+    }
+    return obj;
   } catch { return { ...MANA_DEFAULTS }; }
 }
 
 function saveSettings(obj) {
-  localStorage.setItem('mana_ai_settings', JSON.stringify(obj));
+  const toStore = Object.assign({}, obj);
+  if (toStore.apiKey) toStore.apiKey = btoa(toStore.apiKey);
+  localStorage.setItem('mana_ai_settings', JSON.stringify(toStore));
 }
 
 function hasAIKey() {
