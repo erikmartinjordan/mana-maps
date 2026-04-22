@@ -329,6 +329,7 @@ const RAIL_W = 44, RAIL_THR = 88;
 
 function initResize(handleId, side) {
   const handle = document.getElementById(handleId);
+  if (!handle) return;
   const app = document.getElementById('app');
   const sidebar = document.getElementById('sidebar');
   let startX, startW;
@@ -342,14 +343,8 @@ function initResize(handleId, side) {
 
     const onMove = e => {
       const dx = e.clientX - startX;
-      if (side === 'left') {
-        const nw = Math.max(RAIL_W, Math.min(320, startW + dx));
-        app.style.setProperty('--left-w', nw + 'px');
-        sidebar.classList.toggle('rail', nw < RAIL_THR);
-      } else {
-        const nw = Math.max(180, Math.min(520, startW - dx));
-        app.style.setProperty('--right-w', nw + 'px');
-      }
+      const nw = Math.max(180, Math.min(520, startW - dx));
+      app.style.setProperty('--right-w', nw + 'px');
       map.invalidateSize();
     };
 
@@ -365,7 +360,6 @@ function initResize(handleId, side) {
   });
 }
 
-initResize('handle-left', 'left');
 initResize('handle-right', 'right');
 
 // ── STATS & LAYER LIST ──
@@ -703,7 +697,6 @@ function focusLayer(i) {
     setTimeout(() => l.openPopup(), 200);
   }
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 // LAYER DRAG & DROP REORDERING

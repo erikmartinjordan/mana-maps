@@ -9,7 +9,9 @@ function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
   stopRuler();
   document.getElementById('draw-hint').style.display = 'none';
-  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
+  var tbRuler = document.getElementById('tb-ruler');
+  if (tbRuler) tbRuler.classList.remove('active');
   activeTool = null;
 }
 
@@ -20,7 +22,10 @@ function setTool(tool) {
   if (activeTool === tool) { stopAll(); return; }
   stopAll();
   activeTool = tool;
-  document.getElementById('btn-' + tool).classList.add('active');
+  var btn = document.getElementById('btn-' + tool);
+  if (btn) btn.classList.add('active');
+  // Also highlight toolbar ruler icon
+  if (tool === 'ruler') { var tbR = document.getElementById('tb-ruler'); if (tbR) tbR.classList.add('active'); }
   const hint = document.getElementById('draw-hint');
   hint.style.display = 'block';
   const shapeOpts = { shapeOptions: { color: drawColor, weight: 2, fillOpacity: .18 } };
@@ -97,7 +102,7 @@ function toggleEdit() {
 function startEdit() {
   stopAll(); // stop drawing tools
   editMode = true;
-  const btn = document.getElementById('btn-edit');
+  var btn = document.getElementById('btn-edit');
   if (btn) btn.classList.add('active');
 
   // Show hint

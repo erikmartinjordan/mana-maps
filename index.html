@@ -148,7 +148,11 @@
     </div>
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
-
+  <div class="topbar-map-name">
+    <input type="text" id="project-name-input" class="map-name-input" placeholder="Mapa sense t&#237;tol" maxlength="40" autocomplete="off"
+      onchange="setProjectName(this.value)"/>
+    <span class="map-name-count" id="map-name-count"></span>
+  </div>
   <!-- P2.6: Place search bar -->
   <div class="search-wrap" id="search-wrap">
     <div class="search-input-wrap">
@@ -211,105 +215,142 @@
 <div id="app">
   <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sidebar-header">
-      <input type="text" id="project-name-input" class="sidebar-project-input" placeholder="Mapa sin título" maxlength="40" autocomplete="off"
-        onchange="setProjectName(this.value)"/>
-      <span class="sidebar-title">Herramientas</span>
-    </div>
-    <div class="sidebar-body">
-
-      <div class="section-label">Dibujar</div>
-
-      <button class="tool-btn" id="btn-point" onclick="setTool('point')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
-        <span class="btn-label">A&#241;adir punto</span>
-      </button>
-      <button class="tool-btn" id="btn-line" onclick="setTool('line')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>
-        <span class="btn-label">Dibujar l&#237;nea</span>
-      </button>
-      <button class="tool-btn" id="btn-polygon" onclick="setTool('polygon')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>
-        <span class="btn-label">Dibujar pol&#237;gono</span>
-      </button>
-      <button class="tool-btn" id="btn-ruler" onclick="setTool('ruler')">
+    <!-- TOOLBAR: icon strip -->
+    <div id="toolbar">
+      <div class="tool-icon active" data-panel="draw" onclick="togglePanel('draw')" title="Dibujar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <div class="tool-icon" data-panel="style" onclick="togglePanel('style')" title="Estilo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+      </div>
+      <div class="tool-icon" data-panel="basemap" onclick="togglePanel('basemap')" title="Mapa base">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      </div>
+      <div class="tool-sep"></div>
+      <div class="tool-icon" data-panel="layers" onclick="togglePanel('layers')" title="Capas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <div class="tool-sep"></div>
+      <div class="tool-icon" id="tb-ruler" onclick="setTool('ruler')" title="Medir distancia">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
-        <span class="btn-label">Medir distancia</span>
-      </button>
-      <!-- P1.2: Edit geometry button -->
-      <button class="tool-btn" id="btn-edit" onclick="toggleEdit()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-        <span class="btn-label">Editar geometr&iacute;a</span>
-      </button>
-
-      <div class="divider"></div>
-      <div class="section-label">Estilo</div>
-      <div class="color-row" id="color-row">
       </div>
-      <div class="marker-row" id="marker-row">
-        <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+      <div class="toolbar-bottom">
+        <div class="tool-icon" data-panel="ogc" onclick="togglePanel('ogc')" title="Servicios OGC">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
-        <div class="marker-opt" data-mtype="circle" title="C&#237;rculo" onclick="setMarkerType('circle',this)">
-          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>
+        <div class="tool-icon" id="mobile-sidebar-toggle-tb" onclick="toggleMobileSidebar()" title="Herramientas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </div>
-        <div class="marker-opt" data-mtype="square" title="Cuadrado" onclick="setMarkerType('square',this)">
-          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
-        </div>
-        <div class="marker-opt" data-mtype="star" title="Estrella" onclick="setMarkerType('star',this)">
-          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-      <div class="section-label">Tipo de mapa</div>
-      <div class="basemap-grid">
-        <button class="basemap-card active" id="bmc-map" onclick="setBaseLayer('map')">
-          <div class="basemap-thumb basemap-thumb-map"></div>
-          <div class="basemap-label">Mapa</div>
-        </button>
-        <button class="basemap-card" id="bmc-sat" onclick="setBaseLayer('satellite')">
-          <div class="basemap-thumb basemap-thumb-sat"></div>
-          <div class="basemap-label">Sat&#233;lite</div>
-        </button>
-        <button class="basemap-card" id="bmc-globe" onclick="setBaseLayer('globe')">
-          <div class="basemap-thumb basemap-thumb-globe"></div>
-          <div class="basemap-label">Globo 3D</div>
-        </button>
-      </div>
-      <div class="divider"></div>
-      <div class="section-label" style="cursor:pointer;user-select:none" onclick="document.getElementById('ogc-section').classList.toggle('collapsed')">
-        Servicios OGC
-        <svg style="width:12px;height:12px;float:right;margin-top:2px;transition:transform .2s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div id="ogc-section">
-        <input type="text" id="ogc-url-input" class="ogc-input" placeholder="Servicio WMS o WFS" autocomplete="off" spellcheck="false"/>
-        <div id="wms-layer-list"></div>
-        <button class="tool-btn ogc-catalog-toggle" onclick="toggleOGCCatalog()">
-          <svg id="ogc-cat-chevron" class="ogc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          <span class="btn-label">Catálogo de servicios</span>
-        </button>
-        <div id="ogc-catalog-list" style="display:none"></div>
-      </div>
-
-      <div class="divider"></div>
-      <div class="section-label">Capas</div>
-      <div id="layer-list">
-        <p class="empty-note">A&#250;n no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>
       </div>
     </div>
-    <div class="sidebar-footer">
 
-      <div class="sidebar-footer-links">
-        <a class="sidebar-footer-link" href="/about">Acerca de</a>
-        <a class="sidebar-footer-link" href="/changelog">Changelog</a>
-        <a class="sidebar-footer-link" href="/open">Estad&iacute;sticas</a>
+    <!-- FLOAT PANEL: contextual -->
+    <div id="float-panel" class="open">
 
+      <!-- ═══ DRAW PANEL ═══ -->
+      <div class="panel-state visible" id="panel-draw">
+        <div class="panel-header"><div class="panel-title">Eines</div></div>
+        <div class="panel-body">
+          <button class="draw-btn" id="btn-point" onclick="setTool('point')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+            Afegir punt
+          </button>
+          <button class="draw-btn" id="btn-line" onclick="setTool('line')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>
+            Dibuixar l&#237;nia
+          </button>
+          <button class="draw-btn" id="btn-polygon" onclick="setTool('polygon')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>
+            Dibuixar pol&#237;gon
+          </button>
+          <button class="draw-btn" id="btn-ruler" onclick="setTool('ruler')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
+            Mesurar dist&#224;ncia
+          </button>
+          <div class="p-sep"></div>
+          <button class="draw-btn" id="btn-edit" onclick="toggleEdit()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar geometria
+          </button>
+        </div>
       </div>
+
+      <!-- ═══ STYLE PANEL ═══ -->
+      <div class="panel-state" id="panel-style">
+        <div class="panel-header"><div class="panel-title">Estil</div></div>
+        <div class="panel-body">
+          <div class="sec-label">Color</div>
+          <div class="color-row swatch-row" id="color-row"></div>
+          <div class="sec-label">Tipus de marcador</div>
+          <div class="marker-row" id="marker-row">
+            <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <div class="marker-opt" data-mtype="circle" title="C&#237;rculo" onclick="setMarkerType('circle',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>
+            </div>
+            <div class="marker-opt" data-mtype="square" title="Cuadrado" onclick="setMarkerType('square',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
+            </div>
+            <div class="marker-opt" data-mtype="star" title="Estrella" onclick="setMarkerType('star',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ BASEMAP PANEL ═══ -->
+      <div class="panel-state" id="panel-basemap">
+        <div class="panel-header"><div class="panel-title">Mapa base</div></div>
+        <div class="panel-body">
+          <div class="basemap-grid">
+            <button class="basemap-card active" id="bmc-map" onclick="setBaseLayer('map')">
+              <div class="basemap-thumb basemap-thumb-map"></div>
+              <div class="basemap-label">Mapa</div>
+            </button>
+            <button class="basemap-card" id="bmc-sat" onclick="setBaseLayer('satellite')">
+              <div class="basemap-thumb basemap-thumb-sat"></div>
+              <div class="basemap-label">Sat&#233;lite</div>
+            </button>
+            <button class="basemap-card" id="bmc-globe" onclick="setBaseLayer('globe')">
+              <div class="basemap-thumb basemap-thumb-globe"></div>
+              <div class="basemap-label">Globo 3D</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ LAYERS PANEL ═══ -->
+      <div class="panel-state" id="panel-layers">
+        <div class="panel-header"><div class="panel-title">Capes</div></div>
+        <div class="panel-body">
+          <div id="layer-list">
+            <p class="empty-note">Encara no hi ha elements.<br>Dibuixa al mapa o usa el xat.</p>
+          </div>
+        </div>
+        <div class="panel-footer">
+          <a class="panel-footer-link" href="/about">Sobre</a>
+          <a class="panel-footer-link" href="/changelog">Changelog</a>
+          <a class="panel-footer-link" href="/open">Estad&#237;stiques</a>
+        </div>
+      </div>
+
+      <!-- ═══ OGC PANEL ═══ -->
+      <div class="panel-state" id="panel-ogc">
+        <div class="panel-header"><div class="panel-title">Serveis OGC</div></div>
+        <div class="panel-body">
+          <input type="text" id="ogc-url-input" class="ogc-input" placeholder="Servei WMS o WFS" autocomplete="off" spellcheck="false"/>
+          <div id="wms-layer-list"></div>
+          <button class="draw-btn ogc-catalog-toggle" onclick="toggleOGCCatalog()">
+            <svg id="ogc-cat-chevron" class="ogc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            Cat&#224;leg de serveis
+          </button>
+          <div id="ogc-catalog-list" style="display:none"></div>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <div class="resize-handle" id="handle-left"></div>
 
   <!-- MAP -->
   <div id="map-wrap">
@@ -681,13 +722,62 @@
     }
   }
 
-  // P3.11: Init project name input
+})();
+</script>
+
+<!-- Panel toggle logic -->
+<script>
+(function() {
+  let activePanel = 'draw';
+
+  window.togglePanel = function(panel) {
+    const fp = document.getElementById('float-panel');
+    const icons = document.querySelectorAll('#toolbar .tool-icon[data-panel]');
+
+    if (activePanel === panel) {
+      // Close panel
+      fp.classList.remove('open');
+      icons.forEach(i => i.classList.remove('active'));
+      activePanel = null;
+      return;
+    }
+
+    // Open/switch panel
+    activePanel = panel;
+    icons.forEach(i => {
+      i.classList.toggle('active', i.dataset.panel === panel);
+    });
+    document.querySelectorAll('.panel-state').forEach(p => {
+      p.classList.toggle('visible', p.id === 'panel-' + panel);
+    });
+    fp.classList.add('open');
+  };
+
+  // Update element count in topbar
+  function updateMapNameCount() {
+    var el = document.getElementById('map-name-count');
+    if (!el) return;
+    var total = 0;
+    if (typeof drawnItems !== 'undefined') {
+      drawnItems.eachLayer(function() { total++; });
+    }
+    el.textContent = total > 0 ? '\u00b7 ' + total + ' element' + (total !== 1 ? 's' : '') : '';
+  }
+
+  // Monkey-patch stats to also update count
+  var _origStats2 = typeof stats === 'function' ? stats : function(){};
+  window.stats = function() {
+    _origStats2();
+    updateMapNameCount();
+  };
+
+  // Init project name
   var projInput = document.getElementById('project-name-input');
   if (projInput && typeof getProjectName === 'function') {
     projInput.value = getProjectName();
   }
+  updateMapNameCount();
 })();
 </script>
-
 </body>
 </html>
