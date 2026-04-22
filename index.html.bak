@@ -360,10 +360,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
             Medir distancia
           </button>
-          <button class="draw-btn" id="btn-select" onclick="setTool('select')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
-            Seleccionar
-          </button>
           <div class="p-sep"></div>
           <button class="draw-btn" id="btn-edit" onclick="toggleEdit()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
@@ -515,9 +511,6 @@
         </div>
       </div>
     </div>
-
-        <!-- ═══ Panel tabla de atributos global ═══ -->
-    <div id="attr-table-panel" class="attr-table-panel"></div>
 
         <!-- ═══ Panel de estadísticas ═══ -->
     <div id="stats-panel" class="stats-panel"></div>

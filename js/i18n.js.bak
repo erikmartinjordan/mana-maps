@@ -103,7 +103,6 @@ const I18N = {
     hint_polygon: "Clic para añadir vértices — cierra haciendo clic en el primer punto",
     hint_ruler: "Clic para fijar puntos — doble clic para terminar y ver resultado",
     hint_edit: 'Arrastra los vértices para editar. Clic en "Editar" de nuevo para terminar.',
-    hint_select: 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)',
     hint_draw_generic: "Haz clic en el mapa para dibujar",
     // ── Context menu ──
     ctx_copy_coords: "Copiar coordenadas",

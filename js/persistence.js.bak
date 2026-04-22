@@ -20,10 +20,6 @@ function saveState() {
       }
       if (l._manaGroupId) f.properties._manaGroupId = l._manaGroupId;
       if (l._manaGroupName) f.properties._manaGroupName = l._manaGroupName;
-      // Persist geometry type for the group
-      if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].geometryType) {
-        f.properties._manaGeometryType = _manaGroupMeta[l._manaGroupId].geometryType;
-      }
     });
     localStorage.setItem('mana-maps-state', JSON.stringify(geo));
     _flashSavePill();
@@ -85,16 +81,10 @@ function _importRestoredGeoJSON(geo) {
     const fc = { type: 'FeatureCollection', features: groups[gn] };
     // Set drawColor from first feature
     const firstColor = groups[gn][0].properties._manaColor || '#0ea5e9';
-    const savedGeomType = groups[gn][0].properties._manaGeometryType || null;
     const savedColor = drawColor;
     drawColor = firstColor;
     loadGeoJSON(fc, gn);
     drawColor = savedColor;
-    // Restore geometryType on the newly created group
-    if (savedGeomType) {
-      const lastGid = _manaGroupCounter;
-      if (_manaGroupMeta[lastGid]) _manaGroupMeta[lastGid].geometryType = savedGeomType;
-    }
   }
 
   // Import ungrouped features — auto-wrap them in a group

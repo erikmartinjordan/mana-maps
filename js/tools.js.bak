@@ -8,7 +8,6 @@ let editMode = false;
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
   stopRuler();
-  if (_selectMode) stopSelect();
   document.getElementById('draw-hint').style.display = 'none';
   document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
   var tbRuler = document.getElementById('tb-ruler');
@@ -19,8 +18,6 @@ function stopAll() {
 function setTool(tool) {
   // Exit edit mode if entering a draw tool
   if (editMode) stopEdit();
-  // Exit select mode if entering another tool
-  if (_selectMode && tool !== 'select') stopSelect();
 
   if (activeTool === tool) { stopAll(); return; }
   stopAll();
@@ -34,8 +31,6 @@ function setTool(tool) {
   const shapeOpts = { shapeOptions: { color: drawColor, weight: 2, fillOpacity: .18 } };
 
   if (tool === 'point') {
-    // Ensure active group is compatible with points
-    getOrCreateActiveGroup('point');
     hint.textContent = t('hint_point');
     map.once('click', async e => {
       stopAll();
@@ -49,23 +44,16 @@ function setTool(tool) {
       addDrawnLayerToGroup(m);
     });
   } else if (tool === 'line') {
-    // Ensure active group is compatible with lines
-    getOrCreateActiveGroup('line');
     hint.textContent = t('hint_line');
     drawHandler = new L.Draw.Polyline(map, shapeOpts);
     drawHandler.enable();
   } else if (tool === 'polygon') {
-    // Ensure active group is compatible with polygons
-    getOrCreateActiveGroup('polygon');
     hint.textContent = t('hint_polygon');
     drawHandler = new L.Draw.Polygon(map, shapeOpts);
     drawHandler.enable();
   } else if (tool === 'ruler') {
     hint.textContent = t('hint_ruler');
     startRuler();
-  } else if (tool === 'select') {
-    hint.textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
-    startSelect();
   }
 }
 
@@ -214,55 +202,3 @@ function formatDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SELECT TOOL
-// ═══════════════════════════════════════════════════════════════
-let _selectMode = false;
-
-function startSelect() {
-  _selectMode = true;
-  map.getContainer().style.cursor = 'default';
-  map.on('click', _selectClick);
-}
-
-function stopSelect() {
-  _selectMode = false;
-  map.getContainer().style.cursor = '';
-  map.off('click', _selectClick);
-  var btn = document.getElementById('btn-select');
-  if (btn) btn.classList.remove('active');
-}
-
-function _selectClick(e) {
-  let bestLayer = null;
-  let bestDist = Infinity;
-
-  drawnItems.eachLayer(l => {
-    if (l instanceof L.Marker) {
-      const pt = map.latLngToContainerPoint(l.getLatLng());
-      const ep = map.latLngToContainerPoint(e.latlng);
-      const d = Math.hypot(pt.x - ep.x, pt.y - ep.y);
-      if (d < 24 && d < bestDist) { bestDist = d; bestLayer = l; }
-    } else if (l instanceof L.Polygon) {
-      if (l.getBounds().contains(e.latlng)) {
-        bestLayer = l; bestDist = 0;
-      } else if (typeof isNearPolyline === 'function' && isNearPolyline(e.latlng, l, 12)) {
-        if (5 < bestDist) { bestLayer = l; bestDist = 5; }
-      }
-    } else if (l instanceof L.Polyline) {
-      if (typeof isNearPolyline === 'function' && isNearPolyline(e.latlng, l, 14)) {
-        if (5 < bestDist) { bestLayer = l; bestDist = 5; }
-      }
-    }
-  });
-
-  if (bestLayer) {
-    const addToSelection = (e.originalEvent && e.originalEvent.shiftKey);
-    if (typeof selectLayerOnMap === 'function') selectLayerOnMap(bestLayer, addToSelection);
-  } else {
-    // Clicked on empty area: clear selection
-    if (!e.originalEvent || !e.originalEvent.shiftKey) {
-      if (typeof clearSelection === 'function') clearSelection();
-    }
-  }
-}
