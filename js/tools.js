@@ -31,10 +31,10 @@ function setTool(tool) {
   const shapeOpts = { shapeOptions: { color: drawColor, weight: 2, fillOpacity: .18 } };
 
   if (tool === 'point') {
-    hint.textContent = 'Haz clic en el mapa para a\u00F1adir un punto';
+    hint.textContent = t('hint_point');
     map.once('click', async e => {
       stopAll();
-      const name = await askName('Nombre del punto', 'Nuevo punto');
+      const name = await askName(t('name_point'), t('default_point_name'));
       if (name === null) return;
       if (typeof pushUndo === 'function') pushUndo();
       const icon = makeMarkerIcon(drawColor, markerType);
@@ -44,15 +44,15 @@ function setTool(tool) {
       addDrawnLayerToGroup(m);
     });
   } else if (tool === 'line') {
-    hint.textContent = 'Clic para a\u00F1adir v\u00E9rtices \u2014 doble clic para terminar';
+    hint.textContent = t('hint_line');
     drawHandler = new L.Draw.Polyline(map, shapeOpts);
     drawHandler.enable();
   } else if (tool === 'polygon') {
-    hint.textContent = 'Clic para a\u00F1adir v\u00E9rtices \u2014 cierra haciendo clic en el primer punto';
+    hint.textContent = t('hint_polygon');
     drawHandler = new L.Draw.Polygon(map, shapeOpts);
     drawHandler.enable();
   } else if (tool === 'ruler') {
-    hint.textContent = 'Clic para fijar puntos \u2014 doble clic para terminar y ver resultado';
+    hint.textContent = t('hint_ruler');
     startRuler();
   }
 }
@@ -62,8 +62,8 @@ map.on(L.Draw.Event.CREATED, async e => {
   const layer = e.layer;
   const isLine = layer instanceof L.Polyline && !(layer instanceof L.Polygon);
   stopAll();
-  const label = isLine ? 'L\u00EDnea' : 'Pol\u00EDgono';
-  const name = await askName('Nombre de la ' + (isLine ? 'l\u00EDnea' : 'forma'), label + ' 1');
+  const label = isLine ? t('draw_line_label') : t('draw_polygon_label');
+  const name = await askName(isLine ? t('draw_name_line') : t('draw_name_polygon'), label + ' 1');
   if (typeof pushUndo === 'function') pushUndo();
   layer._manaName = name || label;
   addDrawnLayerToGroup(layer);
@@ -71,7 +71,7 @@ map.on(L.Draw.Event.CREATED, async e => {
 
 async function clearAll() {
   closeCtx();
-  const ok = await manaConfirm('\u00BFSeguro que quieres borrar todo?');
+  const ok = await manaConfirm(t('modal_clear_confirm'));
   if (ok) {
     if (typeof pushUndo === 'function') pushUndo();
     drawnItems.clearLayers();
@@ -111,7 +111,7 @@ function startEdit() {
 
   // Show hint
   const hint = document.getElementById('draw-hint');
-  hint.textContent = 'Arrastra los v\u00E9rtices para editar. Clic en "Editar" de nuevo para terminar.';
+  hint.textContent = t('hint_edit');
   hint.style.display = 'block';
 
   // Save state before editing
@@ -186,7 +186,7 @@ function rulerFinish(e) {
   if (rulerPoints.length < 2) { stopRuler(); stopAll(); return; }
   L.popup({ closeButton: true })
     .setLatLng(rulerPoints[Math.floor(rulerPoints.length / 2)])
-    .setContent('<strong>Distancia total</strong><br>' + formatDist(getTotalDist(rulerPoints)))
+    .setContent('<strong>' + t('ruler_total') + '</strong><br>' + formatDist(getTotalDist(rulerPoints)))
     .openOn(map);
   stopRuler();
   stopAll();

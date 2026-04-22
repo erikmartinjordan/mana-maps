@@ -41,12 +41,12 @@ function updateProIndicator() {
   if (!el) return;
   var hasKey = typeof hasAIKey === 'function' && hasAIKey();
   if (hasKey) {
-    el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> IA configurada';
+    el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ' + t('ai_configured').replace('✓ ', '');
     el.className = 'pro-indicator configured';
     el.onclick = null;
     el.style.cursor = 'default';
   } else {
-    el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Activa la IA Pro \u2192';
+    el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> ' + t('footer_pro');
     el.className = 'pro-indicator not-configured';
     el.onclick = showUpsell;
     el.style.cursor = 'pointer';

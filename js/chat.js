@@ -30,7 +30,7 @@ function hasAIKey() {
 async function geocode(q) {
   const r = await fetch(
     'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q),
-    { headers: { 'Accept-Language': 'es', 'User-Agent': 'ManaMaps/1.0' } }
+    { headers: { 'Accept-Language': t('nominatim_lang'), 'User-Agent': 'ManaMaps/1.0' } }
   );
   return r.json();
 }
@@ -38,7 +38,7 @@ async function geocode(q) {
 async function reverseGeocode(lat, lng) {
   const r = await fetch(
     'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng,
-    { headers: { 'Accept-Language': 'es', 'User-Agent': 'ManaMaps/1.0' } }
+    { headers: { 'Accept-Language': t('nominatim_lang'), 'User-Agent': 'ManaMaps/1.0' } }
   );
   return r.json();
 }
@@ -47,7 +47,7 @@ async function searchPlaces(q, limit) {
   limit = limit || 5;
   const r = await fetch(
     'https://nominatim.openstreetmap.org/search?format=json&limit=' + limit + '&q=' + encodeURIComponent(q),
-    { headers: { 'Accept-Language': 'es', 'User-Agent': 'ManaMaps/1.0' } }
+    { headers: { 'Accept-Language': t('nominatim_lang'), 'User-Agent': 'ManaMaps/1.0' } }
   );
   return r.json();
 }
@@ -76,7 +76,7 @@ function resolveColor(name) {
 const toolActions = {
   async add_point({ place, color, name }) {
     const res = await geocode(place);
-    if (!res.length) return { ok: false, msg: 'No encontré «' + place + '».' };
+    if (!res.length) return { ok: false, msg: t('ai_not_found', {place: place}) };
     const ll = [+res[0].lat, +res[0].lon];
     const c = resolveColor(color);
     const icon = makeMarkerIcon(c, markerType);
@@ -86,24 +86,24 @@ const toolActions = {
     m.bindPopup('<strong>' + label + '</strong>');
     addDrawnLayerToGroup(m);
     map.setView(ll, 13);
-    return { ok: true, msg: 'Punto añadido en **' + label + '** ✓', coords: ll };
+    return { ok: true, msg: t('ai_point_added', {label: label}), coords: ll };
   },
 
   async draw_line({ from, to, color }) {
     const [r1, r2] = await Promise.all([geocode(from), geocode(to)]);
-    if (!r1.length || !r2.length) return { ok: false, msg: 'No pude encontrar uno de los lugares.' };
+    if (!r1.length || !r2.length) return { ok: false, msg: t('ai_place_not_found') };
     const ll1 = [+r1[0].lat, +r1[0].lon], ll2 = [+r2[0].lat, +r2[0].lon];
     const c = resolveColor(color);
     const line = L.polyline([ll1, ll2], { color: c, weight: 3 });
     line._manaName = from + ' → ' + to;
     addDrawnLayerToGroup(line);
     map.fitBounds(line.getBounds(), { padding: [40, 40] });
-    return { ok: true, msg: 'Línea de **' + from + '** a **' + to + '** ✓' };
+    return { ok: true, msg: t('ai_line_drawn', {from: from, to: to}) };
   },
 
   async draw_polygon({ place, color, radius_km }) {
     const res = await geocode(place);
-    if (!res.length) return { ok: false, msg: 'No encontré «' + place + '».' };
+    if (!res.length) return { ok: false, msg: t('ai_not_found', {place: place}) };
     const lat = +res[0].lat, lng = +res[0].lon;
     const r = (radius_km || 5) * 1000;
     const c = resolveColor(color);
@@ -111,52 +111,52 @@ const toolActions = {
     circle._manaName = place + ' (' + (radius_km || 5) + ' km)';
     addDrawnLayerToGroup(circle);
     map.fitBounds(circle.getBounds());
-    return { ok: true, msg: 'Área de ' + (radius_km || 5) + ' km alrededor de **' + place + '** ✓' };
+    return { ok: true, msg: t('ai_area_drawn', {radius: (radius_km || 5), place: place}) };
   },
 
   async center_map({ place, zoom }) {
     const res = await geocode(place);
-    if (!res.length) return { ok: false, msg: 'No encontré ese lugar.' };
+    if (!res.length) return { ok: false, msg: t('ai_not_found', {place: place}) };
     map.setView([+res[0].lat, +res[0].lon], zoom || 12);
-    return { ok: true, msg: 'Centrado en **' + place + '** ✓' };
+    return { ok: true, msg: t('ai_centered', {place: place}) };
   },
 
   async search_places({ query, limit }) {
     const res = await searchPlaces(query, limit || 5);
-    if (!res.length) return { ok: false, msg: 'Sin resultados para «' + query + '».' };
+    if (!res.length) return { ok: false, msg: t('ai_no_results', {query: query}) };
     const items = res.map((r, i) => (i + 1) + '. ' + r.display_name.substring(0, 80));
     return { ok: true, msg: 'Resultados:\n' + items.join('\n'), results: res };
   },
 
   async get_location_info({ place }) {
     const res = await geocode(place);
-    if (!res.length) return { ok: false, msg: 'No encontré ese lugar.' };
+    if (!res.length) return { ok: false, msg: t('ai_not_found', {place: place}) };
     const r = res[0];
     return { ok: true, msg: '**' + r.display_name + '**\nLat: ' + (+r.lat).toFixed(5) + ', Lng: ' + (+r.lon).toFixed(5) + '\nTipo: ' + (r.type || r.class || '-') };
   },
 
   set_baselayer({ type }) {
     const t = type.toLowerCase();
-    if (t.includes('sat')) { setBaseLayer('satellite'); return { ok: true, msg: 'Vista satélite ✓' }; }
-    if (t.includes('glob') || t.includes('3d')) { setBaseLayer('globe'); return { ok: true, msg: 'Globo 3D ✓ — arrastra para rotar' }; }
-    setBaseLayer('map'); return { ok: true, msg: 'Vista de mapa ✓' };
+    if (t.includes('sat')) { setBaseLayer('satellite'); return { ok: true, msg: window.t('ai_view_satellite') }; }
+    if (t.includes('glob') || t.includes('3d')) { setBaseLayer('globe'); return { ok: true, msg: window.t('ai_view_globe') }; }
+    setBaseLayer('map'); return { ok: true, msg: window.t('ai_view_map') };
   },
 
   clear_map() {
     drawnItems.clearLayers(); stats();
-    return { ok: true, msg: 'Mapa limpiado ✓' };
+    return { ok: true, msg: window.t('ai_map_cleared') };
   },
 
   zoom({ direction, level }) {
     if (level) map.setZoom(level);
     else if (direction === 'in') map.zoomIn(2);
     else map.zoomOut(2);
-    return { ok: true, msg: 'Zoom ' + (direction || 'nivel ' + level) + ' ✓' };
+    return { ok: true, msg: window.t('ai_zoom') + ' ' + (direction || window.t('ai_zoom_level') + ' ' + level) + ' ✓' };
   },
 
   measure_distance() {
     setTool('ruler');
-    return { ok: true, msg: 'Herramienta de medición activada — clic para medir, doble clic para terminar.' };
+    return { ok: true, msg: window.t('ai_ruler_activated') };
   },
 
   set_draw_tool({ tool }) {
@@ -165,7 +165,7 @@ const toolActions = {
     else if (t.includes('lín') || t.includes('line')) setTool('line');
     else if (t.includes('polí') || t.includes('polygon')) setTool('polygon');
     else if (t.includes('regla') || t.includes('ruler') || t.includes('medir')) setTool('ruler');
-    return { ok: true, msg: 'Herramienta de ' + tool + ' activada ✓' };
+    return { ok: true, msg: window.t('ai_tool_activated', {tool: tool}) };
   },
 
   set_color({ color }) {
@@ -174,7 +174,7 @@ const toolActions = {
     document.querySelectorAll('.color-swatch').forEach(s => {
       s.classList.toggle('active', s.dataset.color === c);
     });
-    return { ok: true, msg: 'Color cambiado a <span style="color:' + c + ';font-weight:700">' + color + '</span> ✓' };
+    return { ok: true, msg: window.t('ai_color_changed') + ' <span style="color:' + c + ';font-weight:700">' + color + '</span> ✓' };
   },
 
   set_marker_type({ type }) {
@@ -184,7 +184,7 @@ const toolActions = {
     else if (t.includes('cuad') || t.includes('square')) mt = 'square';
     else if (t.includes('estre') || t.includes('star')) mt = 'star';
     setMarkerType(mt, document.querySelector('.marker-opt[data-mtype="' + mt + '"]'));
-    return { ok: true, msg: 'Marcador cambiado a ' + mt + ' ✓' };
+    return { ok: true, msg: window.t('ai_marker_changed') + ' ' + mt + ' ✓' };
   },
 
   get_map_info() {
@@ -197,18 +197,18 @@ const toolActions = {
     const c = map.getCenter();
     return {
       ok: true,
-      msg: '**Estado del mapa:**\n' +
-        '• Centro: ' + c.lat.toFixed(4) + ', ' + c.lng.toFixed(4) + '\n' +
-        '• Zoom: ' + map.getZoom() + '\n' +
-        '• Puntos: ' + pts + ' | Líneas: ' + lns + ' | Polígonos: ' + pols + '\n' +
-        '• Capa base: ' + activeBase
+      msg: window.t('ai_map_status') + '\n' +
+        '• ' + window.t('ai_center_label') + ': ' + c.lat.toFixed(4) + ', ' + c.lng.toFixed(4) + '\n' +
+        '• ' + window.t('ai_zoom_label') + ': ' + map.getZoom() + '\n' +
+        '• ' + window.t('ai_points_label') + ': ' + pts + ' | ' + window.t('ai_lines_label') + ': ' + lns + ' | ' + window.t('ai_polygons_label') + ': ' + pols + '\n' +
+        '• ' + window.t('ai_basemap_label') + ': ' + activeBase
     };
   },
 
   export_map({ format }) {
     const fmt = (format || 'geojson').toLowerCase();
     exportAs(fmt.includes('csv') ? 'csv' : fmt.includes('kml') ? 'kml' : fmt.includes('shp') ? 'shapefile' : 'geojson');
-    return { ok: true, msg: 'Exportando como ' + fmt + '… ✓' };
+    return { ok: true, msg: window.t('ai_exporting') + ' ' + fmt + '… ✓' };
   },
 
   async add_multiple_points({ places, color }) {
@@ -227,13 +227,13 @@ const toolActions = {
       }
     }
     map.fitBounds(drawnItems.getBounds(), { padding: [30, 30], maxZoom: 12 }); stats();
-    return { ok: true, msg: added + ' de ' + places.length + ' puntos añadidos ✓' };
+    return { ok: true, msg: added + ' ' + window.t('ai_points_added', {total: places.length}) };
   },
 
   async draw_route({ from, to, color }) {
     // Use OSRM for routing
     const [r1, r2] = await Promise.all([geocode(from), geocode(to)]);
-    if (!r1.length || !r2.length) return { ok: false, msg: 'No pude encontrar uno de los lugares.' };
+    if (!r1.length || !r2.length) return { ok: false, msg: window.t('ai_place_not_found') };
     const c1 = r1[0], c2 = r2[0];
     try {
       const url = 'https://router.project-osrm.org/route/v1/driving/' +
@@ -249,7 +249,7 @@ const toolActions = {
         const dist = (data.routes[0].distance / 1000).toFixed(1);
         const dur = Math.round(data.routes[0].duration / 60);
         map.fitBounds(line.getBounds(), { padding: [40, 40] }); stats();
-        return { ok: true, msg: 'Ruta de **' + from + '** a **' + to + '**\n📏 ' + dist + ' km · ⏱ ' + dur + ' min ✓' };
+        return { ok: true, msg: window.t('ai_route_drawn', {from: from, to: to}) + '\n📏 ' + dist + ' km · ⏱ ' + dur + ' min ✓' };
       }
     } catch (e) {}
     // Fallback to straight line
@@ -257,8 +257,7 @@ const toolActions = {
   },
 
   help() {
-    return { ok: true, msg:
-      '**Comandos disponibles:**\n\n' +
+    return { ok: true, msg: window.t('ai_help')\n\n' +
       '📍 *"añade un punto en Barcelona"*\n' +
       '📍 *"marca Madrid, Sevilla y Valencia"*\n' +
       '🔵 *"color rojo"* / *"color #ff6600"*\n' +
@@ -300,23 +299,7 @@ const AI_TOOLS = [
   { type:'function', function:{ name:'add_multiple_points', description:'Añade varios puntos a la vez', parameters:{ type:'object', properties:{ places:{type:'array',items:{type:'string'},description:'Lista de lugares'}, color:{type:'string'}}, required:['places']}}},
 ];
 
-const SYSTEM_PROMPT = `Eres Maña AI, el asistente inteligente de Maña Maps — una aplicación web de mapas interactivos.
-
-Tu rol es ayudar al usuario a interactuar con el mapa usando lenguaje natural. Puedes:
-- Añadir puntos, líneas, rutas y áreas en el mapa
-- Buscar lugares y obtener información geográfica
-- Cambiar el estilo del mapa (satélite, globo 3D, colores, marcadores)
-- Medir distancias, exportar datos, y más
-
-Reglas:
-- Responde SIEMPRE en español
-- Sé conciso y útil
-- Usa las funciones disponibles para ejecutar acciones en el mapa
-- Si el usuario pide algo que no puedes hacer con las funciones, explícalo amablemente
-- Puedes encadenar varias funciones si es necesario (ej: cambiar color + añadir punto)
-- Cuando el usuario mencione colores, usa los nombres: azul, rojo, verde, amarillo, rosa, púrpura, naranja, negro, gris
-- Para rutas entre ciudades usa draw_route (incluye distancia y tiempo)
-- Para líneas rectas simples usa draw_line`;
+const SYSTEM_PROMPT = t('ai_system_prompt');
 
 // ═══════════════════════════════════════════════════════════════
 // CHAT HISTORY
@@ -463,7 +446,7 @@ async function processRegex(cmd) {
 
   return {
     ok: false,
-    msg: 'No entendí ese comando. Escribe **ayuda** para ver los comandos disponibles, o configura una clave API para chat con IA.'
+    msg: window.t('ai_not_understood')
   };
 }
 
@@ -475,7 +458,7 @@ async function processAI(userText) {
 
   // P1.3: Update system prompt with current map state
   const mapContext = typeof getCurrentGeoJSON === 'function' ? JSON.stringify(getCurrentGeoJSON()) : '{}';
-  const dynamicSystem = SYSTEM_PROMPT + '\n\nEl mapa actual contiene: ' + mapContext + '. Pots fer refer\u00E8ncia a elements existents.';
+  const dynamicSystem = SYSTEM_PROMPT + '\n\n' + window.t('ai_map_context') + mapContext + '. Pots fer refer\u00E8ncia a elements existents.';
   chatHistory[0] = { role: 'system', content: dynamicSystem };
 
   chatHistory.push({ role: 'user', content: userText });
@@ -502,7 +485,7 @@ async function processAI(userText) {
         if (toolActions[fn]) {
           result = await toolActions[fn](args);
         } else {
-          result = { ok: false, msg: 'Función no reconocida: ' + fn };
+          result = { ok: false, msg: window.t('ai_func_unknown') + fn };
         }
         chatHistory.push({
           role: 'tool',
@@ -515,7 +498,7 @@ async function processAI(userText) {
       msg = response.choices[0].message;
     }
 
-    const reply = msg.content || 'Hecho ✓';
+    const reply = msg.content || window.t('ai_done');
     chatHistory.push({ role: 'assistant', content: reply });
     return { ok: true, msg: reply };
 
@@ -525,7 +508,7 @@ async function processAI(userText) {
     chatHistory.pop(); // remove failed user message
     const fallback = await processRegex(userText);
     const errDetail = err.message || String(err);
-    fallback.msg = '⚠️ ' + errDetail + '\n\nUsando modo local:\n' + fallback.msg;
+    fallback.msg = '⚠️ ' + errDetail + '\n\n' + window.t('ai_fallback_msg') + '\n' + fallback.msg;
     return fallback;
   }
 }
@@ -813,7 +796,7 @@ function saveAISettings() {
   closeAISettings();
   updateAIBadge();
   if (apiKey) {
-    addMsg('✓ IA configurada con **' + provider + '** / ' + model + '. Ya puedes escribir en lenguaje natural.', false);
+    addMsg(t('ai_configured') + ' **' + provider + '** / ' + model + '. ' + t('ai_configured_suffix'), false);
   }
   // Update pro indicator
   if (typeof updateProIndicator === 'function') updateProIndicator();

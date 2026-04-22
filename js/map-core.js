@@ -25,7 +25,7 @@ let _manaLayerNameCounter = 0;
 function createNewLayer(name) {
   const gid = ++_manaGroupCounter;
   _manaLayerNameCounter++;
-  const layerName = name || ('Capa ' + _manaLayerNameCounter);
+  const layerName = name || (t('layer_default_name') + ' ' + _manaLayerNameCounter);
   registerGroupMeta(gid, layerName, drawColor);
   _activeGroupId = gid;
   _syncGroupOrder();
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sidebar.style.width = '0px';
       sidebar.style.overflow = 'hidden';
       handle.classList.add('handle-collapsed');
-      handle.title = 'Doble clic para expandir';
+      handle.title = t('dblclick_expand');
     }
 
     // ── Drag ──
@@ -666,7 +666,7 @@ function renderLayers() {
   }
 
   if (!layers.length && !totalHidden && !Object.keys(_manaGroupMeta).length) {
-    list.innerHTML = '<p class="empty-note">A\u00FAn no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>';
+    list.innerHTML = '<p class="empty-note">' + t('layer_empty').replace('\n','<br>') + '</p>';
     return;
   }
 
@@ -701,7 +701,7 @@ function renderLayers() {
 
   // "New layer" button at top
   html += '<button class="new-layer-btn" onclick="createNewLayer()">';
-  html += ICON.plus + ' Nueva capa</button>';
+  html += ICON.plus + ' ' + t('layer_new') + '</button>';
 
   // Render grouped layers
   groupOrder.forEach(gid => {
@@ -722,7 +722,7 @@ function renderLayers() {
     });
     const typeParts = [];
     if (pts) typeParts.push(pts + ' pt' + (pts > 1 ? 's' : ''));
-    if (lns) typeParts.push(lns + ' l\u00EDn' + (lns > 1 ? 's' : ''));
+    if (lns) typeParts.push(lns + ' ' + t('draw_line_label').toLowerCase() + (lns > 1 ? 's' : ''));
     if (pols) typeParts.push(pols + ' pol' + (pols > 1 ? 's' : ''));
 
     const filterBadge = g.hasFilter
@@ -734,7 +734,7 @@ function renderLayers() {
 
     // ── Header: click sets active, chevron toggles expand
     html += '<div class="layer-group-header" onclick="setActiveGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
-    html += '  <span class="layer-drag-handle" title="Arrastra para reordenar">&#8942;&#8942;</span>';
+    html += '  <span class="layer-drag-handle" title="' + t('layer_drag_hint') + '">&#8942;&#8942;</span>';
     html += '  <div class="layer-dot" style="background:' + g.color + '"></div>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
     html += '  ' + filterBadge;
@@ -742,7 +742,7 @@ function renderLayers() {
     html += '  <span class="' + chevronCls + '" onclick="event.stopPropagation();toggleLayerGroup(' + gid + ')">' + ICON.chevron + '</span>';
     html += '</div>';
     if (isActive) {
-      html += '<div class="active-layer-indicator">&#9654; Capa activa &mdash; dibuja para a\u00F1adir elementos</div>';
+      html += '<div class="active-layer-indicator">' + t('layer_active') + '</div>';
     }
     html += '<div class="layer-group-meta">' + typeParts.join(' \u00B7 ') + '</div>';
 
@@ -752,11 +752,11 @@ function renderLayers() {
       g.visibleLayers.forEach(({ layer, index }, fi) => {
         let kind, name;
         if (layer instanceof L.Marker) {
-          kind = 'Punto'; name = layer._manaName || ('Punto ' + (fi + 1));
+          kind = t('geom_point'); name = layer._manaName || (t('geom_point') + ' ' + (fi + 1));
         } else if (layer instanceof L.Polygon) {
-          kind = 'Pol\u00EDgono'; name = layer._manaName || ('Pol\u00EDgono ' + (fi + 1));
+          kind = t('geom_polygon'); name = layer._manaName || (t('geom_polygon') + ' ' + (fi + 1));
         } else {
-          kind = 'L\u00EDnea'; name = layer._manaName || ('L\u00EDnea ' + (fi + 1));
+          kind = t('geom_line'); name = layer._manaName || (t('geom_line') + ' ' + (fi + 1));
         }
         html += '<div class="layer-item layer-child" onclick="focusLayer(' + index + ')" oncontextmenu="showLayerCtx(event,\'layer\',' + index + ')">';
         html += '  <span class="layer-name">' + esc(name) + '</span>';
@@ -764,7 +764,7 @@ function renderLayers() {
         html += '</div>';
       });
       if (g.hasFilter && g.visibleCount < g.totalCount) {
-        html += '<div class="filter-hidden-note">' + (g.totalCount - g.visibleCount) + ' elementos ocultos por filtro</div>';
+        html += '<div class="filter-hidden-note">' + (g.totalCount - g.visibleCount) + ' ' + t('filter_hidden') + '</div>';
       }
       html += '</div>';
     }
@@ -776,10 +776,10 @@ function renderLayers() {
 
     // ── Actions row
     html += '<div class="layer-group-actions">';
-    html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="Estilo y categorizaci\u00F3n">' + ICON.palette + '</button>';
-    html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="Filtrar atributos">' + ICON.filter + '</button>';
-    html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="Zoom a la capa">' + ICON.search + '</button>';
-    html += '  <button class="layer-group-action-btn danger" onclick="deleteGroup(' + gid + ')" title="Eliminar capa">' + ICON.trash + '</button>';
+    html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('panel_style_title') + '">' + ICON.palette + '</button>';
+    html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="' + t('filter_title') + '">' + ICON.filter + '</button>';
+    html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="' + t('lctx_zoom') + '">' + ICON.search + '</button>';
+    html += '  <button class="layer-group-action-btn danger" onclick="deleteGroup(' + gid + ')" title="' + t('lctx_delete') + '">' + ICON.trash + '</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -794,15 +794,15 @@ function renderLayers() {
 function renderFilterPanel(gid, meta) {
   const attrKeys = Object.keys(meta.attrs);
   if (!attrKeys.length) {
-    return '<div class="filter-panel"><div class="filter-empty">Esta capa no tiene atributos</div></div>';
+    return '<div class="filter-panel"><div class="filter-empty">' + t('filter_no_attrs') + '</div></div>';
   }
 
   const rules = meta.filter;
   let html = '<div class="filter-panel">';
-  html += '<div class="filter-title">' + ICON.filter + ' Filtrar por atributos</div>';
+  html += '<div class="filter-title">' + ICON.filter + ' ' + t('filter_title') + '</div>';
 
   if (!rules.length) {
-    html += '<div class="filter-empty">Sin filtros activos. Pulsa <strong>+</strong> para a\u00F1adir.</div>';
+    html += '<div class="filter-empty">' + t('filter_empty') + '</div>';
   }
 
   rules.forEach((rule, idx) => {
@@ -823,7 +823,7 @@ function renderFilterPanel(gid, meta) {
     const ops = [
       ['=', '='], ['!=', '\u2260'],
       ['>', '>'], ['<', '<'], ['>=', '\u2265'], ['<=', '\u2264'],
-      ['contains', 'contiene'], ['starts', 'empieza']
+      ['contains', t('filter_contains')], ['starts', t('filter_starts')]
     ];
     ops.forEach(([val, label]) => {
       html += '<option value="' + val + '"' + (val === rule.op ? ' selected' : '') + '>' + label + '</option>';
@@ -832,7 +832,7 @@ function renderFilterPanel(gid, meta) {
 
     // Value input with datalist
     const dlId = 'dl_' + gid + '_' + idx;
-    html += '<input class="filter-value" type="text" placeholder="Valor..." value="' + esc(rule.value) + '"';
+    html += '<input class="filter-value" type="text" placeholder="' + t('filter_value_placeholder') + '" value="' + esc(rule.value) + '"';
     html += ' list="' + dlId + '"';
     html += ' oninput="updateFilterRule(' + gid + ',' + idx + ',\'value\',this.value)"';
     html += '/>';
@@ -843,16 +843,16 @@ function renderFilterPanel(gid, meta) {
     html += '</datalist>';
 
     // Remove rule button
-    html += '<button class="filter-rule-remove" onclick="removeFilterRule(' + gid + ',' + idx + ')" title="Eliminar regla">' + ICON.x + '</button>';
+    html += '<button class="filter-rule-remove" onclick="removeFilterRule(' + gid + ',' + idx + ')" title="' + t('filter_remove_rule') + '">' + ICON.x + '</button>';
     html += '</div>';
   });
 
   // Action buttons
   html += '<div class="filter-actions">';
-  html += '<button class="filter-btn filter-btn-add" onclick="addFilterRule(' + gid + ')" title="A\u00F1adir regla">' + ICON.plus + ' Regla</button>';
+  html += '<button class="filter-btn filter-btn-add" onclick="addFilterRule(' + gid + ')" title="' + t('filter_add_rule') + '">' + ICON.plus + ' ' + t('filter_add_rule') + '</button>';
   if (rules.length) {
-    html += '<button class="filter-btn filter-btn-apply" onclick="execFilter(' + gid + ')">Aplicar</button>';
-    html += '<button class="filter-btn filter-btn-clear" onclick="clearGroupFilter(' + gid + ')">Limpiar</button>';
+    html += '<button class="filter-btn filter-btn-apply" onclick="execFilter(' + gid + ')">' + t('filter_apply') + '</button>';
+    html += '<button class="filter-btn filter-btn-clear" onclick="clearGroupFilter(' + gid + ')">' + t('filter_clear') + '</button>';
   }
   html += '</div>';
 
@@ -887,7 +887,7 @@ function focusGroup(gid) {
 }
 
 async function deleteGroup(gid) {
-  const ok = await manaConfirm('\u00BFEliminar toda la capa y sus elementos?');
+  const ok = await manaConfirm(t('modal_delete_group'));
   if (!ok) return;
   const meta = _manaGroupMeta[gid];
   if (meta) {

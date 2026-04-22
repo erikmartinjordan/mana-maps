@@ -160,7 +160,7 @@ function refreshStatsPanel() {
 
     // Resumen
     '<div class="stats-section">' +
-    '  <div class="stats-section-label">Resumen</div>' +
+    '  <div class="stats-section-label">' + (LANG==='en'?'Summary':'Resumen') + '</div>' +
     '  <div class="stats-grid">' +
     '    <div class="stats-card">' +
     '      <span class="stats-card-val">' + s.total + '</span>' +
@@ -168,7 +168,7 @@ function refreshStatsPanel() {
     '    </div>' +
     '    <div class="stats-card" style="--accent: var(--blue);">' +
     '      <span class="stats-card-val">' + s.points + '</span>' +
-    '      <span class="stats-card-label">Puntos</span>' +
+    '      <span class="stats-card-label">' + t('stat_points') + '</span>' +
     '    </div>' +
     '    <div class="stats-card" style="--accent: var(--green);">' +
     '      <span class="stats-card-val">' + s.lines + '</span>' +
@@ -184,16 +184,16 @@ function refreshStatsPanel() {
     // Geometría
     '<div class="stats-section">' +
     '  <div class="stats-section-label">Geometr\u00eda</div>' +
-    '  <div class="stats-row"><span>Longitud total</span><strong>' + lengthKm + ' km</strong></div>' +
+    '  <div class="stats-row"><span>' + (LANG==='en'?'Total length':'Longitud total') + '</span><strong>' + lengthKm + ' km</strong></div>' +
     '  <div class="stats-row"><span>\u00c1rea total</span><strong>' + areaKm2 + ' km\u00b2 (' + areaHa + ' ha)</strong></div>' +
     '  <div class="stats-row"><span>Extensi\u00f3n</span><span class="stats-mono">' + boundsStr + '</span></div>' +
     '</div>' +
 
     // Capas y WMS
     '<div class="stats-section">' +
-    '  <div class="stats-section-label">Capas</div>' +
+    '  <div class="stats-section-label">' + t('panel_layers_title') + '</div>' +
     '  <div class="stats-row"><span>Grupos de datos</span><strong>' + s.groupCount + '</strong></div>' +
-    '  <div class="stats-row"><span>Capas WMS activas</span><strong>' + s.wmsCount + '</strong></div>' +
+    '  <div class="stats-row"><span>' + (LANG==='en'?'Active WMS layers':'Capas WMS activas') + '</span><strong>' + s.wmsCount + '</strong></div>' +
     '</div>';
 
   // Atributos (top 5 campos)

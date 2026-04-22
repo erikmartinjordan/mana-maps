@@ -256,7 +256,7 @@ document.addEventListener('keydown', e => {
 function ctxCopyCoords() {
   const text = document.getElementById('ctx-coords').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    showToast('\uD83D\uDCCB Coordenadas copiadas');
+    showToast(t('toast_coords_copied'));
   }).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -264,7 +264,7 @@ function ctxCopyCoords() {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showToast('\uD83D\uDCCB Coordenadas copiadas');
+    showToast(t('toast_coords_copied'));
   });
   closeCtx();
 }
@@ -272,7 +272,7 @@ function ctxCopyCoords() {
 async function ctxAddPoint() {
   if (!ctxLatLng) return;
   closeCtx();
-  const name = await askName('Nombre del punto', 'Nuevo punto');
+  const name = await askName(t('name_point'), t('default_point_name'));
   if (name === null) return;
   const icon = makeMarkerIcon(drawColor, markerType);
   const m = L.marker(ctxLatLng, { icon }).addTo(drawnItems);
@@ -313,7 +313,7 @@ function ctxSetColor(color) {
   } else {
     ctxTargetLayer.setStyle({ color: color });
   }
-  stats(); showToast('Color aplicado');
+  stats(); showToast(t('toast_color_applied'));
   if (typeof saveState === 'function') saveState();
 }
 
@@ -324,7 +324,7 @@ function ctxSetWeight(w) {
   document.querySelectorAll('#ctx-menu .ctx-weight-btn').forEach(b => {
     b.classList.toggle('active', b.textContent.trim() === String(w));
   });
-  showToast('Grosor: ' + w + 'px');
+  showToast(t('ctx_weight') + ': ' + w + 'px');
   if (typeof saveState === 'function') saveState();
 }
 
@@ -344,14 +344,14 @@ async function ctxRename() {
   if (!ctxTargetLayer) return;
   closeCtx();
   if (typeof pushUndo === 'function') pushUndo();
-  const oldName = ctxTargetLayer._manaName || 'Elemento';
-  const name = await askName('Renombrar elemento', oldName);
+  const oldName = ctxTargetLayer._manaName || t('geom_element');
+  const name = await askName(t('rename_element'), oldName);
   if (name === null) return;
   ctxTargetLayer._manaName = name;
   if (ctxTargetLayer.getPopup()) {
     ctxTargetLayer.setPopupContent('<strong>' + name + '</strong>');
   }
-  stats(); showToast('Renombrado');
+  stats(); showToast(t('toast_renamed'));
   if (typeof saveState === 'function') saveState();
 }
 
@@ -384,7 +384,7 @@ function ctxStyleGroup() {
   });
   meta.color = color;
   closeCtx(); stats();
-  showToast('Estilo aplicado a toda la capa');
+  showToast(t('toast_style_applied'));
   if (typeof saveState === 'function') saveState();
 }
 
@@ -425,7 +425,7 @@ function ctxCategorizeBy(field) {
   });
 
   closeCtx(); stats();
-  showToast('Categorizado por ' + field + ' (' + uniqueVals.length + ' valores)');
+  showToast(t('toast_categorized') + ' ' + field + ' (' + uniqueVals.length + ' ' + t('toast_categorized_values') + ')');
   if (typeof saveState === 'function') saveState();
 }
 

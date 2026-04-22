@@ -59,7 +59,7 @@ async function processFile(file) {
     } else if (name.endsWith('.kmz')) {
       const zip = await JSZip.loadAsync(await file.arrayBuffer());
       const kmlFile = Object.keys(zip.files).find(n => n.endsWith('.kml'));
-      if (!kmlFile) throw new Error('No se encontr\u00F3 un .kml dentro del KMZ');
+      if (!kmlFile) throw new Error(t('import_no_kml'));
       loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(
         await zip.files[kmlFile].async('string'), 'text/xml'
       )), layerName);
@@ -70,7 +70,7 @@ async function processFile(file) {
         const zip = await JSZip.loadAsync(buf);
         const geoFile = Object.keys(zip.files).find(n => n.endsWith('.geojson') || n.endsWith('.json'));
         if (geoFile) { geo = JSON.parse(await zip.files[geoFile].async('string')); }
-        else throw new Error('No se pudo leer el Shapefile. Aseg\u00FArate de que el .zip contiene .shp, .dbf y .prj.');
+        else throw new Error(t('import_shapefile_error'));
       }
       // For shapefiles: use the shapefile's internal name if available, else the zip filename
       if (Array.isArray(geo)) {
@@ -82,15 +82,15 @@ async function processFile(file) {
         loadGeoJSON(geo, layerName);
       }
     } else {
-      manaAlert('Formato no soportado.', 'warning');
+      manaAlert(t('import_format_error'), 'warning');
     }
-  } catch (err) { manaAlert('Error al importar: ' + err.message, 'error'); }
+  } catch (err) { manaAlert(t('import_error') + err.message, 'error'); }
 }
 
 // ── Build attribute popup HTML ──
 function buildAttrPopup(properties, geomType) {
   if (!properties || Object.keys(properties).length === 0) {
-    return '<div class="attr-popup"><p class="attr-empty">Sin atributos</p></div>';
+    return '<div class="attr-popup"><p class="attr-empty">' + t('attr_no_attrs') + '</p></div>';
   }
   let html = '<div class="attr-popup"><table class="attr-table">';
   for (const [key, val] of Object.entries(properties)) {
@@ -110,18 +110,18 @@ function buildAttrPopup(properties, geomType) {
 function loadGeoJSON(geo, groupName) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
-  if (!geo.features) { manaAlert('GeoJSON no v\u00E1lido.', 'error'); return; }
+  if (!geo.features) { manaAlert(t('geojson_invalid'), 'error'); return; }
 
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
-  const gName = groupName || geo.fileName || 'Capa importada';
+  const gName = groupName || geo.fileName || t('geom_imported_layer');
   // Register group in metadata registry
   registerGroupMeta(groupId, gName, drawColor);
 
   const layer = L.geoJSON(geo, {
     style: { color: drawColor, weight: 2, fillOpacity: .18 },
     pointToLayer: (f, ll) => {
-      const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || 'Importado';
+      const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
       const icon = makeMarkerIcon(drawColor, markerType);
       const m = L.marker(ll, { icon });
       m._manaName = n; m._manaColor = drawColor;
@@ -197,7 +197,7 @@ function hexToKmlColor(hex, alpha) {
 function exportAs(fmt) {
   document.querySelectorAll(".drop-menu").forEach(function(x) { x.classList.remove("open"); });
   var geo = getEnrichedGeoJSON();
-  if (!geo.features.length) { manaAlert("No hay elementos para exportar.", "warning"); return; }
+  if (!geo.features.length) { manaAlert(t('export_no_elements'), "warning"); return; }
   var prefix = (typeof getProjectName === "function") ? getProjectName() : "mana-maps";
   if (fmt === "geojson") {
     // Strip internal _-prefixed keys from properties for clean GeoJSON export
@@ -287,7 +287,7 @@ function geoToKML(geo) {
   var parts = [];
   geo.features.forEach(function(f, i) {
     var g = f.geometry;
-    var name = (f.properties && f.properties.name) || ("Elemento " + (i + 1));
+    var name = (f.properties && f.properties.name) || (t('geom_element') + " " + (i + 1));
     var hex = (f.properties && f.properties.color) || "#0ea5e9";
     var kmlColor = hexToKmlColor(hex);
     var fillColor = "66" + hex.slice(5, 7) + hex.slice(3, 5) + hex.slice(1, 3);

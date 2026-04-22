@@ -40,7 +40,7 @@ function restoreState() {
     _importRestoredGeoJSON(geo);
     // P1.5: Show discreet toast on restore
     setTimeout(() => {
-      if (typeof showToast === 'function') showToast('Mapa restaurat de la sessi\u00F3 anterior');
+      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map restored from previous session' : 'Mapa restaurado de la sesión anterior');
     }, 500);
   } catch (e) {
     console.warn('restoreState error:', e);
@@ -96,7 +96,7 @@ function _importRestoredGeoJSON(geo) {
     ungrouped.forEach(f => {
       const props = f.properties || {};
       const color = props._manaColor || props.color || '#0ea5e9';
-      const name = props._manaName || props.name || 'Elemento';
+      const name = props._manaName || props.name || t('geom_element');
       const g = f.geometry;
       if (!g) return;
       let layer;
@@ -170,14 +170,14 @@ function shareMapURL() {
   try {
     const geo = getEnrichedGeoJSON();
     if (!geo.features.length) {
-      manaAlert('No hay elementos para compartir.', 'warning');
+      manaAlert(LANG === 'en' ? 'No elements to share.' : 'No hay elementos para compartir.', 'warning');
       return;
     }
     const encoded = encodeURIComponent(JSON.stringify(geo));
     window.location.hash = '#map=' + encoded;
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      showToast('Enlace copiado \u2713');
+      showToast(LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
     }).catch(() => {
       // Fallback
       const ta = document.createElement('textarea');
@@ -189,7 +189,7 @@ function shareMapURL() {
       showToast('Enlace copiado \u2713');
     });
   } catch (e) {
-    manaAlert('Error al generar el enlace: ' + e.message, 'error');
+    manaAlert((LANG === 'en' ? 'Error generating link: ' : 'Error al generar el enlace: ') + e.message, 'error');
   }
 }
 
@@ -225,11 +225,11 @@ function clearSavedData() {
 // P3.11: PROJECT NAME FOR EXPORTS
 // ═══════════════════════════════════════════════════════════════
 function getProjectName() {
-  return localStorage.getItem('mana-project-name') || 'Mapa sin título';
+  return localStorage.getItem('mana-project-name') || t('map_name_placeholder');
 }
 
 function setProjectName(name) {
-  const clean = name.trim() || 'Mapa sin título';
+  const clean = name.trim() || t('map_name_placeholder');
   localStorage.setItem('mana-project-name', clean);
   const input = document.getElementById('project-name-input');
   if (input) input.value = clean;

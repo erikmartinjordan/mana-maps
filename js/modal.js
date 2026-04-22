@@ -19,7 +19,7 @@ function askName(title, defaultVal) {
 }
 
 function modalOk() {
-  const val = document.getElementById('name-modal-input').value.trim() || 'Sin nombre';
+  const val = document.getElementById('name-modal-input').value.trim() || t('modal_name_placeholder');
   document.getElementById('name-modal').classList.remove('open');
   if (_modalResolve) { _modalResolve(val); _modalResolve = null; }
 }

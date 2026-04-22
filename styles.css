@@ -1657,3 +1657,36 @@ select.ai-input{cursor:pointer;appearance:auto;}
 /* ── Panel collapse transition ── */
 #sidebar,#chat-panel{overflow:hidden;}
 #sidebar.collapsing,#chat-panel.collapsing{transition:width .2s ease;pointer-events:none;}
+
+
+/* ═══ Language Switcher ═══ */
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 4px;
+}
+.lang-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #94a3b8);
+  text-decoration: none;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.5px;
+}
+.lang-btn:hover {
+  color: var(--color-text-primary, #e2e8f0);
+  background: var(--color-background-secondary, rgba(255,255,255,.08));
+}
+.lang-btn.active {
+  color: var(--color-text-primary, #e2e8f0);
+  background: var(--color-background-tertiary, rgba(255,255,255,.14));
+}
+.lang-sep {
+  font-size: 10px;
+  color: var(--color-text-tertiary, rgba(255,255,255,.25));
+  user-select: none;
+}

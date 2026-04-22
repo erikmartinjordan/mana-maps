@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // WMS — GetCapabilities → checkboxes de capas
 // ═════════════════════════════════════════════════════════════════
 async function _loadWMS(url) {
-  showToast('Conectando WMS\u2026');
+  showToast(LANG==='en'?'Connecting WMS…':'Conectando WMS…');
 
   var baseUrl = url.split('?')[0];
   var requestedLayers = '';
@@ -82,7 +82,7 @@ async function _loadWMS(url) {
 
   if (requestedLayers) {
     _addDirectWMS(baseUrl, requestedLayers, requestedLayers);
-    showToast('WMS a\u00f1adido \u2713');
+    showToast(LANG==='en'?'WMS added ✓':'WMS añadido ✓');
     if (typeof saveState === 'function') saveState();
     return;
   }
@@ -116,7 +116,7 @@ async function _loadWMS(url) {
 
   if (!layers.length) {
     _addDirectWMS(baseUrl, '', _host(url));
-    showToast('WMS a\u00f1adido (sin lista de capas)');
+    showToast(LANG==='en'?'WMS added (no layer list)':'WMS añadido (sin lista de capas)');
     return;
   }
 
@@ -124,7 +124,7 @@ async function _loadWMS(url) {
   _wmsServices.push(svc);
   _toggleWMSCap(svc.id, layers[0].name, true);
   _renderWMSPanel();
-  showToast(layers.length + ' capas WMS disponibles');
+  showToast(layers.length + (LANG==='en'?' WMS layers available':' capas WMS disponibles'));
   if (typeof saveState === 'function') saveState();
 }
 
@@ -156,7 +156,7 @@ function _removeWMSService(svcId) {
   Object.keys(svc.activeLayers).forEach(function(k) { if (map.hasLayer(svc.activeLayers[k])) map.removeLayer(svc.activeLayers[k]); });
   _wmsServices.splice(idx, 1);
   _renderWMSPanel();
-  showToast('Servicio eliminado');
+  showToast(LANG==='en'?'Service removed':'Servicio eliminado');
 }
 
 function _renderWMSPanel() {
@@ -185,7 +185,7 @@ function _renderWMSPanel() {
 // WFS — múltiples intentos + proxy CORS
 // ═════════════════════════════════════════════════════════════════
 async function _loadWFS(url) {
-  showToast('Cargando WFS\u2026');
+  showToast(LANG==='en'?'Loading WFS…':'Cargando WFS…');
 
   if (url.toLowerCase().includes('request=getfeature')) return await _fetchWFS(url);
 
@@ -218,7 +218,7 @@ async function _fetchWFS(fetchUrl) {
   try { geo = JSON.parse(text); } catch(e) { throw new Error('Respuesta no es JSON'); }
   if (!geo.features || !geo.features.length) throw new Error('Sin features');
   loadGeoJSON(geo, 'WFS: ' + _host(fetchUrl));
-  showToast(geo.features.length + ' features WFS \u2713');
+  showToast(geo.features.length + ' features WFS ✓');
   if (typeof saveState === 'function') saveState();
 }
 
@@ -226,7 +226,7 @@ async function _fetchWFS(fetchUrl) {
 // ArcGIS
 // ═════════════════════════════════════════════════════════════════
 async function _loadArcGIS(url) {
-  showToast('Cargando ArcGIS\u2026');
+  showToast(LANG==='en'?'Loading ArcGIS…':'Cargando ArcGIS…');
   url = url.replace(/\/$/, '');
   var all = [], offset = 0, limit = 1000, more = true;
   while (more) {
@@ -238,9 +238,9 @@ async function _loadArcGIS(url) {
     more = d.exceededTransferLimit === true && d.features && d.features.length === limit;
     if (more) showToast('ArcGIS\u2026 ' + all.length);
   }
-  if (!all.length) { manaAlert('Sin datos.', 'warning'); return; }
+  if (!all.length) { manaAlert(LANG==='en'?'No data.':'Sin datos.', 'warning'); return; }
   loadGeoJSON({ type: 'FeatureCollection', features: all }, 'ArcGIS: ' + _host(url));
-  showToast(all.length + ' elementos \u2713');
+  showToast(all.length + (LANG==='en'?' elements ✓':' elementos ✓'));
   if (typeof saveState === 'function') saveState();
 }
 
