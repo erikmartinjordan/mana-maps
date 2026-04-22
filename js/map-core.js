@@ -327,28 +327,27 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── RESIZE HANDLES ──
 const RAIL_W = 44, RAIL_THR = 88;
 
-function initResize(handleId, side) {
+function initResize(handleId) {
   const handle = document.getElementById(handleId);
   if (!handle) return;
   const app = document.getElementById('app');
-  const sidebar = document.getElementById('sidebar');
   let startX, startW;
 
-  handle.addEventListener('mousedown', e => {
+  handle.addEventListener('mousedown', function (e) {
     e.preventDefault();
     handle.classList.add('dragging');
     startX = e.clientX;
-    const cols = getComputedStyle(app).gridTemplateColumns.split(' ');
-    startW = side === 'left' ? parseInt(cols[0]) : parseInt(cols[4]);
+    var cols = getComputedStyle(app).gridTemplateColumns.split(' ');
+    startW = parseInt(cols[cols.length - 1]) || 320;
 
-    const onMove = e => {
-      const dx = e.clientX - startX;
-      const nw = Math.max(180, Math.min(520, startW - dx));
+    var onMove = function (e) {
+      var dx = e.clientX - startX;
+      var nw = Math.max(180, Math.min(520, startW - dx));
       app.style.setProperty('--right-w', nw + 'px');
       map.invalidateSize();
     };
 
-    const onUp = () => {
+    var onUp = function () {
       handle.classList.remove('dragging');
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
@@ -358,9 +357,19 @@ function initResize(handleId, side) {
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   });
+
+  // Double-click: toggle chat panel visibility
+  handle.addEventListener('dblclick', function () {
+    var chat = document.getElementById('chat-panel');
+    if (!chat) return;
+    var hidden = chat.style.display === 'none';
+    chat.style.display = hidden ? '' : 'none';
+    handle.style.display = hidden ? '' : 'none';
+    map.invalidateSize();
+  });
 }
 
-initResize('handle-right', 'right');
+initResize('handle-right');
 
 // ── STATS & LAYER LIST ──
 function stats() {

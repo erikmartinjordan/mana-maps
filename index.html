@@ -765,27 +765,66 @@
   let activePanel = 'draw';
 
   window.togglePanel = function(panel) {
-    const fp = document.getElementById('float-panel');
-    const icons = document.querySelectorAll('#toolbar .tool-icon[data-panel]');
+    var fp = document.getElementById('float-panel');
+    var icons = document.querySelectorAll('#toolbar .tool-icon[data-panel]');
 
     if (activePanel === panel) {
       // Close panel
       fp.classList.remove('open');
-      icons.forEach(i => i.classList.remove('active'));
+      icons.forEach(function(i) { i.classList.remove('active'); });
       activePanel = null;
+      if (typeof map !== 'undefined') map.invalidateSize();
       return;
     }
 
     // Open/switch panel
     activePanel = panel;
-    icons.forEach(i => {
+    icons.forEach(function(i) {
       i.classList.toggle('active', i.dataset.panel === panel);
     });
-    document.querySelectorAll('.panel-state').forEach(p => {
+    document.querySelectorAll('.panel-state').forEach(function(p) {
       p.classList.toggle('visible', p.id === 'panel-' + panel);
     });
     fp.classList.add('open');
+    if (typeof map !== 'undefined') map.invalidateSize();
   };
+
+  // Double-click on toolbar: toggle float panel
+  var toolbar = document.getElementById('toolbar');
+  if (toolbar) {
+    toolbar.addEventListener('dblclick', function(e) {
+      // Only if clicking the toolbar background, not an icon
+      if (e.target.closest('.tool-icon')) return;
+      var fp = document.getElementById('float-panel');
+      if (fp.classList.contains('open')) {
+        fp.classList.remove('open');
+        document.querySelectorAll('#toolbar .tool-icon[data-panel]').forEach(function(i) { i.classList.remove('active'); });
+        activePanel = null;
+      } else if (activePanel) {
+        fp.classList.add('open');
+      }
+      if (typeof map !== 'undefined') map.invalidateSize();
+    });
+  }
+
+  // Double-click on resize handle area: also re-show chat if hidden
+  var handleRight = document.getElementById('handle-right');
+  if (handleRight) {
+    // If chat hidden, clicking map right edge should re-show
+    document.getElementById('map-wrap').addEventListener('dblclick', function(e) {
+      var rect = this.getBoundingClientRect();
+      // Only if dblclick is near the right edge (last 20px)
+      if (e.clientX > rect.right - 20) {
+        var chat = document.getElementById('chat-panel');
+        var handle = document.getElementById('handle-right');
+        if (chat && chat.style.display === 'none') {
+          chat.style.display = '';
+          if (handle) handle.style.display = '';
+          if (typeof map !== 'undefined') map.invalidateSize();
+        }
+      }
+    });
+  }
 
   // Update element count in topbar
   function updateMapNameCount() {
