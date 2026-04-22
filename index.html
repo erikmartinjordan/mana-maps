@@ -1,3 +1,18 @@
+<!--
++--------------------------------------------------------------+
+|                   _____                                      |
+|                  |_____|                                     |
+|   __  __   ___    _   _     _       ____   ___   __  __      |
+|  |  \/  | / _ \  | \ | |   / \     / ___| / _ \ |  \/  |     |
+|  | |\/| || |_| | |  \| |  / _ \   | |    | | | || |\/| |     |
+|  | |  | ||  _  | | |\  | / ___ \  | |___ | |_| || |  | |     |
+|  |_|  |_||_| |_| |_| \_|/_/   \_\  \____| \___/ |_|  |_|     |
+|                                                              |
+|                                                              |
+|   Hecho con ♥ en Barcelona                                   |
+|   Maña.com - Erik Martín Jordán                              |
++--------------------------------------------------------------+
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,7 +28,7 @@
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css"/>
 
-<!-- ═══ NEW COMPONENT STYLES ═══ -->
+<!-- ═══ Estilos de componentes ═══ -->
 <style>
 /* ── Auto-save pill ── */
 .autosave-pill {
@@ -93,13 +108,13 @@
 <body>
 <div id="toast" aria-live="polite"></div>
 
-<!-- IN-APP ALERT NOTIFICATION -->
+<!-- ═══ Alerta in-app ═══ -->
 <div id="mana-alert" class="mana-alert">
   <span class="mana-alert-icon"></span>
   <span class="mana-alert-text"></span>
 </div>
 
-<!-- IN-APP CONFIRM DIALOG -->
+<!-- ═══ Diálogo de confirmación ═══ -->
 <div id="confirm-modal" class="confirm-modal">
   <div class="confirm-modal-box">
     <p id="confirm-modal-msg"></p>
@@ -111,9 +126,7 @@
 </div>
 
 
-
-
-<!-- UPSELL MODAL -->
+<!-- ═══ Modal upsell ═══ -->
 <div id="upsell-modal" class="upsell-modal">
   <div class="upsell-box">
     <button class="upsell-close" onclick="closeUpsell()">&times;</button>
@@ -139,7 +152,7 @@
   </div>
 </div>
 
-<!-- MODAL NOMBRE -->
+<!-- ═══ Modal nombre ═══ -->
 <div id="name-modal">
   <h4 id="name-modal-title">Nombre del elemento</h4>
   <input id="name-modal-input" type="text" placeholder="Sin nombre" maxlength="80" autocomplete="off"/>
@@ -149,7 +162,7 @@
   </div>
 </div>
 
-<!-- TOPBAR -->
+<!-- ═══ Barra superior ═══ -->
 <div id="topbar">
   <a class="mana-logo-wrap" href="#">
     <div class="mana-logo-icon">
@@ -167,7 +180,7 @@
       onchange="setProjectName(this.value)"/>
     <span class="map-name-count" id="map-name-count"></span>
   </div>
-  <!-- P2.6: Place search bar -->
+  <!-- Buscador de lugares -->
   <div class="search-wrap" id="search-wrap">
     <div class="search-input-wrap">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -222,14 +235,14 @@
   </div>
 </div>
 
-<!-- MOBILE BACKDROP -->
+<!-- ═══ Backdrop móvil ═══ -->
 <div id="mobile-backdrop"></div>
 
-<!-- APP LAYOUT -->
+<!-- ═══ Layout principal ═══ -->
 <div id="app">
-  <!-- SIDEBAR -->
+  <!-- ═══ Sidebar ═══ -->
   <div id="sidebar">
-    <!-- TOOLBAR: icon strip -->
+    <!-- Toolbar: iconos -->
     <div id="toolbar">
       <div class="tool-icon active" data-panel="draw" onclick="togglePanel('draw')" title="Dibujar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -256,10 +269,10 @@
       </div>
     </div>
 
-    <!-- FLOAT PANEL: contextual -->
+    <!-- Panel flotante contextual -->
     <div id="float-panel" class="open">
 
-      <!-- ═══ DRAW PANEL ═══ -->
+      <!-- ═══ Panel de dibujo ═══ -->
       <div class="panel-state visible" id="panel-draw">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
@@ -290,7 +303,7 @@
         </div>
       </div>
 
-      <!-- ═══ STYLE PANEL ═══ -->
+      <!-- ═══ Panel de estilo ═══ -->
       <div class="panel-state" id="panel-style">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg></div>
@@ -317,7 +330,7 @@
         </div>
       </div>
 
-      <!-- ═══ BASEMAP PANEL ═══ -->
+      <!-- ═══ Panel de mapa base ═══ -->
       <div class="panel-state" id="panel-basemap">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div>
@@ -341,7 +354,7 @@
         </div>
       </div>
 
-      <!-- ═══ LAYERS PANEL ═══ -->
+      <!-- ═══ Panel de capas ═══ -->
       <div class="panel-state" id="panel-layers">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
@@ -354,7 +367,7 @@
         </div>
       </div>
 
-      <!-- ═══ OGC PANEL ═══ -->
+      <!-- ═══ Panel OGC ═══ -->
       <div class="panel-state" id="panel-ogc">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
@@ -388,7 +401,7 @@
 
   <div class="resize-handle" id="handle-left"></div>
 
-  <!-- MAP -->
+  <!-- ═══ Mapa ═══ -->
   <div id="map-wrap">
     <div id="map"></div>
     <div id="coords-overlay">
@@ -412,19 +425,19 @@
       </svg>
       <span>Suelta para importar</span>
     </div>
-    <!-- ATTRIBUTE TABLE DRAWER -->
-    <!-- ATTRIBUTE TABLE MODAL -->
+    
+    <!-- ═══ Modal tabla de atributos ═══ -->
     <div id="attr-modal" class="attr-modal">
       <div class="attr-modal-box">
         <div class="attr-modal-header">
           <span class="attr-modal-title" id="attr-modal-title">Propiedades</span>
           <button class="attr-modal-close" onclick="closeAttrModal()">&times;</button>
         </div>
-        <!-- Element selector (for groups) -->
+        <!-- Selector de elementos -->
         <div id="attr-elem-selector" class="attr-elem-selector" style="display:none"></div>
-        <!-- Property rows -->
+        <!-- Filas de propiedades -->
         <div class="attr-modal-body" id="attr-modal-body"></div>
-        <!-- Add attribute button -->
+        <!-- Botón añadir atributo -->
         <div class="attr-modal-footer">
           <button class="attr-add-btn" onclick="attrAddProperty()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -434,7 +447,7 @@
       </div>
     </div>
 
-        <!-- STATS PANEL -->
+        <!-- ═══ Panel de estadísticas ═══ -->
     <div id="stats-panel" class="stats-panel"></div>
 
     <div id="map-bottom-bar">
@@ -447,7 +460,7 @@
 
   <div class="resize-handle" id="handle-right"></div>
 
-  <!-- CHAT PANEL -->
+  <!-- ═══ Panel de chat ═══ -->
   <div id="chat-panel">
     <div class="chat-header">
       <div class="chat-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
@@ -477,7 +490,7 @@
   </div>
 </div>
 
-<!-- AI SETTINGS MODAL -->
+<!-- ═══ Modal ajustes IA ═══ -->
 <div id="ai-settings-modal" class="ai-modal">
   <div class="ai-modal-content">
     <div class="ai-modal-header">
@@ -516,15 +529,15 @@
   </div>
 </div>
 
-<!-- LAYER CONTEXT MENU (sidebar right-click) -->
+<!-- ═══ Menú contextual de capas ═══ -->
 <div id="layer-ctx-menu" class="ctx-menu-float">
   <div id="lctx-title" class="ctx-section-label" style="padding-top:10px"></div>
 
-  <!-- Color picker -->
+  <!-- Selector de color -->
   <div class="ctx-color-row">
       </div>
 
-  <!-- Line weight (hidden for marker-only groups) -->
+  <!-- Grosor de línea -->
   <div id="lctx-weight-row" class="ctx-option-row">
     <span class="ctx-option-label">Grosor</span>
     <div class="ctx-weight-opts">
@@ -536,7 +549,7 @@
     </div>
   </div>
 
-  <!-- Opacity -->
+  <!-- Opacidad -->
   <div class="ctx-option-row">
     <span class="ctx-option-label">Opacidad</span>
     <input type="range" id="lctx-opacity" class="ctx-range" min="10" max="100" value="100" oninput="lctxSetOpacity(this.value)"/>
@@ -545,7 +558,7 @@
 
   <div class="ctx-sep"></div>
 
-  <!-- Rename -->
+  <!-- Renombrar -->
   <button class="ctx-item" onclick="lctxRename()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
     Renombrar
@@ -557,13 +570,13 @@
     Zoom a la capa
   </button>
 
-  <!-- Attribute table -->
+  <!-- Tabla de atributos -->
   <button class="ctx-item" onclick="lctxShowAttrTable()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
     Ver tabla de atributos
   </button>
 
-  <!-- Categorize by attribute (groups only) -->
+  <!-- Categorizar por atributo -->
   <div id="lctx-categorize" style="display:none">
     <div class="ctx-sep"></div>
     <div class="ctx-section-label">Categorizar por atributo</div>
@@ -572,14 +585,14 @@
 
   <div class="ctx-sep"></div>
 
-  <!-- Delete -->
+  <!-- Eliminar -->
   <button class="ctx-item danger" onclick="lctxDelete()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
     Eliminar
   </button>
 </div>
 
-<!-- CONTEXT MENU -->
+<!-- ═══ Menú contextual del mapa ═══ -->
 <div id="ctx-menu">
   <div class="ctx-coords" id="ctx-coords">0.00000, 0.00000</div>
   <button class="ctx-item" onclick="ctxCopyCoords()">
@@ -595,16 +608,16 @@
     Centrar mapa aqu&#237;
   </button>
 
-  <!-- STYLE SECTION (visible when a layer is targeted) -->
+  <!-- Sección de estilo -->
   <div id="ctx-style-section" style="display:none">
     <div class="ctx-sep"></div>
     <div class="ctx-section-label">Estilo del elemento</div>
 
-    <!-- Color picker -->
+    <!-- Selector de color -->
     <div class="ctx-color-row">
     </div>
 
-    <!-- Line weight (lines/polygons only) -->
+    <!-- Grosor de línea -->
     <div id="ctx-weight-row" class="ctx-option-row">
       <span class="ctx-option-label">Grosor</span>
       <div class="ctx-weight-opts">
@@ -616,32 +629,32 @@
       </div>
     </div>
 
-    <!-- Opacity -->
+    <!-- Opacidad -->
     <div class="ctx-option-row">
       <span class="ctx-option-label">Opacidad</span>
       <input type="range" id="ctx-opacity" class="ctx-range" min="10" max="100" value="100" oninput="ctxSetOpacity(this.value)"/>
       <span id="ctx-opacity-val" class="ctx-range-val">100%</span>
     </div>
 
-    <!-- Rename -->
+    <!-- Renombrar -->
     <button class="ctx-item" onclick="ctxRename()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
       Renombrar
     </button>
 
-    <!-- Apply to group -->
+    <!-- Aplicar al grupo -->
     <button class="ctx-item" id="ctx-style-group" onclick="ctxStyleGroup()" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Aplicar estilo a toda la capa
     </button>
 
-    <!-- Attribute table (from map right-click) -->
+    <!-- Tabla de atributos -->
     <button class="ctx-item" id="ctx-attr-table" onclick="ctxShowAttrTable()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
       Tabla de atributos
     </button>
 
-    <!-- Categorize by attribute -->
+    <!-- Categorizar por atributo -->
     <div id="ctx-categorize-section" style="display:none">
       <div class="ctx-sep"></div>
       <div class="ctx-section-label">Categorizar por atributo</div>
@@ -660,36 +673,36 @@
   </button>
 </div>
 
-<!-- VENDOR LIBS -->
+<!-- ═══ Librerías externas ═══ -->
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 
-<!-- APP MODULES (order matters) -->
-<script src="js/markers.js"></script>      <!-- draw color, marker icons -->
-<script src="js/modal.js"></script>        <!-- name input dialog -->
-<script src="js/map-core.js"></script>     <!-- map, layers, resize, stats -->
-<script src="js/stats.js"></script>      <!-- stats panel -->
-<script src="js/globe.js"></script>        <!-- 3D globe -->
-<script src="js/tools.js"></script>        <!-- drawing tools, ruler -->
-<script src="js/context-menu.js"></script> <!-- right-click menu, toast -->
-<script src="js/import-export.js"></script><!-- file import & export -->
-<script src="js/chat.js"></script>         <!-- chat & geocoding -->
-<script src="js/undo-redo.js"></script>    <!-- undo/redo system -->
-<script src="js/persistence.js"></script>  <!-- localStorage persistence & URL share -->
-<script src="js/ogc-loader.js"></script>   <!-- WMS/WFS & ArcGIS loader -->
-<script src="js/responsive.js"></script>  <!-- responsive / mobile -->
+<!-- ═══ Módulos de la app (el orden importa) ═══ -->
+<script src="js/markers.js"></script>      <!-- color y marcadores -->
+<script src="js/modal.js"></script>        <!-- diálogo de nombre -->
+<script src="js/map-core.js"></script>     <!-- mapa, capas, stats -->
+<script src="js/stats.js"></script>      <!-- panel de estadísticas -->
+<script src="js/globe.js"></script>        <!-- globo 3D -->
+<script src="js/tools.js"></script>        <!-- herramientas de dibujo -->
+<script src="js/context-menu.js"></script> <!-- menú contextual -->
+<script src="js/import-export.js"></script><!-- importar y exportar -->
+<script src="js/chat.js"></script>         <!-- chat y geocodificación -->
+<script src="js/undo-redo.js"></script>    <!-- deshacer/rehacer -->
+<script src="js/persistence.js"></script>  <!-- persistencia y compartir -->
+<script src="js/ogc-loader.js"></script>   <!-- cargador OGC -->
+<script src="js/responsive.js"></script>  <!-- responsive / móvil -->
 
-<!-- Firebase + Tracking -->
+<!-- ═══ Firebase y tracking ═══ -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/tracking.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/upsell.js"></script>
 
-<!-- P2.6: Place search logic -->
+<!-- ═══ Lógica de búsqueda ═══ -->
 <script>
 (function() {
   var searchInput = document.getElementById('search-input');
@@ -762,7 +775,7 @@
 })();
 </script>
 
-<!-- Panel toggle logic -->
+<!-- ═══ Lógica de paneles ═══ -->
 <script>
 (function() {
   let activePanel = 'draw';
@@ -791,8 +804,6 @@
     fp.classList.add('open');
     if (typeof map !== 'undefined') map.invalidateSize();
   };
-
-
 
   // Update element count in topbar
   function updateMapNameCount() {
