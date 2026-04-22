@@ -30,7 +30,7 @@ function upsellBuy() {
 
 function upsellHaveKey() {
   closeUpsell();
-  if (typeof openAISettings === 'function') openAISettings();
+  if (typeof openAISettings === 'function') openAISettings(true);
 }
 
 // ═══════════════════════════════════════════════════════════════

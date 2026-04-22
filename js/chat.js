@@ -678,10 +678,10 @@ document.getElementById('chat-input').addEventListener('input', function() {
 // ═══════════════════════════════════════════════════════════════
 // SETTINGS MODAL
 // ═══════════════════════════════════════════════════════════════
-function openAISettings() {
+function openAISettings(force) {
   const s = manaSettings();
-  // If no key configured, show upsell first
-  if (!s.apiKey && typeof showUpsell === 'function') {
+  // If no key configured, show upsell first (unless forced from upsell modal)
+  if (!force && !s.apiKey && typeof showUpsell === 'function') {
     showUpsell();
     return;
   }
