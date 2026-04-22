@@ -80,11 +80,12 @@ const toolActions = {
     const ll = [+res[0].lat, +res[0].lon];
     const c = resolveColor(color);
     const icon = makeMarkerIcon(c, markerType);
-    const m = L.marker(ll, { icon }).addTo(drawnItems);
     const label = name || res[0].display_name.split(',')[0];
+    const m = L.marker(ll, { icon });
     m._manaName = label; m._manaColor = c;
     m.bindPopup('<strong>' + label + '</strong>');
-    map.setView(ll, 13); stats();
+    addDrawnLayerToGroup(m);
+    map.setView(ll, 13);
     return { ok: true, msg: 'Punto añadido en **' + label + '** ✓', coords: ll };
   },
 
@@ -93,9 +94,10 @@ const toolActions = {
     if (!r1.length || !r2.length) return { ok: false, msg: 'No pude encontrar uno de los lugares.' };
     const ll1 = [+r1[0].lat, +r1[0].lon], ll2 = [+r2[0].lat, +r2[0].lon];
     const c = resolveColor(color);
-    const line = L.polyline([ll1, ll2], { color: c, weight: 3 }).addTo(drawnItems);
+    const line = L.polyline([ll1, ll2], { color: c, weight: 3 });
     line._manaName = from + ' → ' + to;
-    map.fitBounds(line.getBounds(), { padding: [40, 40] }); stats();
+    addDrawnLayerToGroup(line);
+    map.fitBounds(line.getBounds(), { padding: [40, 40] });
     return { ok: true, msg: 'Línea de **' + from + '** a **' + to + '** ✓' };
   },
 
@@ -105,9 +107,10 @@ const toolActions = {
     const lat = +res[0].lat, lng = +res[0].lon;
     const r = (radius_km || 5) * 1000;
     const c = resolveColor(color);
-    const circle = L.circle([lat, lng], { radius: r, color: c, weight: 2, fillOpacity: .15 }).addTo(drawnItems);
+    const circle = L.circle([lat, lng], { radius: r, color: c, weight: 2, fillOpacity: .15 });
     circle._manaName = place + ' (' + (radius_km || 5) + ' km)';
-    map.fitBounds(circle.getBounds()); stats();
+    addDrawnLayerToGroup(circle);
+    map.fitBounds(circle.getBounds());
     return { ok: true, msg: 'Área de ' + (radius_km || 5) + ' km alrededor de **' + place + '** ✓' };
   },
 
@@ -216,9 +219,10 @@ const toolActions = {
       if (res.length) {
         const ll = [+res[0].lat, +res[0].lon];
         const icon = makeMarkerIcon(c, markerType);
-        const m = L.marker(ll, { icon }).addTo(drawnItems);
+        const m = L.marker(ll, { icon });
         m._manaName = res[0].display_name.split(',')[0]; m._manaColor = c;
         m.bindPopup('<strong>' + m._manaName + '</strong>');
+        addDrawnLayerToGroup(m);
         added++;
       }
     }
@@ -239,8 +243,9 @@ const toolActions = {
       if (data.routes && data.routes.length) {
         const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
         const clr = resolveColor(color);
-        const line = L.polyline(coords, { color: clr, weight: 4, opacity: .8 }).addTo(drawnItems);
+        const line = L.polyline(coords, { color: clr, weight: 4, opacity: .8 });
         line._manaName = from + ' → ' + to + ' (ruta)';
+        addDrawnLayerToGroup(line);
         const dist = (data.routes[0].distance / 1000).toFixed(1);
         const dur = Math.round(data.routes[0].duration / 60);
         map.fitBounds(line.getBounds(), { padding: [40, 40] }); stats();

@@ -87,41 +87,59 @@ function _importRestoredGeoJSON(geo) {
     drawColor = savedColor;
   }
 
-  // Import ungrouped features individually
-  ungrouped.forEach(f => {
-    const props = f.properties || {};
-    const color = props._manaColor || props.color || '#0ea5e9';
-    const name = props._manaName || props.name || 'Elemento';
-    const g = f.geometry;
-    if (!g) return;
+  // Import ungrouped features — auto-wrap them in a group
+  if (ungrouped.length) {
+    const autoGid = ++_manaGroupCounter;
+    _manaLayerNameCounter++;
+    registerGroupMeta(autoGid, 'Capa ' + _manaLayerNameCounter, '#0ea5e9');
 
-    if (g.type === 'Point') {
-      const ll = [g.coordinates[1], g.coordinates[0]];
-      const icon = makeMarkerIcon(color, markerType);
-      const m = L.marker(ll, { icon }).addTo(drawnItems);
-      m._manaName = name;
-      m._manaColor = color;
-      const ptAttrs = _extractUserAttrs(props);
-      if (ptAttrs) m._manaProperties = ptAttrs;
-      m.bindPopup('<strong>' + name + '</strong>');
-    } else if (g.type === 'LineString') {
-      const lls = g.coordinates.map(c => [c[1], c[0]]);
-      const weight = props._manaWeight || 2;
-      const opacity = props._manaOpacity || 1;
-      const line = L.polyline(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 }).addTo(drawnItems);
-      line._manaName = name;
-      const lnAttrs = _extractUserAttrs(props);
-      if (lnAttrs) line._manaProperties = lnAttrs;
-    } else if (g.type === 'Polygon') {
-      const lls = g.coordinates[0].map(c => [c[1], c[0]]);
-      const weight = props._manaWeight || 2;
-      const opacity = props._manaOpacity || 1;
-      const poly = L.polygon(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 }).addTo(drawnItems);
-      poly._manaName = name;
-      const pgAttrs = _extractUserAttrs(props);
-      if (pgAttrs) poly._manaProperties = pgAttrs;
-    }
-  });
+    ungrouped.forEach(f => {
+      const props = f.properties || {};
+      const color = props._manaColor || props.color || '#0ea5e9';
+      const name = props._manaName || props.name || 'Elemento';
+      const g = f.geometry;
+      if (!g) return;
+      let layer;
+
+      if (g.type === 'Point') {
+        const ll = [g.coordinates[1], g.coordinates[0]];
+        const icon = makeMarkerIcon(color, markerType);
+        layer = L.marker(ll, { icon });
+        layer._manaName = name;
+        layer._manaColor = color;
+        const ptAttrs = _extractUserAttrs(props);
+        if (ptAttrs) layer._manaProperties = ptAttrs;
+        layer.bindPopup('<strong>' + name + '</strong>');
+      } else if (g.type === 'LineString') {
+        const lls = g.coordinates.map(c => [c[1], c[0]]);
+        const weight = props._manaWeight || 2;
+        const opacity = props._manaOpacity || 1;
+        layer = L.polyline(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 });
+        layer._manaName = name;
+        const lnAttrs = _extractUserAttrs(props);
+        if (lnAttrs) layer._manaProperties = lnAttrs;
+      } else if (g.type === 'Polygon') {
+        const lls = g.coordinates[0].map(c => [c[1], c[0]]);
+        const weight = props._manaWeight || 2;
+        const opacity = props._manaOpacity || 1;
+        layer = L.polygon(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 });
+        layer._manaName = name;
+        const pgAttrs = _extractUserAttrs(props);
+        if (pgAttrs) layer._manaProperties = pgAttrs;
+      }
+
+      if (layer) {
+        layer._manaGroupId = autoGid;
+        layer._manaGroupName = 'Capa ' + _manaLayerNameCounter;
+        drawnItems.addLayer(layer);
+        addLayerToGroupMeta(autoGid, layer);
+      }
+    });
+
+    // Update group color from first feature
+    const firstColor = ungrouped[0].properties && (ungrouped[0].properties._manaColor || ungrouped[0].properties.color);
+    if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
+  }
 
   stats();
 }

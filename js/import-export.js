@@ -1,7 +1,6 @@
 // ── import-export.js ─ File import, export & drag-and-drop ──
 
 // ── LAYER GROUP COUNTER ──
-let _manaGroupCounter = 0;
 
 // ── DRAG & DROP ──
 (function () {

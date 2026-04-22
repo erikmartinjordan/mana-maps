@@ -15,6 +15,59 @@ let activeBase = 'map';
 const drawnItems = new L.FeatureGroup().addTo(map);
 
 // ═══════════════════════════════════════════════════════════════
+// ACTIVE LAYER SYSTEM (QGIS-style multi-feature layers)
+// ═══════════════════════════════════════════════════════════════
+let _manaGroupCounter = 0;
+let _activeGroupId = null;
+let _manaLayerNameCounter = 0;
+
+// Create a new empty layer/group and set it as active
+function createNewLayer(name) {
+  const gid = ++_manaGroupCounter;
+  _manaLayerNameCounter++;
+  const layerName = name || ('Capa ' + _manaLayerNameCounter);
+  registerGroupMeta(gid, layerName, drawColor);
+  _activeGroupId = gid;
+  _syncGroupOrder();
+  renderLayers();
+  if (typeof saveState === 'function') saveState();
+  return gid;
+}
+
+// Set a group as the active layer
+function setActiveGroup(gid) {
+  if (_activeGroupId === gid) {
+    // Deselect if clicking same one
+    _activeGroupId = null;
+  } else {
+    _activeGroupId = gid;
+  }
+  renderLayers();
+}
+
+// Get the active group, or auto-create one if none exists
+function getOrCreateActiveGroup() {
+  if (_activeGroupId && _manaGroupMeta[_activeGroupId]) {
+    return _activeGroupId;
+  }
+  // No active group or it was deleted — create a new one
+  return createNewLayer();
+}
+
+// Add a drawn layer (point, line, polygon) to the active group
+function addDrawnLayerToGroup(layer) {
+  const gid = getOrCreateActiveGroup();
+  const meta = _manaGroupMeta[gid];
+  layer._manaGroupId = gid;
+  layer._manaGroupName = meta.name;
+  drawnItems.addLayer(layer);
+  addLayerToGroupMeta(gid, layer);
+  stats();
+  if (typeof saveState === 'function') saveState();
+}
+
+
+// ═══════════════════════════════════════════════════════════════
 // GROUP META REGISTRY
 // Stores all layers (visible & hidden), attribute schema, filters
 // ═══════════════════════════════════════════════════════════════
@@ -602,7 +655,7 @@ function renderLayers() {
     totalHidden += _manaGroupMeta[gid].hiddenLayers.size;
   }
 
-  if (!layers.length && !totalHidden) {
+  if (!layers.length && !totalHidden && !Object.keys(_manaGroupMeta).length) {
     list.innerHTML = '<p class="empty-note">A\u00FAn no hay elementos.<br>Dibuja algo en el mapa o usa el chat.</p>';
     return;
   }
@@ -610,13 +663,12 @@ function renderLayers() {
   // Build group info from meta registry (includes hidden layers)
   const groupOrder = [];
   const groups = {};
-  const ungrouped = [];
 
   // First pass: collect from meta registry, using persistent order
   _syncGroupOrder();
   for (const gid of _groupOrder) {
     const meta = _manaGroupMeta[gid];
-    if (!meta || !meta.allLayers.length) continue;
+    if (!meta) continue;
     groups[gid] = {
       name: meta.name,
       color: meta.color,
@@ -628,16 +680,18 @@ function renderLayers() {
     groupOrder.push(+gid);
   }
 
-  // Map visible layers to their indices in drawnItems
+  // Map visible layers to their group
   layers.forEach((l, i) => {
     if (l._manaGroupId && groups[l._manaGroupId]) {
       groups[l._manaGroupId].visibleLayers.push({ layer: l, index: i });
-    } else if (!l._manaGroupId) {
-      ungrouped.push({ layer: l, index: i });
     }
   });
 
   let html = '';
+
+  // "New layer" button at top
+  html += '<button class="new-layer-btn" onclick="createNewLayer()">';
+  html += ICON.plus + ' Nueva capa</button>';
 
   // Render grouped layers
   groupOrder.forEach(gid => {
@@ -646,6 +700,7 @@ function renderLayers() {
     const meta = _manaGroupMeta[gid];
     const isExpanded = !!_expandedGroups[gid];
     const isFilterOpen = !!_filterOpen[gid];
+    const isActive = _activeGroupId === gid;
     const chevronCls = isExpanded ? 'group-chevron expanded' : 'group-chevron';
 
     // Geometry type summary
@@ -665,17 +720,20 @@ function renderLayers() {
       : '';
 
     var orderIdx = _groupOrder.indexOf(gid);
-    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
+    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
 
-    // ── Header
-    html += '<div class="layer-group-header" onclick="toggleLayerGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
+    // ── Header: click sets active, chevron toggles expand
+    html += '<div class="layer-group-header" onclick="setActiveGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
     html += '  <span class="layer-drag-handle" title="Arrastra para reordenar">&#8942;&#8942;</span>';
     html += '  <div class="layer-dot" style="background:' + g.color + '"></div>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
     html += '  ' + filterBadge;
     html += '  <span class="layer-group-badge">' + g.totalCount + '</span>';
-    html += '  <span class="' + chevronCls + '">' + ICON.chevron + '</span>';
+    html += '  <span class="' + chevronCls + '" onclick="event.stopPropagation();toggleLayerGroup(' + gid + ')">' + ICON.chevron + '</span>';
     html += '</div>';
+    if (isActive) {
+      html += '<div class="active-layer-indicator">&#9654; Capa activa &mdash; dibuja para a\u00F1adir elementos</div>';
+    }
     html += '<div class="layer-group-meta">' + typeParts.join(' \u00B7 ') + '</div>';
 
     // ── Expanded children
@@ -708,7 +766,7 @@ function renderLayers() {
 
     // ── Actions row
     html += '<div class="layer-group-actions">';
-    html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="Estilo y categorización">' + ICON.palette + '</button>';
+    html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="Estilo y categorizaci\u00F3n">' + ICON.palette + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="Filtrar atributos">' + ICON.filter + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="Zoom a la capa">' + ICON.search + '</button>';
     html += '  <button class="layer-group-action-btn danger" onclick="deleteGroup(' + gid + ')" title="Eliminar capa">' + ICON.trash + '</button>';
@@ -716,28 +774,9 @@ function renderLayers() {
     html += '</div>';
   });
 
-  // Render ungrouped (hand-drawn) layers
-  ungrouped.forEach(({ layer, index }) => {
-    let kind, color, name;
-    if (layer instanceof L.Marker) {
-      kind = 'Punto'; color = layer._manaColor || '#0ea5e9';
-      name = layer._manaName || ('Punto ' + (index + 1));
-    } else if (layer instanceof L.Polygon) {
-      kind = 'Pol\u00EDgono'; color = (layer.options && layer.options.color) || '#10b981';
-      name = layer._manaName || ('Pol\u00EDgono ' + (index + 1));
-    } else {
-      kind = 'L\u00EDnea'; color = (layer.options && layer.options.color) || '#f59e0b';
-      name = layer._manaName || ('L\u00EDnea ' + (index + 1));
-    }
-    html += '<div class="layer-item" onclick="focusLayer(' + index + ')" oncontextmenu="showLayerCtx(event,\'layer\',' + index + ')">';
-    html += '  <div class="layer-dot" style="background:' + color + '"></div>';
-    html += '  <span class="layer-name">' + esc(name) + '</span>';
-    html += '  <span class="layer-type">' + kind + '</span>';
-    html += '</div>';
-  });
-
   list.innerHTML = html;
 }
+
 
 // ═══════════════════════════════════════════════════════════════
 // FILTER PANEL RENDERER
@@ -838,7 +877,7 @@ function focusGroup(gid) {
 }
 
 async function deleteGroup(gid) {
-  const ok = await manaConfirm('\u00BFEliminar toda la capa importada?');
+  const ok = await manaConfirm('\u00BFEliminar toda la capa y sus elementos?');
   if (!ok) return;
   const meta = _manaGroupMeta[gid];
   if (meta) {
@@ -849,6 +888,7 @@ async function deleteGroup(gid) {
   }
   delete _expandedGroups[gid];
   delete _filterOpen[gid];
+  if (_activeGroupId === gid) _activeGroupId = null;
   stats();
   if (typeof saveState === 'function') saveState();
 }

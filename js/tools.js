@@ -38,11 +38,10 @@ function setTool(tool) {
       if (name === null) return;
       if (typeof pushUndo === 'function') pushUndo();
       const icon = makeMarkerIcon(drawColor, markerType);
-      const m = L.marker(e.latlng, { icon }).addTo(drawnItems);
+      const m = L.marker(e.latlng, { icon });
       m._manaName = name; m._manaColor = drawColor;
       m.bindPopup('<strong>' + name + '</strong>');
-      stats();
-      if (typeof saveState === 'function') saveState();
+      addDrawnLayerToGroup(m);
     });
   } else if (tool === 'line') {
     hint.textContent = 'Clic para a\u00F1adir v\u00E9rtices \u2014 doble clic para terminar';
@@ -67,9 +66,7 @@ map.on(L.Draw.Event.CREATED, async e => {
   const name = await askName('Nombre de la ' + (isLine ? 'l\u00EDnea' : 'forma'), label + ' 1');
   if (typeof pushUndo === 'function') pushUndo();
   layer._manaName = name || label;
-  drawnItems.addLayer(layer);
-  stats();
-  if (typeof saveState === 'function') saveState();
+  addDrawnLayerToGroup(layer);
 });
 
 async function clearAll() {
@@ -80,6 +77,9 @@ async function clearAll() {
     drawnItems.clearLayers();
     // Also clear group meta registry
     for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
+    _activeGroupId = null;
+    _manaGroupCounter = 0;
+    _manaLayerNameCounter = 0;
     // Clear WMS overlay layers
     if (typeof _wmsOverlays !== 'undefined') {
       _wmsOverlays.forEach(item => { if (map.hasLayer(item.layer)) map.removeLayer(item.layer); });
