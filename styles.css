@@ -88,7 +88,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .panel-body::-webkit-scrollbar{width:3px;}
 .panel-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .panel-state{display:none;}
-.panel-state.visible{display:flex;flex-direction:column;height:100%;}
+.panel-state.visible{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
 .panel-footer-link{font-size:11px;color:var(--third);text-decoration:none;transition:color .12s;}
 .panel-footer-link:hover{color:var(--primary);}
 
@@ -1617,7 +1617,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .pro-indicator.configured{color:var(--third);cursor:default;}
 .pro-indicator svg{flex-shrink:0;}
 .panel-footer{padding:10px 14px;border-top:1px solid var(--border-light);
-  display:flex;flex-direction:column;gap:6px;}
+  display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
 .panel-footer-links{display:flex;gap:12px;}
 
 /* ── Handle collapse indicator ── */
