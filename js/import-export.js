@@ -299,6 +299,7 @@ function geoToKML(geo) {
       : '<Style id="' + sid + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
 
     var extData = "";
+    var descTag = "";
     var props = f.properties || {};
     var propKeys = Object.keys(props).filter(function(k) { return k !== "color" && k !== "name" && k.charAt(0) !== "_"; });
     if (propKeys.length) {
@@ -306,14 +307,38 @@ function geoToKML(geo) {
         var v = props[k]; if (v === null || v === undefined) v = "";
         return '<Data name="' + k.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '"><value>' + String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</value></Data>';
       }).join("") + "</ExtendedData>";
+
+      // Build styled HTML description table
+      var rows = propKeys.map(function(k, ri) {
+        var v = props[k];
+        if (v === null || v === undefined) v = "";
+        var esc = function(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); };
+        var bg = ri % 2 === 0 ? "#f8fafc" : "#ffffff";
+        return '<tr style="background:' + bg + ';">'
+          + '<td style="padding:6px 12px;font-weight:600;color:#334155;border-bottom:1px solid #e2e8f0;white-space:nowrap;">' + esc(k) + '</td>'
+          + '<td style="padding:6px 12px;color:#475569;border-bottom:1px solid #e2e8f0;word-break:break-word;">' + esc(v) + '</td>'
+          + '</tr>';
+      }).join("");
+
+      descTag = '<description><![CDATA['
+        + '<div style="font-family:\'Segoe UI\',system-ui,-apple-system,sans-serif;max-width:420px;">'
+        + '<div style="background:linear-gradient(135deg,' + hex + ',' + hex + 'dd);padding:12px 16px;border-radius:10px 10px 0 0;">'
+        + '<span style="font-size:15px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.2);">' + name.replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</span>'
+        + '</div>'
+        + '<table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;overflow:hidden;">'
+        + rows
+        + '</table>'
+        + '<div style="text-align:right;padding:6px 10px 2px;font-size:10px;color:#94a3b8;">Ma\u00f1a Maps</div>'
+        + '</div>'
+        + ']]></description>';
     }
 
     var geomTag = _geomToKml(g);
     if (geomTag) {
-      parts.push(style + "\n<Placemark><name>" + name.replace(/&/g,"&amp;").replace(/</g,"&lt;") + "</name><styleUrl>#" + sid + "</styleUrl>" + extData + geomTag + "</Placemark>");
+      parts.push(style + "\n<Placemark><name>" + name.replace(/&/g,"&amp;").replace(/</g,"&lt;") + "</name><styleUrl>#" + sid + "</styleUrl>" + descTag + extData + geomTag + "</Placemark>");
     }
   });
-  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00F1a Maps</name>\n' + parts.join("\n") + "\n</Document></kml>";
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00f1a Maps</name>\n' + parts.join("\n") + "\n</Document></kml>";
 }
 
 async function exportKMZ(geo, prefix) {
