@@ -110,18 +110,32 @@
   </div>
 </div>
 
-<!-- UPGRADE MODAL -->
-<div id="upgrade-modal" class="upgrade-modal">
-  <div class="upgrade-backdrop" onclick="closeUpgradeModal()"></div>
-  <div class="upgrade-box">
-    <h3>Comparte tus mapas</h3>
-    <p>Genera un enlace para compartir tu mapa con cualquier persona. Sin l&#237;mites.</p>
-    <div class="upgrade-row">
-      <span class="upgrade-price">6 &#8364;</span>
-      <span class="upgrade-period">/ mes</span>
+
+
+
+<!-- UPSELL MODAL -->
+<div id="upsell-modal" class="upsell-modal">
+  <div class="upsell-box">
+    <button class="upsell-close" onclick="closeUpsell()">&times;</button>
+    <h3 class="upsell-title">Ma&#241;a Maps Pro</h3>
+    <div class="upsell-price">4,99 &#8364; <span class="upsell-period">/ mes</span></div>
+    <div class="upsell-benefits">
+      <div class="upsell-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <div><strong>IA incluida</strong><span>Sin configurar nada</span></div>
+      </div>
+      <div class="upsell-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        <div><strong>Todos los modelos de lenguaje</strong><span>GPT-4o, Claude, Llama y m&#225;s</span></div>
+      </div>
+      <div class="upsell-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <div><strong>Soporte prioritario</strong><span>Respuesta directa del equipo</span></div>
+      </div>
     </div>
-    <button class="upgrade-cta" id="upgrade-cta-btn">Suscribirme</button>
-    <button class="upgrade-skip" onclick="closeUpgradeModal()">Ahora no</button>
+    <button class="upsell-cta" onclick="upsellBuy()">Empezar ahora</button>
+    <button class="upsell-secondary" onclick="upsellHaveKey()">Ya tengo una clave API</button>
+    <p class="upsell-note">Recibir&#225;s tu clave API por email tras el pago &#183; Cancela cuando quieras</p>
   </div>
 </div>
 
@@ -339,9 +353,15 @@
           </div>
         </div>
         <div class="panel-footer">
-          <a class="panel-footer-link" href="/about">Acerca de</a>
-          <a class="panel-footer-link" href="/changelog">Changelog</a>
-          <a class="panel-footer-link" href="/open">Estad&#237;sticas</a>
+          <div id="pro-indicator" class="pro-indicator not-configured" onclick="showUpsell()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Activa la IA Pro &#8594;
+          </div>
+          <div class="panel-footer-links">
+            <a class="panel-footer-link" href="/about">Acerca de</a>
+            <a class="panel-footer-link" href="/changelog">Changelog</a>
+            <a class="panel-footer-link" href="/open">Estad&#237;sticas</a>
+          </div>
         </div>
       </div>
 
@@ -664,6 +684,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/tracking.js"></script>
 <script src="js/plans.js"></script>
+<script src="js/upsell.js"></script>
 
 <!-- P2.6: Place search logic -->
 <script>

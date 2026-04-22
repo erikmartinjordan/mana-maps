@@ -623,6 +623,13 @@ async function sendMsg() {
     result = await processAI(text);
   } else {
     result = await processRegex(text);
+    // If regex couldn't handle it and no API key → show upsell
+    if (!result.ok && typeof showUpsell === 'function') {
+      removeTyping();
+      chatBusy = false;
+      showUpsell();
+      return;
+    }
   }
 
   removeTyping();
@@ -673,6 +680,11 @@ document.getElementById('chat-input').addEventListener('input', function() {
 // ═══════════════════════════════════════════════════════════════
 function openAISettings() {
   const s = manaSettings();
+  // If no key configured, show upsell first
+  if (!s.apiKey && typeof showUpsell === 'function') {
+    showUpsell();
+    return;
+  }
   document.getElementById('ai-provider').value = s.provider;
   document.getElementById('ai-key').value = s.apiKey;
   document.getElementById('ai-model').value = s.model;
@@ -696,6 +708,8 @@ function saveAISettings() {
   if (apiKey) {
     addMsg('✓ IA configurada con **' + provider + '** / ' + model + '. Ya puedes escribir en lenguaje natural.', false);
   }
+  // Update pro indicator
+  if (typeof updateProIndicator === 'function') updateProIndicator();
 }
 
 function toggleEndpointField(provider) {

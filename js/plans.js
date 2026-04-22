@@ -1,28 +1,18 @@
-// ── plans.js — Gate de compartir mapa · Maña Maps ──
+// ── plans.js — Plan utilities · Maña Maps ──
 
 (function () {
 
-  function isPro() {
-    return localStorage.getItem('mana-plan') === 'pro';
-  }
-
-  /* Gate: compartir mapa */
-  if (typeof shareMapURL === 'function') {
-    var _share = shareMapURL;
-    window.shareMapURL = function () {
-      if (isPro()) return _share.apply(this, arguments);
-      document.getElementById('upgrade-modal').classList.add('open');
-    };
-  }
+  /* Share map is 100% free — no gating */
 
   window.closeUpgradeModal = function () {
-    document.getElementById('upgrade-modal').classList.remove('open');
+    var el = document.getElementById('upgrade-modal');
+    if (el) el.classList.remove('open');
   };
 
-  /* API para testing / Stripe callback */
+  /* API for testing */
   window.manaPlan = {
-    get: function () { return isPro() ? 'pro' : 'free'; },
-    set: function (p) { localStorage.setItem('mana-plan', p); location.reload(); }
+    get: function () { return 'free'; },
+    set: function () {}
   };
 
 })();
