@@ -501,6 +501,7 @@
       <label class="ai-label">Proveedor</label>
       <select id="ai-provider" class="ai-input" onchange="toggleEndpointField(this.value)">
         <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic (Claude)</option>
         <option value="groq">Groq (gratis)</option>
         <option value="together">Together AI</option>
         <option value="custom">Personalizado</option>
@@ -519,7 +520,8 @@
 
       <div class="ai-hint">
         &#128274; La clave se guarda solo en tu navegador (localStorage).<br>
-        &#128161; <strong>Groq</strong> ofrece una clave gratuita en <a href="https://console.groq.com" target="_blank">console.groq.com</a>
+        &#128161; <strong>Groq</strong> ofrece una clave gratuita en <a href="https://console.groq.com" target="_blank">console.groq.com</a><br>
+        &#128161; <strong>Anthropic</strong> en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
       </div>
     </div>
     <div class="ai-modal-footer">

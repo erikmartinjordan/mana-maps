@@ -531,9 +531,14 @@ async function processAI(userText) {
 }
 
 async function callAI(settings, messages) {
+  // ── Anthropic (Claude) — different API format ──
+  if (settings.provider === 'anthropic') {
+    return _callAnthropic(settings, messages);
+  }
+
   const headers = { 'Content-Type': 'application/json' };
 
-  // All providers use Bearer auth
+  // All OpenAI-compatible providers use Bearer auth
   headers['Authorization'] = 'Bearer ' + settings.apiKey;
 
   const body = {
@@ -562,6 +567,103 @@ async function callAI(settings, messages) {
   }
 
   return resp.json();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ANTHROPIC ADAPTER
+// Converts between Anthropic and OpenAI formats so the rest
+// of the code (tool call loop, chat history) works unchanged.
+// ═══════════════════════════════════════════════════════════════
+function _anthropicConvertTools(openaiTools) {
+  return openaiTools.map(function(t) {
+    var fn = t.function;
+    return { name: fn.name, description: fn.description || '', input_schema: fn.parameters || { type: 'object', properties: {} } };
+  });
+}
+
+function _anthropicConvertMessages(messages) {
+  var system = '';
+  var out = [];
+  messages.forEach(function(m) {
+    if (m.role === 'system') {
+      system += (system ? '\n' : '') + m.content;
+    } else if (m.role === 'assistant' && m.tool_calls) {
+      // OpenAI assistant with tool_calls → Anthropic content blocks
+      var content = [];
+      if (m.content) content.push({ type: 'text', text: m.content });
+      m.tool_calls.forEach(function(tc) {
+        content.push({
+          type: 'tool_use',
+          id: tc.id,
+          name: tc.function.name,
+          input: JSON.parse(tc.function.arguments || '{}')
+        });
+      });
+      out.push({ role: 'assistant', content: content });
+    } else if (m.role === 'tool') {
+      // OpenAI tool result → Anthropic tool_result
+      out.push({
+        role: 'user',
+        content: [{ type: 'tool_result', tool_use_id: m.tool_call_id, content: m.content }]
+      });
+    } else {
+      out.push({ role: m.role, content: m.content });
+    }
+  });
+  return { system: system, messages: out };
+}
+
+function _anthropicToOpenAI(anthropicResp) {
+  // Convert Anthropic response → OpenAI-compatible format
+  var content = anthropicResp.content || [];
+  var text = '';
+  var toolCalls = [];
+  content.forEach(function(block) {
+    if (block.type === 'text') {
+      text += block.text;
+    } else if (block.type === 'tool_use') {
+      toolCalls.push({
+        id: block.id,
+        type: 'function',
+        function: { name: block.name, arguments: JSON.stringify(block.input || {}) }
+      });
+    }
+  });
+  var msg = { role: 'assistant', content: text || null };
+  if (toolCalls.length) msg.tool_calls = toolCalls;
+  return { choices: [{ message: msg }] };
+}
+
+async function _callAnthropic(settings, messages) {
+  var converted = _anthropicConvertMessages(messages);
+
+  var body = {
+    model: settings.model,
+    max_tokens: 1024,
+    temperature: 0.3,
+    tools: _anthropicConvertTools(AI_TOOLS),
+    messages: converted.messages
+  };
+  if (converted.system) body.system = converted.system;
+
+  var resp = await fetch(settings.endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': settings.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!resp.ok) {
+    var errText = await resp.text();
+    throw new Error('Anthropic ' + resp.status + ': ' + errText.substring(0, 200));
+  }
+
+  var data = await resp.json();
+  return _anthropicToOpenAI(data);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -730,6 +832,12 @@ function toggleEndpointField(provider) {
     endpointInput.value = 'https://api.groq.com/openai/v1/chat/completions';
     modelInput.placeholder = 'llama-3.3-70b-versatile';
     if (!modelInput.value || modelInput.value.startsWith('gpt')) modelInput.value = 'llama-3.3-70b-versatile';
+  } else if (provider === 'anthropic') {
+    row.style.display = 'none';
+    endpointInput.value = 'https://api.anthropic.com/v1/messages';
+    modelInput.placeholder = 'claude-sonnet-4-20250514';
+    if (!modelInput.value || modelInput.value.startsWith('gpt') || modelInput.value.startsWith('llama') || modelInput.value.startsWith('meta'))
+      modelInput.value = 'claude-sonnet-4-20250514';
   } else if (provider === 'together') {
     row.style.display = 'none';
     endpointInput.value = 'https://api.together.xyz/v1/chat/completions';
