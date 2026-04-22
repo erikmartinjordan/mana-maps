@@ -1815,3 +1815,21 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .atp-btn:hover{background:var(--bg,#f8f7f5);color:var(--primary,#1a1917);}
 .atp-btn svg{width:11px;height:11px;}
 .atp-btn-close{margin-left:auto;}
+
+/* ═══════════════════════════════════════════════════════════════
+   SELECT TOOL — cursor + rubber-band box
+   ═══════════════════════════════════════════════════════════════ */
+#map.select-mode{cursor:crosshair !important;}
+#map.select-mode .leaflet-interactive{cursor:crosshair !important;}
+#map.select-mode .leaflet-grab{cursor:crosshair !important;}
+#map.select-mode .leaflet-dragging{cursor:crosshair !important;}
+
+.select-rubber-band{
+  position:absolute;display:none;
+  border:2px dashed var(--blue,#0ea5e9);
+  background:rgba(14,165,233,.08);
+  border-radius:2px;
+  pointer-events:none;
+  z-index:900;
+  transition:none;
+}

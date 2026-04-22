@@ -2,6 +2,13 @@
 
 let activeTool = null, drawHandler = null;
 
+// Select tool state (declared early so stopAll can reference it)
+var _selectMode = false;
+var _selBox = null;
+var _selStart = null;
+var _selDragging = false;
+var _SEL_DRAG_THRESHOLD = 5;
+
 // ── P1.2: Edit mode state ──
 let editMode = false;
 
@@ -215,54 +222,238 @@ function formatDist(m) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SELECT TOOL
+// SELECT TOOL — click + box/marquee selection (QGIS-style)
 // ═══════════════════════════════════════════════════════════════
-let _selectMode = false;
 
 function startSelect() {
   _selectMode = true;
-  map.getContainer().style.cursor = 'default';
-  map.on('click', _selectClick);
+
+  // Cursor: crosshair on the map
+  map.getContainer().classList.add('select-mode');
+
+  // Disable map dragging so mousedown+drag draws a box, not pans
+  map.dragging.disable();
+
+  // Create rubber-band div (reused across drags)
+  if (!_selBox) {
+    _selBox = document.createElement('div');
+    _selBox.className = 'select-rubber-band';
+    map.getContainer().appendChild(_selBox);
+  }
+  _selBox.style.display = 'none';
+
+  // Bind events on the map container (not Leaflet events) so we get raw coords
+  var container = map.getContainer();
+  container.addEventListener('mousedown', _selOnDown);
+  container.addEventListener('touchstart', _selOnTouchStart, { passive: false });
 }
 
 function stopSelect() {
   _selectMode = false;
-  map.getContainer().style.cursor = '';
-  map.off('click', _selectClick);
+  _selDragging = false;
+  _selStart = null;
+
+  map.getContainer().classList.remove('select-mode');
+  map.dragging.enable();
+
+  if (_selBox) _selBox.style.display = 'none';
+
+  var container = map.getContainer();
+  container.removeEventListener('mousedown', _selOnDown);
+  container.removeEventListener('touchstart', _selOnTouchStart);
+  document.removeEventListener('mousemove', _selOnMove);
+  document.removeEventListener('mouseup', _selOnUp);
+  document.removeEventListener('touchmove', _selOnTouchMove);
+  document.removeEventListener('touchend', _selOnTouchEnd);
+
   var btn = document.getElementById('btn-select');
   if (btn) btn.classList.remove('active');
 }
 
-function _selectClick(e) {
-  let bestLayer = null;
-  let bestDist = Infinity;
+// ── Mouse events ──
 
-  drawnItems.eachLayer(l => {
+function _selOnDown(e) {
+  // Ignore right-click
+  if (e.button && e.button !== 0) return;
+  // Ignore if clicking on UI elements inside the map container (zoom controls, etc.)
+  if (e.target.closest('.leaflet-control-container')) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  var rect = map.getContainer().getBoundingClientRect();
+  _selStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  _selDragging = false;
+
+  document.addEventListener('mousemove', _selOnMove);
+  document.addEventListener('mouseup', _selOnUp);
+}
+
+function _selOnMove(e) {
+  if (!_selStart) return;
+  var rect = map.getContainer().getBoundingClientRect();
+  var cx = e.clientX - rect.left;
+  var cy = e.clientY - rect.top;
+  var dx = cx - _selStart.x;
+  var dy = cy - _selStart.y;
+
+  if (!_selDragging && Math.hypot(dx, dy) < _SEL_DRAG_THRESHOLD) return;
+  _selDragging = true;
+
+  // Draw rubber band
+  var x = Math.min(_selStart.x, cx);
+  var y = Math.min(_selStart.y, cy);
+  var w = Math.abs(dx);
+  var h = Math.abs(dy);
+  _selBox.style.left = x + 'px';
+  _selBox.style.top = y + 'px';
+  _selBox.style.width = w + 'px';
+  _selBox.style.height = h + 'px';
+  _selBox.style.display = 'block';
+}
+
+function _selOnUp(e) {
+  document.removeEventListener('mousemove', _selOnMove);
+  document.removeEventListener('mouseup', _selOnUp);
+
+  if (!_selStart) return;
+
+  var rect = map.getContainer().getBoundingClientRect();
+  var endX = e.clientX - rect.left;
+  var endY = e.clientY - rect.top;
+  var additive = e.shiftKey;
+
+  if (_selDragging) {
+    // ── Box selection ──
+    _selBox.style.display = 'none';
+    var x1 = Math.min(_selStart.x, endX);
+    var y1 = Math.min(_selStart.y, endY);
+    var x2 = Math.max(_selStart.x, endX);
+    var y2 = Math.max(_selStart.y, endY);
+    _selectByBox(x1, y1, x2, y2, additive);
+  } else {
+    // ── Click selection (no drag) ──
+    _selectByClick(_selStart.x, _selStart.y, additive);
+  }
+
+  _selStart = null;
+  _selDragging = false;
+}
+
+// ── Touch events (same logic, adapted) ──
+
+function _selOnTouchStart(e) {
+  if (e.touches.length !== 1) return;
+  if (e.target.closest('.leaflet-control-container')) return;
+  e.preventDefault();
+
+  var rect = map.getContainer().getBoundingClientRect();
+  var t = e.touches[0];
+  _selStart = { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  _selDragging = false;
+
+  document.addEventListener('touchmove', _selOnTouchMove, { passive: false });
+  document.addEventListener('touchend', _selOnTouchEnd);
+}
+
+function _selOnTouchMove(e) {
+  if (!_selStart || e.touches.length !== 1) return;
+  e.preventDefault();
+  var rect = map.getContainer().getBoundingClientRect();
+  var t = e.touches[0];
+  // Re-use mouse move logic via a fake event
+  _selOnMove({ clientX: t.clientX, clientY: t.clientY });
+}
+
+function _selOnTouchEnd(e) {
+  document.removeEventListener('touchmove', _selOnTouchMove);
+  document.removeEventListener('touchend', _selOnTouchEnd);
+
+  if (!_selStart) return;
+
+  var rect = map.getContainer().getBoundingClientRect();
+  // changedTouches gives the position of the ended touch
+  var t = e.changedTouches[0];
+  var endX = t.clientX - rect.left;
+  var endY = t.clientY - rect.top;
+  var additive = false; // no shift on touch
+
+  if (_selDragging) {
+    _selBox.style.display = 'none';
+    var x1 = Math.min(_selStart.x, endX);
+    var y1 = Math.min(_selStart.y, endY);
+    var x2 = Math.max(_selStart.x, endX);
+    var y2 = Math.max(_selStart.y, endY);
+    _selectByBox(x1, y1, x2, y2, additive);
+  } else {
+    _selectByClick(_selStart.x, _selStart.y, additive);
+  }
+
+  _selStart = null;
+  _selDragging = false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SELECTION LOGIC
+// ═══════════════════════════════════════════════════════════════
+
+/** Select all features whose representative point falls inside the box (container px). */
+function _selectByBox(x1, y1, x2, y2, additive) {
+  if (!additive && typeof clearSelection === 'function') clearSelection();
+
+  var selBounds = L.latLngBounds(
+    map.containerPointToLatLng([x1, y1]),
+    map.containerPointToLatLng([x2, y2])
+  );
+
+  drawnItems.eachLayer(function (l) {
+    var dominated = false;
     if (l instanceof L.Marker) {
-      const pt = map.latLngToContainerPoint(l.getLatLng());
-      const ep = map.latLngToContainerPoint(e.latlng);
-      const d = Math.hypot(pt.x - ep.x, pt.y - ep.y);
+      dominated = selBounds.contains(l.getLatLng());
+    } else if (l.getBounds) {
+      // Select if the box intersects the layer bounds
+      dominated = selBounds.intersects(l.getBounds());
+    }
+    if (dominated && typeof selectLayerOnMap === 'function') {
+      selectLayerOnMap(l, true); // always additive inside one box op
+    }
+  });
+
+  // Count for toast
+  if (typeof _selectedLayers !== 'undefined' && typeof showToast === 'function') {
+    var n = _selectedLayers.size;
+    if (n > 0) showToast(n + ' elemento' + (n > 1 ? 's' : '') + ' seleccionado' + (n > 1 ? 's' : ''));
+  }
+}
+
+/** Single-click selection: find the closest feature near px coords. */
+function _selectByClick(px, py, additive) {
+  var latlng = map.containerPointToLatLng([px, py]);
+  var bestLayer = null;
+  var bestDist = Infinity;
+
+  drawnItems.eachLayer(function (l) {
+    if (l instanceof L.Marker) {
+      var pt = map.latLngToContainerPoint(l.getLatLng());
+      var d = Math.hypot(pt.x - px, pt.y - py);
       if (d < 24 && d < bestDist) { bestDist = d; bestLayer = l; }
     } else if (l instanceof L.Polygon) {
-      if (l.getBounds().contains(e.latlng)) {
+      if (l.getBounds().contains(latlng)) {
         bestLayer = l; bestDist = 0;
-      } else if (typeof isNearPolyline === 'function' && isNearPolyline(e.latlng, l, 12)) {
+      } else if (typeof isNearPolyline === 'function' && isNearPolyline(latlng, l, 12)) {
         if (5 < bestDist) { bestLayer = l; bestDist = 5; }
       }
     } else if (l instanceof L.Polyline) {
-      if (typeof isNearPolyline === 'function' && isNearPolyline(e.latlng, l, 14)) {
+      if (typeof isNearPolyline === 'function' && isNearPolyline(latlng, l, 14)) {
         if (5 < bestDist) { bestLayer = l; bestDist = 5; }
       }
     }
   });
 
   if (bestLayer) {
-    const addToSelection = (e.originalEvent && e.originalEvent.shiftKey);
-    if (typeof selectLayerOnMap === 'function') selectLayerOnMap(bestLayer, addToSelection);
-  } else {
-    // Clicked on empty area: clear selection
-    if (!e.originalEvent || !e.originalEvent.shiftKey) {
-      if (typeof clearSelection === 'function') clearSelection();
-    }
+    if (typeof selectLayerOnMap === 'function') selectLayerOnMap(bestLayer, additive);
+    if (typeof showToast === 'function') showToast((bestLayer._manaName || 'Elemento') + ' seleccionado');
+  } else if (!additive) {
+    if (typeof clearSelection === 'function') clearSelection();
   }
 }
