@@ -299,6 +299,55 @@ const I18N = {
     stats_total_area: "Área total",
     stats_wms_layers: "Capas WMS activas",
     stats_total_elements: "Total",
+    // ── Stats panel (more) ──
+    stats_title: "Estadísticas",
+    stats_summary: "Resumen",
+    stats_extent: "Extensión",
+    stats_data_groups: "Grupos de datos",
+    stats_attributes: "Atributos (top campos)",
+    // ── Upsell modal ──
+    upsell_title: "Maña Maps Pro",
+    upsell_period: "/ mes",
+    upsell_ai_title: "IA incluida",
+    upsell_ai_desc: "Sin configurar nada",
+    upsell_models_title: "Todos los modelos de lenguaje",
+    upsell_models_desc: "GPT-4o, Claude, Llama y más",
+    upsell_support_title: "Soporte prioritario",
+    upsell_support_desc: "Respuesta directa del equipo",
+    upsell_cta: "Empezar ahora",
+    upsell_have_key: "Ya tengo una clave API",
+    upsell_note: "Recibirás tu clave API por email tras el pago · Cancela cuando quieras",
+    // ── About page ──
+    about_title: "Acerca de Maña Maps",
+    about_subtitle: "Una herramienta de cartografía ligera, rápida y sin distracciones.",
+    about_what_title: "¿Qué es Maña Maps?",
+    about_what_p1: "Maña Maps es un editor de mapas web diseñado para crear, anotar y exportar información geoespacial sin necesidad de instalar nada ni crear una cuenta. Funciona directamente en el navegador, con cero dependencias de servidor propias.",
+    about_what_p2: "El objetivo es ofrecer las funciones esenciales de un SIG de escritorio — dibujar puntos, líneas y polígonos, medir distancias, importar y exportar en múltiples formatos — dentro de una interfaz limpia que no requiere curva de aprendizaje.",
+    about_features_title: "Funcionalidades",
+    about_feat_draw: "Dibujo vectorial",
+    about_feat_draw_desc: "Puntos, líneas y polígonos con paleta Apple de 8 colores y 4 tipos de marcador.",
+    about_feat_io: "Importar & Exportar",
+    about_feat_io_desc: "GeoJSON, KML, KMZ, CSV y Shapefile (.zip) con colores preservados.",
+    about_feat_ruler: "Regla de distancias",
+    about_feat_ruler_desc: "Mide rutas de varios segmentos clic a clic, con resultado en metros o kilómetros.",
+    about_feat_ai: "Maña AI",
+    about_feat_ai_desc: "Comandos en lenguaje natural: dibuja puntos, centra el mapa, cambia a satélite y más.",
+    about_feat_layers: "Capas base",
+    about_feat_layers_desc: "Vista de mapa (CartoDB Light) y satélite (Esri World Imagery) con selector de miniaturas.",
+    about_feat_dd: "Drag & Drop",
+    about_feat_dd_desc: "Arrastra cualquier archivo GeoJSON, KML, KMZ o Shapefile ZIP directamente sobre el mapa.",
+    about_tech_title: "Tecnologías",
+    about_more_title: "Más",
+    about_open_map: "Abrir Maña Maps",
+    about_changelog_desc: "Historial de cambios",
+    about_github: "Código fuente en GitHub",
+    about_footer: "Maña Maps — Hecho con ❤ en Barcelona",
+    // ── Changelog page ──
+    changelog_back: "Volver al mapa",
+    changelog_subtitle: "Historial de cambios y mejoras de Maña Maps. Todos los commits, organizados por fecha.",
+    changelog_footer: "Maña Maps — Hecho con ❤ en Barcelona",
+    // ── Nav (shared) ──
+    nav_open_map: "Abrir mapa",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "es",
   },
@@ -599,18 +648,72 @@ const I18N = {
     stats_wms_layers: "Active WMS layers",
     stats_total_elements: "Total",
     hint_select: 'Click an element to select it (Shift+click for multi-select)',
+    // ── Stats panel (more) ──
+    stats_title: "Statistics",
+    stats_summary: "Summary",
+    stats_extent: "Extent",
+    stats_data_groups: "Data groups",
+    stats_attributes: "Attributes (top fields)",
+    // ── Upsell modal ──
+    upsell_title: "Maña Maps Pro",
+    upsell_period: "/ month",
+    upsell_ai_title: "AI included",
+    upsell_ai_desc: "No setup needed",
+    upsell_models_title: "All language models",
+    upsell_models_desc: "GPT-4o, Claude, Llama and more",
+    upsell_support_title: "Priority support",
+    upsell_support_desc: "Direct response from the team",
+    upsell_cta: "Get started",
+    upsell_have_key: "I already have an API key",
+    upsell_note: "You'll receive your API key by email after payment · Cancel anytime",
+    // ── About page ──
+    about_title: "About Maña Maps",
+    about_subtitle: "A lightweight, fast and distraction-free mapping tool.",
+    about_what_title: "What is Maña Maps?",
+    about_what_p1: "Maña Maps is a web map editor designed to create, annotate and export geospatial information without installing anything or creating an account. It runs directly in the browser, with zero proprietary server dependencies.",
+    about_what_p2: "The goal is to offer the essential features of a desktop GIS — drawing points, lines and polygons, measuring distances, importing and exporting in multiple formats — within a clean interface that requires no learning curve.",
+    about_features_title: "Features",
+    about_feat_draw: "Vector drawing",
+    about_feat_draw_desc: "Points, lines and polygons with an Apple-style palette of 8 colors and 4 marker types.",
+    about_feat_io: "Import & Export",
+    about_feat_io_desc: "GeoJSON, KML, KMZ, CSV and Shapefile (.zip) with preserved colors.",
+    about_feat_ruler: "Distance ruler",
+    about_feat_ruler_desc: "Measure multi-segment routes click by click, with results in meters or kilometers.",
+    about_feat_ai: "Maña AI",
+    about_feat_ai_desc: "Natural language commands: draw points, center the map, switch to satellite and more.",
+    about_feat_layers: "Base layers",
+    about_feat_layers_desc: "Map view (CartoDB Light) and satellite (Esri World Imagery) with thumbnail selector.",
+    about_feat_dd: "Drag & Drop",
+    about_feat_dd_desc: "Drag any GeoJSON, KML, KMZ or Shapefile ZIP file directly onto the map.",
+    about_tech_title: "Technologies",
+    about_more_title: "More",
+    about_open_map: "Open Maña Maps",
+    about_changelog_desc: "Changelog",
+    about_github: "Source code on GitHub",
+    about_footer: "Maña Maps — Made with ❤ in Barcelona",
+    // ── Changelog page ──
+    changelog_back: "Back to map",
+    changelog_subtitle: "Changelog and improvements for Maña Maps. All commits, organized by date.",
+    changelog_footer: "Maña Maps — Made with ❤ in Barcelona",
+    // ── Nav (shared) ──
+    nav_open_map: "Open map",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "en",
   }
 };
 
-// ── Language detection: localStorage > URL path > browser > 'es' ──
+// ── Language detection: localStorage > URL path > browser locale ──
+// Spanish-speaking locales (es-ES, es-MX, es-AR, es-CL, ca, gl, eu) → ES
+// Everything else → EN
 let LANG = (function() {
   var stored = localStorage.getItem('mana-lang');
   if (stored && I18N[stored]) return stored;
   if (window.location.pathname.startsWith('/en')) return 'en';
-  var nav = (navigator.language || navigator.userLanguage || 'es').slice(0, 2);
-  return I18N[nav] ? nav : 'es';
+  var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  var lang2 = nav.slice(0, 2);
+  // Spanish-speaking regions: es-*, ca (Catalan), gl (Galician), eu (Basque)
+  if (lang2 === 'es' || lang2 === 'ca' || lang2 === 'gl' || lang2 === 'eu') return 'es';
+  return 'en';
 })();
 
 // ── Translation function ──

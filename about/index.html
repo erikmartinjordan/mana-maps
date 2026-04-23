@@ -155,8 +155,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
     <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
-    <a class="btn btn-ghost" href="/changelog">Changelog</a>
-    <a class="btn btn-primary" href="/">Abrir mapa</a>
+    <a class="btn btn-ghost" href="/changelog" data-i18n="about_changelog_desc">Changelog</a>
+    <a class="btn btn-primary" href="/" data-i18n="nav_open_map">Abrir mapa</a>
   </div>
 </div>
 
@@ -172,67 +172,67 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
       <span>M&#771;</span>
     </div>
     <div class="hero-text">
-      <h1>Acerca de Ma&#241;a Maps</h1>
-      <p>Una herramienta de cartograf&#237;a ligera, r&#225;pida y sin distracciones.</p>
+      <h1 data-i18n="about_title">Acerca de Ma&#241;a Maps</h1>
+      <p data-i18n="about_subtitle">Una herramienta de cartograf&#237;a ligera, r&#225;pida y sin distracciones.</p>
     </div>
   </div>
 
   <div class="section">
-    <h2>&#191;Qu&#233; es Ma&#241;a Maps?</h2>
-    <p>Ma&#241;a Maps es un editor de mapas web dise&#241;ado para crear, anotar y exportar informaci&#243;n geoespacial sin necesidad de instalar nada ni crear una cuenta. Funciona directamente en el navegador, con cero dependencias de servidor propias.</p>
-    <p>El objetivo es ofrecer las funciones esenciales de un SIG de escritorio &#8212; dibujar puntos, l&#237;neas y pol&#237;gonos, medir distancias, importar y exportar en m&#250;ltiples formatos &#8212; dentro de una interfaz limpia que no requiere curva de aprendizaje.</p>
+    <h2 data-i18n="about_what_title">&#191;Qu&#233; es Ma&#241;a Maps?</h2>
+    <p data-i18n="about_what_p1">Ma&#241;a Maps es un editor de mapas web dise&#241;ado para crear, anotar y exportar informaci&#243;n geoespacial sin necesidad de instalar nada ni crear una cuenta. Funciona directamente en el navegador, con cero dependencias de servidor propias.</p>
+    <p data-i18n="about_what_p2">El objetivo es ofrecer las funciones esenciales de un SIG de escritorio &#8212; dibujar puntos, l&#237;neas y pol&#237;gonos, medir distancias, importar y exportar en m&#250;ltiples formatos &#8212; dentro de una interfaz limpia que no requiere curva de aprendizaje.</p>
   </div>
 
   <div class="section">
-    <h2>Funcionalidades</h2>
+    <h2 data-i18n="about_features_title">Funcionalidades</h2>
     <div class="feat-grid">
       <div class="feat-card">
         <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg></div>
         <div class="feat-body">
-          <div class="feat-title">Dibujo vectorial</div>
-          <div class="feat-desc">Puntos, l&#237;neas y pol&#237;gonos con paleta Apple de 8 colores y 4 tipos de marcador.</div>
+          <div class="feat-title" data-i18n="about_feat_draw">Dibujo vectorial</div>
+          <div class="feat-desc" data-i18n="about_feat_draw_desc">Puntos, l&#237;neas y pol&#237;gonos con paleta Apple de 8 colores y 4 tipos de marcador.</div>
         </div>
       </div>
       <div class="feat-card">
         <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg></div>
         <div class="feat-body">
-          <div class="feat-title">Importar &amp; Exportar</div>
-          <div class="feat-desc">GeoJSON, KML, KMZ, CSV y Shapefile (.zip) con colores preservados.</div>
+          <div class="feat-title" data-i18n="about_feat_io">Importar &amp; Exportar</div>
+          <div class="feat-desc" data-i18n="about_feat_io_desc">GeoJSON, KML, KMZ, CSV y Shapefile (.zip) con colores preservados.</div>
         </div>
       </div>
       <div class="feat-card">
         <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg></div>
         <div class="feat-body">
-          <div class="feat-title">Regla de distancias</div>
-          <div class="feat-desc">Mide rutas de varios segmentos clic a clic, con resultado en metros o kil&#243;metros.</div>
+          <div class="feat-title" data-i18n="about_feat_ruler">Regla de distancias</div>
+          <div class="feat-desc" data-i18n="about_feat_ruler_desc">Mide rutas de varios segmentos clic a clic, con resultado en metros o kil&#243;metros.</div>
         </div>
       </div>
       <div class="feat-card">
         <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
         <div class="feat-body">
-          <div class="feat-title">Ma&#241;a AI</div>
-          <div class="feat-desc">Comandos en lenguaje natural: dibuja puntos, centra el mapa, cambia a sat&#233;lite y m&#225;s.</div>
+          <div class="feat-title" data-i18n="about_feat_ai">Ma&#241;a AI</div>
+          <div class="feat-desc" data-i18n="about_feat_ai_desc">Comandos en lenguaje natural: dibuja puntos, centra el mapa, cambia a sat&#233;lite y m&#225;s.</div>
         </div>
       </div>
       <div class="feat-card">
         <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
         <div class="feat-body">
-          <div class="feat-title">Capas base</div>
-          <div class="feat-desc">Vista de mapa (CartoDB Light) y sat&#233;lite (Esri World Imagery) con selector de miniaturas.</div>
+          <div class="feat-title" data-i18n="about_feat_layers">Capas base</div>
+          <div class="feat-desc" data-i18n="about_feat_layers_desc">Vista de mapa (CartoDB Light) y sat&#233;lite (Esri World Imagery) con selector de miniaturas.</div>
         </div>
       </div>
       <div class="feat-card">
         <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/></svg></div>
         <div class="feat-body">
-          <div class="feat-title">Drag &amp; Drop</div>
-          <div class="feat-desc">Arrastra cualquier archivo GeoJSON, KML, KMZ o Shapefile ZIP directamente sobre el mapa.</div>
+          <div class="feat-title" data-i18n="about_feat_dd">Drag &amp; Drop</div>
+          <div class="feat-desc" data-i18n="about_feat_dd_desc">Arrastra cualquier archivo GeoJSON, KML, KMZ o Shapefile ZIP directamente sobre el mapa.</div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="section">
-    <h2>Tecnolog&#237;as</h2>
+    <h2 data-i18n="about_tech_title">Tecnolog&#237;as</h2>
     <div class="pill-wrap">
       <span class="pill">&#127758; Leaflet.js</span>
       <span class="pill">&#9999;&#65039; Leaflet Draw</span>
@@ -248,28 +248,28 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   <div class="hdivider"></div>
 
   <div class="section">
-    <h2>M&#225;s</h2>
+    <h2 data-i18n="about_more_title">M&#225;s</h2>
     <div class="link-list">
       <a class="link-item" href="/">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Abrir Ma&#241;a Maps
+        <span data-i18n="about_open_map">Abrir Ma&#241;a Maps</span>
         <span class="link-desc">&#x2192;</span>
       </a>
       <a class="link-item" href="/changelog">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        Changelog
-        <span class="link-desc">Historial de cambios</span>
+        <span>Changelog</span>
+        <span class="link-desc" data-i18n="about_changelog_desc">Historial de cambios</span>
       </a>
       <a class="link-item" href="https://github.com/erikmartinjordan/mana-maps" target="_blank">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.16c-3.34.73-4.04-1.61-4.04-1.61-.54-1.37-1.33-1.74-1.33-1.74-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.01 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.22.7.83.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
-        C&#243;digo fuente en GitHub
+        <span data-i18n="about_github">C&#243;digo fuente en GitHub</span>
         <span class="link-desc">erikmartinjordan/mana-maps</span>
       </a>
     </div>
   </div>
 
   <div class="page-footer">
-    Ma&#241;a Maps &mdash; Hecho con &#10084; en Barcelona &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
+    <span data-i18n="about_footer">Ma&#241;a Maps &mdash; Hecho con &#10084; en Barcelona</span> &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
   </div>
 
 </div>

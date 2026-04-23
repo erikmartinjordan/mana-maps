@@ -149,7 +149,7 @@ function refreshStatsPanel() {
     '    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
     '      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>' +
     '    </svg>' +
-    '    Estad\u00edsticas' +
+    '    ' + t('stats_title') + '' +
     '  </span>' +
     '  <button class="stats-panel-close" onclick="closeStatsPanel()">' +
     '    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">' +
@@ -160,7 +160,7 @@ function refreshStatsPanel() {
 
     // Resumen
     '<div class="stats-section">' +
-    '  <div class="stats-section-label">' + (LANG==='en'?'Summary':'Resumen') + '</div>' +
+    '  <div class="stats-section-label">' + t('stats_summary') + '</div>' +
     '  <div class="stats-grid">' +
     '    <div class="stats-card">' +
     '      <span class="stats-card-val">' + s.total + '</span>' +
@@ -186,13 +186,13 @@ function refreshStatsPanel() {
     '  <div class="stats-section-label">' + t('stats_geometry') + '</div>' +
     '  <div class="stats-row"><span>' + t('stats_total_length') + '</span><strong>' + lengthKm + ' km</strong></div>' +
     '  <div class="stats-row"><span>' + t('stats_total_area') + '</span><strong>' + areaKm2 + ' km\u00b2 (' + areaHa + ' ha)</strong></div>' +
-    '  <div class="stats-row"><span>Extensi\u00f3n</span><span class="stats-mono">' + boundsStr + '</span></div>' +
+    '  <div class="stats-row"><span>' + t('stats_extent') + '</span><span class="stats-mono">' + boundsStr + '</span></div>' +
     '</div>' +
 
     // Capas y WMS
     '<div class="stats-section">' +
     '  <div class="stats-section-label">' + t('panel_layers_title') + '</div>' +
-    '  <div class="stats-row"><span>Grupos de datos</span><strong>' + s.groupCount + '</strong></div>' +
+    '  <div class="stats-row"><span>' + t('stats_data_groups') + '</span><strong>' + s.groupCount + '</strong></div>' +
     '  <div class="stats-row"><span>' + t('stats_wms_layers') + '</span><strong>' + s.wmsCount + '</strong></div>' +
     '</div>';
 
@@ -200,7 +200,7 @@ function refreshStatsPanel() {
   var attrKeys = Object.keys(s.attributes);
   if (attrKeys.length > 0) {
     html += '<div class="stats-section">' +
-      '<div class="stats-section-label">Atributos (top campos)</div>';
+      '<div class="stats-section-label">' + t('stats_attributes') + '</div>';
 
     attrKeys.slice(0, 5).forEach(function(key) {
       var attr = s.attributes[key];
