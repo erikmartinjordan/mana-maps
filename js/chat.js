@@ -31,6 +31,86 @@ function hasAIKey() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// LOCAL COMMAND PARSER — intercepts style/tool/UI commands
+// before any AI call or Nominatim geocoding (zero network calls)
+// ═══════════════════════════════════════════════════════════════
+function parseLocalCommand(text) {
+  const c = text.trim();
+  const cl = c.toLowerCase();
+
+  // ── COLOR COMMANDS ──
+  const colorPatterns = [
+    [/(color)?\s*(rojo|red)/i, '#ef4444', 'rojo'],
+    [/(color)?\s*(azul|blue)/i, '#0ea5e9', 'azul'],
+    [/(color)?\s*(verde|green)/i, '#10b981', 'verde'],
+    [/(color)?\s*(amarillo|dorado|yellow|gold)/i, '#f59e0b', 'amarillo'],
+    [/(color)?\s*(rosa|pink)/i, '#ec4899', 'rosa'],
+    [/(color)?\s*(p[uú]rpura|morado|violet|purple)/i, '#8b5cf6', 'púrpura'],
+    [/(color)?\s*([íi]ndigo|indigo)/i, '#6366f1', 'índigo'],
+    [/(color)?\s*(naranja|orange)/i, '#f97316', 'naranja'],
+    [/(color)?\s*(gris|pizarra|slate|gray|grey)/i, '#64748b', 'gris'],
+    [/(color)?\s*(negro|black|oscuro|dark)/i, '#30363b', 'negro'],
+  ];
+  for (const [rx, hex, name] of colorPatterns) {
+    if (rx.test(cl)) {
+      const swatch = document.querySelector('[data-color="' + hex + '"]');
+      if (swatch) setDrawColor(hex, swatch);
+      else { drawColor = hex; document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s.dataset.color === hex)); }
+      var cNames = {rojo:'red',azul:'blue',verde:'green',amarillo:'yellow',rosa:'pink','púrpura':'purple','índigo':'indigo',naranja:'orange',gris:'grey',negro:'black'};
+      var displayName = LANG === 'en' ? (cNames[name] || name) : name;
+      return { ok: true, msg: t('local_color_changed') + ' <span style="color:' + hex + ';font-weight:700">' + displayName + '</span>.' };
+    }
+  }
+
+  // ── MARKER TYPE COMMANDS ──
+  const markerPatterns = [
+    [/(marcador|marker|icono|icon).*(pin|chincheta)/i, 'pin'],
+    [/(marcador|marker|icono|icon).*(c[íi]rculo|circle)/i, 'circle'],
+    [/(marcador|marker|icono|icon).*(cuadrado|square)/i, 'square'],
+    [/(marcador|marker|icono|icon).*(estrella|star)/i, 'star'],
+  ];
+  for (const [rx, type] of markerPatterns) {
+    if (rx.test(cl)) {
+      const el = document.querySelector('[data-mtype="' + type + '"]');
+      if (el) setMarkerType(type, el);
+      return { ok: true, msg: t('local_marker_changed') + ' ' + type + '.' };
+    }
+  }
+
+  // ── TOOL ACTIVATION ──
+  if (/^(punto|point|pin)$/i.test(cl)) { setTool('point'); return { ok: true, msg: t('local_tool_point') }; }
+  if (/^(l[íi]nea|linea|line)$/i.test(cl)) { setTool('line'); return { ok: true, msg: t('local_tool_line') }; }
+  if (/^(pol[íi]gono|poligono|polygon)$/i.test(cl)) { setTool('polygon'); return { ok: true, msg: t('local_tool_polygon') }; }
+  if (/^(regla|ruler|medir|measure)$/i.test(cl)) { setTool('ruler'); return { ok: true, msg: t('local_tool_ruler') }; }
+
+  // ── BASEMAP COMMANDS ──
+  if (/sat[eé]lite|satellite/i.test(cl)) { setBaseLayer('satellite'); return { ok: true, msg: t('local_view_sat') }; }
+  if (/^(mapa|map)$/i.test(cl)) { setBaseLayer('map'); return { ok: true, msg: t('local_view_map') }; }
+  if (/globo|globe|3d/i.test(cl)) { setBaseLayer('globe'); return { ok: true, msg: t('local_view_globe') }; }
+
+  // ── MAP CONTROL COMMANDS ──
+  if (/limpiar|borrar todo|clear all|delete all/i.test(cl)) {
+    if (typeof clearAll === 'function') clearAll();
+    return { ok: true, msg: t('local_map_cleared') };
+  }
+  if (/zoom.*(in|acercar|\+)|acercar zoom/i.test(cl)) { map.zoomIn(); return { ok: true, msg: t('local_zoom_in') }; }
+  if (/zoom.*(out|alejar|-)|alejar zoom/i.test(cl)) { map.zoomOut(); return { ok: true, msg: t('local_zoom_out') }; }
+  if (/^(centrar|ajustar|fit bounds)$/i.test(cl)) {
+    try { map.fitBounds(drawnItems.getBounds(), { padding: [30, 30] }); } catch(e) {}
+    return { ok: true, msg: t('local_fit_bounds') };
+  }
+
+  // ── EXPORT COMMANDS ──
+  if (/exporta.*(geojson)/i.test(cl)) { exportAs('geojson'); return { ok: true, msg: '✅ Mapa exportado como GeoJSON.' }; }
+  if (/exporta.*(csv)/i.test(cl)) { exportAs('csv'); return { ok: true, msg: '✅ Mapa exportado como CSV.' }; }
+  if (/exporta.*(kml)/i.test(cl)) { exportAs('kml'); return { ok: true, msg: '✅ Mapa exportado como KML.' }; }
+  if (/exporta.*(shape|shp)/i.test(cl)) { exportAs('shapefile'); return { ok: true, msg: '✅ Mapa exportado como Shapefile.' }; }
+
+  // No match → continue with AI/geocoder
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // GEOCODER
 // ═══════════════════════════════════════════════════════════════
 async function geocode(q) {
@@ -373,48 +453,48 @@ async function processRegex(cmd) {
   if (/^(ayuda|help|comandos|\?)$/.test(c)) return toolActions.help();
 
   // Clear
-  if (/borra(r)? (todo|el mapa|todo el mapa)/.test(c) || c === 'limpiar' || c === 'clear') return toolActions.clear_map();
+  if (/borra(r)? (todo|el mapa|todo el mapa)/.test(c) || c === 'limpiar' || c === 'clear' || /clear (all|the map|everything)/.test(c)) return toolActions.clear_map();
 
   // Map info
-  if (/estado|info del mapa|status|resumen/.test(c)) return toolActions.get_map_info();
+  if (/estado|info del mapa|status|resumen|map info|summary/.test(c)) return toolActions.get_map_info();
 
   // Base layers
   if (/sat[eé]lite/.test(c)) return toolActions.set_baselayer({ type: 'satellite' });
-  if (/globo|3d|esfera|tierra|planet/.test(c)) return toolActions.set_baselayer({ type: 'globe' });
+  if (/globo|3d globe|esfera|tierra|planet|globe/.test(c)) return toolActions.set_baselayer({ type: 'globe' });
   if (/^mapa$|callejero|carto/.test(c)) return toolActions.set_baselayer({ type: 'map' });
 
   // Color
-  const colorM = c.match(/^(?:color|cambiar? color(?: a)?)\s+(.+)/);
+  const colorM = c.match(/^(?:color|cambiar? color(?: a)?|set color(?: to)?)\s+(.+)/) || c.match(/^(.+?)\s+colou?r$/);
   if (colorM) return toolActions.set_color({ color: colorM[1].trim() });
 
   // Marker type
-  const markerM = c.match(/marcador\s+(pin|c[ií]rculo|cuadrado|estrella|circle|square|star)/i);
+  const markerM = c.match(/(?:marcador|marker)\s+(pin|c[ií]rculo|cuadrado|estrella|circle|square|star)/i);
   if (markerM) return toolActions.set_marker_type({ type: markerM[1] });
 
   // Tools
-  if (/mide|distancia|regla|ruler/.test(c)) return toolActions.measure_distance();
-  if (/herramienta (de )?punto|activar? punto/.test(c)) return toolActions.set_draw_tool({ tool: 'punto' });
-  if (/herramienta (de )?l[ií]nea|activar? l[ií]nea/.test(c)) return toolActions.set_draw_tool({ tool: 'línea' });
-  if (/herramienta (de )?pol[ií]gono|activar? pol[ií]gono/.test(c)) return toolActions.set_draw_tool({ tool: 'polígono' });
+  if (/mide|distancia|regla|ruler|measure/.test(c)) return toolActions.measure_distance();
+  if (/herramienta (de )?punto|activar? punto|point tool|draw point/.test(c)) return toolActions.set_draw_tool({ tool: 'punto' });
+  if (/herramienta (de )?l[ií]nea|activar? l[ií]nea|line tool|draw line/.test(c)) return toolActions.set_draw_tool({ tool: 'línea' });
+  if (/herramienta (de )?pol[ií]gono|activar? pol[ií]gono|polygon tool|draw polygon/.test(c)) return toolActions.set_draw_tool({ tool: 'polígono' });
 
   // Zoom
   if (/acerca|zoom in|más cerca/.test(c)) return toolActions.zoom({ direction: 'in' });
   if (/aleja|zoom out|más lejos/.test(c)) return toolActions.zoom({ direction: 'out' });
 
   // Export
-  const expM = c.match(/export(?:a|ar)\s+(?:como\s+)?(.+)/i);
+  const expM = c.match(/export(?:a|ar|)\s+(?:como|as)?\s*(.+)/i);
   if (expM) return toolActions.export_map({ format: expM[1].trim() });
 
   // Route
-  const routeM = c.match(/ruta\s+(?:de\s+)?(.+?)\s+(?:a|hasta)\s+(.+)/i);
+  const routeM = c.match(/(?:ruta|route)\s+(?:de|from)?\s*(.+?)\s+(?:a|hasta|to)\s+(.+)/i);
   if (routeM) return toolActions.draw_route({ from: routeM[1], to: routeM[2] });
 
   // Center
-  const centerM = c.match(/centra(?:r)?(?:\s+(?:el\s+)?mapa)?\s+(?:en\s+)?(.+)/);
+  const centerM = c.match(/(?:centra(?:r)?(?:\s+(?:el\s+)?mapa)?|center(?:\s+(?:the\s+)?map)?)\s+(?:en|on|in)?\s*(.+)/);
   if (centerM) return toolActions.center_map({ place: centerM[1] });
 
   // Multiple points
-  const multiM = c.match(/(?:marca|pon|añade|dibuja)\s+(?:puntos?\s+(?:en\s+)?)?(.+,\s*.+)/i);
+  const multiM = c.match(/(?:marca|pon|añade|dibuja|add|place|mark)\s+(?:puntos?|points?)?\s*(?:en|in)?\s*(.+,\s*.+)/i);
   if (multiM) {
     const places = multiM[1].split(/\s*[,y]\s*/).map(s => s.trim()).filter(Boolean);
     if (places.length > 1) return toolActions.add_multiple_points({ places });
@@ -431,7 +511,7 @@ async function processRegex(cmd) {
   if (lineM) return toolActions.draw_line({ from: lineM[1], to: lineM[2] });
 
   // Add point
-  const ptM = c.match(/(?:dibuja|añade|pon|marca|agrega|punto)\s+(?:un\s+)?(?:punto\s+)?(?:en|sobre|de)\s+(.+)/i);
+  const ptM = c.match(/(?:dibuja|añade|pon|marca|agrega|punto|add|place|put)\s+(?:un\s+|a\s+)?(?:punto|point|marker)?\s*(?:en|sobre|de|in|at|on)\s+(.+)/i);
   if (ptM) return toolActions.add_point({ place: ptM[1] });
 
   // Search places
@@ -710,6 +790,14 @@ async function sendMsg() {
   input.value = '';
   input.style.height = 'auto';
   addMsg(text, true);
+
+  // ── Try local command first (zero network calls) ──
+  const localResult = parseLocalCommand(text);
+  if (localResult) {
+    addMsg(localResult.msg, false);
+    chatBusy = false;
+    return;
+  }
 
   chatBusy = true;
   const typing = showTyping();

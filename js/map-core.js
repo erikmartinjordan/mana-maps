@@ -12,6 +12,50 @@ const map = L.map('map', { zoomControl: true }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 
+// ── Dark/light tile URLs ──
+const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+const TILE_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
+function setMapThemeTiles() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  // ── 2D Map tiles ──
+  tileMap.setUrl(isDark ? TILE_DARK : TILE_LIGHT);
+
+  // ── Satellite: apply CSS filter for night look ──
+  var mapEl = document.getElementById('map');
+  if (mapEl) {
+    if (isDark && activeBase === 'satellite') {
+      mapEl.classList.add('sat-dark');
+    } else {
+      mapEl.classList.remove('sat-dark');
+    }
+  }
+
+  // ── Globe 3D: swap tile source ──
+  if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
+    var src = globeMap.getSource('carto-light');
+    if (src && src.setTiles) {
+      var tpl = isDark
+        ? ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+           'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+           'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png']
+        : ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+           'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+           'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'];
+      src.setTiles(tpl);
+    }
+    // Also update point label colors for readability
+    if (globeMap.getLayer('drawn-point-labels')) {
+      globeMap.setPaintProperty('drawn-point-labels', 'text-color', isDark ? '#e8e6e3' : '#30363b');
+      globeMap.setPaintProperty('drawn-point-labels', 'text-halo-color', isDark ? '#1a1a1a' : '#ffffff');
+    }
+    if (globeMap.getLayer('drawn-points')) {
+      globeMap.setPaintProperty('drawn-points', 'circle-stroke-color', isDark ? '#1a1a1a' : '#ffffff');
+    }
+  }
+}
+
 const drawnItems = new L.FeatureGroup().addTo(map);
 
 // ═══════════════════════════════════════════════════════════════
@@ -329,6 +373,7 @@ function setBaseLayer(type) {
     setTimeout(function(){ map.invalidateSize(); }, 50);
   }
   activeBase = type;
+  setMapThemeTiles();
   document.getElementById('bmc-map').classList.toggle('active', type === 'map');
   document.getElementById('bmc-sat').classList.toggle('active', type === 'satellite');
   document.getElementById('bmc-globe').classList.toggle('active', type === 'globe');
@@ -357,7 +402,7 @@ function getEnrichedGeoJSON() {
     } else {
       f.properties.color = (l.options && l.options.color) || '#0ea5e9';
     }
-    f.properties.name = l._manaName || f.properties.name || 'Elemento';
+    f.properties.name = l._manaName || f.properties.name || t('generic_element');
     features.push(f);
   });
   return { type: 'FeatureCollection', features: features };
@@ -368,7 +413,7 @@ function getCurrentGeoJSON() {
   const features = [];
   drawnItems.eachLayer(function(l) {
     const f = l.toGeoJSON();
-    f.properties.name = l._manaName || f.properties.name || 'Elemento';
+    f.properties.name = l._manaName || f.properties.name || t('generic_element');
     f.properties.color = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : (l.options.color || '#0ea5e9');
     features.push(f);
   });
@@ -1208,7 +1253,8 @@ function attrTableAddColumn() {
   // Re-render table
   _renderAttrTableBody(_attrTableGid);
   if (typeof saveState === 'function') saveState();
-  if (typeof showToast === 'function') showToast('Columna "' + field + '" añadida');
+  var _lastRow = document.querySelector('.atp-row:last-child .atp-td-edit');
+  if (_lastRow) attrInlineFeedback(_lastRow, t('attr_col_added', {field: field}), 'success');
 }
 
 function _initAttrTableResize() {

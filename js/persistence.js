@@ -44,7 +44,7 @@ function restoreState() {
     _importRestoredGeoJSON(geo);
     // P1.5: Show discreet toast on restore
     setTimeout(() => {
-      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map restored from previous session' : 'Mapa restaurado de la sesión anterior');
+      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map restored from previous session' : t('persist_restored'));
     }, 500);
   } catch (e) {
     console.warn('restoreState error:', e);
@@ -168,7 +168,7 @@ function _flashSavePill() {
   if (_savePillTimer) clearTimeout(_savePillTimer);
   _savePillTimer = setTimeout(() => {
     pill.classList.remove('flash');
-    pill.textContent = 'Auto-guardado';
+    pill.textContent = t('persist_autosave');
   }, 1500);
 }
 
@@ -180,7 +180,7 @@ function shareMapURL() {
   try {
     const geo = getEnrichedGeoJSON();
     if (!geo.features.length) {
-      manaAlert(LANG === 'en' ? 'No elements to share.' : 'No hay elementos para compartir.', 'warning');
+      manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
       return;
     }
     const encoded = encodeURIComponent(JSON.stringify(geo));

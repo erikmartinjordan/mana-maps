@@ -391,43 +391,7 @@ function ctxStyleGroup() {
 // ═══════════════════════════════════════════════════════════════
 // CATEGORIZE BY ATTRIBUTE
 // ═══════════════════════════════════════════════════════════════
-function ctxCategorizeBy(field) {
-  if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
-  if (typeof pushUndo === 'function') pushUndo();
-  const gid = ctxTargetLayer._manaGroupId;
-  const meta = _manaGroupMeta[gid];
-  if (!meta) return;
-
-  // Collect unique values for this field
-  const valSet = new Set();
-  meta.allLayers.forEach(l => {
-    const v = (l._manaProperties || {})[field];
-    if (v !== null && v !== undefined && String(v) !== '') valSet.add(String(v));
-  });
-
-  const uniqueVals = [...valSet].sort();
-  const colorMap = {};
-  uniqueVals.forEach((v, i) => {
-    colorMap[v] = CTX_PALETTE[i % CTX_PALETTE.length];
-  });
-
-  // Apply colors
-  meta.allLayers.forEach(l => {
-    const raw = (l._manaProperties || {})[field];
-    const v = (raw !== null && raw !== undefined) ? String(raw) : '';
-    const c = colorMap[v] || '#64748b';
-    if (l instanceof L.Marker) {
-      l._manaColor = c;
-      l.setIcon(makeMarkerIcon(c, markerType));
-    } else {
-      l.setStyle({ color: c, weight: l.options.weight || 2 });
-    }
-  });
-
-  closeCtx(); stats();
-  showToast(t('toast_categorized') + ' ' + field + ' (' + uniqueVals.length + ' ' + t('toast_categorized_values') + ')');
-  if (typeof saveState === 'function') saveState();
-}
+// ctxCategorizeBy is now defined in categorize.js
 
 // ═══════════════════════════════════════════════════════════════
 // CONTEXT MENU — show/hide style section dynamically
@@ -568,7 +532,7 @@ function _openLayerCtx(x, y, type, id) {
     drawnItems.eachLayer(l => layers.push(l));
     const layer = layers[id];
     if (!layer) return;
-    title.textContent = layer._manaName || 'Elemento';
+    title.textContent = layer._manaName || t('generic_element');
     weightRow.style.display = (layer instanceof L.Marker) ? 'none' : 'flex';
 
     let curOp = 100;
@@ -655,7 +619,7 @@ async function lctxRename() {
   if (_lctxType === 'group') {
     const meta = _manaGroupMeta[_lctxId];
     if (!meta) return;
-    const name = await askName('Renombrar capa', meta.name);
+    const name = await askName(t('ctx_rename_layer'), meta.name);
     if (name === null) return;
     meta.name = name;
   } else {
@@ -663,7 +627,7 @@ async function lctxRename() {
     drawnItems.eachLayer(l => layers.push(l));
     const layer = layers[_lctxId];
     if (!layer) return;
-    const name = await askName('Renombrar elemento', layer._manaName || 'Elemento');
+    const name = await askName(t('ctx_rename_element'), layer._manaName || t('generic_element'));
     if (name === null) return;
     layer._manaName = name;
     if (layer.getPopup && layer.getPopup()) {
@@ -683,40 +647,7 @@ function lctxZoom() {
   }
 }
 
-function lctxCategorize(field) {
-  if (_lctxType !== 'group') return;
-  if (typeof pushUndo === 'function') pushUndo();
-  const meta = _manaGroupMeta[_lctxId];
-  if (!meta) return;
-
-  const valSet = new Set();
-  meta.allLayers.forEach(l => {
-    const v = (l._manaProperties || {})[field];
-    if (v !== null && v !== undefined && String(v) !== '') valSet.add(String(v));
-  });
-
-  const uniqueVals = [...valSet].sort();
-  const colorMap = {};
-  uniqueVals.forEach((v, i) => {
-    colorMap[v] = CTX_PALETTE[i % CTX_PALETTE.length];
-  });
-
-  meta.allLayers.forEach(l => {
-    const raw = (l._manaProperties || {})[field];
-    const v = (raw !== null && raw !== undefined) ? String(raw) : '';
-    const c = colorMap[v] || '#64748b';
-    if (l instanceof L.Marker) {
-      l._manaColor = c;
-      l.setIcon(makeMarkerIcon(c, markerType));
-    } else {
-      l.setStyle({ color: c, weight: l.options.weight || 2 });
-    }
-  });
-
-  closeLayerCtx(); stats();
-  showToast('Categorizado por ' + field + ' (' + uniqueVals.length + ' valores)');
-  if (typeof saveState === 'function') saveState();
-}
+// lctxCategorize is now defined in categorize.js
 
 async function lctxDelete() {
   closeLayerCtx();
@@ -892,7 +823,7 @@ function _buildPropEditor() {
   if (entries.length <= 1) {
     var empty = document.createElement("div");
     empty.className = "prop-empty";
-    empty.textContent = "Sin atributos adicionales";
+    empty.textContent = t('ctx_no_extra_attrs');
     body.appendChild(empty);
   }
 }
@@ -966,7 +897,8 @@ function _propRenameKey(el) {
     });
   }
   _buildPropEditor();
-  showToast("Renombrado: " + newKey);
+  var _fb = document.querySelector(".prop-row");
+  if (_fb) attrInlineFeedback(_fb, t("attr_renamed", {key: newKey}), "success");
   if (typeof saveState === "function") saveState();
 }
 
@@ -1084,7 +1016,8 @@ function _propDeleteAttr(key) {
     });
   }
   _buildPropEditor();
-  showToast("Atributo eliminado");
+  var _fb2 = document.querySelector(".prop-row") || document.getElementById("attr-modal-body");
+  if (_fb2) attrInlineFeedback(_fb2, t("attr_deleted"), "success");
   if (typeof saveState === "function") saveState();
 }
 

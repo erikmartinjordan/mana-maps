@@ -70,8 +70,8 @@ const FILTER_OPS = {
   'contains':{ label: 'contiene',     fn: (a, b) => String(a).toLowerCase().includes(String(b).toLowerCase()) },
   'starts':  { label: 'empieza por',  fn: (a, b) => String(a).toLowerCase().startsWith(String(b).toLowerCase()) },
   'ends':    { label: 'termina en',   fn: (a, b) => String(a).toLowerCase().endsWith(String(b).toLowerCase()) },
-  'empty':   { label: 'está vacío',   fn: (a)    => a === null || a === undefined || a === '' },
-  'notempty':{ label: 'no está vacío',fn: (a)    => a !== null && a !== undefined && a !== '' },
+  'empty':   { label: t('filter_is_empty'),   fn: (a)    => a === null || a === undefined || a === '' },
+  'notempty':{ label: t('filter_is_not_empty'),fn: (a)    => a !== null && a !== undefined && a !== '' },
 };
 
 function evaluateRules(properties, rules) {
@@ -140,7 +140,7 @@ function renderFilterPanel(gid) {
   const counts = getFilterMatchCount(gid);
 
   if (!attrs.length) {
-    return '<div class="filter-panel"><p class="filter-empty">Esta capa no tiene atributos.</p></div>';
+    return '<div class="filter-panel"><p class="filter-empty">' + t('filter_no_attrs') + '</p></div>';
   }
 
   let html = '<div class="filter-panel">';
@@ -182,8 +182,8 @@ function renderFilterPanel(gid) {
   html += '<option value="<"><</option>';
   html += '<option value=">=">≥</option>';
   html += '<option value="<=">≤</option>';
-  html += '<option value="empty">está vacío</option>';
-  html += '<option value="notempty">no está vacío</option>';
+  html += '<option value="empty">' + t('filter_is_empty') + '</option>';
+  html += '<option value="notempty">' + t('filter_is_not_empty') + '</option>';
   html += '</select>';
 
   // Value input with datalist

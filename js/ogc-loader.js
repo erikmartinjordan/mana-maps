@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // WMS — GetCapabilities → checkboxes de capas
 // ═════════════════════════════════════════════════════════════════
 async function _loadWMS(url) {
-  showToast(LANG==='en'?'Connecting WMS…':'Conectando WMS…');
+  showToast(t('ogc_connecting'));
 
   var baseUrl = url.split('?')[0];
   var requestedLayers = '';
@@ -82,7 +82,7 @@ async function _loadWMS(url) {
 
   if (requestedLayers) {
     _addDirectWMS(baseUrl, requestedLayers, requestedLayers);
-    showToast(LANG==='en'?'WMS added ✓':'WMS añadido ✓');
+    showToast(t('ogc_added'));
     if (typeof saveState === 'function') saveState();
     return;
   }
@@ -116,7 +116,7 @@ async function _loadWMS(url) {
 
   if (!layers.length) {
     _addDirectWMS(baseUrl, '', _host(url));
-    showToast(LANG==='en'?'WMS added (no layer list)':'WMS añadido (sin lista de capas)');
+    showToast(t('ogc_added_no_list'));
     return;
   }
 
@@ -124,7 +124,7 @@ async function _loadWMS(url) {
   _wmsServices.push(svc);
   _toggleWMSCap(svc.id, layers[0].name, true);
   _renderWMSPanel();
-  showToast(layers.length + (LANG==='en'?' WMS layers available':' capas WMS disponibles'));
+  showToast(layers.length + (' ' + t('ogc_layers_available')));
   if (typeof saveState === 'function') saveState();
 }
 
@@ -156,7 +156,7 @@ function _removeWMSService(svcId) {
   Object.keys(svc.activeLayers).forEach(function(k) { if (map.hasLayer(svc.activeLayers[k])) map.removeLayer(svc.activeLayers[k]); });
   _wmsServices.splice(idx, 1);
   _renderWMSPanel();
-  showToast(LANG==='en'?'Service removed':'Servicio eliminado');
+  showToast(t('ogc_removed'));
 }
 
 function _renderWMSPanel() {
@@ -240,7 +240,7 @@ async function _loadArcGIS(url) {
   }
   if (!all.length) { manaAlert(LANG==='en'?'No data.':'Sin datos.', 'warning'); return; }
   loadGeoJSON({ type: 'FeatureCollection', features: all }, 'ArcGIS: ' + _host(url));
-  showToast(all.length + (LANG==='en'?' elements ✓':' elementos ✓'));
+  showToast(all.length + (' ' + t('ogc_elements')));
   if (typeof saveState === 'function') saveState();
 }
 

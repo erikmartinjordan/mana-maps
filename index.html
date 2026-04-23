@@ -21,30 +21,35 @@
 <title>Maña Maps — Editor de mapas online gratuito con IA</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <!-- SEO Meta -->
-<meta name="description" content="Crea y edita mapas interactivos online. Dibuja puntos, líneas y polígonos. Exporta a GeoJSON, KML, Shapefile y CSV. Chat con IA en español. Sin registro, sin instalación.">
-<meta name="keywords" content="editor mapas online, crear mapa online, dibujar mapa, exportar KML, exportar shapefile, GeoJSON editor, mapa interactivo, herramienta GIS online, editar mapa gratis">
-<link rel="canonical" href="https://mana-maps.com/">
-<link rel="alternate" hreflang="es" href="https://mana-maps.com/">
-<link rel="alternate" hreflang="en" href="https://mana-maps.com/en/">
-<link rel="alternate" hreflang="x-default" href="https://mana-maps.com/en/">
+<meta name="description" content="Crea y edita mapas interactivos online gratis. Dibuja puntos, líneas y polígonos, exporta a GeoJSON, KML, Shapefile y CSV. Chat con IA en español. Sin registro.">
+<meta name="keywords" content="editor mapas online, crear mapa online gratis, dibujar mapa, exportar GeoJSON, exportar KML, exportar shapefile, mapa interactivo, herramienta GIS online, editor geoespacial, SIG online">
+<meta name="author" content="Erik Martín Jordán">
+<link rel="canonical" href="https://maña.com/">
+<link rel="alternate" hreflang="es" href="https://maña.com/">
+<link rel="alternate" hreflang="en" href="https://maña.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://maña.com/en/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://mana-maps.com/">
-<meta property="og:title" content="Maña Maps — Editor de mapas online con IA">
-<meta property="og:description" content="Crea mapas interactivos, dibuja geometrías y exporta a cualquier formato GIS. Chat con IA en lenguaje natural.">
-<meta property="og:image" content="https://mana-maps.com/og-image-es.png">
+<meta property="og:url" content="https://maña.com/">
+<meta property="og:title" content="Maña Maps — Editor de mapas online gratuito con IA">
+<meta property="og:description" content="Dibuja puntos, líneas y polígonos sobre el mapa. Exporta a GeoJSON, KML, Shapefile y CSV. Chat con IA en lenguaje natural. Gratis y sin registro.">
+<meta property="og:image" content="https://maña.com/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Maña Maps — Editor de mapas online con inteligencia artificial">
 <meta property="og:locale" content="es_ES">
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:site_name" content="Maña Maps">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@maaborrar">
+<meta name="twitter:creator" content="@erikmartinjrdn">
 <meta name="twitter:title" content="Maña Maps — Editor de mapas online con IA">
-<meta name="twitter:description" content="Dibuja en el mapa, exporta a GeoJSON, KML o Shapefile. Chat IA en español. Gratis y sin registro.">
-<meta name="twitter:image" content="https://mana-maps.com/og-image-es.png">
+<meta name="twitter:description" content="Dibuja geometrías, exporta a GeoJSON/KML/Shapefile y chatea con IA. Gratis, sin registro.">
+<meta name="twitter:image" content="https://maña.com/og-card.png">
+<meta name="twitter:image:alt" content="Maña Maps — Editor de mapas online con inteligencia artificial">
 
 <!-- Structured Data (JSON-LD) -->
 <script type="application/ld+json">
@@ -52,9 +57,9 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Maña Maps",
-  "url": "https://mana-maps.com",
+  "url": "https://maña.com",
   "description": "Editor de mapas interactivo online con exportación a GeoJSON, KML, Shapefile y CSV. Chat con inteligencia artificial en español.",
-  "applicationCategory": "UtilitiesApplication",
+  "applicationCategory": "DesignApplication",
   "operatingSystem": "Web",
   "offers": {
     "@type": "Offer",
@@ -64,22 +69,30 @@
   "featureList": [
     "Dibujar puntos, líneas y polígonos",
     "Exportar a GeoJSON, KML, KMZ, Shapefile, CSV",
-    "Importar GeoJSON, KML, KMZ, Shapefile",
+    "Importar GeoJSON, KML, KMZ, Shapefile, GPX",
     "Chat IA en lenguaje natural",
     "Vista satélite y globo 3D",
+    "Servicios OGC (WMS/WFS)",
     "Sin registro requerido"
   ],
   "inLanguage": ["es", "en"],
-  "screenshot": "https://mana-maps.com/og-image-es.png",
+  "screenshot": "https://maña.com/og-card.png",
   "author": {
     "@type": "Person",
     "name": "Erik Martín Jordán",
     "url": "https://erikmartinjordan.com"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "120",
+    "bestRating": "5"
   }
 }
 </script>
 
 <meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -103,8 +116,8 @@
   <div class="confirm-modal-box">
     <p id="confirm-modal-msg"></p>
     <div class="confirm-modal-btns">
-      <button class="modal-btn modal-btn-cancel" onclick="confirmCancel()">Cancelar</button>
-      <button class="modal-btn modal-btn-ok" onclick="confirmOk()">Confirmar</button>
+      <button class="modal-btn modal-btn-cancel" onclick="confirmCancel()" data-i18n="modal_cancel">Cancelar</button>
+      <button class="modal-btn modal-btn-ok" onclick="confirmOk()" data-i18n="modal_confirm_ok">Confirmar</button>
     </div>
   </div>
 </div>
@@ -129,19 +142,19 @@
         <div><strong>Soporte prioritario</strong><span>Respuesta directa del equipo</span></div>
       </div>
     </div>
-    <button class="upsell-cta" onclick="upsellBuy()">Empezar ahora</button>
-    <button class="upsell-secondary" onclick="upsellHaveKey()">Ya tengo una clave API</button>
+    <button class="upsell-cta" onclick="upsellBuy()" data-i18n="upsell_cta">Empezar ahora</button>
+    <button class="upsell-secondary" onclick="upsellHaveKey()" data-i18n="upsell_have_key">Ya tengo una clave API</button>
     <p class="upsell-note">Recibir&#225;s tu clave API por email tras el pago &#183; Cancela cuando quieras</p>
   </div>
 </div>
 
 <!-- ═══ Modal nombre ═══ -->
 <div id="name-modal">
-  <h4 id="name-modal-title">Nombre del elemento</h4>
-  <input id="name-modal-input" type="text" placeholder="Sin nombre" maxlength="80" autocomplete="off"/>
+  <h4 id="name-modal-title" data-i18n="modal_name_title">Nombre del elemento</h4>
+  <input id="name-modal-input" type="text" data-i18n-placeholder="modal_name_placeholder" placeholder="Sin nombre" maxlength="80" autocomplete="off"/>
   <div id="name-modal-btns">
-    <button class="modal-btn modal-btn-cancel" onclick="modalCancel()">Cancelar</button>
-    <button class="modal-btn modal-btn-ok" onclick="modalOk()">Guardar</button>
+    <button class="modal-btn modal-btn-cancel" onclick="modalCancel()" data-i18n="modal_cancel">Cancelar</button>
+    <button class="modal-btn modal-btn-ok" onclick="modalOk()" data-i18n="modal_save">Guardar</button>
   </div>
 </div>
 
@@ -167,7 +180,7 @@
   <div class="search-wrap" id="search-wrap">
     <div class="search-input-wrap">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="search-input" class="search-input" placeholder="Buscar lugar..." autocomplete="off" spellcheck="false"/>
+      <input type="text" id="search-input" class="search-input" data-i18n-placeholder="search_placeholder" placeholder="Buscar lugar..." autocomplete="off" spellcheck="false"/>
     </div>
     <div class="search-dropdown" id="search-dropdown"></div>
   </div>
@@ -177,16 +190,16 @@
     </button>
     <button class="btn btn-ghost" onclick="clearAll()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-      <span class="btn-text">Limpiar mapa</span>
+      <span class="btn-text" data-i18n="btn_clear">Limpiar mapa</span>
     </button>
     <button class="btn btn-ghost" onclick="shareMapURL()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      <span class="btn-text">Compartir</span>
+      <span class="btn-text" data-i18n="btn_share">Compartir</span>
     </button>
     <div class="menu-wrap">
       <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg>
-        <span class="btn-text">Importar</span>
+        <span class="btn-text" data-i18n="btn_import">Importar</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="drop-menu" id="import-menu">
@@ -201,7 +214,7 @@
     <div class="menu-wrap">
       <button class="btn btn-primary" onclick="toggleMenu('export-menu',event)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span class="btn-text">Exportar</span>
+        <span class="btn-text" data-i18n="btn_export">Exportar</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="drop-menu" id="export-menu">
@@ -212,11 +225,7 @@
         <button class="drop-item" onclick="exportAs('shapefile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
       </div>
     </div>
-    <div class="lang-switcher">
-      <a href="/" class="lang-btn active" hreflang="es">ES</a>
-      <span class="lang-sep">/</span>
-      <a href="/en/" class="lang-btn" hreflang="en">EN</a>
-    </div>
+
     <button class="mobile-toggle" id="mobile-chat-toggle" aria-label="Chat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     </button>
@@ -249,11 +258,16 @@
       <div class="tool-icon" id="tb-ruler" onclick="setTool('ruler')" title="Medir distancia">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
       </div>
-      <div class="toolbar-bottom">
-        <div class="tool-icon" data-panel="ogc" onclick="togglePanel('ogc')" title="Servicios OGC">
+      <div class="tool-icon" data-panel="ogc" onclick="togglePanel('ogc')" title="Servicios OGC">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div class="toolbar-bottom">
+        <div class="tool-icon tb-util" id="dark-toggle" onclick="toggleDarkMode()" title="Tema">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         </div>
-
+        <div class="tool-icon tb-util" id="lang-toggle" onclick="toggleLang()">
+          <span class="tb-lang-label">EN</span>
+        </div>
       </div>
     </div>
 
@@ -269,28 +283,28 @@
         <div class="panel-body">
           <button class="draw-btn" id="btn-point" onclick="setTool('point')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
-            Añadir punto
+            <span data-i18n="tool_point">Añadir punto</span>
           </button>
           <button class="draw-btn" id="btn-line" onclick="setTool('line')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>
-            Dibujar línea
+            <span data-i18n="tool_line">Dibujar línea</span>
           </button>
           <button class="draw-btn" id="btn-polygon" onclick="setTool('polygon')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>
-            Dibujar polígono
+            <span data-i18n="tool_polygon">Dibujar polígono</span>
           </button>
           <button class="draw-btn" id="btn-ruler" onclick="setTool('ruler')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="9" y2="12"/><line x1="12" y1="6" x2="12" y2="9"/><line x1="15" y1="9" x2="15" y2="12"/></svg>
-            Medir distancia
+            <span data-i18n="tool_ruler">Medir distancia</span>
           </button>
           <button class="draw-btn" id="btn-select" onclick="setTool('select')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
-            Seleccionar
+            <span data-i18n="tool_select">Seleccionar</span>
           </button>
           <div class="p-sep"></div>
           <button class="draw-btn" id="btn-edit" onclick="toggleEdit()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-            Editar geometria
+            <span data-i18n="tool_edit">Editar geometria</span>
           </button>
         </div>
       </div>
@@ -299,12 +313,12 @@
       <div class="panel-state" id="panel-style">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg></div>
-          <div><div class="panel-header-title">Estilo</div><div class="panel-header-sub">Colores y marcadores</div></div>
+          <div><div class="panel-header-title" data-i18n="panel_style_title">Estilo</div><div class="panel-header-sub" data-i18n="panel_style_sub">Colores y marcadores</div></div>
         </div>
         <div class="panel-body">
-          <div class="sec-label">Color</div>
+          <div class="sec-label" data-i18n="style_color">Color</div>
           <div class="color-row swatch-row" id="color-row"></div>
-          <div class="sec-label">Tipo de marcador</div>
+          <div class="sec-label" data-i18n="style_marker_type">Tipo de marcador</div>
           <div class="marker-row" id="marker-row">
             <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
@@ -326,13 +340,13 @@
       <div class="panel-state" id="panel-basemap">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div>
-          <div><div class="panel-header-title">Mapa base</div><div class="panel-header-sub">Tipo de vista</div></div>
+          <div><div class="panel-header-title" data-i18n="panel_basemap_title">Mapa base</div><div class="panel-header-sub" data-i18n="panel_basemap_sub">Tipo de vista</div></div>
         </div>
         <div class="panel-body">
           <div class="basemap-grid">
             <button class="basemap-card active" id="bmc-map" onclick="setBaseLayer('map')">
               <div class="basemap-thumb basemap-thumb-map"></div>
-              <div class="basemap-label">Mapa</div>
+              <div class="basemap-label" data-i18n="basemap_map">Mapa</div>
             </button>
             <button class="basemap-card" id="bmc-sat" onclick="setBaseLayer('satellite')">
               <div class="basemap-thumb basemap-thumb-sat"></div>
@@ -340,7 +354,7 @@
             </button>
             <button class="basemap-card" id="bmc-globe" onclick="setBaseLayer('globe')">
               <div class="basemap-thumb basemap-thumb-globe"></div>
-              <div class="basemap-label">Globo 3D</div>
+              <div class="basemap-label" data-i18n="basemap_globe">Globo 3D</div>
             </button>
           </div>
         </div>
@@ -350,7 +364,7 @@
       <div class="panel-state" id="panel-layers">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
-          <div><div class="panel-header-title">Capas</div><div class="panel-header-sub">Elementos del mapa</div></div>
+          <div><div class="panel-header-title" data-i18n="panel_layers_title">Capas</div><div class="panel-header-sub" data-i18n="panel_layers_sub">Elementos del mapa</div></div>
         </div>
         <div class="panel-body">
           <div id="layer-list">
@@ -363,14 +377,14 @@
       <div class="panel-state" id="panel-ogc">
         <div class="panel-header">
           <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
-          <div><div class="panel-header-title">Servicios OGC</div><div class="panel-header-sub">WMS y WFS</div></div>
+          <div><div class="panel-header-title" data-i18n="panel_ogc_title">Servicios OGC</div><div class="panel-header-sub" data-i18n="panel_ogc_sub">WMS y WFS</div></div>
         </div>
         <div class="panel-body">
-          <input type="text" id="ogc-url-input" class="ogc-input" placeholder="Servicio WMS o WFS" autocomplete="off" spellcheck="false"/>
+          <input type="text" id="ogc-url-input" class="ogc-input" data-i18n-placeholder="ogc_placeholder" placeholder="Servicio WMS o WFS" autocomplete="off" spellcheck="false"/>
           <div id="wms-layer-list"></div>
           <button class="draw-btn ogc-catalog-toggle" onclick="toggleOGCCatalog()">
             <svg id="ogc-cat-chevron" class="ogc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            Catálogo de servicios
+            <span data-i18n="ogc_catalog">Catálogo de servicios</span>
           </button>
           <div id="ogc-catalog-list" style="display:none"></div>
         </div>
@@ -382,9 +396,9 @@
             Activa la IA Pro &#8594;
           </div>
           <div class="panel-footer-links">
-            <a class="panel-footer-link" href="/about">Acerca de</a>
-            <a class="panel-footer-link" href="/changelog">Changelog</a>
-            <a class="panel-footer-link" href="/open">Estad&#237;sticas</a>
+            <a class="panel-footer-link" href="/about" data-i18n="footer_about">Acerca de</a>
+            <a class="panel-footer-link" href="/changelog" data-i18n="footer_changelog">Changelog</a>
+            <a class="panel-footer-link" href="/open" data-i18n="footer_stats">Estad&#237;sticas</a>
           </div>
         </div>
     </div>
@@ -407,21 +421,21 @@
       <button onclick="toggleSpin()" id="btn-spin" title="Auto-rotaci&#243;n">&#8635;</button>
     </div>
     <div id="globe-spin-indicator">&#8635; Auto-rotaci&#243;n activa</div>
-    <div id="draw-hint">Haz clic en el mapa para dibujar</div>
+    <div id="draw-hint" data-i18n="hint_draw_generic">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
     <div id="drop-overlay">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
         <polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/>
       </svg>
-      <span>Suelta para importar</span>
+      <span data-i18n="drop_overlay">Suelta para importar</span>
     </div>
     
     <!-- ═══ Modal tabla de atributos ═══ -->
     <div id="attr-modal" class="attr-modal">
       <div class="attr-modal-box">
         <div class="attr-modal-header">
-          <span class="attr-modal-title" id="attr-modal-title">Propiedades</span>
+          <span class="attr-modal-title" id="attr-modal-title" data-i18n="attr_properties">Propiedades</span>
           <button class="attr-modal-close" onclick="closeAttrModal()">&times;</button>
         </div>
         <!-- Selector de elementos -->
@@ -432,7 +446,7 @@
         <div class="attr-modal-footer">
           <button class="attr-add-btn" onclick="attrAddProperty()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Añadir atributo
+            <span data-i18n="attr_add">Añadir atributo</span>
           </button>
         </div>
       </div>
@@ -445,10 +459,11 @@
     <div id="stats-panel" class="stats-panel"></div>
 
     <div id="map-bottom-bar">
-      <div class="stat-pill">Puntos <span id="cnt-points">0</span></div>
-      <div class="stat-pill">L&#237;neas <span id="cnt-lines">0</span></div>
-      <div class="stat-pill">Pol&#237;gonos <span id="cnt-polygons">0</span></div>
-      <div class="stat-pill autosave-pill" id="autosave-pill">Auto-guardado</div>
+      <div class="stat-pill"><span data-i18n="stat_points">Puntos</span> <span id="cnt-points">0</span></div>
+      <div class="stat-pill"><span data-i18n="stat_lines">L&#237;neas</span> <span id="cnt-lines">0</span></div>
+      <div class="stat-pill"><span data-i18n="stat_polygons">Pol&#237;gonos</span> <span id="cnt-polygons">0</span></div>
+      <div class="stat-pill autosave-pill" id="autosave-pill" data-i18n="stat_autosave">Auto-guardado</div>
+      <button type="button" class="stat-pill shortcuts-pill" onclick="openShortcuts()">⌘ <span data-i18n="shortcut_pill">Atajos</span></button>
     </div>
   </div>
 
@@ -458,7 +473,7 @@
   <div id="chat-panel">
     <div class="chat-header">
       <div class="chat-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-      <div><div class="chat-header-title">Ma&#241;a AI <span class="ai-badge" id="ai-status-badge">IA</span></div><div class="chat-header-sub">Escribe en lenguaje natural</div></div>
+      <div><div class="chat-header-title">Ma&#241;a AI <span class="ai-badge" id="ai-status-badge" data-i18n="ai_badge">IA</span></div><div class="chat-header-sub" data-i18n="chat_subtitle">Escribe en lenguaje natural</div></div>
       <button class="chat-settings-btn" onclick="openAISettings()" title="Configurar IA">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
@@ -466,19 +481,19 @@
     <div id="chat-messages">
       <div>
         <div class="msg-label">Ma&#241;a AI</div>
-        <div class="msg bot">&#161;Hola! Soy <strong>Ma&#241;a AI</strong>, tu asistente de mapas. Prueba con:<br><br>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">📍 a&#241;ade un punto en Barcelona</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🛣️ ruta de Madrid a Sevilla</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🏛️ busca museos en Par&#237;s</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🛰️ sat&#233;lite</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🌍 globo 3D</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">🎨 color rojo</button>
-        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)">📦 exporta como KML</button><br><br>
-        &#9881;&#65039; <strong>Configura una clave API</strong> (&#9881;) para IA con lenguaje natural completo.</div>
+        <div class="msg bot"><span data-i18n="chat_welcome" id="chat-welcome-text">&#161;Hola! Soy <strong>Ma&#241;a AI</strong>, tu asistente de mapas. Prueba con:</span><br><br>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_point">📍 a&#241;ade un punto en Barcelona</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_route">🛣️ ruta de Madrid a Sevilla</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_search">🏛️ busca museos en Par&#237;s</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_satellite">🛰️ sat&#233;lite</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_globe">🌍 globo 3D</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_color">🎨 color rojo</button>
+        <button class="chat-suggestion" onclick="sendChatSuggestion(this.textContent)" data-i18n="chat_suggestion_export">📦 exporta como KML</button><br><br>
+        <span data-i18n="chat_configure_hint" id="chat-configure-hint">&#9881;&#65039; <strong>Configura una clave API</strong> (&#9881;) para IA con lenguaje natural completo.</span></div>
       </div>
     </div>
     <div id="chat-input-area">
-      <textarea id="chat-input" rows="1" placeholder="Escribe un comando..."></textarea>
+      <textarea id="chat-input" rows="1" data-i18n-placeholder="chat_placeholder" placeholder="Escribe un comando..."></textarea>
       <button id="chat-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
   </div>
@@ -492,7 +507,7 @@
       <button class="ai-modal-close" onclick="closeAISettings()">&times;</button>
     </div>
     <div class="ai-modal-body">
-      <label class="ai-label">Proveedor</label>
+      <label class="ai-label" data-i18n="ai_provider">Proveedor</label>
       <select id="ai-provider" class="ai-input" onchange="toggleEndpointField(this.value)">
         <option value="openai">OpenAI</option>
         <option value="anthropic">Anthropic (Claude)</option>
@@ -501,14 +516,14 @@
         <option value="custom">Personalizado</option>
       </select>
 
-      <label class="ai-label">Clave API</label>
+      <label class="ai-label" data-i18n="ai_key">Clave API</label>
       <input id="ai-key" type="password" class="ai-input" placeholder="sk-..." autocomplete="off"/>
 
-      <label class="ai-label">Modelo</label>
+      <label class="ai-label" data-i18n="ai_model">Modelo</label>
       <input id="ai-model" type="text" class="ai-input" placeholder="gpt-4o-mini" autocomplete="off"/>
 
       <div id="ai-endpoint-row" style="display:none">
-        <label class="ai-label">Endpoint</label>
+        <label class="ai-label" data-i18n="ai_endpoint">Endpoint</label>
         <input id="ai-endpoint" type="text" class="ai-input" placeholder="https://..." autocomplete="off"/>
       </div>
 
@@ -519,8 +534,8 @@
       </div>
     </div>
     <div class="ai-modal-footer">
-      <button class="modal-btn modal-btn-cancel" onclick="closeAISettings()">Cancelar</button>
-      <button class="modal-btn modal-btn-ok" onclick="saveAISettings()">Guardar</button>
+      <button class="modal-btn modal-btn-cancel" onclick="closeAISettings()" data-i18n="modal_cancel">Cancelar</button>
+      <button class="modal-btn modal-btn-ok" onclick="saveAISettings()" data-i18n="modal_save">Guardar</button>
     </div>
   </div>
 </div>
@@ -535,7 +550,7 @@
 
   <!-- Grosor de línea -->
   <div id="lctx-weight-row" class="ctx-option-row">
-    <span class="ctx-option-label">Grosor</span>
+    <span class="ctx-option-label" data-i18n="ctx_weight">Grosor</span>
     <div class="ctx-weight-opts">
       <button class="ctx-weight-btn" onclick="lctxSetWeight(1)">1</button>
       <button class="ctx-weight-btn" onclick="lctxSetWeight(2)">2</button>
@@ -547,7 +562,7 @@
 
   <!-- Opacidad -->
   <div class="ctx-option-row">
-    <span class="ctx-option-label">Opacidad</span>
+    <span class="ctx-option-label" data-i18n="ctx_opacity">Opacidad</span>
     <input type="range" id="lctx-opacity" class="ctx-range" min="10" max="100" value="100" oninput="lctxSetOpacity(this.value)"/>
     <span id="lctx-opacity-val" class="ctx-range-val">100%</span>
   </div>
@@ -557,25 +572,25 @@
   <!-- Renombrar -->
   <button class="ctx-item" onclick="lctxRename()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-    Renombrar
+    <span data-i18n="lctx_rename">Renombrar</span>
   </button>
 
   <!-- Zoom -->
   <button class="ctx-item" onclick="lctxZoom()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    Zoom a la capa
+    <span data-i18n="lctx_zoom">Zoom a la capa</span>
   </button>
 
   <!-- Tabla de atributos -->
   <button class="ctx-item" onclick="lctxShowAttrTable()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-    Ver tabla de atributos
+    <span data-i18n="lctx_attr_table">Ver tabla de atributos</span>
   </button>
 
   <!-- Categorizar por atributo -->
   <div id="lctx-categorize" style="display:none">
     <div class="ctx-sep"></div>
-    <div class="ctx-section-label">Categorizar por atributo</div>
+    <div class="ctx-section-label" data-i18n="ctx_categorize">Categorizar por atributo</div>
     <div id="lctx-cat-list"></div>
   </div>
 
@@ -584,7 +599,7 @@
   <!-- Eliminar -->
   <button class="ctx-item danger" onclick="lctxDelete()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-    Eliminar
+    <span data-i18n="lctx_delete">Eliminar</span>
   </button>
 </div>
 
@@ -593,7 +608,7 @@
   <div class="ctx-coords" id="ctx-coords">0.00000, 0.00000</div>
   <button class="ctx-item" onclick="ctxCopyCoords()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-    Copiar coordenadas
+    <span data-i18n="ctx_copy_coords">Copiar coordenadas</span>
   </button>
   <button class="ctx-item" onclick="ctxAddPoint()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
@@ -607,7 +622,7 @@
   <!-- Sección de estilo -->
   <div id="ctx-style-section" style="display:none">
     <div class="ctx-sep"></div>
-    <div class="ctx-section-label">Estilo del elemento</div>
+    <div class="ctx-section-label" data-i18n="ctx_style_section">Estilo del elemento</div>
 
     <!-- Selector de color -->
     <div class="ctx-color-row">
@@ -635,25 +650,25 @@
     <!-- Renombrar -->
     <button class="ctx-item" onclick="ctxRename()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-      Renombrar
+      <span data-i18n="ctx_rename">Renombrar</span>
     </button>
 
     <!-- Aplicar al grupo -->
     <button class="ctx-item" id="ctx-style-group" onclick="ctxStyleGroup()" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Aplicar estilo a toda la capa
+      <span data-i18n="ctx_apply_group_style">Aplicar estilo a toda la capa</span>
     </button>
 
     <!-- Tabla de atributos -->
     <button class="ctx-item" id="ctx-attr-table" onclick="ctxShowAttrTable()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-      Tabla de atributos
+      <span data-i18n="ctx_attr_table">Tabla de atributos</span>
     </button>
 
     <!-- Categorizar por atributo -->
     <div id="ctx-categorize-section" style="display:none">
       <div class="ctx-sep"></div>
-      <div class="ctx-section-label">Categorizar por atributo</div>
+      <div class="ctx-section-label" data-i18n="ctx_categorize">Categorizar por atributo</div>
       <div id="ctx-categorize-list"></div>
     </div>
   </div>
@@ -661,11 +676,11 @@
   <div class="ctx-sep"></div>
   <button class="ctx-item danger" id="ctx-delete-layer" onclick="ctxDeleteLayer()" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-    Borrar este elemento
+    <span data-i18n="ctx_delete_element">Borrar este elemento</span>
   </button>
   <button class="ctx-item danger" onclick="clearAll()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-    Borrar todo
+    <span data-i18n="ctx_delete_all">Borrar todo</span>
   </button>
 </div>
 
@@ -677,27 +692,27 @@
 <script defer src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 
 <!-- ═══ Módulos de la app (el orden importa) ═══ -->
-<script defer src="js/i18n.js"></script>      <!-- i18n: must load first -->
-<script defer src="js/markers.js"></script>      <!-- color y marcadores -->
-<script defer src="js/modal.js"></script>        <!-- diálogo de nombre -->
-<script defer src="js/map-core.js"></script>     <!-- mapa, capas, stats -->
-<script defer src="js/stats.js"></script>      <!-- panel de estadísticas -->
-<script defer src="js/globe.js"></script>        <!-- globo 3D -->
-<script defer src="js/tools.js"></script>        <!-- herramientas de dibujo -->
-<script defer src="js/context-menu.js"></script> <!-- menú contextual -->
-<script defer src="js/import-export.js"></script><!-- importar y exportar -->
-<script defer src="js/chat.js"></script>         <!-- chat y geocodificación -->
-<script defer src="js/undo-redo.js"></script>    <!-- deshacer/rehacer -->
-<script defer src="js/persistence.js"></script>  <!-- persistencia y compartir -->
-<script defer src="js/ogc-loader.js"></script>   <!-- cargador OGC -->
-<script defer src="js/responsive.js"></script>  <!-- responsive / móvil -->
+<script defer src="js/i18n.js?v=1776927826"></script>      <!-- i18n: must load first -->
+<script defer src="js/markers.js?v=1776927826"></script>      <!-- color y marcadores -->
+<script defer src="js/modal.js?v=1776927826"></script>        <!-- diálogo de nombre -->
+<script defer src="js/map-core.js?v=1776927826"></script>     <!-- mapa, capas, stats -->
+<script defer src="js/stats.js?v=1776927826"></script>      <!-- panel de estadísticas -->
+<script defer src="js/globe.js?v=1776927826"></script>        <!-- globo 3D -->
+<script defer src="js/tools.js?v=1776927826"></script>        <!-- herramientas de dibujo -->
+<script defer src="js/context-menu.js?v=1776927826"></script> <!-- menú contextual -->
+<script defer src="js/import-export.js?v=1776927826"></script><!-- importar y exportar -->
+<script defer src="js/chat.js?v=1776927826"></script>         <!-- chat y geocodificación -->
+<script defer src="js/undo-redo.js?v=1776927826"></script>    <!-- deshacer/rehacer -->
+<script defer src="js/persistence.js?v=1776927826"></script>  <!-- persistencia y compartir -->
+<script defer src="js/ogc-loader.js?v=1776927826"></script>   <!-- cargador OGC -->
+<script defer src="js/responsive.js?v=1776927826"></script>  <!-- responsive / móvil -->
 
 <!-- ═══ Firebase y tracking ═══ -->
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script defer src="js/tracking.js"></script>
-<script defer src="js/plans.js"></script>
-<script defer src="js/upsell.js"></script>
+<script defer src="js/tracking.js?v=1776927826"></script>
+<script defer src="js/plans.js?v=1776927826"></script>
+<script defer src="js/upsell.js?v=1776927826"></script>
 
 <!-- ═══ Lógica de búsqueda ═══ -->
 <script>
@@ -832,5 +847,39 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 }); // DOMContentLoaded
 </script>
+
+<!-- ═══ Init i18n + dark mode ═══ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Apply stored translations
+  if (typeof applyTranslations === 'function') applyTranslations(LANG);
+
+  // Dark mode: restore from localStorage
+  var darkPref = localStorage.getItem('mana-dark');
+  if (darkPref === 'true') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    var btn = document.getElementById('dark-toggle');
+    if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  }
+  if (typeof setMapThemeTiles === 'function') setMapThemeTiles();
+});
+
+function toggleDarkMode() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var btn = document.getElementById('dark-toggle');
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('mana-dark', 'false');
+    if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('mana-dark', 'true');
+    if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  }
+  if (typeof setMapThemeTiles === 'function') setMapThemeTiles();
+}
+</script>
+<script defer src="js/categorize.js?v=1776927826"></script>  <!-- QGIS-style categorization -->
+<script defer src="js/shortcuts.js?v=1776927826"></script>  <!-- keyboard shortcuts -->
 </body>
 </html>

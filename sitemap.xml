@@ -2,27 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://mana-maps.com/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mana-maps.com/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mana-maps.com/en/"/>
+    <loc>https://maña.com/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://maña.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://maña.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maña.com/en/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mana-maps.com/en/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mana-maps.com/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mana-maps.com/en/"/>
+    <loc>https://maña.com/en/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://maña.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://maña.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maña.com/en/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mana-maps.com/about/</loc>
+    <loc>https://maña.com/about/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mana-maps.com/changelog/</loc>
+    <loc>https://maña.com/changelog/</loc>
     <changefreq>weekly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://maña.com/open/</loc>
+    <changefreq>daily</changefreq>
     <priority>0.4</priority>
   </url>
 </urlset>

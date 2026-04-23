@@ -172,20 +172,20 @@ function refreshStatsPanel() {
     '    </div>' +
     '    <div class="stats-card" style="--accent: var(--green);">' +
     '      <span class="stats-card-val">' + s.lines + '</span>' +
-    '      <span class="stats-card-label">L\u00edneas</span>' +
+    '      <span class="stats-card-label">' + t('stat_lines') + '</span>' +
     '    </div>' +
     '    <div class="stats-card" style="--accent: #f97316;">' +
     '      <span class="stats-card-val">' + s.polygons + '</span>' +
-    '      <span class="stats-card-label">Pol\u00edgonos</span>' +
+    '      <span class="stats-card-label">' + t('stat_polygons') + '</span>' +
     '    </div>' +
     '  </div>' +
     '</div>' +
 
     // Geometría
     '<div class="stats-section">' +
-    '  <div class="stats-section-label">Geometr\u00eda</div>' +
-    '  <div class="stats-row"><span>' + (LANG==='en'?'Total length':'Longitud total') + '</span><strong>' + lengthKm + ' km</strong></div>' +
-    '  <div class="stats-row"><span>\u00c1rea total</span><strong>' + areaKm2 + ' km\u00b2 (' + areaHa + ' ha)</strong></div>' +
+    '  <div class="stats-section-label">' + t('stats_geometry') + '</div>' +
+    '  <div class="stats-row"><span>' + t('stats_total_length') + '</span><strong>' + lengthKm + ' km</strong></div>' +
+    '  <div class="stats-row"><span>' + t('stats_total_area') + '</span><strong>' + areaKm2 + ' km\u00b2 (' + areaHa + ' ha)</strong></div>' +
     '  <div class="stats-row"><span>Extensi\u00f3n</span><span class="stats-mono">' + boundsStr + '</span></div>' +
     '</div>' +
 
@@ -193,7 +193,7 @@ function refreshStatsPanel() {
     '<div class="stats-section">' +
     '  <div class="stats-section-label">' + t('panel_layers_title') + '</div>' +
     '  <div class="stats-row"><span>Grupos de datos</span><strong>' + s.groupCount + '</strong></div>' +
-    '  <div class="stats-row"><span>' + (LANG==='en'?'Active WMS layers':'Capas WMS activas') + '</span><strong>' + s.wmsCount + '</strong></div>' +
+    '  <div class="stats-row"><span>' + t('stats_wms_layers') + '</span><strong>' + s.wmsCount + '</strong></div>' +
     '</div>';
 
   // Atributos (top 5 campos)
@@ -233,7 +233,7 @@ function refreshStatsPanel() {
 
 // ═══ HACER STAT-PILLS CLICABLES ═══
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.stat-pill').forEach(function(pill) {
+  document.querySelectorAll('.stat-pill:not(.shortcuts-pill)').forEach(function(pill) {
     pill.style.cursor = 'pointer';
     pill.style.pointerEvents = 'auto';
     pill.addEventListener('click', toggleStatsPanel);

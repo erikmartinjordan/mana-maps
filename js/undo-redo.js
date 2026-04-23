@@ -44,7 +44,7 @@ function _restoreSnapshot(json) {
   snapshot.features.forEach(f => {
     const props = f.properties || {};
     const color = props._manaColor || '#0ea5e9';
-    const name = props._manaName || 'Elemento';
+    const name = props._manaName || t('generic_element');
     const g = f.geometry;
     if (!g) return;
 
@@ -129,12 +129,12 @@ function _updateUndoRedoUI() {
   if (btnUndo) {
     btnUndo.disabled = !undoStack.length;
     btnUndo.classList.toggle('disabled', !undoStack.length);
-    btnUndo.title = undoStack.length ? 'Deshacer (Ctrl+Z) — ' + undoStack.length + ' pasos' : 'Nada que deshacer';
+    btnUndo.title = undoStack.length ? 'Deshacer (Ctrl+Z) — ' + undoStack.length + ' ' + t('undo_steps') : t('undo_nothing');
   }
   if (btnRedo) {
     btnRedo.disabled = !redoStack.length;
     btnRedo.classList.toggle('disabled', !redoStack.length);
-    btnRedo.title = redoStack.length ? 'Rehacer (Ctrl+Y) — ' + redoStack.length + ' pasos' : 'Nada que rehacer';
+    btnRedo.title = redoStack.length ? 'Rehacer (Ctrl+Y) — ' + redoStack.length + ' ' + t('undo_steps') : 'Nada que rehacer';
   }
 }
 

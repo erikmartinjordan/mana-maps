@@ -452,7 +452,7 @@ function _selectByClick(px, py, additive) {
 
   if (bestLayer) {
     if (typeof selectLayerOnMap === 'function') selectLayerOnMap(bestLayer, additive);
-    if (typeof showToast === 'function') showToast((bestLayer._manaName || 'Elemento') + ' seleccionado');
+    if (typeof showToast === 'function') showToast((bestLayer._manaName || t('generic_element')) + ' seleccionado');
   } else if (!additive) {
     if (typeof clearSelection === 'function') clearSelection();
   }

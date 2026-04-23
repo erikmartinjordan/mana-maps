@@ -54,6 +54,7 @@ const I18N = {
     chat_suggestion_globe: "🌍 globo 3D",
     chat_suggestion_color: "🎨 color rojo",
     chat_suggestion_export: "📦 exporta como KML",
+    ai_badge: "IA",
     chat_configure_hint: '⚙️ <strong>Configura una clave API</strong> (⚙) para IA con lenguaje natural completo.',
     // ── Modals ──
     modal_name_title: "Nombre del elemento",
@@ -196,7 +197,7 @@ const I18N = {
     ai_fallback_msg: "Usando modo local:",
     ai_not_understood: "No entendí ese comando. Escribe **ayuda** para ver los comandos disponibles, o configura una clave API para chat con IA.",
     ai_help: '**Comandos disponibles:**\n\n📍 *"añade un punto en Barcelona"*\n📍 *"marca Madrid, Sevilla y Valencia"*\n🔵 *"color rojo"* / *"color #ff6600"*\n📐 *"dibuja línea de A a B"*\n🛣️ *"ruta de Madrid a Barcelona"*\n⭕ *"dibuja un área de 10km en París"*\n🔍 *"busca museos en Roma"*\nℹ️ *"info de Tokio"*\n🗺️ *"satélite"* / *"mapa"* / *"globo 3D"*\n📏 *"mide distancia"*\n🗑️ *"borra todo"*\n💾 *"exporta como GeoJSON"*\n📊 *"estado del mapa"*\n\nCon clave API configurada: escribe cualquier cosa en lenguaje natural.',
-    ai_system_prompt: 'Eres Maña AI, el asistente inteligente de Maña Maps — una aplicación web de mapas interactivos.\n\nTu rol es ayudar al usuario a interactuar con el mapa usando lenguaje natural. Puedes:\n- Añadir puntos, líneas, rutas y áreas en el mapa\n- Buscar lugares y obtener información geográfica\n- Cambiar el estilo del mapa (satélite, globo 3D, colores, marcadores)\n- Medir distancias, exportar datos, y más\n\nReglas:\n- Responde SIEMPRE en español\n- Sé conciso y útil\n- Usa las funciones disponibles para ejecutar acciones en el mapa\n- Si el usuario pide algo que no puedes hacer con las funciones, explícalo amablemente\n- Puedes encadenar varias funciones si es necesario (ej: cambiar color + añadir punto)\n- Cuando el usuario mencione colores, usa los nombres: azul, rojo, verde, amarillo, rosa, púrpura, naranja, negro, gris\n- Para rutas entre ciudades usa draw_route (incluye distancia y tiempo)\n- Para líneas rectas simples usa draw_line',
+    ai_system_prompt: 'Eres Maña AI, el asistente inteligente de Maña Maps — una aplicación web de mapas interactivos.\n\nTu rol es ayudar al usuario a interactuar con el mapa usando lenguaje natural. Puedes:\n- Añadir puntos, líneas, rutas y áreas en el mapa\n- Buscar lugares y obtener información geográfica\n- Cambiar el estilo del mapa (satélite, globo 3D, colores, marcadores)\n- Medir distancias, exportar datos, y más\n\nReglas:\n- Responde SIEMPRE en español\n- Sé conciso y útil\n- Usa las funciones disponibles para ejecutar acciones en el mapa\n- Si el usuario pide algo que no puedes hacer con las funciones, explícalo amablemente\n- Puedes encadenar varias funciones si es necesario (ej: cambiar color + añadir punto)\n- Cuando el usuario mencione colores, usa los nombres: azul, rojo, verde, amarillo, rosa, púrpura, naranja, negro, gris\n- Para rutas entre ciudades usa draw_route (incluye distancia y tiempo)\n- Para líneas rectas simples usa draw_line\n\nIMPORTANTE — Los comandos de estilo nunca deben geocodificarse ni convertirse en elementos del mapa.\nSi el usuario pide cambiar color de dibujo, tipo de marcador, grosor de línea, o activar herramienta,\nresponde SOLO con un JSON como: {\"action\":\"setColor\",\"value\":\"#ef4444\"}\nAcciones válidas: setColor, setMarkerType, setTool, setBasemap, zoomIn, zoomOut, clearAll.\nPalabras clave de estilo:\n  Colores: rojo/red, azul/blue, verde/green, amarillo/yellow, rosa/pink, púrpura/purple, índigo/indigo, naranja/orange, gris/grey, negro/black\n  Marcadores: pin/chincheta, círculo/circle, cuadrado/square, estrella/star\n  Herramientas: punto/point, línea/line, polígono/polygon, regla/ruler\n  Mapas base: satélite/satellite, mapa/map, globo/globe\nNO llames a Nominatim ni crees features para ninguna de las palabras clave anteriores.',
     ai_map_context: 'El mapa actual contiene: ',
     // ── Attr table ──
     attr_properties: "Propiedades",
@@ -228,6 +229,76 @@ const I18N = {
     name_point: "Nombre del punto",
     default_point_name: "Nuevo punto",
     rename_element: "Renombrar elemento",
+    // ── Shortcuts ──
+    shortcut_title: "Atajos de teclado",
+    shortcut_pill: "Atajos",
+    shortcut_tools: "HERRAMIENTAS",
+    shortcut_map: "MAPA",
+    shortcut_general: "GENERAL",
+    shortcut_point: "Añadir punto",
+    shortcut_line: "Dibujar línea",
+    shortcut_polygon: "Dibujar polígono",
+    shortcut_ruler: "Medir distancia",
+    shortcut_fit: "Ajustar al contenido",
+    shortcut_zoom_in: "Acercar",
+    shortcut_zoom_out: "Alejar",
+    shortcut_undo: "Deshacer",
+    shortcut_export: "Exportar",
+    shortcut_select_all: "Seleccionar todo",
+    shortcut_delete: "Eliminar selección",
+    shortcut_escape: "Cancelar / cerrar",
+    shortcut_show: "Mostrar atajos",
+    // ── Inline feedback ──
+    attr_renamed: "Renombrado: {key}",
+    attr_deleted: "Atributo eliminado",
+    attr_col_added: "Columna \"{field}\" añadida",
+    // ── Dark mode ──
+    dark_toggle: "Modo oscuro",
+    // ── Chat local responses ──
+    local_tool_point: "✅ Herramienta de punto activada.",
+    local_tool_line: "✅ Herramienta de línea activada.",
+    local_tool_polygon: "✅ Herramienta de polígono activada.",
+    local_tool_ruler: "✅ Herramienta de medición activada.",
+    local_view_sat: "✅ Vista satélite activada.",
+    local_view_map: "✅ Mapa base activado.",
+    local_view_globe: "✅ Globo 3D activado.",
+    local_map_cleared: "✅ Mapa limpiado.",
+    local_zoom_in: "✅ Zoom acercado.",
+    local_zoom_out: "✅ Zoom alejado.",
+    local_fit_bounds: "✅ Vista ajustada a todos los elementos.",
+    local_color_changed: "✅ Color cambiado a",
+    local_marker_changed: "✅ Marcador cambiado a",
+    // ── Context menu / layer ──
+    ctx_rename_layer: "Renombrar capa",
+    ctx_rename_element: "Renombrar elemento",
+    ctx_no_extra_attrs: "Sin atributos adicionales",
+    // ── Persistence ──
+    persist_restored: "Mapa restaurado de la sesión anterior",
+    persist_autosave: "Auto-guardado",
+    persist_no_elements: "No hay elementos para compartir.",
+    // ── OGC ──
+    ogc_connecting: "Conectando WMS…",
+    ogc_added: "WMS añadido ✓",
+    ogc_added_no_list: "WMS añadido (sin lista de capas)",
+    ogc_removed: "Servicio eliminado",
+    ogc_elements: "elementos ✓",
+    ogc_layers_available: "capas WMS disponibles",
+    // ── Filter ──
+    filter_is_empty: "está vacío",
+    filter_is_not_empty: "no está vacío",
+    // ── Undo ──
+    undo_nothing: "Nada que deshacer",
+    undo_steps: "pasos",
+    // ── Shortcuts ──
+    shortcut_deleted: "elemento(s) eliminado(s)",
+    // ── Generic ──
+    generic_element: "Elemento",
+    // ── Stats panel ──
+    stats_geometry: "Geometría",
+    stats_total_length: "Longitud total",
+    stats_total_area: "Área total",
+    stats_wms_layers: "Capas WMS activas",
+    stats_total_elements: "Total",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "es",
   },
@@ -283,6 +354,7 @@ const I18N = {
     chat_suggestion_globe: "🌍 3D globe",
     chat_suggestion_color: "🎨 red color",
     chat_suggestion_export: "📦 export as KML",
+    ai_badge: "AI",
     chat_configure_hint: '⚙️ <strong>Set up an API key</strong> (⚙) for full natural language AI.',
     // ── Modals ──
     modal_name_title: "Element name",
@@ -424,7 +496,7 @@ const I18N = {
     ai_fallback_msg: "Using local mode:",
     ai_not_understood: 'I didn\'t understand that command. Type **help** to see available commands, or set up an API key for AI chat.',
     ai_help: '**Available commands:**\n\n📍 *"add a point in Paris"*\n📍 *"mark London, Berlin and Rome"*\n🔵 *"red color"* / *"color #ff6600"*\n📐 *"draw line from A to B"*\n🛣️ *"route from London to Paris"*\n⭕ *"draw an area of 10km in Tokyo"*\n🔍 *"find museums in Rome"*\nℹ️ *"info about Tokyo"*\n🗺️ *"satellite"* / *"map"* / *"3D globe"*\n📏 *"measure distance"*\n🗑️ *"clear all"*\n💾 *"export as GeoJSON"*\n📊 *"map status"*\n\nWith API key configured: type anything in natural language.',
-    ai_system_prompt: 'You are Maña AI, the smart assistant of Maña Maps — an interactive web map application.\n\nYour role is to help users interact with the map using natural language. You can:\n- Add points, lines, routes and areas on the map\n- Search places and get geographic information\n- Change the map style (satellite, 3D globe, colors, markers)\n- Measure distances, export data, and more\n\nRules:\n- ALWAYS respond in English\n- Be concise and helpful\n- Use the available functions to execute actions on the map\n- If the user asks for something you cannot do with the functions, explain it kindly\n- You can chain multiple functions if needed (e.g.: change color + add point)\n- When the user mentions colors, use the names: blue, red, green, yellow, pink, purple, orange, black, gray\n- For routes between cities use draw_route (includes distance and time)\n- For simple straight lines use draw_line',
+    ai_system_prompt: 'You are Maña AI, the smart assistant of Maña Maps — an interactive web map application.\n\nYour role is to help users interact with the map using natural language. You can:\n- Add points, lines, routes and areas on the map\n- Search places and get geographic information\n- Change the map style (satellite, 3D globe, colors, markers)\n- Measure distances, export data, and more\n\nRules:\n- ALWAYS respond in English\n- Be concise and helpful\n- Use the available functions to execute actions on the map\n- If the user asks for something you cannot do with the functions, explain it kindly\n- You can chain multiple functions if needed (e.g.: change color + add point)\n- When the user mentions colors, use the names: blue, red, green, yellow, pink, purple, orange, black, gray\n- For routes between cities use draw_route (includes distance and time)\n- For simple straight lines use draw_line\n\nIMPORTANT — Style commands must never be geocoded or turned into map elements.\nIf the user asks to change drawing color, marker type, line weight, or activate a tool,\nrespond ONLY with a JSON object like: {\"action\":\"setColor\",\"value\":\"#ef4444\"}\nValid actions: setColor, setMarkerType, setTool, setBasemap, zoomIn, zoomOut, clearAll.\nStyle keywords to recognize:\n  Colors: rojo/red, azul/blue, verde/green, amarillo/yellow, rosa/pink, púrpura/purple, índigo/indigo, naranja/orange, gris/grey, negro/black\n  Markers: pin/chincheta, círculo/circle, cuadrado/square, estrella/star\n  Tools: punto/point, línea/line, polígono/polygon, regla/ruler\n  Basemaps: satélite/satellite, mapa/map, globo/globe\nDo NOT call Nominatim or create features for any of the above keywords.',
     ai_map_context: 'The current map contains: ',
     // ── Attr table ──
     attr_properties: "Properties",
@@ -456,21 +528,149 @@ const I18N = {
     name_point: "Point name",
     default_point_name: "New point",
     rename_element: "Rename element",
+    // ── Shortcuts ──
+    shortcut_title: "Keyboard shortcuts",
+    shortcut_pill: "Shortcuts",
+    shortcut_tools: "TOOLS",
+    shortcut_map: "MAP",
+    shortcut_general: "GENERAL",
+    shortcut_point: "Add point",
+    shortcut_line: "Draw line",
+    shortcut_polygon: "Draw polygon",
+    shortcut_ruler: "Measure distance",
+    shortcut_fit: "Fit to content",
+    shortcut_zoom_in: "Zoom in",
+    shortcut_zoom_out: "Zoom out",
+    shortcut_undo: "Undo",
+    shortcut_export: "Export",
+    shortcut_select_all: "Select all",
+    shortcut_delete: "Delete selection",
+    shortcut_escape: "Cancel / close",
+    shortcut_show: "Show shortcuts",
+    // ── Inline feedback ──
+    attr_renamed: "Renamed: {key}",
+    attr_deleted: "Attribute deleted",
+    attr_col_added: "Column \"{field}\" added",
+    // ── Dark mode ──
+    dark_toggle: "Dark mode",
+    // ── Chat local responses ──
+    local_tool_point: "✅ Point tool activated.",
+    local_tool_line: "✅ Line tool activated.",
+    local_tool_polygon: "✅ Polygon tool activated.",
+    local_tool_ruler: "✅ Measurement tool activated.",
+    local_view_sat: "✅ Satellite view activated.",
+    local_view_map: "✅ Base map activated.",
+    local_view_globe: "✅ 3D Globe activated.",
+    local_map_cleared: "✅ Map cleared.",
+    local_zoom_in: "✅ Zoomed in.",
+    local_zoom_out: "✅ Zoomed out.",
+    local_fit_bounds: "✅ View adjusted to all elements.",
+    local_color_changed: "✅ Color changed to",
+    local_marker_changed: "✅ Marker changed to",
+    // ── Context menu / layer ──
+    ctx_rename_layer: "Rename layer",
+    ctx_rename_element: "Rename element",
+    ctx_no_extra_attrs: "No additional attributes",
+    // ── Persistence ──
+    persist_restored: "Map restored from previous session",
+    persist_autosave: "Auto-saved",
+    persist_no_elements: "No elements to share.",
+    // ── OGC ──
+    ogc_connecting: "Connecting WMS…",
+    ogc_added: "WMS added ✓",
+    ogc_added_no_list: "WMS added (no layer list)",
+    ogc_removed: "Service removed",
+    ogc_elements: "elements ✓",
+    ogc_layers_available: "WMS layers available",
+    // ── Filter ──
+    filter_is_empty: "is empty",
+    filter_is_not_empty: "is not empty",
+    // ── Undo ──
+    undo_nothing: "Nothing to undo",
+    undo_steps: "steps",
+    // ── Shortcuts ──
+    shortcut_deleted: "element(s) deleted",
+    // ── Generic ──
+    generic_element: "Element",
+    // ── Stats panel ──
+    stats_geometry: "Geometry",
+    stats_total_length: "Total length",
+    stats_total_area: "Total area",
+    stats_wms_layers: "Active WMS layers",
+    stats_total_elements: "Total",
+    hint_select: 'Click an element to select it (Shift+click for multi-select)',
     // ── Nominatim Accept-Language ──
     nominatim_lang: "en",
   }
 };
 
-// ── Language detection from URL path ──
-const LANG = window.location.pathname.startsWith('/en') ? 'en' : 'es';
+// ── Language detection: localStorage > URL path > browser > 'es' ──
+let LANG = (function() {
+  var stored = localStorage.getItem('mana-lang');
+  if (stored && I18N[stored]) return stored;
+  if (window.location.pathname.startsWith('/en')) return 'en';
+  var nav = (navigator.language || navigator.userLanguage || 'es').slice(0, 2);
+  return I18N[nav] ? nav : 'es';
+})();
 
 // ── Translation function ──
 function t(key, params) {
-  let str = I18N[LANG][key] || I18N['es'][key] || key;
+  let str = (I18N[LANG] && I18N[LANG][key]) || I18N['es'][key] || key;
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       str = str.replace('{' + k + '}', v);
     }
   }
   return str;
+}
+
+// ── Apply translations to DOM elements with data-i18n / data-i18n-placeholder ──
+function applyTranslations(lang) {
+  if (lang && I18N[lang]) LANG = lang;
+  localStorage.setItem('mana-lang', LANG);
+
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var val = t(key);
+    if (val === key) return; // no translation found
+    // If the value contains HTML tags, use innerHTML; otherwise textContent
+    if (/<[a-z]/.test(val)) el.innerHTML = val;
+    else el.textContent = val;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-placeholder');
+    var val = t(key);
+    if (val !== key) el.placeholder = val;
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-title');
+    var val = t(key);
+    if (val !== key) el.title = val;
+  });
+
+  // Update lang toggle button label
+  var langLabel = document.querySelector('.tb-lang-label');
+  if (langLabel) langLabel.textContent = (LANG === 'es' ? 'EN' : 'ES');
+
+  // Update HTML lang attribute
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'es';
+}
+
+// ── Toggle language (called from lang button) ──
+function toggleLang() {
+  LANG = (LANG === 'es') ? 'en' : 'es';
+  applyTranslations(LANG);
+}
+
+// ── Inline attribute feedback helper ──
+function attrInlineFeedback(anchorEl, msg, type) {
+  // Remove any existing feedback nearby
+  var existing = anchorEl.parentElement.querySelector('.attr-inline-feedback');
+  if (existing) existing.remove();
+
+  var span = document.createElement('span');
+  span.className = 'attr-inline-feedback ' + (type || 'success');
+  span.textContent = msg;
+  anchorEl.parentElement.appendChild(span);
+  setTimeout(function() { if (span.parentElement) span.remove(); }, 2000);
 }
