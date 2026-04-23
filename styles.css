@@ -2080,3 +2080,198 @@ select.ai-input{cursor:pointer;appearance:auto;}
   filter:brightness(0.55) contrast(1.3) saturate(0.4);
   transition:filter .4s ease;
 }
+
+
+/* ═══ Categorize — Style by Attribute ═══ */
+.cat-header{
+  display:flex;align-items:center;gap:6px;padding:6px 4px 4px;
+}
+.cat-back{
+  background:none;border:none;cursor:pointer;color:var(--text-3,#9ca3af);
+  font-size:16px;padding:2px 4px;line-height:1;
+}
+.cat-back:hover{ color:var(--text,#1a1a1a); }
+.cat-field-label{
+  flex:1;font-size:11px;font-weight:600;color:var(--text-2,#374151);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cat-reset-btn{
+  font-size:10px;padding:3px 10px;border-radius:50px;
+  border:0.5px solid var(--border,#e5e7eb);background:var(--surface-2,#f3f4f6);
+  cursor:pointer;color:var(--text-2,#374151);font-family:inherit;font-weight:600;
+  transition:all .15s ease;
+}
+.cat-reset-btn:hover{
+  background:var(--surface-3,#e5e7eb);
+}
+
+/* Palette selector row */
+.cat-palette-row{
+  display:flex;gap:6px;padding:6px 8px 8px;align-items:center;
+}
+.cat-dot{
+  width:16px;height:16px;border-radius:50%;border:none;cursor:pointer;
+  flex-shrink:0;transition:all .15s ease;box-shadow:0 0 0 1px rgba(0,0,0,.08);
+}
+.cat-dot:hover{
+  transform:scale(1.15);box-shadow:0 0 0 1px rgba(0,0,0,.15);
+}
+.cat-dot-active{
+  box-shadow:0 0 0 2px var(--surface,#fff), 0 0 0 3.5px var(--text-2,#374151) !important;
+  transform:scale(1.1);
+}
+
+/* Legend rows inside panel */
+.cat-rows{
+  max-height:280px;overflow-y:auto;padding:0 4px 4px;
+}
+.cat-row{
+  display:flex;align-items:center;gap:7px;padding:3px 6px;
+  border-radius:4px;transition:background .1s;
+}
+.cat-row:hover{ background:var(--surface-2,#f3f4f6); }
+.cat-row-fallback .cat-label{ font-style:italic;color:var(--text-3,#9ca3af); }
+.cat-swatch{
+  width:12px;height:12px;border-radius:3px;cursor:pointer;flex-shrink:0;
+  border:0.5px solid rgba(0,0,0,.1);position:relative;transition:transform .1s;
+}
+.cat-swatch:hover{ transform:scale(1.2); }
+.cat-override-dot{
+  position:absolute;bottom:-2px;right:-2px;width:5px;height:5px;
+  border-radius:50%;background:var(--text,#1a1a1a);border:1px solid var(--surface,#fff);
+}
+.cat-label{
+  flex:1;font-size:11px;color:var(--text-2,#374151);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cat-hidden-picker{
+  position:absolute;width:0;height:0;opacity:0;pointer-events:none;
+}
+.cat-sep{
+  height:1px;background:var(--border,#e5e7eb);margin:4px 8px;
+}
+.cat-empty{
+  padding:12px 8px;font-size:11px;color:var(--text-3,#9ca3af);font-style:italic;
+}
+
+/* Type badge in attribute list */
+.cat-type-badge{
+  display:inline-block;width:18px;text-align:center;
+  font-size:9px;font-weight:700;color:var(--text-3,#9ca3af);
+  font-family:'DM Mono',monospace;
+}
+
+/* Sidebar legend (under layer group) */
+.cat-legend{
+  padding:4px 10px 6px 28px;font-size:10px;
+  border-top:0.5px solid var(--border,#e5e7eb);
+}
+.cat-legend-row{
+  display:flex;align-items:center;gap:5px;padding:1px 0;
+  color:var(--text-2,#374151);
+}
+.cat-legend-swatch{
+  width:10px;height:10px;border-radius:2px;flex-shrink:0;
+}
+.cat-legend-fallback{
+  color:var(--text-3,#9ca3af);font-style:italic;
+}
+
+/* ═══ Marker grid (12 markers, wrapping) ═══ */
+.marker-row{
+  display:flex;flex-wrap:wrap;gap:4px;padding:4px;
+}
+.marker-opt{
+  width:34px;height:34px;
+}
+
+/* ═══ Context menu marker type grid ═══ */
+.ctx-marker-grid{
+  display:flex;flex-wrap:wrap;gap:3px;padding:2px 0;
+}
+.ctx-mk-btn{
+  width:26px;height:26px;border-radius:5px;border:0.5px solid var(--border,#e5e7eb);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--text-2,#555);background:transparent;transition:all .1s;padding:0;
+}
+.ctx-mk-btn svg{width:13px;height:13px;}
+.ctx-mk-btn:hover{border-color:var(--text-2,#374151);color:var(--text,#1a1a1a);}
+.ctx-mk-active{border:1.5px solid var(--blue,#0ea5e9);background:color-mix(in srgb, var(--blue) 10%, transparent);color:var(--blue,#0ea5e9);}
+
+/* ═══ Marker picker modal ═══ */
+.mk-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:10000;
+  display:flex;align-items:center;justify-content:center;
+  animation:mkFadeIn .15s ease;
+}
+@keyframes mkFadeIn{from{opacity:0}to{opacity:1}}
+.mk-modal-box{
+  background:var(--surface,#fff);border-radius:14px;width:380px;max-width:90vw;
+  max-height:80vh;display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.2),0 0 0 1px var(--border,rgba(0,0,0,.08));
+}
+.mk-modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 10px;font-size:13px;font-weight:600;color:var(--text,#1a1a1a);
+}
+.mk-modal-close{
+  background:none;border:none;cursor:pointer;font-size:18px;
+  color:var(--text-3,#9ca3af);line-height:1;padding:2px 6px;
+}
+.mk-modal-close:hover{color:var(--text,#1a1a1a);}
+.mk-modal-search{
+  margin:0 12px 8px;padding:7px 10px;border-radius:8px;
+  border:0.5px solid var(--border,#e5e7eb);background:var(--surface-2,#f3f4f6);
+  font-size:12px;font-family:inherit;color:var(--text,#1a1a1a);
+  outline:none;
+}
+.mk-modal-search:focus{border-color:var(--blue,#0ea5e9);}
+.mk-modal-body{
+  overflow-y:auto;padding:0 12px 14px;flex:1;
+}
+.mk-modal-cat-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-3,#9ca3af);padding:10px 0 4px;
+}
+.mk-modal-grid{
+  display:flex;flex-wrap:wrap;gap:4px;
+}
+.mk-modal-btn{
+  width:34px;height:34px;border-radius:7px;border:0.5px solid var(--border,#e5e7eb);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--text-2,#555);background:transparent;transition:all .1s;padding:0;
+}
+.mk-modal-btn svg{width:16px;height:16px;}
+.mk-modal-btn:hover{border-color:var(--text-2);color:var(--text);}
+.mk-modal-btn.active{border:1.5px solid var(--blue);color:var(--blue);background:color-mix(in srgb, var(--blue) 8%, transparent);}
+
+/* "+" more button in compact row */
+.mk-more-btn{
+  font-size:16px !important;font-weight:300;color:var(--text-3,#9ca3af) !important;
+  letter-spacing:0;
+}
+.mk-more-btn:hover{color:var(--text,#1a1a1a) !important;}
+
+/* ═══ Draw mode cursors — crosshair for all draw tools ═══ */
+.leaflet-draw-draw-marker,
+.leaflet-draw-draw-polyline,
+.leaflet-draw-draw-polygon,
+.leaflet-draw-draw-rectangle,
+.leaflet-draw-draw-circle {
+  cursor: crosshair !important;
+}
+.leaflet-draw-draw-marker .leaflet-grab,
+.leaflet-draw-draw-marker .leaflet-interactive,
+.leaflet-draw-draw-polyline .leaflet-grab,
+.leaflet-draw-draw-polyline .leaflet-interactive,
+.leaflet-draw-draw-polygon .leaflet-grab,
+.leaflet-draw-draw-polygon .leaflet-interactive {
+  cursor: crosshair !important;
+}
+
+/* ═══ Point draw mode — crosshair cursor ═══ */
+#map.draw-point-mode{cursor:crosshair !important;}
+#map.draw-point-mode .leaflet-grab,
+#map.draw-point-mode .leaflet-interactive,
+#map.draw-point-mode .leaflet-marker-icon,
+#map.draw-point-mode .leaflet-tile-pane{cursor:crosshair !important;}

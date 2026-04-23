@@ -348,6 +348,27 @@ const I18N = {
     changelog_footer: "Maña Maps — Hecho con ❤ en Barcelona",
     // ── Nav (shared) ──
     nav_open_map: "Abrir mapa",
+    // ── Categorize / Style by ──
+    cat_field: "Campo",
+    cat_reset: "Reset",
+    cat_others: "Otros",
+    cat_no_values: "Sin valores para este campo",
+    cat_toast: "Estilizado por",
+    cat_values: "valores",
+    cat_range: "a",
+    // ── Marker types ──
+    marker_pin: "Pin",
+    marker_circle: "Círculo",
+    marker_square: "Cuadrado",
+    marker_diamond: "Diamante",
+    marker_triangle: "Triángulo",
+    marker_star: "Estrella",
+    marker_hexagon: "Hexágono",
+    marker_cross: "Cruz",
+    marker_drop: "Gota",
+    marker_flag: "Bandera",
+    marker_bolt: "Rayo",
+    marker_heart: "Corazón",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "es",
   },
@@ -697,6 +718,27 @@ const I18N = {
     changelog_footer: "Maña Maps — Made with ❤ in Barcelona",
     // ── Nav (shared) ──
     nav_open_map: "Open map",
+    // ── Categorize / Style by ──
+    cat_field: "Field",
+    cat_reset: "Reset",
+    cat_others: "Others",
+    cat_no_values: "No values for this field",
+    cat_toast: "Styled by",
+    cat_values: "values",
+    cat_range: "to",
+    // ── Marker types ──
+    marker_pin: "Pin",
+    marker_circle: "Circle",
+    marker_square: "Square",
+    marker_diamond: "Diamond",
+    marker_triangle: "Triangle",
+    marker_star: "Star",
+    marker_hexagon: "Hexagon",
+    marker_cross: "Cross",
+    marker_drop: "Drop",
+    marker_flag: "Flag",
+    marker_bolt: "Bolt",
+    marker_heart: "Heart",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "en",
   }
