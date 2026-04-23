@@ -418,6 +418,17 @@ function updateCtxStyleSection() {
   // Show weight row only for non-markers
   weightRow.style.display = (ctxTargetLayer instanceof L.Marker) ? 'none' : 'flex';
 
+    // Show marker type selector for points only
+    var ctxMkRow = document.getElementById('ctx-marker-row');
+    if (ctxMkRow) {
+      if (ctxTargetLayer instanceof L.Marker) {
+        ctxMkRow.style.display = 'flex';
+        _populateMarkerGrid('ctx-marker-grid', ctxTargetLayer);
+      } else {
+        ctxMkRow.style.display = 'none';
+      }
+    }
+
   // Set opacity slider to current value
   let curOpacity = 100;
   if (ctxTargetLayer instanceof L.Marker) {
@@ -503,6 +514,18 @@ function _openLayerCtx(x, y, type, id) {
     });
     weightRow.style.display = hasLines ? 'flex' : 'none';
 
+    // Show marker type selector for point groups
+    var lctxMkRow = document.getElementById('lctx-marker-row');
+    if (lctxMkRow) {
+      var hasPoints = meta.allLayers.some(function(l) { return l instanceof L.Marker; });
+      if (hasPoints) {
+        lctxMkRow.style.display = 'flex';
+        _populateMarkerGrid('lctx-marker-grid', null, id);
+      } else {
+        lctxMkRow.style.display = 'none';
+      }
+    }
+
     // Opacity: use first layer's opacity
     let curOp = 100;
     if (meta.allLayers.length) {
@@ -534,6 +557,17 @@ function _openLayerCtx(x, y, type, id) {
     if (!layer) return;
     title.textContent = layer._manaName || t('generic_element');
     weightRow.style.display = (layer instanceof L.Marker) ? 'none' : 'flex';
+
+    // Marker type selector for individual point in sidebar
+    var lctxMkRow2 = document.getElementById('lctx-marker-row');
+    if (lctxMkRow2) {
+      if (layer instanceof L.Marker) {
+        lctxMkRow2.style.display = 'flex';
+        _populateMarkerGrid('lctx-marker-grid', layer);
+      } else {
+        lctxMkRow2.style.display = 'none';
+      }
+    }
 
     let curOp = 100;
     if (layer instanceof L.Marker) {
@@ -1034,3 +1068,37 @@ document.addEventListener('contextmenu', e => {
   const lm = document.getElementById('layer-ctx-menu');
   if (lm && !lm.contains(e.target)) closeLayerCtx();
 });
+
+
+// ═══════════════════════════════════════════════════════════════
+// MARKER TYPE GRID — uses _buildMkRow (6 defaults + "+" modal)
+// ═══════════════════════════════════════════════════════════════
+function _populateMarkerGrid(containerId, layer, groupId) {
+  var grid = document.getElementById(containerId);
+  if (!grid || typeof _buildMkRow === 'undefined') return;
+
+  _buildMkRow(grid, function(type) {
+    if (typeof pushUndo === 'function') pushUndo();
+
+    if (groupId) {
+      var meta = _manaGroupMeta[groupId];
+      if (meta) {
+        meta.allLayers.forEach(function(l) {
+          if (l instanceof L.Marker) {
+            l._manaMarkerType = type;
+            l.setIcon(makeMarkerIcon(l._manaColor || drawColor, type));
+          }
+        });
+      }
+    } else if (layer && layer instanceof L.Marker) {
+      layer._manaMarkerType = type;
+      layer.setIcon(makeMarkerIcon(layer._manaColor || drawColor, type));
+    } else if (ctxTargetLayer && ctxTargetLayer instanceof L.Marker) {
+      ctxTargetLayer._manaMarkerType = type;
+      ctxTargetLayer.setIcon(makeMarkerIcon(ctxTargetLayer._manaColor || drawColor, type));
+    }
+
+    if (typeof saveState === 'function') saveState();
+    if (typeof stats === 'function') stats();
+  });
+}

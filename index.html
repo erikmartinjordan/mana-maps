@@ -244,9 +244,6 @@
       <div class="tool-icon active" data-panel="draw" onclick="togglePanel('draw')" title="Dibujar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       </div>
-      <div class="tool-icon" data-panel="style" onclick="togglePanel('style')" title="Estilo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-      </div>
       <div class="tool-icon" data-panel="basemap" onclick="togglePanel('basemap')" title="Mapa base">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
       </div>
@@ -306,33 +303,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
             <span data-i18n="tool_edit">Editar geometria</span>
           </button>
-        </div>
-      </div>
-
-      <!-- ═══ Panel de estilo ═══ -->
-      <div class="panel-state" id="panel-style">
-        <div class="panel-header">
-          <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg></div>
-          <div><div class="panel-header-title" data-i18n="panel_style_title">Estilo</div><div class="panel-header-sub" data-i18n="panel_style_sub">Colores y marcadores</div></div>
-        </div>
-        <div class="panel-body">
-          <div class="sec-label" data-i18n="style_color">Color</div>
-          <div class="color-row swatch-row" id="color-row"></div>
-          <div class="sec-label" data-i18n="style_marker_type">Tipo de marcador</div>
-          <div class="marker-row" id="marker-row">
-            <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
-            </div>
-            <div class="marker-opt" data-mtype="circle" title="C&#237;rculo" onclick="setMarkerType('circle',this)">
-              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>
-            </div>
-            <div class="marker-opt" data-mtype="square" title="Cuadrado" onclick="setMarkerType('square',this)">
-              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
-            </div>
-            <div class="marker-opt" data-mtype="star" title="Estrella" onclick="setMarkerType('star',this)">
-              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -548,6 +518,12 @@
   <div class="ctx-color-row">
       </div>
 
+
+  <!-- Tipo de marcador (solo puntos) -->
+  <div id="lctx-marker-row" class="ctx-option-row" style="display:none">
+    <span class="ctx-option-label" data-i18n="style_marker_type">Tipo de marcador</span>
+    <div class="ctx-marker-grid" id="lctx-marker-grid"></div>
+  </div>
   <!-- Grosor de línea -->
   <div id="lctx-weight-row" class="ctx-option-row">
     <span class="ctx-option-label" data-i18n="ctx_weight">Grosor</span>
@@ -628,6 +604,12 @@
     <div class="ctx-color-row">
     </div>
 
+
+    <!-- Tipo de marcador (solo puntos) -->
+    <div id="ctx-marker-row" class="ctx-option-row" style="display:none">
+      <span class="ctx-option-label" data-i18n="style_marker_type">Tipo de marcador</span>
+      <div class="ctx-marker-grid" id="ctx-marker-grid"></div>
+    </div>
     <!-- Grosor de línea -->
     <div id="ctx-weight-row" class="ctx-option-row">
       <span class="ctx-option-label">Grosor</span>
@@ -881,5 +863,35 @@ function toggleDarkMode() {
 </script>
 <script defer src="js/categorize.js?v=1776927826"></script>  <!-- QGIS-style categorization -->
 <script defer src="js/shortcuts.js?v=1776927826"></script>  <!-- keyboard shortcuts -->
+<script>
+// ── _buildMkRow: shared compact marker row builder (6 defaults + "+" button) ──
+function _buildMkRow(container, onPick) {
+  var html = '';
+  MK_DEFAULTS.forEach(function(id) {
+    var active = id === markerType ? ' active' : '';
+    var def = _mkFind(id);
+    var title = def ? (LANG==='en' ? def.en : def.es) : id;
+    html += '<div class="marker-opt' + active + '" data-mtype="' + id + '" title="' + title + '">'
+      + mkPreviewSvg(id) + '</div>';
+  });
+  html += '<div class="marker-opt mk-more-btn" title="' + (LANG==='en'?'More markers':'Más marcadores') + '">+</div>';
+  container.innerHTML = html;
+  container.querySelectorAll('.marker-opt:not(.mk-more-btn)').forEach(function(opt) {
+    opt.onclick = function() {
+      container.querySelectorAll('.marker-opt').forEach(function(o){o.classList.remove('active');});
+      opt.classList.add('active');
+      onPick(opt.dataset.mtype);
+    };
+  });
+  container.querySelector('.mk-more-btn').onclick = function() {
+    openMarkerPicker(function(id) {
+      onPick(id);
+      container.querySelectorAll('.marker-opt').forEach(function(o){
+        o.classList.toggle('active', o.dataset.mtype === id);
+      });
+    });
+  };
+}
+</script>
 </body>
 </html>

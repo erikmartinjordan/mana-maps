@@ -17,6 +17,7 @@ function stopAll() {
   stopRuler();
   if (_selectMode) stopSelect();
   document.getElementById('draw-hint').style.display = 'none';
+  document.getElementById('map').classList.remove('draw-point-mode');
   document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
   var tbRuler = document.getElementById('tb-ruler');
   if (tbRuler) tbRuler.classList.remove('active');
@@ -44,6 +45,7 @@ function setTool(tool) {
     // Ensure active group is compatible with points
     getOrCreateActiveGroup('point');
     hint.textContent = t('hint_point');
+    document.getElementById('map').classList.add('draw-point-mode');
     map.once('click', async e => {
       stopAll();
       const name = await askName(t('name_point'), t('default_point_name'));
@@ -147,6 +149,7 @@ function stopEdit() {
   const btn = document.getElementById('btn-edit');
   if (btn) btn.classList.remove('active');
   document.getElementById('draw-hint').style.display = 'none';
+  document.getElementById('map').classList.remove('draw-point-mode');
 
   // Disable editing on all layers
   drawnItems.eachLayer(l => {
