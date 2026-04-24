@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test('home page loads with expected title and main CTA', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page).toHaveTitle(/Ma[ñn]a Maps/i);
+  await expect(page).toHaveTitle(/Maña Maps — Diseña mapas con claridad/i);
   await expect(page.locator('a[href="/map/"]')).toBeVisible();
 });
 
