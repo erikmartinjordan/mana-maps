@@ -608,8 +608,42 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.08);
   padding:0;overflow:hidden;
 }
+.attr-popup-wrapper .leaflet-popup-close-button{
+  top:6px;
+  right:6px;
+  left:auto;
+  width:24px;
+  height:24px;
+  line-height:22px;
+  border-radius:999px;
+  background:var(--surface);
+  border:0.5px solid var(--border);
+  color:var(--third);
+  font-size:16px;
+  font-weight:700;
+  padding:0;
+  text-align:center;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.attr-popup-wrapper .leaflet-popup-close-button:hover{
+  background:var(--surface-2);
+  color:var(--primary);
+  border-color:var(--border-strong);
+}
 .attr-popup-wrapper .leaflet-popup-content{
-  margin:0 !important;max-height:320px;overflow-y:auto;
+  margin:0 !important;
+  max-height:320px;
+  overflow-y:auto;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+  scrollbar-gutter:stable;
+}
+.attr-popup-wrapper .leaflet-popup-content::-webkit-scrollbar{
+  width:6px;
+}
+.attr-popup-wrapper .leaflet-popup-content::-webkit-scrollbar-thumb{
+  background:var(--border);
+  border-radius:999px;
 }
 .attr-popup{padding:0;}
 .attr-table{
@@ -619,6 +653,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .attr-table tr{border-bottom:1px solid rgba(0,0,0,.06);}
 .attr-table tr:last-child{border-bottom:none;}
 .attr-table tr:hover{background:rgba(14,165,233,.04);}
+.attr-table tr:first-child .attr-key,
+.attr-table tr:first-child .attr-val{padding-top:12px;}
 .attr-key{
   padding:7px 10px;font-weight:700;color:var(--third);white-space:nowrap;
   vertical-align:top;background:rgba(0,0,0,.02);min-width:80px;
