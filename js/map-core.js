@@ -12,6 +12,33 @@ const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([40.
 tileMap.addTo(map);
 let activeBase = 'map';
 
+// ── Leaflet badge (inside map, accessible + on-brand) ──
+function addLeafletBadgeControl() {
+  if (!map || !map.attributionControl) return;
+  // Keep provider attributions; move Leaflet branding to a dedicated control.
+  map.attributionControl.setPrefix('');
+
+  const LeafletBadge = L.Control.extend({
+    options: { position: 'bottomleft' },
+    onAdd: function() {
+      const wrap = L.DomUtil.create('div', 'leaflet-badge-wrap');
+      wrap.innerHTML =
+        '<a class="leaflet-badge-link" href="https://leafletjs.com" target="_blank" rel="noopener noreferrer" data-i18n-title="leaflet_badge_title">' +
+          '<span class="leaflet-badge-dot" aria-hidden="true"></span>' +
+          '<span class="leaflet-badge-text" data-i18n="leaflet_badge_text">Mapa inclusivo con Leaflet</span>' +
+          '<span class="sr-only" data-i18n="leaflet_badge_sr">Abre el sitio oficial de Leaflet en una nueva pestaña</span>' +
+        '</a>';
+      L.DomEvent.disableClickPropagation(wrap);
+      L.DomEvent.disableScrollPropagation(wrap);
+      return wrap;
+    }
+  });
+
+  map.addControl(new LeafletBadge());
+  if (typeof applyTranslations === 'function') applyTranslations();
+}
+addLeafletBadgeControl();
+
 // ── Dark/light tile URLs ──
 const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 const TILE_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
