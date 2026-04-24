@@ -161,6 +161,7 @@ const I18N = {
     import_error: "Error al importar: ",
     import_no_kml: "No se encontró un .kml dentro del KMZ",
     import_shapefile_error: "No se pudo leer el Shapefile. Asegúrate de que el .zip contiene .shp, .dbf y .prj.",
+    importing_large_file: "Archivo grande detectado. Importando en modo optimizado…",
     export_no_elements: "No hay elementos para exportar.",
     geojson_invalid: "GeoJSON no válido.",
     // ── AI tool responses ──
@@ -530,6 +531,7 @@ const I18N = {
     import_error: "Import error: ",
     import_no_kml: "No .kml file found inside the KMZ",
     import_shapefile_error: "Could not read Shapefile. Make sure the .zip contains .shp, .dbf and .prj.",
+    importing_large_file: "Large file detected. Importing in optimized mode…",
     export_no_elements: "No elements to export.",
     geojson_invalid: "Invalid GeoJSON.",
     // ── AI tool responses ──

@@ -107,10 +107,18 @@ function buildAttrPopup(properties, geomType) {
   return html;
 }
 
+function cloneFeatureProperties(properties) {
+  if (!properties || typeof properties !== 'object') return {};
+  return { ...properties };
+}
+
 function loadGeoJSON(geo, groupName) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
   if (!geo.features) { manaAlert(t('geojson_invalid'), 'error'); return; }
+  const featureCount = geo.features.length;
+  const useChunkedImport = featureCount > 1200;
+  const batchSize = 250;
 
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
@@ -118,7 +126,7 @@ function loadGeoJSON(geo, groupName) {
   // Register group in metadata registry
   registerGroupMeta(groupId, gName, drawColor);
 
-  const layer = L.geoJSON(geo, {
+  const layer = L.geoJSON(null, {
     style: { color: drawColor, weight: 2, fillOpacity: .18 },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
@@ -127,32 +135,53 @@ function loadGeoJSON(geo, groupName) {
       m._manaName = n; m._manaColor = drawColor;
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
-      m._manaProperties = JSON.parse(JSON.stringify(f.properties || {}));
-      m.bindPopup(buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
+      m._manaProperties = cloneFeatureProperties(f.properties);
+      m.bindPopup(() => buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
       return m;
     },
     onEachFeature: (f, l) => {
       l._manaGroupId = groupId;
       l._manaGroupName = gName;
-      l._manaProperties = JSON.parse(JSON.stringify(f.properties || {}));
+      l._manaProperties = cloneFeatureProperties(f.properties);
       if (!(l instanceof L.Marker)) {
         const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || '';
         if (n) l._manaName = n;
-        l.bindPopup(buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
+        l.bindPopup(() => buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
       }
     }
   });
 
-  // Add to map and register each layer in group meta
-  layer.eachLayer(l => {
-    drawnItems.addLayer(l);
-    addLayerToGroupMeta(groupId, l);
-  });
+  const finalizeImport = () => {
+    // Add to map and register each layer in group meta
+    layer.eachLayer(l => {
+      drawnItems.addLayer(l);
+      addLayerToGroupMeta(groupId, l);
+    });
 
-  const bounds = layer.getBounds();
-  if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
-  stats();
-  if (typeof saveState === 'function') saveState();
+    const bounds = layer.getBounds();
+    if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
+    stats();
+    if (typeof saveState === 'function') saveState();
+  };
+
+  if (!useChunkedImport) {
+    layer.addData(geo);
+    finalizeImport();
+    return;
+  }
+
+  manaAlert(t('importing_large_file'), 'info');
+  let idx = 0;
+  const addChunk = () => {
+    const end = Math.min(idx + batchSize, featureCount);
+    for (; idx < end; idx++) layer.addData(geo.features[idx]);
+    if (idx < featureCount) {
+      requestAnimationFrame(addChunk);
+    } else {
+      finalizeImport();
+    }
+  };
+  addChunk();
 }
 
 // ── KML PARSER ──
