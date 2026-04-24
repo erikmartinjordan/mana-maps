@@ -2,6 +2,11 @@
 
 Interactive map editor built with [Leaflet.js](https://leafletjs.com/) and integrated conversational AI.
 
+[![Pre-deployment Tests](https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml/badge.svg)](https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml)
+[![Update Changelog](https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml/badge.svg)](https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml)
+[![Live Site](https://img.shields.io/badge/deployment-live-success?logo=githubpages)](https://maña.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 🔗 **Live demo:** [maña.com](https://maña.com)
 
 ---
@@ -139,6 +144,15 @@ open index.html   # macOS
 ```
 
 > The AI chat and place search use [Nominatim](https://nominatim.openstreetmap.org/) for geocoding. Requires an internet connection.
+
+---
+
+## 🚢 Deployment
+
+- **Production URL:** [https://maña.com](https://maña.com)
+- **Hosting:** Static deployment with custom domain (`CNAME` present in repository root)
+- **Quality gate before deploy:** GitHub Actions workflow **Pre-deployment Tests** (HTML validation, JS syntax checks, and Playwright E2E tests)
+- **Maintenance automation:** GitHub Actions workflow **Update Changelog** regenerates `changelog/index.html` on pushes to `main`
 
 ---
 
