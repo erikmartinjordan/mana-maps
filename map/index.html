@@ -836,21 +836,32 @@ document.addEventListener('DOMContentLoaded', function() {
   // Apply stored translations
   if (typeof applyTranslations === 'function') applyTranslations(LANG);
 
-  // Dark mode: restore from localStorage
   var darkPref = localStorage.getItem('mana-dark');
+  var btn = document.getElementById('dark-toggle');
   if (darkPref === 'true') {
     document.documentElement.setAttribute('data-theme', 'dark');
-    var btn = document.getElementById('dark-toggle');
-    if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  } else if (darkPref === 'false') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+
+  var isDarkResolved =
+    document.documentElement.getAttribute('data-theme') === 'dark' ||
+    (!document.documentElement.getAttribute('data-theme') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  if (btn) {
+    btn.innerHTML = isDarkResolved
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
   }
   if (typeof setMapThemeTiles === 'function') setMapThemeTiles();
 });
 
 function toggleDarkMode() {
-  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var rootTheme = document.documentElement.getAttribute('data-theme');
+  var isDark = rootTheme === 'dark'
+    || (!rootTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   var btn = document.getElementById('dark-toggle');
   if (isDark) {
-    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', 'light');
     localStorage.setItem('mana-dark', 'false');
     if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
   } else {
