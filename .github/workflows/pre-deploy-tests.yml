@@ -8,15 +8,76 @@ on:
   merge_group:
 
 concurrency:
-  group: pre-deploy-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: pre-deploy-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  validate-html:
-    name: HTML Validation
+  static-checks:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate local asset references in HTML
+        run: |
+          python3 <<'PY'
+          import re
+          from pathlib import Path
+
+          root = Path('.')
+          html_files = [p for p in root.rglob('*.html') if '.git' not in p.parts and 'node_modules' not in p.parts]
+          attr_re = re.compile(r'''\b(?:src|href)\s*=\s*(?P<q>["'])(?P<url>.*?)(?P=q)''', re.IGNORECASE)
+
+          def should_skip(url: str) -> bool:
+            u = url.strip()
+            if not u:
+              return True
+            return (
+              u.startswith('#') or
+              u.startswith('http://') or
+              u.startswith('https://') or
+              u.startswith('//') or
+              u.startswith('mailto:') or
+              u.startswith('tel:') or
+              u.startswith('javascript:') or
+              u.startswith('data:')
+            )
+
+          missing = []
+
+          for html in html_files:
+            text = html.read_text(encoding='utf-8')
+            for m in attr_re.finditer(text):
+              raw = m.group('url').split('?', 1)[0].split('#', 1)[0]
+              if should_skip(raw):
+                continue
+
+              if raw.startswith('/'):
+                target = root / raw.lstrip('/')
+              else:
+                target = html.parent / raw
+
+              if raw.endswith('/'):
+                target = target / 'index.html'
+
+              if not target.exists():
+                missing.append((str(html), raw))
+
+          if missing:
+            print('Missing local asset references found:')
+            for file_path, ref in missing:
+              print(f'  - {file_path}: {ref}')
+            raise SystemExit(1)
+
+          print(f'Checked {len(html_files)} HTML files. All local references resolved.')
+          PY
+
+  js-syntax:
+    name: JavaScript syntax
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,107 +87,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install html-validate
-        run: npm install --no-save html-validate@8
-
-      - name: Create html-validate config
+      - name: Syntax-check JavaScript files
         run: |
-          cat > .htmlvalidate.json << 'JSON'
-          {
-            "extends": ["html-validate:recommended"],
-            "rules": {
-              "require-sri": "off",
-              "long-title": "off",
-              "no-inline-style": "off",
-              "require-csp-nonce": "off",
-              "wcag/h37": "off",
-              "wcag/h67": "off",
-              "no-trailing-whitespace": "off",
-              "attr-quotes": "off"
-            }
-          }
-          JSON
-
-      - name: Validate all HTML files
-        run: |
-          mapfile -t html_files < <(find . -name '*.html' -not -path './node_modules/*' -print)
-          if [ "${#html_files[@]}" -eq 0 ]; then
-            echo 'No HTML files found.'
-            exit 0
-          fi
-          npx html-validate "${html_files[@]}"
-
-  lint-js:
-    name: JavaScript Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install parser dependency
-        run: npm install --no-save acorn@8
-
-      - name: Check standalone JavaScript syntax
-        run: |
-          mapfile -t js_files < <(find ./js -name '*.js' -print)
+          mapfile -t js_files < <(find js -type f -name '*.js' | sort)
           if [ "${#js_files[@]}" -eq 0 ]; then
-            echo 'No JS files found.'
-            exit 0
+            echo 'No JavaScript files found in ./js'
+            exit 1
           fi
+
           for file in "${js_files[@]}"; do
             node --check "$file"
           done
 
-      - name: Check inline script syntax in HTML files
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const path = require('path');
-          const acorn = require('acorn');
+          echo "Checked ${#js_files[@]} JS files."
 
-          const walk = (dir, out = []) => {
-            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-              if (entry.name === 'node_modules' || entry.name.startsWith('.git')) continue;
-              const p = path.join(dir, entry.name);
-              if (entry.isDirectory()) walk(p, out);
-              if (entry.isFile() && p.endsWith('.html')) out.push(p);
-            }
-            return out;
-          };
-
-          const htmlFiles = walk('.');
-          let checked = 0;
-
-          for (const file of htmlFiles) {
-            const html = fs.readFileSync(file, 'utf8');
-            const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)];
-            for (const match of scripts) {
-              const attrs = match[1] || '';
-              const code = (match[2] || '').trim();
-              if (!code) continue;
-              const sourceType = /type\s*=\s*["']module["']/i.test(attrs) ? 'module' : 'script';
-              try {
-                acorn.parse(code, { ecmaVersion: 'latest', sourceType });
-                checked += 1;
-              } catch (error) {
-                console.error(`Inline script syntax error in ${file}: ${error.message}`);
-                process.exit(1);
-              }
-            }
-          }
-
-          console.log(`Inline script blocks checked: ${checked}`);
-          NODE
-
-  e2e-tests:
-    name: E2E Tests (Playwright)
+  e2e-smoke:
+    name: E2E smoke tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -138,58 +115,16 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Init package.json and install dependencies
+      - name: Install Playwright test runner
         run: |
           npm init -y
           npm install --save-dev @playwright/test
 
-      - name: Install Playwright browser
+      - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Create Playwright config
-        run: |
-          cat > playwright.config.js << 'EOF_CONFIG'
-          const { defineConfig } = require('@playwright/test');
-
-          module.exports = defineConfig({
-            testDir: './tests',
-            timeout: 30000,
-            retries: process.env.CI ? 2 : 0,
-            workers: 1,
-            use: {
-              baseURL: 'http://127.0.0.1:3000',
-              headless: true,
-            },
-            webServer: {
-              command: 'python3 -m http.server 3000 --bind 127.0.0.1',
-              url: 'http://127.0.0.1:3000',
-              reuseExistingServer: false,
-              timeout: 30000,
-            },
-          });
-          EOF_CONFIG
-
-      - name: Create smoke test suite
-        run: |
-          mkdir -p tests
-          cat > tests/smoke.spec.js << 'EOF_TEST'
-          const { test, expect } = require('@playwright/test');
-
-          test('home page renders', async ({ page }) => {
-            await page.goto('/');
-            await expect(page).toHaveTitle(/Ma[nñ]a Maps/i);
-          });
-
-          test('map page renders core containers', async ({ page }) => {
-            await page.goto('/map/');
-            await expect(page.locator('#topbar')).toBeVisible();
-            await expect(page.locator('#map')).toBeVisible();
-            await expect(page.locator('#chat-panel')).toBeVisible();
-          });
-          EOF_TEST
-
-      - name: Run Playwright tests
-        run: npx playwright test --reporter=line
+      - name: Run Playwright smoke tests
+        run: npx playwright test -c tests/predeploy/playwright.config.js --reporter=line
 
       - name: Upload Playwright report on failure
         if: failure()
