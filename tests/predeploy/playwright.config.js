@@ -1,4 +1,7 @@
 const { defineConfig } = require('@playwright/test');
+const path = require('path');
+
+const repoRoot = path.resolve(__dirname, '..', '..');
 
 module.exports = defineConfig({
   testDir: __dirname,
@@ -11,7 +14,7 @@ module.exports = defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'python3 -m http.server 4173 --bind 127.0.0.1',
+    command: `python3 -m http.server 4173 --bind 127.0.0.1 --directory "${repoRoot}"`,
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: false,
     timeout: 30_000,
