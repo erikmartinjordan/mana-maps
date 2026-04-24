@@ -11,7 +11,7 @@ test('map editor shell loads core UI containers', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
 
-  await page.goto('/map/');
+  await page.goto('/map');
 
   await expect(page.locator('#topbar')).toBeVisible();
   await expect(page.locator('#map')).toBeVisible();
