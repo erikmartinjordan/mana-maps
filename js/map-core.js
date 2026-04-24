@@ -8,7 +8,7 @@ const tileSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/service
   attribution: '&copy; Esri', maxZoom: 20
 });
 
-const map = L.map('map', { zoomControl: true }).setView([40.416, -3.703], 6);
+const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 
