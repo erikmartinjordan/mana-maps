@@ -434,6 +434,11 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
   /* ── Toast ── */
   #toast{bottom:50px;font-size:11px;padding:6px 14px;}
+
+  /* ── P4: Wider gaps to prevent mis-taps ── */
+  #toolbar{gap:6px;padding:8px 0;}
+  #map-bottom-bar{gap:8px;}
+  .topbar-right{gap:8px;}
 }
 
 /* ══ SMALL MOBILE ≤ 480px ══════════════════════════════════════ */
@@ -451,19 +456,87 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   #sidebar{width:260px;}
   #chat-panel{width:calc(100vw - 40px);}
   .stat-pill{padding:3px 6px;font-size:10px;}
+
+  /* ── P5: Keep "Exportar" CTA label visible — primary action must be clear ── */
+  .topbar-right .btn.btn-primary .btn-text{display:inline !important;font-size:11px;}
+  .topbar-right .btn.btn-primary{padding:6px 12px;min-width:auto;}
 }
 
 /* ══ TOUCH IMPROVEMENTS ════════════════════════════════════════ */
+/* ══ TOUCH IMPROVEMENTS ════════════════════════════════════════ */
 @media (hover:none) and (pointer:coarse){
+
+  /* ── P1: Touch targets ≥ 44px (Apple HIG) ── */
   .tool-btn{padding:12px 12px;min-height:44px;}
   .drop-item{padding:12px 16px;min-height:44px;}
   .ctx-item{padding:12px 16px;min-height:44px;}
-  .color-swatch{width:28px;height:28px;}
-  .marker-opt{width:38px;height:38px;}
+  .tool-icon{width:44px;height:44px;}
+  .mobile-toggle{width:44px;height:44px;}
+  .draw-btn{min-height:44px;}
+  #chat-send{width:44px;height:44px;}
+  .chat-settings-btn{width:44px;height:44px;}
+  .stat-pill{min-height:44px;display:inline-flex;align-items:center;}
+  .modal-btn{min-height:44px;padding:10px 20px;}
+  .upsell-close,
+  .ai-modal-close,
+  .attr-modal-close,
+  .stats-panel-close{width:44px;height:44px;}
+  .layer-group-action-btn,
+  .layer-group-delete,
+  .layer-group-zoom{width:44px;height:44px;}
+  .dark-toggle{width:44px;height:44px;}
+  .ctx-weight-btn{width:44px;height:44px;}
+  .mk-modal-btn{width:44px;height:44px;}
+  .ctx-mk-btn{width:44px;height:44px;}
+  .filter-rule-remove{width:44px;height:44px;}
+  .filter-btn{min-height:44px;padding:8px 14px;}
+
+  /* ── Swatches: visual size + padded touch area ── */
+  .color-swatch{width:28px;height:28px;padding:8px;box-sizing:content-box;}
+  .marker-opt{width:44px;height:44px;}
+  .ctx-swatch{width:28px;height:28px;padding:8px;box-sizing:content-box;}
   .basemap-thumb{height:64px;}
-  #chat-input{font-size:16px;}  /* prevent iOS zoom */
-  #name-modal-input{font-size:16px;}
+
+  /* ── P3: Prevent iOS Safari auto-zoom on inputs (font ≥ 16px) ── */
+  #chat-input,
+  #name-modal-input,
+  .search-input,
+  .ai-input,
+  .ogc-input,
+  .sidebar-project-input,
+  .mk-modal-search,
+  .filter-value,
+  .filter-select,
+  .map-name-input{font-size:16px;}
 }
+
+/* ── P2: Active states — haptic visual feedback for touch ── */
+.btn:active,
+.draw-btn:active,
+.tool-icon:active,
+.mobile-toggle:active,
+.basemap-card:active,
+.drop-item:active,
+.ctx-item:active,
+.layer-item:active,
+.search-result:active,
+.chat-suggestion:active,
+.ogc-cat-item:active,
+.wms-layer-check:active,
+.layer-group-header:active,
+.filter-btn:active,
+.shortcuts-pill:active{
+  opacity:.7;transform:scale(.97);transition:opacity 0s,transform 0s;
+}
+#chat-send:active{transform:scale(.9);transition:transform 0s;}
+.color-swatch:active,
+.marker-opt:active,
+.ctx-swatch:active,
+.mk-modal-btn:active{transform:scale(.85);transition:transform 0s;}
+.modal-btn:active,
+.upsell-cta:active,
+.upsell-secondary:active,
+.attr-add-btn:active{opacity:.7;transition:opacity 0s;}
 
 /* ── LAYER GROUPS (imported layers) ──────────── */
 .layer-group{
