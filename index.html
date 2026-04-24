@@ -1,3 +1,18 @@
+<!--
++--------------------------------------------------------------+
+|                   _____                                      |
+|                  |_____|                                     |
+|   __  __   ___    _   _     _       ____   ___   __  __      |
+|  |  \/  | / _ \  | \ | |   / \     / ___| / _ \ |  \/  |     |
+|  | |\/| || |_| | |  \| |  / _ \   | |    | | | || |\/| |     |
+|  | |  | ||  _  | | |\  | / ___ \  | |___ | |_| || |  | |     |
+|  |_|  |_||_| |_| |_| \_|/_/   \_\  \____| \___/ |_|  |_|     |
+|                                                              |
+|                                                              |
+|   Hecho con ♥ en Barcelona                                   |
+|   Maña.com - Erik Martín Jordán                              |
++--------------------------------------------------------------+
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -274,78 +289,52 @@ h1 {
 </main>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// Landing i18n — single-file, zero dependencies
-// ═══════════════════════════════════════════════════════════════
 var LANG = {
   es: {
-    nav_about:     'Acerca de',
-    nav_cta:       'Abrir app',
-    nav_stats:     'Estad\u00edsticas',
-    eyebrow:       'Dise\u00f1ado para foco total',
-    headline:      'Mapas claros.<br>Decisiones r\u00e1pidas.',
-    lead:          'Ma\u00f1a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.',
-    cta_start:     'Empieza gratis',
-    cta_changelog: 'Ver novedades',
-    stat1_val:     'Sin registro',
-    stat1_lbl:     'Empieza en un clic, sin fricci\u00f3n.',
-    stat2_val:     'Formatos GIS',
-    stat2_lbl:     'GeoJSON, KML, KMZ, CSV y Shapefile.',
-    stat3_val:     'IA integrada',
-    stat3_lbl:     'Comandos naturales para mapear m\u00e1s r\u00e1pido.',
-    footer_made:   'Hecho con \u2665 en Barcelona.',
-    page_title:    'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
-    meta_desc:     'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
-    lang_btn:      'EN'
+    nav_about:'Acerca de', nav_cta:'Abrir app', nav_stats:'Estad\u00edsticas',
+    eyebrow:'Dise\u00f1ado para foco total',
+    headline:'Mapas claros.<br>Decisiones r\u00e1pidas.',
+    lead:'Ma\u00f1a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.',
+    cta_start:'Empieza gratis', cta_changelog:'Ver novedades',
+    stat1_val:'Sin registro', stat1_lbl:'Empieza en un clic, sin fricci\u00f3n.',
+    stat2_val:'Formatos GIS', stat2_lbl:'GeoJSON, KML, KMZ, CSV y Shapefile.',
+    stat3_val:'IA integrada', stat3_lbl:'Comandos naturales para mapear m\u00e1s r\u00e1pido.',
+    footer_made:'Hecho con \u2665 en Barcelona.',
+    page_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
+    meta_desc:'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
+    lang_btn:'EN'
   },
   en: {
-    nav_about:     'About',
-    nav_cta:       'Open app',
-    nav_stats:     'Stats',
-    eyebrow:       'Designed for total focus',
-    headline:      'Clear maps.<br>Fast decisions.',
-    lead:          'Ma\u00f1a Maps turns geospatial tasks into a simple experience: draw, import and export in seconds with a clean, intuitive, noise-free interface.',
-    cta_start:     'Start for free',
-    cta_changelog: 'What\u2019s new',
-    stat1_val:     'No signup',
-    stat1_lbl:     'Start in one click, zero friction.',
-    stat2_val:     'GIS formats',
-    stat2_lbl:     'GeoJSON, KML, KMZ, CSV & Shapefile.',
-    stat3_val:     'Built-in AI',
-    stat3_lbl:     'Natural language commands for faster mapping.',
-    footer_made:   'Made with \u2665 in Barcelona.',
-    page_title:    'Ma\u00f1a Maps \u2014 Design maps with clarity',
-    meta_desc:     'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
-    lang_btn:      'ES'
+    nav_about:'About', nav_cta:'Open app', nav_stats:'Stats',
+    eyebrow:'Designed for total focus',
+    headline:'Clear maps.<br>Fast decisions.',
+    lead:'Ma\u00f1a Maps turns geospatial tasks into a simple experience: draw, import and export in seconds with a clean, intuitive, noise-free interface.',
+    cta_start:'Start for free', cta_changelog:'What\u2019s new',
+    stat1_val:'No signup', stat1_lbl:'Start in one click, zero friction.',
+    stat2_val:'GIS formats', stat2_lbl:'GeoJSON, KML, KMZ, CSV & Shapefile.',
+    stat3_val:'Built-in AI', stat3_lbl:'Natural language commands for faster mapping.',
+    footer_made:'Made with \u2665 in Barcelona.',
+    page_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
+    meta_desc:'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
+    lang_btn:'ES'
   }
 };
-
 var currentLang = localStorage.getItem('mana-landing-lang') || 'es';
-
 function applyLang(lang) {
   currentLang = lang;
   localStorage.setItem('mana-landing-lang', lang);
   document.documentElement.lang = lang;
-
   var strings = LANG[lang];
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
     if (strings[key]) el.innerHTML = strings[key];
   });
-
   document.title = strings.page_title;
   var desc = document.querySelector('meta[name="description"]');
   if (desc) desc.setAttribute('content', strings.meta_desc);
-
-  var btn = document.getElementById('lang-btn');
-  if (btn) btn.textContent = strings.lang_btn;
+  document.getElementById('lang-btn').textContent = strings.lang_btn;
 }
-
-function toggleLang() {
-  applyLang(currentLang === 'es' ? 'en' : 'es');
-}
-
-// Apply on load
+function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
 applyLang(currentLang);
 </script>
 </body>

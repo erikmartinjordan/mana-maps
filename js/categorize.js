@@ -220,11 +220,8 @@ function _legendRow(dataVal, color, label, isOverridden, isFallback) {
   var displayLabel = label.length > 30 ? label.substring(0, 30) + '…' : label;
   var cls = isFallback ? ' cat-row-fallback' : '';
   var dot = isOverridden ? '<span class="cat-override-dot"></span>' : '';
-  // Hidden native picker
-  var pickerId = '_cpick_' + _hash(dataVal);
   var h = '<div class="cat-row' + cls + '" data-val="' + _escAttr(dataVal) + '">';
-  h += '<input type="color" id="' + pickerId + '" value="' + color + '" class="cat-hidden-picker" onchange="_catSwatchChange(this)">';
-  h += '<span class="cat-swatch" style="background:' + color + '" onclick="document.getElementById(\'' + pickerId + '\').click()">' + dot + '</span>';
+  h += '<span class="cat-swatch" style="background:' + color + '" data-color="' + color + '" onclick="_cpOpenForSwatch(this)">' + dot + '</span>';
   h += '<span class="cat-label" title="' + _escAttr(label) + '">' + _esc(displayLabel) + '</span>';
   h += '</div>';
   return h;
@@ -240,13 +237,13 @@ function _catSwitchPalette(name) {
   _renderPanel();
 }
 
-function _catSwatchChange(picker) {
+function _catSwatchChange(swatch, newColor) {
   var s = _catState;
   if (!s) return;
-  var row = picker.closest('.cat-row');
+  var row = swatch.closest('.cat-row');
   if (!row) return;
   var val = row.dataset.val;
-  var color = picker.value;
+  var color = newColor;
 
   // Update state
   if (val === '__fallback__') {
@@ -257,9 +254,9 @@ function _catSwatchChange(picker) {
   }
 
   // Update swatch visual
-  var swatch = row.querySelector('.cat-swatch');
   if (swatch) {
     swatch.style.background = color;
+    swatch.dataset.color = color;
     if (!val.startsWith('__class_') && val !== '__fallback__' && !swatch.querySelector('.cat-override-dot')) {
       swatch.innerHTML = '<span class="cat-override-dot"></span>';
     }
@@ -417,3 +414,261 @@ function _esc(s)     { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;
 function _escAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 function _hash(s)    { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return Math.abs(h).toString(36); }
 function _fmtNum(n)  { return Number(n) === Math.floor(n) ? String(n) : Number(n).toFixed(1); }
+
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM COLOR PICKER (replaces native <input type="color">)
+// Matches Maña Maps design: white surface, DM Sans/Mono, radius, shadow.
+// ═══════════════════════════════════════════════════════════════
+var _cpEl = null;
+var _cpSwatch = null;
+var _cpHue = 0, _cpSat = 1, _cpVal = 1;
+var _cpDragging = null;
+
+function _cpOpenForSwatch(swatchEl) {
+  var currentColor = swatchEl.dataset.color || '#0ea5e9';
+  // Normalize rgb(...) to hex
+  if (!currentColor.startsWith('#')) {
+    var d = document.createElement('div');
+    d.style.color = currentColor;
+    document.body.appendChild(d);
+    var rgb = getComputedStyle(d).color;
+    document.body.removeChild(d);
+    var m = rgb.match(/\d+/g);
+    if (m) currentColor = '#' + ((1<<24)+(+m[0]<<16)+(+m[1]<<8)+(+m[2])).toString(16).slice(1);
+  }
+  _cpOpen(swatchEl, currentColor, function(hex) {
+    _catSwatchChange(swatchEl, hex);
+  });
+}
+
+function _cpOpen(anchorEl, hex, onChange) {
+  _cpClose();
+  _cpSwatch = anchorEl;
+
+  var rgb = _cpHexToRgb(hex);
+  var hsv = _cpRgbToHsv(rgb.r, rgb.g, rgb.b);
+  _cpHue = hsv.h; _cpSat = hsv.s; _cpVal = hsv.v;
+
+  var el = document.createElement('div');
+  el.className = 'mana-cp';
+  el.onclick = function(e) { e.stopPropagation(); };
+  el.onmousedown = function(e) { e.stopPropagation(); };
+  el.innerHTML =
+    '<div class="mana-cp-gradient">' +
+      '<canvas width="208" height="140"></canvas>' +
+      '<div class="mana-cp-cursor"></div>' +
+    '</div>' +
+    '<div class="mana-cp-hue-wrap">' +
+      '<div class="mana-cp-preview"></div>' +
+      '<div class="mana-cp-hue"><div class="mana-cp-hue-thumb"></div></div>' +
+    '</div>' +
+    '<div class="mana-cp-inputs">' +
+      '<div class="mana-cp-field mana-cp-hex"><input type="text" maxlength="7" spellcheck="false"><label>HEX</label></div>' +
+      '<div class="mana-cp-field"><input type="number" min="0" max="255"><label>R</label></div>' +
+      '<div class="mana-cp-field"><input type="number" min="0" max="255"><label>G</label></div>' +
+      '<div class="mana-cp-field"><input type="number" min="0" max="255"><label>B</label></div>' +
+    '</div>';
+
+  document.body.appendChild(el);
+  _cpEl = el;
+  _cpEl._onChange = onChange;
+
+  // Position near anchor
+  var rect = anchorEl.getBoundingClientRect();
+  var cpW = 232, cpH = 250;
+  var left = rect.right + 8;
+  var top = rect.top - 20;
+  if (left + cpW > window.innerWidth) left = rect.left - cpW - 8;
+  if (top + cpH > window.innerHeight) top = window.innerHeight - cpH - 8;
+  if (top < 8) top = 8;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+
+  _cpDrawGradient();
+  _cpUpdateUI();
+
+  // Gradient events
+  var canvas = el.querySelector('canvas');
+  var hueBar = el.querySelector('.mana-cp-hue');
+  canvas.addEventListener('mousedown', _cpGradientDown);
+  canvas.addEventListener('touchstart', _cpGradientDown, {passive: false});
+  hueBar.addEventListener('mousedown', _cpHueDown);
+  hueBar.addEventListener('touchstart', _cpHueDown, {passive: false});
+
+  // Input events
+  var inputs = el.querySelectorAll('.mana-cp-field input');
+  inputs[0].addEventListener('change', _cpHexInput);
+  inputs[1].addEventListener('input', _cpRgbInput);
+  inputs[2].addEventListener('input', _cpRgbInput);
+  inputs[3].addEventListener('input', _cpRgbInput);
+
+  setTimeout(function() {
+    document.addEventListener('mousedown', _cpOutsideClick);
+    document.addEventListener('touchstart', _cpOutsideClick, {passive: true});
+  }, 50);
+}
+
+function _cpClose() {
+  if (_cpEl) { _cpEl.remove(); _cpEl = null; }
+  _cpSwatch = null; _cpDragging = null;
+  document.removeEventListener('mousedown', _cpOutsideClick);
+  document.removeEventListener('touchstart', _cpOutsideClick);
+  document.removeEventListener('mousemove', _cpDragMove);
+  document.removeEventListener('mouseup', _cpDragEnd);
+  document.removeEventListener('touchmove', _cpDragMove);
+  document.removeEventListener('touchend', _cpDragEnd);
+}
+
+function _cpOutsideClick(e) {
+  if (_cpEl && !_cpEl.contains(e.target) && (!_cpSwatch || !_cpSwatch.contains(e.target))) _cpClose();
+}
+
+// ── Gradient (SV) ──
+function _cpDrawGradient() {
+  if (!_cpEl) return;
+  var canvas = _cpEl.querySelector('canvas');
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  var hueRgb = _cpHsvToRgb(_cpHue, 1, 1);
+  ctx.fillStyle = 'rgb(' + hueRgb.r + ',' + hueRgb.g + ',' + hueRgb.b + ')';
+  ctx.fillRect(0, 0, w, h);
+  var gW = ctx.createLinearGradient(0, 0, w, 0);
+  gW.addColorStop(0, 'rgba(255,255,255,1)');
+  gW.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gW; ctx.fillRect(0, 0, w, h);
+  var gB = ctx.createLinearGradient(0, 0, 0, h);
+  gB.addColorStop(0, 'rgba(0,0,0,0)');
+  gB.addColorStop(1, 'rgba(0,0,0,1)');
+  ctx.fillStyle = gB; ctx.fillRect(0, 0, w, h);
+}
+
+function _cpGradientDown(e) {
+  e.preventDefault(); _cpDragging = 'gradient'; _cpGradientMove(e);
+  document.addEventListener('mousemove', _cpDragMove);
+  document.addEventListener('mouseup', _cpDragEnd);
+  document.addEventListener('touchmove', _cpDragMove, {passive: false});
+  document.addEventListener('touchend', _cpDragEnd);
+}
+
+function _cpGradientMove(e) {
+  if (!_cpEl) return;
+  var canvas = _cpEl.querySelector('canvas');
+  var rect = canvas.getBoundingClientRect();
+  var cx = e.touches ? e.touches[0].clientX : e.clientX;
+  var cy = e.touches ? e.touches[0].clientY : e.clientY;
+  _cpSat = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
+  _cpVal = 1 - Math.max(0, Math.min(1, (cy - rect.top) / rect.height));
+  _cpUpdateUI(); _cpEmit();
+}
+
+// ── Hue bar ──
+function _cpHueDown(e) {
+  e.preventDefault(); _cpDragging = 'hue'; _cpHueMove(e);
+  document.addEventListener('mousemove', _cpDragMove);
+  document.addEventListener('mouseup', _cpDragEnd);
+  document.addEventListener('touchmove', _cpDragMove, {passive: false});
+  document.addEventListener('touchend', _cpDragEnd);
+}
+
+function _cpHueMove(e) {
+  if (!_cpEl) return;
+  var bar = _cpEl.querySelector('.mana-cp-hue');
+  var rect = bar.getBoundingClientRect();
+  var cx = e.touches ? e.touches[0].clientX : e.clientX;
+  _cpHue = Math.max(0, Math.min(1, (cx - rect.left) / rect.width)) * 360;
+  _cpDrawGradient(); _cpUpdateUI(); _cpEmit();
+}
+
+// ── Drag ──
+function _cpDragMove(e) {
+  e.preventDefault();
+  if (_cpDragging === 'gradient') _cpGradientMove(e);
+  else if (_cpDragging === 'hue') _cpHueMove(e);
+}
+function _cpDragEnd() {
+  _cpDragging = null;
+  document.removeEventListener('mousemove', _cpDragMove);
+  document.removeEventListener('mouseup', _cpDragEnd);
+  document.removeEventListener('touchmove', _cpDragMove);
+  document.removeEventListener('touchend', _cpDragEnd);
+}
+
+// ── Inputs ──
+function _cpHexInput(e) {
+  var val = e.target.value.trim();
+  if (!val.startsWith('#')) val = '#' + val;
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    var rgb = _cpHexToRgb(val);
+    var hsv = _cpRgbToHsv(rgb.r, rgb.g, rgb.b);
+    _cpHue = hsv.h; _cpSat = hsv.s; _cpVal = hsv.v;
+    _cpDrawGradient(); _cpUpdateUI(); _cpEmit();
+  }
+}
+function _cpRgbInput() {
+  if (!_cpEl) return;
+  var inputs = _cpEl.querySelectorAll('.mana-cp-field input');
+  var r = Math.max(0, Math.min(255, parseInt(inputs[1].value) || 0));
+  var g = Math.max(0, Math.min(255, parseInt(inputs[2].value) || 0));
+  var b = Math.max(0, Math.min(255, parseInt(inputs[3].value) || 0));
+  var hsv = _cpRgbToHsv(r, g, b);
+  _cpHue = hsv.h; _cpSat = hsv.s; _cpVal = hsv.v;
+  _cpDrawGradient(); _cpUpdateUI(true); _cpEmit();
+}
+
+// ── UI update ──
+function _cpUpdateUI(skipRgb) {
+  if (!_cpEl) return;
+  var rgb = _cpHsvToRgb(_cpHue, _cpSat, _cpVal);
+  var hex = _cpRgbToHex(rgb.r, rgb.g, rgb.b);
+  var cursor = _cpEl.querySelector('.mana-cp-cursor');
+  cursor.style.left = (_cpSat * 100) + '%';
+  cursor.style.top = ((1 - _cpVal) * 100) + '%';
+  cursor.style.background = hex;
+  var thumb = _cpEl.querySelector('.mana-cp-hue-thumb');
+  thumb.style.left = (_cpHue / 360 * 100) + '%';
+  var hRgb = _cpHsvToRgb(_cpHue, 1, 1);
+  thumb.style.background = _cpRgbToHex(hRgb.r, hRgb.g, hRgb.b);
+  _cpEl.querySelector('.mana-cp-preview').style.background = hex;
+  var inputs = _cpEl.querySelectorAll('.mana-cp-field input');
+  inputs[0].value = hex;
+  if (!skipRgb) { inputs[1].value = rgb.r; inputs[2].value = rgb.g; inputs[3].value = rgb.b; }
+}
+
+function _cpEmit() {
+  if (!_cpEl || !_cpEl._onChange) return;
+  var rgb = _cpHsvToRgb(_cpHue, _cpSat, _cpVal);
+  _cpEl._onChange(_cpRgbToHex(rgb.r, rgb.g, rgb.b));
+}
+
+// ── Color math ──
+function _cpHexToRgb(hex) {
+  hex = hex.replace('#', '');
+  return { r: parseInt(hex.substring(0,2),16), g: parseInt(hex.substring(2,4),16), b: parseInt(hex.substring(4,6),16) };
+}
+function _cpRgbToHex(r, g, b) {
+  return '#' + ((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function _cpRgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  var max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  var h = 0, s = max === 0 ? 0 : d / max, v = max;
+  if (max !== min) {
+    if (max === r)      h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else                h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h: h, s: s, v: v };
+}
+function _cpHsvToRgb(h, s, v) {
+  var i = Math.floor(h / 60) % 6, f = h / 60 - Math.floor(h / 60);
+  var p = v*(1-s), q = v*(1-f*s), t = v*(1-(1-f)*s);
+  var r, g, b;
+  switch(i) {
+    case 0: r=v;g=t;b=p; break; case 1: r=q;g=v;b=p; break;
+    case 2: r=p;g=v;b=t; break; case 3: r=p;g=q;b=v; break;
+    case 4: r=t;g=p;b=v; break; case 5: r=v;g=p;b=q; break;
+  }
+  return { r: Math.round(r*255), g: Math.round(g*255), b: Math.round(b*255) };
+}

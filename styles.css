@@ -366,8 +366,12 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .mobile-toggle:hover,.mobile-toggle:active{background:var(--surface-2);}
   .mobile-toggle svg{width:18px;height:18px;}
 
-  /* hide "Limpiar mapa" desktop button */
-  .topbar-right > .btn.btn-ghost:first-child{display:none;}
+  /* hide ALL ghost buttons on mobile — only keep hamburger + export + chat */
+  .topbar-right > .btn.btn-ghost{display:none !important;}
+  .topbar-right > .menu-wrap{display:none !important;}
+  .topbar-right > .menu-wrap:has(.btn-primary){display:flex !important;}
+  /* hide search bar on mobile — accessible via sidebar */
+  .search-input-wrap{display:none !important;}
 
   /* compact topbar buttons */
   .topbar-right{gap:6px;}
@@ -2360,3 +2364,81 @@ select.ai-input{cursor:pointer;appearance:auto;}
 #map.draw-point-mode .leaflet-interactive,
 #map.draw-point-mode .leaflet-marker-icon,
 #map.draw-point-mode .leaflet-tile-pane{cursor:crosshair !important;}
+
+
+/* ── CUSTOM COLOR PICKER (.mana-cp) ──────────── */
+.mana-cp{
+  position:fixed;z-index:3000;
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.12);
+  padding:12px;width:232px;
+  animation:cpFadeIn .12s ease;
+}
+@keyframes cpFadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.mana-cp-gradient{
+  width:100%;height:140px;border-radius:var(--radius-sm);
+  cursor:crosshair;position:relative;
+  border:0.5px solid var(--border);overflow:hidden;
+}
+.mana-cp-gradient canvas{width:100%;height:100%;display:block;}
+.mana-cp-cursor{
+  position:absolute;width:14px;height:14px;border-radius:50%;
+  border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.15),0 1px 4px rgba(0,0,0,.25);
+  pointer-events:none;transform:translate(-50%,-50%);
+}
+
+.mana-cp-hue-wrap{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.mana-cp-preview{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  border:2px solid white;box-shadow:0 0 0 0.5px var(--border),0 1px 3px rgba(0,0,0,.1);
+}
+.mana-cp-hue{
+  flex:1;height:12px;border-radius:6px;cursor:pointer;position:relative;
+  background:linear-gradient(to right,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);
+  border:0.5px solid var(--border);
+}
+.mana-cp-hue-thumb{
+  position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.2);
+  transform:translate(-50%,-50%);pointer-events:none;
+}
+
+.mana-cp-inputs{display:flex;gap:5px;margin-top:10px;}
+.mana-cp-field{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.mana-cp-field input{
+  width:100%;height:28px;border:0.5px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--surface-2);text-align:center;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  color:var(--primary);outline:none;padding:0 2px;
+  transition:border-color .12s,box-shadow .12s;
+}
+.mana-cp-field input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(14,165,233,.1);}
+.mana-cp-field input[type="number"]{-moz-appearance:textfield;}
+.mana-cp-field input[type="number"]::-webkit-inner-spin-button,
+.mana-cp-field input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.mana-cp-field label{
+  font-size:9px;font-weight:600;color:var(--third);
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.mana-cp-hex{flex:1.5;}
+.mana-cp-hex input{font-size:10.5px;letter-spacing:.03em;}
+
+/* ── Dark mode adjustments ── */
+[data-theme="dark"] .mana-cp{
+  background:var(--color-background-primary,#16161e);
+  border-color:var(--color-border-tertiary,rgba(255,255,255,.12));
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+[data-theme="dark"] .mana-cp-gradient{border-color:var(--color-border-tertiary,rgba(255,255,255,.12));}
+[data-theme="dark"] .mana-cp-hue{border-color:var(--color-border-tertiary,rgba(255,255,255,.12));}
+[data-theme="dark"] .mana-cp-preview{
+  border-color:var(--color-border-tertiary,rgba(255,255,255,.2));
+  box-shadow:0 0 0 0.5px rgba(255,255,255,.1),0 1px 3px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .mana-cp-field input{
+  background:var(--color-background-secondary,rgba(255,255,255,.06));
+  border-color:var(--color-border-tertiary,rgba(255,255,255,.12));
+  color:var(--color-text-primary,#e2e8f0);
+}
+[data-theme="dark"] .mana-cp-field label{color:var(--color-text-secondary,#94a3b8);}
