@@ -227,6 +227,9 @@ const I18N = {
     upsell_note: "Recibirás tu clave API por email tras el pago · Cancela cuando quieras",
     // ── Misc ──
     dblclick_expand: "Doble clic para expandir",
+    leaflet_badge_text: "Mapa inclusivo con Leaflet",
+    leaflet_badge_title: "Leaflet (abre en una pestaña nueva)",
+    leaflet_badge_sr: "Abre el sitio oficial de Leaflet en una nueva pestaña",
     name_point: "Nombre del punto",
     default_point_name: "Nuevo punto",
     rename_element: "Renombrar elemento",
@@ -664,6 +667,9 @@ const I18N = {
     shortcut_deleted: "element(s) deleted",
     // ── Generic ──
     generic_element: "Element",
+    leaflet_badge_text: "Inclusive map with Leaflet",
+    leaflet_badge_title: "Leaflet (opens in a new tab)",
+    leaflet_badge_sr: "Opens the official Leaflet site in a new tab",
     // ── Stats panel ──
     stats_geometry: "Geometry",
     stats_total_length: "Total length",
