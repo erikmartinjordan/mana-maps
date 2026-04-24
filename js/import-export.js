@@ -130,9 +130,12 @@ function loadGeoJSON(geo, groupName) {
     style: { color: drawColor, weight: 2, fillOpacity: .18 },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
-      const icon = makeMarkerIcon(drawColor, markerType);
+      const importedColor = (f.properties && f.properties.color) ? String(f.properties.color) : drawColor;
+      const importedMarkerType = (f.properties && f.properties.markerType) ? String(f.properties.markerType) : markerType;
+      const icon = makeMarkerIcon(importedColor, importedMarkerType);
       const m = L.marker(ll, { icon });
-      m._manaName = n; m._manaColor = drawColor;
+      m._manaName = n; m._manaColor = importedColor;
+      m._manaMarkerType = importedMarkerType;
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
       m._manaProperties = cloneFeatureProperties(f.properties);
@@ -187,9 +190,23 @@ function loadGeoJSON(geo, groupName) {
 // ── KML PARSER ──
 function kmlToGeoJSON(xmlDoc) {
   const features = [];
+  function readExtendedData(pm, props) {
+    pm.querySelectorAll('ExtendedData Data').forEach(d => {
+      const key = d.getAttribute('name');
+      if (!key) return;
+      const val = d.querySelector('value')?.textContent ?? '';
+      props[key] = val;
+    });
+    pm.querySelectorAll('ExtendedData SchemaData SimpleData').forEach(d => {
+      const key = d.getAttribute('name');
+      if (!key) return;
+      props[key] = d.textContent ?? '';
+    });
+  }
   xmlDoc.querySelectorAll('Placemark').forEach(pm => {
     const name = pm.querySelector('name')?.textContent || '';
     const props = { name };
+    readExtendedData(pm, props);
 
     const pt = pm.querySelector('Point coordinates');
     if (pt) {
@@ -313,6 +330,15 @@ function _geomToKml(g) {
 }
 
 function geoToKML(geo) {
+  function markerTypeToKmlIconHref(type) {
+    switch (type) {
+      case "circle": return "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png";
+      case "square": return "http://maps.google.com/mapfiles/kml/shapes/placemark_square.png";
+      case "star": return "http://maps.google.com/mapfiles/kml/shapes/star.png";
+      case "pin":
+      default: return "http://maps.google.com/mapfiles/kml/paddle/wht-blank.png";
+    }
+  }
   var parts = [];
   geo.features.forEach(function(f, i) {
     var g = f.geometry;
@@ -322,14 +348,16 @@ function geoToKML(geo) {
     var fillColor = "66" + hex.slice(5, 7) + hex.slice(3, 5) + hex.slice(1, 3);
     var sid = "s" + i;
     var isPoint = (g.type === "Point" || g.type === "MultiPoint");
+    var markerTypeValue = (f.properties && f.properties.markerType) || "pin";
+    var markerHref = markerTypeToKmlIconHref(markerTypeValue);
     var style = isPoint
-      ? '<Style id="' + sid + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>'
+      ? '<Style id="' + sid + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>' + markerHref + '</href></Icon></IconStyle></Style>'
       : '<Style id="' + sid + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
 
     var extData = "";
     var descTag = "";
     var props = f.properties || {};
-    var propKeys = Object.keys(props).filter(function(k) { return k !== "color" && k !== "name" && k.charAt(0) !== "_"; });
+    var propKeys = Object.keys(props).filter(function(k) { return k !== "name" && k.charAt(0) !== "_"; });
     if (propKeys.length) {
       extData = "<ExtendedData>" + propKeys.map(function(k) {
         var v = props[k]; if (v === null || v === undefined) v = "";
