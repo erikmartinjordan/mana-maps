@@ -140,9 +140,10 @@ jobs:
           test.describe('Maña Maps - Core UI', () => {
 
             test.beforeEach(async ({ page }) => {
-              await page.goto('/');
+              await page.addInitScript(() => { localStorage.setItem('mana-lang', 'es'); });
+              await page.goto('/map/');
               // Wait for Leaflet map to be ready
-              await page.waitForFunction(() => typeof L !== 'undefined' && document.getElementById('map')?._leaflet_id);
+              await page.waitForSelector('#map .leaflet-pane, #map.leaflet-container', { timeout: 20000 });
             });
 
             test('page title is correct', async ({ page }) => {
@@ -206,12 +207,12 @@ jobs:
             });
 
             test('import menu opens on click', async ({ page }) => {
-              await page.locator('button:has-text("Importar")').click();
+              await page.locator("button[onclick*=\"import-menu\"]").first().click();
               await expect(page.locator('#import-menu')).toHaveClass(/open/);
             });
 
             test('export menu opens on click', async ({ page }) => {
-              await page.locator('button:has-text("Exportar")').click();
+              await page.locator("button[onclick*=\"export-menu\"]").first().click();
               await expect(page.locator('#export-menu')).toHaveClass(/open/);
             });
 
