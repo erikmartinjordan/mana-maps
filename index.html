@@ -17,7 +17,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Maña Maps — Editor de mapas online gratuito con IA</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <!-- SEO Meta -->
@@ -95,7 +95,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
@@ -125,7 +125,7 @@
 <!-- ═══ Modal upsell ═══ -->
 <div id="upsell-modal" class="upsell-modal">
   <div class="upsell-box">
-    <button class="upsell-close" onclick="closeUpsell()">&times;</button>
+    <button class="upsell-close modal-close-btn" onclick="closeUpsell()">&times;</button>
     <h3 class="upsell-title" data-i18n="upsell_title">Ma&#241;a Maps Pro</h3>
     <div class="upsell-price">4,99 &#8364; <span class="upsell-period" data-i18n="upsell_period">/ mes</span></div>
     <div class="upsell-benefits">
@@ -406,7 +406,7 @@
       <div class="attr-modal-box">
         <div class="attr-modal-header">
           <span class="attr-modal-title" id="attr-modal-title" data-i18n="attr_properties">Propiedades</span>
-          <button class="attr-modal-close" onclick="closeAttrModal()">&times;</button>
+          <button class="attr-modal-close modal-close-btn" onclick="closeAttrModal()">&times;</button>
         </div>
         <!-- Selector de elementos -->
         <div id="attr-elem-selector" class="attr-elem-selector" style="display:none"></div>
@@ -474,7 +474,7 @@
   <div class="ai-modal-content">
     <div class="ai-modal-header">
       <h4>&#9881;&#65039; Configurar IA</h4>
-      <button class="ai-modal-close" onclick="closeAISettings()">&times;</button>
+      <button class="ai-modal-close modal-close-btn" onclick="closeAISettings()">&times;</button>
     </div>
     <div class="ai-modal-body">
       <label class="ai-label" data-i18n="ai_provider">Proveedor</label>
