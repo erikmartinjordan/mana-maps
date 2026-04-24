@@ -226,6 +226,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   pointer-events:auto;background:var(--surface);border:0.5px solid var(--border);
   border-radius:50px;padding:5px 11px;font-size:12px;font-weight:600;
   color:var(--text-3);backdrop-filter:blur(6px);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
 }
 .stat-pill span{color:var(--primary);}
 
