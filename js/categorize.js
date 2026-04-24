@@ -476,12 +476,16 @@ function _cpOpen(anchorEl, hex, onChange) {
 
   // Position near anchor
   var rect = anchorEl.getBoundingClientRect();
-  var cpW = 232, cpH = 250;
-  var left = rect.right + 8;
-  var top = rect.top - 20;
-  if (left + cpW > window.innerWidth) left = rect.left - cpW - 8;
-  if (top + cpH > window.innerHeight) top = window.innerHeight - cpH - 8;
-  if (top < 8) top = 8;
+  var cpW = 232, cpH = 250, pad = 8;
+  var spaceRight = window.innerWidth - rect.right;
+  var left = spaceRight >= cpW + pad
+    ? rect.right + pad
+    : Math.max(pad, rect.left - cpW - pad);
+
+  // Center vertically around the clicked swatch to keep it visible even in long attribute lists.
+  var top = rect.top + (rect.height / 2) - (cpH / 2);
+  if (top + cpH > window.innerHeight - pad) top = window.innerHeight - cpH - pad;
+  if (top < pad) top = pad;
   el.style.left = left + 'px';
   el.style.top = top + 'px';
 

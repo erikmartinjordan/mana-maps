@@ -2368,7 +2368,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 
 /* ── CUSTOM COLOR PICKER (.mana-cp) ──────────── */
 .mana-cp{
-  position:fixed;z-index:3000;
+  position:fixed;z-index:11050;
   background:var(--surface);border:0.5px solid var(--border);
   border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.12);
   padding:12px;width:232px;
