@@ -1,0 +1,1 @@
+{ "name": "mana-maps", "version": "1.0.0", "description": "A project for making maps.", "main": "index.js", "scripts": { "test": "echo 'Error: no test specified' && exit 1" }, "keywords": [], "author": "Erik Martin Jordan", "license": "ISC" }
