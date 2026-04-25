@@ -1,5 +1,68 @@
 // ── persistence.js ─ localStorage persistence, auto-save, share via URL hash ──
 
+const MANA_FIREBASE_CFG = {
+  apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
+  authDomain: 'mana-maps-pro.firebaseapp.com',
+  databaseURL: 'https://mana-maps-pro-default-rtdb.firebaseio.com',
+  projectId: 'mana-maps-pro',
+  storageBucket: 'mana-maps-pro.firebasestorage.app',
+  messagingSenderId: '212469378297',
+  appId: '1:212469378297:web:83e17ed0e38dd202944628',
+  measurementId: 'G-F1Z7C21BZ6'
+};
+const SHARED_MAPS_COLLECTION = 'sharedMaps';
+
+function getSharedMapsDb() {
+  if (typeof firebase === 'undefined') return null;
+  try {
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(MANA_FIREBASE_CFG);
+    return firebase.firestore();
+  } catch (e) {
+    console.warn('shared maps db unavailable:', e);
+    return null;
+  }
+}
+
+function slugifyMapName(name) {
+  const base = (name || 'mapa')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .slice(0, 40);
+  const rnd = Math.random().toString(36).slice(2, 8);
+  return (base || 'mapa') + '-' + rnd;
+}
+
+function getMapNameForShare() {
+  const input = document.getElementById('project-name-input');
+  const value = (input && input.value ? input.value : '').trim();
+  return value || (typeof t === 'function' ? t('map_name_placeholder') : 'Mapa sin título');
+}
+
+async function persistSharedMap(geo) {
+  const db = getSharedMapsDb();
+  if (!db) return null;
+  try {
+    const slug = slugifyMapName(getMapNameForShare());
+    const docRef = db.collection(SHARED_MAPS_COLLECTION).doc(slug);
+    await docRef.set({
+      slug: slug,
+      name: getMapNameForShare(),
+      featureCount: geo.features.length,
+      geojson: geo,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAtMs: Date.now()
+    }, { merge: true });
+    return slug;
+  } catch (e) {
+    console.warn('persistSharedMap failed:', e);
+    return null;
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // SAVE STATE
 // ═══════════════════════════════════════════════════════════════
@@ -255,8 +318,32 @@ function buildShareHashURL() {
   }
 }
 
-function copyMapURL() {
-  const url = buildShareHashURL();
+function buildMapShareURL(mapId, encodedGeo, roomId) {
+  const share = new URL(window.location.origin + '/map/');
+  if (mapId) {
+    share.searchParams.set('map', mapId);
+  } else if (encodedGeo) {
+    share.hash = '#map=' + encodedGeo;
+  }
+  if (roomId) {
+    share.searchParams.set('room', roomId);
+    share.hash = '#room=' + encodeURIComponent(roomId);
+  }
+  return share.toString();
+}
+
+async function copyMapURL() {
+  const geo = getEnrichedGeoJSON();
+  if (!geo || !geo.features || !geo.features.length) {
+    manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
+    return;
+  }
+  const roomId = (typeof window.manaCollabGetOrCreateRoomId === 'function')
+    ? window.manaCollabGetOrCreateRoomId()
+    : '';
+  const sharedMapId = await persistSharedMap(geo);
+  const encoded = encodeURIComponent(JSON.stringify(geo));
+  const url = buildMapShareURL(sharedMapId, encoded, roomId);
   if (!url) return;
   navigator.clipboard.writeText(url).then(() => {
     showToast(LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
@@ -271,27 +358,42 @@ function copyMapURL() {
   });
 }
 
-function restoreFromHash() {
+async function restoreFromURL() {
   try {
-    const hash = window.location.hash;
-    if (!hash || hash.length < 2) return false;
-    let encoded = '';
-    if (hash.startsWith('#map=')) {
-      // Backward compatibility: old links only had #map=...
-      encoded = hash.substring(5);
-    } else {
-      const params = new URLSearchParams(hash.substring(1));
-      encoded = params.get('map') || '';
+    const search = new URLSearchParams(window.location.search || '');
+    const mapId = search.get('map');
+    if (mapId) {
+      const db = getSharedMapsDb();
+      if (db) {
+        const doc = await db.collection(SHARED_MAPS_COLLECTION).doc(mapId).get();
+        const payload = doc && doc.exists ? doc.data() : null;
+        if (payload && payload.geojson && payload.geojson.features && payload.geojson.features.length) {
+          _importRestoredGeoJSON(payload.geojson);
+          return true;
+        }
+      }
     }
-    if (!encoded) return false;
-    const geo = JSON.parse(decodeURIComponent(encoded));
-    if (geo && geo.features && geo.features.length) {
-      _importRestoredGeoJSON(geo);
-      // Clear hash so it doesn't persist on refresh (state is in localStorage now)
-      return true;
+
+    const hash = window.location.hash;
+    if (hash && hash.length >= 2) {
+      let encoded = '';
+      if (hash.startsWith('#map=')) {
+        // Backward compatibility: old links only had #map=...
+        encoded = hash.substring(5);
+      } else {
+        const params = new URLSearchParams(hash.substring(1));
+        encoded = params.get('map') || '';
+      }
+      if (encoded) {
+        const geo = JSON.parse(decodeURIComponent(encoded));
+        if (geo && geo.features && geo.features.length) {
+          _importRestoredGeoJSON(geo);
+          return true;
+        }
+      }
     }
   } catch (e) {
-    console.warn('restoreFromHash error:', e);
+    console.warn('restoreFromURL error:', e);
   }
   return false;
 }
@@ -340,9 +442,7 @@ function setProjectName(name) {
 // ═══════════════════════════════════════════════════════════════
 // INIT: restore from URL hash first, then localStorage
 // ═══════════════════════════════════════════════════════════════
-(function initPersistence() {
-  const restoredFromHash = restoreFromHash();
-  if (!restoredFromHash) {
-    restoreState();
-  }
+(async function initPersistence() {
+  const restoredFromUrl = await restoreFromURL();
+  if (!restoredFromUrl) restoreState();
 })();

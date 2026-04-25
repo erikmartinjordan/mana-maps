@@ -31,10 +31,14 @@
 
   function parseHashParams() {
     var hash = window.location.hash || '';
-    if (!hash) return { room: '', map: '' };
-    if (hash.indexOf('#map=') === 0) return { room: '', map: hash.substring(5) };
+    var search = new URLSearchParams(window.location.search || '');
+    if (!hash) return { room: search.get('room') || '', map: search.get('map') || '' };
+    if (hash.indexOf('#map=') === 0) return { room: search.get('room') || '', map: hash.substring(5) };
     var p = new URLSearchParams(hash.substring(1));
-    return { room: p.get('room') || '', map: p.get('map') || '' };
+    return {
+      room: p.get('room') || search.get('room') || '',
+      map: p.get('map') || search.get('map') || ''
+    };
   }
 
   function randomRoomId() {

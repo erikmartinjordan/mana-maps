@@ -41,6 +41,19 @@
     };
   }
 
+  function slugifyMapName(name) {
+    const base = (name || 'mapa')
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      .slice(0, 40);
+    const rnd = Math.random().toString(36).slice(2, 8);
+    return (base || 'mapa') + '-' + rnd;
+  }
+
   function saveLocalPublishedMap(payload) {
     const list = JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
     const id = 'local-' + Math.random().toString(36).slice(2, 11);
@@ -101,11 +114,12 @@
     const db = getGalleryDb();
     if (db) {
       try {
-        const ref = await db.collection(GALLERY_COLLECTION).add({
+        id = slugifyMapName(meta.name);
+        await db.collection(GALLERY_COLLECTION).doc(id).set({
+          id: id,
           ...payload,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        id = ref.id;
         cachePublishedMap(id, payload);
       } catch (e) {
         console.warn('gallery publish fallback local:', e);
