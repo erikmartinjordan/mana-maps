@@ -326,6 +326,31 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .modal-btn-ok{background:var(--primary);color:white;}
 .modal-btn-ok:hover{opacity:.85;}
 
+/* ── SHARE MODAL ─────────────────────────────── */
+.share-modal{
+  display:none;position:fixed;inset:0;z-index:6100;
+  background:rgba(17,24,39,.32);backdrop-filter:blur(2px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.share-modal.open{display:flex;}
+.share-modal-box{
+  width:min(460px,100%);background:var(--surface);border:0.5px solid var(--border);
+  border-radius:16px;box-shadow:0 12px 48px rgba(15,23,42,.2);padding:18px;position:relative;
+}
+.share-close{position:absolute;right:8px;top:8px;}
+.share-modal-box h3{font-size:18px;font-weight:800;color:var(--primary);padding-right:46px;}
+.share-subtitle{font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.55;}
+.share-actions{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+.share-action-btn{
+  width:100%;border:0.5px solid var(--border);border-radius:12px;background:var(--surface);
+  padding:12px 14px;cursor:pointer;text-align:left;transition:border-color .14s,transform .14s,background .14s;
+}
+.share-action-btn:hover{border-color:var(--primary);transform:translateY(-1px);background:var(--surface-3);}
+.share-action-btn-primary{background:#17191c;color:#fff;border-color:#17191c;}
+.share-action-btn-primary .share-action-desc{color:rgba(255,255,255,.74);}
+.share-action-title{display:block;font-size:14px;font-weight:700;}
+.share-action-desc{display:block;font-size:12px;color:var(--third);margin-top:2px;line-height:1.45;}
+
 /* ── CHAT PANEL ──────────────────────────────── */
 #chat-panel{border-left:0.5px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;min-width:180px;}
 .chat-header{padding:14px 14px 10px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;}

@@ -177,11 +177,21 @@ function _flashSavePill() {
 // SHARE MAP VIA URL HASH
 // ═══════════════════════════════════════════════════════════════
 function shareMapURL() {
+  const modal = document.getElementById('share-modal');
+  if (modal) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    return;
+  }
+  copyMapURL();
+}
+
+function buildShareHashURL() {
   try {
     const geo = getEnrichedGeoJSON();
     if (!geo.features.length) {
       manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
-      return;
+      return null;
     }
     const encoded = encodeURIComponent(JSON.stringify(geo));
     const roomId = (typeof window.manaCollabGetOrCreateRoomId === 'function')
@@ -205,9 +215,28 @@ function shareMapURL() {
       document.body.removeChild(ta);
       showToast('Enlace copiado \u2713');
     });
+    window.location.hash = '#map=' + encoded;
+    return window.location.href;
   } catch (e) {
     manaAlert((LANG === 'en' ? 'Error generating link: ' : 'Error al generar el enlace: ') + e.message, 'error');
+    return null;
   }
+}
+
+function copyMapURL() {
+  const url = buildShareHashURL();
+  if (!url) return;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast(LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Enlace copiado \u2713');
+  });
 }
 
 function restoreFromHash() {
