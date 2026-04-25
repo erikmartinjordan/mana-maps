@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maña Maps — Galería</title>
+  <meta name="description" content="Galería pública de mapas creados con Maña Maps.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{--bg:#f4f5f7;--surface:#fff;--line:rgba(17,24,39,.11);--text:#121316;--muted:#6b7280;--accent:#17191c;}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',sans-serif}
+    body{background:var(--bg);color:var(--text);padding:22px}
+    .wrap{max-width:1160px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+    .brand{font-size:22px;font-weight:800;letter-spacing:-.02em}
+    .brand small{font-size:12px;color:var(--muted);font-weight:600;vertical-align:super}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--text);font-size:13px;font-weight:700;background:var(--surface)}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .hero{border:1px solid var(--line);background:rgba(255,255,255,.82);border-radius:22px;padding:20px;backdrop-filter:blur(10px);margin-bottom:16px}
+    .hero h1{font-size:clamp(24px,4vw,34px);letter-spacing:-.03em}
+    .hero p{color:var(--muted);margin-top:8px;line-height:1.55;font-size:15px}
+    #featured-wrap{display:none;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:14px;margin-bottom:16px}
+    #featured-title{font-size:17px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+    #featured-map{height:300px;border-radius:12px;border:1px solid var(--line)}
+    #featured-meta{margin-top:10px;font-size:13px;color:var(--muted)}
+    .grid{columns:3 280px;column-gap:12px}
+    .card{break-inside:avoid;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px;margin:0 0 12px;text-decoration:none;color:inherit;display:block;transition:transform .12s,border-color .12s}
+    .card:hover{transform:translateY(-1px);border-color:rgba(17,24,39,.32)}
+    .thumb{height:140px;border-radius:10px;background:linear-gradient(130deg,#f8fafc,#fff 40%,#eef2ff);border:1px solid var(--line);position:relative;overflow:hidden}
+    .thumb::before,.thumb::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(17,24,39,.06) 1px, transparent 1px),linear-gradient(90deg, rgba(17,24,39,.06) 1px, transparent 1px);background-size:30px 30px}
+    .dot{position:absolute;width:10px;height:10px;border-radius:50%;background:#0ea5e9;box-shadow:0 0 0 8px rgba(14,165,233,.16)}
+    .dot.d1{top:24%;left:30%}.dot.d2{top:44%;left:68%}.dot.d3{top:70%;left:42%}
+    .title{font-size:15px;font-weight:700;margin-top:10px;letter-spacing:-.01em}
+    .meta{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap}
+    .empty{border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:14px;text-align:center;background:rgba(255,255,255,.6)}
+    @media (max-width:680px){body{padding:12px}.hero,#featured-wrap{padding:14px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">Maña <small>Gallery</small></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn" href="/">Inicio</a>
+        <a class="btn primary" href="/map/">Crear mapa</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1>Galería de mapas</h1>
+      <p>Descubre mapas compartidos por la comunidad. Estética minimalista y lectura rápida, manteniendo el lenguaje visual de Maña Maps.</p>
+    </section>
+
+    <section id="featured-wrap">
+      <h2 id="featured-title">Mapa destacado</h2>
+      <div id="featured-map"></div>
+      <div id="featured-meta"></div>
+    </section>
+
+    <section id="gallery-list" class="grid"></section>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script defer src="/js/gallery-page.js"></script>
+</body>
+</html>
