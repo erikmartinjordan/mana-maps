@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public gallery maps: anyone can read published maps.
+    match /maps/{mapId} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+        && request.resource.data.createdBy == request.auth.uid;
+
+      // Presence is scoped to each map and each authenticated uid can only manage its own doc.
+      match /presence/{userId} {
+        allow read: if true;
+        allow create, update, delete: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.uid == request.auth.uid;
+      }
+    }
+  }
+}

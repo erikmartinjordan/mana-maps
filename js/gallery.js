@@ -1,7 +1,7 @@
 // ── gallery.js ─ share modal + gallery publish ─
 
 (function() {
-  const GALLERY_COLLECTION = 'gallery';
+  const MAPS_COLLECTION = 'maps';
   const LOCAL_GALLERY_KEY = 'mana-gallery-maps';
   const firebaseConfig = {
     apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
@@ -18,6 +18,12 @@
     if (typeof firebase === 'undefined') return null;
     try {
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (firebase.auth && typeof firebase.auth === 'function') {
+        // Firestore writes for publish/presence rules: ensure a uid exists via anonymous auth.
+        firebase.auth().signInAnonymously().catch(function(err) {
+          console.warn('anonymous auth failed:', err);
+        });
+      }
       return firebase.firestore();
     } catch (e) {
       console.warn('gallery db unavailable:', e);
@@ -39,6 +45,24 @@
       name: value || (typeof t === 'function' ? t('map_name_placeholder') : 'Mapa sin título'),
       lang: (typeof LANG !== 'undefined' ? LANG : 'es')
     };
+  }
+
+  async function getCurrentUserUid() {
+    try {
+      // Firestore write metadata: prefer authenticated uid when available.
+      if (firebase && firebase.auth && firebase.auth().currentUser && firebase.auth().currentUser.uid) {
+        return firebase.auth().currentUser.uid;
+      }
+      if (firebase && firebase.auth && typeof firebase.auth === 'function') {
+        const cred = await firebase.auth().signInAnonymously();
+        if (cred && cred.user && cred.user.uid) return cred.user.uid;
+      }
+    } catch (_) {}
+    return sessionStorage.getItem('mana-publisher-uid') || (function() {
+      const generated = 'anon-' + Math.random().toString(36).slice(2, 10);
+      sessionStorage.setItem('mana-publisher-uid', generated);
+      return generated;
+    })();
   }
 
   function slugifyMapName(name) {
@@ -73,6 +97,28 @@
     return window.location.origin + '/gallery/?slug=' + encodeURIComponent(slug);
   }
 
+  function setPublishButtonState(isSaving, errorMessage) {
+    const publishBtn = document.querySelector('#share-modal .share-action-btn-primary');
+    if (!publishBtn) return;
+    publishBtn.disabled = !!isSaving;
+    publishBtn.style.opacity = isSaving ? '0.7' : '';
+    publishBtn.style.pointerEvents = isSaving ? 'none' : '';
+    publishBtn.setAttribute('aria-busy', isSaving ? 'true' : 'false');
+    if (!publishBtn.dataset.defaultLabel) {
+      const labelEl = publishBtn.querySelector('.share-action-title');
+      publishBtn.dataset.defaultLabel = labelEl ? labelEl.textContent : 'Publish map';
+    }
+    const labelEl = publishBtn.querySelector('.share-action-title');
+    if (labelEl) {
+      labelEl.textContent = isSaving
+        ? (LANG === 'en' ? 'Publishing…' : 'Publicando…')
+        : publishBtn.dataset.defaultLabel;
+    }
+    if (errorMessage && typeof manaAlert === 'function') {
+      manaAlert(errorMessage, 'error');
+    }
+  }
+
   function copyToClipboard(text, okMessage) {
     return navigator.clipboard.writeText(text).then(function() {
       if (typeof showToast === 'function') showToast(okMessage);
@@ -102,21 +148,30 @@
     }
 
     const meta = getMapMeta();
+    const slug = slugifyMapName(meta.name);
+    const userUid = await getCurrentUserUid();
+    const shareUrl = buildGalleryURL(slug);
     const payload = {
+      id: slug,
+      title: meta.name,
       name: meta.name,
+      createdBy: userUid,
       lang: meta.lang,
       featureCount: geo.features.length,
+      mapData: geo,
       geojson: geo,
+      isPublished: true,
+      shareUrl: shareUrl,
       createdAtMs: Date.now()
     };
 
-    let slug;
+    let finalSlug = slug;
     const db = getGalleryDb();
+    setPublishButtonState(true);
     if (db) {
       try {
-        slug = slugifyMapName(meta.name);
-        await db.collection(GALLERY_COLLECTION).doc(slug).set({
-          id: slug,
+        // Firestore write: persist the published map as a public record in /maps.
+        await db.collection(MAPS_COLLECTION).doc(slug).set({
           slug: slug,
           ...payload,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -124,13 +179,17 @@
         cachePublishedMap(slug, { ...payload, slug: slug });
       } catch (e) {
         console.warn('gallery publish fallback local:', e);
-        slug = saveLocalPublishedMap({ ...payload, slug: slug });
+        finalSlug = saveLocalPublishedMap({ ...payload, slug: slug });
+        setPublishButtonState(false, LANG === 'en' ? 'Publish failed in Firestore. Saved locally.' : 'Error al publicar en Firestore. Guardado local.');
+      } finally {
+        setPublishButtonState(false);
       }
     } else {
-      slug = saveLocalPublishedMap({ ...payload, slug: slugifyMapName(meta.name) });
+      finalSlug = saveLocalPublishedMap({ ...payload, slug: slug });
+      setPublishButtonState(false, LANG === 'en' ? 'Firestore unavailable. Saved locally.' : 'Firestore no disponible. Guardado local.');
     }
 
-    const shareURL = buildGalleryURL(slug);
+    const shareURL = buildGalleryURL(finalSlug);
     await copyToClipboard(
       shareURL,
       LANG === 'en'
