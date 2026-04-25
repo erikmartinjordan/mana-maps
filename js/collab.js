@@ -15,8 +15,10 @@
   var APPLYING_REMOTE = false;
   var PUSH_TIMER = null;
   var HEARTBEAT_TIMER = null;
+  var PRESENCE_UNSUBSCRIBE = null;
   var ROOM_ID = null;
   var CLIENT_ID = sessionStorage.getItem(APP_PREFIX + 'client-id') || Math.random().toString(36).slice(2, 10);
+  var PRESENCE_USER_ID = CLIENT_ID;
   sessionStorage.setItem(APP_PREFIX + 'client-id', CLIENT_ID);
 
   var userName = localStorage.getItem(APP_PREFIX + 'user-name');
@@ -68,6 +70,12 @@
     if (typeof firebase === 'undefined') return null;
     try {
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(CFG);
+      if (firebase.auth && typeof firebase.auth === 'function') {
+        // Firestore presence rules require an authenticated uid; use anonymous auth for guests.
+        firebase.auth().signInAnonymously().catch(function(err) {
+          console.warn('[collab] anonymous auth failed', err);
+        });
+      }
       return firebase.firestore();
     } catch (e) {
       console.warn('[collab] Firebase unavailable', e);
@@ -75,24 +83,50 @@
     }
   }
 
+  async function ensurePresenceUid() {
+    try {
+      if (firebase && firebase.auth && typeof firebase.auth === 'function') {
+        if (firebase.auth().currentUser && firebase.auth().currentUser.uid) {
+          PRESENCE_USER_ID = firebase.auth().currentUser.uid;
+          return PRESENCE_USER_ID;
+        }
+        var cred = await firebase.auth().signInAnonymously();
+        if (cred && cred.user && cred.user.uid) {
+          PRESENCE_USER_ID = cred.user.uid;
+          return PRESENCE_USER_ID;
+        }
+      }
+    } catch (e) {
+      console.warn('[collab] ensurePresenceUid fallback', e);
+    }
+    return PRESENCE_USER_ID;
+  }
+
+  function getDeterministicColor(uid) {
+    var palette = ['#0ea5e9', '#10b981', '#f59e0b', '#a855f7', '#ef4444', '#14b8a6', '#6366f1', '#f43f5e'];
+    var source = uid || 'anon';
+    var hash = 0;
+    for (var i = 0; i < source.length; i++) hash = ((hash << 5) - hash + source.charCodeAt(i)) | 0;
+    return palette[Math.abs(hash) % palette.length];
+  }
+
+  function getInitials(name) {
+    var safe = (name || 'U').trim();
+    if (!safe) return 'U';
+    var parts = safe.split(/\s+/).slice(0, 2);
+    return parts.map(function(p) { return p.charAt(0).toUpperCase(); }).join('') || 'U';
+  }
+
   function getPresenceEl() {
-    var el = document.getElementById('collab-presence-pill');
+    var el = document.getElementById('presence-avatars');
     if (el) return el;
     var topbarRight = document.querySelector('#topbar .topbar-right');
     if (!topbarRight) return null;
-    el = document.createElement('button');
-    el.id = 'collab-presence-pill';
-    el.className = 'collab-presence-pill';
-    el.type = 'button';
-    el.title = tCollab('Editar nombre', 'Edit name');
-    el.innerHTML = '<span class="collab-avatars"></span><span class="collab-count"></span>';
-    el.onclick = function() {
-      var next = prompt(tCollab('Tu nombre para edición colaborativa:', 'Your collaboration name:'), userName);
-      if (!next) return;
-      userName = next.trim().slice(0, 24) || userName;
-      localStorage.setItem(APP_PREFIX + 'user-name', userName);
-      updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
-    };
+    el = document.createElement('div');
+    el.id = 'presence-avatars';
+    el.className = 'presence-avatars';
+    el.setAttribute('aria-label', tCollab('Usuarios en línea', 'Users online'));
+    el.innerHTML = '<div class="presence-avatars-list"></div><span class="presence-avatars-count"></span>';
     topbarRight.insertBefore(el, topbarRight.firstChild);
     return el;
   }
@@ -100,24 +134,22 @@
   function renderPresence(users) {
     var el = getPresenceEl();
     if (!el) return;
-    var avatars = el.querySelector('.collab-avatars');
-    var count = el.querySelector('.collab-count');
+    var avatars = el.querySelector('.presence-avatars-list');
+    var count = el.querySelector('.presence-avatars-count');
     if (!avatars || !count) return;
-    if (users.length <= 1) {
+    if (!users.length) {
       avatars.innerHTML = '';
       count.textContent = '';
-      el.classList.remove('is-active');
       el.style.display = 'none';
       return;
     }
     el.style.display = 'inline-flex';
-    el.classList.add('is-active');
-    var palette = ['#0ea5e9', '#10b981', '#f59e0b', '#a855f7', '#ef4444', '#14b8a6'];
-    avatars.innerHTML = users.slice(0, 4).map(function(u, idx) {
-      var bg = palette[idx % palette.length];
-      var initial = (u.name || 'U').trim().charAt(0).toUpperCase() || 'U';
-      return '<span class="collab-avatar" style="background:' + bg + '" title="' + (u.name || 'User') + '">' + initial + '</span>';
-    });
+    avatars.innerHTML = users.slice(0, 8).map(function(u) {
+      var bg = u.color || getDeterministicColor(u.uid || u.clientId);
+      var initial = getInitials(u.displayName || u.name || 'User');
+      var title = u.displayName || u.name || 'User';
+      return '<span class="presence-avatar" style="background:' + bg + '" title="' + title + '">' + initial + '</span>';
+    }).join('');
     count.textContent = users.length;
   }
 
@@ -125,12 +157,19 @@
   function updatePresenceStatus(activity) {
     currentActivity = activity || '';
     if (!window._manaCollabPresenceRef) return;
+    var presenceUid = PRESENCE_USER_ID;
     window._manaCollabPresenceRef.set({
+      // Firestore write: heartbeat for this viewer in maps/{mapId}/presence/{userId}.
+      uid: presenceUid,
+      displayName: userName,
+      color: getDeterministicColor(presenceUid),
       name: userName,
       activity: currentActivity,
       clientId: CLIENT_ID,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAtMs: Date.now()
+      updatedAtMs: Date.now(),
+      lastSeenMs: Date.now()
     }, { merge: true }).catch(function(err) {
       console.warn('[collab] presence update failed', err);
     });
@@ -219,24 +258,35 @@
     });
   }
 
-  function init() {
+  async function init() {
     var db = ensureFirebase();
     if (!db) return;
+    await ensurePresenceUid();
     var params = parseHashParams();
-    if (!params.room) return;
-    ROOM_ID = params.room;
+    var activeMapId = params.map || new URLSearchParams(window.location.search || '').get('gallery') || params.room;
+    if (!activeMapId) return;
+    ROOM_ID = params.room || activeMapId;
 
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
-    window._manaCollabPresenceRef = window._manaCollabRoomRef.collection('presence').doc(CLIENT_ID);
+    var mapRef = db.collection('maps').doc(activeMapId);
+    window._manaCollabPresenceRef = mapRef.collection('presence').doc(PRESENCE_USER_ID);
 
-    var presenceCol = window._manaCollabRoomRef.collection('presence');
-    presenceCol.onSnapshot(function(snap) {
+    var presenceCol = mapRef.collection('presence');
+    if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
+    // Firestore read: subscribe to active viewers/editors for this shared map.
+    PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
       var now = Date.now();
       var users = [];
       snap.forEach(function(doc) {
         var d = doc.data() || {};
-        if (!d.updatedAtMs || now - d.updatedAtMs > 35000) return;
-        users.push({ name: d.name || 'User', activity: d.activity || '' });
+        var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
+        if (!lastSeenMs || now - lastSeenMs > 60000) return;
+        users.push({
+          uid: d.uid || doc.id,
+          displayName: d.displayName || d.name || 'User',
+          color: d.color || getDeterministicColor(d.uid || doc.id),
+          activity: d.activity || ''
+        });
       });
       renderPresence(users);
     });
@@ -245,10 +295,11 @@
     if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
     HEARTBEAT_TIMER = setInterval(function() {
       updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
-    }, 15000);
+    }, 30000);
 
     window.addEventListener('beforeunload', function() {
       if (window._manaCollabPresenceRef) {
+        // Firestore write: remove presence entry when tab/page is closing.
         window._manaCollabPresenceRef.delete().catch(function() {});
       }
     });

@@ -11,7 +11,8 @@ const MANA_FIREBASE_CFG = {
   measurementId: 'G-F1Z7C21BZ6'
 };
 const SHARED_MAPS_COLLECTION = 'sharedMaps';
-const GALLERY_COLLECTION = 'gallery';
+const MAPS_COLLECTION = 'maps';
+const LEGACY_GALLERY_COLLECTION = 'gallery';
 
 function getSharedMapsDb() {
   if (typeof firebase === 'undefined') return null;
@@ -366,10 +367,19 @@ async function restoreFromURL() {
     if (gallerySlug) {
       const db = getSharedMapsDb();
       if (db) {
-        const galleryDoc = await db.collection(GALLERY_COLLECTION).doc(gallerySlug).get();
+        // Firestore read: load published map document from /maps for shared gallery links.
+        const galleryDoc = await db.collection(MAPS_COLLECTION).doc(gallerySlug).get();
         const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
-        if (galleryPayload && galleryPayload.geojson && galleryPayload.geojson.features && galleryPayload.geojson.features.length) {
-          _importRestoredGeoJSON(galleryPayload.geojson);
+        const galleryGeo = galleryPayload && (galleryPayload.mapData || galleryPayload.geojson);
+        if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
+          _importRestoredGeoJSON(galleryGeo);
+          return true;
+        }
+        // Backward compatibility: read legacy /gallery docs created before this fix.
+        const legacyDoc = await db.collection(LEGACY_GALLERY_COLLECTION).doc(gallerySlug).get();
+        const legacyPayload = legacyDoc && legacyDoc.exists ? legacyDoc.data() : null;
+        if (legacyPayload && legacyPayload.geojson && legacyPayload.geojson.features && legacyPayload.geojson.features.length) {
+          _importRestoredGeoJSON(legacyPayload.geojson);
           return true;
         }
       }
