@@ -1,7 +1,7 @@
 // ── gallery-page.js ─ renders /gallery ─
 
 (function() {
-  const GALLERY_COLLECTION = 'galleryMaps';
+  const GALLERY_COLLECTION = 'gallery';
   const LOCAL_GALLERY_KEY = 'mana-gallery-maps';
   const firebaseConfig = {
     apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
@@ -25,7 +25,7 @@
 
   function getQueryMapId() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('map');
+    return params.get('slug') || params.get('map');
   }
 
   function localMaps() {
@@ -74,7 +74,7 @@
     list.innerHTML = items.map(function(item) {
       const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
       return '' +
-        '<a class="card" href="/gallery/?map=' + encodeURIComponent(item.id) + '">' +
+        '<a class="card" href="/map/?gallery=' + encodeURIComponent(item.slug || item.id) + '&room=' + encodeURIComponent(item.slug || item.id) + '">' +
           '<div class="thumb"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span></div>' +
           '<h3 class="title">' + (item.name || 'Mapa sin título') + '</h3>' +
           '<div class="meta">' +
@@ -125,7 +125,7 @@
 
     const mapId = getQueryMapId();
     if (!mapId) return;
-    let selected = merged.find(function(i) { return i.id === mapId; }) || localById[mapId];
+    let selected = merged.find(function(i) { return (i.slug || i.id) === mapId; }) || localById[mapId];
     if (!selected) {
       selected = await remoteMapById(mapId);
       if (selected) {

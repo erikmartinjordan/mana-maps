@@ -11,6 +11,7 @@ const MANA_FIREBASE_CFG = {
   measurementId: 'G-F1Z7C21BZ6'
 };
 const SHARED_MAPS_COLLECTION = 'sharedMaps';
+const GALLERY_COLLECTION = 'gallery';
 
 function getSharedMapsDb() {
   if (typeof firebase === 'undefined') return null;
@@ -361,6 +362,19 @@ async function copyMapURL() {
 async function restoreFromURL() {
   try {
     const search = new URLSearchParams(window.location.search || '');
+    const gallerySlug = search.get('gallery') || search.get('slug');
+    if (gallerySlug) {
+      const db = getSharedMapsDb();
+      if (db) {
+        const galleryDoc = await db.collection(GALLERY_COLLECTION).doc(gallerySlug).get();
+        const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
+        if (galleryPayload && galleryPayload.geojson && galleryPayload.geojson.features && galleryPayload.geojson.features.length) {
+          _importRestoredGeoJSON(galleryPayload.geojson);
+          return true;
+        }
+      }
+    }
+
     const mapId = search.get('map');
     if (mapId) {
       const db = getSharedMapsDb();
