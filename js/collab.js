@@ -16,7 +16,11 @@
   var PUSH_TIMER = null;
   var HEARTBEAT_TIMER = null;
   var PRESENCE_UNSUBSCRIBE = null;
+  var CURSOR_PUSH_TIMER = null;
+  var LAST_CURSOR_SENT_AT = 0;
   var ROOM_ID = null;
+  var REMOTE_CURSOR_MARKERS = {};
+  var REMOTE_CURSOR_LAYER = null;
   var CLIENT_ID = sessionStorage.getItem(APP_PREFIX + 'client-id') || Math.random().toString(36).slice(2, 10);
   var PRESENCE_USER_ID = CLIENT_ID;
   sessionStorage.setItem(APP_PREFIX + 'client-id', CLIENT_ID);
@@ -160,6 +164,15 @@
     return el;
   }
 
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function renderPresence(users) {
     var el = getPresenceEl();
     if (!el) return;
@@ -182,6 +195,61 @@
     count.textContent = users.length;
   }
 
+  function ensureCursorLayer() {
+    if (REMOTE_CURSOR_LAYER || typeof L === 'undefined' || typeof map === 'undefined' || !map) return REMOTE_CURSOR_LAYER;
+    REMOTE_CURSOR_LAYER = L.layerGroup().addTo(map);
+    return REMOTE_CURSOR_LAYER;
+  }
+
+  function renderRemoteCursors(users) {
+    var layer = ensureCursorLayer();
+    if (!layer || typeof L === 'undefined') return;
+    var active = {};
+    var now = Date.now();
+
+    users.forEach(function(u) {
+      if (!u || !u.uid || u.uid === PRESENCE_USER_ID) return;
+      var c = u.cursor;
+      if (!c || typeof c.lat !== 'number' || typeof c.lng !== 'number') return;
+      var seenAt = c.updatedAtMs || u.lastSeenMs || 0;
+      if (!seenAt || now - seenAt > 12000) return;
+
+      active[u.uid] = true;
+      var label = escapeHtml(u.displayName || u.name || 'User');
+      var activity = escapeHtml(u.activity || '');
+      var markerHtml = '<div class="collab-live-cursor" style="--cursor-color:' + (u.color || '#0ea5e9') + '">' +
+        '<div class="collab-live-cursor-pointer"></div>' +
+        '<div class="collab-live-cursor-label">' + label + (activity ? '<span>' + activity + '</span>' : '') + '</div>' +
+      '</div>';
+
+      if (!REMOTE_CURSOR_MARKERS[u.uid]) {
+        REMOTE_CURSOR_MARKERS[u.uid] = L.marker([c.lat, c.lng], {
+          interactive: false,
+          icon: L.divIcon({
+            className: 'collab-live-cursor-marker',
+            html: markerHtml,
+            iconSize: [210, 42],
+            iconAnchor: [4, 4]
+          })
+        }).addTo(layer);
+      } else {
+        REMOTE_CURSOR_MARKERS[u.uid].setLatLng([c.lat, c.lng]);
+        REMOTE_CURSOR_MARKERS[u.uid].setIcon(L.divIcon({
+          className: 'collab-live-cursor-marker',
+          html: markerHtml,
+          iconSize: [210, 42],
+          iconAnchor: [4, 4]
+        }));
+      }
+    });
+
+    Object.keys(REMOTE_CURSOR_MARKERS).forEach(function(uid) {
+      if (active[uid]) return;
+      layer.removeLayer(REMOTE_CURSOR_MARKERS[uid]);
+      delete REMOTE_CURSOR_MARKERS[uid];
+    });
+  }
+
   var currentActivity = '';
   function updatePresenceStatus(activity) {
     currentActivity = activity || '';
@@ -202,6 +270,33 @@
     }, { merge: true }).catch(function(err) {
       console.warn('[collab] presence update failed', err);
     });
+  }
+
+  function updatePresenceCursor(latlng) {
+    if (!window._manaCollabPresenceRef) return;
+    var payload = {
+      cursor: latlng ? { lat: latlng.lat, lng: latlng.lng, updatedAtMs: Date.now() } : null,
+      lastSeenMs: Date.now(),
+      updatedAtMs: Date.now()
+    };
+    window._manaCollabPresenceRef.set(payload, { merge: true }).catch(function(err) {
+      console.warn('[collab] cursor update failed', err);
+    });
+  }
+
+  function scheduleCursorSync(latlng) {
+    var now = Date.now();
+    var minInterval = 120;
+    if (now - LAST_CURSOR_SENT_AT >= minInterval) {
+      LAST_CURSOR_SENT_AT = now;
+      updatePresenceCursor(latlng);
+      return;
+    }
+    if (CURSOR_PUSH_TIMER) clearTimeout(CURSOR_PUSH_TIMER);
+    CURSOR_PUSH_TIMER = setTimeout(function() {
+      LAST_CURSOR_SENT_AT = Date.now();
+      updatePresenceCursor(latlng);
+    }, minInterval);
   }
 
   function hookActivitySignals() {
@@ -228,7 +323,11 @@
     }
     if (typeof map !== 'undefined' && map && map.on) {
       map.on('draw:created', function() { updatePresenceStatus(tCollab('Añadió elemento', 'Added feature')); });
+      map.on('draw:edited', function() { updatePresenceStatus(tCollab('Editó elemento', 'Edited feature')); });
+      map.on('draw:deleted', function() { updatePresenceStatus(tCollab('Eliminó elemento', 'Deleted feature')); });
       map.on('moveend', function() { if (!currentActivity) updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map')); });
+      map.on('mousemove', function(e) { scheduleCursorSync(e && e.latlng ? e.latlng : null); });
+      map.on('mouseout', function() { scheduleCursorSync(null); });
     }
     if (typeof drawnItems !== 'undefined' && drawnItems && drawnItems.on) {
       drawnItems.on('click', function(e) {
@@ -318,10 +417,13 @@
           uid: d.uid || doc.id,
           displayName: d.displayName || d.name || 'User',
           color: d.color || getDeterministicColor(d.uid || doc.id),
-          activity: d.activity || ''
+          activity: d.activity || '',
+          cursor: d.cursor || null,
+          lastSeenMs: lastSeenMs
         });
       });
       renderPresence(users);
+      renderRemoteCursors(users);
     });
 
     updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
@@ -335,6 +437,7 @@
         // Firestore write: remove presence entry when tab/page is closing.
         window._manaCollabPresenceRef.delete().catch(function() {});
       }
+      if (CURSOR_PUSH_TIMER) clearTimeout(CURSOR_PUSH_TIMER);
     });
 
     hookActivitySignals();
