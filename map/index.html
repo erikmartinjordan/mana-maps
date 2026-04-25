@@ -158,6 +158,25 @@
   </div>
 </div>
 
+<!-- ═══ Modal compartir ═══ -->
+<div id="share-modal" class="share-modal" aria-hidden="true">
+  <div class="share-modal-box" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <button class="modal-close-btn share-close" onclick="closeShareModal()" aria-label="Cerrar">&times;</button>
+    <h3 id="share-modal-title" data-i18n="share_title">Compartir mapa</h3>
+    <p class="share-subtitle" data-i18n="share_subtitle">Comparte un enlace privado o publícalo en la galería.</p>
+    <div class="share-actions">
+      <button class="share-action-btn" onclick="copyMapURL()">
+        <span class="share-action-title" data-i18n="share_copy_url">Copiar URL</span>
+        <span class="share-action-desc" data-i18n="share_copy_desc">Genera un enlace directo con este mapa.</span>
+      </button>
+      <button class="share-action-btn share-action-btn-primary" onclick="publishMapToGallery()">
+        <span class="share-action-title" data-i18n="share_publish">Publicar mapa</span>
+        <span class="share-action-desc" data-i18n="share_publish_desc">Sube el mapa a /gallery y comparte su ficha pública.</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ Barra superior ═══ -->
 <div id="topbar">
   <a class="mana-logo-wrap" href="/">
@@ -686,6 +705,7 @@
 <script defer src="/js/chat.js?v=1776927826"></script>         <!-- chat y geocodificación -->
 <script defer src="/js/undo-redo.js?v=1776927826"></script>    <!-- deshacer/rehacer -->
 <script defer src="/js/persistence.js?v=1776927826"></script>  <!-- persistencia y compartir -->
+<script defer src="/js/gallery.js?v=1776927826"></script>      <!-- galería pública -->
 <script defer src="/js/ogc-loader.js?v=1776927826"></script>   <!-- cargador OGC -->
 <script defer src="/js/responsive.js?v=1776927826"></script>  <!-- responsive / móvil -->
 
