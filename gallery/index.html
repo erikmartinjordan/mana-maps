@@ -19,7 +19,7 @@
     .brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
     .brand-logo{position:relative;width:36px;height:36px;flex-shrink:0}
     .brand-logo svg{width:100%;height:100%}
-    .brand-logo span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#121316;line-height:1}
+    .brand-logo span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;line-height:1}
     .brand-copy{display:inline-flex;align-items:baseline;gap:4px}
     .brand-word{font-size:22px;font-weight:800;letter-spacing:-.02em}
     .brand-sub{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.01em}
@@ -33,6 +33,7 @@
     #featured-map{height:300px;border-radius:12px;border:1px solid var(--line)}
     #featured-meta{margin-top:10px;font-size:13px;color:var(--muted)}
     .grid{columns:3 280px;column-gap:12px}
+    .grid.empty-state{columns:1 auto}
     .card{break-inside:avoid;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px;margin:0 0 12px;text-decoration:none;color:inherit;display:block;transition:transform .12s,border-color .12s}
     .card:hover{transform:translateY(-1px);border-color:rgba(17,24,39,.32)}
     .thumb{height:140px;border-radius:10px;background:linear-gradient(130deg,#f8fafc,#fff 40%,#eef2ff);border:1px solid var(--line);position:relative;overflow:hidden}
@@ -41,7 +42,7 @@
     .dot.d1{top:24%;left:30%}.dot.d2{top:44%;left:68%}.dot.d3{top:70%;left:42%}
     .title{font-size:15px;font-weight:700;margin-top:10px;letter-spacing:-.01em}
     .meta{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap}
-    .empty{border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:14px;text-align:center;background:rgba(255,255,255,.6)}
+    .empty{break-inside:avoid;border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:14px;text-align:center;background:rgba(255,255,255,.6)}
     @media (max-width:680px){body{padding:12px}.hero,#featured-wrap{padding:14px}}
   </style>
 </head>

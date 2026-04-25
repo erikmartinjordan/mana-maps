@@ -74,7 +74,9 @@
   function renderCards(items) {
     const list = document.getElementById('gallery-list');
     if (!list) return;
+    list.classList.remove('empty-state');
     if (!items.length) {
+      list.classList.add('empty-state');
       list.innerHTML = '<div class="empty">Todavía no hay mapas publicados. Comparte uno desde el botón “Compartir” en /map.</div>';
       return;
     }
