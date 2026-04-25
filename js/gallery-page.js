@@ -49,6 +49,20 @@
     }
   }
 
+  async function remoteMapById(id) {
+    if (!id || typeof firebase === 'undefined') return null;
+    try {
+      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const doc = await db.collection(GALLERY_COLLECTION).doc(id).get();
+      if (!doc.exists) return null;
+      return { id: doc.id, ...doc.data() };
+    } catch (e) {
+      console.warn('gallery remoteMapById failed:', e);
+      return null;
+    }
+  }
+
   function renderCards(items) {
     const list = document.getElementById('gallery-list');
     if (!list) return;
@@ -111,7 +125,14 @@
 
     const mapId = getQueryMapId();
     if (!mapId) return;
-    const selected = merged.find(function(i) { return i.id === mapId; }) || localById[mapId];
+    let selected = merged.find(function(i) { return i.id === mapId; }) || localById[mapId];
+    if (!selected) {
+      selected = await remoteMapById(mapId);
+      if (selected) {
+        merged.unshift(selected);
+        renderCards(merged);
+      }
+    }
     if (selected) showFeatured(selected);
   }
 

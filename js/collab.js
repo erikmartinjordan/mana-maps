@@ -81,7 +81,7 @@
     el.className = 'collab-presence-pill';
     el.type = 'button';
     el.title = tCollab('Editar nombre', 'Edit name');
-    el.innerHTML = '<span class="collab-dot"></span><span class="collab-label"></span>';
+    el.innerHTML = '<span class="collab-avatars"></span><span class="collab-count"></span>';
     el.onclick = function() {
       var next = prompt(tCollab('Tu nombre para edición colaborativa:', 'Your collaboration name:'), userName);
       if (!next) return;
@@ -96,19 +96,25 @@
   function renderPresence(users) {
     var el = getPresenceEl();
     if (!el) return;
-    var label = el.querySelector('.collab-label');
-    if (!label) return;
-    if (!users.length) {
-      label.textContent = tCollab('Solo tú', 'Just you');
+    var avatars = el.querySelector('.collab-avatars');
+    var count = el.querySelector('.collab-count');
+    if (!avatars || !count) return;
+    if (users.length <= 1) {
+      avatars.innerHTML = '';
+      count.textContent = '';
       el.classList.remove('is-active');
+      el.style.display = 'none';
       return;
     }
+    el.style.display = 'inline-flex';
     el.classList.add('is-active');
-    var names = users.slice(0, 3).map(function(u) {
-      return u.name + (u.activity ? ' · ' + u.activity : '');
+    var palette = ['#0ea5e9', '#10b981', '#f59e0b', '#a855f7', '#ef4444', '#14b8a6'];
+    avatars.innerHTML = users.slice(0, 4).map(function(u, idx) {
+      var bg = palette[idx % palette.length];
+      var initial = (u.name || 'U').trim().charAt(0).toUpperCase() || 'U';
+      return '<span class="collab-avatar" style="background:' + bg + '" title="' + (u.name || 'User') + '">' + initial + '</span>';
     });
-    var extra = users.length > 3 ? (' +' + (users.length - 3)) : '';
-    label.textContent = names.join(' | ') + extra;
+    count.textContent = users.length;
   }
 
   var currentActivity = '';
@@ -212,7 +218,9 @@
   function init() {
     var db = ensureFirebase();
     if (!db) return;
-    ROOM_ID = getOrCreateRoomId();
+    var params = parseHashParams();
+    if (!params.room) return;
+    ROOM_ID = params.room;
 
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
     window._manaCollabPresenceRef = window._manaCollabRoomRef.collection('presence').doc(CLIENT_ID);
