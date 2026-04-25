@@ -70,17 +70,45 @@
     if (typeof firebase === 'undefined') return null;
     try {
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(CFG);
-      if (firebase.auth && typeof firebase.auth === 'function') {
-        // Firestore presence rules require an authenticated uid; use anonymous auth for guests.
-        firebase.auth().signInAnonymously().catch(function(err) {
-          console.warn('[collab] anonymous auth failed', err);
-        });
-      }
       return firebase.firestore();
     } catch (e) {
       console.warn('[collab] Firebase unavailable', e);
       return null;
     }
+  }
+
+  function waitForAuthUser(timeoutMs) {
+    return new Promise(function(resolve) {
+      if (!firebase || !firebase.auth || typeof firebase.auth !== 'function') {
+        resolve(null);
+        return;
+      }
+      var auth = firebase.auth();
+      if (auth.currentUser && auth.currentUser.uid) {
+        resolve(auth.currentUser);
+        return;
+      }
+      var settled = false;
+      var timer = setTimeout(function() {
+        if (settled) return;
+        settled = true;
+        if (typeof unsubscribe === 'function') unsubscribe();
+        resolve(auth.currentUser || null);
+      }, timeoutMs || 5000);
+      var unsubscribe = auth.onAuthStateChanged(function(user) {
+        if (settled || !user) return;
+        settled = true;
+        clearTimeout(timer);
+        unsubscribe();
+        resolve(user);
+      }, function() {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        unsubscribe();
+        resolve(null);
+      });
+    });
   }
 
   async function ensurePresenceUid() {
@@ -90,16 +118,17 @@
           PRESENCE_USER_ID = firebase.auth().currentUser.uid;
           return PRESENCE_USER_ID;
         }
-        var cred = await firebase.auth().signInAnonymously();
-        if (cred && cred.user && cred.user.uid) {
-          PRESENCE_USER_ID = cred.user.uid;
+        await firebase.auth().signInAnonymously();
+        var authUser = await waitForAuthUser(6000);
+        if (authUser && authUser.uid) {
+          PRESENCE_USER_ID = authUser.uid;
           return PRESENCE_USER_ID;
         }
       }
     } catch (e) {
       console.warn('[collab] ensurePresenceUid fallback', e);
     }
-    return PRESENCE_USER_ID;
+    return null;
   }
 
   function getDeterministicColor(uid) {
@@ -261,7 +290,11 @@
   async function init() {
     var db = ensureFirebase();
     if (!db) return;
-    await ensurePresenceUid();
+    var presenceUid = await ensurePresenceUid();
+    if (!presenceUid) {
+      console.warn('[collab] no authenticated user; skipping presence sync');
+      return;
+    }
     var params = parseHashParams();
     var activeMapId = params.map || new URLSearchParams(window.location.search || '').get('gallery') || params.room;
     if (!activeMapId) return;

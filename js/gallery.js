@@ -18,17 +18,45 @@
     if (typeof firebase === 'undefined') return null;
     try {
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      if (firebase.auth && typeof firebase.auth === 'function') {
-        // Firestore writes for publish/presence rules: ensure a uid exists via anonymous auth.
-        firebase.auth().signInAnonymously().catch(function(err) {
-          console.warn('anonymous auth failed:', err);
-        });
-      }
       return firebase.firestore();
     } catch (e) {
       console.warn('gallery db unavailable:', e);
       return null;
     }
+  }
+
+  function waitForAuthUser(timeoutMs) {
+    return new Promise(function(resolve) {
+      if (!firebase || !firebase.auth || typeof firebase.auth !== 'function') {
+        resolve(null);
+        return;
+      }
+      var auth = firebase.auth();
+      if (auth.currentUser && auth.currentUser.uid) {
+        resolve(auth.currentUser);
+        return;
+      }
+      var settled = false;
+      var timer = setTimeout(function() {
+        if (settled) return;
+        settled = true;
+        if (typeof unsubscribe === 'function') unsubscribe();
+        resolve(auth.currentUser || null);
+      }, timeoutMs || 5000);
+      var unsubscribe = auth.onAuthStateChanged(function(user) {
+        if (settled || !user) return;
+        settled = true;
+        clearTimeout(timer);
+        unsubscribe();
+        resolve(user);
+      }, function() {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        unsubscribe();
+        resolve(null);
+      });
+    });
   }
 
   function getCurrentGeo() {
@@ -54,15 +82,14 @@
         return firebase.auth().currentUser.uid;
       }
       if (firebase && firebase.auth && typeof firebase.auth === 'function') {
-        const cred = await firebase.auth().signInAnonymously();
-        if (cred && cred.user && cred.user.uid) return cred.user.uid;
+        await firebase.auth().signInAnonymously();
+        var authUser = await waitForAuthUser(6000);
+        if (authUser && authUser.uid) return authUser.uid;
       }
-    } catch (_) {}
-    return sessionStorage.getItem('mana-publisher-uid') || (function() {
-      const generated = 'anon-' + Math.random().toString(36).slice(2, 10);
-      sessionStorage.setItem('mana-publisher-uid', generated);
-      return generated;
-    })();
+    } catch (e) {
+      console.warn('auth uid unavailable:', e);
+    }
+    return null;
   }
 
   function slugifyMapName(name) {
@@ -150,6 +177,12 @@
     const meta = getMapMeta();
     const slug = slugifyMapName(meta.name);
     const userUid = await getCurrentUserUid();
+    if (!userUid) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Could not authenticate with Firebase. Enable Anonymous Auth and try again.'
+        : 'No se pudo autenticar con Firebase. Activa Anonymous Auth y vuelve a intentarlo.');
+      return;
+    }
     const shareUrl = buildGalleryURL(slug);
     const payload = {
       id: slug,
