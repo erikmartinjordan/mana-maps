@@ -2523,3 +2523,45 @@ select.ai-input{cursor:pointer;appearance:auto;}
   color:var(--color-text-primary,#e2e8f0);
 }
 [data-theme="dark"] .mana-cp-field label{color:var(--color-text-secondary,#94a3b8);}
+
+/* ── Collaborative presence pill ── */
+.collab-presence-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  max-width:360px;
+  border:1px solid rgba(14,165,233,.25);
+  background:rgba(14,165,233,.08);
+  color:#0b5d7a;
+  border-radius:999px;
+  padding:7px 11px;
+  font-size:12px;
+  line-height:1.2;
+  cursor:pointer;
+  margin-right:8px;
+}
+.collab-presence-pill .collab-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#10b981;
+  flex:0 0 auto;
+  box-shadow:0 0 0 3px rgba(16,185,129,.18);
+}
+.collab-presence-pill .collab-label{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+[data-theme="dark"] .collab-presence-pill{
+  border-color:rgba(110,231,255,.22);
+  background:rgba(14,165,233,.14);
+  color:#bae6fd;
+}
+@media (max-width: 920px){
+  .collab-presence-pill{
+    max-width:170px;
+    font-size:11px;
+    padding:6px 9px;
+  }
+}
