@@ -341,6 +341,15 @@
     if (typeof saveState !== 'function' || typeof getEnrichedGeoJSON !== 'function') return;
     var originalSave = saveState;
 
+    function sanitizeFirestorePayload(value) {
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch (e) {
+        console.warn('[collab] sanitize payload failed', e);
+        return null;
+      }
+    }
+
     function pushStateNow() {
       if (APPLYING_REMOTE || !window._manaCollabRoomRef) return;
       var geo;
@@ -350,8 +359,10 @@
         console.warn('[collab] getEnrichedGeoJSON failed', e);
         return;
       }
+      var cleanGeo = sanitizeFirestorePayload(geo);
+      if (!cleanGeo || !cleanGeo.features) return;
       window._manaCollabRoomRef.set({
-        state: geo,
+        state: cleanGeo,
         lastEditor: userName,
         lastEditorId: CLIENT_ID,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -359,6 +370,20 @@
       }, { merge: true }).catch(function(err) {
         console.warn('[collab] push state failed', err);
       });
+
+      if (window._manaCollabMapRef) {
+        window._manaCollabMapRef.set({
+          mapData: cleanGeo,
+          geojson: cleanGeo,
+          featureCount: Array.isArray(cleanGeo.features) ? cleanGeo.features.length : 0,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAtMs: Date.now(),
+          lastEditor: userName,
+          lastEditorId: CLIENT_ID
+        }, { merge: true }).catch(function(err) {
+          console.warn('[collab] push map snapshot failed', err);
+        });
+      }
     }
 
     function schedulePush() {
@@ -401,6 +426,7 @@
 
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
     var mapRef = db.collection('maps').doc(activeMapId);
+    window._manaCollabMapRef = mapRef;
     window._manaCollabPresenceRef = mapRef.collection('presence').doc(PRESENCE_USER_ID);
 
     var presenceCol = mapRef.collection('presence');

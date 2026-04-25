@@ -66,6 +66,15 @@
     return geo;
   }
 
+  function sanitizeFirestorePayload(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (e) {
+      console.warn('sanitizeFirestorePayload failed:', e);
+      return null;
+    }
+  }
+
   function getMapMeta() {
     const input = document.getElementById('project-name-input');
     const value = (input && input.value ? input.value : '').trim();
@@ -168,9 +177,16 @@
   };
 
   window.publishMapToGallery = async function() {
-    const geo = getCurrentGeo();
-    if (!geo) {
+    const rawGeo = getCurrentGeo();
+    if (!rawGeo) {
       manaAlert(LANG === 'en' ? 'No elements to publish.' : t('persist_no_elements'), 'warning');
+      return;
+    }
+    const geo = sanitizeFirestorePayload(rawGeo);
+    if (!geo || !geo.features || !geo.features.length) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Invalid map data for Firestore publish.'
+        : 'Datos de mapa no válidos para publicar en Firestore.');
       return;
     }
 
