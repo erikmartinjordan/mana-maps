@@ -467,6 +467,40 @@ function setProjectName(name) {
 // INIT: restore from URL hash first, then localStorage
 // ═══════════════════════════════════════════════════════════════
 (async function initPersistence() {
+  const needsRemoteRestore = (() => {
+    try {
+      const search = new URLSearchParams(window.location.search || '');
+      return !!(search.get('gallery') || search.get('slug') || search.get('map'));
+    } catch (_) {
+      return false;
+    }
+  })();
+
+  if (needsRemoteRestore) {
+    await waitForFirebaseSdk(5000);
+  }
+
   const restoredFromUrl = await restoreFromURL();
   if (!restoredFromUrl) restoreState();
 })();
+
+function waitForFirebaseSdk(timeoutMs) {
+  return new Promise(function(resolve) {
+    if (typeof firebase !== 'undefined' && firebase && typeof firebase.firestore === 'function') {
+      resolve(true);
+      return;
+    }
+    var startedAt = Date.now();
+    var poll = setInterval(function() {
+      if (typeof firebase !== 'undefined' && firebase && typeof firebase.firestore === 'function') {
+        clearInterval(poll);
+        resolve(true);
+        return;
+      }
+      if (Date.now() - startedAt >= (timeoutMs || 5000)) {
+        clearInterval(poll);
+        resolve(false);
+      }
+    }, 100);
+  });
+}
