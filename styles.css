@@ -2090,7 +2090,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
    Dark Mode
    ══════════════════════════════════════════ */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #1a1a1a;
     --bgBox: #222120;
     --primary: #e8e6e3;
@@ -2182,28 +2182,28 @@ select.ai-input{cursor:pointer;appearance:auto;}
 
 /* ── Dark mode: component overrides ── */
 @media (prefers-color-scheme: dark) {
-  .btn-primary{background:var(--blue);color:#111;}
-  .modal-btn-ok{background:var(--blue);color:#111;}
-  .draw-btn.active{background:var(--blue);color:#111;}
-  .draw-btn.active svg{color:#111;}
-  .marker-opt.active{background:var(--blue);color:#111;}
-  .filter-btn-apply{background:var(--blue);color:#111;}
-  .filter-active-badge{background:var(--blue);color:#111;}
-  .layer-group-action-btn.has-filter{background:var(--blue);color:#111;}
-  .upsell-cta{background:var(--blue);color:#111;}
-  .stat-pill{border-color:var(--border);}
-  .panel-header-icon svg{color:var(--blue);}
-  .chat-header-icon svg{color:var(--blue);}
-  .ai-badge.active{background:var(--blue);color:#111;}
-  .mana-alert.info{background:var(--blue);color:#111;}
-  .mana-alert.warning{background:#f59e0b;color:#111;}
-  .mana-alert.error{background:var(--red);color:#111;}
-  #map-bottom-bar{background:var(--surface);border-color:var(--border);}
-  #chat-send{background:var(--blue);color:#111;}
-  .basemap-card{background:var(--surface);}
-  .basemap-card.active{border-color:var(--blue);}
-  .search-dropdown{background:var(--surface);border-color:var(--border);}
-  #drop-overlay{background:rgba(0,0,0,.7);}
+  :root:not([data-theme="light"]) .btn-primary{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .modal-btn-ok{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .draw-btn.active{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .draw-btn.active svg{color:#111;}
+  :root:not([data-theme="light"]) .marker-opt.active{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .filter-btn-apply{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .filter-active-badge{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .layer-group-action-btn.has-filter{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .upsell-cta{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .stat-pill{border-color:var(--border);}
+  :root:not([data-theme="light"]) .panel-header-icon svg{color:var(--blue);}
+  :root:not([data-theme="light"]) .chat-header-icon svg{color:var(--blue);}
+  :root:not([data-theme="light"]) .ai-badge.active{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .mana-alert.info{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .mana-alert.warning{background:#f59e0b;color:#111;}
+  :root:not([data-theme="light"]) .mana-alert.error{background:var(--red);color:#111;}
+  :root:not([data-theme="light"]) #map-bottom-bar{background:var(--surface);border-color:var(--border);}
+  :root:not([data-theme="light"]) #chat-send{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .basemap-card{background:var(--surface);}
+  :root:not([data-theme="light"]) .basemap-card.active{border-color:var(--blue);}
+  :root:not([data-theme="light"]) .search-dropdown{background:var(--surface);border-color:var(--border);}
+  :root:not([data-theme="light"]) #drop-overlay{background:rgba(0,0,0,.7);}
 }
 [data-theme="dark"] {
   .btn-primary{background:var(--blue);color:#111;}
