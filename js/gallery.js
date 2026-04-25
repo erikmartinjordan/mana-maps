@@ -1,7 +1,7 @@
 // ── gallery.js ─ share modal + gallery publish ─
 
 (function() {
-  const GALLERY_COLLECTION = 'galleryMaps';
+  const GALLERY_COLLECTION = 'gallery';
   const LOCAL_GALLERY_KEY = 'mana-gallery-maps';
   const firebaseConfig = {
     apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
@@ -56,21 +56,21 @@
 
   function saveLocalPublishedMap(payload) {
     const list = JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
-    const id = 'local-' + Math.random().toString(36).slice(2, 11);
-    list.unshift({ id, ...payload, createdAtMs: Date.now() });
+    const slug = payload && payload.slug ? payload.slug : ('local-' + Math.random().toString(36).slice(2, 11));
+    list.unshift({ id: slug, slug: slug, ...payload, createdAtMs: Date.now() });
     localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(list.slice(0, 60)));
-    return id;
+    return slug;
   }
   
   function cachePublishedMap(id, payload) {
     const list = JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
     const filtered = list.filter(function(item) { return item.id !== id; });
-    filtered.unshift({ id, ...payload, createdAtMs: Date.now() });
+    filtered.unshift({ id, slug: id, ...payload, createdAtMs: Date.now() });
     localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(filtered.slice(0, 60)));
   }
 
-  function buildGalleryURL(id) {
-    return window.location.origin + '/gallery/?map=' + encodeURIComponent(id);
+  function buildGalleryURL(slug) {
+    return window.location.origin + '/gallery/?slug=' + encodeURIComponent(slug);
   }
 
   function copyToClipboard(text, okMessage) {
@@ -110,26 +110,27 @@
       createdAtMs: Date.now()
     };
 
-    let id;
+    let slug;
     const db = getGalleryDb();
     if (db) {
       try {
-        id = slugifyMapName(meta.name);
-        await db.collection(GALLERY_COLLECTION).doc(id).set({
-          id: id,
+        slug = slugifyMapName(meta.name);
+        await db.collection(GALLERY_COLLECTION).doc(slug).set({
+          id: slug,
+          slug: slug,
           ...payload,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        cachePublishedMap(id, payload);
+        cachePublishedMap(slug, { ...payload, slug: slug });
       } catch (e) {
         console.warn('gallery publish fallback local:', e);
-        id = saveLocalPublishedMap(payload);
+        slug = saveLocalPublishedMap({ ...payload, slug: slug });
       }
     } else {
-      id = saveLocalPublishedMap(payload);
+      slug = saveLocalPublishedMap({ ...payload, slug: slugifyMapName(meta.name) });
     }
 
-    const shareURL = buildGalleryURL(id);
+    const shareURL = buildGalleryURL(slug);
     await copyToClipboard(
       shareURL,
       LANG === 'en'
@@ -141,6 +142,7 @@
     }
 
     closeShareModal();
+    window.location.href = shareURL;
   };
 
   document.addEventListener('click', function(e) {
