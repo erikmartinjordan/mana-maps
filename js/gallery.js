@@ -35,25 +35,7 @@
     const list = JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
     const id = 'local-' + Math.random().toString(36).slice(2, 11);
     list.unshift({ id, ...payload, createdAtMs: Date.now() });
-    try {
-      localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(list.slice(0, 20)));
-    } catch (e) {
-      if (e && e.name === 'QuotaExceededError') {
-        // Retry with metadata-only payload (no geometry) so at least the card exists
-        const compact = list.map(function(item) {
-          return {
-            id: item.id,
-            name: item.name,
-            lang: item.lang,
-            featureCount: item.featureCount,
-            createdAtMs: item.createdAtMs
-          };
-        }).slice(0, 20);
-        localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(compact));
-      } else {
-        throw e;
-      }
-    }
+    localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(list.slice(0, 60)));
     return id;
   }
 
@@ -90,12 +72,11 @@
     }
 
     const meta = getMapMeta();
-    const geoText = JSON.stringify(geo);
     const payload = {
       name: meta.name,
       lang: meta.lang,
       featureCount: geo.features.length,
-      geojsonText: geoText,
+      geojson: geo,
       createdAtMs: Date.now()
     };
 
@@ -110,33 +91,9 @@
         id = ref.id;
       } catch (e) {
         console.warn('gallery publish fallback local:', e);
-        if (geoText.length > 1200000) {
-          manaAlert(
-            LANG === 'en'
-              ? 'Map is too large for local fallback. Copying direct URL instead.'
-              : 'El mapa es demasiado grande para guardado local. Se copiará la URL directa.',
-            'warning'
-          );
-          const directURL = (typeof buildShareHashURL === 'function' && buildShareHashURL()) || window.location.href;
-          await copyToClipboard(directURL, LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
-          closeShareModal();
-          return;
-        }
         id = saveLocalPublishedMap(payload);
       }
     } else {
-      if (geoText.length > 1200000) {
-        manaAlert(
-          LANG === 'en'
-            ? 'Map is too large for local fallback. Copying direct URL instead.'
-            : 'El mapa es demasiado grande para guardado local. Se copiará la URL directa.',
-          'warning'
-        );
-        const directURL = (typeof buildShareHashURL === 'function' && buildShareHashURL()) || window.location.href;
-        await copyToClipboard(directURL, LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
-        closeShareModal();
-        return;
-      }
       id = saveLocalPublishedMap(payload);
     }
 

@@ -73,12 +73,7 @@
   }
 
   function showFeatured(item) {
-    if (!item || !window.L) return;
-    let geojson = item.geojson || null;
-    if (!geojson && item.geojsonText) {
-      try { geojson = JSON.parse(item.geojsonText); } catch (_) { geojson = null; }
-    }
-    if (!geojson) return;
+    if (!item || !item.geojson || !window.L) return;
 
     const wrap = document.getElementById('featured-wrap');
     const meta = document.getElementById('featured-meta');
@@ -91,7 +86,7 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    const layer = L.geoJSON(geojson).addTo(map);
+    const layer = L.geoJSON(item.geojson).addTo(map);
     const bounds = layer.getBounds();
     if (bounds && bounds.isValid()) map.fitBounds(bounds.pad(0.2));
 

@@ -226,6 +226,27 @@ function buildShareHashURL() {
       return null;
     }
     const encoded = encodeURIComponent(JSON.stringify(geo));
+    const roomId = (typeof window.manaCollabGetOrCreateRoomId === 'function')
+      ? window.manaCollabGetOrCreateRoomId()
+      : '';
+    if (roomId) {
+      window.location.hash = '#room=' + encodeURIComponent(roomId) + '&map=' + encoded;
+    } else {
+      window.location.hash = '#map=' + encoded;
+    }
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast(LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Enlace copiado \u2713');
+    });
     window.location.hash = '#map=' + encoded;
     return window.location.href;
   } catch (e) {
@@ -253,8 +274,16 @@ function copyMapURL() {
 function restoreFromHash() {
   try {
     const hash = window.location.hash;
-    if (!hash.startsWith('#map=')) return false;
-    const encoded = hash.substring(5);
+    if (!hash || hash.length < 2) return false;
+    let encoded = '';
+    if (hash.startsWith('#map=')) {
+      // Backward compatibility: old links only had #map=...
+      encoded = hash.substring(5);
+    } else {
+      const params = new URLSearchParams(hash.substring(1));
+      encoded = params.get('map') || '';
+    }
+    if (!encoded) return false;
     const geo = JSON.parse(decodeURIComponent(encoded));
     if (geo && geo.features && geo.features.length) {
       _importRestoredGeoJSON(geo);
@@ -265,6 +294,21 @@ function restoreFromHash() {
     console.warn('restoreFromHash error:', e);
   }
   return false;
+}
+
+// Replace current map contents without confirmation (used by real-time sync).
+function replaceMapWithGeoJSON(geo) {
+  if (!geo || !geo.features) return;
+
+  drawnItems.clearLayers();
+  for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
+  _activeGroupId = null;
+  _manaGroupCounter = 0;
+  _manaLayerNameCounter = 0;
+
+  _importRestoredGeoJSON(geo);
+  if (typeof renderLayers === 'function') renderLayers();
+  if (typeof saveState === 'function') saveState();
 }
 
 
