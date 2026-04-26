@@ -2,7 +2,6 @@
 
 (function() {
   const MAPS_COLLECTION = 'maps';
-  const LOCAL_GALLERY_KEY = 'mana-gallery-maps';
   const firebaseConfig = {
     apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
     authDomain: 'mana-maps-pro.firebaseapp.com',
@@ -112,21 +111,6 @@
       .slice(0, 40);
     const rnd = Math.random().toString(36).slice(2, 8);
     return (base || 'mapa') + '-' + rnd;
-  }
-
-  function saveLocalPublishedMap(payload) {
-    const list = JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
-    const slug = payload && payload.slug ? payload.slug : ('local-' + Math.random().toString(36).slice(2, 11));
-    list.unshift({ id: slug, slug: slug, ...payload, createdAtMs: Date.now() });
-    localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(list.slice(0, 60)));
-    return slug;
-  }
-  
-  function cachePublishedMap(id, payload) {
-    const list = JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
-    const filtered = list.filter(function(item) { return item.id !== id; });
-    filtered.unshift({ id, slug: id, ...payload, createdAtMs: Date.now() });
-    localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(filtered.slice(0, 60)));
   }
 
   function buildGalleryURL(slug) {
@@ -255,31 +239,33 @@
       createdAtMs: Date.now()
     };
 
-    let finalSlug = slug;
     const db = getGalleryDb();
-    setPublishButtonState(true);
-    if (db) {
-      try {
-        // Firestore write: persist the published map as a public record in /maps.
-        await db.collection(MAPS_COLLECTION).doc(slug).set({
-          slug: slug,
-          ...payload,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        cachePublishedMap(slug, { ...payload, slug: slug });
-      } catch (e) {
-        console.warn('gallery publish fallback local:', e);
-        finalSlug = saveLocalPublishedMap({ ...payload, slug: slug });
-        setPublishButtonState(false, LANG === 'en' ? 'Publish failed in Firestore. Saved locally.' : 'Error al publicar en Firestore. Guardado local.');
-      } finally {
-        setPublishButtonState(false);
-      }
-    } else {
-      finalSlug = saveLocalPublishedMap({ ...payload, slug: slug });
-      setPublishButtonState(false, LANG === 'en' ? 'Firestore unavailable. Saved locally.' : 'Firestore no disponible. Guardado local.');
+    if (!db) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Firestore unavailable. Map was not published.'
+        : 'Firestore no disponible. El mapa no se ha publicado.');
+      return;
     }
 
-    const shareURL = buildGalleryURL(finalSlug);
+    setPublishButtonState(true);
+    try {
+      // Firestore write: persist the published map as a public record in /maps.
+      await db.collection(MAPS_COLLECTION).doc(slug).set({
+        slug: slug,
+        ...payload,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (e) {
+      console.warn('gallery publish failed:', e);
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Publish failed in Firestore. Please try again.'
+        : 'Error al publicar en Firestore. Vuelve a intentarlo.');
+      return;
+    } finally {
+      setPublishButtonState(false);
+    }
+
+    const shareURL = buildGalleryURL(slug);
     await copyToClipboard(
       shareURL,
       LANG === 'en'
