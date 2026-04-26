@@ -2,7 +2,6 @@
 
 (function() {
   const MAPS_COLLECTION = 'maps';
-  const LOCAL_GALLERY_KEY = 'mana-gallery-maps';
   const firebaseConfig = {
     apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
     authDomain: 'mana-maps-pro.firebaseapp.com',
@@ -26,14 +25,6 @@
   function getQueryMapId() {
     const params = new URLSearchParams(window.location.search);
     return params.get('slug') || params.get('map');
-  }
-
-  function localMaps() {
-    try {
-      return JSON.parse(localStorage.getItem(LOCAL_GALLERY_KEY) || '[]');
-    } catch (_) {
-      return [];
-    }
   }
 
   async function remoteMaps() {
@@ -196,12 +187,7 @@
   }
 
   async function init() {
-    const [remote, local] = await Promise.all([remoteMaps(), Promise.resolve(localMaps())]);
-    const localById = Object.fromEntries(local.map(x => [x.id, x]));
-    const merged = [...remote];
-    local.forEach(function(item) {
-      if (!merged.find(function(r) { return r.id === item.id; })) merged.push(item);
-    });
+    const merged = await remoteMaps();
     merged.sort(function(a, b) {
       const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
       const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
@@ -209,11 +195,11 @@
     });
 
     renderCards(merged);
-    subscribeToPublishedMaps(local, merged);
+    subscribeToPublishedMaps(merged);
 
     const mapId = getQueryMapId();
     if (!mapId) return;
-    let selected = merged.find(function(i) { return (i.slug || i.id) === mapId; }) || localById[mapId];
+    let selected = merged.find(function(i) { return (i.slug || i.id) === mapId; });
     if (!selected) {
       selected = await remoteMapById(mapId);
       if (selected) {
@@ -226,7 +212,7 @@
 
   init();
 
-  function subscribeToPublishedMaps(localCache, mergedList) {
+  function subscribeToPublishedMaps(mergedList) {
     if (typeof firebase === 'undefined') return;
     try {
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -238,17 +224,13 @@
         .limit(36)
         .onSnapshot(function(snap) {
           const remote = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
-          const merged = [...remote];
-          localCache.forEach(function(item) {
-            if (!merged.find(function(r) { return r.id === item.id; })) merged.push(item);
-          });
-          merged.sort(function(a, b) {
+          remote.sort(function(a, b) {
             const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
             const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
             return bTs - aTs;
           });
           mergedList.length = 0;
-          mergedList.push.apply(mergedList, merged);
+          mergedList.push.apply(mergedList, remote);
           renderCards(mergedList);
         }, function(e) {
           console.warn('gallery realtime subscribe failed:', e);

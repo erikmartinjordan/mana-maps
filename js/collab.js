@@ -18,6 +18,7 @@
   var PRESENCE_UNSUBSCRIBE = null;
   var CURSOR_PUSH_TIMER = null;
   var LAST_CURSOR_SENT_AT = 0;
+  var LAST_REMOTE_APPLIED_AT_MS = 0;
   var ROOM_ID = null;
   var REMOTE_CURSOR_MARKERS = {};
   var REMOTE_CURSOR_LAYER = null;
@@ -396,29 +397,43 @@
       if (!APPLYING_REMOTE) schedulePush();
     };
 
-    window._manaCollabRoomRef.onSnapshot(function(doc) {
-      var data = doc && doc.data ? doc.data() : null;
-      if (!data || !data.state) return;
-      if (data.lastEditorId === CLIENT_ID) return;
+    function applyRemoteState(remoteGeo, meta) {
+      if (!remoteGeo || !remoteGeo.features) return;
+      if (!meta || meta.lastEditorId === CLIENT_ID) return;
       if (typeof replaceMapWithGeoJSON !== 'function') return;
+      var remoteUpdatedAtMs = Number(meta.updatedAtMs || 0);
+      if (remoteUpdatedAtMs && remoteUpdatedAtMs <= LAST_REMOTE_APPLIED_AT_MS) return;
+      LAST_REMOTE_APPLIED_AT_MS = Math.max(LAST_REMOTE_APPLIED_AT_MS, remoteUpdatedAtMs || Date.now());
       APPLYING_REMOTE = true;
       try {
-        replaceMapWithGeoJSON(data.state);
-        updatePresenceStatus(tCollab('Sincronizado desde ' + (data.lastEditor || 'otro usuario'), 'Synced from ' + (data.lastEditor || 'another user')));
+        replaceMapWithGeoJSON(remoteGeo);
+        updatePresenceStatus(tCollab('Sincronizado desde ' + (meta.lastEditor || 'otro usuario'), 'Synced from ' + (meta.lastEditor || 'another user')));
       } finally {
         setTimeout(function() { APPLYING_REMOTE = false; }, 50);
       }
+    }
+
+    window._manaCollabRoomRef.onSnapshot(function(doc) {
+      var data = doc && doc.data ? doc.data() : null;
+      if (!data) return;
+      applyRemoteState(data.state, data);
     });
+
+    if (window._manaCollabMapRef) {
+      window._manaCollabMapRef.onSnapshot(function(doc) {
+        var data = doc && doc.data ? doc.data() : null;
+        if (!data) return;
+        applyRemoteState(data.mapData || data.geojson, data);
+      });
+    }
   }
 
   async function init() {
     var db = ensureFirebase();
     if (!db) return;
     var presenceUid = await ensurePresenceUid();
-    if (!presenceUid) {
-      console.warn('[collab] no authenticated user; skipping presence sync');
-      return;
-    }
+    var canUsePresence = !!presenceUid;
+    if (!canUsePresence) console.warn('[collab] no authenticated user; continuing map sync without presence');
     var params = parseHashParams();
     var activeMapId = params.map || new URLSearchParams(window.location.search || '').get('gallery') || params.room;
     if (!activeMapId) return;
@@ -427,36 +442,40 @@
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
     var mapRef = db.collection('maps').doc(activeMapId);
     window._manaCollabMapRef = mapRef;
-    window._manaCollabPresenceRef = mapRef.collection('presence').doc(PRESENCE_USER_ID);
+    window._manaCollabPresenceRef = canUsePresence ? mapRef.collection('presence').doc(PRESENCE_USER_ID) : null;
 
-    var presenceCol = mapRef.collection('presence');
-    if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
-    // Firestore read: subscribe to active viewers/editors for this shared map.
-    PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
-      var now = Date.now();
-      var users = [];
-      snap.forEach(function(doc) {
-        var d = doc.data() || {};
-        var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
-        if (!lastSeenMs || now - lastSeenMs > 60000) return;
-        users.push({
-          uid: d.uid || doc.id,
-          displayName: d.displayName || d.name || 'User',
-          color: d.color || getDeterministicColor(d.uid || doc.id),
-          activity: d.activity || '',
-          cursor: d.cursor || null,
-          lastSeenMs: lastSeenMs
+    if (canUsePresence) {
+      var presenceCol = mapRef.collection('presence');
+      if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
+      // Firestore read: subscribe to active viewers/editors for this shared map.
+      PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
+        var now = Date.now();
+        var users = [];
+        snap.forEach(function(doc) {
+          var d = doc.data() || {};
+          var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
+          if (!lastSeenMs || now - lastSeenMs > 60000) return;
+          users.push({
+            uid: d.uid || doc.id,
+            displayName: d.displayName || d.name || 'User',
+            color: d.color || getDeterministicColor(d.uid || doc.id),
+            activity: d.activity || '',
+            cursor: d.cursor || null,
+            lastSeenMs: lastSeenMs
+          });
         });
+        renderPresence(users);
+        renderRemoteCursors(users);
       });
-      renderPresence(users);
-      renderRemoteCursors(users);
-    });
+    }
 
-    updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
-    if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
-    HEARTBEAT_TIMER = setInterval(function() {
-      updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
-    }, 30000);
+    if (canUsePresence) {
+      updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
+      if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
+      HEARTBEAT_TIMER = setInterval(function() {
+        updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
+      }, 30000);
+    }
 
     window.addEventListener('beforeunload', function() {
       if (window._manaCollabPresenceRef) {
