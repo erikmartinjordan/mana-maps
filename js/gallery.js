@@ -133,6 +133,51 @@
     return window.location.origin + '/gallery/?slug=' + encodeURIComponent(slug);
   }
 
+  function buildMapPreview(geo) {
+    if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
+    var points = [];
+    geo.features.forEach(function(feature) {
+      var geom = feature && feature.geometry;
+      if (!geom || !Array.isArray(geom.coordinates)) return;
+      var type = geom.type;
+      if (type === 'Point') {
+        points.push(geom.coordinates);
+      } else if (type === 'LineString' || type === 'MultiPoint') {
+        geom.coordinates.forEach(function(c) { points.push(c); });
+      } else if (type === 'Polygon' || type === 'MultiLineString') {
+        geom.coordinates.forEach(function(ring) {
+          if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
+        });
+      } else if (type === 'MultiPolygon') {
+        geom.coordinates.forEach(function(poly) {
+          if (!Array.isArray(poly)) return;
+          poly.forEach(function(ring) {
+            if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
+          });
+        });
+      }
+    });
+    if (!points.length) return null;
+    var minX = Infinity; var maxX = -Infinity; var minY = Infinity; var maxY = -Infinity;
+    points.forEach(function(c) {
+      var x = Number(c[0]); var y = Number(c[1]);
+      if (!isFinite(x) || !isFinite(y)) return;
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    });
+    if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
+    return {
+      bbox: [minX, minY, maxX, maxY],
+      features: geo.features.slice(0, 40).map(function(feature) {
+        var props = feature && feature.properties ? feature.properties : {};
+        return {
+          geometry: feature ? feature.geometry : null,
+          color: props._manaColor || props.color || '#0ea5e9'
+        };
+      })
+    };
+  }
+
   function setPublishButtonState(isSaving, errorMessage) {
     const publishBtn = document.querySelector('#share-modal .share-action-btn-primary');
     if (!publishBtn) return;
@@ -193,22 +238,18 @@
     const meta = getMapMeta();
     const slug = slugifyMapName(meta.name);
     const userUid = await getCurrentUserUid();
-    if (!userUid) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Could not authenticate with Firebase. Enable Anonymous Auth and try again.'
-        : 'No se pudo autenticar con Firebase. Activa Anonymous Auth y vuelve a intentarlo.');
-      return;
-    }
+    const preview = buildMapPreview(geo);
     const shareUrl = buildGalleryURL(slug);
     const payload = {
       id: slug,
       title: meta.name,
       name: meta.name,
-      createdBy: userUid,
+      createdBy: userUid || 'anonymous',
       lang: meta.lang,
       featureCount: geo.features.length,
       mapData: geo,
       geojson: geo,
+      mapPreview: preview,
       isPublished: true,
       shareUrl: shareUrl,
       createdAtMs: Date.now()

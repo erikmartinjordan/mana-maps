@@ -83,9 +83,10 @@
 
     list.innerHTML = items.map(function(item) {
       const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
+      const thumb = renderMapPreviewSVG(item.mapPreview || buildPreviewFromGeo(item.geojson || item.mapData));
       return '' +
         '<a class="card" href="/map/?gallery=' + encodeURIComponent(item.slug || item.id) + '&map=' + encodeURIComponent(item.slug || item.id) + '&room=' + encodeURIComponent(item.slug || item.id) + '">' +
-          '<div class="thumb"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span></div>' +
+          '<div class="thumb">' + thumb + '</div>' +
           '<h3 class="title">' + (item.title || item.name || 'Mapa sin título') + '</h3>' +
           '<div class="meta">' +
             '<span>' + (item.featureCount || 0) + ' elementos</span>' +
@@ -94,6 +95,82 @@
           '</div>' +
         '</a>';
     }).join('');
+  }
+
+  function buildPreviewFromGeo(geo) {
+    if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
+    var points = [];
+    geo.features.forEach(function(feature) {
+      var geom = feature && feature.geometry;
+      if (!geom || !Array.isArray(geom.coordinates)) return;
+      if (geom.type === 'Point') points.push(geom.coordinates);
+      if (geom.type === 'LineString' || geom.type === 'MultiPoint') geom.coordinates.forEach(function(c) { points.push(c); });
+      if (geom.type === 'Polygon' || geom.type === 'MultiLineString') geom.coordinates.forEach(function(ring) {
+        if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
+      });
+      if (geom.type === 'MultiPolygon') geom.coordinates.forEach(function(poly) {
+        if (!Array.isArray(poly)) return;
+        poly.forEach(function(ring) {
+          if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
+        });
+      });
+    });
+    if (!points.length) return null;
+    var minX = Infinity; var maxX = -Infinity; var minY = Infinity; var maxY = -Infinity;
+    points.forEach(function(c) {
+      var x = Number(c[0]); var y = Number(c[1]);
+      if (!isFinite(x) || !isFinite(y)) return;
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    });
+    if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
+    return {
+      bbox: [minX, minY, maxX, maxY],
+      features: geo.features.slice(0, 40).map(function(feature) {
+        var props = feature && feature.properties ? feature.properties : {};
+        return {
+          geometry: feature ? feature.geometry : null,
+          color: props._manaColor || props.color || '#0ea5e9'
+        };
+      })
+    };
+  }
+
+  function renderMapPreviewSVG(preview) {
+    if (!preview || !Array.isArray(preview.bbox) || !Array.isArray(preview.features)) return '';
+    var bbox = preview.bbox;
+    var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
+    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return '';
+    var spanX = Math.max(maxX - minX, 1e-9);
+    var spanY = Math.max(maxY - minY, 1e-9);
+    var pad = 0.12;
+    function toX(x) { return (((x - minX) / spanX) * (1 - 2 * pad) + pad) * 100; }
+    function toY(y) { return (((maxY - y) / spanY) * (1 - 2 * pad) + pad) * 100; }
+    function ringToPath(ring) {
+      if (!Array.isArray(ring) || !ring.length) return '';
+      return ring.map(function(c, idx) {
+        var x = toX(Number(c[0])).toFixed(2);
+        var y = toY(Number(c[1])).toFixed(2);
+        return (idx ? 'L' : 'M') + x + ' ' + y;
+      }).join(' ') + ' Z';
+    }
+    var body = '';
+    preview.features.forEach(function(entry) {
+      var geom = entry && entry.geometry;
+      if (!geom) return;
+      var color = entry.color || '#0ea5e9';
+      if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
+        body += '<circle cx="' + toX(Number(geom.coordinates[0])).toFixed(2) + '" cy="' + toY(Number(geom.coordinates[1])).toFixed(2) + '" r="2.7" fill="' + color + '" fill-opacity="0.9"/>';
+      } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
+        var pts = geom.coordinates.map(function(c) { return toX(Number(c[0])).toFixed(2) + ',' + toY(Number(c[1])).toFixed(2); }).join(' ');
+        body += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+      } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
+        var path = ringToPath(geom.coordinates[0]);
+        if (path) body += '<path d="' + path + '" fill="' + color + '" fill-opacity="0.2" stroke="' + color + '" stroke-width="1.3"/>';
+      }
+    });
+    if (!body) return '';
+    return '<svg class="thumb-preview" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';
   }
 
   function showFeatured(item) {

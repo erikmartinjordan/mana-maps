@@ -8,18 +8,18 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     :root{--bg:#f4f5f7;--surface:#fff;--line:rgba(17,24,39,.11);--text:#121316;--muted:#6b7280;--accent:#17191c;}
-    *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',sans-serif}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
     body{background:var(--bg);color:var(--text);padding:22px}
     .wrap{max-width:1160px;margin:0 auto}
     .top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
     .brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
     .brand-logo{position:relative;width:36px;height:36px;flex-shrink:0}
     .brand-logo svg{width:100%;height:100%}
-    .brand-logo span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;line-height:1}
+    .brand-logo span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;line-height:1;font-family:Tahoma,Verdana,sans-serif}
     .brand-copy{display:inline-flex;align-items:baseline;gap:4px}
     .brand-word{font-size:22px;font-weight:800;letter-spacing:-.02em}
     .brand-sub{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.01em}
@@ -38,8 +38,7 @@
     .card:hover{transform:translateY(-1px);border-color:rgba(17,24,39,.32)}
     .thumb{height:140px;border-radius:10px;background:linear-gradient(130deg,#f8fafc,#fff 40%,#eef2ff);border:1px solid var(--line);position:relative;overflow:hidden}
     .thumb::before,.thumb::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(17,24,39,.06) 1px, transparent 1px),linear-gradient(90deg, rgba(17,24,39,.06) 1px, transparent 1px);background-size:30px 30px}
-    .dot{position:absolute;width:10px;height:10px;border-radius:50%;background:#0ea5e9;box-shadow:0 0 0 8px rgba(14,165,233,.16)}
-    .dot.d1{top:24%;left:30%}.dot.d2{top:44%;left:68%}.dot.d3{top:70%;left:42%}
+    .thumb-preview{position:absolute;inset:10px;z-index:1;width:calc(100% - 20px);height:calc(100% - 20px)}
     .title{font-size:15px;font-weight:700;margin-top:10px;letter-spacing:-.01em}
     .meta{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap}
     .empty{break-inside:avoid;border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:14px;text-align:center;background:rgba(255,255,255,.6)}
