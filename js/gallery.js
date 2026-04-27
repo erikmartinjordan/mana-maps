@@ -74,6 +74,15 @@
     }
   }
 
+  function toGeoJSONString(geo) {
+    try {
+      return JSON.stringify(geo);
+    } catch (e) {
+      console.warn('toGeoJSONString failed:', e);
+      return '';
+    }
+  }
+
   function getMapMeta() {
     const input = document.getElementById('project-name-input');
     const value = (input && input.value ? input.value : '').trim();
@@ -224,6 +233,13 @@
     const userUid = await getCurrentUserUid();
     const preview = buildMapPreview(geo);
     const shareUrl = buildGalleryURL(slug);
+    const geoString = toGeoJSONString(geo);
+    if (!geoString) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Invalid map data for Firestore publish.'
+        : 'Datos de mapa no válidos para publicar en Firestore.');
+      return;
+    }
     const payload = {
       id: slug,
       title: meta.name,
@@ -231,8 +247,8 @@
       createdBy: userUid || 'anonymous',
       lang: meta.lang,
       featureCount: geo.features.length,
-      mapData: geo,
-      geojson: geo,
+      mapDataText: geoString,
+      geojsonText: geoString,
       mapPreview: preview,
       isPublished: true,
       shareUrl: shareUrl,
