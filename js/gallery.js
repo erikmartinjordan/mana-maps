@@ -83,6 +83,17 @@
     }
   }
 
+  function payloadByteSize(value) {
+    try {
+      var text = JSON.stringify(value);
+      if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(text).length;
+      return unescape(encodeURIComponent(text)).length;
+    } catch (e) {
+      console.warn('payloadByteSize failed:', e);
+      return Infinity;
+    }
+  }
+
   function getMapMeta() {
     const input = document.getElementById('project-name-input');
     const value = (input && input.value ? input.value : '').trim();
@@ -275,6 +286,7 @@
         : 'Datos de mapa no válidos para publicar en Firestore.');
       return;
     }
+    const FIRESTORE_REQ_SOFT_LIMIT = 9.5 * 1024 * 1024;
     const payload = {
       id: slug,
       title: meta.name,
@@ -282,13 +294,25 @@
       createdBy: userUid || 'anonymous',
       lang: meta.lang,
       featureCount: geo.features.length,
-      mapDataText: geoString,
+      // Store the full map only once; duplicating in mapDataText + geojsonText can exceed Firestore request size.
       geojsonText: geoString,
       mapPreview: preview,
       isPublished: true,
       shareUrl: shareUrl,
       createdAtMs: Date.now()
     };
+
+    var payloadSize = payloadByteSize(payload);
+    if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT && payload.mapPreview) {
+      delete payload.mapPreview;
+      payloadSize = payloadByteSize(payload);
+    }
+    if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Map too large to publish in gallery. Export GeoJSON or simplify geometry.'
+        : 'Mapa demasiado grande para publicar en galería. Exporta GeoJSON o simplifica la geometría.');
+      return;
+    }
 
     const db = getGalleryDb();
     if (!db) {
