@@ -362,6 +362,21 @@ async function copyMapURL() {
 
 async function restoreFromURL() {
   try {
+    function readPublishedGeo(payload) {
+      if (!payload) return null;
+      if (payload.mapData && payload.mapData.features) return payload.mapData;
+      if (payload.geojson && payload.geojson.features) return payload.geojson;
+      const raw = payload.mapDataText || payload.geojsonText;
+      if (typeof raw !== 'string' || !raw) return null;
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed && parsed.features ? parsed : null;
+      } catch (e) {
+        console.warn('restoreFromURL parse published geo failed:', e);
+        return null;
+      }
+    }
+
     const search = new URLSearchParams(window.location.search || '');
     const gallerySlug = search.get('gallery') || search.get('slug');
     if (gallerySlug) {
@@ -370,7 +385,7 @@ async function restoreFromURL() {
         // Firestore read: load published map document from /maps for shared gallery links.
         const galleryDoc = await db.collection(MAPS_COLLECTION).doc(gallerySlug).get();
         const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
-        const galleryGeo = galleryPayload && (galleryPayload.mapData || galleryPayload.geojson);
+        const galleryGeo = readPublishedGeo(galleryPayload);
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
           _importRestoredGeoJSON(galleryGeo);
           return true;

@@ -74,7 +74,8 @@
 
     list.innerHTML = items.map(function(item) {
       const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
-      const thumb = renderMapPreviewSVG(item.mapPreview || buildPreviewFromGeo(item.geojson || item.mapData));
+      const geo = getPublishedGeo(item);
+      const thumb = renderMapPreviewSVG(item.mapPreview || buildPreviewFromGeo(geo));
       return '' +
         '<a class="card" href="/map/?gallery=' + encodeURIComponent(item.slug || item.id) + '&map=' + encodeURIComponent(item.slug || item.id) + '&room=' + encodeURIComponent(item.slug || item.id) + '">' +
           '<div class="thumb">' + thumb + '</div>' +
@@ -86,6 +87,21 @@
           '</div>' +
         '</a>';
     }).join('');
+  }
+
+  function getPublishedGeo(item) {
+    if (!item) return null;
+    if (item.geojson && item.geojson.features) return item.geojson;
+    if (item.mapData && item.mapData.features) return item.mapData;
+    var geoText = item.geojsonText || item.mapDataText;
+    if (typeof geoText !== 'string' || !geoText) return null;
+    try {
+      var parsed = JSON.parse(geoText);
+      return parsed && parsed.features ? parsed : null;
+    } catch (e) {
+      console.warn('gallery parse geojsonText failed:', e);
+      return null;
+    }
   }
 
   function buildPreviewFromGeo(geo) {
@@ -165,7 +181,8 @@
   }
 
   function showFeatured(item) {
-    if (!item || !item.geojson || !window.L) return;
+    const geo = getPublishedGeo(item);
+    if (!item || !geo || !window.L) return;
 
     const wrap = document.getElementById('featured-wrap');
     const meta = document.getElementById('featured-meta');
@@ -178,7 +195,7 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    const layer = L.geoJSON(item.geojson).addTo(map);
+    const layer = L.geoJSON(geo).addTo(map);
     const bounds = layer.getBounds();
     if (bounds && bounds.isValid()) map.fitBounds(bounds.pad(0.2));
 
