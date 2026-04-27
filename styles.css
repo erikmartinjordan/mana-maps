@@ -245,7 +245,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 
 /* ── Leaflet attribution (integrated + minimal) ── */
 #map-wrap .leaflet-control-attribution{
-  margin:0 8px calc(44px + env(safe-area-inset-bottom)) 0;
+  margin:0 8px calc(60px + env(safe-area-inset-bottom)) 0;
   padding:4px 8px;
   border:0.5px solid var(--border);
   border-radius:999px;
@@ -347,6 +347,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 }
 .share-action-btn:hover{border-color:var(--primary);transform:translateY(-1px);background:var(--surface-3);}
 .share-action-btn-primary{background:#17191c;color:#fff;border-color:#17191c;}
+.share-action-btn-primary:hover{background:#0f1115;border-color:#0f1115;color:#fff;}
 .share-action-btn-primary .share-action-desc{color:rgba(255,255,255,.74);}
 .share-action-title{display:block;font-size:14px;font-weight:700;}
 .share-action-desc{display:block;font-size:12px;color:var(--third);margin-top:2px;line-height:1.45;}
@@ -485,9 +486,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .stat-pill{padding:4px 8px;font-size:11px;}
   #coords-overlay{display:none;}
   #map-wrap .leaflet-control-attribution{
-    margin:0 8px calc(58px + env(safe-area-inset-bottom)) 0;
+    margin:0 8px calc(72px + env(safe-area-inset-bottom)) 0;
   }
-  .leaflet-badge-wrap{margin-bottom:52px;}
+  .leaflet-badge-wrap{margin-bottom:64px;}
   .leaflet-badge-link{font-size:10px;padding:6px 10px;}
 
   /* ── Context menu ── */
