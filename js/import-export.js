@@ -330,14 +330,57 @@ function _geomToKml(g) {
 }
 
 function geoToKML(geo) {
-  function markerTypeToKmlIconHref(type) {
-    switch (type) {
-      case "circle": return "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png";
-      case "square": return "http://maps.google.com/mapfiles/kml/shapes/placemark_square.png";
-      case "star": return "http://maps.google.com/mapfiles/kml/shapes/star.png";
-      case "pin":
-      default: return "http://maps.google.com/mapfiles/kml/paddle/wht-blank.png";
+  var iconAssets = {};
+
+  function _mkSvgForKmz(type, color) {
+    var safeColor = /^#[0-9a-fA-F]{6}$/.test(color || "") ? color : "#0ea5e9";
+    var def = (typeof _mkFind === "function") ? _mkFind(type) : null;
+    var safeType = def ? type : "pin";
+    var shapeType = safeType;
+    var isShape = !!(def && def.shape);
+
+    if (isShape) {
+      switch (shapeType) {
+        case "pin":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 24 32"><path d="M12 0C7.13 0 3 4.13 3 9c0 7.25 9 23 9 23s9-15.75 9-23c0-4.87-4.13-9-9-9z" fill="' + safeColor + '" stroke="white" stroke-width="1.5"/><circle cx="12" cy="9" r="3.5" fill="white"/></svg>';
+        case "circle":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="' + safeColor + '" stroke="white" stroke-width="2"/></svg>';
+        case "square":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="' + safeColor + '" stroke="white" stroke-width="2"/></svg>';
+        case "diamond":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" transform="rotate(45 12 12)" fill="' + safeColor + '" stroke="white" stroke-width="2"/></svg>';
+        case "triangle":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><polygon points="12,3 22,21 2,21" fill="' + safeColor + '" stroke="white" stroke-width="1.5"/></svg>';
+        case "star":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="' + safeColor + '" stroke="white" stroke-width="1.2"/></svg>';
+        case "hexagon":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="' + safeColor + '" stroke="white" stroke-width="1.5"/></svg>';
+        case "cross":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z" fill="' + safeColor + '" stroke="white" stroke-width="1.2"/></svg>';
+        case "drop":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="28" viewBox="0 0 22 28"><path d="M11 0C11 0 0 12 0 18a11 11 0 0022 0C22 12 11 0 11 0z" fill="' + safeColor + '" stroke="white" stroke-width="1.5"/></svg>';
+        case "flag":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" viewBox="0 0 24 28"><line x1="4" y1="2" x2="4" y2="27" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="4" y1="2" x2="4" y2="27" stroke="' + safeColor + '" stroke-width="1.5" stroke-linecap="round"/><path d="M4 3L20 7L4 14Z" fill="' + safeColor + '" stroke="white" stroke-width="1.2"/></svg>';
+        case "bolt":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="26" viewBox="0 0 24 26"><polygon points="13,1 4,15 11,15 9,25 20,10 13,10" fill="' + safeColor + '" stroke="white" stroke-width="1.3"/></svg>';
+        case "heart":
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14 3 8.5A4.5 4.5 0 017.5 4c1.74 0 3.41 1 4.5 2.09C13.09 5 14.76 4 16.5 4A4.5 4.5 0 0121 8.5C21 14 12 21 12 21z" fill="' + safeColor + '" stroke="white" stroke-width="1.3"/></svg>';
+        default:
+          return _mkSvgForKmz("pin", safeColor);
+      }
     }
+
+    var path = (def && def.p) ? def.p : "";
+    if (!path) return _mkSvgForKmz("pin", safeColor);
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="13" fill="' + safeColor + '" stroke="white" stroke-width="2"/><g transform="translate(4.5,4.5) scale(0.79)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + path + '"/></g></svg>';
+  }
+
+  function markerTypeToKmzIcon(type, color) {
+    var colorKey = (color || "#0ea5e9").replace("#", "").toLowerCase();
+    var typeKey = (type || "pin").replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "pin";
+    var fileName = "icons/" + typeKey + "-" + colorKey + ".svg";
+    if (!iconAssets[fileName]) iconAssets[fileName] = _mkSvgForKmz(type, color);
+    return fileName;
   }
   var parts = [];
   geo.features.forEach(function(f, i) {
@@ -349,7 +392,7 @@ function geoToKML(geo) {
     var sid = "s" + i;
     var isPoint = (g.type === "Point" || g.type === "MultiPoint");
     var markerTypeValue = (f.properties && f.properties.markerType) || "pin";
-    var markerHref = markerTypeToKmlIconHref(markerTypeValue);
+    var markerHref = markerTypeToKmzIcon(markerTypeValue, hex);
     var style = isPoint
       ? '<Style id="' + sid + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>' + markerHref + '</href></Icon></IconStyle></Style>'
       : '<Style id="' + sid + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
@@ -394,14 +437,20 @@ function geoToKML(geo) {
       parts.push(style + "\n<Placemark><name>" + name.replace(/&/g,"&amp;").replace(/</g,"&lt;") + "</name><styleUrl>#" + sid + "</styleUrl>" + descTag + extData + geomTag + "</Placemark>");
     }
   });
-  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00f1a Maps</name>\n' + parts.join("\n") + "\n</Document></kml>";
+  return {
+    kml: '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ma\u00f1a Maps</name>\n' + parts.join("\n") + "\n</Document></kml>",
+    iconAssets: iconAssets
+  };
 }
 
 async function exportKMZ(geo, prefix) {
   prefix = prefix || "mana-maps";
-  var kml = geoToKML(geo);
+  var kmzData = geoToKML(geo);
   var zip = new JSZip();
-  zip.file("doc.kml", kml);
+  zip.file("doc.kml", kmzData.kml);
+  Object.keys(kmzData.iconAssets || {}).forEach(function(path) {
+    zip.file(path, kmzData.iconAssets[path]);
+  });
   var blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
   dl(blob, prefix + ".kmz", "application/vnd.google-earth.kmz", true);
 }
