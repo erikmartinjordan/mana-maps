@@ -406,7 +406,7 @@ function geoToKML(geo) {
     var markerTypeValue = (f.properties && f.properties.markerType) || "pin";
     var markerHref = markerTypeToKmzIcon(markerTypeValue, hex);
     var style = isPoint
-      ? '<Style id="' + sid + '"><IconStyle><color>' + kmlColor + '</color><scale>1.1</scale><Icon><href>' + markerHref + '</href></Icon></IconStyle></Style>'
+      ? '<Style id="' + sid + '"><IconStyle><scale>1.1</scale><Icon><href>' + markerHref + '</href></Icon></IconStyle></Style>'
       : '<Style id="' + sid + '"><LineStyle><color>' + kmlColor + '</color><width>2</width></LineStyle><PolyStyle><color>' + fillColor + '</color></PolyStyle></Style>';
 
     var extData = "";
