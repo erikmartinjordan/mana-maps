@@ -2328,7 +2328,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .cat-row:hover{ background:var(--surface-2,#f3f4f6); }
 .cat-row-fallback .cat-label{ font-style:italic;color:var(--text-3,#9ca3af); }
 .cat-swatch{
-  width:28px;height:28px;border-radius:50%;cursor:pointer;flex-shrink:0;
+  width:20px;height:20px;border-radius:50%;cursor:pointer;flex-shrink:0;
   border:1px solid rgba(0,0,0,.12);position:relative;transition:transform .1s;
 }
 .cat-swatch:hover{ transform:scale(1.2); }
