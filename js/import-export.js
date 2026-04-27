@@ -375,11 +375,23 @@ function geoToKML(geo) {
     return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="13" fill="' + safeColor + '" stroke="white" stroke-width="2"/><g transform="translate(4.5,4.5) scale(0.79)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + path + '"/></g></svg>';
   }
 
+  function _extractSvgSize(svg) {
+    var widthMatch = /width="([0-9.]+)"/i.exec(svg || "");
+    var heightMatch = /height="([0-9.]+)"/i.exec(svg || "");
+    var width = widthMatch ? Math.max(16, Math.round(parseFloat(widthMatch[1]) || 28)) : 28;
+    var height = heightMatch ? Math.max(16, Math.round(parseFloat(heightMatch[1]) || 28)) : 28;
+    return { width: width, height: height };
+  }
+
   function markerTypeToKmzIcon(type, color) {
     var colorKey = (color || "#0ea5e9").replace("#", "").toLowerCase();
     var typeKey = (type || "pin").replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "pin";
-    var fileName = "icons/" + typeKey + "-" + colorKey + ".svg";
-    if (!iconAssets[fileName]) iconAssets[fileName] = _mkSvgForKmz(type, color);
+    var fileName = "icons/" + typeKey + "-" + colorKey + ".png";
+    if (!iconAssets[fileName]) {
+      var svg = _mkSvgForKmz(type, color);
+      var size = _extractSvgSize(svg);
+      iconAssets[fileName] = { svg: svg, width: size.width, height: size.height };
+    }
     return fileName;
   }
   var parts = [];
@@ -443,14 +455,63 @@ function geoToKML(geo) {
   };
 }
 
+async function _svgAssetToPngBytes(asset) {
+  var svg = (asset && asset.svg) ? asset.svg : "";
+  if (!svg) return null;
+  var width = Math.max(16, Number(asset.width) || 28);
+  var height = Math.max(16, Number(asset.height) || 28);
+
+  return new Promise(function(resolve) {
+    try {
+      var img = new Image();
+      var svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      var url = URL.createObjectURL(svgBlob);
+      img.onload = function() {
+        try {
+          var canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          var ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          canvas.toBlob(async function(blob) {
+            if (!blob) { resolve(null); return; }
+            var buffer = await blob.arrayBuffer();
+            resolve(new Uint8Array(buffer));
+          }, "image/png");
+        } catch (_err) {
+          URL.revokeObjectURL(url);
+          resolve(null);
+        }
+      };
+      img.onerror = function() {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+      img.src = url;
+    } catch (_e) {
+      resolve(null);
+    }
+  });
+}
+
 async function exportKMZ(geo, prefix) {
   prefix = prefix || "mana-maps";
   var kmzData = geoToKML(geo);
   var zip = new JSZip();
   zip.file("doc.kml", kmzData.kml);
-  Object.keys(kmzData.iconAssets || {}).forEach(function(path) {
-    zip.file(path, kmzData.iconAssets[path]);
-  });
+  var iconPaths = Object.keys(kmzData.iconAssets || {});
+  for (var i = 0; i < iconPaths.length; i++) {
+    var path = iconPaths[i];
+    var asset = kmzData.iconAssets[path];
+    if (asset && asset.svg) {
+      var pngBytes = await _svgAssetToPngBytes(asset);
+      if (pngBytes) zip.file(path, pngBytes);
+    } else if (typeof asset === "string") {
+      zip.file(path, asset);
+    }
+  }
   var blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
   dl(blob, prefix + ".kmz", "application/vnd.google-earth.kmz", true);
 }

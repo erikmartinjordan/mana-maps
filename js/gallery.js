@@ -129,6 +129,37 @@
   function buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
+    function collectCoordPairs(coords, out) {
+      if (!Array.isArray(coords)) return;
+      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+        out.push([coords[0], coords[1]]);
+        return;
+      }
+      coords.forEach(function(child) {
+        collectCoordPairs(child, out);
+      });
+    }
+
+    function buildGeometrySummary(geom) {
+      if (!geom) return { type: null, centerLng: null, centerLat: null, vertexCount: 0 };
+      var coords = [];
+      collectCoordPairs(geom.coordinates, coords);
+      if (!coords.length) {
+        return { type: geom.type || null, centerLng: null, centerLat: null, vertexCount: 0 };
+      }
+      var sumX = 0; var sumY = 0;
+      coords.forEach(function(c) {
+        sumX += Number(c[0]) || 0;
+        sumY += Number(c[1]) || 0;
+      });
+      return {
+        type: geom.type || null,
+        centerLng: Number((sumX / coords.length).toFixed(6)),
+        centerLat: Number((sumY / coords.length).toFixed(6)),
+        vertexCount: coords.length
+      };
+    }
+
     geo.features.forEach(function(feature) {
       var geom = feature && feature.geometry;
       if (!geom || !Array.isArray(geom.coordinates)) return;
@@ -163,8 +194,12 @@
       bbox: [minX, minY, maxX, maxY],
       features: geo.features.slice(0, 40).map(function(feature) {
         var props = feature && feature.properties ? feature.properties : {};
+        var geomSummary = buildGeometrySummary(feature ? feature.geometry : null);
         return {
-          geometry: feature ? feature.geometry : null,
+          geometryType: geomSummary.type,
+          centerLng: geomSummary.centerLng,
+          centerLat: geomSummary.centerLat,
+          vertexCount: geomSummary.vertexCount,
           color: props._manaColor || props.color || '#0ea5e9'
         };
       })
