@@ -62,6 +62,31 @@
     }
   }
 
+  async function readChunkedPublishedGeo(db, item) {
+    if (!db || !item || !item.geojsonChunked || !item.geojsonChunked.chunkCount) return null;
+    try {
+      const chunkMeta = item.geojsonChunked;
+      const chunkSnap = await db.collection(MAPS_COLLECTION)
+        .doc(item.slug || item.id)
+        .collection(chunkMeta.collection || 'geoChunks')
+        .orderBy('index', 'asc')
+        .limit(chunkMeta.chunkCount)
+        .get();
+      if (!chunkSnap || chunkSnap.empty) return null;
+      var raw = '';
+      chunkSnap.forEach(function(doc) {
+        var data = doc.data() || {};
+        raw += typeof data.text === 'string' ? data.text : '';
+      });
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return parsed && parsed.features ? parsed : null;
+    } catch (e) {
+      console.warn('gallery read chunked geo failed:', e);
+      return null;
+    }
+  }
+
   function renderCards(items) {
     const list = document.getElementById('gallery-list');
     if (!list) return;
@@ -102,6 +127,26 @@
       console.warn('gallery parse geojsonText failed:', e);
       return null;
     }
+  }
+
+  async function getPublishedGeoAsync(item) {
+    var immediate = getPublishedGeo(item);
+    if (immediate) return immediate;
+    if (!item || !item.geojsonChunked || !item.geojsonChunked.chunkCount) return null;
+    if (item._geojsonLoaded && item._geojsonLoaded.features) return item._geojsonLoaded;
+    if (typeof firebase === 'undefined') return null;
+    try {
+      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      var chunked = await readChunkedPublishedGeo(db, item);
+      if (chunked && chunked.features) {
+        item._geojsonLoaded = chunked;
+        return chunked;
+      }
+    } catch (e) {
+      console.warn('gallery getPublishedGeoAsync failed:', e);
+    }
+    return null;
   }
 
   function buildPreviewFromGeo(geo) {
@@ -180,8 +225,8 @@
     return '<svg class="thumb-preview" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';
   }
 
-  function showFeatured(item) {
-    const geo = getPublishedGeo(item);
+  async function showFeatured(item) {
+    const geo = await getPublishedGeoAsync(item);
     if (!item || !geo || !window.L) return;
 
     const wrap = document.getElementById('featured-wrap');
@@ -224,7 +269,7 @@
         renderCards(merged);
       }
     }
-    if (selected) showFeatured(selected);
+    if (selected) await showFeatured(selected);
   }
 
   init();
