@@ -362,19 +362,45 @@ async function copyMapURL() {
 
 async function restoreFromURL() {
   try {
-    function readPublishedGeo(payload) {
+    async function readChunkedPublishedGeo(db, slug, payload) {
+      if (!db || !slug || !payload || !payload.geojsonChunked || !payload.geojsonChunked.chunkCount) return null;
+      try {
+        const chunkMeta = payload.geojsonChunked;
+        const chunkSnap = await db.collection(MAPS_COLLECTION)
+          .doc(slug)
+          .collection(chunkMeta.collection || 'geoChunks')
+          .orderBy('index', 'asc')
+          .limit(chunkMeta.chunkCount)
+          .get();
+        if (!chunkSnap || chunkSnap.empty) return null;
+        let raw = '';
+        chunkSnap.forEach(function(doc) {
+          const data = doc.data() || {};
+          raw += typeof data.text === 'string' ? data.text : '';
+        });
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed && parsed.features ? parsed : null;
+      } catch (e) {
+        console.warn('restoreFromURL read chunked geo failed:', e);
+        return null;
+      }
+    }
+
+    async function readPublishedGeo(db, slug, payload) {
       if (!payload) return null;
       if (payload.mapData && payload.mapData.features) return payload.mapData;
       if (payload.geojson && payload.geojson.features) return payload.geojson;
       const raw = payload.mapDataText || payload.geojsonText;
-      if (typeof raw !== 'string' || !raw) return null;
-      try {
-        const parsed = JSON.parse(raw);
-        return parsed && parsed.features ? parsed : null;
-      } catch (e) {
-        console.warn('restoreFromURL parse published geo failed:', e);
-        return null;
+      if (typeof raw === 'string' && raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          return parsed && parsed.features ? parsed : null;
+        } catch (e) {
+          console.warn('restoreFromURL parse published geo failed:', e);
+        }
       }
+      return readChunkedPublishedGeo(db, slug, payload);
     }
 
     const search = new URLSearchParams(window.location.search || '');
@@ -385,7 +411,7 @@ async function restoreFromURL() {
         // Firestore read: load published map document from /maps for shared gallery links.
         const galleryDoc = await db.collection(MAPS_COLLECTION).doc(gallerySlug).get();
         const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
-        const galleryGeo = readPublishedGeo(galleryPayload);
+        const galleryGeo = await readPublishedGeo(db, gallerySlug, galleryPayload);
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
           _importRestoredGeoJSON(galleryGeo);
           return true;
