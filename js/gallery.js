@@ -95,6 +95,17 @@
     }
   }
 
+  function splitTextIntoChunks(text, chunkSize) {
+    if (typeof text !== 'string' || !text) return [];
+    const chunks = [];
+    let i = 0;
+    while (i < text.length) {
+      chunks.push(text.slice(i, i + chunkSize));
+      i += chunkSize;
+    }
+    return chunks;
+  }
+
   function getMapMeta() {
     const input = document.getElementById('project-name-input');
     const value = (input && input.value ? input.value : '').trim();
@@ -311,13 +322,10 @@
       return;
     }
     const FIRESTORE_REQ_SOFT_LIMIT = 9.5 * 1024 * 1024;
+    const CHUNK_COLLECTION = 'geoChunks';
+    const CHUNK_TEXT_BYTES = 900 * 1024;
     const geoFieldSize = payloadByteSize({ geojsonText: geoString });
-    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Map too large to publish with current Firestore rules. Simplify geometry or export GeoJSON.'
-        : 'Mapa demasiado grande para publicar con las reglas actuales de Firestore. Simplifica la geometría o exporta GeoJSON.');
-      return;
-    }
+    const useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
     const payload = {
       id: slug,
       title: meta.name,
@@ -329,9 +337,24 @@
       mapPreview: preview,
       isPublished: true,
       shareUrl: shareUrl,
-      createdAtMs: Date.now(),
-      geojsonText: geoString
+      createdAtMs: Date.now()
     };
+    if (useChunkedGeo) {
+      const chunks = splitTextIntoChunks(geoString, CHUNK_TEXT_BYTES);
+      if (!chunks.length) {
+        setPublishButtonState(false, LANG === 'en'
+          ? 'Map could not be prepared for Firestore publish.'
+          : 'No se pudo preparar el mapa para publicar en Firestore.');
+        return;
+      }
+      payload.geojsonChunked = {
+        collection: CHUNK_COLLECTION,
+        chunkCount: chunks.length,
+        totalBytes: payloadByteSize({ geojsonText: geoString })
+      };
+    } else {
+      payload.geojsonText = geoString;
+    }
 
     var payloadSize = payloadByteSize(payload);
     if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT && payload.mapPreview) {
@@ -356,11 +379,21 @@
     setPublishButtonState(true);
     try {
       // Firestore write: persist the published map as a public record in /maps.
-      await db.collection(MAPS_COLLECTION).doc(slug).set({
+      const docRef = db.collection(MAPS_COLLECTION).doc(slug);
+      await docRef.set({
         slug: slug,
         ...payload,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      if (useChunkedGeo) {
+        const chunks = splitTextIntoChunks(geoString, CHUNK_TEXT_BYTES);
+        await Promise.all(chunks.map(function(text, index) {
+          return docRef.collection(CHUNK_COLLECTION).doc(String(index).padStart(5, '0')).set({
+            index: index,
+            text: text
+          });
+        }));
+      }
     } catch (e) {
       console.warn('gallery publish failed:', e);
       setPublishButtonState(false, getFirestoreErrorMessage(e));
