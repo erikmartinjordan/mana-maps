@@ -2579,6 +2579,18 @@ select.ai-input{cursor:pointer;appearance:auto;}
   padding:6px 10px;
   margin-right:8px;
   min-height:30px;
+  max-width:160px;
+  overflow:hidden;
+}
+@media (min-width:769px){
+  .presence-avatars{
+    position:fixed;
+    top:56px;
+    right:16px;
+    margin-right:0;
+    z-index:990;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+  }
 }
 .presence-avatars-list{
   display:flex;
