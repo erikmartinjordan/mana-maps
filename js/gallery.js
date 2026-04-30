@@ -2,9 +2,7 @@
 
 (function() {
   const MAPS_COLLECTION = 'maps';
-  const GEO_CHUNKS_COLLECTION = 'geoChunks';
   const FIRESTORE_FIELD_MAX_BYTES = 1048487;
-  const GEO_CHUNK_TARGET_BYTES = 300 * 1024;
   const firebaseConfig = {
     apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
     authDomain: 'mana-maps-pro.firebaseapp.com',
@@ -95,45 +93,6 @@
       console.warn('payloadByteSize failed:', e);
       return Infinity;
     }
-  }
-
-  function splitTextByBytes(text, maxBytes) {
-    var out = [];
-    var start = 0;
-    while (start < text.length) {
-      var end = Math.min(text.length, start + maxBytes);
-      var chunk = text.slice(start, end);
-      while (chunk && payloadByteSize({ text: chunk }) > FIRESTORE_FIELD_MAX_BYTES) {
-        end -= Math.max(1, Math.ceil((end - start) * 0.1));
-        chunk = text.slice(start, end);
-      }
-      if (!chunk) throw new Error('Unable to split GeoJSON payload for Firestore chunk storage.');
-      out.push(chunk);
-      start = end;
-    }
-    return out;
-  }
-
-  async function writeGeoJSONChunks(db, slug, geoString) {
-    var chunks = splitTextByBytes(geoString, GEO_CHUNK_TARGET_BYTES);
-    for (var i = 0; i < chunks.length; i += 400) {
-      var batch = db.batch();
-      var batchItems = chunks.slice(i, i + 400);
-      batchItems.forEach(function(chunk, offset) {
-        var index = i + offset;
-        var ref = db.collection(MAPS_COLLECTION)
-          .doc(slug)
-          .collection(GEO_CHUNKS_COLLECTION)
-          .doc(String(index).padStart(6, '0'));
-        batch.set(ref, {
-          index: index,
-          text: chunk,
-          createdAtMs: Date.now()
-        });
-      });
-      await batch.commit();
-    }
-    return chunks.length;
   }
 
   function getMapMeta() {
@@ -352,7 +311,13 @@
       return;
     }
     const FIRESTORE_REQ_SOFT_LIMIT = 9.5 * 1024 * 1024;
-    const shouldChunkGeo = payloadByteSize({ geojsonText: geoString }) > FIRESTORE_FIELD_MAX_BYTES;
+    const geoFieldSize = payloadByteSize({ geojsonText: geoString });
+    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'Map too large to publish with current Firestore rules. Simplify geometry or export GeoJSON.'
+        : 'Mapa demasiado grande para publicar con las reglas actuales de Firestore. Simplifica la geometría o exporta GeoJSON.');
+      return;
+    }
     const payload = {
       id: slug,
       title: meta.name,
@@ -364,17 +329,9 @@
       mapPreview: preview,
       isPublished: true,
       shareUrl: shareUrl,
-      createdAtMs: Date.now()
+      createdAtMs: Date.now(),
+      geojsonText: geoString
     };
-    if (!shouldChunkGeo) {
-      payload.geojsonText = geoString;
-    } else {
-      payload.geojsonChunked = {
-        collection: GEO_CHUNKS_COLLECTION,
-        field: 'text',
-        encoding: 'plain'
-      };
-    }
 
     var payloadSize = payloadByteSize(payload);
     if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT && payload.mapPreview) {
@@ -398,10 +355,6 @@
 
     setPublishButtonState(true);
     try {
-      if (shouldChunkGeo) {
-        var chunkCount = await writeGeoJSONChunks(db, slug, geoString);
-        payload.geojsonChunked.chunkCount = chunkCount;
-      }
       // Firestore write: persist the published map as a public record in /maps.
       await db.collection(MAPS_COLLECTION).doc(slug).set({
         slug: slug,
