@@ -162,6 +162,23 @@
     return null;
   }
 
+  function getFirestoreErrorMessage(err) {
+    var code = err && (err.code || err.errorCode || '');
+    if (code === 'permission-denied' || code === 'auth/operation-not-allowed') {
+      return LANG === 'en'
+        ? 'Publish blocked by Firebase permissions. Enable Authentication (anonymous or signed-in user) and allow writes to /maps.'
+        : 'Publicación bloqueada por permisos de Firebase. Activa Authentication (anónimo o usuario autenticado) y permite escritura en /maps.';
+    }
+    if (code === 'unauthenticated' || code === 'auth/network-request-failed') {
+      return LANG === 'en'
+        ? 'Authentication failed while publishing. Check Firebase Auth and try again.'
+        : 'Falló la autenticación al publicar. Revisa Firebase Auth y vuelve a intentarlo.';
+    }
+    return LANG === 'en'
+      ? 'Publish failed in Firestore. Please try again.'
+      : 'Error al publicar en Firestore. Vuelve a intentarlo.';
+  }
+
   function slugifyMapName(name) {
     const base = (name || 'mapa')
       .toString()
@@ -319,6 +336,12 @@
     const meta = getMapMeta();
     const slug = slugifyMapName(meta.name);
     const userUid = await getCurrentUserUid();
+    if (!userUid) {
+      setPublishButtonState(false, LANG === 'en'
+        ? 'You must be authenticated to publish. Enable Firebase anonymous auth or sign in.'
+        : 'Debes autenticarte para publicar. Activa auth anónima de Firebase o inicia sesión.');
+      return;
+    }
     const preview = buildMapPreview(geo);
     const shareUrl = buildGalleryURL(slug);
     const geoString = toGeoJSONString(geo);
@@ -387,9 +410,7 @@
       });
     } catch (e) {
       console.warn('gallery publish failed:', e);
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Publish failed in Firestore. Please try again.'
-        : 'Error al publicar en Firestore. Vuelve a intentarlo.');
+      setPublishButtonState(false, getFirestoreErrorMessage(e));
       return;
     } finally {
       setPublishButtonState(false);
