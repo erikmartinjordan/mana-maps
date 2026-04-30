@@ -113,6 +113,18 @@ The right-side panel accepts natural language in Spanish (or any language with a
 
 The welcome message shows clickable suggestion buttons. Chat input supports `↑` / `↓` history navigation (last 50 messages).
 
+
+#### QGIS toolbox parity from AI chat
+
+The AI chat can trigger a **subset** of QGIS-like toolbox actions that exist in Maña Maps:
+
+- Draw tools: point, line, polygon (`set_draw_tool`)
+- Measure tool / ruler (`measure_distance`)
+- Base map/style actions: satellite/map/globe, drawing color, marker type
+- Navigation/actions: zoom in/out, clear map, export
+
+Not all classic QGIS Processing Toolbox algorithms are available (e.g., buffering, dissolve, clipping, raster analysis). This project is a lightweight web editor, not a full desktop GIS processing engine.
+
 ### 💾 Persistence
 
 | Feature | Detail |
