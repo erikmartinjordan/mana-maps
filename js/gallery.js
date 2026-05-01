@@ -342,13 +342,15 @@
       shareUrl: shareUrl,
       createdAtMs: Date.now()
     };
-    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Map too large for Firestore publish field limit. Export GeoJSON or simplify geometry.'
-        : 'Mapa demasiado grande para el límite de Firestore. Exporta GeoJSON o simplifica la geometría.');
-      return;
+    var useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
+    if (!useChunkedGeo) {
+      payload.geojsonText = geoString;
+    } else {
+      payload.geojsonChunked = {
+        collection: 'geoChunks',
+        chunkCount: 0
+      };
     }
-    payload.geojsonText = geoString;
 
     var payloadSize = payloadByteSize(payload);
     if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT && payload.mapPreview) {
@@ -383,6 +385,26 @@
         if (typeof writePayload[key] === 'undefined') delete writePayload[key];
       });
       await docRef.set(writePayload);
+
+      if (useChunkedGeo) {
+        var chunks = splitTextIntoChunks(geoString, 900000);
+        if (!chunks.length) throw new Error('Unable to chunk geojsonText');
+        writePayload.geojsonChunked.chunkCount = chunks.length;
+        await docRef.set({ geojsonChunked: writePayload.geojsonChunked }, { merge: true });
+        var existingChunks = await docRef.collection(writePayload.geojsonChunked.collection).get();
+        var staleDeletes = [];
+        existingChunks.forEach(function(chunkDoc) {
+          staleDeletes.push(chunkDoc.ref.delete());
+        });
+        if (staleDeletes.length) await Promise.all(staleDeletes);
+        var writeOps = chunks.map(function(chunkText, index) {
+          return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({
+            index: index,
+            text: chunkText
+          });
+        });
+        await Promise.all(writeOps);
+      }
     } catch (e) {
       console.warn('gallery publish failed:', e);
       setPublishButtonState(false, getFirestoreErrorMessage(e));
