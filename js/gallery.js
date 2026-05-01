@@ -134,6 +134,7 @@
 
   function getFirestoreErrorMessage(err) {
     var code = err && (err.code || err.errorCode || '');
+    var message = err && err.message ? String(err.message) : '';
     if (code === 'permission-denied' || code === 'auth/operation-not-allowed') {
       return LANG === 'en'
         ? 'Publish blocked by Firebase permissions. Enable Authentication (anonymous or signed-in user) and allow writes to /maps.'
@@ -143,6 +144,11 @@
       return LANG === 'en'
         ? 'Authentication failed while publishing. Check Firebase Auth and try again.'
         : 'Falló la autenticación al publicar. Revisa Firebase Auth y vuelve a intentarlo.';
+    }
+    if (code === 'invalid-argument' || /invalid|unsupported field value|undefined/i.test(message)) {
+      return LANG === 'en'
+        ? 'Firestore rejected map data (invalid field value). Remove unsupported values and try again.'
+        : 'Firestore rechazó los datos del mapa (valor de campo inválido). Elimina valores no compatibles y vuelve a intentarlo.';
     }
     return LANG === 'en'
       ? 'Publish failed in Firestore. Please try again.'
@@ -331,10 +337,10 @@
       title: meta.name,
       name: meta.name,
       createdBy: userUid || 'anonymous',
-      lang: meta.lang,
+      lang: meta.lang || 'es',
       featureCount: geo.features.length,
       // Store the full map only once; duplicating in mapDataText + geojsonText can exceed Firestore request size.
-      mapPreview: preview,
+      mapPreview: preview || null,
       isPublished: true,
       shareUrl: shareUrl,
       createdAtMs: Date.now()
@@ -380,11 +386,15 @@
     try {
       // Firestore write: persist the published map as a public record in /maps.
       const docRef = db.collection(MAPS_COLLECTION).doc(slug);
-      await docRef.set({
+      const writePayload = {
         slug: slug,
         ...payload,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      Object.keys(writePayload).forEach(function(key) {
+        if (typeof writePayload[key] === 'undefined') delete writePayload[key];
       });
+      await docRef.set(writePayload);
       if (useChunkedGeo) {
         const chunks = splitTextIntoChunks(geoString, CHUNK_TEXT_BYTES);
         await Promise.all(chunks.map(function(text, index) {
