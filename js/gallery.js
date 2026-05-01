@@ -84,6 +84,44 @@
     }
   }
 
+  
+
+  function compactGeoForPublish(geo) {
+    function roundNum(n) {
+      return typeof n === 'number' && isFinite(n) ? Number(n.toFixed(6)) : n;
+    }
+    function roundCoords(coords) {
+      if (!Array.isArray(coords)) return coords;
+      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+        return [roundNum(coords[0]), roundNum(coords[1])];
+      }
+      return coords.map(roundCoords);
+    }
+    try {
+      return {
+        type: 'FeatureCollection',
+        features: (geo.features || []).map(function(feature) {
+          var props = feature && feature.properties ? feature.properties : {};
+          var compactProps = {};
+          Object.keys(props).forEach(function(k) {
+            if (/^_mana/.test(k)) compactProps[k] = props[k];
+          });
+          return {
+            type: 'Feature',
+            geometry: feature && feature.geometry ? {
+              type: feature.geometry.type,
+              coordinates: roundCoords(feature.geometry.coordinates)
+            } : null,
+            properties: compactProps
+          };
+        })
+      };
+    } catch (e) {
+      console.warn('compactGeoForPublish failed:', e);
+      return geo;
+    }
+  }
+
   function payloadByteSize(value) {
     try {
       var text = JSON.stringify(value);
@@ -320,7 +358,8 @@
     }
     const preview = buildMapPreview(geo);
     const shareUrl = buildGalleryURL(slug);
-    const geoString = toGeoJSONString(geo);
+    var geoToPublish = geo;
+    var geoString = toGeoJSONString(geoToPublish);
     if (!geoString) {
       setPublishButtonState(false, LANG === 'en'
         ? 'Invalid map data for Firestore publish.'
@@ -328,7 +367,12 @@
       return;
     }
     const FIRESTORE_REQ_SOFT_LIMIT = 9.5 * 1024 * 1024;
-    const geoFieldSize = payloadByteSize({ geojsonText: geoString });
+    var geoFieldSize = payloadByteSize({ geojsonText: geoString });
+    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
+      geoToPublish = compactGeoForPublish(geo);
+      geoString = toGeoJSONString(geoToPublish);
+      geoFieldSize = payloadByteSize({ geojsonText: geoString });
+    }
     const payload = {
       id: slug,
       title: meta.name,
@@ -342,13 +386,15 @@
       shareUrl: shareUrl,
       createdAtMs: Date.now()
     };
-    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Map too large for Firestore publish field limit. Export GeoJSON or simplify geometry.'
-        : 'Mapa demasiado grande para el límite de Firestore. Exporta GeoJSON o simplifica la geometría.');
-      return;
+    var useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
+    if (!useChunkedGeo) {
+      payload.geojsonText = geoString;
+    } else {
+      payload.geojsonChunked = {
+        collection: 'geoChunks',
+        chunkCount: 0
+      };
     }
-    payload.geojsonText = geoString;
 
     var payloadSize = payloadByteSize(payload);
     if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT && payload.mapPreview) {
@@ -383,6 +429,30 @@
         if (typeof writePayload[key] === 'undefined') delete writePayload[key];
       });
       await docRef.set(writePayload);
+
+      if (useChunkedGeo) {
+        var chunks = splitTextIntoChunks(geoString, 900000);
+        if (!chunks.length) {
+          throw new Error('Unable to split oversized GeoJSON for chunked publish');
+        }
+        writePayload.geojsonChunked.chunkCount = chunks.length;
+        await docRef.set({ geojsonChunked: writePayload.geojsonChunked }, { merge: true });
+
+        var oldChunksSnap = await docRef.collection(writePayload.geojsonChunked.collection).get();
+        var deleteOps = [];
+        oldChunksSnap.forEach(function(chunkDoc) {
+          deleteOps.push(chunkDoc.ref.delete());
+        });
+        if (deleteOps.length) await Promise.all(deleteOps);
+
+        var writeOps = chunks.map(function(chunkText, index) {
+          return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({
+            index: index,
+            text: chunkText
+          });
+        });
+        await Promise.all(writeOps);
+      }
     } catch (e) {
       console.warn('gallery publish failed:', e);
       setPublishButtonState(false, getFirestoreErrorMessage(e));
