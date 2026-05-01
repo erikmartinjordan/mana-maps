@@ -386,11 +386,14 @@
       shareUrl: shareUrl,
       createdAtMs: Date.now()
     };
-    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Map too large for Firestore publish. Export GeoJSON or simplify geometry.'
-        : 'Mapa demasiado grande para publicar en Firestore. Exporta GeoJSON o simplifica la geometría.');
-      return;
+    var useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
+    if (!useChunkedGeo) {
+      payload.geojsonText = geoString;
+    } else {
+      payload.geojsonChunked = {
+        collection: 'geoChunks',
+        chunkCount: 0
+      };
     }
 
     var payloadSize = payloadByteSize(payload);
@@ -429,15 +432,19 @@
 
       if (useChunkedGeo) {
         var chunks = splitTextIntoChunks(geoString, 900000);
-        if (!chunks.length) throw new Error('Unable to chunk geojsonText');
+        if (!chunks.length) {
+          throw new Error('Unable to split oversized GeoJSON for chunked publish');
+        }
         writePayload.geojsonChunked.chunkCount = chunks.length;
         await docRef.set({ geojsonChunked: writePayload.geojsonChunked }, { merge: true });
-        var existingChunks = await docRef.collection(writePayload.geojsonChunked.collection).get();
-        var staleDeletes = [];
-        existingChunks.forEach(function(chunkDoc) {
-          staleDeletes.push(chunkDoc.ref.delete());
+
+        var oldChunksSnap = await docRef.collection(writePayload.geojsonChunked.collection).get();
+        var deleteOps = [];
+        oldChunksSnap.forEach(function(chunkDoc) {
+          deleteOps.push(chunkDoc.ref.delete());
         });
-        if (staleDeletes.length) await Promise.all(staleDeletes);
+        if (deleteOps.length) await Promise.all(deleteOps);
+
         var writeOps = chunks.map(function(chunkText, index) {
           return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({
             index: index,
