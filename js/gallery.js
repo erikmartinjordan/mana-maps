@@ -102,10 +102,7 @@
         type: 'FeatureCollection',
         features: (geo.features || []).map(function(feature) {
           var props = feature && feature.properties ? feature.properties : {};
-          var compactProps = {};
-          Object.keys(props).forEach(function(k) {
-            if (/^_mana/.test(k)) compactProps[k] = props[k];
-          });
+          var compactProps = sanitizeFirestorePayload(props) || {};
           return {
             type: 'Feature',
             geometry: feature && feature.geometry ? {
@@ -462,12 +459,16 @@
     }
 
     const shareURL = buildGalleryURL(slug);
-    await copyToClipboard(
-      shareURL,
-      LANG === 'en'
-        ? 'Gallery URL copied ✓'
-        : 'URL de galería copiada ✓'
-    );
+    try {
+      await copyToClipboard(
+        shareURL,
+        LANG === 'en'
+          ? 'Gallery URL copied ✓'
+          : 'URL de galería copiada ✓'
+      );
+    } catch (copyErr) {
+      console.warn('copy share URL failed:', copyErr);
+    }
     if (typeof showToast === 'function') {
       showToast(LANG === 'en' ? 'Map published ✓' : 'Mapa publicado ✓');
     }
