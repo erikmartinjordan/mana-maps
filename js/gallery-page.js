@@ -33,12 +33,37 @@
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
       // Firestore read: initial published maps list for gallery bootstrap.
-      const snap = await db.collection(MAPS_COLLECTION)
-        .where('isPublished', '==', true)
-        .orderBy('createdAt', 'desc')
-        .limit(36)
-        .get();
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Prefer server timestamp ordering, but gracefully fallback if index/order fields are missing.
+      let snap = null;
+      try {
+        snap = await db.collection(MAPS_COLLECTION)
+          .where('isPublished', '==', true)
+          .orderBy('createdAt', 'desc')
+          .limit(36)
+          .get();
+      } catch (createdAtErr) {
+        console.warn('gallery remoteMaps createdAt query failed, retrying with createdAtMs:', createdAtErr);
+        try {
+          snap = await db.collection(MAPS_COLLECTION)
+            .where('isPublished', '==', true)
+            .orderBy('createdAtMs', 'desc')
+            .limit(36)
+            .get();
+        } catch (createdAtMsErr) {
+          console.warn('gallery remoteMaps createdAtMs query failed, retrying without orderBy:', createdAtMsErr);
+          snap = await db.collection(MAPS_COLLECTION)
+            .where('isPublished', '==', true)
+            .limit(100)
+            .get();
+        }
+      }
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      items.sort(function(a, b) {
+        const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
+        const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
+        return bTs - aTs;
+      });
+      return items.slice(0, 36);
     } catch (e) {
       console.warn('gallery remoteMaps fallback local:', e);
       return [];
