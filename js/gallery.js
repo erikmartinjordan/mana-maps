@@ -462,12 +462,16 @@
     }
 
     const shareURL = buildGalleryURL(slug);
-    await copyToClipboard(
-      shareURL,
-      LANG === 'en'
-        ? 'Gallery URL copied ✓'
-        : 'URL de galería copiada ✓'
-    );
+    try {
+      await copyToClipboard(
+        shareURL,
+        LANG === 'en'
+          ? 'Gallery URL copied ✓'
+          : 'URL de galería copiada ✓'
+      );
+    } catch (copyErr) {
+      console.warn('copy share URL failed:', copyErr);
+    }
     if (typeof showToast === 'function') {
       showToast(LANG === 'en' ? 'Map published ✓' : 'Mapa publicado ✓');
     }
