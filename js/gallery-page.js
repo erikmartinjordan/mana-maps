@@ -22,6 +22,12 @@
     }
   }
 
+  function isFirestoreIndexError(err) {
+    if (!err) return false;
+    var msg = String(err && err.message ? err.message : err).toLowerCase();
+    return msg.indexOf('requires an index') >= 0;
+  }
+
   function getQueryMapId() {
     const params = new URLSearchParams(window.location.search);
     return params.get('slug') || params.get('map');
@@ -42,7 +48,7 @@
           .limit(36)
           .get();
       } catch (createdAtErr) {
-        console.warn('gallery remoteMaps createdAt query failed, retrying with createdAtMs:', createdAtErr);
+        if (!isFirestoreIndexError(createdAtErr)) console.warn('gallery remoteMaps createdAt query failed, retrying with createdAtMs:', createdAtErr);
         try {
           snap = await db.collection(MAPS_COLLECTION)
             .where('isPublished', '==', true)
@@ -50,7 +56,7 @@
             .limit(36)
             .get();
         } catch (createdAtMsErr) {
-          console.warn('gallery remoteMaps createdAtMs query failed, retrying without orderBy:', createdAtMsErr);
+          if (!isFirestoreIndexError(createdAtMsErr)) console.warn('gallery remoteMaps createdAtMs query failed, retrying without orderBy:', createdAtMsErr);
           snap = await db.collection(MAPS_COLLECTION)
             .where('isPublished', '==', true)
             .limit(100)
@@ -305,22 +311,31 @@
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
       // Firestore read: real-time gallery listener for published maps only.
-      db.collection(MAPS_COLLECTION)
-        .where('isPublished', '==', true)
+      var baseQuery = db.collection(MAPS_COLLECTION)
+        .where('isPublished', '==', true);
+
+      function applySnapshot(snap) {
+        const remote = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+        remote.sort(function(a, b) {
+          const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
+          const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
+          return bTs - aTs;
+        });
+        mergedList.length = 0;
+        mergedList.push.apply(mergedList, remote.slice(0, 36));
+        renderCards(mergedList);
+      }
+
+      baseQuery
         .orderBy('createdAt', 'desc')
         .limit(36)
-        .onSnapshot(function(snap) {
-          const remote = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
-          remote.sort(function(a, b) {
-            const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
-            const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
-            return bTs - aTs;
+        .onSnapshot(applySnapshot, function(e) {
+          if (!isFirestoreIndexError(e)) {
+            console.warn('gallery realtime subscribe failed:', e);
+          }
+          baseQuery.limit(100).onSnapshot(applySnapshot, function(fallbackErr) {
+            console.warn('gallery realtime fallback subscribe failed:', fallbackErr);
           });
-          mergedList.length = 0;
-          mergedList.push.apply(mergedList, remote);
-          renderCards(mergedList);
-        }, function(e) {
-          console.warn('gallery realtime subscribe failed:', e);
         });
     } catch (e) {
       console.warn('gallery realtime unavailable:', e);
