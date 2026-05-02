@@ -102,10 +102,7 @@
         type: 'FeatureCollection',
         features: (geo.features || []).map(function(feature) {
           var props = feature && feature.properties ? feature.properties : {};
-          var compactProps = {};
-          Object.keys(props).forEach(function(k) {
-            if (/^_mana/.test(k)) compactProps[k] = props[k];
-          });
+          var compactProps = sanitizeFirestorePayload(props) || {};
           return {
             type: 'Feature',
             geometry: feature && feature.geometry ? {
