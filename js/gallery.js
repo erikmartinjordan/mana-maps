@@ -150,22 +150,48 @@
     };
   }
 
-  async function getCurrentUserUid() {
-    try {
-      // Firestore write metadata: prefer authenticated uid when available.
-      if (firebase && firebase.auth && firebase.auth().currentUser && firebase.auth().currentUser.uid) {
-        return firebase.auth().currentUser.uid;
-      }
-      if (firebase && firebase.auth && typeof firebase.auth === 'function') {
-        await firebase.auth().signInAnonymously();
-        var authUser = await waitForAuthUser(6000);
-        if (authUser && authUser.uid) return authUser.uid;
-      }
-    } catch (e) {
-      console.warn('auth uid unavailable:', e);
-    }
+  function openAuthModal() {
+    var modal = document.getElementById('auth-modal');
+    if (!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  window.closeAuthModal = function() {
+    var modal = document.getElementById('auth-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  };
+
+  async function requireAuthUser() {
+    if (!(firebase && firebase.auth && typeof firebase.auth === 'function')) return null;
+    var auth = firebase.auth();
+    if (auth.currentUser && auth.currentUser.uid) return auth.currentUser;
+    openAuthModal();
     return null;
   }
+
+  window.continueAsGuest = async function() {
+    try {
+      await firebase.auth().signInAnonymously();
+      closeAuthModal();
+    } catch (e) {
+      console.warn('anonymous sign-in failed:', e);
+      manaAlert(LANG === 'en' ? 'Guest sign-in failed.' : 'No se pudo iniciar como invitado.', 'error');
+    }
+  };
+
+  window.signInWithGoogle = async function() {
+    try {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      await firebase.auth().signInWithPopup(provider);
+      closeAuthModal();
+    } catch (e) {
+      console.warn('google sign-in failed:', e);
+      manaAlert(LANG === 'en' ? 'Google sign-in failed.' : 'No se pudo iniciar con Google.', 'error');
+    }
+  };
 
   function getFirestoreErrorMessage(err) {
     var code = err && (err.code || err.errorCode || '');
@@ -287,6 +313,92 @@
     };
   }
 
+  
+  function getLastPrivateMapId() {
+    try {
+      return localStorage.getItem('mana-private-map-id') || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function setLastPrivateMapId(mapId) {
+    if (!mapId) return;
+    try {
+      localStorage.setItem('mana-private-map-id', mapId);
+    } catch (e) {
+      console.warn('setLastPrivateMapId failed:', e);
+    }
+  }
+
+  async function persistMapRecord(opts) {
+    const db = getGalleryDb();
+    if (!db) throw new Error('firestore-unavailable');
+
+    const rawGeo = getCurrentGeo();
+    if (!rawGeo) throw new Error('empty-map');
+    const geo = sanitizeFirestorePayload(rawGeo);
+    if (!geo || !geo.features || !geo.features.length) throw new Error('invalid-geo');
+
+    const meta = getMapMeta();
+    const authUser = await requireAuthUser();
+    if (!authUser || !authUser.uid) throw new Error('missing-auth');
+    const userUid = authUser.uid;
+
+    const existingId = opts && opts.mapId ? String(opts.mapId) : '';
+    const slug = existingId || slugifyMapName(meta.name);
+    const preview = buildMapPreview(geo);
+    const shareUrl = buildGalleryURL(slug);
+
+    var geoToPublish = geo;
+    var geoString = toGeoJSONString(geoToPublish);
+    if (!geoString) throw new Error('invalid-geo');
+    var geoFieldSize = payloadByteSize({ geojsonText: geoString });
+    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
+      geoToPublish = compactGeoForPublish(geo);
+      geoString = toGeoJSONString(geoToPublish);
+      geoFieldSize = payloadByteSize({ geojsonText: geoString });
+    }
+
+    const visibility = opts && opts.visibility === 'public' ? 'public' : 'private';
+    const payload = {
+      id: slug, slug: slug,
+      title: meta.name, name: meta.name,
+      createdBy: userUid || 'anonymous',
+      ownerUid: userUid || 'anonymous',
+      lang: meta.lang || 'es',
+      featureCount: geo.features.length,
+      mapPreview: preview || null,
+      visibility: visibility,
+      isPublished: visibility === 'public',
+      shareUrl: shareUrl,
+      updatedAtMs: Date.now()
+    };
+    if (!existingId) payload.createdAtMs = Date.now();
+
+    const useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
+    if (!useChunkedGeo) payload.geojsonText = geoString;
+    else payload.geojsonChunked = { collection: 'geoChunks', chunkCount: 0 };
+
+    const docRef = db.collection(MAPS_COLLECTION).doc(slug);
+    const writePayload = { ...payload, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    if (!existingId) writePayload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await docRef.set(writePayload, { merge: true });
+
+    if (useChunkedGeo) {
+      var chunks = splitTextIntoChunks(geoString, 900000);
+      writePayload.geojsonChunked.chunkCount = chunks.length;
+      await docRef.set({ geojsonChunked: writePayload.geojsonChunked }, { merge: true });
+      var writeOps = chunks.map(function(chunkText, index) {
+        return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({ index: index, text: chunkText });
+      });
+      await Promise.all(writeOps);
+    }
+
+    setLastPrivateMapId(slug);
+    return { slug: slug, shareUrl: shareUrl, visibility: visibility };
+  }
+
   function setPublishButtonState(isSaving, errorMessage) {
     const publishBtn = document.querySelector('#share-modal .share-action-btn-primary');
     if (!publishBtn) return;
@@ -330,151 +442,38 @@
     modal.setAttribute('aria-hidden', 'true');
   };
 
+  window.saveMapToMySpace = async function() {
+    try {
+      const result = await persistMapRecord({ visibility: 'private', mapId: getLastPrivateMapId() });
+      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Saved privately ✓' : 'Guardado en privado ✓');
+      return result;
+    } catch (e) {
+      const msg = e && e.message === 'empty-map'
+        ? (LANG === 'en' ? 'No elements to save.' : t('persist_no_elements'))
+        : getFirestoreErrorMessage(e);
+      manaAlert(msg, 'warning');
+      return null;
+    }
+  };
+
   window.publishMapToGallery = async function() {
-    const rawGeo = getCurrentGeo();
-    if (!rawGeo) {
-      manaAlert(LANG === 'en' ? 'No elements to publish.' : t('persist_no_elements'), 'warning');
-      return;
-    }
-    const geo = sanitizeFirestorePayload(rawGeo);
-    if (!geo || !geo.features || !geo.features.length) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Invalid map data for Firestore publish.'
-        : 'Datos de mapa no válidos para publicar en Firestore.');
-      return;
-    }
-
-    const meta = getMapMeta();
-    const slug = slugifyMapName(meta.name);
-    const userUid = await getCurrentUserUid();
-    if (!userUid) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'You must be authenticated to publish. Enable Firebase anonymous auth or sign in.'
-        : 'Debes autenticarte para publicar. Activa auth anónima de Firebase o inicia sesión.');
-      return;
-    }
-    const preview = buildMapPreview(geo);
-    const shareUrl = buildGalleryURL(slug);
-    var geoToPublish = geo;
-    var geoString = toGeoJSONString(geoToPublish);
-    if (!geoString) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Invalid map data for Firestore publish.'
-        : 'Datos de mapa no válidos para publicar en Firestore.');
-      return;
-    }
-    const FIRESTORE_REQ_SOFT_LIMIT = 9.5 * 1024 * 1024;
-    var geoFieldSize = payloadByteSize({ geojsonText: geoString });
-    if (geoFieldSize > FIRESTORE_FIELD_MAX_BYTES) {
-      geoToPublish = compactGeoForPublish(geo);
-      geoString = toGeoJSONString(geoToPublish);
-      geoFieldSize = payloadByteSize({ geojsonText: geoString });
-    }
-    const payload = {
-      id: slug,
-      title: meta.name,
-      name: meta.name,
-      createdBy: userUid || 'anonymous',
-      lang: meta.lang || 'es',
-      featureCount: geo.features.length,
-      // Store the full map only once; duplicating in mapDataText + geojsonText can exceed Firestore request size.
-      mapPreview: preview || null,
-      isPublished: true,
-      shareUrl: shareUrl,
-      createdAtMs: Date.now()
-    };
-    var useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
-    if (!useChunkedGeo) {
-      payload.geojsonText = geoString;
-    } else {
-      payload.geojsonChunked = {
-        collection: 'geoChunks',
-        chunkCount: 0
-      };
-    }
-
-    var payloadSize = payloadByteSize(payload);
-    if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT && payload.mapPreview) {
-      delete payload.mapPreview;
-      payloadSize = payloadByteSize(payload);
-    }
-    if (payloadSize > FIRESTORE_REQ_SOFT_LIMIT) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Map too large to publish in gallery. Export GeoJSON or simplify geometry.'
-        : 'Mapa demasiado grande para publicar en galería. Exporta GeoJSON o simplifica la geometría.');
-      return;
-    }
-
-    const db = getGalleryDb();
-    if (!db) {
-      setPublishButtonState(false, LANG === 'en'
-        ? 'Firestore unavailable. Map was not published.'
-        : 'Firestore no disponible. El mapa no se ha publicado.');
-      return;
-    }
-
     setPublishButtonState(true);
     try {
-      // Firestore write: persist the published map as a public record in /maps.
-      const docRef = db.collection(MAPS_COLLECTION).doc(slug);
-      const writePayload = {
-        slug: slug,
-        ...payload,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      Object.keys(writePayload).forEach(function(key) {
-        if (typeof writePayload[key] === 'undefined') delete writePayload[key];
-      });
-      await docRef.set(writePayload);
-
-      if (useChunkedGeo) {
-        var chunks = splitTextIntoChunks(geoString, 900000);
-        if (!chunks.length) {
-          throw new Error('Unable to split oversized GeoJSON for chunked publish');
-        }
-        writePayload.geojsonChunked.chunkCount = chunks.length;
-        await docRef.set({ geojsonChunked: writePayload.geojsonChunked }, { merge: true });
-
-        var oldChunksSnap = await docRef.collection(writePayload.geojsonChunked.collection).get();
-        var deleteOps = [];
-        oldChunksSnap.forEach(function(chunkDoc) {
-          deleteOps.push(chunkDoc.ref.delete());
-        });
-        if (deleteOps.length) await Promise.all(deleteOps);
-
-        var writeOps = chunks.map(function(chunkText, index) {
-          return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({
-            index: index,
-            text: chunkText
-          });
-        });
-        await Promise.all(writeOps);
-      }
+      const result = await persistMapRecord({ visibility: 'public', mapId: getLastPrivateMapId() });
+      const shareURL = result.shareUrl;
+      await copyToClipboard(shareURL, LANG === 'en' ? 'Gallery URL copied ✓' : 'URL de galería copiada ✓');
+      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map published ✓' : 'Mapa publicado ✓');
+      closeShareModal();
+      window.location.href = shareURL;
     } catch (e) {
-      console.warn('gallery publish failed:', e);
-      setPublishButtonState(false, getFirestoreErrorMessage(e));
+      const msg = e && e.message === 'empty-map'
+        ? (LANG === 'en' ? 'No elements to publish.' : t('persist_no_elements'))
+        : getFirestoreErrorMessage(e);
+      setPublishButtonState(false, msg);
       return;
     } finally {
       setPublishButtonState(false);
     }
-
-    const shareURL = buildGalleryURL(slug);
-    try {
-      await copyToClipboard(
-        shareURL,
-        LANG === 'en'
-          ? 'Gallery URL copied ✓'
-          : 'URL de galería copiada ✓'
-      );
-    } catch (copyErr) {
-      console.warn('copy share URL failed:', copyErr);
-    }
-    if (typeof showToast === 'function') {
-      showToast(LANG === 'en' ? 'Map published ✓' : 'Mapa publicado ✓');
-    }
-
-    closeShareModal();
-    window.location.href = shareURL;
   };
 
   document.addEventListener('click', function(e) {
