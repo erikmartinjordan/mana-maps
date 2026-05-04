@@ -1,0 +1,218 @@
+/* ── auth-gallery.css ─ Styles for auth, avatar menu, handle modal, gallery actions ── */
+
+/* ═══════════════════════════════════════════════════════════════
+   AVATAR MENU (sidebar bottom)
+   ═══════════════════════════════════════════════════════════════ */
+
+.mana-avatar-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.mana-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  user-select: none;
+  border: 2px solid transparent;
+}
+
+.mana-avatar-circle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.mana-avatar-circle:focus-visible {
+  outline: 2px solid var(--blue, #0ea5e9);
+  outline-offset: 2px;
+}
+
+.mana-avatar-dropdown {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  background: var(--surface, #fff);
+  border: 0.5px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 9000;
+  overflow: hidden;
+  animation: avatarDdIn 0.15s ease;
+}
+
+.mana-avatar-dropdown.open {
+  display: block;
+}
+
+@keyframes avatarDdIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.avatar-dd-header {
+  padding: 12px 14px 8px;
+}
+
+.avatar-dd-header strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.avatar-dd-handle {
+  font-size: 11px;
+  color: var(--third, #9ca3af);
+}
+
+.avatar-dd-sep {
+  height: 1px;
+  background: var(--border, #e5e7eb);
+  margin: 0;
+}
+
+.avatar-dd-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--primary, #1a1a1a);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.1s;
+}
+
+.avatar-dd-item:hover {
+  background: var(--surface-2, #f3f4f6);
+}
+
+.avatar-dd-item svg {
+  width: 14px;
+  height: 14px;
+  color: var(--third, #9ca3af);
+  flex-shrink: 0;
+}
+
+.avatar-dd-logout {
+  color: var(--red, #ef4444);
+}
+
+.avatar-dd-logout svg {
+  color: var(--red, #ef4444);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HANDLE MODAL
+   ═══════════════════════════════════════════════════════════════ */
+
+.handle-hint {
+  display: block;
+  font-size: 11px;
+  margin-top: 4px;
+  min-height: 16px;
+  color: var(--third, #9ca3af);
+}
+
+.handle-hint-ok {
+  color: var(--green, #10b981);
+}
+
+.handle-hint-error {
+  color: var(--red, #ef4444);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GALLERY CARD ACTIONS (like / fork)
+   ═══════════════════════════════════════════════════════════════ */
+
+.card {
+  break-inside: avoid;
+  border: 1px solid var(--line, rgba(17,24,39,.11));
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  padding: 14px;
+  margin: 0 0 12px;
+  display: block;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(17,24,39,0.25);
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line, rgba(17,24,39,.08));
+}
+
+.card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line, rgba(17,24,39,.11));
+  background: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted, #6b7280);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.12s;
+}
+
+.card-action-btn:hover {
+  background: var(--surface-2, #f3f4f6);
+  color: var(--text, #121316);
+  border-color: rgba(17,24,39,0.2);
+}
+
+.card-like-btn.liked {
+  color: #ef4444;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.card-like-btn.liked svg {
+  fill: #ef4444;
+}
+
+.card-fork-btn.forked {
+  color: var(--green, #10b981);
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+.meta-author {
+  font-weight: 600;
+  color: var(--text, #121316);
+}

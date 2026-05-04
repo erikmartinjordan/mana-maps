@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── /users/{handle} ──
+    // Read/write only by the authenticated user whose uid matches the document's uid field.
+    match /users/{handle} {
+      allow read: if request.auth != null
+                  && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.uid == request.auth.uid;
+
+      // ── /users/{handle}/maps/{mapId} ──
+      // Full access only by the owner (uid must match the parent user doc).
+      match /maps/{mapId} {
+        allow read, write: if request.auth != null
+                           && get(/databases/$(database)/documents/users/$(handle)).data.uid == request.auth.uid;
+
+        // GeoJSON chunks subcollection
+        match /geoChunks/{chunkId} {
+          allow read, write: if request.auth != null
+                             && get(/databases/$(database)/documents/users/$(handle)).data.uid == request.auth.uid;
+        }
+      }
+    }
+
+    // ── /maps/{mapId} ── (denormalized public index)
+    // Anyone can read. Only the author (matching authorHandle → uid) can write.
+    match /maps/{mapId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+                            && resource.data.authorHandle != null
+                            && get(/databases/$(database)/documents/users/$(resource.data.authorHandle)).data.uid == request.auth.uid;
+    }
+  }
+}

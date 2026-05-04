@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis mapas — Maña Maps</title>
+  <meta name="description" content="Tu galería personal de mapas en Maña Maps.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f4f5f7;--surface:#fff;--line:rgba(17,24,39,.11);--text:#121316;--muted:#6b7280;--accent:#17191c;--green:#10b981;--red:#ef4444;--blue:#0ea5e9}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+    body{background:var(--bg);color:var(--text);padding:22px}
+    .wrap{max-width:960px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+    .brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+    .brand-logo{position:relative;width:36px;height:36px;flex-shrink:0}
+    .brand-logo svg{width:100%;height:100%}
+    .brand-logo span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;line-height:1;font-family:Tahoma,Verdana,sans-serif}
+    .brand-word{font-size:22px;font-weight:800;letter-spacing:-.02em}
+    .brand-sub{font-size:13px;color:var(--muted);font-weight:600}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--text);font-size:13px;font-weight:700;background:var(--surface);cursor:pointer;transition:transform .1s}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .hero{border:1px solid var(--line);background:rgba(255,255,255,.82);border-radius:22px;padding:20px;backdrop-filter:blur(10px);margin-bottom:16px}
+    .hero h1{font-size:clamp(22px,3.5vw,30px);letter-spacing:-.03em}
+    .hero p{color:var(--muted);margin-top:6px;font-size:14px}
+    #maps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .map-card{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:16px;transition:transform .12s,border-color .12s}
+    .map-card:hover{transform:translateY(-1px);border-color:rgba(17,24,39,.25)}
+    .map-card-title{font-size:15px;font-weight:700;margin-bottom:4px;letter-spacing:-.01em}
+    .map-card-meta{font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .map-card-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .map-card-actions .btn{padding:6px 12px;font-size:12px;font-weight:600}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}
+    .badge-public{background:#d1fae5;color:#065f46}
+    .badge-private{background:#f3f4f6;color:#6b7280}
+    .empty{border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--muted);font-size:15px}
+    .empty a{color:var(--accent);font-weight:600}
+    #login-prompt{display:none;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:32px;text-align:center}
+    #login-prompt h2{font-size:20px;margin-bottom:8px}
+    #login-prompt p{color:var(--muted);margin-bottom:16px;font-size:14px}
+    @media(max-width:600px){body{padding:12px}#maps-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/">
+        <span class="brand-logo">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+              d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+              transform="translate(100 100)"/>
+          </svg>
+          <span>M&#771;</span>
+        </span>
+        <span><span class="brand-word">Ma&#241;a</span> <span class="brand-sub">Maps</span></span>
+      </a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn" href="/gallery/">Galería</a>
+        <a class="btn primary" href="/map/">Nuevo mapa</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1 id="gallery-title">Mis mapas</h1>
+      <p id="gallery-subtitle">Tus mapas guardados. Solo tú puedes verlos.</p>
+    </section>
+
+    <div id="login-prompt">
+      <h2>Inicia sesión</h2>
+      <p>Necesitas iniciar sesión para ver tus mapas guardados.</p>
+      <button class="btn primary" onclick="manaAuth.openAuthModal()">Iniciar sesión</button>
+    </div>
+
+    <section id="maps-grid"></section>
+  </div>
+
+  <!-- Firebase -->
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/user-maps.js"></script>
+
+  <!-- Auth modal (reused from map editor) -->
+  <div id="auth-modal" class="share-modal" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.4);align-items:center;justify-content:center">
+    <div class="auth-modal-box" role="dialog" aria-modal="true" style="background:#fff;border-radius:18px;padding:28px;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.15)">
+      <h3 id="auth-modal-title">Inicia sesi&#243;n</h3>
+      <p class="auth-subtitle" style="color:#6b7280;font-size:13px;margin:6px 0 16px">Guarda y comparte tus mapas.</p>
+      <form class="auth-form" onsubmit="manaAuth.signInWithEmail(event)" autocomplete="on">
+        <div class="auth-field" style="margin-bottom:10px">
+          <label for="auth-email" style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Email</label>
+          <input id="auth-email" type="email" placeholder="tu@email.com" required autocomplete="email" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px"/>
+        </div>
+        <div class="auth-field" style="margin-bottom:12px">
+          <label for="auth-password" style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Contrase&#241;a</label>
+          <input id="auth-password" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required autocomplete="current-password" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px"/>
+        </div>
+        <button type="submit" class="auth-submit-btn" style="width:100%;padding:10px;border:none;border-radius:8px;background:#17191c;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Iniciar sesi&#243;n</button>
+        <p class="auth-signup-hint" style="font-size:12px;color:#6b7280;text-align:center;margin-top:10px"><span>&#191;No tienes cuenta?</span> <a href="#" onclick="manaAuth._toggleAuthMode(event)" style="color:#17191c;font-weight:600">Crear cuenta</a></p>
+      </form>
+      <div style="text-align:center;margin:12px 0;font-size:12px;color:#9ca3af">o</div>
+      <button onclick="manaAuth.signInWithGoogle()" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuar con Google
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Style the auth modal open/close
+    var authModalStyle = document.createElement('style');
+    authModalStyle.textContent = '.share-modal{display:none}.share-modal.open{display:flex}';
+    document.head.appendChild(authModalStyle);
+
+    // Global LANG detection
+    var LANG = localStorage.getItem('mana-landing-lang') || 'es';
+
+    // manaAlert fallback
+    function manaAlert(msg, type) { alert(msg); }
+    function showToast(msg) { /* silent on this page */ }
+
+    // Wait for scripts to load then render
+    window.addEventListener('load', async function() {
+      // Check auth state
+      if (typeof firebase === 'undefined') return;
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (!user || user.isAnonymous) {
+          document.getElementById('login-prompt').style.display = 'block';
+          return;
+        }
+        document.getElementById('login-prompt').style.display = 'none';
+
+        // Wait for handle to be resolved
+        await _waitForHandle(3000);
+        renderMaps();
+      });
+    });
+
+    function _waitForHandle(timeout) {
+      return new Promise(function(resolve) {
+        var elapsed = 0;
+        var interval = setInterval(function() {
+          if (window.manaAuth && window.manaAuth.getHandle()) {
+            clearInterval(interval);
+            resolve();
+          }
+          elapsed += 100;
+          if (elapsed >= timeout) { clearInterval(interval); resolve(); }
+        }, 100);
+      });
+    }
+
+    async function renderMaps() {
+      var grid = document.getElementById('maps-grid');
+      if (!window.manaMaps) { grid.innerHTML = '<div class="empty">Cargando...</div>'; return; }
+
+      var handle = window.manaAuth.getHandle();
+      var title = document.getElementById('gallery-title');
+      if (title && handle) title.textContent = '@' + handle + ' — Mis mapas';
+
+      var maps = await window.manaMaps.listMaps();
+      if (!maps.length) {
+        grid.innerHTML = '<div class="empty">Todavía no tienes mapas guardados.<br><a href="/map/">Crea tu primer mapa</a></div>';
+        return;
+      }
+
+      grid.innerHTML = maps.map(function(m) {
+        var date = m.updatedAt && m.updatedAt.toDate ? m.updatedAt.toDate().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '';
+        var badge = m.public
+          ? '<span class="badge badge-public">Público</span>'
+          : '<span class="badge badge-private">Privado</span>';
+        return '<div class="map-card">' +
+          '<div class="map-card-title">' + escHtml(m.title) + '</div>' +
+          '<div class="map-card-meta">' + badge + '<span>' + m.featureCount + ' elementos</span><span>' + date + '</span></div>' +
+          '<div class="map-card-actions">' +
+            '<a class="btn" href="/map/?load=' + encodeURIComponent(m.id) + '">Editar</a>' +
+            (m.public
+              ? '<button class="btn" onclick="togglePublish(\'' + m.id + '\', false)">Despublicar</button>'
+              : '<button class="btn" onclick="togglePublish(\'' + m.id + '\', true)">Publicar</button>') +
+            '<button class="btn" style="color:var(--red)" onclick="confirmDelete(\'' + m.id + '\')">Eliminar</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    async function togglePublish(mapId, publish) {
+      if (publish) {
+        await window.manaMaps.publishMap(mapId);
+      } else {
+        await window.manaMaps.unpublishMap(mapId);
+      }
+      renderMaps();
+    }
+
+    async function confirmDelete(mapId) {
+      if (!confirm(LANG === 'en' ? 'Delete this map permanently?' : '¿Eliminar este mapa permanentemente?')) return;
+      await window.manaMaps.deleteMap(mapId);
+      renderMaps();
+    }
+
+    function escHtml(str) {
+      var d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+  </script>
+</body>
+</html>

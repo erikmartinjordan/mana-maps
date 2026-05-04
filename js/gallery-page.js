@@ -39,7 +39,6 @@
       if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
       // Firestore read: initial published maps list for gallery bootstrap.
-      // Prefer server timestamp ordering, but gracefully fallback if index/order fields are missing.
       let snap = null;
       try {
         snap = await db.collection(MAPS_COLLECTION)
@@ -124,7 +123,7 @@
     list.classList.remove('empty-state');
     if (!items.length) {
       list.classList.add('empty-state');
-      list.innerHTML = '<div class="empty">Todavía no hay mapas publicados. Comparte uno desde el botón “Compartir” en /map.</div>';
+      list.innerHTML = '<div class="empty">Todavía no hay mapas publicados. Comparte uno desde el botón "Compartir" en /map.</div>';
       return;
     }
 
@@ -132,18 +131,100 @@
       const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
       const geo = getPublishedGeo(item);
       const thumb = renderMapPreviewSVG(item.mapPreview || buildPreviewFromGeo(geo));
+      const likes = item.likes || 0;
+      const authorHandle = item.authorHandle || item.createdBy || '';
+      const mapSlug = item.slug || item.id;
       return '' +
-        '<a class="card" href="/map/?gallery=' + encodeURIComponent(item.slug || item.id) + '&map=' + encodeURIComponent(item.slug || item.id) + '&room=' + encodeURIComponent(item.slug || item.id) + '">' +
-          '<div class="thumb">' + thumb + '</div>' +
-          '<h3 class="title">' + (item.title || item.name || 'Mapa sin título') + '</h3>' +
+        '<div class="card">' +
+          '<a class="card-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '">' +
+            '<div class="thumb">' + thumb + '</div>' +
+            '<h3 class="title">' + (item.title || item.name || 'Mapa sin título') + '</h3>' +
+          '</a>' +
           '<div class="meta">' +
+            (authorHandle ? '<span class="meta-author">@' + authorHandle + '</span><span>·</span>' : '') +
             '<span>' + (item.featureCount || 0) + ' elementos</span>' +
             '<span>·</span>' +
             '<span>' + safeDate(created) + '</span>' +
           '</div>' +
-        '</a>';
+          '<div class="card-actions">' +
+            '<button class="card-action-btn card-like-btn" data-map-id="' + mapSlug + '" data-author="' + authorHandle + '" onclick="galleryLike(this)">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
+              '<span class="like-count">' + likes + '</span>' +
+            '</button>' +
+            '<button class="card-action-btn card-fork-btn" data-map-id="' + mapSlug + '" data-author="' + authorHandle + '" onclick="galleryFork(this)">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
+              '<span>Fork</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
     }).join('');
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LIKE & FORK HANDLERS
+  // ═══════════════════════════════════════════════════════════════
+
+  window.galleryLike = async function(btn) {
+    var mapId = btn.getAttribute('data-map-id');
+    var author = btn.getAttribute('data-author');
+    if (!mapId) return;
+
+    // Auth gate: only authenticated users can like
+    if (window.manaAuth) {
+      var user = window.manaAuth.getCurrentUser();
+      if (!user || user.isAnonymous) {
+        window.manaAuth.openAuthModal();
+        return;
+      }
+    }
+
+    // Optimistic UI update
+    var countEl = btn.querySelector('.like-count');
+    var current = parseInt(countEl.textContent || '0', 10);
+    countEl.textContent = current + 1;
+    btn.classList.add('liked');
+
+    // Persist like
+    if (window.manaMaps && author) {
+      try {
+        await window.manaMaps.likeMap(mapId, author);
+      } catch (e) {
+        console.warn('like failed:', e);
+        countEl.textContent = current; // rollback
+        btn.classList.remove('liked');
+      }
+    }
+  };
+
+  window.galleryFork = async function(btn) {
+    var mapId = btn.getAttribute('data-map-id');
+    var author = btn.getAttribute('data-author');
+    if (!mapId || !author) return;
+
+    // Auth gate: only authenticated users can fork
+    if (window.manaAuth) {
+      var user = window.manaAuth.getCurrentUser();
+      if (!user || user.isAnonymous) {
+        window.manaAuth.openAuthModal();
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.querySelector('span').textContent = '...';
+
+    try {
+      if (window.manaMaps) {
+        await window.manaMaps.forkMap(mapId, author);
+        btn.querySelector('span').textContent = '✓';
+        btn.classList.add('forked');
+      }
+    } catch (e) {
+      console.warn('fork failed:', e);
+      btn.querySelector('span').textContent = 'Fork';
+      btn.disabled = false;
+    }
+  };
 
   function getPublishedGeo(item) {
     if (!item) return null;
