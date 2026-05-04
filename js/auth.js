@@ -80,6 +80,7 @@
         _handle = null;
         _profile = null;
         _removeAvatar();
+        _renderLoginButton();
       }
     });
   }
@@ -309,11 +310,25 @@
    *   3. If over quota → show upgrade modal, do NOT call callback
    *   4. If under quota → call callback()
    */
-  function checkQuota(callback) {
-    // TODO: Implement quota check against free tier
-    // const mapCount = await countUserMaps(_handle);
-    // if (mapCount >= FREE_TIER_LIMIT) { showUpgradeModal(); return; }
-    callback();
+  async function checkQuota(callback, options) {
+    const opts = options || {};
+    const isNewMap = !!opts.isNewMap;
+    const FREE_MAP_LIMIT = 3;
+    if (!isNewMap || !window.manaMaps || typeof window.manaMaps.countMaps !== 'function') {
+      callback();
+      return;
+    }
+    try {
+      const mapCount = await window.manaMaps.countMaps();
+      if (mapCount >= FREE_MAP_LIMIT) {
+        if (typeof window.showUpsell === 'function') window.showUpsell('map-limit');
+        return;
+      }
+      callback();
+    } catch (e) {
+      console.warn('quota check failed:', e);
+      callback();
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -506,6 +521,7 @@
 
     // Insert avatar before the existing toolbar-bottom items
     bottom.insertBefore(wrap, bottom.firstChild);
+    _removeLoginButton();
 
     // Toggle dropdown on click
     circle.addEventListener('click', function (e) {
@@ -528,6 +544,22 @@
   function _removeAvatar() {
     var el = document.getElementById('mana-avatar-wrap');
     if (el) el.remove();
+  }
+
+  function _renderLoginButton() {
+    var right = document.querySelector('.topbar-right');
+    if (!right || document.getElementById('mana-login-btn')) return;
+    var btn = document.createElement('button');
+    btn.id = 'mana-login-btn';
+    btn.className = 'btn btn-ghost';
+    btn.textContent = txt('Iniciar sesión', 'Sign in');
+    btn.onclick = openAuthModal;
+    right.insertBefore(btn, right.firstChild);
+  }
+
+  function _removeLoginButton() {
+    var btn = document.getElementById('mana-login-btn');
+    if (btn) btn.remove();
   }
 
   function _escHtml(str) {
