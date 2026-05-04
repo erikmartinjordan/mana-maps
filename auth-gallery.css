@@ -38,6 +38,14 @@
   outline-offset: 2px;
 }
 
+.mana-avatar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 .mana-avatar-dropdown {
   display: none;
   position: absolute;
