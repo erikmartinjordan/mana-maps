@@ -483,8 +483,19 @@
 
     var circle = document.createElement('div');
     circle.className = 'mana-avatar-circle';
-    circle.style.backgroundColor = _getAvatarColor(uid);
-    circle.textContent = _getInitials(displayName);
+    var photoUrl = (_currentUser && _currentUser.photoURL) || (_profile && _profile.avatarUrl) || '';
+    if (photoUrl) {
+      var img = document.createElement('img');
+      img.className = 'mana-avatar-photo';
+      img.src = photoUrl;
+      img.alt = displayName || 'Avatar';
+      img.referrerPolicy = 'no-referrer';
+      img.loading = 'lazy';
+      circle.appendChild(img);
+    } else {
+      circle.style.backgroundColor = _getAvatarColor(uid);
+      circle.textContent = _getInitials(displayName);
+    }
     circle.title = displayName;
     circle.setAttribute('role', 'button');
     circle.setAttribute('aria-label', txt('Menú de usuario', 'User menu'));
@@ -502,7 +513,7 @@
         <span class="avatar-dd-handle">@${_escHtml(_handle || '')}</span>
       </div>
       <div class="avatar-dd-sep"></div>
-      <a class="avatar-dd-item" href="/${_escHtml(_handle || '')}/maps">
+      <a class="avatar-dd-item" href="/my-maps/">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         ${txt('Mis mapas', 'My Maps')}
       </a>
@@ -573,7 +584,7 @@
     var dd = document.getElementById('mana-avatar-dropdown');
     if (dd) dd.classList.remove('open');
     // For now, navigate to gallery as profile settings placeholder
-    window.location.href = '/' + (_handle || '') + '/maps';
+    window.location.href = '/my-maps/';
   }
 
   // ═══════════════════════════════════════════════════════════════
