@@ -291,8 +291,20 @@
   function openAuthModal() {
     var modal = document.getElementById('auth-modal');
     if (!modal) return;
+    // Reset form state
+    _authModeSignup = false;
+    var emailInput = document.getElementById('auth-email');
+    var passInput = document.getElementById('auth-password');
+    if (emailInput) emailInput.value = '';
+    if (passInput) passInput.value = '';
+    var btn = modal.querySelector('.auth-submit-btn');
+    if (btn) btn.textContent = LANG === 'en' ? 'Sign in' : 'Iniciar sesi\u00f3n';
+    var hint = modal.querySelector('.auth-signup-hint');
+    if (hint) hint.innerHTML = (LANG === 'en' ? '<span>No account yet?</span> ' : '<span>\u00bfNo tienes cuenta?</span> ') + '<a href="#" onclick="toggleAuthMode(event)">' + (LANG === 'en' ? 'Create account' : 'Crear cuenta') + '</a>';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
+    // Focus email field
+    setTimeout(function() { if (emailInput) emailInput.focus(); }, 80);
   }
 
   window.closeAuthModal = function() {
@@ -331,6 +343,62 @@
       manaAlert(LANG === 'en' ? 'Google sign-in failed.' : 'No se pudo iniciar con Google.', 'error');
     }
   };
+  // Track whether we're in login or signup mode
+  var _authModeSignup = false;
+
+  window.signInWithEmail = async function(e) {
+    if (e) e.preventDefault();
+    var email = document.getElementById('auth-email').value.trim();
+    var password = document.getElementById('auth-password').value;
+    if (!email || !password) {
+      manaAlert(LANG === 'en' ? 'Enter email and password.' : 'Introduce email y contraseña.', 'warning');
+      return;
+    }
+    try {
+      if (_authModeSignup) {
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
+      } else {
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+      }
+      closeAuthModal();
+      if (_pendingShareAfterAuth) {
+        _pendingShareAfterAuth = false;
+        await _doShareMap();
+      }
+    } catch (e) {
+      var msg = '';
+      var code = e && e.code ? e.code : '';
+      if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        msg = LANG === 'en' ? 'Incorrect email or password.' : 'Email o contraseña incorrectos.';
+      } else if (code === 'auth/email-already-in-use') {
+        msg = LANG === 'en' ? 'This email is already registered. Try logging in.' : 'Este email ya está registrado. Prueba a iniciar sesión.';
+      } else if (code === 'auth/weak-password') {
+        msg = LANG === 'en' ? 'Password must be at least 6 characters.' : 'La contraseña debe tener al menos 6 caracteres.';
+      } else if (code === 'auth/invalid-email') {
+        msg = LANG === 'en' ? 'Invalid email format.' : 'Formato de email no válido.';
+      } else {
+        msg = LANG === 'en' ? 'Sign-in failed. Try again.' : 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+      }
+      manaAlert(msg, 'error');
+      console.warn('email sign-in failed:', e);
+    }
+  };
+
+  window.toggleAuthMode = function(e) {
+    if (e) e.preventDefault();
+    _authModeSignup = !_authModeSignup;
+    var btn = document.querySelector('.auth-submit-btn');
+    var hint = document.querySelector('.auth-signup-hint');
+    if (_authModeSignup) {
+      if (btn) btn.textContent = LANG === 'en' ? 'Create account' : 'Crear cuenta';
+      if (hint) hint.innerHTML = (LANG === 'en' ? '<span>Already have an account?</span> ' : '<span>\u00bfYa tienes cuenta?</span> ') + '<a href="#" onclick="toggleAuthMode(event)">' + (LANG === 'en' ? 'Sign in' : 'Iniciar sesi\u00f3n') + '</a>';
+    } else {
+      if (btn) btn.textContent = LANG === 'en' ? 'Sign in' : 'Iniciar sesi\u00f3n';
+      if (hint) hint.innerHTML = (LANG === 'en' ? '<span>No account yet?</span> ' : '<span>\u00bfNo tienes cuenta?</span> ') + '<a href="#" onclick="toggleAuthMode(event)">' + (LANG === 'en' ? 'Create account' : 'Crear cuenta') + '</a>';
+    }
+  };
+
+
 
   // ═══════════════════════════════════════════════════════════════
   // SHARE MAP — the new unified entry point

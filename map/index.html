@@ -159,18 +159,41 @@
 </div>
 
 <div id="auth-modal" class="share-modal" aria-hidden="true">
-  <div class="share-modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+  <div class="auth-modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
     <button class="modal-close-btn share-close" onclick="closeAuthModal()" aria-label="Cerrar">&times;</button>
-    <h3 id="auth-modal-title" data-i18n="auth_title">Inicia sesión para compartir</h3>
-    <p class="share-subtitle" data-i18n="auth_subtitle">Inicia sesión para guardar y compartir tu mapa.</p>
-    <div class="share-actions">
-      <button class="share-action-btn" onclick="continueAsGuest()">
-        <span class="share-action-title" data-i18n="auth_guest">Continuar como invitado</span>
-      </button>
-      <button class="share-action-btn share-action-btn-primary" onclick="signInWithGoogle()">
-        <span class="share-action-title" data-i18n="auth_google">Iniciar con Google</span>
-      </button>
+    <div class="auth-modal-header">
+      <div class="auth-logo">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#30363B" d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z" transform="translate(100 100)"/>
+        </svg>
+        <span>M&#771;</span>
+      </div>
+      <h3 id="auth-modal-title" data-i18n="auth_title">Inicia sesi&#243;n</h3>
+      <p class="auth-subtitle" data-i18n="auth_subtitle">Guarda y comparte tus mapas.</p>
     </div>
+    <form class="auth-form" onsubmit="signInWithEmail(event)" autocomplete="on">
+      <div class="auth-field">
+        <label for="auth-email" data-i18n="auth_email_label">Correo electr&#243;nico</label>
+        <input id="auth-email" type="email" placeholder="tu@email.com" required autocomplete="email" spellcheck="false"/>
+      </div>
+      <div class="auth-field">
+        <label for="auth-password" data-i18n="auth_password_label">Contrase&#241;a</label>
+        <input id="auth-password" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="auth-submit-btn" data-i18n="auth_login_btn">Iniciar sesi&#243;n</button>
+      <p class="auth-signup-hint"><span data-i18n="auth_no_account">&#191;No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode(event)" data-i18n="auth_create_account">Crear cuenta</a></p>
+    </form>
+    <div class="auth-divider"><span data-i18n="auth_or">o</span></div>
+    <button class="auth-google-btn" onclick="signInWithGoogle()">
+      <svg viewBox="0 0 24 24" width="18" height="18">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span data-i18n="auth_google">Continuar con Google</span>
+    </button>
+    <button class="auth-guest-link" onclick="continueAsGuest()" data-i18n="auth_guest">Continuar como invitado</button>
   </div>
 </div>
 
