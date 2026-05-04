@@ -5,8 +5,20 @@ const LEMON_URL = 'https://mana-maps.lemonsqueezy.com/checkout/buy/5114e28a-eabb
 // ═══════════════════════════════════════════════════════════════
 // SHOW / CLOSE UPSELL MODAL
 // ═══════════════════════════════════════════════════════════════
-function showUpsell() {
-  document.getElementById('upsell-modal').classList.add('open');
+function showUpsell(mode) {
+  var modal = document.getElementById('upsell-modal');
+  if (!modal) return;
+  var title = modal.querySelector('.upsell-title');
+  var price = modal.querySelector('.upsell-price');
+  var note = modal.querySelector('.upsell-note');
+  if (mode === 'map-limit') {
+    if (title) title.textContent = 'Maña Maps Pro';
+    if (price) price.innerHTML = '4,99 € <span class="upsell-period">/ mes</span>';
+    if (note) note.textContent = (typeof LANG !== 'undefined' && LANG === 'en')
+      ? 'Free plan includes up to 3 saved maps. Upgrade to save unlimited maps.'
+      : 'El plan gratis incluye hasta 3 mapas guardados. Mejora para guardar mapas ilimitados.';
+  }
+  modal.classList.add('open');
 }
 
 function closeUpsell() {

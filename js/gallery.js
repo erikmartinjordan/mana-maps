@@ -32,8 +32,9 @@
   }
 
   function getCurrentUser() {
-    if (!firebase || !firebase.auth || typeof firebase.auth !== 'function') return null;
-    return firebase.auth().currentUser || null;
+    return (window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function')
+      ? window.manaAuth.getCurrentUser()
+      : (firebase && firebase.auth ? firebase.auth().currentUser : null);
   }
 
   function getCurrentGeo() {
@@ -418,8 +419,23 @@
       return;
     }
     try {
-      const result = await persistMapRecord(user);
-      await copyToClipboard(result.shareUrl, LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
+      const mapId = getLastPrivateMapId() || null;
+      const meta = getMapMeta();
+      if (window.manaMaps && typeof window.manaMaps.saveMap === 'function') {
+        const saved = await window.manaMaps.saveMap({
+          mapId: mapId,
+          title: meta.name,
+          description: '',
+          geojson: geo
+        });
+        setLastPrivateMapId(saved.mapId);
+        const handle = (window.manaAuth && window.manaAuth.getHandle) ? window.manaAuth.getHandle() : '';
+        const url = window.location.origin + '/' + encodeURIComponent(handle) + '/maps';
+        await copyToClipboard(url, LANG === 'en' ? 'Saved in profile ✓' : 'Guardado en tu perfil ✓');
+      } else {
+        const result = await persistMapRecord(user);
+        await copyToClipboard(result.shareUrl, LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
+      }
     } catch (e) {
       const msg = e && e.message === 'empty-map'
         ? (LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'))
@@ -438,14 +454,17 @@
     }
 
     // 2. Check if user is already logged in
-    const user = getCurrentUser();
-    if (user && user.uid) {
-      // Already authenticated → save + copy URL immediately
-      await _doShareMap();
+    if (window.manaAuth && typeof window.manaAuth.requireAuth === 'function') {
+      window.manaAuth.requireAuth(async function () {
+        const isNewMap = !getLastPrivateMapId();
+        await window.manaAuth.checkQuota(function () {
+          _doShareMap();
+        }, { isNewMap: isNewMap });
+      });
       return;
     }
-
-    // 3. Not logged in → open auth modal, set pending flag
+    const user = getCurrentUser();
+    if (user && user.uid) return _doShareMap();
     _pendingShareAfterAuth = true;
     openAuthModal();
   };
