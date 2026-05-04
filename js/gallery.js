@@ -1,4 +1,6 @@
-// ── gallery.js ─ share modal + gallery publish ─
+// ── gallery.js ─ share (save + copy URL) + gallery publish ─
+// Redesigned flow: Share button → if logged in, save & copy URL.
+//                                  if not logged in, open auth modal → after login, save & copy URL.
 
 (function() {
   const MAPS_COLLECTION = 'maps';
@@ -14,6 +16,10 @@
     measurementId: 'G-F1Z7C21BZ6'
   };
 
+  // ═══════════════════════════════════════════════════════════════
+  // FIREBASE HELPERS
+  // ═══════════════════════════════════════════════════════════════
+
   function getGalleryDb() {
     if (typeof firebase === 'undefined') return null;
     try {
@@ -25,38 +31,9 @@
     }
   }
 
-  function waitForAuthUser(timeoutMs) {
-    return new Promise(function(resolve) {
-      if (!firebase || !firebase.auth || typeof firebase.auth !== 'function') {
-        resolve(null);
-        return;
-      }
-      var auth = firebase.auth();
-      if (auth.currentUser && auth.currentUser.uid) {
-        resolve(auth.currentUser);
-        return;
-      }
-      var settled = false;
-      var timer = setTimeout(function() {
-        if (settled) return;
-        settled = true;
-        if (typeof unsubscribe === 'function') unsubscribe();
-        resolve(auth.currentUser || null);
-      }, timeoutMs || 5000);
-      var unsubscribe = auth.onAuthStateChanged(function(user) {
-        if (settled || !user) return;
-        settled = true;
-        clearTimeout(timer);
-        unsubscribe();
-        resolve(user);
-      }, function() {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timer);
-        unsubscribe();
-        resolve(null);
-      });
-    });
+  function getCurrentUser() {
+    if (!firebase || !firebase.auth || typeof firebase.auth !== 'function') return null;
+    return firebase.auth().currentUser || null;
   }
 
   function getCurrentGeo() {
@@ -83,8 +60,6 @@
       return '';
     }
   }
-
-  
 
   function compactGeoForPublish(geo) {
     function roundNum(n) {
@@ -125,7 +100,6 @@
       if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(text).length;
       return unescape(encodeURIComponent(text)).length;
     } catch (e) {
-      console.warn('payloadByteSize failed:', e);
       return Infinity;
     }
   }
@@ -148,72 +122,6 @@
       name: value || (typeof t === 'function' ? t('map_name_placeholder') : 'Mapa sin título'),
       lang: (typeof LANG !== 'undefined' ? LANG : 'es')
     };
-  }
-
-  function openAuthModal() {
-    var modal = document.getElementById('auth-modal');
-    if (!modal) return;
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-  }
-
-  window.closeAuthModal = function() {
-    var modal = document.getElementById('auth-modal');
-    if (!modal) return;
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-  };
-
-  async function requireAuthUser() {
-    if (!(firebase && firebase.auth && typeof firebase.auth === 'function')) return null;
-    var auth = firebase.auth();
-    if (auth.currentUser && auth.currentUser.uid) return auth.currentUser;
-    openAuthModal();
-    return null;
-  }
-
-  window.continueAsGuest = async function() {
-    try {
-      await firebase.auth().signInAnonymously();
-      closeAuthModal();
-    } catch (e) {
-      console.warn('anonymous sign-in failed:', e);
-      manaAlert(LANG === 'en' ? 'Guest sign-in failed.' : 'No se pudo iniciar como invitado.', 'error');
-    }
-  };
-
-  window.signInWithGoogle = async function() {
-    try {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      await firebase.auth().signInWithPopup(provider);
-      closeAuthModal();
-    } catch (e) {
-      console.warn('google sign-in failed:', e);
-      manaAlert(LANG === 'en' ? 'Google sign-in failed.' : 'No se pudo iniciar con Google.', 'error');
-    }
-  };
-
-  function getFirestoreErrorMessage(err) {
-    var code = err && (err.code || err.errorCode || '');
-    var message = err && err.message ? String(err.message) : '';
-    if (code === 'permission-denied' || code === 'auth/operation-not-allowed') {
-      return LANG === 'en'
-        ? 'Publish blocked by Firebase permissions. Enable Authentication (anonymous or signed-in user) and allow writes to /maps.'
-        : 'Publicación bloqueada por permisos de Firebase. Activa Authentication (anónimo o usuario autenticado) y permite escritura en /maps.';
-    }
-    if (code === 'unauthenticated' || code === 'auth/network-request-failed') {
-      return LANG === 'en'
-        ? 'Authentication failed while publishing. Check Firebase Auth and try again.'
-        : 'Falló la autenticación al publicar. Revisa Firebase Auth y vuelve a intentarlo.';
-    }
-    if (code === 'invalid-argument' || /invalid|unsupported field value|undefined/i.test(message)) {
-      return LANG === 'en'
-        ? 'Firestore rejected map data (invalid field value). Remove unsupported values and try again.'
-        : 'Firestore rechazó los datos del mapa (valor de campo inválido). Elimina valores no compatibles y vuelve a intentarlo.';
-    }
-    return LANG === 'en'
-      ? 'Publish failed in Firestore. Please try again.'
-      : 'Error al publicar en Firestore. Vuelve a intentarlo.';
   }
 
   function slugifyMapName(name) {
@@ -242,96 +150,73 @@
         out.push([coords[0], coords[1]]);
         return;
       }
-      coords.forEach(function(child) {
-        collectCoordPairs(child, out);
-      });
+      coords.forEach(function(child) { collectCoordPairs(child, out); });
     }
-
-    function buildGeometrySummary(geom) {
-      if (!geom) return { type: null, centerLng: null, centerLat: null, vertexCount: 0 };
-      var coords = [];
-      collectCoordPairs(geom.coordinates, coords);
-      if (!coords.length) {
-        return { type: geom.type || null, centerLng: null, centerLat: null, vertexCount: 0 };
-      }
-      var sumX = 0; var sumY = 0;
-      coords.forEach(function(c) {
-        sumX += Number(c[0]) || 0;
-        sumY += Number(c[1]) || 0;
-      });
-      return {
-        type: geom.type || null,
-        centerLng: Number((sumX / coords.length).toFixed(6)),
-        centerLat: Number((sumY / coords.length).toFixed(6)),
-        vertexCount: coords.length
-      };
-    }
-
     geo.features.forEach(function(feature) {
       var geom = feature && feature.geometry;
       if (!geom || !Array.isArray(geom.coordinates)) return;
-      var type = geom.type;
-      if (type === 'Point') {
-        points.push(geom.coordinates);
-      } else if (type === 'LineString' || type === 'MultiPoint') {
-        geom.coordinates.forEach(function(c) { points.push(c); });
-      } else if (type === 'Polygon' || type === 'MultiLineString') {
-        geom.coordinates.forEach(function(ring) {
-          if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
-        });
-      } else if (type === 'MultiPolygon') {
-        geom.coordinates.forEach(function(poly) {
-          if (!Array.isArray(poly)) return;
-          poly.forEach(function(ring) {
-            if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
-          });
-        });
-      }
+      collectCoordPairs(geom.coordinates, points);
     });
     if (!points.length) return null;
-    var minX = Infinity; var maxX = -Infinity; var minY = Infinity; var maxY = -Infinity;
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     points.forEach(function(c) {
-      var x = Number(c[0]); var y = Number(c[1]);
+      var x = Number(c[0]), y = Number(c[1]);
       if (!isFinite(x) || !isFinite(y)) return;
       minX = Math.min(minX, x); maxX = Math.max(maxX, x);
       minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     });
-    if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
-    return {
-      bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
-        var props = feature && feature.properties ? feature.properties : {};
-        var geomSummary = buildGeometrySummary(feature ? feature.geometry : null);
-        return {
-          geometryType: geomSummary.type,
-          centerLng: geomSummary.centerLng,
-          centerLat: geomSummary.centerLat,
-          vertexCount: geomSummary.vertexCount,
-          color: props._manaColor || props.color || '#0ea5e9'
-        };
-      })
-    };
+    if (!isFinite(minX)) return null;
+    return { bbox: [minX, minY, maxX, maxY] };
   }
 
-  
   function getLastPrivateMapId() {
-    try {
-      return localStorage.getItem('mana-private-map-id') || '';
-    } catch (e) {
-      return '';
-    }
+    try { return localStorage.getItem('mana-private-map-id') || ''; }
+    catch (e) { return ''; }
   }
 
   function setLastPrivateMapId(mapId) {
     if (!mapId) return;
-    try {
-      localStorage.setItem('mana-private-map-id', mapId);
-    } catch (e) {
-      console.warn('setLastPrivateMapId failed:', e);
-    }
+    try { localStorage.setItem('mana-private-map-id', mapId); }
+    catch (e) { console.warn('setLastPrivateMapId failed:', e); }
   }
 
-  async function persistMapRecord(opts) {
+  function getFirestoreErrorMessage(err) {
+    var code = err && (err.code || err.errorCode || '');
+    var message = err && err.message ? String(err.message) : '';
+    if (code === 'permission-denied' || code === 'auth/operation-not-allowed') {
+      return LANG === 'en'
+        ? 'Publish blocked by Firebase permissions.'
+        : 'Publicación bloqueada por permisos de Firebase.';
+    }
+    if (code === 'unauthenticated' || code === 'auth/network-request-failed') {
+      return LANG === 'en'
+        ? 'Authentication failed. Please try again.'
+        : 'Falló la autenticación. Vuelve a intentarlo.';
+    }
+    return LANG === 'en'
+      ? 'Save failed. Please try again.'
+      : 'Error al guardar. Vuelve a intentarlo.';
+  }
+
+  function copyToClipboard(text, okMessage) {
+    return navigator.clipboard.writeText(text).then(function() {
+      if (typeof showToast === 'function') showToast(okMessage);
+    }).catch(function() {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (typeof showToast === 'function') showToast(okMessage);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PERSIST MAP (core save logic)
+  // ═══════════════════════════════════════════════════════════════
+
+  async function persistMapRecord(authUser) {
     const db = getGalleryDb();
     if (!db) throw new Error('firestore-unavailable');
 
@@ -341,11 +226,9 @@
     if (!geo || !geo.features || !geo.features.length) throw new Error('invalid-geo');
 
     const meta = getMapMeta();
-    const authUser = await requireAuthUser();
-    if (!authUser || !authUser.uid) throw new Error('missing-auth');
     const userUid = authUser.uid;
 
-    const existingId = opts && opts.mapId ? String(opts.mapId) : '';
+    const existingId = getLastPrivateMapId();
     const slug = existingId || slugifyMapName(meta.name);
     const preview = buildMapPreview(geo);
     const shareUrl = buildGalleryURL(slug);
@@ -360,17 +243,16 @@
       geoFieldSize = payloadByteSize({ geojsonText: geoString });
     }
 
-    const visibility = opts && opts.visibility === 'public' ? 'public' : 'private';
     const payload = {
       id: slug, slug: slug,
       title: meta.name, name: meta.name,
-      createdBy: userUid || 'anonymous',
-      ownerUid: userUid || 'anonymous',
+      createdBy: userUid,
+      ownerUid: userUid,
       lang: meta.lang || 'es',
       featureCount: geo.features.length,
       mapPreview: preview || null,
-      visibility: visibility,
-      isPublished: visibility === 'public',
+      visibility: 'public',
+      isPublished: true,
       shareUrl: shareUrl,
       updatedAtMs: Date.now()
     };
@@ -396,93 +278,129 @@
     }
 
     setLastPrivateMapId(slug);
-    return { slug: slug, shareUrl: shareUrl, visibility: visibility };
+    return { slug: slug, shareUrl: shareUrl };
   }
 
-  function setPublishButtonState(isSaving, errorMessage) {
-    const publishBtn = document.querySelector('#share-modal .share-action-btn-primary');
-    if (!publishBtn) return;
-    publishBtn.disabled = !!isSaving;
-    publishBtn.style.opacity = isSaving ? '0.7' : '';
-    publishBtn.style.pointerEvents = isSaving ? 'none' : '';
-    publishBtn.setAttribute('aria-busy', isSaving ? 'true' : 'false');
-    if (!publishBtn.dataset.defaultLabel) {
-      const labelEl = publishBtn.querySelector('.share-action-title');
-      publishBtn.dataset.defaultLabel = labelEl ? labelEl.textContent : 'Publish map';
-    }
-    const labelEl = publishBtn.querySelector('.share-action-title');
-    if (labelEl) {
-      labelEl.textContent = isSaving
-        ? (LANG === 'en' ? 'Publishing…' : 'Publicando…')
-        : publishBtn.dataset.defaultLabel;
-    }
-    if (errorMessage && typeof manaAlert === 'function') {
-      manaAlert(errorMessage, 'error');
-    }
+  // ═══════════════════════════════════════════════════════════════
+  // AUTH MODAL (only for login, no share options)
+  // ═══════════════════════════════════════════════════════════════
+
+  // Callback executed after successful auth when share was pending
+  var _pendingShareAfterAuth = false;
+
+  function openAuthModal() {
+    var modal = document.getElementById('auth-modal');
+    if (!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
   }
 
-  function copyToClipboard(text, okMessage) {
-    return navigator.clipboard.writeText(text).then(function() {
-      if (typeof showToast === 'function') showToast(okMessage);
-    }).catch(function() {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      if (typeof showToast === 'function') showToast(okMessage);
-    });
-  }
-
-  window.closeShareModal = function() {
-    const modal = document.getElementById('share-modal');
+  window.closeAuthModal = function() {
+    var modal = document.getElementById('auth-modal');
     if (!modal) return;
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
+    _pendingShareAfterAuth = false;
   };
 
-  window.saveMapToMySpace = async function() {
+  window.continueAsGuest = async function() {
     try {
-      const result = await persistMapRecord({ visibility: 'private', mapId: getLastPrivateMapId() });
-      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Saved privately ✓' : 'Guardado en privado ✓');
-      return result;
+      await firebase.auth().signInAnonymously();
+      closeAuthModal();
+      if (_pendingShareAfterAuth) {
+        _pendingShareAfterAuth = false;
+        await _doShareMap();
+      }
+    } catch (e) {
+      console.warn('anonymous sign-in failed:', e);
+      manaAlert(LANG === 'en' ? 'Guest sign-in failed.' : 'No se pudo iniciar como invitado.', 'error');
+    }
+  };
+
+  window.signInWithGoogle = async function() {
+    try {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      await firebase.auth().signInWithPopup(provider);
+      closeAuthModal();
+      if (_pendingShareAfterAuth) {
+        _pendingShareAfterAuth = false;
+        await _doShareMap();
+      }
+    } catch (e) {
+      console.warn('google sign-in failed:', e);
+      manaAlert(LANG === 'en' ? 'Google sign-in failed.' : 'No se pudo iniciar con Google.', 'error');
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // SHARE MAP — the new unified entry point
+  // ═══════════════════════════════════════════════════════════════
+
+  // Internal: performs save + copy URL (assumes user is authenticated)
+  async function _doShareMap() {
+    const geo = getCurrentGeo();
+    if (!geo) {
+      manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
+      return;
+    }
+    const user = getCurrentUser();
+    if (!user || !user.uid) {
+      // Should not happen here, but handle gracefully
+      manaAlert(LANG === 'en' ? 'Authentication required.' : 'Necesitas iniciar sesión.', 'warning');
+      return;
+    }
+    try {
+      const result = await persistMapRecord(user);
+      await copyToClipboard(result.shareUrl, LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
     } catch (e) {
       const msg = e && e.message === 'empty-map'
-        ? (LANG === 'en' ? 'No elements to save.' : t('persist_no_elements'))
+        ? (LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'))
         : getFirestoreErrorMessage(e);
       manaAlert(msg, 'warning');
-      return null;
     }
-  };
+  }
 
-  window.publishMapToGallery = async function() {
-    setPublishButtonState(true);
-    try {
-      const result = await persistMapRecord({ visibility: 'public', mapId: getLastPrivateMapId() });
-      const shareURL = result.shareUrl;
-      await copyToClipboard(shareURL, LANG === 'en' ? 'Gallery URL copied ✓' : 'URL de galería copiada ✓');
-      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map published ✓' : 'Mapa publicado ✓');
-      closeShareModal();
-      window.location.href = shareURL;
-    } catch (e) {
-      const msg = e && e.message === 'empty-map'
-        ? (LANG === 'en' ? 'No elements to publish.' : t('persist_no_elements'))
-        : getFirestoreErrorMessage(e);
-      setPublishButtonState(false, msg);
+  // Public: called by the Share button
+  window.shareMap = async function() {
+    // 1. Check there's something to share
+    const geo = getCurrentGeo();
+    if (!geo) {
+      manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
       return;
-    } finally {
-      setPublishButtonState(false);
+    }
+
+    // 2. Check if user is already logged in
+    const user = getCurrentUser();
+    if (user && user.uid) {
+      // Already authenticated → save + copy URL immediately
+      await _doShareMap();
+      return;
+    }
+
+    // 3. Not logged in → open auth modal, set pending flag
+    _pendingShareAfterAuth = true;
+    openAuthModal();
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // LEGACY COMPAT: keep closeShareModal for any residual references
+  // ═══════════════════════════════════════════════════════════════
+  window.closeShareModal = function() {
+    var modal = document.getElementById('share-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
     }
   };
 
+  // Close auth modal on backdrop click or Escape
   document.addEventListener('click', function(e) {
-    const modal = document.getElementById('share-modal');
-    if (!modal || !modal.classList.contains('open')) return;
-    if (e.target === modal) closeShareModal();
+    var modal = document.getElementById('auth-modal');
+    if (modal && modal.classList.contains('open') && e.target === modal) closeAuthModal();
   });
-
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeShareModal();
+    if (e.key === 'Escape') {
+      closeAuthModal();
+    }
   });
 })();

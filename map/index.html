@@ -158,35 +158,11 @@
   </div>
 </div>
 
-<!-- ═══ Modal compartir ═══ -->
-<div id="share-modal" class="share-modal" aria-hidden="true">
-  <div class="share-modal-box" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
-    <button class="modal-close-btn share-close" onclick="closeShareModal()" aria-label="Cerrar">&times;</button>
-    <h3 id="share-modal-title" data-i18n="share_title">Compartir mapa</h3>
-    <p class="share-subtitle" data-i18n="share_subtitle">Comparte un enlace privado o publícalo en la galería.</p>
-    <div class="share-actions">
-      <button class="share-action-btn" onclick="copyMapURL()">
-        <span class="share-action-title" data-i18n="share_copy_url">Copiar URL</span>
-        <span class="share-action-desc" data-i18n="share_copy_desc">Genera un enlace directo con este mapa.</span>
-      </button>
-      <button class="share-action-btn" onclick="saveMapToMySpace()">
-        <span class="share-action-title" data-i18n="share_private">Guardar en mi espacio</span>
-        <span class="share-action-desc" data-i18n="share_private_desc">Guárdalo en privado para publicarlo cuando quieras.</span>
-      </button>
-      <button class="share-action-btn share-action-btn-primary" onclick="publishMapToGallery()">
-        <span class="share-action-title" data-i18n="share_publish">Publicar mapa</span>
-        <span class="share-action-desc" data-i18n="share_publish_desc">Publica este mapa desde tu espacio privado y comparte su ficha pública.</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-
 <div id="auth-modal" class="share-modal" aria-hidden="true">
   <div class="share-modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
     <button class="modal-close-btn share-close" onclick="closeAuthModal()" aria-label="Cerrar">&times;</button>
-    <h3 id="auth-modal-title" data-i18n="auth_title">Inicia sesión para publicar</h3>
-    <p class="share-subtitle" data-i18n="auth_subtitle">Para usar “Mi espacio” y publicar, inicia sesión o continúa como invitado.</p>
+    <h3 id="auth-modal-title" data-i18n="auth_title">Inicia sesión para compartir</h3>
+    <p class="share-subtitle" data-i18n="auth_subtitle">Inicia sesión para guardar y compartir tu mapa.</p>
     <div class="share-actions">
       <button class="share-action-btn" onclick="continueAsGuest()">
         <span class="share-action-title" data-i18n="auth_guest">Continuar como invitado</span>

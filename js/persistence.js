@@ -44,27 +44,6 @@ function getMapNameForShare() {
   return value || (typeof t === 'function' ? t('map_name_placeholder') : 'Mapa sin título');
 }
 
-async function persistSharedMap(geo) {
-  const db = getSharedMapsDb();
-  if (!db) return null;
-  try {
-    const slug = slugifyMapName(getMapNameForShare());
-    const docRef = db.collection(SHARED_MAPS_COLLECTION).doc(slug);
-    await docRef.set({
-      slug: slug,
-      name: getMapNameForShare(),
-      featureCount: geo.features.length,
-      geojson: geo,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAtMs: Date.now()
-    }, { merge: true });
-    return slug;
-  } catch (e) {
-    console.warn('persistSharedMap failed:', e);
-    return null;
-  }
-}
-
 // ═══════════════════════════════════════════════════════════════
 // SAVE STATE
 // ═══════════════════════════════════════════════════════════════
@@ -271,95 +250,21 @@ function _flashSavePill() {
 
 
 // ═══════════════════════════════════════════════════════════════
-// SHARE MAP VIA URL HASH
+// SHARE MAP — delegates to gallery.js shareMap()
 // ═══════════════════════════════════════════════════════════════
 function shareMapURL() {
-  const modal = document.getElementById('share-modal');
-  if (modal) {
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
+  if (typeof window.shareMap === 'function') {
+    window.shareMap();
     return;
   }
-  copyMapURL();
+  // Fallback if gallery.js not loaded yet
+  manaAlert(LANG === 'en' ? 'Share not available yet. Try again.' : 'Compartir no disponible aún. Inténtalo de nuevo.', 'warning');
 }
 
-function buildShareHashURL() {
-  try {
-    const geo = getEnrichedGeoJSON();
-    if (!geo.features.length) {
-      manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
-      return null;
-    }
-    const encoded = encodeURIComponent(JSON.stringify(geo));
-    const roomId = (typeof window.manaCollabGetOrCreateRoomId === 'function')
-      ? window.manaCollabGetOrCreateRoomId()
-      : '';
-    if (roomId) {
-      window.location.hash = '#room=' + encodeURIComponent(roomId) + '&map=' + encoded;
-    } else {
-      window.location.hash = '#map=' + encoded;
-    }
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      showToast(LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
-    }).catch(() => {
-      // Fallback
-      const ta = document.createElement('textarea');
-      ta.value = url;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('Enlace copiado \u2713');
-    });
-    window.location.hash = '#map=' + encoded;
-    return window.location.href;
-  } catch (e) {
-    manaAlert((LANG === 'en' ? 'Error generating link: ' : 'Error al generar el enlace: ') + e.message, 'error');
-    return null;
-  }
-}
 
-function buildMapShareURL(mapId, encodedGeo, roomId) {
-  const share = new URL(window.location.origin + '/map/');
-  if (mapId) {
-    share.searchParams.set('map', mapId);
-  } else if (encodedGeo) {
-    share.hash = '#map=' + encodedGeo;
-  }
-  if (roomId) {
-    share.searchParams.set('room', roomId);
-    share.hash = '#room=' + encodeURIComponent(roomId);
-  }
-  return share.toString();
-}
-
-async function copyMapURL() {
-  const geo = getEnrichedGeoJSON();
-  if (!geo || !geo.features || !geo.features.length) {
-    manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
-    return;
-  }
-  const roomId = (typeof window.manaCollabGetOrCreateRoomId === 'function')
-    ? window.manaCollabGetOrCreateRoomId()
-    : '';
-  const sharedMapId = await persistSharedMap(geo);
-  const encoded = encodeURIComponent(JSON.stringify(geo));
-  const url = buildMapShareURL(sharedMapId, encoded, roomId);
-  if (!url) return;
-  navigator.clipboard.writeText(url).then(() => {
-    showToast(LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = url;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Enlace copiado \u2713');
-  });
-}
-
+// ═══════════════════════════════════════════════════════════════
+// RESTORE FROM URL (shared map links)
+// ═══════════════════════════════════════════════════════════════
 async function restoreFromURL() {
   try {
     async function readChunkedPublishedGeo(db, slug, payload) {
@@ -408,7 +313,6 @@ async function restoreFromURL() {
     if (gallerySlug) {
       const db = getSharedMapsDb();
       if (db) {
-        // Firestore read: load published map document from /maps for shared gallery links.
         const galleryDoc = await db.collection(MAPS_COLLECTION).doc(gallerySlug).get();
         const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
         const galleryGeo = await readPublishedGeo(db, gallerySlug, galleryPayload);
@@ -416,7 +320,7 @@ async function restoreFromURL() {
           _importRestoredGeoJSON(galleryGeo);
           return true;
         }
-        // Backward compatibility: read legacy /gallery docs created before this fix.
+        // Backward compatibility: read legacy /gallery docs
         const legacyDoc = await db.collection(LEGACY_GALLERY_COLLECTION).doc(gallerySlug).get();
         const legacyPayload = legacyDoc && legacyDoc.exists ? legacyDoc.data() : null;
         if (legacyPayload && legacyPayload.geojson && legacyPayload.geojson.features && legacyPayload.geojson.features.length) {
@@ -443,7 +347,6 @@ async function restoreFromURL() {
     if (hash && hash.length >= 2) {
       let encoded = '';
       if (hash.startsWith('#map=')) {
-        // Backward compatibility: old links only had #map=...
         encoded = hash.substring(5);
       } else {
         const params = new URLSearchParams(hash.substring(1));
@@ -477,7 +380,6 @@ function replaceMapWithGeoJSON(geo) {
   if (typeof renderLayers === 'function') renderLayers();
   if (typeof saveState === 'function') saveState();
 }
-
 
 
 
