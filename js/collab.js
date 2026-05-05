@@ -123,7 +123,6 @@
           PRESENCE_USER_ID = firebase.auth().currentUser.uid;
           return PRESENCE_USER_ID;
         }
-        await firebase.auth().signInAnonymously();
         var authUser = await waitForAuthUser(6000);
         if (authUser && authUser.uid) {
           PRESENCE_USER_ID = authUser.uid;
@@ -417,6 +416,8 @@
       var data = doc && doc.data ? doc.data() : null;
       if (!data) return;
       applyRemoteState(data.state, data);
+    }, function(err) {
+      console.warn('[collab] room sync subscription failed', err);
     });
 
     if (window._manaCollabMapRef) {
@@ -424,6 +425,8 @@
         var data = doc && doc.data ? doc.data() : null;
         if (!data) return;
         applyRemoteState(data.mapData || data.geojson, data);
+      }, function(err) {
+        console.warn('[collab] map sync subscription failed', err);
       });
     }
   }
@@ -466,6 +469,9 @@
         });
         renderPresence(users);
         renderRemoteCursors(users);
+      }, function(err) {
+        console.warn('[collab] presence subscribe failed; disabling presence', err);
+        renderPresence([]);
       });
     }
 
