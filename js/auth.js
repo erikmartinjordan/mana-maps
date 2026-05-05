@@ -68,13 +68,25 @@
     auth.onAuthStateChanged(async function (user) {
       _currentUser = user;
       if (user && !user.isAnonymous) {
-        await _loadOrPromptHandle(user);
+        try {
+          await _loadOrPromptHandle(user);
+        } catch (err) {
+          console.warn('[auth] Failed to load profile handle; continuing without handle.', err);
+          _handle = null;
+          _profile = null;
+        }
         _renderAvatar();
         // Resume pending action if any
         if (_pendingCallback) {
           const cb = _pendingCallback;
           _pendingCallback = null;
-          cb(user);
+          try {
+            Promise.resolve(cb(user)).catch(function(err) {
+              console.warn('[auth] Deferred auth callback failed', err);
+            });
+          } catch (err) {
+            console.warn('[auth] Deferred auth callback failed', err);
+          }
         }
       } else {
         _handle = null;
