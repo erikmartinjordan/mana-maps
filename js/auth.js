@@ -247,7 +247,6 @@
           const db = getDb();
           await db.collection('users').doc(handle).set({
             displayName: user.displayName || handle,
-            email: user.email || '',
             uid: user.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             avatarUrl: user.photoURL || ''
@@ -256,7 +255,6 @@
           _handle = handle;
           _profile = {
             displayName: user.displayName || handle,
-            email: user.email || '',
             uid: user.uid,
             avatarUrl: user.photoURL || ''
           };
@@ -687,9 +685,9 @@
 
     var profilePayload = {
       displayName: nextDisplayName || nextHandle,
-      email: user.email || '',
       uid: user.uid,
       avatarUrl: user.photoURL || '',
+      email: firebase.firestore.FieldValue.delete(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 

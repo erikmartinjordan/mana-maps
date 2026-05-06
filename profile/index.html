@@ -4,33 +4,29 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Perfil — Maña Maps</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css"/>
-  <link rel="stylesheet" href="/auth-gallery.css"/>
-  <style>
-    :root{--profile-bg:#f7f8fb;--profile-card:#fff;--profile-text:#17191c;--profile-muted:#6b7280;--profile-line:#e5e7eb;--profile-blue:#2563eb;--profile-red:#dc2626}
-    body{margin:0;background:var(--profile-bg);color:var(--profile-text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
-    .profile-shell{max-width:760px;margin:0 auto;padding:32px 20px 56px}
-    .profile-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
-    .profile-brand{display:flex;align-items:center;gap:10px;font-weight:800;text-decoration:none;color:var(--profile-text)}
-    .profile-brand-mark{width:34px;height:34px;border-radius:10px;background:#17191c;color:#fff;display:grid;place-items:center;font-size:18px}
-    .profile-nav{display:flex;gap:10px;align-items:center}
-    .profile-link{border:1px solid var(--profile-line);background:#fff;color:var(--profile-text);border-radius:10px;padding:9px 12px;text-decoration:none;font-size:14px;font-weight:700}
-    .profile-card{background:var(--profile-card);border:1px solid var(--profile-line);border-radius:22px;box-shadow:0 20px 50px rgba(15,23,42,.08);padding:28px}
-    .profile-card h1{font-size:26px;margin:0 0 8px}.profile-card p{color:var(--profile-muted);margin:0 0 22px;line-height:1.5}
-    .profile-row{display:grid;gap:8px;margin-bottom:18px}.profile-row label{font-size:13px;font-weight:800}.profile-row input{border:1px solid var(--profile-line);border-radius:12px;padding:12px 14px;font-size:15px}.profile-row small{color:var(--profile-muted);font-size:12px;line-height:1.4}
-    .profile-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:22px}.profile-primary{border:0;background:#17191c;color:#fff;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}.profile-primary:disabled{opacity:.6;cursor:wait}.profile-secondary{border:1px solid var(--profile-line);background:#fff;color:var(--profile-text);border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
-    .profile-status{font-size:14px;font-weight:700}.profile-status.ok{color:#047857}.profile-status.warn{color:#b45309}.profile-status.error{color:var(--profile-red)}
-    .profile-loading,.profile-login{background:#fff;border:1px solid var(--profile-line);border-radius:18px;padding:26px;text-align:center;color:var(--profile-muted)}
-    .profile-login{display:none}.profile-form{display:none}.profile-form.ready{display:block}.profile-handle-preview{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:800;color:#374151;margin-bottom:14px}
-  </style>
 </head>
-<body>
+<body class="profile-page">
   <main class="profile-shell">
     <div class="profile-topbar">
-      <a class="profile-brand" href="/map/"><span class="profile-brand-mark">M</span><span>Maña Maps</span></a>
+      <a class="mana-logo-wrap" href="/">
+        <div class="mana-logo-icon">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+              d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+              transform="translate(100 100)"/>
+          </svg>
+          <span>M&#771;</span>
+        </div>
+        <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
+      </a>
       <nav class="profile-nav" aria-label="Navegación de perfil">
-        <a class="profile-link" href="/my-maps/">Mis mapas</a>
-        <a class="profile-link" href="/map/">Editor</a>
+        <a class="btn btn-ghost" href="/my-maps/">Mis mapas</a>
+        <a class="btn btn-primary" href="/map/">Editor</a>
       </nav>
     </div>
 
@@ -41,7 +37,7 @@
       <div id="profile-loading" class="profile-loading">Cargando perfil…</div>
       <div id="profile-login" class="profile-login">
         <p>Inicia sesión para configurar tu perfil.</p>
-        <button class="profile-primary" type="button" onclick="manaAuth.openAuthModal()">Iniciar sesión</button>
+        <button class="btn btn-primary profile-submit" type="button" onclick="manaAuth.openAuthModal()">Iniciar sesión</button>
       </div>
 
       <form id="profile-form" class="profile-form" autocomplete="on">
@@ -57,8 +53,8 @@
           <small>Entre 3 y 24 caracteres. Usa letras minúsculas, números, puntos, guiones o guiones bajos. Cambiarlo también mueve tus mapas privados al nuevo handle.</small>
         </div>
         <div class="profile-actions">
-          <button id="profile-save" class="profile-primary" type="submit">Guardar cambios</button>
-          <button class="profile-secondary" type="button" onclick="location.href='/map/'">Volver al editor</button>
+          <button id="profile-save" class="btn btn-primary profile-submit" type="submit">Guardar cambios</button>
+          <button class="btn btn-ghost profile-secondary" type="button" onclick="location.href='/map/'">Volver al editor</button>
           <span id="profile-status" class="profile-status" role="status" aria-live="polite"></span>
         </div>
       </form>
