@@ -310,6 +310,15 @@
     var pad = 0.12;
     function toX(x) { return (((x - minX) / spanX) * (1 - 2 * pad) + pad) * 100; }
     function toY(y) { return (((maxY - y) / spanY) * (1 - 2 * pad) + pad) * 100; }
+    function decodePreviewGeometry(geom) {
+      if (!geom) return null;
+      if (Array.isArray(geom.coordinates)) return geom;
+      if (typeof geom.coordinatesText === 'string' && geom.coordinatesText) {
+        try { return { type: geom.type, coordinates: JSON.parse(geom.coordinatesText) }; }
+        catch (e) { return null; }
+      }
+      return null;
+    }
     function ringToPath(ring) {
       if (!Array.isArray(ring) || !ring.length) return '';
       return ring.map(function(c, idx) {
@@ -320,7 +329,7 @@
     }
     var body = '';
     preview.features.forEach(function(entry) {
-      var geom = entry && entry.geometry;
+      var geom = decodePreviewGeometry(entry && entry.geometry);
       if (!geom) return;
       var color = entry.color || '#0ea5e9';
       if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
