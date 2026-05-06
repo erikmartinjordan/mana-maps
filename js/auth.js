@@ -57,6 +57,15 @@
   let _profile = null;       // Full profile doc from /users/{handle}
   let _pendingCallback = null; // Callback waiting for auth to complete
   let _authModeSignup = false;
+  let _authReady = false;
+  let _authReadyResolve = null;
+  const _authReadyPromise = new Promise(function(resolve) { _authReadyResolve = resolve; });
+
+  function _markAuthReady() {
+    if (_authReady) return;
+    _authReady = true;
+    if (_authReadyResolve) _authReadyResolve();
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // AUTH STATE LISTENER
@@ -66,6 +75,7 @@
     const auth = getAuth();
     if (!auth) return;
     auth.onAuthStateChanged(async function (user) {
+      _markAuthReady();
       _currentUser = user;
       if (user && !user.isAnonymous) {
         try {
@@ -76,17 +86,13 @@
           _profile = null;
         }
         _renderAvatar();
-        // Resume pending action if any
-        if (_pendingCallback) {
+        // Resume pending action only after the user's handle/profile exists.
+        // This prevents signed-in users from being bounced back to the login modal
+        // while Firestore is still resolving their profile document.
+        if (_pendingCallback && _handle) {
           const cb = _pendingCallback;
           _pendingCallback = null;
-          try {
-            Promise.resolve(cb(user)).catch(function(err) {
-              console.warn('[auth] Deferred auth callback failed', err);
-            });
-          } catch (err) {
-            console.warn('[auth] Deferred auth callback failed', err);
-          }
+          _runAuthCallback(cb, user);
         }
       } else {
         _handle = null;
@@ -297,35 +303,67 @@
   // AUTH GATE — requireAuth(callback)
   // ═══════════════════════════════════════════════════════════════
 
+  function _runAuthCallback(callback, authUser) {
+    try {
+      Promise.resolve(callback(authUser)).catch(function(err) {
+        console.warn('[auth] Auth callback failed', err);
+      });
+    } catch (err) {
+      console.warn('[auth] Auth callback failed', err);
+    }
+  }
+
+  function _showAuthGateError() {
+    if (typeof manaAlert === 'function') {
+      manaAlert(txt(
+        'No se pudo cargar tu perfil. Prueba de nuevo o abre Configuración.',
+        'Could not load your profile. Try again or open Settings.'
+      ), 'warning');
+    }
+  }
+
+  async function _finishAuthenticatedAction(authUser, callback) {
+    _currentUser = authUser;
+    if (!_handle) await _loadOrPromptHandle(authUser);
+    _renderAvatar();
+    if (_handle) {
+      _runAuthCallback(callback, authUser);
+      return;
+    }
+    _showAuthGateError();
+  }
+
   function requireAuth(callback) {
     var auth = getAuth();
     var authUser = _currentUser || (auth && auth.currentUser);
+
     if (authUser && !authUser.isAnonymous && _handle) {
-      callback(authUser);
+      _runAuthCallback(callback, authUser);
       return;
     }
-    // Store callback and open auth modal. If Firebase already has a signed-in
-    // user but the profile handle is still loading, keep the action pending
-    // without asking the user to sign in again.
+
     _pendingCallback = callback;
-    if (authUser && !authUser.isAnonymous) {
-      _currentUser = authUser;
-      _loadOrPromptHandle(authUser).then(function () {
-        _renderAvatar();
-        if (_pendingCallback && _handle) {
-          var cb = _pendingCallback;
-          _pendingCallback = null;
-          Promise.resolve(cb(authUser)).catch(function(err) {
-            console.warn('[auth] Deferred auth callback failed', err);
-          });
-        }
-      }).catch(function (err) {
-        console.warn('[auth] Failed to finish pending auth check', err);
-        openAuthModal();
-      });
+
+    function continueAfterReady() {
+      authUser = _currentUser || (auth && auth.currentUser);
+      if (authUser && !authUser.isAnonymous) {
+        _finishAuthenticatedAction(authUser, callback).then(function () {
+          if (_handle && _pendingCallback === callback) _pendingCallback = null;
+        }).catch(function (err) {
+          console.warn('[auth] Failed to finish authenticated action', err);
+          _showAuthGateError();
+        });
+        return;
+      }
+      openAuthModal();
+    }
+
+    if (!_authReady) {
+      _authReadyPromise.then(continueAfterReady).catch(function () { openAuthModal(); });
       return;
     }
-    openAuthModal();
+
+    continueAfterReady();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -633,12 +671,93 @@
     return div.innerHTML;
   }
 
+
+  async function updateProfileSettings(options) {
+    var user = _currentUser || (getAuth() && getAuth().currentUser);
+    if (!user || user.isAnonymous) throw new Error('not-authenticated');
+    var db = getDb();
+    if (!db) throw new Error('firestore-unavailable');
+
+    var opts = options || {};
+    var nextDisplayName = (opts.displayName || '').trim() || (_profile && _profile.displayName) || user.displayName || _handle || '';
+    var nextHandle = (opts.handle || '').trim().toLowerCase();
+    var currentHandle = _handle || _getCachedHandle(user.uid) || '';
+    if (!nextHandle) nextHandle = currentHandle;
+    if (!_validateHandle(nextHandle)) throw new Error('invalid-handle');
+
+    var profilePayload = {
+      displayName: nextDisplayName || nextHandle,
+      email: user.email || '',
+      uid: user.uid,
+      avatarUrl: user.photoURL || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (!currentHandle || nextHandle === currentHandle) {
+      await db.collection('users').doc(nextHandle).set(profilePayload, { merge: true });
+      _handle = nextHandle;
+      _profile = Object.assign({}, _profile || {}, profilePayload, { updatedAt: Date.now() });
+      _setCachedHandle(user.uid, nextHandle);
+      if (user.updateProfile && nextDisplayName && nextDisplayName !== user.displayName) {
+        try { await user.updateProfile({ displayName: nextDisplayName }); } catch (e) { console.warn('[auth] Firebase displayName update failed', e); }
+      }
+      _renderAvatar();
+      return { handle: _handle, profile: _profile };
+    }
+
+    var oldRef = db.collection('users').doc(currentHandle);
+    var newRef = db.collection('users').doc(nextHandle);
+    await db.runTransaction(async function(transaction) {
+      var oldDoc = await transaction.get(oldRef);
+      if (!oldDoc.exists || oldDoc.data().uid !== user.uid) throw new Error('profile-not-found');
+      transaction.set(newRef, Object.assign({}, oldDoc.data(), profilePayload, {
+        previousHandle: currentHandle,
+        handleChangedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }), { merge: true });
+    });
+
+    var mapsSnap = await oldRef.collection('maps').get();
+    for (var i = 0; i < mapsSnap.docs.length; i++) {
+      var mapDoc = mapsSnap.docs[i];
+      var targetMapRef = newRef.collection('maps').doc(mapDoc.id);
+      await targetMapRef.set(mapDoc.data(), { merge: true });
+      var chunksSnap = await mapDoc.ref.collection('geoChunks').get();
+      var chunkBatch = db.batch();
+      chunksSnap.forEach(function(chunkDoc) {
+        chunkBatch.set(targetMapRef.collection('geoChunks').doc(chunkDoc.id), chunkDoc.data(), { merge: true });
+      });
+      await chunkBatch.commit();
+      if (mapDoc.data() && mapDoc.data().public) {
+        try { await db.collection('maps').doc(mapDoc.id).set({ authorHandle: nextHandle }, { merge: true }); }
+        catch (e) { console.warn('[auth] Public map author update failed', e); }
+      }
+    }
+
+    for (var j = 0; j < mapsSnap.docs.length; j++) {
+      var oldMapDoc = mapsSnap.docs[j];
+      var oldChunksSnap = await oldMapDoc.ref.collection('geoChunks').get();
+      var deleteBatch = db.batch();
+      oldChunksSnap.forEach(function(chunkDoc) { deleteBatch.delete(chunkDoc.ref); });
+      deleteBatch.delete(oldMapDoc.ref);
+      await deleteBatch.commit();
+    }
+    await oldRef.delete();
+
+    _handle = nextHandle;
+    _profile = Object.assign({}, _profile || {}, profilePayload, { updatedAt: Date.now() });
+    _setCachedHandle(user.uid, nextHandle);
+    if (user.updateProfile && nextDisplayName && nextDisplayName !== user.displayName) {
+      try { await user.updateProfile({ displayName: nextDisplayName }); } catch (e) { console.warn('[auth] Firebase displayName update failed', e); }
+    }
+    _renderAvatar();
+    return { handle: _handle, profile: _profile };
+  }
+
   function _openProfileSettings() {
     // Close dropdown
     var dd = document.getElementById('mana-avatar-dropdown');
     if (dd) dd.classList.remove('open');
-    // For now, navigate to gallery as profile settings placeholder
-    window.location.href = '/my-maps/';
+    window.location.href = '/profile/';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -672,6 +791,7 @@
     getCurrentUser: function () { return _currentUser; },
     getHandle: function () { return _handle; },
     getProfile: function () { return _profile; },
+    updateProfileSettings: updateProfileSettings,
     logout: logout,
     openAuthModal: openAuthModal,
     closeAuthModal: closeAuthModal,
