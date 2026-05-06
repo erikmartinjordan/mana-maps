@@ -1,39 +1,79 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
 
-    // ── /users/{handle} ──
-    // Read/write only by the authenticated user whose uid matches the document's uid field.
+    function ownsUserDoc(handle) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(handle))
+        && get(/databases/$(database)/documents/users/$(handle)).data.uid == request.auth.uid;
+    }
+
+    function keepsUserOwner() {
+      return request.resource.data.uid == request.auth.uid
+        && !('email' in request.resource.data);
+    }
+
+    match /events/{doc} {
+      allow read, write: if true;
+    }
+
+    match /stats/{doc} {
+      allow read, write: if false;
+    }
+
+    // User profiles are keyed by handle: /users/{handle}.
+    // Signed-in users may get a handle doc so the app can check availability.
     match /users/{handle} {
-      allow read: if request.auth != null
-                  && request.auth.uid == resource.data.uid;
-      allow create: if request.auth != null
-                    && request.resource.data.uid == request.auth.uid;
-      allow update, delete: if request.auth != null
-                            && resource.data.uid == request.auth.uid;
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.uid == request.auth.uid;
+      allow create: if signedIn() && keepsUserOwner();
+      allow update: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && keepsUserOwner();
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
 
-      // ── /users/{handle}/maps/{mapId} ──
-      // Full access only by the owner (uid must match the parent user doc).
       match /maps/{mapId} {
-        allow read, write: if request.auth != null
-                           && get(/databases/$(database)/documents/users/$(handle)).data.uid == request.auth.uid;
+        allow read, write: if ownsUserDoc(handle);
 
-        // GeoJSON chunks subcollection
         match /geoChunks/{chunkId} {
-          allow read, write: if request.auth != null
-                             && get(/databases/$(database)/documents/users/$(handle)).data.uid == request.auth.uid;
+          allow read, write: if ownsUserDoc(handle);
         }
       }
     }
 
-    // ── /maps/{mapId} ── (denormalized public index)
-    // Anyone can read. Only the author (matching authorHandle → uid) can write.
     match /maps/{mapId} {
+      // Public links can read map payloads and public gallery entries.
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null
-                            && resource.data.authorHandle != null
-                            && get(/databases/$(database)/documents/users/$(resource.data.authorHandle)).data.uid == request.auth.uid;
+
+      // Map creation supports both editor payloads (createdBy) and public index docs (authorHandle).
+      allow create: if signedIn()
+        && (
+          request.resource.data.createdBy == request.auth.uid
+          || (request.resource.data.authorHandle is string && ownsUserDoc(request.resource.data.authorHandle))
+        );
+
+      // Authenticated collaborators can update/delete editor map docs.
+      // Public gallery index docs remain restricted to their author when authorHandle is present.
+      allow update, delete: if signedIn()
+        && (
+          !('authorHandle' in resource.data)
+          || ownsUserDoc(resource.data.authorHandle)
+        );
+
+      match /presence/{userId} {
+        allow read: if true;
+        allow create, update, delete: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.uid == request.auth.uid;
+      }
+
+      match /geoChunks/{chunkId} {
+        allow read: if true;
+        allow create, update, delete: if signedIn();
+      }
     }
   }
 }
