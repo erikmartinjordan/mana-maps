@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perfil — Maña Maps</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <link rel="stylesheet" href="/auth-gallery.css"/>
+  <style>
+    :root{--profile-bg:#f7f8fb;--profile-card:#fff;--profile-text:#17191c;--profile-muted:#6b7280;--profile-line:#e5e7eb;--profile-blue:#2563eb;--profile-red:#dc2626}
+    body{margin:0;background:var(--profile-bg);color:var(--profile-text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    .profile-shell{max-width:760px;margin:0 auto;padding:32px 20px 56px}
+    .profile-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+    .profile-brand{display:flex;align-items:center;gap:10px;font-weight:800;text-decoration:none;color:var(--profile-text)}
+    .profile-brand-mark{width:34px;height:34px;border-radius:10px;background:#17191c;color:#fff;display:grid;place-items:center;font-size:18px}
+    .profile-nav{display:flex;gap:10px;align-items:center}
+    .profile-link{border:1px solid var(--profile-line);background:#fff;color:var(--profile-text);border-radius:10px;padding:9px 12px;text-decoration:none;font-size:14px;font-weight:700}
+    .profile-card{background:var(--profile-card);border:1px solid var(--profile-line);border-radius:22px;box-shadow:0 20px 50px rgba(15,23,42,.08);padding:28px}
+    .profile-card h1{font-size:26px;margin:0 0 8px}.profile-card p{color:var(--profile-muted);margin:0 0 22px;line-height:1.5}
+    .profile-row{display:grid;gap:8px;margin-bottom:18px}.profile-row label{font-size:13px;font-weight:800}.profile-row input{border:1px solid var(--profile-line);border-radius:12px;padding:12px 14px;font-size:15px}.profile-row small{color:var(--profile-muted);font-size:12px;line-height:1.4}
+    .profile-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:22px}.profile-primary{border:0;background:#17191c;color:#fff;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}.profile-primary:disabled{opacity:.6;cursor:wait}.profile-secondary{border:1px solid var(--profile-line);background:#fff;color:var(--profile-text);border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
+    .profile-status{font-size:14px;font-weight:700}.profile-status.ok{color:#047857}.profile-status.warn{color:#b45309}.profile-status.error{color:var(--profile-red)}
+    .profile-loading,.profile-login{background:#fff;border:1px solid var(--profile-line);border-radius:18px;padding:26px;text-align:center;color:var(--profile-muted)}
+    .profile-login{display:none}.profile-form{display:none}.profile-form.ready{display:block}.profile-handle-preview{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:800;color:#374151;margin-bottom:14px}
+  </style>
+</head>
+<body>
+  <main class="profile-shell">
+    <div class="profile-topbar">
+      <a class="profile-brand" href="/map/"><span class="profile-brand-mark">M</span><span>Maña Maps</span></a>
+      <nav class="profile-nav" aria-label="Navegación de perfil">
+        <a class="profile-link" href="/my-maps/">Mis mapas</a>
+        <a class="profile-link" href="/map/">Editor</a>
+      </nav>
+    </div>
+
+    <section class="profile-card">
+      <h1 id="profile-title">Perfil de usuario</h1>
+      <p id="profile-subtitle">Configura tu nombre público y tu handle. El handle identifica tu perfil y tus mapas publicados.</p>
+
+      <div id="profile-loading" class="profile-loading">Cargando perfil…</div>
+      <div id="profile-login" class="profile-login">
+        <p>Inicia sesión para configurar tu perfil.</p>
+        <button class="profile-primary" type="button" onclick="manaAuth.openAuthModal()">Iniciar sesión</button>
+      </div>
+
+      <form id="profile-form" class="profile-form" autocomplete="on">
+        <span id="profile-current-handle" class="profile-handle-preview">@</span>
+        <div class="profile-row">
+          <label for="profile-display-name">Nombre visible</label>
+          <input id="profile-display-name" type="text" maxlength="80" autocomplete="name"/>
+          <small>Este nombre se muestra en tu menú de usuario.</small>
+        </div>
+        <div class="profile-row">
+          <label for="profile-handle">Handle</label>
+          <input id="profile-handle" type="text" maxlength="24" autocomplete="username" spellcheck="false"/>
+          <small>Entre 3 y 24 caracteres. Usa letras minúsculas, números, puntos, guiones o guiones bajos. Cambiarlo también mueve tus mapas privados al nuevo handle.</small>
+        </div>
+        <div class="profile-actions">
+          <button id="profile-save" class="profile-primary" type="submit">Guardar cambios</button>
+          <button class="profile-secondary" type="button" onclick="location.href='/map/'">Volver al editor</button>
+          <span id="profile-status" class="profile-status" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <div id="auth-modal" class="share-modal" aria-hidden="true">
+    <div class="auth-modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <button class="modal-close-btn share-close" onclick="closeAuthModal()" aria-label="Cerrar">&times;</button>
+      <div class="auth-modal-header">
+        <h3 id="auth-modal-title">Inicia sesión</h3>
+        <p class="auth-subtitle">Guarda y comparte tus mapas.</p>
+      </div>
+      <form class="auth-form" onsubmit="signInWithEmail(event)" autocomplete="on">
+        <div class="auth-field"><label for="auth-email">Correo electrónico</label><input id="auth-email" type="email" required autocomplete="email"/></div>
+        <div class="auth-field"><label for="auth-password">Contraseña</label><input id="auth-password" type="password" required autocomplete="current-password"/></div>
+        <button type="submit" class="auth-submit-btn">Iniciar sesión</button>
+        <p class="auth-signup-hint"><span>¿No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode(event)">Crear cuenta</a></p>
+      </form>
+      <div class="auth-divider"><span>o</span></div>
+      <button class="auth-google-btn" onclick="signInWithGoogle()">Continuar con Google</button>
+    </div>
+  </div>
+
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script defer src="/js/auth.js"></script>
+  <script>
+    var LANG = localStorage.getItem('mana-landing-lang') || 'es';
+    function manaAlert(message) { setProfileStatus(message, 'error'); }
+    function showToast(message) { setProfileStatus(message, 'ok'); }
+    function setProfileStatus(message, type) {
+      var status = document.getElementById('profile-status');
+      if (!status) return;
+      status.textContent = message || '';
+      status.className = 'profile-status ' + (type || '');
+    }
+    function normalizeHandle(value) { return (value || '').toLowerCase().replace(/[^a-z0-9._-]/g, ''); }
+    function isValidHandle(value) { return /^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$/.test(value || '') && value.length >= 3 && value.length <= 24; }
+    window.addEventListener('load', function() {
+      firebase.auth().onAuthStateChanged(async function(user) {
+        var loading = document.getElementById('profile-loading');
+        var login = document.getElementById('profile-login');
+        var form = document.getElementById('profile-form');
+        if (!user || user.isAnonymous) {
+          loading.style.display = 'none'; login.style.display = 'block'; form.classList.remove('ready'); return;
+        }
+        login.style.display = 'none';
+        await new Promise(function(resolve) {
+          var waited = 0;
+          var timer = setInterval(function() {
+            if (window.manaAuth && window.manaAuth.getHandle()) { clearInterval(timer); resolve(); }
+            waited += 100;
+            if (waited >= 4000) { clearInterval(timer); resolve(); }
+          }, 100);
+        });
+        var profile = window.manaAuth.getProfile() || {};
+        var handle = window.manaAuth.getHandle() || '';
+        document.getElementById('profile-display-name').value = profile.displayName || user.displayName || handle || '';
+        document.getElementById('profile-handle').value = handle;
+        document.getElementById('profile-current-handle').textContent = handle ? '@' + handle : '@';
+        loading.style.display = 'none'; form.classList.add('ready');
+      });
+
+      var handleInput = document.getElementById('profile-handle');
+      handleInput.addEventListener('input', function() { handleInput.value = normalizeHandle(handleInput.value); });
+
+      document.getElementById('profile-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var save = document.getElementById('profile-save');
+        var handle = normalizeHandle(document.getElementById('profile-handle').value);
+        var displayName = document.getElementById('profile-display-name').value.trim();
+        if (!isValidHandle(handle)) { setProfileStatus('Handle no válido.', 'error'); return; }
+        save.disabled = true; save.textContent = 'Guardando…'; setProfileStatus('', '');
+        try {
+          var result = await window.manaAuth.updateProfileSettings({ handle: handle, displayName: displayName });
+          document.getElementById('profile-current-handle').textContent = '@' + result.handle;
+          setProfileStatus('Perfil guardado ✓', 'ok');
+        } catch (err) {
+          var code = err && (err.code || err.message || '');
+          var msg = (code === 'handle-taken' || code === 'permission-denied') ? 'Ese handle ya está en uso o no está disponible.' : 'No se pudo guardar el perfil.';
+          setProfileStatus(msg, 'error');
+          console.warn('profile save failed:', err);
+        } finally {
+          save.disabled = false; save.textContent = 'Guardar cambios';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
