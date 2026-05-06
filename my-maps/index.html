@@ -28,7 +28,12 @@
     .hero h1{font-size:clamp(22px,3.5vw,30px);letter-spacing:-.03em}
     .hero p{color:var(--muted);margin-top:6px;font-size:14px}
     #maps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-    .map-card{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:16px;transition:transform .12s,border-color .12s}
+    .map-card{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;transition:transform .12s,border-color .12s}
+    .map-card-body{padding:16px}
+    .map-card-preview{height:150px;position:relative;background:linear-gradient(135deg,#e0f2fe,#f8fafc);border-bottom:1px solid var(--line);overflow:hidden}
+    .map-card-preview:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(15,23,42,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.06) 1px,transparent 1px);background-size:24px 24px}
+    .map-card-preview svg{position:absolute;inset:10px;width:calc(100% - 20px);height:calc(100% - 20px);z-index:1}
+    .map-card-preview-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;font-weight:700;z-index:1}
     .map-card:hover{transform:translateY(-1px);border-color:rgba(17,24,39,.25)}
     .map-card-title{font-size:15px;font-weight:700;margin-bottom:4px;letter-spacing:-.01em}
     .map-card-meta{font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap}
@@ -174,7 +179,10 @@
         var badge = m.public
           ? '<span class="badge badge-public">Público</span>'
           : '<span class="badge badge-private">Privado</span>';
+        var preview = renderMapPreviewSVG(m.mapPreview);
         return '<div class="map-card">' +
+          '<div class="map-card-preview">' + (preview || '<span class="map-card-preview-empty">Vista previa no disponible</span>') + '</div>' +
+          '<div class="map-card-body">' +
           '<div class="map-card-title">' + escHtml(m.title) + '</div>' +
           '<div class="map-card-meta">' + badge + '<span>' + m.featureCount + ' elementos</span><span>' + date + '</span></div>' +
           '<div class="map-card-actions">' +
@@ -183,6 +191,7 @@
               ? '<button class="btn" onclick="togglePublish(\'' + m.id + '\', false)">Despublicar</button>'
               : '<button class="btn" onclick="togglePublish(\'' + m.id + '\', true)">Publicar</button>') +
             '<button class="btn" style="color:var(--red)" onclick="confirmDelete(\'' + m.id + '\')">Eliminar</button>' +
+          '</div>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -201,6 +210,42 @@
       if (!confirm(LANG === 'en' ? 'Delete this map permanently?' : '¿Eliminar este mapa permanentemente?')) return;
       await window.manaMaps.deleteMap(mapId);
       renderMaps();
+    }
+
+    function renderMapPreviewSVG(preview) {
+      if (!preview || !Array.isArray(preview.bbox) || !Array.isArray(preview.features)) return '';
+      var bbox = preview.bbox;
+      var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
+      if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return '';
+      var spanX = Math.max(maxX - minX, 1e-9);
+      var spanY = Math.max(maxY - minY, 1e-9);
+      var pad = 0.12;
+      function toX(x) { return (((x - minX) / spanX) * (1 - 2 * pad) + pad) * 100; }
+      function toY(y) { return (((maxY - y) / spanY) * (1 - 2 * pad) + pad) * 100; }
+      function color(value) { return /^#[0-9a-f]{3,8}$/i.test(value || '') ? value : '#0ea5e9'; }
+      function ringToPath(ring) {
+        if (!Array.isArray(ring) || !ring.length) return '';
+        return ring.map(function(c, idx) {
+          return (idx ? 'L' : 'M') + toX(Number(c[0])).toFixed(2) + ' ' + toY(Number(c[1])).toFixed(2);
+        }).join(' ') + ' Z';
+      }
+      var body = '';
+      preview.features.forEach(function(entry) {
+        var geom = entry && entry.geometry;
+        if (!geom) return;
+        var c = color(entry.color);
+        if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
+          body += '<circle cx="' + toX(Number(geom.coordinates[0])).toFixed(2) + '" cy="' + toY(Number(geom.coordinates[1])).toFixed(2) + '" r="3" fill="' + c + '" fill-opacity="0.9"/>';
+        } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
+          var pts = geom.coordinates.map(function(coord) { return toX(Number(coord[0])).toFixed(2) + ',' + toY(Number(coord[1])).toFixed(2); }).join(' ');
+          body += '<polyline points="' + pts + '" fill="none" stroke="' + c + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+        } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
+          var path = ringToPath(geom.coordinates[0]);
+          if (path) body += '<path d="' + path + '" fill="' + c + '" fill-opacity="0.22" stroke="' + c + '" stroke-width="1.5"/>';
+        }
+      });
+      if (!body) return '';
+      return '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';
     }
 
     function escHtml(str) {

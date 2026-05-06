@@ -262,6 +262,56 @@ function shareMapURL() {
 }
 
 
+function getRequestedShareMode(payload) {
+  try {
+    const search = new URLSearchParams(window.location.search || '');
+    const requested = (search.get('mode') || '').toLowerCase();
+    if (requested === 'edit' && payload && (payload.shareMode === 'edit' || payload.allowPublicEdit === true)) return 'edit';
+    return 'view';
+  } catch (e) {
+    return 'view';
+  }
+}
+
+function setSharedMapAccess(mode, payload) {
+  window.manaSharedAccess = {
+    mode: mode === 'edit' ? 'edit' : 'view',
+    canEdit: mode === 'edit',
+    payload: payload || null
+  };
+  document.documentElement.classList.toggle('mana-view-only', mode !== 'edit');
+  document.body.classList.toggle('mana-view-only', mode !== 'edit');
+  if (mode !== 'edit') {
+    setTimeout(function() {
+      document.querySelectorAll('.draw-btn, .tool-icon[data-panel="draw"], #project-name-input').forEach(function(el) {
+        if (el.id !== 'search-input') el.setAttribute('disabled', 'disabled');
+      });
+      var hint = document.getElementById('draw-hint');
+      if (hint) {
+        hint.textContent = (typeof LANG !== 'undefined' && LANG === 'en') ? 'View-only shared map' : 'Mapa compartido de solo lectura';
+        hint.style.display = 'block';
+      }
+    }, 300);
+  }
+}
+
+async function waitForPersonalMaps(timeoutMs) {
+  return new Promise(function(resolve) {
+    var startedAt = Date.now();
+    var timer = setInterval(function() {
+      if (window.manaMaps && typeof window.manaMaps.getMap === 'function' && window.manaAuth && window.manaAuth.getHandle()) {
+        clearInterval(timer);
+        resolve(true);
+        return;
+      }
+      if (Date.now() - startedAt >= (timeoutMs || 5000)) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, 100);
+  });
+}
+
 // ═══════════════════════════════════════════════════════════════
 // RESTORE FROM URL (shared map links)
 // ═══════════════════════════════════════════════════════════════
@@ -309,6 +359,21 @@ async function restoreFromURL() {
     }
 
     const search = new URLSearchParams(window.location.search || '');
+    const personalMapId = search.get('load');
+    if (personalMapId) {
+      await waitForPersonalMaps(5000);
+      if (window.manaMaps && typeof window.manaMaps.getMap === 'function') {
+        const personalMap = await window.manaMaps.getMap(personalMapId);
+        if (personalMap && personalMap.geojson && personalMap.geojson.features && personalMap.geojson.features.length) {
+          _importRestoredGeoJSON(personalMap.geojson);
+          const input = document.getElementById('project-name-input');
+          if (input) input.value = personalMap.title || '';
+          try { localStorage.setItem('mana-private-map-id', personalMapId); } catch (e) {}
+          return true;
+        }
+      }
+    }
+
     const gallerySlug = search.get('gallery') || search.get('slug');
     if (gallerySlug) {
       const db = getSharedMapsDb();
@@ -317,7 +382,12 @@ async function restoreFromURL() {
         const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
         const galleryGeo = await readPublishedGeo(db, gallerySlug, galleryPayload);
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
+          const accessMode = getRequestedShareMode(galleryPayload);
+          setSharedMapAccess(accessMode, galleryPayload);
           _importRestoredGeoJSON(galleryGeo);
+          const input = document.getElementById('project-name-input');
+          if (input) input.value = galleryPayload.title || galleryPayload.name || '';
+          try { localStorage.setItem('mana-private-map-id', gallerySlug); } catch (e) {}
           return true;
         }
         // Backward compatibility: read legacy /gallery docs
@@ -413,7 +483,7 @@ function setProjectName(name) {
   const needsRemoteRestore = (() => {
     try {
       const search = new URLSearchParams(window.location.search || '');
-      return !!(search.get('gallery') || search.get('slug') || search.get('map'));
+      return !!(search.get('gallery') || search.get('slug') || search.get('map') || search.get('load'));
     } catch (_) {
       return false;
     }

@@ -46,6 +46,19 @@ service cloud.firestore {
       }
     }
 
+    match /collabRooms/{roomId} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && (
+          !exists(/databases/$(database)/documents/maps/$(roomId))
+          || get(/databases/$(database)/documents/maps/$(roomId)).data.shareMode == 'edit'
+          || get(/databases/$(database)/documents/maps/$(roomId)).data.ownerUid == request.auth.uid
+        );
+      allow delete: if signedIn()
+        && exists(/databases/$(database)/documents/maps/$(roomId))
+        && get(/databases/$(database)/documents/maps/$(roomId)).data.ownerUid == request.auth.uid;
+    }
+
     match /maps/{mapId} {
       // Public links can read map payloads and public gallery entries.
       allow read: if true;
@@ -57,12 +70,14 @@ service cloud.firestore {
           || (request.resource.data.authorHandle is string && ownsUserDoc(request.resource.data.authorHandle))
         );
 
-      // Authenticated collaborators can update/delete editor map docs.
-      // Public gallery index docs remain restricted to their author when authorHandle is present.
+      // Owners can always update/delete their shared maps. Non-owners may only
+      // collaborate when the owner explicitly shared the map in edit mode.
       allow update, delete: if signedIn()
         && (
-          !('authorHandle' in resource.data)
-          || ownsUserDoc(resource.data.authorHandle)
+          resource.data.ownerUid == request.auth.uid
+          || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
+          || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
+          || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))
         );
 
       match /presence/{userId} {
