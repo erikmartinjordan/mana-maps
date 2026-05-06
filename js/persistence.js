@@ -1,4 +1,4 @@
-// ── persistence.js ─ localStorage persistence, auto-save, share via URL hash ──
+// ── persistence.js ─ remote/URL restore helpers and share delegation ──
 
 const MANA_FIREBASE_CFG = {
   apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
@@ -48,83 +48,19 @@ function getMapNameForShare() {
 // SAVE STATE
 // ═══════════════════════════════════════════════════════════════
 function saveState() {
-  try {
-    const geo = getEnrichedGeoJSON();
-    // Also store style info per feature
-    const layers = [];
-    drawnItems.eachLayer(l => layers.push(l));
-    geo.features.forEach((f, i) => {
-      const l = layers[i];
-      if (!l) return;
-      f.properties._manaName = l._manaName || f.properties.name || '';
-      f.properties._manaColor = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : (l.options.color || '#0ea5e9');
-      if (!(l instanceof L.Marker)) {
-        f.properties._manaWeight = l.options.weight || 2;
-        f.properties._manaOpacity = l.options.opacity || 1;
-      }
-      if (l._manaGroupId) f.properties._manaGroupId = l._manaGroupId;
-      if (l._manaGroupName) f.properties._manaGroupName = l._manaGroupName;
-      // Persist geometry type for the group
-      if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].geometryType) {
-        f.properties._manaGeometryType = _manaGroupMeta[l._manaGroupId].geometryType;
-      }
-    });
-    const serialized = JSON.stringify(geo);
-    try {
-      localStorage.setItem('mana-maps-state', serialized);
-    } catch (storageError) {
-      if (storageError && storageError.name === 'QuotaExceededError') {
-        const slimGeo = _buildSlimStateGeoJSON(geo);
-        try {
-          localStorage.setItem('mana-maps-state', JSON.stringify(slimGeo));
-          showToast(LANG === 'en' ? 'Autosave optimized for large map' : 'Auto-guardado optimizado para mapa grande');
-        } catch (slimError) {
-          localStorage.removeItem('mana-maps-state');
-          console.warn('saveState quota exceeded (slim fallback failed):', slimError);
-          showToast(LANG === 'en' ? 'Autosave disabled: map too large' : 'Auto-guardado desactivado: mapa demasiado grande');
-        }
-      } else {
-        throw storageError;
-      }
-    }
-    _flashSavePill();
-  } catch (e) {
-    console.warn('saveState error:', e);
-  }
+  // Map contents are saved explicitly to Firestore via the Save button.
+  // Do not persist map data in localStorage.
 }
 
 function _buildSlimStateGeoJSON(geo) {
-  if (!geo || !Array.isArray(geo.features)) return { type: 'FeatureCollection', features: [] };
-  return {
-    type: 'FeatureCollection',
-    features: geo.features.map(f => ({
-      type: 'Feature',
-      geometry: f.geometry || null,
-      properties: {
-        _manaName: f.properties && f.properties._manaName ? f.properties._manaName : '',
-        _manaColor: f.properties && f.properties._manaColor ? f.properties._manaColor : '#0ea5e9'
-      }
-    }))
-  };
+  return { type: 'FeatureCollection', features: [] };
 }
 
 // ═══════════════════════════════════════════════════════════════
 // RESTORE STATE
 // ═══════════════════════════════════════════════════════════════
 function restoreState() {
-  try {
-    const raw = localStorage.getItem('mana-maps-state');
-    if (!raw) return;
-    const geo = JSON.parse(raw);
-    if (!geo || !geo.features || !geo.features.length) return;
-    _importRestoredGeoJSON(geo);
-    // P1.5: Show discreet toast on restore
-    setTimeout(() => {
-      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map restored from previous session' : t('persist_restored'));
-    }, 500);
-  } catch (e) {
-    console.warn('restoreState error:', e);
-  }
+  // Local map restore intentionally disabled: saved maps now live only in Firestore.
 }
 
 
@@ -368,7 +304,7 @@ async function restoreFromURL() {
           _importRestoredGeoJSON(personalMap.geojson);
           const input = document.getElementById('project-name-input');
           if (input) input.value = personalMap.title || '';
-          try { localStorage.setItem('mana-private-map-id', personalMapId); } catch (e) {}
+          if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId(personalMapId);
           return true;
         }
       }
@@ -387,7 +323,7 @@ async function restoreFromURL() {
           _importRestoredGeoJSON(galleryGeo);
           const input = document.getElementById('project-name-input');
           if (input) input.value = galleryPayload.title || galleryPayload.name || '';
-          try { localStorage.setItem('mana-private-map-id', gallerySlug); } catch (e) {}
+          if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId('');
           return true;
         }
         // Backward compatibility: read legacy /gallery docs
@@ -457,27 +393,40 @@ function replaceMapWithGeoJSON(geo) {
 // P1.5: CLEAR SAVED DATA
 // ═══════════════════════════════════════════════════════════════
 function clearSavedData() {
-  localStorage.removeItem('mana-maps-state');
-  showToast('Dades guardades eliminades \u2713');
+  try {
+    localStorage.removeItem('mana-maps-state');
+    localStorage.removeItem('mana-private-map-id');
+    localStorage.removeItem('mana-project-name');
+  } catch (e) {}
+  showToast(LANG === 'en' ? 'Local map data cleared ✓' : 'Datos locales del mapa eliminados ✓');
 }
 
 // ═══════════════════════════════════════════════════════════════
 // P3.11: PROJECT NAME FOR EXPORTS
 // ═══════════════════════════════════════════════════════════════
 function getProjectName() {
-  return localStorage.getItem('mana-project-name') || t('map_name_placeholder');
+  const input = document.getElementById('project-name-input');
+  const value = input && input.value ? input.value.trim() : '';
+  return value || t('map_name_placeholder');
 }
 
 function setProjectName(name) {
   const clean = name.trim() || t('map_name_placeholder');
-  localStorage.setItem('mana-project-name', clean);
   const input = document.getElementById('project-name-input');
   if (input) input.value = clean;
   showToast('Nom del projecte: ' + clean);
 }
 
+function clearLegacyLocalMapData() {
+  try {
+    localStorage.removeItem('mana-maps-state');
+    localStorage.removeItem('mana-private-map-id');
+    localStorage.removeItem('mana-project-name');
+  } catch (e) {}
+}
+
 // ═══════════════════════════════════════════════════════════════
-// INIT: restore from URL hash first, then localStorage
+// INIT: restore from URL/Firestore only
 // ═══════════════════════════════════════════════════════════════
 (async function initPersistence() {
   const needsRemoteRestore = (() => {
@@ -493,8 +442,8 @@ function setProjectName(name) {
     await waitForFirebaseSdk(5000);
   }
 
-  const restoredFromUrl = await restoreFromURL();
-  if (!restoredFromUrl) restoreState();
+  await restoreFromURL();
+  clearLegacyLocalMapData();
 })();
 
 function waitForFirebaseSdk(timeoutMs) {

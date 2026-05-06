@@ -143,6 +143,14 @@
     return window.location.origin + '/map/?gallery=' + encodeURIComponent(slug) + '&map=' + encodeURIComponent(slug) + '&room=' + encodeURIComponent(slug) + '&mode=' + mode;
   }
 
+  function encodePreviewGeometry(geometry) {
+    if (!geometry || !geometry.type || !Array.isArray(geometry.coordinates)) return null;
+    return {
+      type: geometry.type,
+      coordinatesText: JSON.stringify(geometry.coordinates)
+    };
+  }
+
   function buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
@@ -173,23 +181,34 @@
       features: geo.features.slice(0, 40).map(function(feature) {
         var props = feature && feature.properties ? feature.properties : {};
         return {
-          geometry: feature ? feature.geometry : null,
+          geometry: encodePreviewGeometry(feature ? feature.geometry : null),
           color: props._manaColor || props.color || '#0ea5e9'
         };
-      })
+      }).filter(function(entry) { return !!entry.geometry; })
     };
   }
 
+  var _currentPrivateMapId = '';
+
   function getLastPrivateMapId() {
-    try { return localStorage.getItem('mana-private-map-id') || ''; }
-    catch (e) { return ''; }
+    return _currentPrivateMapId || '';
   }
 
   function setLastPrivateMapId(mapId) {
-    if (!mapId) return;
-    try { localStorage.setItem('mana-private-map-id', mapId); }
-    catch (e) { console.warn('setLastPrivateMapId failed:', e); }
+    _currentPrivateMapId = mapId || '';
   }
+
+  window.setCurrentPrivateMapId = setLastPrivateMapId;
+
+  function seedCurrentPrivateMapIdFromURL() {
+    try {
+      var search = new URLSearchParams(window.location.search || '');
+      setLastPrivateMapId(search.get('load') || '');
+    } catch (e) {
+      setLastPrivateMapId('');
+    }
+  }
+  seedCurrentPrivateMapIdFromURL();
 
   function getFirestoreErrorMessage(err) {
     var code = err && (err.code || err.errorCode || '');
@@ -268,13 +287,21 @@
       allowPublicEdit: normalizedShareMode === 'edit',
       isPublished: true,
       shareUrl: shareUrl,
+      geojson: null,
+      mapData: null,
+      mapDataText: null,
       updatedAtMs: Date.now()
     };
     if (!existingId) payload.createdAtMs = Date.now();
 
     const useChunkedGeo = geoFieldSize > FIRESTORE_FIELD_MAX_BYTES;
-    if (!useChunkedGeo) payload.geojsonText = geoString;
-    else payload.geojsonChunked = { collection: 'geoChunks', chunkCount: 0 };
+    if (!useChunkedGeo) {
+      payload.geojsonText = geoString;
+      payload.geojsonChunked = null;
+    } else {
+      payload.geojsonText = null;
+      payload.geojsonChunked = { collection: 'geoChunks', chunkCount: 0 };
+    }
 
     const docRef = db.collection(MAPS_COLLECTION).doc(slug);
     const writePayload = { ...payload, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
@@ -415,7 +442,7 @@
 
 
   // ═══════════════════════════════════════════════════════════════
-  // SHARE / SAVE MAP — authenticated action chooser
+  // SHARE MAP — authenticated action chooser
   // ═══════════════════════════════════════════════════════════════
 
   function getShareChoiceModal() {
@@ -428,15 +455,11 @@
     modal.innerHTML = '' +
       '<div class="share-modal-box" role="dialog" aria-modal="true" aria-labelledby="share-choice-title">' +
         '<button class="modal-close-btn share-close" type="button" aria-label="Cerrar" data-share-close>&times;</button>' +
-        '<h3 id="share-choice-title">' + (LANG === 'en' ? 'Save or share map' : 'Guardar o compartir mapa') + '</h3>' +
+        '<h3 id="share-choice-title">' + (LANG === 'en' ? 'Share map' : 'Compartir mapa') + '</h3>' +
         '<p class="share-subtitle">' + (LANG === 'en'
-          ? 'Save privately, or copy a map-editor link as view-only or editable.'
-          : 'Guarda en privado o copia un enlace al editor en solo lectura o editable.') + '</p>' +
+          ? 'Copy a map-editor link as view-only or editable.'
+          : 'Copia un enlace al editor en solo lectura o editable.') + '</p>' +
         '<div class="share-actions">' +
-          '<button type="button" class="share-action-btn" data-share-action="save">' +
-            '<span class="share-action-title">' + (LANG === 'en' ? 'Save only' : 'Solo guardar') + '</span>' +
-            '<span class="share-action-desc">' + (LANG === 'en' ? 'Keep the map private in My Maps.' : 'Mantiene el mapa privado en Mis mapas.') + '</span>' +
-          '</button>' +
           '<button type="button" class="share-action-btn share-action-btn-primary" data-share-action="share-view">' +
             '<span class="share-action-title">' + (typeof t === 'function' ? t('share_view_only') : (LANG === 'en' ? 'View only' : 'Solo lectura')) + '</span>' +
             '<span class="share-action-desc">' + (typeof t === 'function' ? t('share_view_only_desc') : (LANG === 'en' ? 'Copy a link that does not allow edits.' : 'Copia un enlace que no permite editar.')) + '</span>' +
@@ -455,8 +478,7 @@
       closeShareChoiceModal();
       var action = actionBtn.getAttribute('data-share-action');
       if (action === 'share-edit') _doShareMap('edit');
-      else if (action === 'share-view') _doShareMap('view');
-      else _doSaveMapOnly();
+      else _doShareMap('view');
     });
     return modal;
   }

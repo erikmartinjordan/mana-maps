@@ -26,6 +26,22 @@
     return (typeof LANG !== 'undefined' && LANG === 'en') ? en : es;
   }
 
+  function _sanitizePlainObject(value) {
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch (e) { return null; }
+  }
+
+  function _parseGeoJSONText(text) {
+    if (typeof text !== 'string' || !text) return null;
+    try {
+      const parsed = JSON.parse(text);
+      return parsed && parsed.features ? parsed : null;
+    } catch (e) {
+      console.warn('parse stored GeoJSON text failed:', e);
+      return null;
+    }
+  }
+
   function _getHandle() {
     return window.manaAuth ? window.manaAuth.getHandle() : null;
   }
@@ -66,22 +82,28 @@
       mapId = _generateMapId(title);
     }
 
-    const geoString = JSON.stringify(geojson);
+    const sanitizedGeo = _sanitizePlainObject(geojson);
+    if (!sanitizedGeo || !sanitizedGeo.features || !sanitizedGeo.features.length) {
+      throw new Error('invalid-geojson');
+    }
+    const geoString = JSON.stringify(sanitizedGeo);
     const geoSize = _byteSize(geoString);
 
     const payload = {
       title: title || txt('Mapa sin título', 'Untitled map'),
       description: description || '',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      featureCount: geojson.features.length,
-      mapPreview: _buildMapPreview(geojson)
+      featureCount: sanitizedGeo.features.length,
+      mapPreview: _buildMapPreview(sanitizedGeo)
     };
 
     // Store GeoJSON: inline if small, chunked if large
     if (geoSize <= FIRESTORE_FIELD_MAX_BYTES) {
-      payload.geojson = JSON.parse(JSON.stringify(geojson)); // sanitize
+      payload.geojsonText = geoString;
+      payload.geojson = null;
       payload.geojsonChunked = null;
     } else {
+      payload.geojsonText = null;
       payload.geojson = null;
       payload.geojsonChunked = { collection: 'geoChunks', chunkCount: 0 };
     }
@@ -141,7 +163,7 @@
         public: data.public || false,
         likes: data.likes || 0,
         featureCount: data.featureCount || 0,
-        mapPreview: data.mapPreview || _buildMapPreview(data.geojson),
+        mapPreview: data.mapPreview || _buildMapPreview(_readInlineGeo(data)),
         thumbnailUrl: data.thumbnailUrl || ''
       };
     });
@@ -186,6 +208,7 @@
     if (!doc.exists) return null;
 
     const data = doc.data();
+    if (!data.geojson && data.geojsonText) data.geojson = _parseGeoJSONText(data.geojsonText);
 
     // Load chunked GeoJSON if needed
     if (!data.geojson && data.geojsonChunked && data.geojsonChunked.chunkCount) {
@@ -257,7 +280,7 @@
     if (!doc.exists) return;
 
     const data = doc.data();
-    let publishGeo = data.geojson || null;
+    let publishGeo = _readInlineGeo(data);
     if (!publishGeo && data.geojsonChunked && data.geojsonChunked.chunkCount) {
       const chunkSnap = await userDocRef.collection(data.geojsonChunked.collection || 'geoChunks')
         .orderBy('index', 'asc')
@@ -396,6 +419,20 @@
   // ═══════════════════════════════════════════════════════════════
 
 
+  function _readInlineGeo(data) {
+    if (!data) return null;
+    if (data.geojson && data.geojson.features) return data.geojson;
+    return _parseGeoJSONText(data.geojsonText);
+  }
+
+  function _encodePreviewGeometry(geometry) {
+    if (!geometry || !geometry.type || !Array.isArray(geometry.coordinates)) return null;
+    return {
+      type: geometry.type,
+      coordinatesText: JSON.stringify(geometry.coordinates)
+    };
+  }
+
   function _buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
@@ -426,10 +463,10 @@
       features: geo.features.slice(0, 40).map(function(feature) {
         var props = feature && feature.properties ? feature.properties : {};
         return {
-          geometry: feature ? feature.geometry : null,
+          geometry: _encodePreviewGeometry(feature ? feature.geometry : null),
           color: props._manaColor || props.color || '#0ea5e9'
         };
-      })
+      }).filter(function(entry) { return !!entry.geometry; })
     };
   }
 
