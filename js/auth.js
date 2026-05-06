@@ -155,6 +155,11 @@
     return /^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$/.test(handle);
   }
 
+  function _isPermissionDenied(err) {
+    var code = err && (err.code || err.message || '');
+    return code === 'permission-denied' || String(code).indexOf('Missing or insufficient permissions') !== -1;
+  }
+
   async function _isHandleAvailable(handle) {
     const db = getDb();
     if (!db) return false;
@@ -221,15 +226,27 @@
         hint.className = 'handle-hint';
 
         debounceTimer = setTimeout(async function () {
-          const available = await _isHandleAvailable(val);
-          if (available) {
-            hint.textContent = txt('✓ Disponible', '✓ Available');
-            hint.className = 'handle-hint handle-hint-ok';
+          try {
+            const available = await _isHandleAvailable(val);
+            if (available) {
+              hint.textContent = txt('✓ Disponible', '✓ Available');
+              hint.className = 'handle-hint handle-hint-ok';
+              btn.disabled = false;
+            } else {
+              hint.textContent = txt('✗ Ya en uso', '✗ Already taken');
+              hint.className = 'handle-hint handle-hint-error';
+              btn.disabled = true;
+            }
+          } catch (err) {
+            if (!_isPermissionDenied(err)) {
+              console.warn('[auth] Handle availability check failed:', err);
+            }
+            hint.textContent = txt(
+              'No se pudo comprobar ahora. Lo verificaremos al guardar.',
+              'Could not check now. We will verify when saving.'
+            );
+            hint.className = 'handle-hint';
             btn.disabled = false;
-          } else {
-            hint.textContent = txt('✗ Ya en uso', '✗ Already taken');
-            hint.className = 'handle-hint handle-hint-error';
-            btn.disabled = true;
           }
         }, 400);
       });
@@ -707,7 +724,9 @@
     var newRef = db.collection('users').doc(nextHandle);
     await db.runTransaction(async function(transaction) {
       var oldDoc = await transaction.get(oldRef);
+      var newDoc = await transaction.get(newRef);
       if (!oldDoc.exists || oldDoc.data().uid !== user.uid) throw new Error('profile-not-found');
+      if (newDoc.exists) throw new Error('handle-taken');
       transaction.set(newRef, Object.assign({}, oldDoc.data(), profilePayload, {
         previousHandle: currentHandle,
         handleChangedAt: firebase.firestore.FieldValue.serverTimestamp()
