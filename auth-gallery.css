@@ -48,10 +48,10 @@
 
 .mana-avatar-dropdown {
   display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  left: 8px;
+  top: 8px;
+  transform: none;
   min-width: 200px;
   background: var(--surface, #fff);
   border: 0.5px solid var(--border, #e5e7eb);
@@ -67,8 +67,8 @@
 }
 
 @keyframes avatarDdIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .avatar-dd-header {

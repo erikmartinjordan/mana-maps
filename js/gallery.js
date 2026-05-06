@@ -402,10 +402,92 @@
 
 
   // ═══════════════════════════════════════════════════════════════
-  // SHARE MAP — the new unified entry point
+  // SHARE / SAVE MAP — authenticated action chooser
   // ═══════════════════════════════════════════════════════════════
 
-  // Internal: performs save + copy URL (assumes user is authenticated)
+  function getShareChoiceModal() {
+    var modal = document.getElementById('share-choice-modal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'share-choice-modal';
+    modal.className = 'share-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = '' +
+      '<div class="share-modal-box" role="dialog" aria-modal="true" aria-labelledby="share-choice-title">' +
+        '<button class="modal-close-btn share-close" type="button" aria-label="Cerrar" data-share-close>&times;</button>' +
+        '<h3 id="share-choice-title">' + (LANG === 'en' ? 'Save or share map' : 'Guardar o compartir mapa') + '</h3>' +
+        '<p class="share-subtitle">' + (LANG === 'en'
+          ? 'Save a private copy in your profile, or publish a public link you can send to others.'
+          : 'Guarda una copia privada en tu perfil o publica un enlace para enviarlo a otras personas.') + '</p>' +
+        '<div class="share-actions">' +
+          '<button type="button" class="share-action-btn" data-share-action="save">' +
+            '<span class="share-action-title">' + (LANG === 'en' ? 'Save only' : 'Solo guardar') + '</span>' +
+            '<span class="share-action-desc">' + (LANG === 'en' ? 'Keep the map private in My Maps.' : 'Mantiene el mapa privado en Mis mapas.') + '</span>' +
+          '</button>' +
+          '<button type="button" class="share-action-btn share-action-btn-primary" data-share-action="share">' +
+            '<span class="share-action-title">' + (LANG === 'en' ? 'Share public link' : 'Compartir enlace público') + '</span>' +
+            '<span class="share-action-desc">' + (LANG === 'en' ? 'Publish and copy a gallery link.' : 'Publica y copia un enlace de galería.') + '</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal || e.target.hasAttribute('data-share-close')) closeShareChoiceModal();
+      var actionBtn = e.target.closest('[data-share-action]');
+      if (!actionBtn) return;
+      closeShareChoiceModal();
+      if (actionBtn.getAttribute('data-share-action') === 'share') _doShareMap();
+      else _doSaveMapOnly();
+    });
+    return modal;
+  }
+
+  function openShareChoiceModal() {
+    var modal = getShareChoiceModal();
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    setTimeout(function() {
+      var primary = modal.querySelector('[data-share-action="share"]');
+      if (primary) primary.focus();
+    }, 50);
+  }
+
+  function closeShareChoiceModal() {
+    var modal = document.getElementById('share-choice-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  async function savePrivateMap() {
+    const geo = getCurrentGeo();
+    if (!geo) throw new Error('empty-map');
+    if (!window.manaMaps || typeof window.manaMaps.saveMap !== 'function') throw new Error('firestore-unavailable');
+    const mapId = getLastPrivateMapId() || null;
+    const meta = getMapMeta();
+    const saved = await window.manaMaps.saveMap({
+      mapId: mapId,
+      title: meta.name,
+      description: '',
+      geojson: geo
+    });
+    setLastPrivateMapId(saved.mapId);
+    return saved;
+  }
+
+  async function _doSaveMapOnly() {
+    try {
+      await savePrivateMap();
+      if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map saved privately ✓' : 'Mapa guardado en privado ✓');
+    } catch (e) {
+      const msg = e && e.message === 'empty-map'
+        ? (LANG === 'en' ? 'No elements to save.' : t('persist_no_elements'))
+        : getFirestoreErrorMessage(e);
+      manaAlert(msg, 'warning');
+    }
+  }
+
+  // Internal: performs publish + copy URL (assumes user is authenticated)
   async function _doShareMap() {
     const geo = getCurrentGeo();
     if (!geo) {
@@ -414,28 +496,13 @@
     }
     const user = getCurrentUser();
     if (!user || !user.uid) {
-      // Should not happen here, but handle gracefully
       manaAlert(LANG === 'en' ? 'Authentication required.' : 'Necesitas iniciar sesión.', 'warning');
       return;
     }
     try {
-      const mapId = getLastPrivateMapId() || null;
-      const meta = getMapMeta();
-      if (window.manaMaps && typeof window.manaMaps.saveMap === 'function') {
-        const saved = await window.manaMaps.saveMap({
-          mapId: mapId,
-          title: meta.name,
-          description: '',
-          geojson: geo
-        });
-        setLastPrivateMapId(saved.mapId);
-        const handle = (window.manaAuth && window.manaAuth.getHandle) ? window.manaAuth.getHandle() : '';
-        const url = window.location.origin + '/' + encodeURIComponent(handle) + '/maps';
-        await copyToClipboard(url, LANG === 'en' ? 'Saved in profile ✓' : 'Guardado en tu perfil ✓');
-      } else {
-        const result = await persistMapRecord(user);
-        await copyToClipboard(result.shareUrl, LANG === 'en' ? 'Link copied ✓' : 'Enlace copiado ✓');
-      }
+      if (window.manaMaps && typeof window.manaMaps.saveMap === 'function') await savePrivateMap();
+      const result = await persistMapRecord(user);
+      await copyToClipboard(result.shareUrl, LANG === 'en' ? 'Public link copied ✓' : 'Enlace público copiado ✓');
     } catch (e) {
       const msg = e && e.message === 'empty-map'
         ? (LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'))
@@ -444,27 +511,31 @@
     }
   }
 
+  function openShareFlow() {
+    const isNewMap = !getLastPrivateMapId();
+    if (window.manaAuth && typeof window.manaAuth.checkQuota === 'function') {
+      window.manaAuth.checkQuota(function () {
+        openShareChoiceModal();
+      }, { isNewMap: isNewMap });
+      return;
+    }
+    openShareChoiceModal();
+  }
+
   // Public: called by the Share button
   window.shareMap = async function() {
-    // 1. Check there's something to share
     const geo = getCurrentGeo();
     if (!geo) {
       manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
       return;
     }
 
-    // 2. Check if user is already logged in
     if (window.manaAuth && typeof window.manaAuth.requireAuth === 'function') {
-      window.manaAuth.requireAuth(async function () {
-        const isNewMap = !getLastPrivateMapId();
-        await window.manaAuth.checkQuota(function () {
-          _doShareMap();
-        }, { isNewMap: isNewMap });
-      });
+      window.manaAuth.requireAuth(openShareFlow);
       return;
     }
     const user = getCurrentUser();
-    if (user && user.uid) return _doShareMap();
+    if (user && user.uid) return openShareFlow();
     _pendingShareAfterAuth = true;
     openAuthModal();
   };
@@ -488,6 +559,7 @@
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       closeAuthModal();
+      closeShareChoiceModal();
     }
   });
 })();

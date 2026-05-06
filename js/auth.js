@@ -298,12 +298,33 @@
   // ═══════════════════════════════════════════════════════════════
 
   function requireAuth(callback) {
-    if (_currentUser && !_currentUser.isAnonymous && _handle) {
-      callback(_currentUser);
+    var auth = getAuth();
+    var authUser = _currentUser || (auth && auth.currentUser);
+    if (authUser && !authUser.isAnonymous && _handle) {
+      callback(authUser);
       return;
     }
-    // Store callback and open auth modal
+    // Store callback and open auth modal. If Firebase already has a signed-in
+    // user but the profile handle is still loading, keep the action pending
+    // without asking the user to sign in again.
     _pendingCallback = callback;
+    if (authUser && !authUser.isAnonymous) {
+      _currentUser = authUser;
+      _loadOrPromptHandle(authUser).then(function () {
+        _renderAvatar();
+        if (_pendingCallback && _handle) {
+          var cb = _pendingCallback;
+          _pendingCallback = null;
+          Promise.resolve(cb(authUser)).catch(function(err) {
+            console.warn('[auth] Deferred auth callback failed', err);
+          });
+        }
+      }).catch(function (err) {
+        console.warn('[auth] Failed to finish pending auth check', err);
+        openAuthModal();
+      });
+      return;
+    }
     openAuthModal();
   }
 
@@ -368,12 +389,12 @@
     setTimeout(function () { if (emailInput) emailInput.focus(); }, 80);
   }
 
-  function closeAuthModal() {
+  function closeAuthModal(options) {
     var modal = document.getElementById('auth-modal');
     if (!modal) return;
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
-    _pendingCallback = null;
+    if (!options || !options.keepPending) _pendingCallback = null;
   }
 
   function _toggleAuthMode(e) {
@@ -398,7 +419,7 @@
     try {
       var provider = new firebase.auth.GoogleAuthProvider();
       await firebase.auth().signInWithPopup(provider);
-      closeAuthModal();
+      closeAuthModal({ keepPending: true });
     } catch (e) {
       console.warn('google sign-in failed:', e);
       if (typeof manaAlert === 'function') {
@@ -423,7 +444,7 @@
       } else {
         await firebase.auth().signInWithEmailAndPassword(email, password);
       }
-      closeAuthModal();
+      closeAuthModal({ keepPending: true });
     } catch (err) {
       var msg = '';
       var code = err && err.code ? err.code : '';
@@ -446,7 +467,7 @@
   async function continueAsGuest() {
     try {
       await firebase.auth().signInAnonymously();
-      closeAuthModal();
+      closeAuthModal({ keepPending: true });
     } catch (e) {
       console.warn('anonymous sign-in failed:', e);
       if (typeof manaAlert === 'function') {
@@ -482,9 +503,8 @@
     var bottom = toolbar.querySelector('.toolbar-bottom');
     if (!bottom) return;
 
-    // Remove existing avatar if any
-    var existing = document.getElementById('mana-avatar-wrap');
-    if (existing) existing.remove();
+    // Remove existing avatar/dropdown if any
+    _removeAvatar();
 
     var displayName = (_profile && _profile.displayName) || (_currentUser && _currentUser.displayName) || _handle || '';
     var uid = _currentUser ? _currentUser.uid : '';
@@ -540,21 +560,26 @@
       </button>
     `;
 
-    wrap.appendChild(dropdown);
+    document.body.appendChild(dropdown);
 
     // Insert avatar before the existing toolbar-bottom items
     bottom.insertBefore(wrap, bottom.firstChild);
     _removeLoginButton();
 
+    function toggleDropdown() {
+      if (!dropdown.classList.contains('open')) _positionAvatarDropdown(circle, dropdown);
+      dropdown.classList.toggle('open');
+    }
+
     // Toggle dropdown on click
     circle.addEventListener('click', function (e) {
       e.stopPropagation();
-      dropdown.classList.toggle('open');
+      toggleDropdown();
     });
     circle.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        dropdown.classList.toggle('open');
+        toggleDropdown();
       }
     });
 
@@ -564,9 +589,26 @@
     });
   }
 
+  function _positionAvatarDropdown(anchor, dropdown) {
+    if (!anchor || !dropdown) return;
+    var rect = anchor.getBoundingClientRect();
+    var width = Math.max(dropdown.offsetWidth || 200, 200);
+    var margin = 8;
+    var left = Math.min(
+      Math.max(margin, rect.left + (rect.width / 2) - (width / 2)),
+      window.innerWidth - width - margin
+    );
+    var top = rect.top - (dropdown.offsetHeight || 180) - margin;
+    if (top < margin) top = rect.bottom + margin;
+    dropdown.style.left = left + 'px';
+    dropdown.style.top = top + 'px';
+  }
+
   function _removeAvatar() {
     var el = document.getElementById('mana-avatar-wrap');
     if (el) el.remove();
+    var dd = document.getElementById('mana-avatar-dropdown');
+    if (dd) dd.remove();
   }
 
   function _renderLoginButton() {
