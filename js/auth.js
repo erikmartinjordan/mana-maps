@@ -155,6 +155,11 @@
     return /^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$/.test(handle);
   }
 
+  function _isPermissionDenied(err) {
+    var code = err && (err.code || err.message || '');
+    return code === 'permission-denied' || String(code).indexOf('Missing or insufficient permissions') !== -1;
+  }
+
   async function _isHandleAvailable(handle) {
     const db = getDb();
     if (!db) return false;
@@ -233,10 +238,15 @@
               btn.disabled = true;
             }
           } catch (err) {
-            console.warn('[auth] Handle availability check failed:', err);
-            hint.textContent = txt('No se pudo comprobar. Inténtalo de nuevo.', 'Could not check availability. Try again.');
-            hint.className = 'handle-hint handle-hint-error';
-            btn.disabled = true;
+            if (!_isPermissionDenied(err)) {
+              console.warn('[auth] Handle availability check failed:', err);
+            }
+            hint.textContent = txt(
+              'No se pudo comprobar ahora. Lo verificaremos al guardar.',
+              'Could not check now. We will verify when saving.'
+            );
+            hint.className = 'handle-hint';
+            btn.disabled = false;
           }
         }, 400);
       });

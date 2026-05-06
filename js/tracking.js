@@ -39,7 +39,6 @@
       var code = err && (err.code || err.message || '');
       if (code === 'permission-denied' || code.indexOf('Missing or insufficient permissions') !== -1) {
         trackingDisabled = true;
-        console.warn('[MañaTrack] tracking disabled by Firestore rules:', name);
         return;
       }
       console.warn('[MañaTrack]', name, err);
