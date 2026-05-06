@@ -695,6 +695,8 @@
 
     var opts = options || {};
     var nextDisplayName = (opts.displayName || '').trim() || (_profile && _profile.displayName) || user.displayName || _handle || '';
+    var nextAvatarUrl = (opts.avatarUrl || '').trim() || user.photoURL || (_profile && _profile.avatarUrl) || '';
+    var nextBio = (opts.bio || '').trim().slice(0, 180);
     var nextHandle = (opts.handle || '').trim().toLowerCase();
     var currentHandle = _handle || _getCachedHandle(user.uid) || '';
     if (!nextHandle) nextHandle = currentHandle;
@@ -703,7 +705,8 @@
     var profilePayload = {
       displayName: nextDisplayName || nextHandle,
       uid: user.uid,
-      avatarUrl: user.photoURL || '',
+      avatarUrl: nextAvatarUrl,
+      bio: nextBio,
       email: firebase.firestore.FieldValue.delete(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -713,8 +716,8 @@
       _handle = nextHandle;
       _profile = Object.assign({}, _profile || {}, profilePayload, { updatedAt: Date.now() });
       _setCachedHandle(user.uid, nextHandle);
-      if (user.updateProfile && nextDisplayName && nextDisplayName !== user.displayName) {
-        try { await user.updateProfile({ displayName: nextDisplayName }); } catch (e) { console.warn('[auth] Firebase displayName update failed', e); }
+      if (user.updateProfile && (nextDisplayName !== user.displayName || nextAvatarUrl !== user.photoURL)) {
+        try { await user.updateProfile({ displayName: nextDisplayName, photoURL: nextAvatarUrl || null }); } catch (e) { console.warn('[auth] Firebase profile update failed', e); }
       }
       _renderAvatar();
       return { handle: _handle, profile: _profile };
@@ -763,8 +766,8 @@
     _handle = nextHandle;
     _profile = Object.assign({}, _profile || {}, profilePayload, { updatedAt: Date.now() });
     _setCachedHandle(user.uid, nextHandle);
-    if (user.updateProfile && nextDisplayName && nextDisplayName !== user.displayName) {
-      try { await user.updateProfile({ displayName: nextDisplayName }); } catch (e) { console.warn('[auth] Firebase displayName update failed', e); }
+    if (user.updateProfile && (nextDisplayName !== user.displayName || nextAvatarUrl !== user.photoURL)) {
+      try { await user.updateProfile({ displayName: nextDisplayName, photoURL: nextAvatarUrl || null }); } catch (e) { console.warn('[auth] Firebase profile update failed', e); }
     }
     _renderAvatar();
     return { handle: _handle, profile: _profile };
