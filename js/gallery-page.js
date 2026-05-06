@@ -13,6 +13,13 @@
     measurementId: 'G-F1Z7C21BZ6'
   };
 
+
+  function escHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
   function safeDate(tsMs) {
     if (!tsMs) return 'Sin fecha';
     try {
@@ -132,16 +139,17 @@
       const geo = getPublishedGeo(item);
       const thumb = renderMapPreviewSVG(item.mapPreview || buildPreviewFromGeo(geo));
       const likes = item.likes || 0;
-      const authorHandle = item.authorHandle || item.createdBy || '';
+      const authorHandle = item.authorHandle || '';
       const mapSlug = item.slug || item.id;
+      var mode = item.shareMode || 'view';
       return '' +
         '<div class="card">' +
-          '<a class="card-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + shareMode + '">' +
+          '<a class="card-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
             '<div class="thumb">' + thumb + '</div>' +
-            '<h3 class="title">' + (item.title || item.name || 'Mapa sin título') + '</h3>' +
+            '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +
           '<div class="meta">' +
-            (authorHandle ? '<span class="meta-author">@' + authorHandle + '</span><span>·</span>' : '') +
+            (authorHandle ? '<a class="meta-author" href="/@' + encodeURIComponent(authorHandle) + '">@' + escHtml(authorHandle) + '</a><span>·</span>' : '') +
             '<span>' + (item.featureCount || 0) + ' elementos</span>' +
             '<span>·</span>' +
             '<span>' + safeDate(created) + '</span>' +

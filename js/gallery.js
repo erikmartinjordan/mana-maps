@@ -257,6 +257,7 @@
 
     const meta = getMapMeta();
     const userUid = authUser.uid;
+    const authorHandle = window.manaAuth && typeof window.manaAuth.getHandle === 'function' ? window.manaAuth.getHandle() : '';
 
     const existingId = getLastPrivateMapId();
     const slug = existingId || slugifyMapName(meta.name);
@@ -279,6 +280,7 @@
       title: meta.name, name: meta.name,
       createdBy: userUid,
       ownerUid: userUid,
+      authorHandle: authorHandle || '',
       lang: meta.lang || 'es',
       featureCount: geo.features.length,
       mapPreview: preview || null,

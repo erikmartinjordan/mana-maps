@@ -30,7 +30,7 @@
       </nav>
     </div>
 
-    <section class="profile-card">
+    <section id="private-profile-card" class="profile-card">
       <h1 id="profile-title">Perfil de usuario</h1>
       <p id="profile-subtitle">Configura tu nombre público y tu handle. El handle identifica tu perfil y tus mapas publicados.</p>
 
@@ -52,12 +52,44 @@
           <input id="profile-handle" type="text" maxlength="24" autocomplete="username" spellcheck="false"/>
           <small>Entre 3 y 24 caracteres. Usa letras minúsculas, números, puntos, guiones o guiones bajos. Cambiarlo también mueve tus mapas privados al nuevo handle.</small>
         </div>
+        <div class="profile-row">
+          <label for="profile-avatar-url">Foto de perfil</label>
+          <input id="profile-avatar-url" type="url" maxlength="500" autocomplete="photo" placeholder="https://…"/>
+          <small>Pega una URL pública de imagen. Si la dejas vacía, usaremos la foto de tu cuenta o tus iniciales.</small>
+        </div>
+        <div class="profile-row">
+          <label for="profile-bio">Descripción breve</label>
+          <textarea id="profile-bio" maxlength="180" rows="4" placeholder="Cuéntale al mundo qué mapas haces."></textarea>
+          <small>Máximo 180 caracteres. Aparecerá en tu perfil público.</small>
+        </div>
         <div class="profile-actions">
           <button id="profile-save" class="btn btn-primary profile-submit" type="submit">Guardar cambios</button>
           <button class="btn btn-ghost profile-secondary" type="button" onclick="location.href='/map/'">Volver al editor</button>
           <span id="profile-status" class="profile-status" role="status" aria-live="polite"></span>
         </div>
       </form>
+    </section>
+
+    <section id="public-profile-view" class="public-profile-card" aria-live="polite">
+      <div class="public-profile-hero">
+        <div id="public-profile-avatar" class="public-profile-avatar"><span>@</span></div>
+        <div class="public-profile-copy">
+          <h1 id="public-profile-name">Perfil</h1>
+          <span id="public-profile-handle" class="public-profile-handle">@</span>
+          <p id="public-profile-bio">Cargando perfil…</p>
+          <div class="public-profile-stats">
+            <strong id="public-profile-map-count">0</strong>
+            <span>mapas públicos</span>
+          </div>
+        </div>
+      </div>
+      <div class="public-profile-section-head">
+        <h2>Mapas públicos</h2>
+        <a class="btn btn-ghost" href="/gallery/">Ver galería</a>
+      </div>
+      <div id="public-profile-maps" class="public-profile-grid">
+        <div class="public-profile-empty">Cargando mapas…</div>
+      </div>
     </section>
   </main>
 
@@ -83,6 +115,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script defer src="/js/auth.js"></script>
+  <script defer src="/js/public-profile.js"></script>
   <script>
     var LANG = localStorage.getItem('mana-landing-lang') || 'es';
     function manaAlert(message) { setProfileStatus(message, 'error'); }
@@ -116,6 +149,8 @@
         var handle = window.manaAuth.getHandle() || '';
         document.getElementById('profile-display-name').value = profile.displayName || user.displayName || handle || '';
         document.getElementById('profile-handle').value = handle;
+        document.getElementById('profile-avatar-url').value = profile.avatarUrl || user.photoURL || '';
+        document.getElementById('profile-bio').value = profile.bio || '';
         document.getElementById('profile-current-handle').textContent = handle ? '@' + handle : '@';
         loading.style.display = 'none'; form.classList.add('ready');
       });
@@ -128,10 +163,12 @@
         var save = document.getElementById('profile-save');
         var handle = normalizeHandle(document.getElementById('profile-handle').value);
         var displayName = document.getElementById('profile-display-name').value.trim();
+        var avatarUrl = document.getElementById('profile-avatar-url').value.trim();
+        var bio = document.getElementById('profile-bio').value.trim();
         if (!isValidHandle(handle)) { setProfileStatus('Handle no válido.', 'error'); return; }
         save.disabled = true; save.textContent = 'Guardando…'; setProfileStatus('', '');
         try {
-          var result = await window.manaAuth.updateProfileSettings({ handle: handle, displayName: displayName });
+          var result = await window.manaAuth.updateProfileSettings({ handle: handle, displayName: displayName, avatarUrl: avatarUrl, bio: bio });
           document.getElementById('profile-current-handle').textContent = '@' + result.handle;
           setProfileStatus('Perfil guardado ✓', 'ok');
         } catch (err) {
