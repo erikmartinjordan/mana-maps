@@ -18,6 +18,7 @@
   }
 
   var db = firebase.firestore();
+  var trackingDisabled = false;
 
   // Session ID (unique per tab)
   var sid = sessionStorage.getItem('mana-sid');
@@ -27,13 +28,22 @@
   }
 
   function track(name, params) {
+    if (trackingDisabled) return;
     params = params || {};
     params.sid = sid;
     db.collection('events').add({
       name: name,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       params: params
-    }).catch(function(err) { console.error('[MañaTrack]', name, err); });
+    }).catch(function(err) {
+      var code = err && (err.code || err.message || '');
+      if (code === 'permission-denied' || code.indexOf('Missing or insufficient permissions') !== -1) {
+        trackingDisabled = true;
+        console.warn('[MañaTrack] tracking disabled by Firestore rules:', name);
+        return;
+      }
+      console.warn('[MañaTrack]', name, err);
+    });
   }
 
   // Expose globally

@@ -221,13 +221,20 @@
         hint.className = 'handle-hint';
 
         debounceTimer = setTimeout(async function () {
-          const available = await _isHandleAvailable(val);
-          if (available) {
-            hint.textContent = txt('✓ Disponible', '✓ Available');
-            hint.className = 'handle-hint handle-hint-ok';
-            btn.disabled = false;
-          } else {
-            hint.textContent = txt('✗ Ya en uso', '✗ Already taken');
+          try {
+            const available = await _isHandleAvailable(val);
+            if (available) {
+              hint.textContent = txt('✓ Disponible', '✓ Available');
+              hint.className = 'handle-hint handle-hint-ok';
+              btn.disabled = false;
+            } else {
+              hint.textContent = txt('✗ Ya en uso', '✗ Already taken');
+              hint.className = 'handle-hint handle-hint-error';
+              btn.disabled = true;
+            }
+          } catch (err) {
+            console.warn('[auth] Handle availability check failed:', err);
+            hint.textContent = txt('No se pudo comprobar. Inténtalo de nuevo.', 'Could not check availability. Try again.');
             hint.className = 'handle-hint handle-hint-error';
             btn.disabled = true;
           }
@@ -707,7 +714,9 @@
     var newRef = db.collection('users').doc(nextHandle);
     await db.runTransaction(async function(transaction) {
       var oldDoc = await transaction.get(oldRef);
+      var newDoc = await transaction.get(newRef);
       if (!oldDoc.exists || oldDoc.data().uid !== user.uid) throw new Error('profile-not-found');
+      if (newDoc.exists) throw new Error('handle-taken');
       transaction.set(newRef, Object.assign({}, oldDoc.data(), profilePayload, {
         previousHandle: currentHandle,
         handleChangedAt: firebase.firestore.FieldValue.serverTimestamp()
