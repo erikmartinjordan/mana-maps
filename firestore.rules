@@ -28,7 +28,8 @@ service cloud.firestore {
     // Signed-in users may get a handle doc so the app can check availability.
     match /users/{handle} {
       allow get: if signedIn();
-      allow list: if signedIn() && resource.data.uid == request.auth.uid;
+      // Needed for the uid lookup used after sign-in; individual writes still require ownership.
+      allow list: if signedIn();
       allow create: if signedIn() && keepsUserOwner();
       allow update: if signedIn()
         && resource.data.uid == request.auth.uid
