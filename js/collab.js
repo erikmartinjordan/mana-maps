@@ -351,6 +351,7 @@
     }
 
     function pushStateNow() {
+      if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) return;
       if (APPLYING_REMOTE || !window._manaCollabRoomRef) return;
       var geo;
       try {
@@ -393,6 +394,7 @@
 
     window.saveState = function() {
       originalSave();
+      if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) return;
       if (!APPLYING_REMOTE) schedulePush();
     };
 

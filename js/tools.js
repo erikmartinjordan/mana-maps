@@ -25,6 +25,10 @@ function stopAll() {
 }
 
 function setTool(tool) {
+  if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) {
+    if (typeof showToast === 'function') showToast((typeof LANG !== 'undefined' && LANG === 'en') ? 'This shared map is view only.' : 'Este mapa compartido es de solo lectura.');
+    return;
+  }
   // Exit edit mode if entering a draw tool
   if (editMode) stopEdit();
   // Exit select mode if entering another tool
@@ -91,6 +95,10 @@ map.on(L.Draw.Event.CREATED, async e => {
 });
 
 async function clearAll() {
+  if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) {
+    if (typeof showToast === 'function') showToast((typeof LANG !== 'undefined' && LANG === 'en') ? 'This shared map is view only.' : 'Este mapa compartido es de solo lectura.');
+    return;
+  }
   closeCtx();
   const ok = await manaConfirm(t('modal_clear_confirm'));
   if (ok) {
@@ -120,6 +128,10 @@ async function clearAll() {
 // ═══════════════════════════════════════════════════════════════
 
 function toggleEdit() {
+  if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) {
+    if (typeof showToast === 'function') showToast((typeof LANG !== 'undefined' && LANG === 'en') ? 'This shared map is view only.' : 'Este mapa compartido es de solo lectura.');
+    return;
+  }
   if (editMode) stopEdit();
   else startEdit();
 }

@@ -34,7 +34,7 @@
   function getCurrentUser() {
     return (window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function')
       ? window.manaAuth.getCurrentUser()
-      : (firebase && firebase.auth ? firebase.auth().currentUser : null);
+      : (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null);
   }
 
   function getCurrentGeo() {
@@ -138,8 +138,9 @@
     return (base || 'mapa') + '-' + rnd;
   }
 
-  function buildGalleryURL(slug) {
-    return window.location.origin + '/gallery/?slug=' + encodeURIComponent(slug);
+  function buildGalleryURL(slug, shareMode) {
+    var mode = shareMode === 'edit' ? 'edit' : 'view';
+    return window.location.origin + '/map/?gallery=' + encodeURIComponent(slug) + '&map=' + encodeURIComponent(slug) + '&room=' + encodeURIComponent(slug) + '&mode=' + mode;
   }
 
   function buildMapPreview(geo) {
@@ -166,8 +167,17 @@
       minX = Math.min(minX, x); maxX = Math.max(maxX, x);
       minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     });
-    if (!isFinite(minX)) return null;
-    return { bbox: [minX, minY, maxX, maxY] };
+    if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
+    return {
+      bbox: [minX, minY, maxX, maxY],
+      features: geo.features.slice(0, 40).map(function(feature) {
+        var props = feature && feature.properties ? feature.properties : {};
+        return {
+          geometry: feature ? feature.geometry : null,
+          color: props._manaColor || props.color || '#0ea5e9'
+        };
+      })
+    };
   }
 
   function getLastPrivateMapId() {
@@ -217,7 +227,7 @@
   // PERSIST MAP (core save logic)
   // ═══════════════════════════════════════════════════════════════
 
-  async function persistMapRecord(authUser) {
+  async function persistMapRecord(authUser, shareMode) {
     const db = getGalleryDb();
     if (!db) throw new Error('firestore-unavailable');
 
@@ -232,7 +242,8 @@
     const existingId = getLastPrivateMapId();
     const slug = existingId || slugifyMapName(meta.name);
     const preview = buildMapPreview(geo);
-    const shareUrl = buildGalleryURL(slug);
+    const normalizedShareMode = shareMode === 'edit' ? 'edit' : 'view';
+    const shareUrl = buildGalleryURL(slug, normalizedShareMode);
 
     var geoToPublish = geo;
     var geoString = toGeoJSONString(geoToPublish);
@@ -253,6 +264,8 @@
       featureCount: geo.features.length,
       mapPreview: preview || null,
       visibility: 'public',
+      shareMode: normalizedShareMode,
+      allowPublicEdit: normalizedShareMode === 'edit',
       isPublished: true,
       shareUrl: shareUrl,
       updatedAtMs: Date.now()
@@ -279,7 +292,7 @@
     }
 
     setLastPrivateMapId(slug);
-    return { slug: slug, shareUrl: shareUrl };
+    return { slug: slug, shareUrl: shareUrl, shareMode: normalizedShareMode };
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -417,16 +430,20 @@
         '<button class="modal-close-btn share-close" type="button" aria-label="Cerrar" data-share-close>&times;</button>' +
         '<h3 id="share-choice-title">' + (LANG === 'en' ? 'Save or share map' : 'Guardar o compartir mapa') + '</h3>' +
         '<p class="share-subtitle">' + (LANG === 'en'
-          ? 'Save a private copy in your profile, or publish a public link you can send to others.'
-          : 'Guarda una copia privada en tu perfil o publica un enlace para enviarlo a otras personas.') + '</p>' +
+          ? 'Save privately, or copy a map-editor link as view-only or editable.'
+          : 'Guarda en privado o copia un enlace al editor en solo lectura o editable.') + '</p>' +
         '<div class="share-actions">' +
           '<button type="button" class="share-action-btn" data-share-action="save">' +
             '<span class="share-action-title">' + (LANG === 'en' ? 'Save only' : 'Solo guardar') + '</span>' +
             '<span class="share-action-desc">' + (LANG === 'en' ? 'Keep the map private in My Maps.' : 'Mantiene el mapa privado en Mis mapas.') + '</span>' +
           '</button>' +
-          '<button type="button" class="share-action-btn share-action-btn-primary" data-share-action="share">' +
-            '<span class="share-action-title">' + (LANG === 'en' ? 'Share public link' : 'Compartir enlace público') + '</span>' +
-            '<span class="share-action-desc">' + (LANG === 'en' ? 'Publish and copy a gallery link.' : 'Publica y copia un enlace de galería.') + '</span>' +
+          '<button type="button" class="share-action-btn share-action-btn-primary" data-share-action="share-view">' +
+            '<span class="share-action-title">' + (typeof t === 'function' ? t('share_view_only') : (LANG === 'en' ? 'View only' : 'Solo lectura')) + '</span>' +
+            '<span class="share-action-desc">' + (typeof t === 'function' ? t('share_view_only_desc') : (LANG === 'en' ? 'Copy a link that does not allow edits.' : 'Copia un enlace que no permite editar.')) + '</span>' +
+          '</button>' +
+          '<button type="button" class="share-action-btn" data-share-action="share-edit">' +
+            '<span class="share-action-title">' + (typeof t === 'function' ? t('share_edit_mode') : (LANG === 'en' ? 'Edit mode' : 'Modo edición')) + '</span>' +
+            '<span class="share-action-desc">' + (typeof t === 'function' ? t('share_edit_mode_desc') : (LANG === 'en' ? 'Copy a collaborative edit link.' : 'Copia un enlace de edición colaborativa.')) + '</span>' +
           '</button>' +
         '</div>' +
       '</div>';
@@ -436,7 +453,9 @@
       var actionBtn = e.target.closest('[data-share-action]');
       if (!actionBtn) return;
       closeShareChoiceModal();
-      if (actionBtn.getAttribute('data-share-action') === 'share') _doShareMap();
+      var action = actionBtn.getAttribute('data-share-action');
+      if (action === 'share-edit') _doShareMap('edit');
+      else if (action === 'share-view') _doShareMap('view');
       else _doSaveMapOnly();
     });
     return modal;
@@ -447,7 +466,7 @@
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     setTimeout(function() {
-      var primary = modal.querySelector('[data-share-action="share"]');
+      var primary = modal.querySelector('[data-share-action="share-view"]');
       if (primary) primary.focus();
     }, 50);
   }
@@ -488,7 +507,7 @@
   }
 
   // Internal: performs publish + copy URL (assumes user is authenticated)
-  async function _doShareMap() {
+  async function _doShareMap(shareMode) {
     const geo = getCurrentGeo();
     if (!geo) {
       manaAlert(LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'), 'warning');
@@ -501,8 +520,10 @@
     }
     try {
       if (window.manaMaps && typeof window.manaMaps.saveMap === 'function') await savePrivateMap();
-      const result = await persistMapRecord(user);
-      await copyToClipboard(result.shareUrl, LANG === 'en' ? 'Public link copied ✓' : 'Enlace público copiado ✓');
+      const result = await persistMapRecord(user, shareMode);
+      await copyToClipboard(result.shareUrl, result.shareMode === 'edit'
+        ? (LANG === 'en' ? 'Editable link copied ✓' : 'Enlace editable copiado ✓')
+        : (LANG === 'en' ? 'View-only link copied ✓' : 'Enlace de solo lectura copiado ✓'));
     } catch (e) {
       const msg = e && e.message === 'empty-map'
         ? (LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'))
@@ -521,6 +542,47 @@
     }
     openShareChoiceModal();
   }
+
+  function updateSaveButtonVisibility() {
+    var btn = document.getElementById('private-save-btn');
+    if (!btn) return;
+    var user = getCurrentUser();
+    btn.hidden = !(user && user.uid && !user.isAnonymous);
+  }
+
+  window.saveMapOnlyURL = function() {
+    const runSave = function() {
+      const isNewMap = !getLastPrivateMapId();
+      if (window.manaAuth && typeof window.manaAuth.checkQuota === 'function') {
+        window.manaAuth.checkQuota(_doSaveMapOnly, { isNewMap: isNewMap });
+      } else {
+        _doSaveMapOnly();
+      }
+    };
+    if (window.manaAuth && typeof window.manaAuth.requireAuth === 'function') {
+      window.manaAuth.requireAuth(runSave);
+      return;
+    }
+    runSave();
+  };
+
+  function attachSaveButtonAuthListener() {
+    if (attachSaveButtonAuthListener._attached) return;
+    if (typeof firebase === 'undefined' || !firebase.auth) return;
+    attachSaveButtonAuthListener._attached = true;
+    firebase.auth().onAuthStateChanged(updateSaveButtonVisibility);
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateSaveButtonVisibility();
+    attachSaveButtonAuthListener();
+    var attempts = 0;
+    var timer = setInterval(function() {
+      attachSaveButtonAuthListener();
+      updateSaveButtonVisibility();
+      attempts += 1;
+      if (attachSaveButtonAuthListener._attached || attempts > 30) clearInterval(timer);
+    }, 200);
+  });
 
   // Public: called by the Share button
   window.shareMap = async function() {

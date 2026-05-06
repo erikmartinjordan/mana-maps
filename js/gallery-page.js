@@ -136,7 +136,7 @@
       const mapSlug = item.slug || item.id;
       return '' +
         '<div class="card">' +
-          '<a class="card-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '">' +
+          '<a class="card-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + shareMode + '">' +
             '<div class="thumb">' + thumb + '</div>' +
             '<h3 class="title">' + (item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +

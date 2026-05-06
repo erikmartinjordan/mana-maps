@@ -74,7 +74,7 @@
       description: description || '',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       featureCount: geojson.features.length,
-      public: false
+      mapPreview: _buildMapPreview(geojson)
     };
 
     // Store GeoJSON: inline if small, chunked if large
@@ -140,7 +140,9 @@
         updatedAt: data.updatedAt,
         public: data.public || false,
         likes: data.likes || 0,
-        featureCount: data.featureCount || 0
+        featureCount: data.featureCount || 0,
+        mapPreview: data.mapPreview || _buildMapPreview(data.geojson),
+        thumbnailUrl: data.thumbnailUrl || ''
       };
     });
   }
@@ -255,6 +257,16 @@
     if (!doc.exists) return;
 
     const data = doc.data();
+    let publishGeo = data.geojson || null;
+    if (!publishGeo && data.geojsonChunked && data.geojsonChunked.chunkCount) {
+      const chunkSnap = await userDocRef.collection(data.geojsonChunked.collection || 'geoChunks')
+        .orderBy('index', 'asc')
+        .limit(data.geojsonChunked.chunkCount)
+        .get();
+      let raw = '';
+      chunkSnap.forEach(function (chunkDoc) { raw += chunkDoc.data().text || ''; });
+      try { publishGeo = raw ? JSON.parse(raw) : null; } catch (e) { publishGeo = null; }
+    }
 
     // Set public on user's map
     await userDocRef.update({ public: true });
@@ -264,7 +276,12 @@
       title: data.title || '',
       description: data.description || '',
       authorHandle: handle,
-      thumbnailUrl: '',  // TODO: generate thumbnail
+      thumbnailUrl: data.thumbnailUrl || '',
+      mapPreview: data.mapPreview || _buildMapPreview(publishGeo),
+      geojsonText: publishGeo ? JSON.stringify(publishGeo) : '',
+      shareUrl: window.location.origin + '/map/?gallery=' + encodeURIComponent(mapId) + '&map=' + encodeURIComponent(mapId) + '&room=' + encodeURIComponent(mapId) + '&mode=view',
+      shareMode: 'view',
+      allowPublicEdit: false,
       createdAt: data.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
       likes: data.likes || 0,
       public: true,
@@ -377,6 +394,44 @@
   // ═══════════════════════════════════════════════════════════════
   // UTILITIES
   // ═══════════════════════════════════════════════════════════════
+
+
+  function _buildMapPreview(geo) {
+    if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
+    var points = [];
+    function collectCoordPairs(coords, out) {
+      if (!Array.isArray(coords)) return;
+      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+        out.push([coords[0], coords[1]]);
+        return;
+      }
+      coords.forEach(function(child) { collectCoordPairs(child, out); });
+    }
+    geo.features.forEach(function(feature) {
+      var geom = feature && feature.geometry;
+      if (!geom || !Array.isArray(geom.coordinates)) return;
+      collectCoordPairs(geom.coordinates, points);
+    });
+    if (!points.length) return null;
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    points.forEach(function(c) {
+      var x = Number(c[0]), y = Number(c[1]);
+      if (!isFinite(x) || !isFinite(y)) return;
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    });
+    if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
+    return {
+      bbox: [minX, minY, maxX, maxY],
+      features: geo.features.slice(0, 40).map(function(feature) {
+        var props = feature && feature.properties ? feature.properties : {};
+        return {
+          geometry: feature ? feature.geometry : null,
+          color: props._manaColor || props.color || '#0ea5e9'
+        };
+      })
+    };
+  }
 
   function _generateMapId(title) {
     const base = (title || 'mapa')

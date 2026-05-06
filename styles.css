@@ -2932,3 +2932,14 @@ body.profile-page{
 }
 .handle-hint-ok{color:var(--green);}
 .handle-hint-error{color:var(--red);}
+
+/* View-only shared maps */
+.mana-view-only #panel-draw .draw-btn,
+.mana-view-only #panel-style,
+.mana-view-only #private-save-btn,
+.mana-view-only .leaflet-draw,
+.mana-view-only .leaflet-editing-icon{
+  pointer-events:none;
+  opacity:.48;
+}
+.mana-view-only #project-name-input{pointer-events:none;opacity:.72;}
