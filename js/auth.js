@@ -669,10 +669,18 @@
     if (!right || document.getElementById('mana-login-btn')) return;
     var btn = document.createElement('button');
     btn.id = 'mana-login-btn';
-    btn.className = 'btn btn-ghost';
+    btn.className = 'btn btn-login';
     btn.textContent = txt('Iniciar sesión', 'Sign in');
     btn.onclick = openAuthModal;
-    right.insertBefore(btn, right.firstChild);
+
+    // Keep auth on the far right of the action group so it remains the
+    // clearest account action as the toolbar collapses on small screens.
+    var chatToggle = document.getElementById('mobile-chat-toggle');
+    if (chatToggle && chatToggle.parentNode === right) {
+      right.insertBefore(btn, chatToggle);
+    } else {
+      right.appendChild(btn);
+    }
   }
 
   function _removeLoginButton() {
