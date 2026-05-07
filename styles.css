@@ -45,6 +45,11 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap;}
 .btn-primary{background:var(--primary);color:white;border:none;}
 .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
+.btn-login{
+  background:linear-gradient(135deg,var(--blue),#2563eb);color:white;border:none;
+  box-shadow:0 8px 18px rgba(14,165,233,.22);
+}
+.btn-login:hover{opacity:.9;transform:translateY(-1px);}
 .btn-ghost{background:none;border:0.5px solid var(--border);color:var(--text-2);text-decoration:none;}
 .btn-ghost:hover{background:var(--surface-2);}
 .menu-wrap{position:relative;}
@@ -521,17 +526,20 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .mobile-toggle:hover,.mobile-toggle:active{background:var(--surface-2);}
   .mobile-toggle svg{width:18px;height:18px;}
 
-  /* hide ALL ghost buttons on mobile — only keep hamburger + export + chat */
+  /* hide secondary actions on mobile — keep hamburger, the right-side account CTA, export, and chat */
   .topbar-right > .btn.btn-ghost{display:none !important;}
   .topbar-right > .menu-wrap{display:none !important;}
   .topbar-right > .menu-wrap:has(.btn-primary){display:flex !important;}
+  #topbar:has(#mana-login-btn) .topbar-right > .menu-wrap:has(.btn-primary){display:none !important;}
   /* hide search bar on mobile — accessible via sidebar */
   .search-input-wrap{display:none !important;}
 
   /* compact topbar buttons */
-  .topbar-right{gap:6px;}
+  .topbar-right{gap:6px;min-width:0;}
   .topbar-right .btn{padding:6px 10px;font-size:12px;gap:4px;}
   .topbar-right .btn svg{width:12px;height:12px;}
+  #mana-login-btn{order:90;flex-shrink:0;padding:7px 12px;}
+  #mobile-chat-toggle{order:100;}
 
   /* ── Layout: single column ── */
   #app{
@@ -617,8 +625,11 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 /* ══ SMALL MOBILE ≤ 480px ══════════════════════════════════════ */
 @media (max-width:480px){
   #topbar{padding:0 8px;gap:6px;}
+  .mana-logo-wrap{gap:7px;min-width:0;}
   .mana-logo-icon{width:28px;height:28px;}
   .logo-wordmark{font-size:14px;}
+  .logo-sub{display:none;}
+  #mana-login-btn{padding:7px 11px;font-size:12px;}
 
   /* hide button text on very small screens, keep only icons */
   .topbar-right .btn.btn-ghost .btn-text,
