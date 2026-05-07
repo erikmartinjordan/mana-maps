@@ -16,6 +16,10 @@ const I18N = {
     btn_clear: "Limpiar mapa",
     btn_share: "Compartir",
     btn_save_map: "Guardar",
+    topbar_save_desc: "Guarda el mapa en tu espacio privado sin publicarlo.",
+    topbar_share_desc: "Abre opciones para copiar enlace, colaborar o publicar el mapa.",
+    topbar_import_desc: "Añade archivos GeoJSON, KML, KMZ o Shapefile al mapa actual.",
+    topbar_export_desc: "Descarga los elementos del mapa en el formato que necesites.",
     share_title: "Compartir mapa",
     share_subtitle: "Comparte un enlace privado o publícalo en la galería.",
     share_copy_url: "Copiar URL",
@@ -413,6 +417,10 @@ const I18N = {
     btn_clear: "Clear map",
     btn_share: "Share",
     btn_save_map: "Save",
+    topbar_save_desc: "Save the map privately in your personal space without publishing it.",
+    topbar_share_desc: "Open options to copy a link, collaborate, or publish the map.",
+    topbar_import_desc: "Add GeoJSON, KML, KMZ, or Shapefile data to the current map.",
+    topbar_export_desc: "Download the map elements in the format you need.",
     share_title: "Share map",
     share_subtitle: "Copy a private URL or publish it in the gallery.",
     share_copy_url: "Copy URL",
@@ -845,6 +853,21 @@ function applyTranslations(lang) {
     var key = el.getAttribute('data-i18n-title');
     var val = t(key);
     if (val !== key) el.title = val;
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-aria-label');
+    var val = t(key);
+    if (val !== key) el.setAttribute('aria-label', val);
+  });
+  document.querySelectorAll('[data-i18n-tooltip-title]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-tooltip-title');
+    var val = t(key);
+    if (val !== key) el.setAttribute('data-tooltip-title', val);
+  });
+  document.querySelectorAll('[data-i18n-tooltip-desc]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-tooltip-desc');
+    var val = t(key);
+    if (val !== key) el.setAttribute('data-tooltip-desc', val);
   });
 
   // Update lang toggle button label

@@ -136,13 +136,27 @@ function showToast(msg) {
 function toggleMenu(id, e) {
   e.stopPropagation();
   const m = document.getElementById(id);
+  const trigger = e.currentTarget;
   const wasOpen = m.classList.contains('open');
-  document.querySelectorAll('.drop-menu').forEach(x => x.classList.remove('open'));
-  if (!wasOpen) m.classList.add('open');
+  document.querySelectorAll('.drop-menu').forEach(function(x) {
+    x.classList.remove('open');
+    const btn = x.parentElement && x.parentElement.querySelector('button[aria-expanded]');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  });
+  if (!wasOpen) {
+    m.classList.add('open');
+    if (trigger) trigger.setAttribute('aria-expanded', 'true');
+  } else if (trigger) {
+    trigger.setAttribute('aria-expanded', 'false');
+  }
 }
 
 document.addEventListener('click', () =>
-  document.querySelectorAll('.drop-menu').forEach(x => x.classList.remove('open'))
+  document.querySelectorAll('.drop-menu').forEach(function(x) {
+    x.classList.remove('open');
+    const btn = x.parentElement && x.parentElement.querySelector('button[aria-expanded]');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  })
 );
 
 // ── CONTEXT MENU ──
