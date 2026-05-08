@@ -60,6 +60,8 @@ window.MANA_FIREBASE_CONFIGS = {
 };
 ```
 
+Production deploys generate that file from `FIREBASE_PRE_CONFIG_JSON` and `FIREBASE_PRO_CONFIG_JSON` GitHub Actions secrets. Each secret may be strict JSON or the Firebase Console's JavaScript object-literal snippet, but it must include `apiKey`, `authDomain`, `projectId`, and `appId`.
+
 ## Tests
 
 ```bash
