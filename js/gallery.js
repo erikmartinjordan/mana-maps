@@ -5,16 +5,23 @@
 (function() {
   const MAPS_COLLECTION = 'maps';
   const FIRESTORE_FIELD_MAX_BYTES = 1048487;
-  const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
   // ═══════════════════════════════════════════════════════════════
   // FIREBASE HELPERS
   // ═══════════════════════════════════════════════════════════════
 
+  function ensureGalleryFirebase() {
+    if (typeof firebase === 'undefined') return false;
+    if (window.ManaFirebase && typeof window.ManaFirebase.initializeApp === 'function') {
+      return !!window.ManaFirebase.initializeApp();
+    }
+    if (firebase.apps && firebase.apps.length) return true;
+    return false;
+  }
+
   function getGalleryDb() {
-    if (typeof firebase === 'undefined') return null;
     try {
-      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
+      if (!ensureGalleryFirebase() || !firebase.firestore) return null;
       return firebase.firestore();
     } catch (e) {
       console.warn('gallery db unavailable:', e);
@@ -23,9 +30,15 @@
   }
 
   function getCurrentUser() {
-    return (window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function')
-      ? window.manaAuth.getCurrentUser()
-      : (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null);
+    if (window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function') {
+      return window.manaAuth.getCurrentUser();
+    }
+    try {
+      return (ensureGalleryFirebase() && firebase.auth) ? firebase.auth().currentUser : null;
+    } catch (e) {
+      console.warn('gallery auth unavailable:', e);
+      return null;
+    }
   }
 
   function getCurrentGeo() {
@@ -583,7 +596,7 @@
 
   function attachSaveButtonAuthListener() {
     if (attachSaveButtonAuthListener._attached) return;
-    if (typeof firebase === 'undefined' || !firebase.auth) return;
+    if (!ensureGalleryFirebase() || !firebase.auth) return;
     attachSaveButtonAuthListener._attached = true;
     firebase.auth().onAuthStateChanged(updateSaveButtonVisibility);
   }
