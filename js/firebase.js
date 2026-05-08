@@ -1,5 +1,5 @@
 // ── firebase.js ─ runtime Firebase environment selection (no secrets committed) ──
-// Load js/firebase-config.local.js before this file to provide window.MANA_FIREBASE_CONFIGS.
+// Deploy injects window.MANA_FIREBASE_CONFIGS above this file in the Pages artifact.
 
 (function() {
   'use strict';
@@ -7,6 +7,8 @@
   var LOCAL_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '::1'];
   var DEFAULT_ENV = 'pro';
   var LOCAL_ENV = 'pre';
+
+  var warnedMissingConfigs = {};
 
   function getRuntimeConfigs() {
     return (window.MANA_FIREBASE_CONFIGS && typeof window.MANA_FIREBASE_CONFIGS === 'object')
@@ -43,7 +45,10 @@
     var selectedEnv = env || detectEnv();
     var config = getRuntimeConfigs()[selectedEnv];
     if (!isValidConfig(config)) {
-      console.warn('[firebase] Missing Firebase config for environment:', selectedEnv);
+      if (!warnedMissingConfigs[selectedEnv]) {
+        warnedMissingConfigs[selectedEnv] = true;
+        console.warn('[firebase] Missing Firebase config for environment:', selectedEnv);
+      }
       return null;
     }
     return config;

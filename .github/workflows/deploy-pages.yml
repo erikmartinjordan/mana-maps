@@ -50,9 +50,10 @@ jobs:
             pro: readConfig('FIREBASE_PRO_CONFIG_JSON')
           };
 
+          const firebaseRuntimeConfig = `window.MANA_FIREBASE_CONFIGS = ${JSON.stringify(configs, null, 2)};\n`;
           fs.writeFileSync(
-            'js/firebase-config.local.js',
-            `window.MANA_FIREBASE_CONFIGS = ${JSON.stringify(configs, null, 2)};\n`
+            'js/firebase.js',
+            firebaseRuntimeConfig + fs.readFileSync('js/firebase.js', 'utf8')
           );
           NODE
 
