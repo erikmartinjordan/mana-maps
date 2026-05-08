@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./favicon.svg" alt="Maña Maps logo" width="120" height="120">
+</p>
+
 # 🗺️ Maña Maps
 
 Interactive map editor built with [Leaflet.js](https://leafletjs.com/) and integrated conversational AI.
