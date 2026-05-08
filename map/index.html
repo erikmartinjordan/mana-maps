@@ -138,21 +138,21 @@ try {
     <div class="upsell-price">4,99 &#8364; <span class="upsell-period" data-i18n="upsell_period">/ mes</span></div>
     <div class="upsell-benefits">
       <div class="upsell-benefit">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <div><strong data-i18n="upsell_ai_title">IA incluida</strong><span data-i18n="upsell_ai_desc">Sin configurar nada</span></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 17.6A4.4 4.4 0 0016.2 11 6 6 0 104.6 13.2 3.5 3.5 0 005 20h14a3 3 0 001-2.4z"/><path d="M12 13v5M9.5 15.5L12 13l2.5 2.5"/></svg>
+        <div><strong data-i18n="upsell_ai_title">Mapas en la nube</strong><span data-i18n="upsell_ai_desc">Guarda tus mapas en tu espacio privado</span></div>
       </div>
       <div class="upsell-benefit">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
-        <div><strong data-i18n="upsell_models_title">Todos los modelos de lenguaje</strong><span data-i18n="upsell_models_desc">GPT-4o, Claude, Llama y m&#225;s</span></div>
+        <div><strong data-i18n="upsell_models_title">Compartir y colaborar</strong><span data-i18n="upsell_models_desc">Enlaces privados, solo lectura o edici&#243;n</span></div>
       </div>
       <div class="upsell-benefit">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <div><strong data-i18n="upsell_support_title">Soporte prioritario</strong><span data-i18n="upsell_support_desc">Respuesta directa del equipo</span></div>
+        <div><strong data-i18n="upsell_support_title">Mapas ilimitados</strong><span data-i18n="upsell_support_desc">Supera el l&#237;mite del plan gratis</span></div>
       </div>
     </div>
-    <button class="upsell-cta" onclick="upsellBuy()" data-i18n="upsell_cta">Empezar ahora</button>
-    <button class="upsell-secondary" onclick="upsellHaveKey()" data-i18n="upsell_have_key">Ya tengo una clave API</button>
-    <p class="upsell-note" data-i18n="upsell_note">Recibir&#225;s tu clave API por email tras el pago &#183; Cancela cuando quieras</p>
+    <button class="upsell-cta" onclick="upsellBuy()" data-i18n="upsell_cta">Actualizar a Pro</button>
+    <button class="upsell-secondary" onclick="closeUpsell()" data-i18n="upsell_have_key">Seguir gratis</button>
+    <p class="upsell-note" data-i18n="upsell_note">El plan gratis incluye hasta 3 mapas guardados &#183; Pro a&#241;ade mapas ilimitados y opciones avanzadas de compartir</p>
   </div>
 </div>
 
@@ -406,8 +406,8 @@ try {
 
         <div class="panel-footer">
           <div id="pro-indicator" class="pro-indicator not-configured" onclick="showUpsell()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            Activa la IA Pro &#8594;
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.6A4.4 4.4 0 0016.2 11 6 6 0 104.6 13.2 3.5 3.5 0 005 20h14a3 3 0 001-2.4z"/></svg>
+            Ma&#241;a Cloud &#8594;
           </div>
           <div class="panel-footer-links">
             <a class="panel-footer-link" href="/about" data-i18n="footer_about">Acerca de</a>

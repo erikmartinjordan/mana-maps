@@ -11,12 +11,19 @@ function showUpsell(mode) {
   var title = modal.querySelector('.upsell-title');
   var price = modal.querySelector('.upsell-price');
   var note = modal.querySelector('.upsell-note');
-  if (mode === 'map-limit') {
-    if (title) title.textContent = 'Maña Maps Pro';
-    if (price) price.innerHTML = '4,99 € <span class="upsell-period">/ mes</span>';
-    if (note) note.textContent = (typeof LANG !== 'undefined' && LANG === 'en')
-      ? 'Free plan includes up to 3 saved maps. Upgrade to save unlimited maps.'
-      : 'El plan gratis incluye hasta 3 mapas guardados. Mejora para guardar mapas ilimitados.';
+  var period = (typeof LANG !== 'undefined' && LANG === 'en') ? '/ month' : '/ mes';
+  var defaultNote = (typeof LANG !== 'undefined' && LANG === 'en')
+    ? 'Free includes up to 3 saved maps · Pro adds unlimited maps and advanced sharing options'
+    : 'El plan gratis incluye hasta 3 mapas guardados · Pro añade mapas ilimitados y opciones avanzadas de compartir';
+
+  if (title) title.textContent = 'Maña Maps Pro';
+  if (price) price.innerHTML = '4,99 € <span class="upsell-period">' + period + '</span>';
+  if (note) note.textContent = defaultNote;
+
+  if (mode === 'map-limit' && note) {
+    note.textContent = (typeof LANG !== 'undefined' && LANG === 'en')
+      ? 'Free plan includes up to 3 saved maps. Upgrade for unlimited cloud maps and sharing options.'
+      : 'El plan gratis incluye hasta 3 mapas guardados. Mejora para tener mapas ilimitados en la nube y opciones de compartir.';
   }
   modal.classList.add('open');
 }
@@ -40,9 +47,9 @@ function upsellBuy() {
   window.open(LEMON_URL, '_blank');
 }
 
+// Backward-compatible hook for any cached markup that still calls this action.
 function upsellHaveKey() {
   closeUpsell();
-  if (typeof openAISettings === 'function') openAISettings(true);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -51,18 +58,10 @@ function upsellHaveKey() {
 function updateProIndicator() {
   var el = document.getElementById('pro-indicator');
   if (!el) return;
-  var hasKey = typeof hasAIKey === 'function' && hasAIKey();
-  if (hasKey) {
-    el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ' + t('ai_configured').replace('✓ ', '');
-    el.className = 'pro-indicator configured';
-    el.onclick = null;
-    el.style.cursor = 'default';
-  } else {
-    el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> ' + t('footer_pro');
-    el.className = 'pro-indicator not-configured';
-    el.onclick = showUpsell;
-    el.style.cursor = 'pointer';
-  }
+  el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.6A4.4 4.4 0 0016.2 11 6 6 0 104.6 13.2 3.5 3.5 0 005 20h14a3 3 0 001-2.4z"/></svg> ' + t('footer_pro');
+  el.className = 'pro-indicator not-configured';
+  el.onclick = showUpsell;
+  el.style.cursor = 'pointer';
 }
 
 // Init on load
