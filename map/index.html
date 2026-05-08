@@ -228,19 +228,18 @@
     <button class="mobile-toggle" id="mobile-sidebar-toggle" aria-label="Herramientas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <button class="btn btn-ghost" id="private-save-btn" onclick="saveMapOnlyURL()" hidden>
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      <span class="btn-text" data-i18n="btn_save_map">Guardar</span>
+    <button class="btn btn-ghost topbar-icon-btn" id="private-save-btn" onclick="saveMapOnlyURL()" hidden
+      aria-label="Guardar" data-i18n-aria-label="btn_save_map" data-i18n-tooltip-title="btn_save_map" data-i18n-tooltip-desc="topbar_save_desc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
     </button>
-    <button class="btn btn-ghost" onclick="shareMapURL()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      <span class="btn-text" data-i18n="btn_share">Compartir</span>
+    <button class="btn btn-ghost topbar-icon-btn" onclick="shareMapURL()"
+      aria-label="Compartir" data-i18n-aria-label="btn_share" data-i18n-tooltip-title="btn_share" data-i18n-tooltip-desc="topbar_share_desc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.8" x2="15.4" y2="6.2"/><line x1="8.6" y1="13.2" x2="15.4" y2="17.8"/></svg>
     </button>
-    <div class="menu-wrap">
-      <button class="btn btn-ghost" onclick="toggleMenu('import-menu',event)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg>
-        <span class="btn-text" data-i18n="btn_import">Importar</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="menu-wrap topbar-tooltip-wrap" data-i18n-tooltip-title="btn_import" data-i18n-tooltip-desc="topbar_import_desc">
+      <button class="btn btn-ghost topbar-icon-btn" onclick="toggleMenu('import-menu',event)"
+        aria-label="Importar" data-i18n-aria-label="btn_import" aria-haspopup="menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="18"/><polyline points="8.5 14.5 12 18 15.5 14.5"/></svg>
       </button>
       <div class="drop-menu" id="import-menu">
         <button class="drop-item" onclick="importTrigger('.geojson,.json')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>GeoJSON</button>
@@ -251,11 +250,10 @@
       </div>
     </div>
     <input type="file" id="file-import" style="display:none" onchange="handleImport(event)">
-    <div class="menu-wrap">
-      <button class="btn btn-primary" onclick="toggleMenu('export-menu',event)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span class="btn-text" data-i18n="btn_export">Exportar</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="menu-wrap topbar-tooltip-wrap" data-i18n-tooltip-title="btn_export" data-i18n-tooltip-desc="topbar_export_desc">
+      <button class="btn btn-ghost topbar-icon-btn export-action" onclick="toggleMenu('export-menu',event)"
+        aria-label="Exportar" data-i18n-aria-label="btn_export" aria-haspopup="menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="11"/><polyline points="8.5 14.5 12 11 15.5 14.5"/></svg>
       </button>
       <div class="drop-menu" id="export-menu">
         <button class="drop-item" onclick="exportAs('geojson')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>GeoJSON</button>
