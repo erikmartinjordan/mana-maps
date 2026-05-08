@@ -421,6 +421,31 @@
   // AUTH MODAL — login/signup with email + Google
   // ═══════════════════════════════════════════════════════════════
 
+  function _renderAuthModeText() {
+    var modal = document.getElementById('auth-modal');
+    if (!modal) return;
+    var btn = modal.querySelector('.auth-submit-btn');
+    var hint = modal.querySelector('.auth-signup-hint');
+
+    if (_authModeSignup) {
+      if (btn) btn.textContent = txt('Crear cuenta', 'Create account');
+      if (hint) hint.innerHTML = '<span>' + txt('¿Ya tienes cuenta?', 'Already have an account?') + '</span> '
+        + '<a href="#" onclick="manaAuth._toggleAuthMode(event)">'
+        + txt('Iniciar sesión', 'Sign in') + '</a>';
+    } else {
+      if (btn) btn.textContent = txt('Iniciar sesión', 'Sign in');
+      if (hint) hint.innerHTML = '<span>' + txt('¿No tienes cuenta?', 'No account yet?') + '</span> '
+        + '<a href="#" onclick="manaAuth._toggleAuthMode(event)">'
+        + txt('Crear cuenta', 'Create account') + '</a>';
+    }
+  }
+
+  function refreshAuthTranslations() {
+    var loginBtn = document.getElementById('mana-login-btn');
+    if (loginBtn) loginBtn.textContent = txt('Iniciar sesión', 'Sign in');
+    _renderAuthModeText();
+  }
+
   function openAuthModal() {
     var modal = document.getElementById('auth-modal');
     if (!modal) return;
@@ -429,14 +454,7 @@
     var passInput = document.getElementById('auth-password');
     if (emailInput) emailInput.value = '';
     if (passInput) passInput.value = '';
-    var btn = modal.querySelector('.auth-submit-btn');
-    if (btn) btn.textContent = txt('Iniciar sesión', 'Sign in');
-    var hint = modal.querySelector('.auth-signup-hint');
-    if (hint) {
-      hint.innerHTML = '<span>' + txt('¿No tienes cuenta?', 'No account yet?') + '</span> '
-        + '<a href="#" onclick="manaAuth._toggleAuthMode(event)">'
-        + txt('Crear cuenta', 'Create account') + '</a>';
-    }
+    _renderAuthModeText();
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     setTimeout(function () { if (emailInput) emailInput.focus(); }, 80);
@@ -453,19 +471,7 @@
   function _toggleAuthMode(e) {
     if (e) e.preventDefault();
     _authModeSignup = !_authModeSignup;
-    var btn = document.querySelector('#auth-modal .auth-submit-btn');
-    var hint = document.querySelector('#auth-modal .auth-signup-hint');
-    if (_authModeSignup) {
-      if (btn) btn.textContent = txt('Crear cuenta', 'Create account');
-      if (hint) hint.innerHTML = '<span>' + txt('¿Ya tienes cuenta?', 'Already have an account?') + '</span> '
-        + '<a href="#" onclick="manaAuth._toggleAuthMode(event)">'
-        + txt('Iniciar sesión', 'Sign in') + '</a>';
-    } else {
-      if (btn) btn.textContent = txt('Iniciar sesión', 'Sign in');
-      if (hint) hint.innerHTML = '<span>' + txt('¿No tienes cuenta?', 'No account yet?') + '</span> '
-        + '<a href="#" onclick="manaAuth._toggleAuthMode(event)">'
-        + txt('Crear cuenta', 'Create account') + '</a>';
-    }
+    _renderAuthModeText();
   }
 
   async function signInWithGoogle() {
@@ -670,6 +676,7 @@
     var btn = document.createElement('button');
     btn.id = 'mana-login-btn';
     btn.className = 'btn btn-login';
+    btn.setAttribute('data-i18n', 'auth_login_btn');
     btn.textContent = txt('Iniciar sesión', 'Sign in');
     btn.onclick = openAuthModal;
 
@@ -823,6 +830,7 @@
     logout: logout,
     openAuthModal: openAuthModal,
     closeAuthModal: closeAuthModal,
+    refreshTranslations: refreshAuthTranslations,
     signInWithGoogle: signInWithGoogle,
     signInWithEmail: signInWithEmail,
     continueAsGuest: continueAsGuest,

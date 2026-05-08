@@ -876,6 +876,11 @@ function applyTranslations(lang) {
 
   // Update HTML lang attribute
   document.documentElement.lang = LANG === 'en' ? 'en' : 'es';
+
+  // Allow modules that render translated text dynamically to refresh their UI.
+  if (window.manaAuth && typeof window.manaAuth.refreshTranslations === 'function') {
+    window.manaAuth.refreshTranslations();
+  }
 }
 
 // ── Toggle language (called from lang button) ──
