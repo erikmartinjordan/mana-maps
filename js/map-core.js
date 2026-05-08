@@ -603,6 +603,8 @@ document.addEventListener('DOMContentLoaded', () => {
       collapsed = true;
       app.style.setProperty('--right-w', '0px');
       chat.style.overflow = 'hidden';
+      document.documentElement.setAttribute('data-chat-collapsed', 'true');
+      chat.classList.add('is-collapsed');
       handle.classList.add('handle-collapsed');
       handle.title = 'Doble clic para expandir';
     } else if (saved > 0) {
@@ -653,6 +655,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chat.classList.add('collapsing');
         app.style.setProperty('--right-w', '0px');
         chat.style.overflow = 'hidden';
+        document.documentElement.setAttribute('data-chat-collapsed', 'true');
+        chat.classList.add('is-collapsed');
         handle.classList.add('handle-collapsed');
         handle.title = 'Doble clic para expandir';
         collapsed = true;
@@ -662,6 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
         var w = _prevRight || DEFAULT_RIGHT;
         persist('mana_chat_width', w);
         chat.classList.add('collapsing');
+        document.documentElement.removeAttribute('data-chat-collapsed');
+        chat.classList.remove('is-collapsed');
         app.style.setProperty('--right-w', w + 'px');
         handle.classList.remove('handle-collapsed');
         handle.title = '';
