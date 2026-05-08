@@ -807,13 +807,6 @@ async function sendMsg() {
     result = await processAI(text);
   } else {
     result = await processRegex(text);
-    // If regex couldn't handle it and no API key → show upsell
-    if (!result.ok && typeof showUpsell === 'function') {
-      removeTyping();
-      chatBusy = false;
-      showUpsell();
-      return;
-    }
   }
 
   removeTyping();
@@ -864,11 +857,6 @@ document.getElementById('chat-input').addEventListener('input', function() {
 // ═══════════════════════════════════════════════════════════════
 function openAISettings(force) {
   const s = manaSettings();
-  // If no key configured, show upsell first (unless forced from upsell modal)
-  if (!force && !s.apiKey && typeof showUpsell === 'function') {
-    showUpsell();
-    return;
-  }
   document.getElementById('ai-provider').value = s.provider;
   document.getElementById('ai-key').value = s.apiKey;
   document.getElementById('ai-model').value = s.model;
