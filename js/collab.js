@@ -1,15 +1,6 @@
 // ── collab.js ─ Real-time collaboration presence + basic map sync (Firestore) ──
 (function() {
-  var CFG = {
-    apiKey: "AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg",
-    authDomain: "mana-maps-pro.firebaseapp.com",
-    databaseURL: "https://mana-maps-pro-default-rtdb.firebaseio.com",
-    projectId: "mana-maps-pro",
-    storageBucket: "mana-maps-pro.firebasestorage.app",
-    messagingSenderId: "212469378297",
-    appId: "1:212469378297:web:83e17ed0e38dd202944628",
-    measurementId: "G-F1Z7C21BZ6"
-  };
+  var CFG = window.ManaFirebase && window.ManaFirebase.getConfig();
 
   var APP_PREFIX = 'mana-collab-';
   var APPLYING_REMOTE = false;
@@ -74,7 +65,7 @@
   function ensureFirebase() {
     if (typeof firebase === 'undefined') return null;
     try {
-      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(CFG);
+      if (!firebase.apps || !firebase.apps.length) { if (!CFG) return null; firebase.initializeApp(CFG); }
       return firebase.firestore();
     } catch (e) {
       console.warn('[collab] Firebase unavailable', e);

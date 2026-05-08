@@ -5,16 +5,7 @@
 (function() {
   const MAPS_COLLECTION = 'maps';
   const FIRESTORE_FIELD_MAX_BYTES = 1048487;
-  const firebaseConfig = {
-    apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
-    authDomain: 'mana-maps-pro.firebaseapp.com',
-    databaseURL: 'https://mana-maps-pro-default-rtdb.firebaseio.com',
-    projectId: 'mana-maps-pro',
-    storageBucket: 'mana-maps-pro.firebasestorage.app',
-    messagingSenderId: '212469378297',
-    appId: '1:212469378297:web:83e17ed0e38dd202944628',
-    measurementId: 'G-F1Z7C21BZ6'
-  };
+  const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
   // ═══════════════════════════════════════════════════════════════
   // FIREBASE HELPERS
@@ -23,7 +14,7 @@
   function getGalleryDb() {
     if (typeof firebase === 'undefined') return null;
     try {
-      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
       return firebase.firestore();
     } catch (e) {
       console.warn('gallery db unavailable:', e);

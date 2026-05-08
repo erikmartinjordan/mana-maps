@@ -1,2 +1,5 @@
-
+# Local/runtime Firebase config. This file contains project-specific browser keys
+# and is generated locally or during deployment from secrets.
 js/firebase-config.local.js
+.env
+.env.*

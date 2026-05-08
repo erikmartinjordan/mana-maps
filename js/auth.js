@@ -9,18 +9,12 @@
   // FIREBASE CONFIG & INIT
   // ═══════════════════════════════════════════════════════════════
 
-  const firebaseConfig = {
-    apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
-    authDomain: 'mana-maps-pro.firebaseapp.com',
-    projectId: 'mana-maps-pro',
-    storageBucket: 'mana-maps-pro.firebasestorage.app',
-    messagingSenderId: '212469378297',
-    appId: '1:212469378297:web:83e17ed0e38dd202944628'
-  };
+  const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
   function ensureFirebase() {
     if (typeof firebase === 'undefined') return false;
     if (!firebase.apps || !firebase.apps.length) {
+      if (!firebaseConfig) return false;
       firebase.initializeApp(firebaseConfig);
     }
     return true;
@@ -73,7 +67,10 @@
 
   function initAuthListener() {
     const auth = getAuth();
-    if (!auth) return;
+    if (!auth) {
+      _markAuthReady();
+      return;
+    }
     auth.onAuthStateChanged(async function (user) {
       _markAuthReady();
       _currentUser = user;

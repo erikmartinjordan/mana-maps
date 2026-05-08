@@ -172,6 +172,35 @@ open index.html   # macOS
 
 ---
 
+
+## 🔐 Firebase runtime configuration
+
+Firebase browser config is intentionally not committed. The app loads an optional
+`/js/firebase-config.local.js` file before any Firebase module, then `js/firebase.js`
+automatically selects the right Firebase project:
+
+- `pre` for local development (`localhost`, `127.0.0.1`, `file://`, `*.local`)
+- `pro` for production domains
+- Override when needed with `?firebaseEnv=pre` or `?firebaseEnv=pro`
+
+Set it up locally:
+
+```bash
+cp js/firebase-config.example.js js/firebase-config.local.js
+# Fill the pre and pro objects from Firebase Console → Project settings → SDK config.
+```
+
+`js/firebase-config.local.js` is ignored by Git. For production, the
+`Deploy GitHub Pages` workflow generates it from these GitHub Actions secrets:
+
+- `FIREBASE_PRE_CONFIG_JSON` — JSON object for the PRE Firebase web app
+- `FIREBASE_PRO_CONFIG_JSON` — JSON object for the PRO Firebase web app
+
+Remember that Firebase Web API keys are still visible in the browser after
+deployment; protect the project with strict Firestore/Storage rules, API key
+application restrictions, separate PRE/PRO projects, and Firebase App Check.
+
+---
 ## 🛠️ Tech stack
 
 | Library | Version | Purpose |

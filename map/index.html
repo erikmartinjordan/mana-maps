@@ -717,6 +717,10 @@ try {
 <script defer src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script defer src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 
+<!-- ═══ Firebase runtime config (must load before app modules) ═══ -->
+<script defer src="/js/firebase-config.local.js"></script>
+<script defer src="/js/firebase.js"></script>
+
 <!-- ═══ Módulos de la app (el orden importa) ═══ -->
 <script defer src="/js/i18n.js?v=1776927826"></script>      <!-- i18n: must load first -->
 <script defer src="/js/markers.js?v=1776927826"></script>      <!-- color y marcadores -->
