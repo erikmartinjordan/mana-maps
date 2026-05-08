@@ -1,6 +1,6 @@
 // ── upsell.js — Upsell modal + Pro indicator · Maña Maps ──
 
-const LEMON_URL = 'https://mana-maps.lemonsqueezy.com/checkout/buy/5114e28a-eabb-4cdb-a750-0101c8e797c8';
+const STRIPE_URL = 'https://buy.stripe.com/00w9AU9Rz2ohbfX1OxdfG00';
 
 // ═══════════════════════════════════════════════════════════════
 // SHOW / CLOSE UPSELL MODAL
@@ -44,7 +44,7 @@ document.addEventListener('keydown', function (e) {
 // CTA ACTIONS
 // ═══════════════════════════════════════════════════════════════
 function upsellBuy() {
-  window.open(LEMON_URL, '_blank');
+  window.open(STRIPE_URL, '_blank');
 }
 
 // Backward-compatible hook for any cached markup that still calls this action.
