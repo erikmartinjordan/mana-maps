@@ -1,0 +1,66 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Generate Firebase runtime config
+        env:
+          FIREBASE_PRE_CONFIG_JSON: ${{ secrets.FIREBASE_PRE_CONFIG_JSON }}
+          FIREBASE_PRO_CONFIG_JSON: ${{ secrets.FIREBASE_PRO_CONFIG_JSON }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          function readConfig(name) {
+            const raw = process.env[name];
+            if (!raw) throw new Error(`${name} is required`);
+            const parsed = JSON.parse(raw);
+            for (const key of ['apiKey', 'authDomain', 'projectId', 'appId']) {
+              if (!parsed[key]) throw new Error(`${name}.${key} is required`);
+            }
+            return parsed;
+          }
+
+          const configs = {
+            pre: readConfig('FIREBASE_PRE_CONFIG_JSON'),
+            pro: readConfig('FIREBASE_PRO_CONFIG_JSON')
+          };
+
+          fs.writeFileSync(
+            'js/firebase-config.local.js',
+            `window.MANA_FIREBASE_CONFIGS = ${JSON.stringify(configs, null, 2)};\n`
+          );
+          NODE
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

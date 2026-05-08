@@ -32,9 +32,13 @@ jobs:
           html_files = [p for p in root.rglob('*.html') if '.git' not in p.parts and 'node_modules' not in p.parts]
           attr_re = re.compile(r'''\b(?:src|href)\s*=\s*(?P<q>["'])(?P<url>.*?)(?P=q)''', re.IGNORECASE)
 
+          OPTIONAL_LOCAL_ASSETS = {'/js/firebase-config.local.js', 'js/firebase-config.local.js', '../js/firebase-config.local.js'}
+
           def should_skip(url: str) -> bool:
             u = url.strip()
             if not u:
+              return True
+            if u in OPTIONAL_LOCAL_ASSETS:
               return True
             return (
               u.startswith('#') or

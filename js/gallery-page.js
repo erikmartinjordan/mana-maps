@@ -2,16 +2,7 @@
 
 (function() {
   const MAPS_COLLECTION = 'maps';
-  const firebaseConfig = {
-    apiKey: 'AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg',
-    authDomain: 'mana-maps-pro.firebaseapp.com',
-    databaseURL: 'https://mana-maps-pro-default-rtdb.firebaseio.com',
-    projectId: 'mana-maps-pro',
-    storageBucket: 'mana-maps-pro.firebasestorage.app',
-    messagingSenderId: '212469378297',
-    appId: '1:212469378297:web:83e17ed0e38dd202944628',
-    measurementId: 'G-F1Z7C21BZ6'
-  };
+  const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
 
   function escHtml(str) {
@@ -43,7 +34,7 @@
   async function remoteMaps() {
     if (typeof firebase === 'undefined') return [];
     try {
-      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return []; firebase.initializeApp(firebaseConfig); }
       const db = firebase.firestore();
       // Firestore read: initial published maps list for gallery bootstrap.
       let snap = null;
@@ -85,7 +76,7 @@
   async function remoteMapById(id) {
     if (!id || typeof firebase === 'undefined') return null;
     try {
-      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
       const db = firebase.firestore();
       // Firestore read: fetch one published map by id for direct /gallery?slug= links.
       const doc = await db.collection(MAPS_COLLECTION).doc(id).get();
@@ -256,7 +247,7 @@
     if (item._geojsonLoaded && item._geojsonLoaded.features) return item._geojsonLoaded;
     if (typeof firebase === 'undefined') return null;
     try {
-      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
       var db = firebase.firestore();
       var chunked = await readChunkedPublishedGeo(db, item);
       if (chunked && chunked.features) {
@@ -406,7 +397,7 @@
   function subscribeToPublishedMaps(mergedList) {
     if (typeof firebase === 'undefined') return;
     try {
-      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
       const db = firebase.firestore();
       // Firestore read: real-time gallery listener for published maps only.
       var baseQuery = db.collection(MAPS_COLLECTION)

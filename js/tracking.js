@@ -3,16 +3,11 @@
 // Zero changes required to other JS files.
 
 (function() {
-  var firebaseConfig = {
-    apiKey: "AIzaSyBjtW1SUhgnLyagREHESEl4Vb4zI5yHgDg",
-    authDomain: "mana-maps-pro.firebaseapp.com",
-    databaseURL: "https://mana-maps-pro-default-rtdb.firebaseio.com",
-    projectId: "mana-maps-pro",
-    storageBucket: "mana-maps-pro.firebasestorage.app",
-    messagingSenderId: "212469378297",
-    appId: "1:212469378297:web:83e17ed0e38dd202944628",
-    measurementId: "G-F1Z7C21BZ6"
-  };
+  var firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
+  if (typeof firebase === 'undefined' || !firebaseConfig) {
+    window.trackEvent = function() {};
+    return;
+  }
   if (!firebase.apps || !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
