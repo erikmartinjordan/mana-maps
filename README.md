@@ -1,262 +1,75 @@
 <p align="center">
-  <img src="./favicon.svg" alt="Maña Maps logo" width="120" height="120">
+  <a href="https://maña.com" target="_blank" rel="noopener noreferrer">
+    <img src="./favicon.svg" alt="Maña Maps logo" width="120" height="120">
+  </a>
 </p>
 
-# 🗺️ Maña Maps
+<h1 align="center">Maña Maps</h1>
 
-Interactive map editor built with [Leaflet.js](https://leafletjs.com/) and integrated conversational AI.
+<p align="center">A simple browser-based map editor for drawing, importing, exporting, and sharing geospatial data.</p>
 
-[![Pre-deployment Tests](https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml/badge.svg)](https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml)
-[![Update Changelog](https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml/badge.svg)](https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml)
-[![Live Site](https://img.shields.io/badge/deployment-live-success?logo=githubpages)](https://maña.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <a href="https://maña.com">Live Site</a> •
+  <a href="https://maña.com/map/">Editor</a> •
+  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml">Tests</a> •
+  <a href="https://github.com/erikmartinjordan/mana-maps">GitHub</a>
+</p>
 
-🔗 **Live demo:** [maña.com](https://maña.com)
-
----
-
-## ✨ Features
-
-### 🖊️ Drawing tools
-
-| Tool | Description |
-|---|---|
-| Add point | Click on the map, enter a name, added with popup |
-| Draw line | Click to add vertices, double-click to finish |
-| Draw polygon | Click to add vertices, close by clicking the first point |
-| Measure distance | Click to set waypoints, double-click to see total distance |
-| Edit geometry | Move vertices of existing elements (points, lines, polygons) |
-
-### ↩️ Undo / Redo
-
-| Action | Shortcut |
-|---|---|
-| Undo | `Ctrl+Z` / `Cmd+Z` |
-| Redo | `Ctrl+Y` / `Cmd+Shift+Z` |
-
-History keeps up to 50 steps. Every draw, delete, rename, style change or geometry edit is recorded. Buttons in the sidebar show the available steps and become disabled when the stack is empty.
-
-### 🎨 Style customisation
-
-| Option | Values |
-|---|---|
-| Draw colour | 8 swatches (blue, indigo, mint, gold, red, pink, purple, slate) |
-| Marker type | Pin, circle, square, star |
-| Line weight | 1, 2, 3, 5, 8 px (per-element via context menu) |
-| Opacity | 10 – 100 % slider (per-element via context menu) |
-| Categorise by attribute | Automatic colour assignment from any attribute field |
-
-### 🗺️ Map types
-
-| Type | Source |
-|---|---|
-| Map | CartoDB Light |
-| Satellite | Esri World Imagery |
-| 3D Globe | MapLibre GL JS with globe projection |
-
-Switching between 2D and 3D uses a fade transition (~400 ms).
-
-### 🔍 Place search
-
-A search bar in the top bar queries [Nominatim](https://nominatim.openstreetmap.org/) and shows up to 5 results. Click a result to fly to the location at zoom 14. Works without an AI key.
-
-### 📥 Import
-
-| Format | Extension |
-|---|---|
-| GeoJSON | `.geojson`, `.json` |
-| KML | `.kml` |
-| KMZ | `.kmz` |
-| Shapefile | `.zip` containing `.shp` + `.dbf` + `.prj` |
-
-Files can also be dropped directly onto the map. Imported layers appear as named groups with attribute metadata, filters and categorisation.
-
-### 📤 Export
-
-| Format | Contents |
-|---|---|
-| **GeoJSON** | Full feature collection with attributes |
-| **CSV** | One row per feature, with coordinates and all attribute columns |
-| **KML / KMZ** | Styled placemarks with `<ExtendedData>` for every attribute |
-| **Shapefile** | ZIP with `points/`, `lines/`, `polygons/` folders, each containing `.shp` + `.shx` + `.dbf` + `.prj` |
-
-All exports use the **project name** defined in the sidebar footer as the filename prefix (default: `mana-maps`). Attribute table data is preserved across all formats; internal metadata keys are filtered automatically.
-
-### 🌐 OGC services
-
-Connect to external WMS or WFS endpoints. A built-in catalogue provides quick access to common Spanish SDI services.
-
-### 📋 Attribute table
-
-Notion-style key/value editor accessible from the context menu or the layer list. Supports:
-
-- Inline editing of values and field names
-- Adding / deleting attributes
-- Navigating between elements of a group
-- Visual highlight of the selected element on the map
-
-### 🔎 Filter engine
-
-Per-group attribute filters with AND logic. Operators: `=`, `≠`, `>`, `<`, `≥`, `≤`, `contains`, `starts`. Hidden elements are excluded from the map but preserved in exports.
-
-### 🤖 AI Chat
-
-The right-side panel accepts natural language in Spanish (or any language with an API key):
-
-```
-"añade un punto en Barcelona"
-"ruta de Madrid a Sevilla"
-"busca museos en París"
-"satélite" / "globo 3D"
-"color rojo"
-"exporta como KML"
-```
-
-**Without API key** — regex-based command parser with geocoding.
-**With API key** — full function-calling via OpenAI, Groq (free) or any compatible endpoint. The system prompt includes the current map state so the model can reference existing elements.
-
-The welcome message shows clickable suggestion buttons. Chat input supports `↑` / `↓` history navigation (last 50 messages).
-
-
-#### QGIS toolbox parity from AI chat
-
-The AI chat can trigger a **subset** of QGIS-like toolbox actions that exist in Maña Maps:
-
-- Draw tools: point, line, polygon (`set_draw_tool`)
-- Measure tool / ruler (`measure_distance`)
-- Base map/style actions: satellite/map/globe, drawing color, marker type
-- Navigation/actions: zoom in/out, clear map, export
-
-Not all classic QGIS Processing Toolbox algorithms are available (e.g., buffering, dissolve, clipping, raster analysis). This project is a lightweight web editor, not a full desktop GIS processing engine.
-
-### 💾 Persistence
-
-| Feature | Detail |
-|---|---|
-| Auto-save | Every map change is saved to `localStorage` |
-| Auto-restore | On load, the previous session is restored with a toast notification |
-| Share via URL | `#map=` hash encoding (one-click copy) |
-| Clear saved data | Button in sidebar footer |
-
-### ♿ Accessibility
-
-- `aria-live="polite"` on the toast container
-- `role="dialog"` and `aria-modal="true"` on the name modal
-- Focus trap (Tab / Shift+Tab) inside all modals
-- `focus-visible` outlines on all interactive elements
-- Escape closes any open modal or context menu
+<p align="center">
+  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml/badge.svg" alt="Pre-deployment Tests"></a>
+  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml/badge.svg" alt="Update Changelog"></a>
+  <a href="https://maña.com"><img src="https://img.shields.io/badge/deployment-live-success?logo=githubpages" alt="Live Site"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
 
 ---
 
-## 🚀 Local usage
+Maña Maps runs entirely in the browser. Use it to sketch map features, work with common GIS file formats, switch between 2D maps and a 3D globe, and optionally save or share maps with Firebase-backed services.
 
-No installation or server required:
+## Features
+
+- Draw points, lines, polygons, and measurements.
+- Import GeoJSON, KML, KMZ, and zipped Shapefiles.
+- Export GeoJSON, CSV, KML, KMZ, and Shapefiles.
+- Switch between standard map, satellite imagery, and a 3D globe.
+- Search places, edit attributes, style features, and filter layers.
+- Save locally in the browser and optionally share maps online.
+
+## Quick start
+
+No build step is required.
 
 ```bash
 git clone https://github.com/erikmartinjordan/mana-maps.git
 cd mana-maps
-open index.html   # macOS
-# or double-click on Windows / Linux
+python3 -m http.server 4173
 ```
 
-> The AI chat and place search use [Nominatim](https://nominatim.openstreetmap.org/) for geocoding. Requires an internet connection.
+Open <http://127.0.0.1:4173> in your browser.
 
----
+## Configuration
 
-## 🚢 Deployment
+Firebase is optional for local UI work. Without it, the editor still loads and local-only features continue to work.
 
-- **Production URL:** [https://maña.com](https://maña.com)
-- **Hosting:** Static deployment with custom domain (`CNAME` present in repository root)
-- **Quality gate before deploy:** GitHub Actions workflow **Pre-deployment Tests** (HTML validation, JS syntax checks, and Playwright E2E tests)
-- **Maintenance automation:** GitHub Actions workflow **Update Changelog** regenerates `changelog/index.html` on pushes to `main`
+To enable Firebase-backed auth, sharing, tracking, or collaboration locally, create `js/firebase-config.local.js`:
 
----
+```js
+window.MANA_FIREBASE_CONFIGS = {
+  pre: { /* Firebase web app config */ },
+  pro: { /* Firebase web app config */ }
+};
+```
 
-
-## 🔐 Firebase runtime configuration
-
-Firebase browser config is intentionally not committed. The app expects
-`/js/firebase-config.local.js` to exist at runtime before any Firebase module,
-then `js/firebase.js` automatically selects the right Firebase project:
-
-- `pre` for local development (`localhost`, `127.0.0.1`, `file://`, `*.local`)
-- `pro` for production domains
-- Override when needed with `?firebaseEnv=pre` or `?firebaseEnv=pro`
-
-Set it up locally:
+## Tests
 
 ```bash
-cp js/firebase-config.example.js js/firebase-config.local.js
-# Fill the pre and pro objects from Firebase Console → Project settings → SDK config.
+npx playwright test --config=tests/predeploy/playwright.config.js
 ```
 
-`js/firebase-config.local.js` is ignored by Git and must not be committed. For
-production, the `Deploy GitHub Pages` workflow generates it from these GitHub
-Actions secrets before uploading the Pages artifact:
+## Tech stack
 
-- `FIREBASE_PRE_CONFIG_JSON` — JSON object for the PRE Firebase web app
-- `FIREBASE_PRO_CONFIG_JSON` — JSON object for the PRO Firebase web app
+Maña Maps is built with vanilla JavaScript, HTML, and CSS. It uses Leaflet for 2D mapping, MapLibre GL JS for the 3D globe, JSZip and shp.js for file handling, and optional Firebase services for accounts and sharing.
 
-If production still returns 404 for `/js/firebase-config.local.js`, the currently
-published artifact was not generated by that workflow with those secrets; rerun
-the workflow for `main` after configuring the secrets. Remember that Firebase
-Web API keys are still visible in the browser after deployment; protect the
-project with strict Firestore/Storage rules, API key application restrictions,
-separate PRE/PRO projects, and Firebase App Check.
-
----
-## 🛠️ Tech stack
-
-| Library | Version | Purpose |
-|---|---|---|
-| [Leaflet](https://leafletjs.com/) | 1.9.4 | Interactive map |
-| [Leaflet Draw](https://github.com/Leaflet/Leaflet.draw) | 1.0.4 | Drawing & geometry editing |
-| [MapLibre GL JS](https://maplibre.org/) | 5.x | 3D globe |
-| [JSZip](https://stuk.github.io/jszip/) | 3.10.1 | KMZ & Shapefile ZIP generation |
-| [shp.js](https://github.com/calvinmetcalf/shapefile-js) | 4.0.4 | Shapefile import |
-| [Firebase](https://firebase.google.com/) | 10.12.2 | Analytics & sharing |
-| [CartoDB Light](https://carto.com/basemaps/) | — | Base tiles (no key required) |
-| [Esri World Imagery](https://www.arcgis.com/) | — | Satellite tiles |
-| [Nominatim](https://nominatim.openstreetmap.org/) | — | Geocoding |
-
-No frameworks. Vanilla JS + CSS (DM Sans / DM Mono).
-
----
-
-## 📁 Project structure
-
-```
-mana-maps/
-├── index.html              # Main HTML shell
-├── styles.css              # Design system (DM Sans, CSS variables)
-├── favicon.svg
-├── favicon.ico
-├── CNAME
-├── README.md
-├── js/
-│   ├── markers.js          # Draw colour state & SVG marker icons
-│   ├── modal.js            # Name input dialog & focus trapping
-│   ├── map-core.js         # Map init, base layers, group meta, filter engine, stats
-│   ├── stats.js            # Stats panel
-│   ├── globe.js            # 3D globe (MapLibre GL)
-│   ├── tools.js            # Drawing tools, ruler & geometry editing
-│   ├── context-menu.js     # Right-click menu, toast, colour palette, attribute editor
-│   ├── import-export.js    # File import, drag-drop & export (GeoJSON/CSV/KML/Shapefile)
-│   ├── chat.js             # AI chat, function calling, regex fallback, geocoding
-│   ├── undo-redo.js        # Undo / redo with GeoJSON snapshots
-│   ├── persistence.js      # localStorage auto-save, restore & URL sharing
-│   ├── ogc-loader.js       # WMS / WFS & ArcGIS service loader
-│   ├── filter.js           # Attribute filter logic
-│   ├── responsive.js       # Mobile / tablet layout
-│   ├── tracking.js         # Firebase analytics
-│   └── plans.js            # Subscription plans
-├── about/
-├── changelog/
-└── open/
-```
-
----
-
-## 📄 License
+## License
 
 MIT © [Erik Martín Jordán](https://github.com/erikmartinjordan)
