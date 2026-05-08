@@ -8,6 +8,8 @@
   var DEFAULT_ENV = 'pro';
   var LOCAL_ENV = 'pre';
 
+  var warnedMissingConfigs = {};
+
   function getRuntimeConfigs() {
     return (window.MANA_FIREBASE_CONFIGS && typeof window.MANA_FIREBASE_CONFIGS === 'object')
       ? window.MANA_FIREBASE_CONFIGS
@@ -43,7 +45,10 @@
     var selectedEnv = env || detectEnv();
     var config = getRuntimeConfigs()[selectedEnv];
     if (!isValidConfig(config)) {
-      console.warn('[firebase] Missing Firebase config for environment:', selectedEnv);
+      if (!warnedMissingConfigs[selectedEnv]) {
+        warnedMissingConfigs[selectedEnv] = true;
+        console.warn('[firebase] Missing Firebase config for environment:', selectedEnv);
+      }
       return null;
     }
     return config;
