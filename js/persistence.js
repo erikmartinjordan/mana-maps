@@ -116,10 +116,12 @@ function _importRestoredGeoJSON(geo) {
 
       if (g.type === 'Point') {
         const ll = [g.coordinates[1], g.coordinates[0]];
-        const icon = makeMarkerIcon(color, markerType);
+        const restoredMarkerType = props.markerType || markerType;
+        const icon = makeMarkerIcon(color, restoredMarkerType);
         layer = L.marker(ll, { icon });
         layer._manaName = name;
         layer._manaColor = color;
+        layer._manaMarkerType = restoredMarkerType;
         const ptAttrs = _extractUserAttrs(props);
         if (ptAttrs) layer._manaProperties = ptAttrs;
         layer.bindPopup('<strong>' + name + '</strong>');

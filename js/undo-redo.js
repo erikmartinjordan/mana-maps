@@ -11,6 +11,9 @@ function _takeSnapshot() {
     const f = l.toGeoJSON();
     f.properties._manaName = l._manaName || '';
     f.properties._manaColor = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : (l.options.color || '#0ea5e9');
+    if (l instanceof L.Marker) {
+      f.properties.markerType = l._manaMarkerType || markerType;
+    }
     if (!(l instanceof L.Marker)) {
       f.properties._manaWeight = l.options.weight || 2;
       f.properties._manaOpacity = l.options.opacity || 1;
@@ -51,10 +54,12 @@ function _restoreSnapshot(json) {
     let layer;
     if (g.type === 'Point') {
       const ll = [g.coordinates[1], g.coordinates[0]];
-      const icon = makeMarkerIcon(color, markerType);
+      const restoredMarkerType = props.markerType || markerType;
+      const icon = makeMarkerIcon(color, restoredMarkerType);
       layer = L.marker(ll, { icon }).addTo(drawnItems);
       layer._manaName = name;
       layer._manaColor = color;
+      layer._manaMarkerType = restoredMarkerType;
       layer.bindPopup('<strong>' + name + '</strong>');
     } else if (g.type === 'LineString') {
       const lls = g.coordinates.map(c => [c[1], c[0]]);
