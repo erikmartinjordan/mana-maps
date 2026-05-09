@@ -807,11 +807,27 @@ const I18N = {
 };
 
 // ── Language detection: localStorage > URL path > browser locale ──
+const MANA_LANG_KEY = 'mana-lang';
+const MANA_LEGACY_LANDING_LANG_KEY = 'mana-landing-lang';
+
+function getStoredManaLang() {
+  var stored = localStorage.getItem(MANA_LANG_KEY) || localStorage.getItem(MANA_LEGACY_LANDING_LANG_KEY);
+  return stored && I18N[stored] ? stored : null;
+}
+
+function persistManaLang(lang) {
+  if (!I18N[lang]) return;
+  localStorage.setItem(MANA_LANG_KEY, lang);
+  // Keep the legacy landing-page key in sync so older cached pages do not
+  // switch the user back to a different language when navigating home.
+  localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
+}
+
 // Spanish-speaking locales (es-ES, es-MX, es-AR, es-CL, ca, gl, eu) → ES
 // Everything else → EN
 let LANG = (function() {
-  var stored = localStorage.getItem('mana-lang');
-  if (stored && I18N[stored]) return stored;
+  var stored = getStoredManaLang();
+  if (stored) return stored;
   if (window.location.pathname.startsWith('/en')) return 'en';
   var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
   var lang2 = nav.slice(0, 2);
@@ -834,7 +850,7 @@ function t(key, params) {
 // ── Apply translations to DOM elements with data-i18n / data-i18n-placeholder ──
 function applyTranslations(lang) {
   if (lang && I18N[lang]) LANG = lang;
-  localStorage.setItem('mana-lang', LANG);
+  persistManaLang(LANG);
 
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
