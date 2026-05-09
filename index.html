@@ -319,10 +319,20 @@ var LANG = {
     lang_btn:'ES'
   }
 };
-var currentLang = localStorage.getItem('mana-landing-lang') || 'es';
+var MANA_LANG_KEY = 'mana-lang';
+var MANA_LEGACY_LANDING_LANG_KEY = 'mana-landing-lang';
+function getStoredLang() {
+  var stored = localStorage.getItem(MANA_LANG_KEY) || localStorage.getItem(MANA_LEGACY_LANDING_LANG_KEY);
+  return LANG[stored] ? stored : 'es';
+}
+function persistLang(lang) {
+  localStorage.setItem(MANA_LANG_KEY, lang);
+  localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
+}
+var currentLang = getStoredLang();
 function applyLang(lang) {
   currentLang = lang;
-  localStorage.setItem('mana-landing-lang', lang);
+  persistLang(lang);
   document.documentElement.lang = lang;
   var strings = LANG[lang];
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
