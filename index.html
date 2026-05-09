@@ -204,15 +204,18 @@ h1 {
     #ffffff;
   background-size: 38px 38px, 38px 38px, cover, cover, auto;
 }
-.route {
-  position: absolute; inset: 46px 42px 116px 48px;
-  border: 3px solid #0ea5e9; border-left-color: transparent; border-bottom-color: transparent;
-  border-radius: 46% 54% 52% 48%; transform: rotate(-8deg);
+.mana-polygon {
+  position: absolute;
+  left: 50%; top: 45%;
+  width: min(245px, 68%); height: auto;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  filter: drop-shadow(0 14px 24px rgba(15,23,42,.12));
 }
-.zone {
-  position: absolute; right: clamp(34px, 10%, 58px); bottom: 86px; width: min(148px, 42%); height: 104px;
-  background: rgba(22,163,74,.14); border: 2px solid #16a34a;
-  clip-path: polygon(16% 10%, 76% 0, 100% 42%, 70% 100%, 10% 82%, 0 35%);
+.mana-polygon path {
+  fill: rgba(48,54,59,.12);
+  stroke: #30363b;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
 }
 .map-pin {
   position: absolute; width: 12px; height: 12px; border-radius: 50%;
@@ -343,8 +346,9 @@ h1 {
             </div>
           </div>
           <div class="demo-map">
-            <span class="route"></span>
-            <span class="zone"></span>
+            <svg class="mana-polygon" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <path d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z" transform="translate(100 100)"/>
+            </svg>
             <span class="map-pin one"></span>
             <span class="map-pin two"></span>
             <span class="map-pin three"></span>
