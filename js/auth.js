@@ -53,12 +53,20 @@
   let _authModeSignup = false;
   let _authReady = false;
   let _authReadyResolve = null;
+  const FREE_PLAN = 'free';
+
   const _authReadyPromise = new Promise(function(resolve) { _authReadyResolve = resolve; });
 
   function _markAuthReady() {
     if (_authReady) return;
     _authReady = true;
     if (_authReadyResolve) _authReadyResolve();
+  }
+
+  function _emitProfileChange() {
+    document.dispatchEvent(new CustomEvent('manaauth:profile', {
+      detail: { user: _currentUser, handle: _handle, profile: _profile }
+    }));
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -82,6 +90,7 @@
           _handle = null;
           _profile = null;
         }
+        _emitProfileChange();
         _renderAvatar();
         // Resume pending action only after the user's handle/profile exists.
         // This prevents signed-in users from being bounced back to the login modal
@@ -94,6 +103,7 @@
       } else {
         _handle = null;
         _profile = null;
+        _emitProfileChange();
         _removeAvatar();
         _renderLoginButton();
       }
@@ -263,15 +273,18 @@
             displayName: user.displayName || handle,
             uid: user.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            avatarUrl: user.photoURL || ''
+            avatarUrl: user.photoURL || '',
+            plan: FREE_PLAN
           });
 
           _handle = handle;
           _profile = {
             displayName: user.displayName || handle,
             uid: user.uid,
-            avatarUrl: user.photoURL || ''
+            avatarUrl: user.photoURL || '',
+            plan: FREE_PLAN
           };
+          _emitProfileChange();
           _setCachedHandle(user.uid, handle);
           overlay.classList.remove('open');
           overlay.setAttribute('aria-hidden', 'true');
@@ -402,6 +415,10 @@
       return;
     }
     try {
+      if (window.manaPlan && typeof window.manaPlan.isPro === 'function' && window.manaPlan.isPro(_profile)) {
+        callback();
+        return;
+      }
       const mapCount = await window.manaMaps.countMaps();
       if (mapCount >= FREE_MAP_LIMIT) {
         if (typeof window.showUpsell === 'function') window.showUpsell('map-limit');
@@ -731,6 +748,7 @@
       if (user.updateProfile && (nextDisplayName !== user.displayName || nextAvatarUrl !== user.photoURL)) {
         try { await user.updateProfile({ displayName: nextDisplayName, photoURL: nextAvatarUrl || null }); } catch (e) { console.warn('[auth] Firebase profile update failed', e); }
       }
+      _emitProfileChange();
       _renderAvatar();
       return { handle: _handle, profile: _profile };
     }
@@ -781,6 +799,7 @@
     if (user.updateProfile && (nextDisplayName !== user.displayName || nextAvatarUrl !== user.photoURL)) {
       try { await user.updateProfile({ displayName: nextDisplayName, photoURL: nextAvatarUrl || null }); } catch (e) { console.warn('[auth] Firebase profile update failed', e); }
     }
+    _emitProfileChange();
     _renderAvatar();
     return { handle: _handle, profile: _profile };
   }
@@ -804,6 +823,7 @@
       _currentUser = null;
       _handle = null;
       _profile = null;
+      _emitProfileChange();
       _removeAvatar();
       if (typeof showToast === 'function') {
         showToast(txt('Sesión cerrada', 'Logged out'));

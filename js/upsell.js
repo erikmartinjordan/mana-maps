@@ -2,10 +2,20 @@
 
 const STRIPE_URL = 'https://buy.stripe.com/00w9AU9Rz2ohbfX1OxdfG00';
 
+function isProUser() {
+  return !!(window.manaPlan && typeof window.manaPlan.isPro === 'function' && window.manaPlan.isPro());
+}
+
+function label(key, fallback) {
+  if (typeof t === 'function') return t(key);
+  return fallback;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // SHOW / CLOSE UPSELL MODAL
 // ═══════════════════════════════════════════════════════════════
 function showUpsell(mode) {
+  if (isProUser()) return;
   var modal = document.getElementById('upsell-modal');
   if (!modal) return;
   var title = modal.querySelector('.upsell-title');
@@ -29,7 +39,8 @@ function showUpsell(mode) {
 }
 
 function closeUpsell() {
-  document.getElementById('upsell-modal').classList.remove('open');
+  var modal = document.getElementById('upsell-modal');
+  if (modal) modal.classList.remove('open');
 }
 
 // Close on backdrop click
@@ -58,12 +69,17 @@ function upsellHaveKey() {
 function updateProIndicator() {
   var el = document.getElementById('pro-indicator');
   if (!el) return;
-  el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.6A4.4 4.4 0 0016.2 11 6 6 0 104.6 13.2 3.5 3.5 0 005 20h14a3 3 0 001-2.4z"/></svg> ' + t('footer_pro');
-  el.className = 'pro-indicator not-configured';
-  el.onclick = showUpsell;
-  el.style.cursor = 'pointer';
+  var pro = isProUser();
+  el.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 17.6A4.4 4.4 0 0016.2 11 6 6 0 104.6 13.2 3.5 3.5 0 005 20h14a3 3 0 001-2.4z"/></svg> '
+    + (pro ? label('footer_pro_active', 'Maña Cloud Pro') : label('footer_pro', 'Maña Cloud →'));
+  el.className = 'pro-indicator ' + (pro ? 'configured' : 'not-configured');
+  el.onclick = pro ? null : showUpsell;
+  el.style.cursor = pro ? 'default' : 'pointer';
+  el.setAttribute('aria-label', pro ? label('footer_pro_active_label', 'Pro plan active') : label('footer_pro_label', 'Upgrade to Pro'));
 }
 
 // Init on load
 document.addEventListener('DOMContentLoaded', updateProIndicator);
+document.addEventListener('manaauth:profile', updateProIndicator);
 setTimeout(updateProIndicator, 200);
+setTimeout(updateProIndicator, 1200);
