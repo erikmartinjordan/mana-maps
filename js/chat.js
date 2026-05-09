@@ -168,7 +168,7 @@ const toolActions = {
     const icon = makeMarkerIcon(c, markerType);
     const label = name || res[0].display_name.split(',')[0];
     const m = L.marker(ll, { icon });
-    m._manaName = label; m._manaColor = c;
+    m._manaName = label; m._manaColor = c; m._manaMarkerType = markerType;
     m.bindPopup('<strong>' + label + '</strong>');
     addDrawnLayerToGroup(m);
     map.setView(ll, 13);
@@ -306,7 +306,7 @@ const toolActions = {
         const ll = [+res[0].lat, +res[0].lon];
         const icon = makeMarkerIcon(c, markerType);
         const m = L.marker(ll, { icon });
-        m._manaName = res[0].display_name.split(',')[0]; m._manaColor = c;
+        m._manaName = res[0].display_name.split(',')[0]; m._manaColor = c; m._manaMarkerType = markerType;
         m.bindPopup('<strong>' + m._manaName + '</strong>');
         addDrawnLayerToGroup(m);
         added++;

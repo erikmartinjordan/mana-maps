@@ -412,7 +412,7 @@ function getEnrichedGeoJSON() {
     // Set color and name last (these are Maña-specific display properties)
     if (l instanceof L.Marker) {
       f.properties.color = l._manaColor || '#0ea5e9';
-      f.properties.markerType = l._manaMarkerType || markerType || 'pin';
+      f.properties.markerType = l._manaMarkerType || markerType || 'circle';
     } else {
       f.properties.color = (l.options && l.options.color) || '#0ea5e9';
     }

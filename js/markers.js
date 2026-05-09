@@ -1,7 +1,7 @@
 // ── markers.js ─ 100-icon marker system ──
 
 let drawColor = '#0ea5e9';
-let markerType = 'pin';
+let markerType = 'circle';
 
 function setDrawColor(color, el) {
   drawColor = color;
@@ -185,7 +185,7 @@ var MK_CATS = {
 };
 
 // Quick-access defaults (shown in compact row)
-var MK_DEFAULTS = ['pin','circle','square','star','flag','heart'];
+var MK_DEFAULTS = ['circle','pin','square','star','flag','heart'];
 
 // ═══════════════════════════════════════════════════════════════
 // MAKE MARKER ICON — renders colored map marker

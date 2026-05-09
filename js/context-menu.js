@@ -292,6 +292,7 @@ async function ctxAddPoint() {
   const m = L.marker(ctxLatLng, { icon }).addTo(drawnItems);
   m._manaName = name;
   m._manaColor = drawColor;
+  m._manaMarkerType = markerType;
   m.bindPopup('<strong>' + name + '</strong>');
   stats();
   if (typeof saveState === 'function') saveState();
@@ -323,7 +324,7 @@ function ctxSetColor(color) {
   if (typeof pushUndo === 'function') pushUndo();
   if (ctxTargetLayer instanceof L.Marker) {
     ctxTargetLayer._manaColor = color;
-    ctxTargetLayer.setIcon(makeMarkerIcon(color, markerType));
+    ctxTargetLayer.setIcon(makeMarkerIcon(color, ctxTargetLayer._manaMarkerType || markerType));
   } else {
     ctxTargetLayer.setStyle({ color: color });
   }
@@ -390,7 +391,7 @@ function ctxStyleGroup() {
   meta.allLayers.forEach(l => {
     if (l instanceof L.Marker) {
       l._manaColor = color;
-      l.setIcon(makeMarkerIcon(color, markerType));
+      l.setIcon(makeMarkerIcon(color, l._manaMarkerType || markerType));
       l.setOpacity(opacity);
     } else {
       l.setStyle({ color: color, weight: weight || 2, opacity: opacity, fillOpacity: opacity * 0.3 });
@@ -625,7 +626,7 @@ function lctxSetColor(color) {
   _getLctxLayers().forEach(l => {
     if (l instanceof L.Marker) {
       l._manaColor = color;
-      l.setIcon(makeMarkerIcon(color, markerType));
+      l.setIcon(makeMarkerIcon(color, l._manaMarkerType || markerType));
     } else {
       l.setStyle({ color: color });
     }

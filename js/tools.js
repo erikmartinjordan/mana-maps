@@ -57,7 +57,7 @@ function setTool(tool) {
       if (typeof pushUndo === 'function') pushUndo();
       const icon = makeMarkerIcon(drawColor, markerType);
       const m = L.marker(e.latlng, { icon });
-      m._manaName = name; m._manaColor = drawColor;
+      m._manaName = name; m._manaColor = drawColor; m._manaMarkerType = markerType;
       m.bindPopup('<strong>' + name + '</strong>');
       addDrawnLayerToGroup(m);
     });
