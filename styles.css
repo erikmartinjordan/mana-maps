@@ -55,6 +55,12 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .btn-ghost:hover{background:var(--surface-2);}
 .topbar-icon-btn{width:36px;height:36px;min-width:36px;padding:0;justify-content:center;border:1px solid transparent;background:transparent;color:var(--third);border-radius:var(--radius-sm);position:relative;}
 .topbar-icon-btn svg{width:15px;height:15px;display:block;}
+.topbar-chat-toggle{display:none;color:var(--blue);}
+@media (min-width:769px){
+  :root[data-chat-collapsed="true"] .topbar-chat-toggle{display:inline-flex;}
+}
+.topbar-chat-toggle svg{width:18px;height:18px;}
+.topbar-chat-line{fill:none;stroke:url(#topbar-chat-gradient);stroke-linejoin:round;stroke-linecap:round;stroke-width:2.25;}
 .topbar-icon-btn:hover,.topbar-icon-btn:focus-visible{background:var(--surface-2);color:var(--primary);outline:none;}
 .topbar-icon-btn:active{background:var(--surface-2);color:var(--primary);}
 .topbar-icon-btn[aria-expanded="true"],.menu-wrap:has(.drop-menu.open) > .topbar-icon-btn{background:var(--surface-2);color:var(--primary);border-color:var(--border);}

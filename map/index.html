@@ -234,6 +234,20 @@ try {
     <button class="mobile-toggle" id="mobile-sidebar-toggle" aria-label="Herramientas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
+    <button class="btn btn-ghost topbar-icon-btn topbar-chat-toggle" id="topbar-chat-toggle" onclick="window.expandChatPanel && expandChatPanel()"
+      aria-label="Abrir chat" title="Abrir chat" data-i18n-aria-label="btn_open_chat" data-i18n-title="btn_open_chat"
+      data-i18n-tooltip-title="btn_open_chat" data-i18n-tooltip-desc="topbar_chat_desc" data-tooltip-desc="Reabre el asistente IA del mapa.">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="topbar-chat-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#22d3ee"/>
+            <stop offset="45%" stop-color="#a855f7"/>
+            <stop offset="100%" stop-color="#f472b6"/>
+          </linearGradient>
+        </defs>
+        <path class="topbar-chat-line" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+    </button>
     <button class="btn btn-ghost topbar-icon-btn" id="private-save-btn" onclick="saveMapOnlyURL()" hidden
       aria-label="Guardar" data-i18n-aria-label="btn_save_map" data-i18n-tooltip-title="btn_save_map" data-i18n-tooltip-desc="topbar_save_desc">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
