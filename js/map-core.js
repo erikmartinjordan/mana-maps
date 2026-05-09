@@ -597,6 +597,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!chat) return;
     var startX, startW, collapsed = false;
 
+    function collapseChat() {
+      if (collapsed) return;
+      _prevRight = getChatWidth();
+      persist('mana_chat_width', 0);
+      chat.classList.add('collapsing');
+      app.style.setProperty('--right-w', '0px');
+      chat.style.overflow = 'hidden';
+      document.documentElement.setAttribute('data-chat-collapsed', 'true');
+      chat.classList.add('is-collapsed');
+      handle.classList.add('handle-collapsed');
+      handle.title = 'Doble clic para expandir';
+      collapsed = true;
+      setTimeout(function () { chat.classList.remove('collapsing'); map.invalidateSize(); }, 220);
+    }
+
+    function expandChat() {
+      if (!collapsed) return;
+      var w = _prevRight || DEFAULT_RIGHT;
+      persist('mana_chat_width', w);
+      chat.classList.add('collapsing');
+      document.documentElement.removeAttribute('data-chat-collapsed');
+      chat.classList.remove('is-collapsed');
+      app.style.setProperty('--right-w', w + 'px');
+      handle.classList.remove('handle-collapsed');
+      handle.title = '';
+      collapsed = false;
+      setTimeout(function () {
+        chat.classList.remove('collapsing');
+        chat.style.overflow = '';
+        map.invalidateSize();
+      }, 220);
+    }
+
+    window.expandChatPanel = expandChat;
+
     // Restore persisted width
     var saved = parseInt(localStorage.getItem('mana_chat_width'));
     if (saved === 0) {
@@ -648,37 +683,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Double-click collapse/expand ──
     handle.addEventListener('dblclick', function () {
-      if (!collapsed) {
-        // Collapse
-        _prevRight = getChatWidth();
-        persist('mana_chat_width', 0);
-        chat.classList.add('collapsing');
-        app.style.setProperty('--right-w', '0px');
-        chat.style.overflow = 'hidden';
-        document.documentElement.setAttribute('data-chat-collapsed', 'true');
-        chat.classList.add('is-collapsed');
-        handle.classList.add('handle-collapsed');
-        handle.title = 'Doble clic para expandir';
-        collapsed = true;
-        setTimeout(function () { chat.classList.remove('collapsing'); map.invalidateSize(); }, 220);
-      } else {
-        // Expand
-        var w = _prevRight || DEFAULT_RIGHT;
-        persist('mana_chat_width', w);
-        chat.classList.add('collapsing');
-        document.documentElement.removeAttribute('data-chat-collapsed');
-        chat.classList.remove('is-collapsed');
-        app.style.setProperty('--right-w', w + 'px');
-        handle.classList.remove('handle-collapsed');
-        handle.title = '';
-        collapsed = false;
-        setTimeout(function () {
-          chat.classList.remove('collapsing');
-          chat.style.overflow = '';
-          map.invalidateSize();
-        }, 220);
-      }
+      if (!collapsed) collapseChat();
+      else expandChat();
     });
+
+    var chatNavToggle = document.getElementById('chat-nav-toggle');
+    if (chatNavToggle) {
+      chatNavToggle.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          expandChat();
+        }
+      });
+    }
   }
 
   initLeftHandle();
