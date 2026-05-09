@@ -18,9 +18,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Maña Maps — Diseña mapas con claridad</title>
+<title>Maña Maps — Editor GeoJSON, KML y Shapefile online</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta name="description" content="Maña Maps: crea mapas limpios y precisos en segundos. Dibuja, importa y exporta en GeoJSON, KML y Shapefile. IA integrada. Gratis y sin registro.">
+<meta name="description" content="Edita GeoJSON, KML, KMZ, CSV y Shapefiles en el navegador. Dibuja, limpia, convierte y comparte mapas sin instalar QGIS y sin registro para empezar.">
 <meta name="author" content="Erik Martín Jordán">
 <link rel="canonical" href="https://maña.com/">
 <link rel="alternate" hreflang="es" href="https://maña.com/">
@@ -30,8 +30,8 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://maña.com/">
-<meta property="og:title" content="Maña Maps — Diseña mapas con claridad">
-<meta property="og:description" content="Crea mapas limpios y precisos en segundos. Dibuja, importa y exporta en GeoJSON, KML, Shapefile. IA integrada. Gratis.">
+<meta property="og:title" content="Maña Maps — Editor GeoJSON, KML y Shapefile online">
+<meta property="og:description" content="Sube archivos GIS, edita geometrías, convierte formatos y comparte mapas desde el navegador. Sin instalar QGIS.">
 <meta property="og:image" content="https://maña.com/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -42,8 +42,8 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Maña Maps — Diseña mapas con claridad">
-<meta name="twitter:description" content="Crea mapas limpios en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.">
+<meta name="twitter:title" content="Maña Maps — Editor GeoJSON, KML y Shapefile online">
+<meta name="twitter:description" content="Edita y convierte GeoJSON, KML, KMZ, CSV y Shapefile en el navegador. Sin registro para empezar.">
 <meta name="twitter:image" content="https://maña.com/og-card.png">
 
 <!-- Structured Data -->
@@ -53,7 +53,7 @@
   "@type": "WebApplication",
   "name": "Maña Maps",
   "url": "https://maña.com",
-  "description": "Editor de mapas interactivo online con exportación a GeoJSON, KML, Shapefile y CSV. Chat con inteligencia artificial.",
+  "description": "Editor de mapas online para importar, dibujar, convertir y exportar GeoJSON, KML, KMZ, CSV y Shapefile sin instalar software GIS.",
   "applicationCategory": "DesignApplication",
   "operatingSystem": "Web",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
@@ -136,52 +136,110 @@ html, body {
 
 /* ── Hero ── */
 .hero {
-  display: grid; grid-template-columns: 1.05fr .95fr;
-  gap: 28px; padding: 64px 48px 44px; align-items: center;
+  display: grid; grid-template-columns: 1.02fr .98fr;
+  gap: 32px; padding: 64px 48px 28px; align-items: center;
 }
 .eyebrow {
-  display: inline-flex; border: 1px solid var(--line);
+  display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line);
   background: rgba(255,255,255,.84); border-radius: 999px;
-  padding: 7px 12px; font-size: 12px; font-weight: 600;
+  padding: 7px 12px; font-size: 12px; font-weight: 700;
   color: var(--muted); margin-bottom: 18px;
 }
+.eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 5px rgba(22,163,74,.12); }
 h1 {
-  font-size: clamp(34px, 5vw, 60px); line-height: 1.02;
-  letter-spacing: -0.04em; margin-bottom: 16px;
+  font-size: clamp(36px, 5vw, 62px); line-height: 1.01;
+  letter-spacing: -0.05em; margin-bottom: 16px;
 }
 .lead {
   font-size: clamp(16px, 1.7vw, 19px); line-height: 1.55;
-  color: var(--muted); max-width: 560px; margin-bottom: 30px;
+  color: var(--muted); max-width: 590px; margin-bottom: 24px;
 }
-.cta-row { display: inline-flex; gap: 12px; flex-wrap: wrap; }
+.cta-row { display: inline-flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.proof-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.proof-pill {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(16,24,40,.1);
+  border-radius: 999px; background: rgba(255,255,255,.72); color: var(--muted);
+  padding: 7px 10px; font-size: 12px; font-weight: 700;
+}
+.proof-pill::before { content: '✓'; color: #16a34a; font-weight: 900; }
 
-/* ── Preview ── */
+/* ── Product demo ── */
 .preview {
   border: 1px solid var(--line);
   background: linear-gradient(170deg, #fbfbfd 0%, #ffffff 48%, #f2f4f8 100%);
-  border-radius: 24px; min-height: 380px; padding: 18px;
+  border-radius: 24px; min-height: 420px; padding: 16px;
   position: relative; overflow: hidden;
 }
-.map-card {
-  position: absolute; inset: 18px; border-radius: 16px;
-  border: 1px solid rgba(16,24,40,0.08);
+.demo-window {
+  position: absolute; inset: 16px; border-radius: 18px; overflow: hidden;
+  border: 1px solid rgba(16,24,40,0.1); background: #fff;
+  box-shadow: 0 18px 50px rgba(15,23,42,.11);
+}
+.demo-topbar {
+  height: 42px; display: flex; align-items: center; gap: 7px; padding: 0 14px;
+  border-bottom: 1px solid rgba(16,24,40,.08); background: rgba(248,250,252,.9);
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #ef4444; }
+.dot:nth-child(2) { background: #f59e0b; }
+.dot:nth-child(3) { background: #22c55e; }
+.demo-title { margin-left: auto; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.demo-body { display: grid; grid-template-columns: 126px 1fr; height: calc(100% - 42px); }
+.demo-panel { border-right: 1px solid rgba(16,24,40,.08); padding: 14px 12px; background: #fbfcfe; }
+.demo-label { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.file-chip {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  border: 1px solid rgba(16,24,40,.1); border-radius: 12px; background: #fff;
+  padding: 10px; margin-bottom: 8px; font-size: 12px; font-weight: 800;
+}
+.file-chip span { color: var(--muted); font-size: 10px; font-weight: 700; }
+.demo-action { margin-top: 16px; display: grid; gap: 8px; }
+.demo-action div { height: 28px; border-radius: 8px; background: #111214; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+.demo-map {
+  position: relative; overflow: hidden;
   background:
-    linear-gradient(rgba(17,24,39,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(17,24,39,0.06) 1px, transparent 1px),
-    radial-gradient(circle at 78% 25%, rgba(2,132,199,0.15), transparent 42%),
-    radial-gradient(circle at 28% 78%, rgba(17,24,39,0.09), transparent 36%),
+    linear-gradient(rgba(17,24,39,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,0.055) 1px, transparent 1px),
+    radial-gradient(circle at 72% 24%, rgba(14,165,233,0.16), transparent 36%),
+    radial-gradient(circle at 32% 70%, rgba(34,197,94,0.11), transparent 34%),
     #ffffff;
-  background-size: 40px 40px, 40px 40px, cover, cover, auto;
+  background-size: 38px 38px, 38px 38px, cover, cover, auto;
 }
-.pin {
+.route {
+  position: absolute; inset: 42px 34px 78px 46px;
+  border: 3px solid #0ea5e9; border-left-color: transparent; border-bottom-color: transparent;
+  border-radius: 46% 54% 52% 48%; transform: rotate(-8deg);
+}
+.zone {
+  position: absolute; right: 46px; bottom: 52px; width: 148px; height: 104px;
+  background: rgba(22,163,74,.14); border: 2px solid #16a34a;
+  clip-path: polygon(16% 10%, 76% 0, 100% 42%, 70% 100%, 10% 82%, 0 35%);
+}
+.map-pin {
   position: absolute; width: 12px; height: 12px; border-radius: 50%;
-  background: #0a84ff; box-shadow: 0 0 0 8px rgba(10,132,255,0.12);
+  background: #111214; box-shadow: 0 0 0 8px rgba(17,18,20,.1);
 }
-.pin.one { top: 28%; left: 33%; }
-.pin.two { top: 46%; left: 63%; }
-.pin.three { top: 66%; left: 43%; }
+.map-pin.one { top: 28%; left: 38%; }
+.map-pin.two { top: 45%; left: 65%; background: #0ea5e9; }
+.map-pin.three { top: 68%; left: 47%; background: #16a34a; }
+.export-card {
+  position: absolute; left: 22px; right: 22px; bottom: 18px; display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 10px; border-radius: 14px; background: rgba(255,255,255,.88); backdrop-filter: blur(10px);
+  border: 1px solid rgba(16,24,40,.1); box-shadow: 0 8px 26px rgba(15,23,42,.08);
+}
+.export-card span { font-size: 11px; font-weight: 800; color: var(--text); background: #f1f5f9; padding: 7px 9px; border-radius: 999px; }
 
-/* ── Stats ── */
+/* ── Activation strips ── */
+.workflow {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px; padding: 0 48px 20px;
+}
+.step {
+  border: 1px solid var(--line); border-radius: 18px;
+  padding: 18px; background: rgba(255,255,255,.75);
+}
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: #111214; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; margin-bottom: 12px; }
+.step-title { font-size: 17px; font-weight: 850; letter-spacing: -0.02em; margin-bottom: 6px; }
+.step-copy { color: var(--muted); font-size: 13px; line-height: 1.5; }
 .stats {
   display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
   gap: 14px; padding: 0 48px 48px;
@@ -205,6 +263,9 @@ h1 {
 /* ── Mobile ── */
 @media (max-width: 920px) {
   .hero { grid-template-columns: 1fr; padding: 48px 24px 28px; }
+  .preview { min-height: 360px; }
+  .demo-body { grid-template-columns: 112px 1fr; }
+  .workflow { padding: 0 24px 16px; grid-template-columns: 1fr; }
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
   .frame { width: calc(100% - 20px); margin: 10px auto 14px; }
   .topbar { padding: 0 16px; height: 66px; }
@@ -214,7 +275,11 @@ h1 {
 @media (max-width: 480px) {
   .topbar-actions .btn-about { display: none; }
   h1 { font-size: 32px; }
+  .preview { min-height: 330px; }
+  .demo-body { grid-template-columns: 1fr; }
+  .demo-panel { display: none; }
 }
+
 
 /* ── Focus visible ── */
 .btn:focus-visible, .lang-toggle:focus-visible {
@@ -245,35 +310,80 @@ h1 {
 
   <section class="hero">
     <div>
-      <span class="eyebrow" data-i18n="eyebrow">Dise&#241;ado para foco total</span>
-      <h1 data-i18n="headline">Mapas claros.<br>Decisiones r&#225;pidas.</h1>
-      <p class="lead" data-i18n="lead">Ma&#241;a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.</p>
+      <span class="eyebrow" data-i18n="eyebrow">Editor GIS r&#225;pido en el navegador</span>
+      <h1 data-i18n="headline">Edita GeoJSON, KML y Shapefiles sin abrir QGIS.</h1>
+      <p class="lead" data-i18n="lead">Sube archivos GIS, dibuja puntos, l&#237;neas y pol&#237;gonos, limpia el mapa y exporta a GeoJSON, KML, KMZ, CSV o Shapefile en segundos.</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="/map" data-i18n="cta_start">Empieza gratis</a>
-        <a class="btn" href="/changelog" data-i18n="cta_changelog">Ver novedades</a>
+        <a class="btn" href="/gallery" data-i18n="cta_examples">Ver ejemplos</a>
+      </div>
+      <div class="proof-row" aria-label="Product promises">
+        <span class="proof-pill" data-i18n="proof_no_signup">Sin registro para empezar</span>
+        <span class="proof-pill" data-i18n="proof_browser">Funciona en tu navegador</span>
+        <span class="proof-pill" data-i18n="proof_formats">GeoJSON · KML · SHP</span>
       </div>
     </div>
-    <aside class="preview" aria-label="Map preview">
-      <div class="map-card">
-        <span class="pin one"></span>
-        <span class="pin two"></span>
-        <span class="pin three"></span>
+    <aside class="preview" aria-label="GIS editor preview">
+      <div class="demo-window">
+        <div class="demo-topbar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="demo-title" data-i18n="demo_title">Importar → editar → exportar</span>
+        </div>
+        <div class="demo-body">
+          <div class="demo-panel">
+            <div class="demo-label" data-i18n="demo_files">Archivos</div>
+            <div class="file-chip">barcelona.kml <span>KML</span></div>
+            <div class="file-chip">zonas.geojson <span>GEO</span></div>
+            <div class="file-chip">parcelas.zip <span>SHP</span></div>
+            <div class="demo-action">
+              <div data-i18n="demo_action">Exportar GeoJSON</div>
+            </div>
+          </div>
+          <div class="demo-map">
+            <span class="route"></span>
+            <span class="zone"></span>
+            <span class="map-pin one"></span>
+            <span class="map-pin two"></span>
+            <span class="map-pin three"></span>
+            <div class="export-card" aria-label="Supported export formats">
+              <span>GeoJSON</span><span>KML</span><span>KMZ</span><span>CSV</span><span>Shapefile</span>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   </section>
 
+  <section class="workflow" aria-label="How Maña Maps works">
+    <article class="step">
+      <div class="step-num">1</div>
+      <div class="step-title" data-i18n="step1_title">Sube o dibuja</div>
+      <div class="step-copy" data-i18n="step1_copy">Importa GeoJSON, KML, KMZ, CSV o Shapefile, o empieza desde cero con herramientas de dibujo.</div>
+    </article>
+    <article class="step">
+      <div class="step-num">2</div>
+      <div class="step-title" data-i18n="step2_title">Limpia el mapa</div>
+      <div class="step-copy" data-i18n="step2_copy">Edita geometr&#237;as, nombres, estilos y atributos con una interfaz simple y sin ruido.</div>
+    </article>
+    <article class="step">
+      <div class="step-num">3</div>
+      <div class="step-title" data-i18n="step3_title">Exporta o comparte</div>
+      <div class="step-copy" data-i18n="step3_copy">Descarga el formato que necesitas o guarda el mapa en la nube para compartirlo.</div>
+    </article>
+  </section>
+
   <section class="stats" aria-label="Features">
     <article class="stat">
-      <div class="stat-value" data-i18n="stat1_val">Sin registro</div>
-      <div class="stat-label" data-i18n="stat1_lbl">Empieza en un clic, sin fricci&#243;n.</div>
+      <div class="stat-value" data-i18n="stat1_val">Sin instalaci&#243;n</div>
+      <div class="stat-label" data-i18n="stat1_lbl">Resuelve tareas GIS r&#225;pidas desde cualquier navegador.</div>
     </article>
     <article class="stat">
       <div class="stat-value" data-i18n="stat2_val">Formatos GIS</div>
       <div class="stat-label" data-i18n="stat2_lbl">GeoJSON, KML, KMZ, CSV y Shapefile.</div>
     </article>
     <article class="stat">
-      <div class="stat-value" data-i18n="stat3_val">IA integrada</div>
-      <div class="stat-label" data-i18n="stat3_lbl">Comandos naturales para mapear m&#225;s r&#225;pido.</div>
+      <div class="stat-value" data-i18n="stat3_val">IA opcional</div>
+      <div class="stat-label" data-i18n="stat3_lbl">Comandos naturales para acelerar b&#250;squedas, estilos y exportaciones.</div>
     </article>
   </section>
 
@@ -292,30 +402,40 @@ h1 {
 var LANG = {
   es: {
     nav_about:'Acerca de', nav_cta:'Abrir app', nav_stats:'Estad\u00edsticas',
-    eyebrow:'Dise\u00f1ado para foco total',
-    headline:'Mapas claros.<br>Decisiones r\u00e1pidas.',
-    lead:'Ma\u00f1a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.',
-    cta_start:'Empieza gratis', cta_changelog:'Ver novedades',
-    stat1_val:'Sin registro', stat1_lbl:'Empieza en un clic, sin fricci\u00f3n.',
+    eyebrow:'Editor GIS r\u00e1pido en el navegador',
+    headline:'Edita GeoJSON, KML y Shapefiles sin abrir QGIS.',
+    lead:'Sube archivos GIS, dibuja puntos, l\u00edneas y pol\u00edgonos, limpia el mapa y exporta a GeoJSON, KML, KMZ, CSV o Shapefile en segundos.',
+    cta_start:'Empieza gratis', cta_changelog:'Ver novedades', cta_examples:'Ver ejemplos',
+    proof_no_signup:'Sin registro para empezar', proof_browser:'Funciona en tu navegador', proof_formats:'GeoJSON · KML · SHP',
+    demo_title:'Importar \u2192 editar \u2192 exportar', demo_files:'Archivos', demo_action:'Exportar GeoJSON',
+    step1_title:'Sube o dibuja', step1_copy:'Importa GeoJSON, KML, KMZ, CSV o Shapefile, o empieza desde cero con herramientas de dibujo.',
+    step2_title:'Limpia el mapa', step2_copy:'Edita geometr\u00edas, nombres, estilos y atributos con una interfaz simple y sin ruido.',
+    step3_title:'Exporta o comparte', step3_copy:'Descarga el formato que necesitas o guarda el mapa en la nube para compartirlo.',
+    stat1_val:'Sin instalaci\u00f3n', stat1_lbl:'Resuelve tareas GIS r\u00e1pidas desde cualquier navegador.',
     stat2_val:'Formatos GIS', stat2_lbl:'GeoJSON, KML, KMZ, CSV y Shapefile.',
-    stat3_val:'IA integrada', stat3_lbl:'Comandos naturales para mapear m\u00e1s r\u00e1pido.',
+    stat3_val:'IA opcional', stat3_lbl:'Comandos naturales para acelerar b\u00fasquedas, estilos y exportaciones.',
     footer_made:'Hecho con \u2665 en Barcelona.',
-    page_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
-    meta_desc:'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
+    page_title:'Ma\u00f1a Maps \u2014 Editor GeoJSON, KML y Shapefile online',
+    meta_desc:'Edita GeoJSON, KML, KMZ, CSV y Shapefiles en el navegador. Dibuja, limpia, convierte y comparte mapas sin instalar QGIS y sin registro para empezar.',
     lang_btn:'EN'
   },
   en: {
     nav_about:'About', nav_cta:'Open app', nav_stats:'Stats',
-    eyebrow:'Designed for total focus',
-    headline:'Clear maps.<br>Fast decisions.',
-    lead:'Ma\u00f1a Maps turns geospatial tasks into a simple experience: draw, import and export in seconds with a clean, intuitive, noise-free interface.',
-    cta_start:'Start for free', cta_changelog:'What\u2019s new',
-    stat1_val:'No signup', stat1_lbl:'Start in one click, zero friction.',
+    eyebrow:'Fast browser-based GIS editor',
+    headline:'Edit GeoJSON, KML and Shapefiles without opening QGIS.',
+    lead:'Upload GIS files, draw points, lines and polygons, clean up the map and export to GeoJSON, KML, KMZ, CSV or Shapefile in seconds.',
+    cta_start:'Start for free', cta_changelog:'What\u2019s new', cta_examples:'See examples',
+    proof_no_signup:'No signup to start', proof_browser:'Runs in your browser', proof_formats:'GeoJSON · KML · SHP',
+    demo_title:'Import \u2192 edit \u2192 export', demo_files:'Files', demo_action:'Export GeoJSON',
+    step1_title:'Upload or draw', step1_copy:'Import GeoJSON, KML, KMZ, CSV or Shapefile, or start from scratch with drawing tools.',
+    step2_title:'Clean the map', step2_copy:'Edit geometries, names, styles and attributes with a simple, noise-free interface.',
+    step3_title:'Export or share', step3_copy:'Download the format you need or save the map to the cloud so you can share it.',
+    stat1_val:'No install', stat1_lbl:'Solve quick GIS tasks from any browser.',
     stat2_val:'GIS formats', stat2_lbl:'GeoJSON, KML, KMZ, CSV & Shapefile.',
-    stat3_val:'Built-in AI', stat3_lbl:'Natural language commands for faster mapping.',
+    stat3_val:'Optional AI', stat3_lbl:'Natural commands to speed up searches, styling and exports.',
     footer_made:'Made with \u2665 in Barcelona.',
-    page_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
-    meta_desc:'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
+    page_title:'Ma\u00f1a Maps \u2014 Online GeoJSON, KML and Shapefile editor',
+    meta_desc:'Edit GeoJSON, KML, KMZ, CSV and Shapefiles in the browser. Draw, clean, convert and share maps without installing QGIS or signing up to start.',
     lang_btn:'ES'
   }
 };

@@ -17,7 +17,7 @@ async function installFirebaseSmokeConfig(page) {
 test('home page loads with expected title and main CTA', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page).toHaveTitle(/Maña Maps — Diseña mapas con claridad/i);
+  await expect(page).toHaveTitle(/Maña Maps — Editor GeoJSON, KML y Shapefile online/i);
   await expect(page.getByRole('link', { name: /Empieza gratis/i })).toBeVisible();
 });
 
