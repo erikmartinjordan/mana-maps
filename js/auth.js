@@ -570,6 +570,32 @@
     return 'hsl(' + hue + ', 55%, 48%)';
   }
 
+  function _isTruthyPlanFlag(value) {
+    if (value === true) return true;
+    if (typeof value !== 'string') return false;
+    var normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === 'pro' || normalized === 'active';
+  }
+
+  function _isProfilePro(profile) {
+    var data = profile || _profile || {};
+    var rawPlan = String(data.plan || data.tier || '').toLowerCase();
+    var rawRole = String(data.role || '').toLowerCase();
+    var rawStatus = String(data.planStatus || data.subscriptionStatus || '').toLowerCase();
+    var hasProFlag = rawPlan === 'pro' || rawRole === 'pro' || _isTruthyPlanFlag(data.pro) || _isTruthyPlanFlag(data.isPro);
+    if (!hasProFlag) return false;
+    if (data.proUntil || data.planExpiresAt || data.subscriptionEndsAt) {
+      var expiresAt = data.proUntil || data.planExpiresAt || data.subscriptionEndsAt;
+      var expiresMs = null;
+      if (typeof expiresAt === 'number') expiresMs = expiresAt;
+      else if (typeof expiresAt === 'string') expiresMs = Date.parse(expiresAt);
+      else if (expiresAt && typeof expiresAt.toMillis === 'function') expiresMs = expiresAt.toMillis();
+      else if (expiresAt && typeof expiresAt.toDate === 'function') expiresMs = expiresAt.toDate().getTime();
+      if (expiresMs && expiresMs <= Date.now()) return false;
+    }
+    return !rawStatus || rawStatus === 'active' || rawStatus === 'trialing';
+  }
+
   function _renderAvatar() {
     var toolbar = document.getElementById('toolbar');
     if (!toolbar) return;
@@ -601,9 +627,15 @@
       circle.style.backgroundColor = _getAvatarColor(uid);
       circle.textContent = _getInitials(displayName);
     }
-    circle.title = displayName;
+    if (_isProfilePro(_profile)) {
+      var proBadge = document.createElement('span');
+      proBadge.className = 'mana-avatar-pro-badge';
+      proBadge.textContent = 'PRO';
+      circle.appendChild(proBadge);
+    }
+    circle.title = _isProfilePro(_profile) ? displayName + ' · PRO' : displayName;
     circle.setAttribute('role', 'button');
-    circle.setAttribute('aria-label', txt('Menú de usuario', 'User menu'));
+    circle.setAttribute('aria-label', _isProfilePro(_profile) ? txt('Menú de usuario · PRO', 'User menu · PRO') : txt('Menú de usuario', 'User menu'));
     circle.tabIndex = 0;
 
     wrap.appendChild(circle);

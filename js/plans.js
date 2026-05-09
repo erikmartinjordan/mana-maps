@@ -30,6 +30,13 @@
     return null;
   }
 
+  function isTruthyPlanFlag(value) {
+    if (value === true) return true;
+    if (typeof value !== 'string') return false;
+    var normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === 'pro' || normalized === 'active';
+  }
+
   function normalizePlan(profile) {
     var data = profile || readProfile() || {};
     var rawPlan = String(data.plan || data.tier || '').toLowerCase();
@@ -37,12 +44,12 @@
     var rawStatus = String(data.planStatus || data.subscriptionStatus || '').toLowerCase();
     var proUntil = readDateMs(data.proUntil || data.planExpiresAt || data.subscriptionEndsAt);
 
-    if (rawPlan === PRO_PLAN || rawRole === PRO_PLAN || data.pro === true || data.isPro === true) {
+    if (rawPlan === PRO_PLAN || rawRole === PRO_PLAN || isTruthyPlanFlag(data.pro) || isTruthyPlanFlag(data.isPro)) {
       if (proUntil && proUntil <= nowMs()) return FREE_PLAN;
       if (!rawStatus || ACTIVE_STATUSES.indexOf(rawStatus) !== -1) return PRO_PLAN;
     }
 
-    if (ACTIVE_STATUSES.indexOf(rawStatus) !== -1 && (rawPlan === PRO_PLAN || data.pro === true || data.isPro === true)) {
+    if (ACTIVE_STATUSES.indexOf(rawStatus) !== -1 && (rawPlan === PRO_PLAN || isTruthyPlanFlag(data.pro) || isTruthyPlanFlag(data.isPro))) {
       return PRO_PLAN;
     }
 
