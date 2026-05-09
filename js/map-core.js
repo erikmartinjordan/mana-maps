@@ -687,15 +687,6 @@ document.addEventListener('DOMContentLoaded', () => {
       else expandChat();
     });
 
-    var chatNavToggle = document.getElementById('chat-nav-toggle');
-    if (chatNavToggle) {
-      chatNavToggle.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          expandChat();
-        }
-      });
-    }
   }
 
   initLeftHandle();
