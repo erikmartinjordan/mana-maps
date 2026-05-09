@@ -125,6 +125,9 @@ const I18N = {
     footer_changelog: "Changelog",
     footer_stats: "Estadísticas",
     footer_pro: "Maña Cloud →",
+    footer_pro_active: "Maña Cloud Pro",
+    footer_pro_label: "Actualizar a Pro",
+    footer_pro_active_label: "Plan Pro activo",
     // ── Hints ──
     hint_point: "Haz clic en el mapa para añadir un punto",
     hint_line: "Clic para añadir vértices — doble clic para terminar",
@@ -526,6 +529,9 @@ const I18N = {
     footer_changelog: "Changelog",
     footer_stats: "Statistics",
     footer_pro: "Maña Cloud →",
+    footer_pro_active: "Maña Cloud Pro",
+    footer_pro_label: "Upgrade to Pro",
+    footer_pro_active_label: "Pro plan active",
     // ── Hints ──
     hint_point: "Click on the map to add a point",
     hint_line: "Click to add vertices — double-click to finish",
