@@ -91,19 +91,50 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
     <span class="logo-wordmark">Ma&ntilde;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
-    <a class="btn btn-ghost" href="/pricing" data-i18n="footer_pricing">Precios</a>
-    <button class="btn btn-ghost" type="button" onclick="toggleLang(); translateChangelogDates();"><span class="tb-lang-label">EN</span></button>
-    <a class="btn btn-ghost" href="/" data-i18n="changelog_back">Volver al mapa</a>
+    <a class="btn btn-ghost" href="/">Volver al mapa</a>
   </div>
 </div>
 <div class="page">
   <div class="page-header">
     <h1>Changelog</h1>
-    <p data-i18n="changelog_subtitle">Historial de cambios y mejoras de Ma&ntilde;a Maps. Todos los commits, organizados por fecha.</p>
+    <p>Historial de cambios y mejoras de Ma&ntilde;a Maps. Todos los commits, organizados por fecha.</p>
   </div>
   <div class="timeline">
     <div class="day-group">
       <div class="day-label">10 de mayo de 2026</div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-chore">chore</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Merge pull request #92 from erikmartinjordan/codex/fix-page-translation-issues-and-add-pricing-site</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/1f4f995da29d3b6ce05760ded74f72ff02512f7a" target="_blank">1f4f995</a>
+            <span class="entry-time">08:03</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-chore">chore</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Fix pricing language toggle and Stripe CTA</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/edb358ee8337d39882d302f7fd7a3913ef6a2d2b" target="_blank">edb358e</a>
+            <span class="entry-time">07:56</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-chore">chore</span></div>
+        <div class="entry-body">
+          <div class="entry-title">Add pricing page and page translations</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/c3c51617b964fa5fd889a9b794905c9c2b9bba05" target="_blank">c3c5161</a>
+            <span class="entry-time">07:47</span>
+          </div>
+        </div>
+      </div>
 
       <div class="entry">
         <div class="entry-badge"><span class="badge badge-chore">chore</span></div>
@@ -3596,27 +3627,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
     </div>
   </div>
   <div class="page-footer">
-    <span data-i18n="changelog_footer">Ma&ntilde;a Maps &mdash; Hecho con ❤ en Barcelona</span> &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
+    Ma&ntilde;a Maps &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
   </div>
 </div>
-<script src="/js/i18n.js"></script>
-<script>
-function translateChangelogDates(){
-  var esMonths={enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11};
-  var enMonths=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.querySelectorAll('.day-label').forEach(function(el){
-    if(!el.dataset.esLabel) el.dataset.esLabel=el.textContent.trim();
-    var source=el.dataset.esLabel;
-    if(LANG!=='en'){el.textContent=source;return;}
-    var m=source.match(/^(\d{1,2}) de ([a-záéíóúñ]+) de (\d{4})$/i);
-    if(!m){return;}
-    var month=esMonths[m[2].toLowerCase()];
-    if(month===undefined){return;}
-    el.textContent=enMonths[month]+' '+Number(m[1])+', '+m[3];
-  });
-}
-if(typeof applyTranslations==='function')applyTranslations(LANG);
-translateChangelogDates();
-</script>
 </body>
 </html>
