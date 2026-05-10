@@ -51,7 +51,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--primary);}
 .logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);} .logo-sub{font-size:10px;color:var(--third);font-weight:600;vertical-align:super;margin-left:1px;letter-spacing:.02em;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 16px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap;text-decoration:none;}
-.btn-primary{background:var(--primary);color:white;border:none;}.btn-primary:hover{opacity:.85;transform:translateY(-1px);} .btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);} .btn-ghost:hover{background:var(--bgBox);} button.btn{font:inherit;}
+.btn-primary{background:var(--primary);color:white;border:none;}.btn-primary:hover{opacity:.85;transform:translateY(-1px);} .btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);} .btn-ghost:hover{background:var(--bgBox);}.lang-toggle{border:1px solid var(--border);background:none;border-radius:999px;height:34px;padding:0 12px;font-size:12px;font-weight:700;color:var(--third);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:color .15s,background .15s;}.lang-toggle:hover{color:var(--primary);background:var(--bgBox);} button.btn{font:inherit;}
 .page{max-width:900px;margin:0 auto;padding:56px 24px 80px;}.page-header{text-align:center;margin-bottom:36px;}.badge{display:inline-flex;align-items:center;padding:5px 10px;border-radius:50px;background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}.page-header h1{font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--primary);margin-bottom:10px;}.page-header p{font-size:16px;color:var(--third);line-height:1.65;max-width:600px;margin:0 auto;}
 .pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:28px;}.plan{background:var(--bgBox);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:360px;}.plan.pro{background:#fff;border-color:rgba(14,165,233,.35);box-shadow:0 14px 36px rgba(14,165,233,.12),var(--shadow);}.plan-name{font-size:16px;font-weight:800;color:var(--primary);margin-bottom:8px;}.price-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:10px;}.price{font-family:'DM Mono',monospace;font-size:34px;font-weight:600;letter-spacing:-1px;color:var(--primary);}.period{font-size:12px;color:var(--third);padding-bottom:7px;}.desc{font-size:13px;color:var(--third);line-height:1.5;margin-bottom:20px;}.features{display:flex;flex-direction:column;gap:11px;margin:0 0 24px;list-style:none;}.features li{display:flex;gap:9px;font-size:13px;color:var(--secondary);line-height:1.4;}.features li:before{content:'✓';color:var(--green);font-weight:900;}.plan .btn{margin-top:auto;width:100%;}.note{text-align:center;color:var(--third);font-size:13px;line-height:1.6;margin-top:24px;}.page-footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--third);}.page-footer a{color:var(--third);text-decoration:none;}.page-footer a:hover{color:var(--primary);}
 @media(max-width:720px){#topbar{padding:0 12px}.topbar-right{gap:4px}.topbar-right .btn{padding:6px 10px;font-size:12px}.page{padding:38px 16px 60px}.page-header h1{font-size:30px}.pricing-grid{grid-template-columns:1fr}.plan{min-height:auto;}}
@@ -69,7 +69,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--primary);}
   </a>
   <div class="topbar-right">
     <a class="btn btn-ghost" href="/about" data-i18n="open_about">Acerca de</a>
-    <button class="btn btn-ghost" type="button" onclick="toggleLang()"><span class="tb-lang-label">EN</span></button>
+    <button class="lang-toggle" type="button" onclick="toggleLang()" aria-label="Change language"><span class="tb-lang-label">EN</span></button>
     <a class="btn btn-primary" href="/" data-i18n="nav_open_map">Abrir mapa</a>
   </div>
 </div>
@@ -100,7 +100,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--primary);}
         <li data-i18n="pricing_pro_feature_2">Enlaces privados, solo lectura o edición</li>
         <li data-i18n="pricing_pro_feature_3">Colaboración y opciones avanzadas de compartir</li>
       </ul>
-      <a class="btn btn-primary" href="/?upgrade=pro" data-i18n="pricing_cta_pro">Actualizar a Pro</a>
+      <a class="btn btn-primary" href="https://buy.stripe.com/00w9AU9Rz2ohbfX1OxdfG00" target="_blank" rel="noopener" data-i18n="pricing_cta_pro">Actualizar a Pro</a>
     </article>
   </section>
   <p class="note" data-i18n="pricing_note">Sin planes complejos: usa Maña Maps gratis y activa Pro cuando tu flujo de trabajo lo pida.</p>
