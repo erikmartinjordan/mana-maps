@@ -193,25 +193,43 @@ function addLayerToGroupMeta(gid, layer) {
   const meta = _manaGroupMeta[gid];
   if (!meta) return;
   meta.allLayers.push(layer);
-  // Scan properties to build attribute schema
-  const props = layer._manaProperties || {};
-  for (const [key, val] of Object.entries(props)) {
-    if (key.startsWith('_') || key === 'bbox') continue;
-    // Register the key even if this feature's value is null (other features may have values)
-    if (!meta.attrs[key]) {
-      const isNum = (val !== null && val !== undefined && typeof val === 'number');
-      meta.attrs[key] = { type: isNum ? 'number' : 'string', values: new Set() };
+  _refreshGroupAttributeSchema(gid);
+}
+
+function _refreshGroupAttributeSchema(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return {};
+
+  const attrs = {};
+  meta.allLayers.forEach(layer => {
+    const props = layer._manaProperties || {};
+    for (const [key, val] of Object.entries(props)) {
+      if (!key || key.startsWith('_') || key === 'bbox' || key === 'name') continue;
+      if (!attrs[key]) attrs[key] = { type: 'string', values: new Set() };
+      if (val !== null && val !== undefined && val !== '') {
+        attrs[key].values.add(String(val));
+      }
+      if (val !== null && val !== undefined && typeof val === 'number') {
+        attrs[key].type = 'number';
+      }
     }
-    // Only add non-null values to the value set
-    if (val !== null && val !== undefined && val !== '') {
-      const sv = String(val);
-      if (meta.attrs[key].values.size < 500) meta.attrs[key].values.add(sv);
-    }
-    // Promote type to number if it looks numeric
-    if (val !== null && val !== undefined && typeof val === 'number') {
-      meta.attrs[key].type = 'number';
-    }
-  }
+  });
+
+  meta.attrs = attrs;
+  meta.filter = (meta.filter || []).filter(rule => attrs[rule.field]);
+  return attrs;
+}
+
+function _getGroupAttrValues(gid, field) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta || !field) return [];
+  const values = new Set();
+  meta.allLayers.forEach(layer => {
+    const props = layer._manaProperties || {};
+    const val = props[field];
+    if (val !== null && val !== undefined && val !== '') values.add(String(val));
+  });
+  return [...values].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -304,7 +322,8 @@ function clearGroupFilter(gid) {
 function addFilterRule(gid) {
   const meta = _manaGroupMeta[gid];
   if (!meta) return;
-  const attrKeys = Object.keys(meta.attrs);
+  _refreshGroupAttributeSchema(gid);
+  const attrKeys = Object.keys(meta.attrs).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
   if (!attrKeys.length) return;
   meta.filter.push({ field: attrKeys[0], op: '=', value: '' });
   renderLayers();
@@ -321,8 +340,12 @@ function updateFilterRule(gid, idx, prop, value) {
   const meta = _manaGroupMeta[gid];
   if (!meta || !meta.filter[idx]) return;
   meta.filter[idx][prop] = value;
-  // If field changed, reset value
-  if (prop === 'field') meta.filter[idx].value = '';
+  // If field changed, reset value and repaint so the datalist belongs to the new field.
+  if (prop === 'field') {
+    meta.filter[idx].value = '';
+    _refreshGroupAttributeSchema(gid);
+    renderLayers();
+  }
 }
 
 function execFilter(gid) {
@@ -904,7 +927,8 @@ function renderLayers() {
 // FILTER PANEL RENDERER
 // ═══════════════════════════════════════════════════════════════
 function renderFilterPanel(gid, meta) {
-  const attrKeys = Object.keys(meta.attrs);
+  _refreshGroupAttributeSchema(gid);
+  const attrKeys = Object.keys(meta.attrs).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
   if (!attrKeys.length) {
     return '<div class="filter-panel"><div class="filter-empty">' + t('filter_no_attrs') + '</div></div>';
   }
@@ -918,8 +942,7 @@ function renderFilterPanel(gid, meta) {
   }
 
   rules.forEach((rule, idx) => {
-    const fieldInfo = meta.attrs[rule.field] || { values: new Set() };
-    const sortedVals = [...fieldInfo.values].sort();
+    const sortedVals = _getGroupAttrValues(gid, rule.field);
 
     html += '<div class="filter-rule">';
 
@@ -1169,6 +1192,7 @@ function closeAttrTable() {
 function _renderAttrTableBody(gid) {
   const meta = _manaGroupMeta[gid];
   if (!meta) return;
+  _refreshGroupAttributeSchema(gid);
   const wrap = document.getElementById('atp-table-wrap');
   if (!wrap) return;
 
@@ -1234,6 +1258,7 @@ function attrTableSaveCell(el) {
     if (!layer._manaProperties) layer._manaProperties = {};
     const num = parseFloat(newVal);
     layer._manaProperties[field] = (newVal !== '' && !isNaN(num) && String(num) === newVal) ? num : newVal;
+    _refreshGroupAttributeSchema(gid);
   }
 
   if (typeof saveState === 'function') saveState();
