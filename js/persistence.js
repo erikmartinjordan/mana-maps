@@ -41,6 +41,7 @@ function getMapNameForShare() {
 function saveState() {
   // Map contents are saved explicitly to Firestore via the Save button.
   // Do not persist map data in localStorage.
+  if (window.updatePrivateSaveIndicator) window.updatePrivateSaveIndicator();
 }
 
 function _buildSlimStateGeoJSON(geo) {
@@ -407,6 +408,7 @@ function setProjectName(name) {
   const clean = name.trim() || t('map_name_placeholder');
   const input = document.getElementById('project-name-input');
   if (input) input.value = clean;
+  if (window.updatePrivateSaveIndicator) window.updatePrivateSaveIndicator();
   showToast('Nom del projecte: ' + clean);
 }
 

@@ -198,11 +198,32 @@
     return _currentPrivateMapId || '';
   }
 
+  function updatePrivateSaveIndicator() {
+    var btn = document.getElementById('private-save-btn');
+    if (!btn) return;
+    var hasElements = false;
+    try {
+      var geo = typeof getCurrentGeo === 'function' ? getCurrentGeo() : null;
+      hasElements = !!(geo && geo.features && geo.features.length);
+    } catch (e) {
+      hasElements = false;
+    }
+    var showDot = !getLastPrivateMapId() && hasElements;
+    btn.classList.toggle('has-unsaved-new-map', showDot);
+    if (showDot) {
+      btn.setAttribute('aria-label', (typeof LANG !== 'undefined' && LANG === 'en') ? 'Save (new map has unsaved changes)' : 'Guardar (mapa nuevo sin guardar)');
+    } else {
+      btn.setAttribute('aria-label', (typeof LANG !== 'undefined' && LANG === 'en') ? 'Save' : 'Guardar');
+    }
+  }
+
   function setLastPrivateMapId(mapId) {
     _currentPrivateMapId = mapId || '';
+    updatePrivateSaveIndicator();
   }
 
   window.setCurrentPrivateMapId = setLastPrivateMapId;
+  window.updatePrivateSaveIndicator = updatePrivateSaveIndicator;
 
   function seedCurrentPrivateMapIdFromURL() {
     try {
@@ -602,6 +623,7 @@
   }
   document.addEventListener('DOMContentLoaded', function() {
     updateSaveButtonVisibility();
+    updatePrivateSaveIndicator();
     attachSaveButtonAuthListener();
     var attempts = 0;
     var timer = setInterval(function() {
