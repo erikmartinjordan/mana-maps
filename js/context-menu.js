@@ -230,17 +230,8 @@ map.on('contextmenu', e => {
   try { updateCtxStyleSection(); } catch(err) { console.warn('ctx style error:', err); }
 
   const menu = document.getElementById('ctx-menu');
-  menu.style.left = e.originalEvent.clientX + 'px';
-  menu.style.top = e.originalEvent.clientY + 'px';
   menu.classList.add('open');
-
-  requestAnimationFrame(() => {
-    const r = menu.getBoundingClientRect();
-    if (r.right > window.innerWidth)
-      menu.style.left = (e.originalEvent.clientX - r.width) + 'px';
-    if (r.bottom > window.innerHeight)
-      menu.style.top = (e.originalEvent.clientY - r.height) + 'px';
-  });
+  _positionFixedMenu(menu, e.originalEvent.clientX, e.originalEvent.clientY);
 });
 
 function closeCtx() {
@@ -401,6 +392,24 @@ function ctxStyleGroup() {
   closeCtx(); stats();
   showToast(t('toast_style_applied'));
   if (typeof saveState === 'function') saveState();
+}
+
+
+function _positionFixedMenu(menu, x, y, margin) {
+  margin = margin || 8;
+  if (!menu) return;
+  const maxH = Math.max(160, window.innerHeight - (margin * 2));
+  menu.style.maxHeight = maxH + 'px';
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+
+  requestAnimationFrame(() => {
+    const r = menu.getBoundingClientRect();
+    const left = Math.min(Math.max(margin, x), Math.max(margin, window.innerWidth - r.width - margin));
+    const top = Math.min(Math.max(margin, y), Math.max(margin, window.innerHeight - r.height - margin));
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -597,16 +606,8 @@ function _openLayerCtx(x, y, type, id) {
   }
 
   // Position and show
-  menu.style.left = x + 'px';
-  menu.style.top = y + 'px';
   menu.classList.add('open');
-
-  // Adjust if overflows
-  requestAnimationFrame(() => {
-    const r = menu.getBoundingClientRect();
-    if (r.right > window.innerWidth) menu.style.left = (x - r.width) + 'px';
-    if (r.bottom > window.innerHeight) menu.style.top = (y - r.height) + 'px';
-  });
+  _positionFixedMenu(menu, x, y);
 }
 
 // ── Actions ──
