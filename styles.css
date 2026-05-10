@@ -43,7 +43,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .map-name-count{font-size:11px;color:var(--third);white-space:nowrap;font-weight:400;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;position:relative;}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
-  font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s,background .15s,color .15s,border-color .15s,box-shadow .15s;white-space:nowrap;}
+  font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:opacity .15s,transform .1s,background .15s,color .15s,border-color .15s,box-shadow .15s;white-space:nowrap;}
 .btn-primary{background:var(--primary);color:white;border:none;}
 .btn-primary:hover{opacity:.85;transform:translateY(-1px);}
 .btn-login{
@@ -2855,6 +2855,7 @@ body.profile-page{
   flex-wrap:wrap;
   justify-content:flex-end;
 }
+.profile-nav .btn-ghost{background:var(--surface);}
 .profile-card{
   background:color-mix(in srgb, var(--surface) 86%, transparent);
   border:1px solid var(--border);
