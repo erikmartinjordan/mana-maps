@@ -502,13 +502,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // Both support drag (mouse + touch), dblclick collapse/expand, and localStorage persistence.
 
 (function () {
-  var MIN_W = 160, MAX_W = 520;
+  var TOOLBAR_W = 52;
+  var MIN_W = TOOLBAR_W, MAX_W = 520;
   var DEFAULT_LEFT = 288; // toolbar(52) + panel(236)
   var DEFAULT_RIGHT = 320;
   var app = document.getElementById('app');
 
   // Saved widths for restore after collapse
   var _prevLeft = parseInt(localStorage.getItem('mana_sidebar_width')) || DEFAULT_LEFT;
+  if (_prevLeft <= TOOLBAR_W) _prevLeft = DEFAULT_LEFT;
   var _prevRight = parseInt(localStorage.getItem('mana_chat_width')) || DEFAULT_RIGHT;
 
   // ────── HELPERS ──────
@@ -533,18 +535,52 @@ document.addEventListener('DOMContentLoaded', () => {
   function initLeftHandle() {
     var handle = document.getElementById('handle-left');
     if (!handle) return;
+    if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
     var sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
     var startX, startW, collapsed = false;
 
-    // Restore persisted width
-    var saved = parseInt(localStorage.getItem('mana_sidebar_width'));
-    if (saved === 0) {
-      collapsed = true;
-      sidebar.style.width = '0px';
+    function collapseSidebar() {
+      if (collapsed) return;
+      _prevLeft = getSidebarWidth() > TOOLBAR_W ? getSidebarWidth() : DEFAULT_LEFT;
+      persist('mana_sidebar_width', TOOLBAR_W);
+      sidebar.classList.add('collapsing', 'sidebar-toolbar-only');
+      sidebar.style.width = TOOLBAR_W + 'px';
       sidebar.style.overflow = 'hidden';
       handle.classList.add('handle-collapsed');
+      handle.title = 'Doble clic para expandir';
+      collapsed = true;
+      setTimeout(function () { sidebar.classList.remove('collapsing'); map.invalidateSize(); }, 220);
+    }
+
+    function expandSidebar() {
+      if (!collapsed) return;
+      var w = _prevLeft > TOOLBAR_W ? _prevLeft : DEFAULT_LEFT;
+      persist('mana_sidebar_width', w);
+      sidebar.classList.add('collapsing');
+      sidebar.style.width = w + 'px';
+      handle.classList.remove('handle-collapsed');
+      handle.title = '';
+      collapsed = false;
+      setTimeout(function () {
+        sidebar.classList.remove('collapsing', 'sidebar-toolbar-only');
+        sidebar.style.overflow = '';
+        map.invalidateSize();
+      }, 220);
+    }
+
+    // Restore persisted width
+    var saved = parseInt(localStorage.getItem('mana_sidebar_width'));
+    if (saved === 0 || (saved > 0 && saved <= TOOLBAR_W)) {
+      collapsed = true;
+      sidebar.style.width = TOOLBAR_W + 'px';
+      sidebar.style.overflow = 'hidden';
+      sidebar.classList.add('sidebar-toolbar-only');
+      handle.classList.add('handle-collapsed');
       handle.title = t('dblclick_expand');
+    } else if (saved > TOOLBAR_W) {
+      sidebar.style.width = saved + 'px';
+      _prevLeft = saved;
     }
 
     // ── Drag ──
@@ -559,12 +595,28 @@ document.addEventListener('DOMContentLoaded', () => {
         var dx = getX(ev) - startX;
         var nw = Math.max(MIN_W, Math.min(MAX_W, startW + dx));
         sidebar.style.width = nw + 'px';
+        sidebar.classList.toggle('sidebar-toolbar-only', nw <= TOOLBAR_W);
         map.invalidateSize();
       }
       function onEnd() {
         handle.classList.remove('dragging');
         var w = getSidebarWidth();
-        _prevLeft = w;
+        if (w <= TOOLBAR_W) {
+          _prevLeft = startW > TOOLBAR_W ? startW : _prevLeft;
+          w = TOOLBAR_W;
+          sidebar.style.width = TOOLBAR_W + 'px';
+          sidebar.style.overflow = 'hidden';
+          sidebar.classList.add('sidebar-toolbar-only');
+          handle.classList.add('handle-collapsed');
+          handle.title = 'Doble clic para expandir';
+          collapsed = true;
+        } else {
+          _prevLeft = w;
+          sidebar.style.overflow = '';
+          sidebar.classList.remove('sidebar-toolbar-only');
+          handle.classList.remove('handle-collapsed');
+          handle.title = '';
+        }
         persist('mana_sidebar_width', w);
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onEnd);
@@ -583,32 +635,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Double-click collapse/expand ──
     handle.addEventListener('dblclick', function () {
-      if (!collapsed) {
-        // Collapse
-        _prevLeft = getSidebarWidth();
-        persist('mana_sidebar_width', 0);
-        sidebar.classList.add('collapsing');
-        sidebar.style.width = '0px';
-        sidebar.style.overflow = 'hidden';
-        handle.classList.add('handle-collapsed');
-        handle.title = 'Doble clic para expandir';
-        collapsed = true;
-        setTimeout(function () { sidebar.classList.remove('collapsing'); map.invalidateSize(); }, 220);
-      } else {
-        // Expand
-        var w = _prevLeft || DEFAULT_LEFT;
-        persist('mana_sidebar_width', w);
-        sidebar.classList.add('collapsing');
-        sidebar.style.width = w + 'px';
-        handle.classList.remove('handle-collapsed');
-        handle.title = '';
-        collapsed = false;
-        setTimeout(function () {
-          sidebar.classList.remove('collapsing');
-          sidebar.style.overflow = '';
-          map.invalidateSize();
-        }, 220);
-      }
+      if (!collapsed) collapseSidebar();
+      else expandSidebar();
     });
   }
 
