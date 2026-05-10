@@ -699,7 +699,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   /* ── Swatches: visual size + padded touch area ── */
   .color-swatch{width:28px;height:28px;padding:8px;box-sizing:content-box;}
   .cat-swatch{width:28px;height:28px;padding:6px;box-sizing:content-box;}
-  .cat-dot{width:44px;height:44px;}
+  .cat-dot{width:20px;height:20px;padding:0;box-sizing:border-box;}
   .marker-opt{width:44px;height:44px;}
   .ctx-swatch{width:28px;height:28px;padding:8px;box-sizing:content-box;}
   .basemap-thumb{height:64px;}
@@ -2454,7 +2454,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
   display:flex;gap:6px;padding:6px 8px 8px;align-items:center;
 }
 .cat-dot{
-  width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;
+  width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;
   flex-shrink:0;transition:all .15s ease;box-shadow:0 0 0 1px rgba(0,0,0,.08);
 }
 .cat-dot:hover{
@@ -2462,7 +2462,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 }
 .cat-dot-active{
   box-shadow:0 0 0 2px var(--surface,#fff), 0 0 0 3.5px var(--text-2,#374151) !important;
-  transform:scale(1.1);
+  transform:scale(1.05);
 }
 
 /* Legend rows inside panel */

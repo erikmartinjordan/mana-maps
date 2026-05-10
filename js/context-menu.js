@@ -12,15 +12,11 @@ const SWATCH_PALETTE = [
   { hex: '#ef4444', name: 'Rojo' },
   { hex: '#ec4899', name: 'Rosa' },
   { hex: '#8b5cf6', name: 'P\u00FArpura' },
+  { hex: '#f97316', name: 'Naranja' },
   { hex: '#64748b', name: 'Pizarra' },
 ];
 
-const LAYER_CTX_PALETTE = [
-  { hex: '#0ea5e9' }, { hex: '#6366f1' }, { hex: '#10b981' },
-  { hex: '#f59e0b' }, { hex: '#ef4444' }, { hex: '#ec4899' },
-  { hex: '#8b5cf6' }, { hex: '#f97316' }, { hex: '#64748b' },
-  { hex: '#30363b' },
-];
+const LAYER_CTX_PALETTE = SWATCH_PALETTE;
 
 // Extended palette for categorization
 const CTX_PALETTE = [
