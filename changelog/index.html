@@ -91,13 +91,15 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
     <span class="logo-wordmark">Ma&ntilde;a</span><span class="logo-sub">Maps</span>
   </a>
   <div class="topbar-right">
-    <a class="btn btn-ghost" href="/">Volver al mapa</a>
+    <a class="btn btn-ghost" href="/pricing" data-i18n="footer_pricing">Precios</a>
+    <button class="btn btn-ghost" type="button" onclick="toggleLang(); translateChangelogDates();"><span class="tb-lang-label">EN</span></button>
+    <a class="btn btn-ghost" href="/" data-i18n="changelog_back">Volver al mapa</a>
   </div>
 </div>
 <div class="page">
   <div class="page-header">
     <h1>Changelog</h1>
-    <p>Historial de cambios y mejoras de Ma&ntilde;a Maps. Todos los commits, organizados por fecha.</p>
+    <p data-i18n="changelog_subtitle">Historial de cambios y mejoras de Ma&ntilde;a Maps. Todos los commits, organizados por fecha.</p>
   </div>
   <div class="timeline">
     <div class="day-group">
@@ -3594,8 +3596,27 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
     </div>
   </div>
   <div class="page-footer">
-    Ma&ntilde;a Maps &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
+    <span data-i18n="changelog_footer">Ma&ntilde;a Maps &mdash; Hecho con ❤ en Barcelona</span> &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
   </div>
 </div>
+<script src="/js/i18n.js"></script>
+<script>
+function translateChangelogDates(){
+  var esMonths={enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11};
+  var enMonths=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.querySelectorAll('.day-label').forEach(function(el){
+    if(!el.dataset.esLabel) el.dataset.esLabel=el.textContent.trim();
+    var source=el.dataset.esLabel;
+    if(LANG!=='en'){el.textContent=source;return;}
+    var m=source.match(/^(\d{1,2}) de ([a-záéíóúñ]+) de (\d{4})$/i);
+    if(!m){return;}
+    var month=esMonths[m[2].toLowerCase()];
+    if(month===undefined){return;}
+    el.textContent=enMonths[month]+' '+Number(m[1])+', '+m[3];
+  });
+}
+if(typeof applyTranslations==='function')applyTranslations(LANG);
+translateChangelogDates();
+</script>
 </body>
 </html>

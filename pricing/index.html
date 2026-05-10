@@ -1,0 +1,114 @@
+<!--
++--------------------------------------------------------------+
+|                   _____                                      |
+|                  |_____|                                     |
+|   __  __   ___    _   _     _       ____   ___   __  __      |
+|  |  \/  | / _ \  | \ | |   / \     / ___| / _ \ |  \/  |     |
+|  | |\/| || |_| | |  \| |  / _ \   | |    | | | || |\/| |     |
+|  | |  | ||  _  | | |\  | / ___ \  | |___ | |_| || |  | |     |
+|  |_|  |_||_| |_| |_| \_|/_/   \_\  \____| \___/ |_|  |_|     |
+|                                                              |
+|   Hecho con ♥ en Barcelona                                   |
+|   Maña.com - Erik Martín Jordán                              |
++--------------------------------------------------------------+
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precios · Maña Maps</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="description" content="Precios de Maña Maps: empieza gratis o actualiza a Maña Cloud Pro para guardar mapas ilimitados y compartir con más control.">
+<meta name="author" content="Erik Martín Jordán">
+<link rel="canonical" href="https://maña.com/pricing/">
+<link rel="alternate" hreflang="es" href="https://maña.com/pricing/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://maña.com/pricing/">
+<meta property="og:title" content="Precios · Maña Maps">
+<meta property="og:description" content="Empieza gratis y actualiza a Pro cuando necesites mapas ilimitados y opciones avanzadas de compartir.">
+<meta property="og:image" content="https://maña.com/og-card.png">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="Maña Maps">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Precios · Maña Maps">
+<meta name="twitter:description" content="Planes simples para Maña Maps: gratis o Maña Cloud Pro.">
+<meta name="twitter:image" content="https://maña.com/og-card.png">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+:root{--bg:#ffffff;--bgBox:#f4f8fb;--primary:#30363b;--secondary:#555;--third:#828c99;--blue:#0ea5e9;--border:rgba(30,30,30,0.1);--shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;--green:#16a34a;}
+html,body{min-height:100%;background:var(--bg);color:var(--primary);} 
+#topbar{height:56px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:100;}
+.mana-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+.mana-logo-icon{position:relative;width:36px;height:36px;flex-shrink:0;}
+.mana-logo-icon svg{width:100%;height:100%;}
+.mana-logo-icon span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Tahoma,Verdana,sans-serif;font-weight:900;font-size:15px;color:white;line-height:1;pointer-events:none;}
+.logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);} .logo-sub{font-size:10px;color:var(--third);font-weight:600;vertical-align:super;margin-left:1px;letter-spacing:.02em;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 16px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap;text-decoration:none;}
+.btn-primary{background:var(--primary);color:white;border:none;}.btn-primary:hover{opacity:.85;transform:translateY(-1px);} .btn-ghost{background:none;border:1px solid var(--border);color:var(--primary);} .btn-ghost:hover{background:var(--bgBox);} button.btn{font:inherit;}
+.page{max-width:900px;margin:0 auto;padding:56px 24px 80px;}.page-header{text-align:center;margin-bottom:36px;}.badge{display:inline-flex;align-items:center;padding:5px 10px;border-radius:50px;background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}.page-header h1{font-size:38px;font-weight:900;letter-spacing:-1px;color:var(--primary);margin-bottom:10px;}.page-header p{font-size:16px;color:var(--third);line-height:1.65;max-width:600px;margin:0 auto;}
+.pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:28px;}.plan{background:var(--bgBox);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:360px;}.plan.pro{background:#fff;border-color:rgba(14,165,233,.35);box-shadow:0 14px 36px rgba(14,165,233,.12),var(--shadow);}.plan-name{font-size:16px;font-weight:800;color:var(--primary);margin-bottom:8px;}.price-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:10px;}.price{font-family:'DM Mono',monospace;font-size:34px;font-weight:600;letter-spacing:-1px;color:var(--primary);}.period{font-size:12px;color:var(--third);padding-bottom:7px;}.desc{font-size:13px;color:var(--third);line-height:1.5;margin-bottom:20px;}.features{display:flex;flex-direction:column;gap:11px;margin:0 0 24px;list-style:none;}.features li{display:flex;gap:9px;font-size:13px;color:var(--secondary);line-height:1.4;}.features li:before{content:'✓';color:var(--green);font-weight:900;}.plan .btn{margin-top:auto;width:100%;}.note{text-align:center;color:var(--third);font-size:13px;line-height:1.6;margin-top:24px;}.page-footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--third);}.page-footer a{color:var(--third);text-decoration:none;}.page-footer a:hover{color:var(--primary);}
+@media(max-width:720px){#topbar{padding:0 12px}.topbar-right{gap:4px}.topbar-right .btn{padding:6px 10px;font-size:12px}.page{padding:38px 16px 60px}.page-header h1{font-size:30px}.pricing-grid{grid-template-columns:1fr}.plan{min-height:auto;}}
+@media(max-width:420px){.topbar-right .btn-ghost:not(button){display:none}.page-header{text-align:left}.page-header p{margin:0}.badge{margin-bottom:12px}}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <a class="mana-logo-wrap" href="/">
+    <div class="mana-logo-icon">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1" d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z" transform="translate(100 100)"/></svg>
+      <span>M&#771;</span>
+    </div>
+    <span class="logo-wordmark">Ma&ntilde;a</span><span class="logo-sub">Maps</span>
+  </a>
+  <div class="topbar-right">
+    <a class="btn btn-ghost" href="/about" data-i18n="open_about">Acerca de</a>
+    <button class="btn btn-ghost" type="button" onclick="toggleLang()"><span class="tb-lang-label">EN</span></button>
+    <a class="btn btn-primary" href="/" data-i18n="nav_open_map">Abrir mapa</a>
+  </div>
+</div>
+<main class="page">
+  <header class="page-header">
+    <div class="badge" data-i18n="pricing_badge">Simple</div>
+    <h1 data-i18n="pricing_title">Precios</h1>
+    <p data-i18n="pricing_subtitle">Empieza gratis y mejora cuando necesites guardar más mapas o compartir con control.</p>
+  </header>
+  <section class="pricing-grid" aria-label="Pricing plans">
+    <article class="plan">
+      <h2 class="plan-name" data-i18n="pricing_free_name">Gratis</h2>
+      <div class="price-row"><span class="price" data-i18n="pricing_free_price">0 €</span><span class="period" data-i18n="pricing_free_period">para siempre</span></div>
+      <p class="desc" data-i18n="pricing_free_desc">Para crear mapas rápidos sin registrarte.</p>
+      <ul class="features">
+        <li data-i18n="pricing_free_feature_1">Dibujo, medición e importación</li>
+        <li data-i18n="pricing_free_feature_2">Exporta a GeoJSON, KML, CSV y Shapefile</li>
+        <li data-i18n="pricing_free_feature_3">Hasta 3 mapas guardados</li>
+      </ul>
+      <a class="btn btn-ghost" href="/" data-i18n="pricing_cta_free">Abrir mapa</a>
+    </article>
+    <article class="plan pro">
+      <h2 class="plan-name" data-i18n="pricing_pro_name">Maña Cloud Pro</h2>
+      <div class="price-row"><span class="price" data-i18n="pricing_pro_price">4,99 €</span><span class="period" data-i18n="pricing_pro_period">/ mes</span></div>
+      <p class="desc" data-i18n="pricing_pro_desc">Para trabajar con mapas en la nube y compartirlos con más flexibilidad.</p>
+      <ul class="features">
+        <li data-i18n="pricing_pro_feature_1">Mapas guardados ilimitados</li>
+        <li data-i18n="pricing_pro_feature_2">Enlaces privados, solo lectura o edición</li>
+        <li data-i18n="pricing_pro_feature_3">Colaboración y opciones avanzadas de compartir</li>
+      </ul>
+      <a class="btn btn-primary" href="/?upgrade=pro" data-i18n="pricing_cta_pro">Actualizar a Pro</a>
+    </article>
+  </section>
+  <p class="note" data-i18n="pricing_note">Sin planes complejos: usa Maña Maps gratis y activa Pro cuando tu flujo de trabajo lo pida.</p>
+  <div class="page-footer">
+    <span data-i18n="about_footer">Ma&ntilde;a Maps &mdash; Hecho con ❤ en Barcelona</span> &mdash; <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank">GitHub</a>
+  </div>
+</main>
+<script src="/js/i18n.js"></script>
+<script>if(typeof applyTranslations==='function')applyTranslations(LANG);</script>
+</body>
+</html>
