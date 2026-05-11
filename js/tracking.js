@@ -15,17 +15,9 @@
   var db = firebase.firestore();
   var trackingDisabled = false;
 
-  // Session ID (unique per tab)
-  var sid = sessionStorage.getItem('mana-sid');
-  if (!sid) {
-    sid = Math.random().toString(36).substr(2, 10);
-    sessionStorage.setItem('mana-sid', sid);
-  }
-
   function track(name, params) {
     if (trackingDisabled) return;
     params = params || {};
-    params.sid = sid;
     db.collection('events').add({
       name: name,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),

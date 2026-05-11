@@ -120,6 +120,64 @@
     return chunks;
   }
 
+  function uploadLabel(kind, progress) {
+    var total = progress && progress.totalChunks ? progress.totalChunks : 0;
+    var current = progress && progress.uploadedChunks ? progress.uploadedChunks : 0;
+    var base = kind === 'public'
+      ? ((typeof LANG !== 'undefined' && LANG === 'en') ? 'Publishing large map…' : 'Publicando mapa grande…')
+      : ((typeof LANG !== 'undefined' && LANG === 'en') ? 'Uploading large map…' : 'Subiendo mapa grande…');
+    if (total > 0) return base + ' ' + current + '/' + total;
+    return base;
+  }
+
+  function ensureUploadStatus() {
+    var el = document.getElementById('mana-upload-status');
+    if (el) return el;
+
+    if (!document.getElementById('mana-upload-status-style')) {
+      var style = document.createElement('style');
+      style.id = 'mana-upload-status-style';
+      style.textContent = '.mana-upload-status{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(18px);z-index:10000;min-width:min(360px,calc(100vw - 32px));padding:12px 14px;border-radius:16px;background:rgba(17,18,20,.94);color:#fff;box-shadow:0 18px 48px rgba(0,0,0,.28);font-family:DM Sans,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}.mana-upload-status.open{opacity:1;transform:translateX(-50%) translateY(0)}.mana-upload-status-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:700}.mana-upload-status-percent{font-family:DM Mono,monospace;font-size:12px;color:rgba(255,255,255,.74)}.mana-upload-status-track{height:5px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:10px}.mana-upload-status-fill{height:100%;width:0%;border-radius:inherit;background:#0ea5e9;transition:width .18s ease}';
+      document.head.appendChild(style);
+    }
+
+    el = document.createElement('div');
+    el.id = 'mana-upload-status';
+    el.className = 'mana-upload-status';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = '<div class="mana-upload-status-row"><span class="mana-upload-status-text"></span><span class="mana-upload-status-percent">0%</span></div><div class="mana-upload-status-track"><div class="mana-upload-status-fill"></div></div>';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function hideUploadStatus() {
+    var el = document.getElementById('mana-upload-status');
+    if (el) el.classList.remove('open');
+  }
+
+  function updateUploadStatus(kind, progress) {
+    var el = ensureUploadStatus();
+    var total = progress && progress.totalChunks ? progress.totalChunks : 0;
+    var current = progress && progress.uploadedChunks ? progress.uploadedChunks : 0;
+    var percent = progress && typeof progress.percent === 'number'
+      ? progress.percent
+      : (total ? Math.round((current / total) * 100) : 8);
+    percent = Math.max(0, Math.min(100, percent));
+
+    var text = el.querySelector('.mana-upload-status-text');
+    var number = el.querySelector('.mana-upload-status-percent');
+    var fill = el.querySelector('.mana-upload-status-fill');
+    if (text) text.textContent = uploadLabel(kind, progress);
+    if (number) number.textContent = percent + '%';
+    if (fill) fill.style.width = percent + '%';
+    el.classList.add('open');
+
+    if (progress && progress.done) {
+      setTimeout(function() { el.classList.remove('open'); }, 550);
+    }
+  }
+
   function getMapMeta() {
     const input = document.getElementById('project-name-input');
     const value = (input && input.value ? input.value : '').trim();
@@ -339,10 +397,20 @@
       var chunks = splitTextIntoChunks(geoString, 900000);
       writePayload.geojsonChunked.chunkCount = chunks.length;
       await docRef.set({ geojsonChunked: writePayload.geojsonChunked }, { merge: true });
+      updateUploadStatus('public', { uploadedChunks: 0, totalChunks: chunks.length, percent: 5 });
+      var completedChunks = 0;
       var writeOps = chunks.map(function(chunkText, index) {
-        return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({ index: index, text: chunkText });
+        return docRef.collection(writePayload.geojsonChunked.collection).doc(String(index)).set({ index: index, text: chunkText }).then(function() {
+          completedChunks += 1;
+          updateUploadStatus('public', {
+            uploadedChunks: completedChunks,
+            totalChunks: chunks.length,
+            percent: Math.round((completedChunks / chunks.length) * 100)
+          });
+        });
       });
       await Promise.all(writeOps);
+      updateUploadStatus('public', { uploadedChunks: chunks.length, totalChunks: chunks.length, percent: 100, done: true });
     }
 
     setLastPrivateMapId(slug);
@@ -537,7 +605,8 @@
       mapId: mapId,
       title: meta.name,
       description: '',
-      geojson: geo
+      geojson: geo,
+      onUploadProgress: function(progress) { updateUploadStatus('private', progress); }
     });
     setLastPrivateMapId(saved.mapId);
     return saved;
@@ -548,6 +617,7 @@
       await savePrivateMap();
       if (typeof showToast === 'function') showToast(LANG === 'en' ? 'Map saved privately ✓' : 'Mapa guardado en privado ✓');
     } catch (e) {
+      hideUploadStatus();
       const msg = e && e.message === 'empty-map'
         ? (LANG === 'en' ? 'No elements to save.' : t('persist_no_elements'))
         : getFirestoreErrorMessage(e);
@@ -574,6 +644,7 @@
         ? (LANG === 'en' ? 'Editable link copied ✓' : 'Enlace editable copiado ✓')
         : (LANG === 'en' ? 'View-only link copied ✓' : 'Enlace de solo lectura copiado ✓'));
     } catch (e) {
+      hideUploadStatus();
       const msg = e && e.message === 'empty-map'
         ? (LANG === 'en' ? 'No elements to share.' : t('persist_no_elements'))
         : getFirestoreErrorMessage(e);

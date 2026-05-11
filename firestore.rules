@@ -16,6 +16,25 @@ service cloud.firestore {
         && !('email' in request.resource.data);
     }
 
+    function publicMapExists(mapId) {
+      return exists(/databases/$(database)/documents/maps/$(mapId));
+    }
+
+    function publicMapData(mapId) {
+      return get(/databases/$(database)/documents/maps/$(mapId)).data;
+    }
+
+    function canWritePublicMap(mapId) {
+      return signedIn()
+        && publicMapExists(mapId)
+        && (
+          publicMapData(mapId).ownerUid == request.auth.uid
+          || (publicMapData(mapId).authorHandle is string && ownsUserDoc(publicMapData(mapId).authorHandle))
+          || (publicMapData(mapId).shareMode == 'edit' && publicMapData(mapId).allowPublicEdit == true)
+          || (!('authorHandle' in publicMapData(mapId)) && !('ownerUid' in publicMapData(mapId)))
+        );
+    }
+
     match /events/{doc} {
       allow read, write: if true;
     }
@@ -89,7 +108,7 @@ service cloud.firestore {
 
       match /geoChunks/{chunkId} {
         allow read: if true;
-        allow create, update, delete: if signedIn();
+        allow create, update, delete: if canWritePublicMap(mapId);
       }
     }
   }
