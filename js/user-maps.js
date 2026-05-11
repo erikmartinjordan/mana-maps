@@ -174,7 +174,7 @@
         public: data.public || false,
         likes: data.likes || 0,
         featureCount: data.featureCount || 0,
-        mapPreview: data.mapPreview || _buildMapPreview(_readInlineGeo(data)),
+        mapPreview: _buildMapPreview(_readInlineGeo(data)) || data.mapPreview,
         thumbnailUrl: data.thumbnailUrl || ''
       };
     });
@@ -311,7 +311,7 @@
       description: data.description || '',
       authorHandle: handle,
       thumbnailUrl: data.thumbnailUrl || '',
-      mapPreview: data.mapPreview || _buildMapPreview(publishGeo),
+      mapPreview: _buildMapPreview(publishGeo) || data.mapPreview,
       geojsonText: publishGeo ? JSON.stringify(publishGeo) : '',
       shareUrl: window.location.origin + '/map/?gallery=' + encodeURIComponent(mapId) + '&map=' + encodeURIComponent(mapId) + '&room=' + encodeURIComponent(mapId) + '&mode=view',
       shareMode: 'view',
@@ -436,29 +436,91 @@
     return _parseGeoJSONText(data.geojsonText);
   }
 
-  function _encodePreviewGeometry(geometry) {
+  const PREVIEW_MAX_FEATURES = 240;
+  const PREVIEW_MAX_COORDS_PER_GEOMETRY = 80;
+
+  function _roundPreviewNumber(value) {
+    var num = Number(value);
+    if (!isFinite(num)) return null;
+    return Number(num.toFixed(6));
+  }
+
+  function _collectCoordPairs(coords, out) {
+    if (!Array.isArray(coords)) return;
+    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+      var x = _roundPreviewNumber(coords[0]);
+      var y = _roundPreviewNumber(coords[1]);
+      if (x !== null && y !== null) out.push([x, y]);
+      return;
+    }
+    coords.forEach(function(child) { _collectCoordPairs(child, out); });
+  }
+
+  function _sampleArrayEvenly(items, maxItems) {
+    if (!Array.isArray(items) || items.length <= maxItems) return items || [];
+    if (maxItems <= 1) return [items[0]];
+    var sampled = [];
+    for (var i = 0; i < maxItems; i++) {
+      sampled.push(items[Math.round(i * (items.length - 1) / (maxItems - 1))]);
+    }
+    return sampled;
+  }
+
+  function _sanitizePreviewPoint(coord) {
+    if (!Array.isArray(coord) || coord.length < 2) return null;
+    var x = _roundPreviewNumber(coord[0]);
+    var y = _roundPreviewNumber(coord[1]);
+    return x === null || y === null ? null : [x, y];
+  }
+
+  function _sanitizePreviewLine(coords, maxCoords) {
+    if (!Array.isArray(coords)) return [];
+    return _sampleArrayEvenly(coords, maxCoords).map(_sanitizePreviewPoint).filter(Boolean);
+  }
+
+  function _sanitizePreviewPolygon(poly, maxCoords) {
+    if (!Array.isArray(poly)) return [];
+    return poly.map(function(ring) {
+      return _sanitizePreviewLine(ring, maxCoords);
+    }).filter(function(ring) { return ring.length >= 3; });
+  }
+
+  function _simplifyPreviewGeometry(geometry) {
     if (!geometry || !geometry.type || !Array.isArray(geometry.coordinates)) return null;
-    return {
-      type: geometry.type,
-      coordinatesText: JSON.stringify(geometry.coordinates)
-    };
+    var coords = geometry.coordinates;
+    if (geometry.type === 'Point') coords = _sanitizePreviewPoint(coords);
+    else if (geometry.type === 'MultiPoint' || geometry.type === 'LineString') coords = _sanitizePreviewLine(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+    else if (geometry.type === 'MultiLineString' || geometry.type === 'Polygon') coords = _sanitizePreviewPolygon(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+    else if (geometry.type === 'MultiPolygon') {
+      coords = coords.map(function(poly) { return _sanitizePreviewPolygon(poly, PREVIEW_MAX_COORDS_PER_GEOMETRY); }).filter(function(poly) { return poly.length; });
+    } else return null;
+    if (!coords || (Array.isArray(coords) && !coords.length)) return null;
+    return { type: geometry.type, coordinatesText: JSON.stringify(coords) };
+  }
+
+  function _previewFeatureIndexes(features, maxFeatures) {
+    var indexes = [];
+    var count = Array.isArray(features) ? features.length : 0;
+    if (!count) return indexes;
+    var target = Math.min(count, maxFeatures);
+    for (var i = 0; i < target; i++) {
+      var idx = count <= target ? i : Math.round(i * (count - 1) / (target - 1));
+      if (indexes.indexOf(idx) < 0) indexes.push(idx);
+    }
+    return indexes;
+  }
+
+  function _encodePreviewGeometry(geometry) {
+    return _simplifyPreviewGeometry(geometry);
   }
 
   function _buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
-    function collectCoordPairs(coords, out) {
-      if (!Array.isArray(coords)) return;
-      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-        out.push([coords[0], coords[1]]);
-        return;
-      }
-      coords.forEach(function(child) { collectCoordPairs(child, out); });
-    }
     geo.features.forEach(function(feature) {
       var geom = feature && feature.geometry;
       if (!geom || !Array.isArray(geom.coordinates)) return;
-      collectCoordPairs(geom.coordinates, points);
+      _collectCoordPairs(geom.coordinates, points);
     });
     if (!points.length) return null;
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -469,16 +531,18 @@
       minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     });
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
-    return {
+    var entries = _previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES).map(function(index) {
+      var feature = geo.features[index];
+      var props = feature && feature.properties ? feature.properties : {};
+      return {
+        geometry: _encodePreviewGeometry(feature ? feature.geometry : null),
+        color: props._manaColor || props.color || '#0ea5e9'
+      };
+    }).filter(function(entry) { return !!entry.geometry; });
+    return entries.length ? {
       bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
-        var props = feature && feature.properties ? feature.properties : {};
-        return {
-          geometry: _encodePreviewGeometry(feature ? feature.geometry : null),
-          color: props._manaColor || props.color || '#0ea5e9'
-        };
-      }).filter(function(entry) { return !!entry.geometry; })
-    };
+      features: entries
+    } : null;
   }
 
   function _generateMapId(title) {
