@@ -51,15 +51,16 @@
     .confirm-modal-btns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
     .confirm-modal-btns .btn{min-width:112px;justify-content:center}
     .confirm-modal-btns .danger{background:var(--red);border-color:transparent;color:white}
-    .mana-center-status{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:7000;display:flex;align-items:center;gap:12px;min-width:min(340px,calc(100vw - 32px));padding:14px 16px;border-radius:18px;background:rgba(17,18,20,.94);color:#fff;box-shadow:0 24px 70px rgba(0,0,0,.30);font-size:14px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease}
-    .mana-center-status.open{opacity:1;transform:translate(-50%,-50%) scale(1)}
-    .mana-center-status-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.30);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-    .mana-center-status.done .mana-center-status-spinner{display:none}
-    .mana-center-status-icon{display:none;width:18px;height:18px;border-radius:50%;background:var(--green);align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-    .mana-center-status.done .mana-center-status-icon{display:flex}
-    .mana-center-status.error .mana-center-status-icon{display:flex;background:var(--red)}
-    .mana-center-status.error .mana-center-status-spinner{display:none}
+    #toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:white;padding:7px 18px;border-radius:50px;font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .mana-delete-status{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(18px);z-index:10000;min-width:min(360px,calc(100vw - 32px));padding:12px 14px;border-radius:16px;background:rgba(17,18,20,.94);color:#fff;box-shadow:0 18px 48px rgba(0,0,0,.28);font-family:DM Sans,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+    .mana-delete-status.open{opacity:1;transform:translateX(-50%) translateY(0)}
+    .mana-delete-status-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}
+    .mana-delete-status-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.30);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+    .mana-delete-status-track{height:5px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:10px}
+    .mana-delete-status-fill{height:100%;width:42%;border-radius:inherit;background:#0ea5e9;animation:deleteProgress 1.15s ease-in-out infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes deleteProgress{0%{transform:translateX(-120%)}50%{transform:translateX(55%)}100%{transform:translateX(240%)}}
     @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}}
     #login-prompt{display:none;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:32px;text-align:center}
     #login-prompt h2{font-size:20px;margin-bottom:8px}
@@ -144,47 +145,56 @@
     // Global LANG detection
     var LANG = localStorage.getItem('mana-landing-lang') || 'es';
 
-    var _noticeTimer = null;
+    var _toastTimer = null;
     var _confirmResolve = null;
 
-    function ensureCenterStatus() {
-      var el = document.getElementById('mana-center-status');
+    function ensureToast() {
+      var el = document.getElementById('toast');
       if (el) return el;
       el = document.createElement('div');
-      el.id = 'mana-center-status';
-      el.className = 'mana-center-status';
+      el.id = 'toast';
       el.setAttribute('role', 'status');
       el.setAttribute('aria-live', 'polite');
-      el.innerHTML = '<span class="mana-center-status-spinner" aria-hidden="true"></span><span class="mana-center-status-icon" aria-hidden="true">✓</span><span class="mana-center-status-text"></span>';
       document.body.appendChild(el);
       return el;
     }
 
-    function showCenterStatus(msg, state) {
-      var el = ensureCenterStatus();
-      var text = el.querySelector('.mana-center-status-text');
-      var icon = el.querySelector('.mana-center-status-icon');
-      if (text) text.textContent = msg;
-      if (icon) icon.textContent = state === 'error' ? '!' : '✓';
-      el.className = 'mana-center-status open' + (state ? ' ' + state : '');
-      if (_noticeTimer) clearTimeout(_noticeTimer);
-      if (state === 'done' || state === 'error') {
-        _noticeTimer = setTimeout(function() { el.classList.remove('open'); }, state === 'error' ? 3200 : 1400);
-      }
-      return el;
-    }
-
-    function hideCenterStatus() {
-      var el = document.getElementById('mana-center-status');
-      if (el) el.classList.remove('open');
+    function showToast(msg) {
+      var el = ensureToast();
+      el.textContent = msg;
+      el.classList.add('show');
+      if (_toastTimer) clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2200);
     }
 
     function manaAlert(msg, type) {
-      showCenterStatus(msg, type === 'error' ? 'error' : 'done');
+      showToast(msg);
     }
 
-    function showToast(msg) {
-      showCenterStatus(msg, 'done');
+    function ensureDeleteStatus() {
+      var el = document.getElementById('mana-delete-status');
+      if (el) return el;
+      el = document.createElement('div');
+      el.id = 'mana-delete-status';
+      el.className = 'mana-delete-status';
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.innerHTML = '<div class="mana-delete-status-row"><span class="mana-delete-status-spinner" aria-hidden="true"></span><span class="mana-delete-status-text"></span></div><div class="mana-delete-status-track"><div class="mana-delete-status-fill"></div></div>';
+      document.body.appendChild(el);
+      return el;
+    }
+
+    function showDeleteStatus(msg) {
+      var el = ensureDeleteStatus();
+      var text = el.querySelector('.mana-delete-status-text');
+      if (text) text.textContent = msg;
+      el.classList.add('open');
+      return el;
+    }
+
+    function hideDeleteStatus() {
+      var el = document.getElementById('mana-delete-status');
+      if (el) el.classList.remove('open');
     }
 
     function ensureConfirmModal() {
@@ -318,13 +328,15 @@
       var ok = await manaConfirm(LANG === 'en' ? 'Delete this map permanently?' : '¿Eliminar este mapa permanentemente?');
       if (!ok) return;
       try {
-        showCenterStatus(LANG === 'en' ? 'Deleting map…' : 'Borrando mapa…');
+        showDeleteStatus(LANG === 'en' ? 'Deleting map…' : 'Borrando mapa…');
         await window.manaMaps.deleteMap(mapId);
-        showCenterStatus(LANG === 'en' ? 'Map deleted ✓' : 'Mapa eliminado ✓', 'done');
+        hideDeleteStatus();
+        showToast(LANG === 'en' ? 'Map deleted ✓' : 'Mapa eliminado ✓');
         renderMaps();
       } catch (e) {
         console.error('delete map failed:', e);
-        showCenterStatus(LANG === 'en' ? 'Could not delete the map.' : 'No se pudo borrar el mapa.', 'error');
+        hideDeleteStatus();
+        showToast(LANG === 'en' ? 'Could not delete the map.' : 'No se pudo borrar el mapa.');
       }
     }
 
