@@ -66,10 +66,21 @@ function _extractUserAttrs(props) {
   return Object.keys(attrs).length ? attrs : null;
 }
 
-function _importRestoredGeoJSON(geo) {
+function _nextRestoreFrame() {
+  return new Promise(function(resolve) {
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(function() { resolve(); });
+    else setTimeout(resolve, 0);
+  });
+}
+
+async function _importRestoredGeoJSON(geo) {
   if (!geo || !geo.features) return;
 
-  // Group features by _manaGroupName for grouped import
+  const restoreBatchSize = 250;
+  const isLargeRestore = geo.features.length > 1200;
+  if (isLargeRestore && typeof manaAlert === 'function') manaAlert(t('importing_large_file'), 'info');
+
+  // Group features by _manaGroupName for grouped import.
   const groups = {};
   const ungrouped = [];
 
@@ -84,30 +95,36 @@ function _importRestoredGeoJSON(geo) {
     }
   });
 
-  // Import grouped features via loadGeoJSON
+  // Import grouped features via loadGeoJSON. Awaiting keeps colors and layer
+  // metadata stable while large groups are imported over multiple frames.
   for (const gn in groups) {
     const fc = { type: 'FeatureCollection', features: groups[gn] };
-    // Set drawColor from first feature
-    const firstColor = groups[gn][0].properties._manaColor || '#0ea5e9';
-    const savedGeomType = groups[gn][0].properties._manaGeometryType || null;
+    const firstProps = groups[gn][0].properties || {};
+    const firstColor = firstProps._manaColor || firstProps.color || '#0ea5e9';
+    const savedGeomType = firstProps._manaGeometryType || null;
     const savedColor = drawColor;
     drawColor = firstColor;
-    loadGeoJSON(fc, gn);
+    const importedLayer = await Promise.resolve(loadGeoJSON(fc, gn));
     drawColor = savedColor;
-    // Restore geometryType on the newly created group
     if (savedGeomType) {
-      const lastGid = _manaGroupCounter;
-      if (_manaGroupMeta[lastGid]) _manaGroupMeta[lastGid].geometryType = savedGeomType;
+      let gid = _manaGroupCounter;
+      if (importedLayer && typeof importedLayer.eachLayer === 'function') {
+        importedLayer.eachLayer(function(layer) {
+          if (layer && layer._manaGroupId) gid = layer._manaGroupId;
+        });
+      }
+      if (_manaGroupMeta[gid]) _manaGroupMeta[gid].geometryType = savedGeomType;
     }
   }
 
-  // Import ungrouped features — auto-wrap them in a group
+  // Import ungrouped features in chunks so large saved maps do not block the UI.
   if (ungrouped.length) {
     const autoGid = ++_manaGroupCounter;
     _manaLayerNameCounter++;
-    registerGroupMeta(autoGid, 'Capa ' + _manaLayerNameCounter, '#0ea5e9');
+    const autoGroupName = 'Capa ' + _manaLayerNameCounter;
+    registerGroupMeta(autoGid, autoGroupName, '#0ea5e9');
 
-    ungrouped.forEach(f => {
+    function addUngroupedFeature(f) {
       const props = f.properties || {};
       const color = props._manaColor || props.color || '#0ea5e9';
       const name = props._manaName || props.name || t('geom_element');
@@ -117,7 +134,7 @@ function _importRestoredGeoJSON(geo) {
 
       if (g.type === 'Point') {
         const ll = [g.coordinates[1], g.coordinates[0]];
-        const restoredMarkerType = props.markerType || markerType;
+        const restoredMarkerType = props._manaMarkerType || props.markerType || markerType;
         const icon = makeMarkerIcon(color, restoredMarkerType);
         layer = L.marker(ll, { icon });
         layer._manaName = name;
@@ -146,19 +163,26 @@ function _importRestoredGeoJSON(geo) {
 
       if (layer) {
         layer._manaGroupId = autoGid;
-        layer._manaGroupName = 'Capa ' + _manaLayerNameCounter;
+        layer._manaGroupName = autoGroupName;
         drawnItems.addLayer(layer);
         addLayerToGroupMeta(autoGid, layer);
       }
-    });
+    }
 
-    // Update group color from first feature
+    for (let idx = 0; idx < ungrouped.length; idx += restoreBatchSize) {
+      const end = Math.min(idx + restoreBatchSize, ungrouped.length);
+      for (let i = idx; i < end; i++) addUngroupedFeature(ungrouped[i]);
+      if (end < ungrouped.length) await _nextRestoreFrame();
+    }
+
     const firstColor = ungrouped[0].properties && (ungrouped[0].properties._manaColor || ungrouped[0].properties.color);
     if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
   }
 
   stats();
+  if (typeof renderLayers === 'function') renderLayers();
 }
+
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -295,7 +319,7 @@ async function restoreFromURL() {
       if (window.manaMaps && typeof window.manaMaps.getMap === 'function') {
         const personalMap = await window.manaMaps.getMap(personalMapId);
         if (personalMap && personalMap.geojson && personalMap.geojson.features && personalMap.geojson.features.length) {
-          _importRestoredGeoJSON(personalMap.geojson);
+          await _importRestoredGeoJSON(personalMap.geojson);
           const input = document.getElementById('project-name-input');
           if (input) input.value = personalMap.title || '';
           if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId(personalMapId);
@@ -314,7 +338,7 @@ async function restoreFromURL() {
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
           const accessMode = getRequestedShareMode(galleryPayload);
           setSharedMapAccess(accessMode, galleryPayload);
-          _importRestoredGeoJSON(galleryGeo);
+          await _importRestoredGeoJSON(galleryGeo);
           const input = document.getElementById('project-name-input');
           if (input) input.value = galleryPayload.title || galleryPayload.name || '';
           if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId('');
@@ -324,7 +348,7 @@ async function restoreFromURL() {
         const legacyDoc = await db.collection(LEGACY_GALLERY_COLLECTION).doc(gallerySlug).get();
         const legacyPayload = legacyDoc && legacyDoc.exists ? legacyDoc.data() : null;
         if (legacyPayload && legacyPayload.geojson && legacyPayload.geojson.features && legacyPayload.geojson.features.length) {
-          _importRestoredGeoJSON(legacyPayload.geojson);
+          await _importRestoredGeoJSON(legacyPayload.geojson);
           return true;
         }
       }
@@ -337,7 +361,7 @@ async function restoreFromURL() {
         const doc = await db.collection(SHARED_MAPS_COLLECTION).doc(mapId).get();
         const payload = doc && doc.exists ? doc.data() : null;
         if (payload && payload.geojson && payload.geojson.features && payload.geojson.features.length) {
-          _importRestoredGeoJSON(payload.geojson);
+          await _importRestoredGeoJSON(payload.geojson);
           return true;
         }
       }
@@ -355,7 +379,7 @@ async function restoreFromURL() {
       if (encoded) {
         const geo = JSON.parse(decodeURIComponent(encoded));
         if (geo && geo.features && geo.features.length) {
-          _importRestoredGeoJSON(geo);
+          await _importRestoredGeoJSON(geo);
           return true;
         }
       }
@@ -367,7 +391,7 @@ async function restoreFromURL() {
 }
 
 // Replace current map contents without confirmation (used by real-time sync).
-function replaceMapWithGeoJSON(geo) {
+async function replaceMapWithGeoJSON(geo) {
   if (!geo || !geo.features) return;
 
   drawnItems.clearLayers();
@@ -376,7 +400,7 @@ function replaceMapWithGeoJSON(geo) {
   _manaGroupCounter = 0;
   _manaLayerNameCounter = 0;
 
-  _importRestoredGeoJSON(geo);
+  await _importRestoredGeoJSON(geo);
   if (typeof renderLayers === 'function') renderLayers();
   if (typeof saveState === 'function') saveState();
 }

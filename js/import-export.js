@@ -119,19 +119,20 @@ function loadGeoJSON(geo, groupName) {
   const featureCount = geo.features.length;
   const useChunkedImport = featureCount > 1200;
   const batchSize = 250;
+  const importColor = drawColor;
 
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
   const gName = groupName || geo.fileName || t('geom_imported_layer');
   // Register group in metadata registry
-  registerGroupMeta(groupId, gName, drawColor);
+  registerGroupMeta(groupId, gName, importColor);
 
   const layer = L.geoJSON(null, {
-    style: { color: drawColor, weight: 2, fillOpacity: .18 },
+    style: { color: importColor, weight: 2, fillOpacity: .18 },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
-      const importedColor = (f.properties && f.properties.color) ? String(f.properties.color) : drawColor;
-      const importedMarkerType = (f.properties && f.properties.markerType) ? String(f.properties.markerType) : markerType;
+      const importedColor = (f.properties && (f.properties._manaColor || f.properties.color)) ? String(f.properties._manaColor || f.properties.color) : importColor;
+      const importedMarkerType = (f.properties && (f.properties._manaMarkerType || f.properties.markerType)) ? String(f.properties._manaMarkerType || f.properties.markerType) : markerType;
       const icon = makeMarkerIcon(importedColor, importedMarkerType);
       const m = L.marker(ll, { icon });
       m._manaName = n; m._manaColor = importedColor;
@@ -165,26 +166,28 @@ function loadGeoJSON(geo, groupName) {
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
     stats();
     if (typeof saveState === 'function') saveState();
+    return layer;
   };
 
   if (!useChunkedImport) {
     layer.addData(geo);
-    finalizeImport();
-    return;
+    return Promise.resolve(finalizeImport());
   }
 
   manaAlert(t('importing_large_file'), 'info');
-  let idx = 0;
-  const addChunk = () => {
-    const end = Math.min(idx + batchSize, featureCount);
-    for (; idx < end; idx++) layer.addData(geo.features[idx]);
-    if (idx < featureCount) {
-      requestAnimationFrame(addChunk);
-    } else {
-      finalizeImport();
-    }
-  };
-  addChunk();
+  return new Promise(resolve => {
+    let idx = 0;
+    const addChunk = () => {
+      const end = Math.min(idx + batchSize, featureCount);
+      for (; idx < end; idx++) layer.addData(geo.features[idx]);
+      if (idx < featureCount) {
+        requestAnimationFrame(addChunk);
+      } else {
+        resolve(finalizeImport());
+      }
+    };
+    addChunk();
+  });
 }
 
 // ── KML PARSER ──
