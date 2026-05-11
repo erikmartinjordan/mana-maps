@@ -260,6 +260,16 @@
     return null;
   }
 
+  function samplePreviewFeatures(features) {
+    if (!Array.isArray(features)) return [];
+    var maxPreviewFeatures = 300;
+    if (features.length <= maxPreviewFeatures) return features.slice();
+    var sampled = [];
+    var step = (features.length - 1) / (maxPreviewFeatures - 1);
+    for (var i = 0; i < maxPreviewFeatures; i++) sampled.push(features[Math.round(i * step)]);
+    return sampled;
+  }
+
   function buildPreviewFromGeo(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
@@ -289,7 +299,7 @@
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
     return {
       bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
+      features: samplePreviewFeatures(geo.features).map(function(feature) {
         var props = feature && feature.properties ? feature.properties : {};
         return {
           geometry: feature ? feature.geometry : null,
@@ -327,19 +337,30 @@
       }).join(' ') + ' Z';
     }
     var body = '';
+    function drawPoint(coord, color, r) {
+      if (!Array.isArray(coord)) return;
+      body += '<circle cx="' + toX(Number(coord[0])).toFixed(2) + '" cy="' + toY(Number(coord[1])).toFixed(2) + '" r="' + (r || 2.1) + '" fill="' + color + '" fill-opacity="0.85"/>';
+    }
+    function drawLine(coords, color) {
+      if (!Array.isArray(coords) || coords.length < 2) return;
+      var pts = coords.map(function(c) { return toX(Number(c[0])).toFixed(2) + ',' + toY(Number(c[1])).toFixed(2); }).join(' ');
+      body += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>';
+    }
+    function drawPolygon(coords, color) {
+      if (!Array.isArray(coords) || !coords.length) return;
+      var path = ringToPath(coords[0]);
+      if (path) body += '<path d="' + path + '" fill="' + color + '" fill-opacity="0.18" stroke="' + color + '" stroke-width="1.1"/>';
+    }
     preview.features.forEach(function(entry) {
       var geom = decodePreviewGeometry(entry && entry.geometry);
       if (!geom) return;
       var color = entry.color || '#0ea5e9';
-      if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
-        body += '<circle cx="' + toX(Number(geom.coordinates[0])).toFixed(2) + '" cy="' + toY(Number(geom.coordinates[1])).toFixed(2) + '" r="2.7" fill="' + color + '" fill-opacity="0.9"/>';
-      } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
-        var pts = geom.coordinates.map(function(c) { return toX(Number(c[0])).toFixed(2) + ',' + toY(Number(c[1])).toFixed(2); }).join(' ');
-        body += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
-      } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
-        var path = ringToPath(geom.coordinates[0]);
-        if (path) body += '<path d="' + path + '" fill="' + color + '" fill-opacity="0.2" stroke="' + color + '" stroke-width="1.3"/>';
-      }
+      if (geom.type === 'Point') drawPoint(geom.coordinates, color, 2.1);
+      else if (geom.type === 'MultiPoint') geom.coordinates.forEach(function(coord) { drawPoint(coord, color, 1.7); });
+      else if (geom.type === 'LineString') drawLine(geom.coordinates, color);
+      else if (geom.type === 'MultiLineString') geom.coordinates.forEach(function(line) { drawLine(line, color); });
+      else if (geom.type === 'Polygon') drawPolygon(geom.coordinates, color);
+      else if (geom.type === 'MultiPolygon') geom.coordinates.forEach(function(poly) { drawPolygon(poly, color); });
     });
     if (!body) return '';
     return '<svg class="thumb-preview" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';

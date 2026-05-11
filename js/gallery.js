@@ -213,6 +213,16 @@
     };
   }
 
+  function samplePreviewFeatures(features) {
+    if (!Array.isArray(features)) return [];
+    const maxPreviewFeatures = 300;
+    if (features.length <= maxPreviewFeatures) return features.slice();
+    const sampled = [];
+    const step = (features.length - 1) / (maxPreviewFeatures - 1);
+    for (let i = 0; i < maxPreviewFeatures; i++) sampled.push(features[Math.round(i * step)]);
+    return sampled;
+  }
+
   function buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
@@ -240,7 +250,7 @@
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
     return {
       bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
+      features: samplePreviewFeatures(geo.features).map(function(feature) {
         var props = feature && feature.properties ? feature.properties : {};
         return {
           geometry: encodePreviewGeometry(feature ? feature.geometry : null),

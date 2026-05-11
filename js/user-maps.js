@@ -257,16 +257,17 @@
     const doc = await docRef.get();
 
     if (doc.exists && doc.data().public) {
-      // Remove from public index
-      await db.collection(PUBLIC_MAPS_COL).doc(mapId).delete();
+      // Best-effort cleanup of the public index. Do not block deleting the
+      // owner's private copy if a legacy public mirror is already missing or
+      // was written with older ownership metadata.
+      try {
+        await _deleteDocumentWithChunks(db.collection(PUBLIC_MAPS_COL).doc(mapId));
+      } catch (e) {
+        console.warn('public mirror cleanup failed:', e);
+      }
     }
 
-    // Delete geo chunks subcollection
-    const chunksSnap = await docRef.collection('geoChunks').get();
-    const batch = db.batch();
-    chunksSnap.forEach(function (chunkDoc) { batch.delete(chunkDoc.ref); });
-    batch.delete(docRef);
-    await batch.commit();
+    await _deleteDocumentWithChunks(docRef);
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -305,14 +306,19 @@
     // Set public on user's map
     await userDocRef.update({ public: true });
 
+    const publicGeoString = publishGeo ? JSON.stringify(publishGeo) : '';
+    const useChunkedPublicGeo = publicGeoString && _byteSize(publicGeoString) > FIRESTORE_FIELD_MAX_BYTES;
+
     // Write denormalized public mirror
     const publicPayload = {
       title: data.title || '',
       description: data.description || '',
       authorHandle: handle,
+      ownerUid: (_getUser() && _getUser().uid) || '',
       thumbnailUrl: data.thumbnailUrl || '',
       mapPreview: data.mapPreview || _buildMapPreview(publishGeo),
-      geojsonText: publishGeo ? JSON.stringify(publishGeo) : '',
+      geojsonText: useChunkedPublicGeo ? null : publicGeoString,
+      geojsonChunked: useChunkedPublicGeo ? { collection: 'geoChunks', chunkCount: 0 } : null,
       shareUrl: window.location.origin + '/map/?gallery=' + encodeURIComponent(mapId) + '&map=' + encodeURIComponent(mapId) + '&room=' + encodeURIComponent(mapId) + '&mode=view',
       shareMode: 'view',
       allowPublicEdit: false,
@@ -323,7 +329,15 @@
       isPublished: true
     };
 
-    await db.collection(PUBLIC_MAPS_COL).doc(mapId).set(publicPayload);
+    const publicRef = db.collection(PUBLIC_MAPS_COL).doc(mapId);
+    await publicRef.set(publicPayload);
+    if (useChunkedPublicGeo) {
+      const chunks = _splitChunks(publicGeoString, 900000);
+      await publicRef.set({ geojsonChunked: { collection: 'geoChunks', chunkCount: chunks.length } }, { merge: true });
+      await Promise.all(chunks.map(function(text, index) {
+        return publicRef.collection('geoChunks').doc(String(index)).set({ index: index, text: text });
+      }));
+    }
   }
 
   /**
@@ -430,6 +444,20 @@
   // ═══════════════════════════════════════════════════════════════
 
 
+  async function _deleteDocumentWithChunks(docRef) {
+    const chunkCollections = ['geoChunks'];
+    for (let c = 0; c < chunkCollections.length; c++) {
+      const chunksSnap = await docRef.collection(chunkCollections[c]).get();
+      const docs = chunksSnap.docs || [];
+      for (let i = 0; i < docs.length; i += 450) {
+        const batch = getDb().batch();
+        docs.slice(i, i + 450).forEach(function(chunkDoc) { batch.delete(chunkDoc.ref); });
+        await batch.commit();
+      }
+    }
+    await docRef.delete();
+  }
+
   function _readInlineGeo(data) {
     if (!data) return null;
     if (data.geojson && data.geojson.features) return data.geojson;
@@ -442,6 +470,18 @@
       type: geometry.type,
       coordinatesText: JSON.stringify(geometry.coordinates)
     };
+  }
+
+  function _samplePreviewFeatures(features) {
+    if (!Array.isArray(features)) return [];
+    const maxPreviewFeatures = 300;
+    if (features.length <= maxPreviewFeatures) return features.slice();
+    const sampled = [];
+    const step = (features.length - 1) / (maxPreviewFeatures - 1);
+    for (let i = 0; i < maxPreviewFeatures; i++) {
+      sampled.push(features[Math.round(i * step)]);
+    }
+    return sampled;
   }
 
   function _buildMapPreview(geo) {
@@ -471,7 +511,7 @@
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
     return {
       bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
+      features: _samplePreviewFeatures(geo.features).map(function(feature) {
         var props = feature && feature.properties ? feature.properties : {};
         return {
           geometry: _encodePreviewGeometry(feature ? feature.geometry : null),

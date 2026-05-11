@@ -432,6 +432,12 @@ function getEnrichedGeoJSON() {
         }
       }
     }
+    if (l._manaGroupId) {
+      f.properties._manaGroupId = l._manaGroupId;
+      f.properties._manaGroupName = l._manaGroupName || '';
+      const groupMeta = (typeof _manaGroupMeta !== 'undefined') ? _manaGroupMeta[l._manaGroupId] : null;
+      if (groupMeta && groupMeta.geometryType) f.properties._manaGeometryType = groupMeta.geometryType;
+    }
     // Set color and name last (these are Maña-specific display properties)
     if (l instanceof L.Marker) {
       f.properties.color = l._manaColor || '#0ea5e9';

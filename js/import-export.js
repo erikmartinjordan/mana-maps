@@ -112,13 +112,29 @@ function cloneFeatureProperties(properties) {
   return { ...properties };
 }
 
+function isImportableFeature(feature) {
+  if (!feature || feature.type !== 'Feature' || !feature.geometry) return false;
+  const type = feature.geometry.type;
+  return type === 'Point'
+    || type === 'MultiPoint'
+    || type === 'LineString'
+    || type === 'MultiLineString'
+    || type === 'Polygon'
+    || type === 'MultiPolygon';
+}
+
 function loadGeoJSON(geo, groupName) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
   if (!geo.features) { manaAlert(t('geojson_invalid'), 'error'); return; }
+  const originalFeatureCount = geo.features.length;
+  const validFeatures = geo.features.filter(isImportableFeature);
+  const skippedFeatureCount = originalFeatureCount - validFeatures.length;
+  geo = { type: 'FeatureCollection', features: validFeatures };
   const featureCount = geo.features.length;
-  const useChunkedImport = featureCount > 1200;
-  const batchSize = 250;
+  if (!featureCount) { manaAlert(t('geojson_invalid'), 'error'); return; }
+  const useChunkedImport = featureCount > 500;
+  const batchSize = 100;
 
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
@@ -156,10 +172,20 @@ function loadGeoJSON(geo, groupName) {
 
   const finalizeImport = () => {
     // Add to map and register each layer in group meta
+    let importedLayerCount = 0;
     layer.eachLayer(l => {
+      importedLayerCount++;
       drawnItems.addLayer(l);
       addLayerToGroupMeta(groupId, l);
     });
+
+    if (skippedFeatureCount > 0 || importedLayerCount < featureCount) {
+      const skipped = skippedFeatureCount + Math.max(featureCount - importedLayerCount, 0);
+      const msg = LANG === 'en'
+        ? 'Imported ' + importedLayerCount + ' of ' + originalFeatureCount + ' features. ' + skipped + ' unsupported or invalid features were skipped.'
+        : 'Importados ' + importedLayerCount + ' de ' + originalFeatureCount + ' elementos. Se omitieron ' + skipped + ' elementos no compatibles o inválidos.';
+      manaAlert(msg, skipped ? 'warning' : 'info');
+    }
 
     const bounds = layer.getBounds();
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
