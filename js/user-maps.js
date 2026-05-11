@@ -122,11 +122,22 @@
     // Handle chunked GeoJSON
     if (geoSize > FIRESTORE_FIELD_MAX_BYTES) {
       const chunks = _splitChunks(geoString, 900000);
+      const progress = typeof options.onUploadProgress === 'function' ? options.onUploadProgress : null;
+      if (progress) progress({ uploadedChunks: 0, totalChunks: chunks.length, percent: 5 });
       await docRef.set({ geojsonChunked: { collection: 'geoChunks', chunkCount: chunks.length } }, { merge: true });
+      let completedChunks = 0;
       const writes = chunks.map(function (text, index) {
-        return docRef.collection('geoChunks').doc(String(index)).set({ index: index, text: text });
+        return docRef.collection('geoChunks').doc(String(index)).set({ index: index, text: text }).then(function () {
+          completedChunks += 1;
+          if (progress) progress({
+            uploadedChunks: completedChunks,
+            totalChunks: chunks.length,
+            percent: Math.round((completedChunks / chunks.length) * 100)
+          });
+        });
       });
       await Promise.all(writes);
+      if (progress) progress({ uploadedChunks: chunks.length, totalChunks: chunks.length, percent: 100, done: true });
     }
 
     return { mapId: mapId, isNew: isNew };
