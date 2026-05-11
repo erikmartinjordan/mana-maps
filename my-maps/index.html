@@ -44,6 +44,23 @@
     .badge-private{background:#f3f4f6;color:#6b7280}
     .empty{border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--muted);font-size:15px}
     .empty a{color:var(--accent);font-weight:600}
+    .confirm-modal{display:none;position:fixed;inset:0;z-index:6000;background:rgba(15,23,42,.36);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px}
+    .confirm-modal.open{display:flex}
+    .confirm-modal-box{width:min(380px,100%);border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 22px 70px rgba(15,23,42,.20);padding:24px;text-align:center;animation:modalIn .18s ease}
+    .confirm-modal-box p{font-size:15px;font-weight:700;line-height:1.45;margin-bottom:18px;color:var(--text)}
+    .confirm-modal-btns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+    .confirm-modal-btns .btn{min-width:112px;justify-content:center}
+    .confirm-modal-btns .danger{background:var(--red);border-color:transparent;color:white}
+    .mana-center-status{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:7000;display:flex;align-items:center;gap:12px;min-width:min(340px,calc(100vw - 32px));padding:14px 16px;border-radius:18px;background:rgba(17,18,20,.94);color:#fff;box-shadow:0 24px 70px rgba(0,0,0,.30);font-size:14px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+    .mana-center-status.open{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    .mana-center-status-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.30);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+    .mana-center-status.done .mana-center-status-spinner{display:none}
+    .mana-center-status-icon{display:none;width:18px;height:18px;border-radius:50%;background:var(--green);align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+    .mana-center-status.done .mana-center-status-icon{display:flex}
+    .mana-center-status.error .mana-center-status-icon{display:flex;background:var(--red)}
+    .mana-center-status.error .mana-center-status-spinner{display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}}
     #login-prompt{display:none;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:32px;text-align:center}
     #login-prompt h2{font-size:20px;margin-bottom:8px}
     #login-prompt p{color:var(--muted);margin-bottom:16px;font-size:14px}
@@ -127,9 +144,98 @@
     // Global LANG detection
     var LANG = localStorage.getItem('mana-landing-lang') || 'es';
 
-    // manaAlert fallback
-    function manaAlert(msg, type) { alert(msg); }
-    function showToast(msg) { /* silent on this page */ }
+    var _noticeTimer = null;
+    var _confirmResolve = null;
+
+    function ensureCenterStatus() {
+      var el = document.getElementById('mana-center-status');
+      if (el) return el;
+      el = document.createElement('div');
+      el.id = 'mana-center-status';
+      el.className = 'mana-center-status';
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.innerHTML = '<span class="mana-center-status-spinner" aria-hidden="true"></span><span class="mana-center-status-icon" aria-hidden="true">✓</span><span class="mana-center-status-text"></span>';
+      document.body.appendChild(el);
+      return el;
+    }
+
+    function showCenterStatus(msg, state) {
+      var el = ensureCenterStatus();
+      var text = el.querySelector('.mana-center-status-text');
+      var icon = el.querySelector('.mana-center-status-icon');
+      if (text) text.textContent = msg;
+      if (icon) icon.textContent = state === 'error' ? '!' : '✓';
+      el.className = 'mana-center-status open' + (state ? ' ' + state : '');
+      if (_noticeTimer) clearTimeout(_noticeTimer);
+      if (state === 'done' || state === 'error') {
+        _noticeTimer = setTimeout(function() { el.classList.remove('open'); }, state === 'error' ? 3200 : 1400);
+      }
+      return el;
+    }
+
+    function hideCenterStatus() {
+      var el = document.getElementById('mana-center-status');
+      if (el) el.classList.remove('open');
+    }
+
+    function manaAlert(msg, type) {
+      showCenterStatus(msg, type === 'error' ? 'error' : 'done');
+    }
+
+    function showToast(msg) {
+      showCenterStatus(msg, 'done');
+    }
+
+    function ensureConfirmModal() {
+      var modal = document.getElementById('confirm-modal');
+      if (modal) return modal;
+      modal = document.createElement('div');
+      modal.id = 'confirm-modal';
+      modal.className = 'confirm-modal';
+      modal.setAttribute('aria-hidden', 'true');
+      modal.innerHTML = '' +
+        '<div class="confirm-modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-msg">' +
+          '<p id="confirm-modal-msg"></p>' +
+          '<div class="confirm-modal-btns">' +
+            '<button class="btn" type="button" data-confirm-cancel>' + (LANG === 'en' ? 'Cancel' : 'Cancelar') + '</button>' +
+            '<button class="btn danger" type="button" data-confirm-ok>' + (LANG === 'en' ? 'Delete' : 'Eliminar') + '</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal || e.target.hasAttribute('data-confirm-cancel')) resolveConfirm(false);
+        if (e.target.hasAttribute('data-confirm-ok')) resolveConfirm(true);
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) resolveConfirm(false);
+      });
+      return modal;
+    }
+
+    function resolveConfirm(value) {
+      var modal = document.getElementById('confirm-modal');
+      if (modal) {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      if (_confirmResolve) { _confirmResolve(value); _confirmResolve = null; }
+    }
+
+    function manaConfirm(msg) {
+      return new Promise(function(resolve) {
+        _confirmResolve = resolve;
+        var modal = ensureConfirmModal();
+        var text = modal.querySelector('#confirm-modal-msg');
+        if (text) text.textContent = msg;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        setTimeout(function() {
+          var ok = modal.querySelector('[data-confirm-ok]');
+          if (ok) ok.focus();
+        }, 50);
+      });
+    }
 
     // Wait for scripts to load then render
     window.addEventListener('load', async function() {
@@ -209,9 +315,17 @@
     }
 
     async function confirmDelete(mapId) {
-      if (!confirm(LANG === 'en' ? 'Delete this map permanently?' : '¿Eliminar este mapa permanentemente?')) return;
-      await window.manaMaps.deleteMap(mapId);
-      renderMaps();
+      var ok = await manaConfirm(LANG === 'en' ? 'Delete this map permanently?' : '¿Eliminar este mapa permanentemente?');
+      if (!ok) return;
+      try {
+        showCenterStatus(LANG === 'en' ? 'Deleting map…' : 'Borrando mapa…');
+        await window.manaMaps.deleteMap(mapId);
+        showCenterStatus(LANG === 'en' ? 'Map deleted ✓' : 'Mapa eliminado ✓', 'done');
+        renderMaps();
+      } catch (e) {
+        console.error('delete map failed:', e);
+        showCenterStatus(LANG === 'en' ? 'Could not delete the map.' : 'No se pudo borrar el mapa.', 'error');
+      }
     }
 
     function renderMapPreviewSVG(preview) {
