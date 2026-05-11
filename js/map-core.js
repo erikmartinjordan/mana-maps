@@ -433,13 +433,22 @@ function getEnrichedGeoJSON() {
       }
     }
     // Set color and name last (these are Maña-specific display properties)
+    const layerColor = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : ((l.options && l.options.color) || '#0ea5e9');
+    f.properties.color = layerColor;
+    f.properties._manaColor = layerColor;
     if (l instanceof L.Marker) {
-      f.properties.color = l._manaColor || '#0ea5e9';
       f.properties.markerType = l._manaMarkerType || markerType || 'circle';
-    } else {
-      f.properties.color = (l.options && l.options.color) || '#0ea5e9';
+      f.properties._manaMarkerType = f.properties.markerType;
     }
     f.properties.name = l._manaName || f.properties.name || t('generic_element');
+    f.properties._manaName = f.properties.name;
+    if (l._manaGroupId) f.properties._manaGroupId = l._manaGroupId;
+    if (l._manaGroupName) f.properties._manaGroupName = l._manaGroupName;
+    if (l.options && typeof l.options.weight !== 'undefined') f.properties._manaWeight = l.options.weight;
+    if (l.options && typeof l.options.opacity !== 'undefined') f.properties._manaOpacity = l.options.opacity;
+    if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].geometryType) {
+      f.properties._manaGeometryType = _manaGroupMeta[l._manaGroupId].geometryType;
+    }
     features.push(f);
   });
   return { type: 'FeatureCollection', features: features };
