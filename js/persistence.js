@@ -106,14 +106,18 @@ async function _importRestoredGeoJSON(geo) {
     drawColor = firstColor;
     const importedLayer = await Promise.resolve(loadGeoJSON(fc, gn));
     drawColor = savedColor;
-    if (savedGeomType) {
-      let gid = _manaGroupCounter;
-      if (importedLayer && typeof importedLayer.eachLayer === 'function') {
-        importedLayer.eachLayer(function(layer) {
-          if (layer && layer._manaGroupId) gid = layer._manaGroupId;
-        });
+    let gid = _manaGroupCounter;
+    if (importedLayer && typeof importedLayer.eachLayer === 'function') {
+      importedLayer.eachLayer(function(layer) {
+        if (layer && layer._manaGroupId) gid = layer._manaGroupId;
+      });
+    }
+    if (_manaGroupMeta[gid]) {
+      if (savedGeomType) _manaGroupMeta[gid].geometryType = savedGeomType;
+      if (firstProps._manaLabelField) {
+        _manaGroupMeta[gid].labelField = firstProps._manaLabelField;
+        _applyGroupLabels(gid);
       }
-      if (_manaGroupMeta[gid]) _manaGroupMeta[gid].geometryType = savedGeomType;
     }
   }
 
@@ -175,8 +179,13 @@ async function _importRestoredGeoJSON(geo) {
       if (end < ungrouped.length) await _nextRestoreFrame();
     }
 
-    const firstColor = ungrouped[0].properties && (ungrouped[0].properties._manaColor || ungrouped[0].properties.color);
+    const firstProps = ungrouped[0].properties || {};
+    const firstColor = firstProps && (firstProps._manaColor || firstProps.color);
     if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
+    if (firstProps._manaLabelField && _manaGroupMeta[autoGid]) {
+      _manaGroupMeta[autoGid].labelField = firstProps._manaLabelField;
+      _applyGroupLabels(autoGid);
+    }
   }
 
   stats();
