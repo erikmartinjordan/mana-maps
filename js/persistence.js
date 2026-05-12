@@ -296,6 +296,29 @@ async function restoreFromURL() {
       }
     }
 
+
+    async function incrementPublishedMapView(db, slug, payload) {
+      if (!db || !slug || !payload || !payload.isPublished) return;
+      var storageKey = 'mana-map-viewed:' + slug;
+      try {
+        if (sessionStorage.getItem(storageKey)) return;
+        sessionStorage.setItem(storageKey, '1');
+      } catch (e) {}
+
+      if (window.manaMaps && typeof window.manaMaps.incrementMapView === 'function') {
+        window.manaMaps.incrementMapView(slug, payload.authorHandle || '').catch(function(e) {
+          console.warn('public map view counter failed:', e);
+        });
+        return;
+      }
+
+      if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+        db.collection(MAPS_COLLECTION).doc(slug)
+          .update({ views: firebase.firestore.FieldValue.increment(1) })
+          .catch(function(e) { console.warn('public map view counter failed:', e); });
+      }
+    }
+
     async function readPublishedGeo(db, slug, payload) {
       if (!payload) return null;
       if (payload.mapData && payload.mapData.features) return payload.mapData;
@@ -339,6 +362,7 @@ async function restoreFromURL() {
           const accessMode = getRequestedShareMode(galleryPayload);
           setSharedMapAccess(accessMode, galleryPayload);
           await _importRestoredGeoJSON(galleryGeo);
+          incrementPublishedMapView(db, gallerySlug, galleryPayload);
           const input = document.getElementById('project-name-input');
           if (input) input.value = galleryPayload.title || galleryPayload.name || '';
           if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId('');

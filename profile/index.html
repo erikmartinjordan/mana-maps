@@ -77,10 +77,17 @@
           <h1 id="public-profile-name">Perfil</h1>
           <span id="public-profile-handle" class="public-profile-handle">@</span>
           <p id="public-profile-bio">Cargando perfil…</p>
-          <div class="public-profile-stats">
-            <strong id="public-profile-map-count">0</strong>
-            <span>mapas públicos</span>
+          <div class="public-profile-stats" aria-label="Resumen del perfil">
+            <span class="public-profile-stat-pill">
+              <strong id="public-profile-map-count">0</strong>
+              <span id="public-profile-map-label">mapas públicos</span>
+            </span>
+            <span class="public-profile-stat-pill public-profile-views-pill">
+              <strong id="public-profile-view-count">0</strong>
+              <span>visualizaciones</span>
+            </span>
           </div>
+          <div id="public-profile-views-summary" class="public-profile-views-summary" aria-label="Visualizaciones por mapa"></div>
         </div>
       </div>
       <div class="public-profile-section-head">
