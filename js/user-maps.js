@@ -174,7 +174,7 @@
         public: data.public || false,
         likes: data.likes || 0,
         featureCount: data.featureCount || 0,
-        mapPreview: data.mapPreview || _buildMapPreview(_readInlineGeo(data)),
+        mapPreview: _buildMapPreview(_readInlineGeo(data)) || data.mapPreview,
         thumbnailUrl: data.thumbnailUrl || ''
       };
     });
@@ -311,7 +311,7 @@
       description: data.description || '',
       authorHandle: handle,
       thumbnailUrl: data.thumbnailUrl || '',
-      mapPreview: data.mapPreview || _buildMapPreview(publishGeo),
+      mapPreview: _buildMapPreview(publishGeo) || data.mapPreview,
       geojsonText: publishGeo ? JSON.stringify(publishGeo) : '',
       shareUrl: window.location.origin + '/map/?gallery=' + encodeURIComponent(mapId) + '&map=' + encodeURIComponent(mapId) + '&room=' + encodeURIComponent(mapId) + '&mode=view',
       shareMode: 'view',
@@ -436,29 +436,186 @@
     return _parseGeoJSONText(data.geojsonText);
   }
 
-  function _encodePreviewGeometry(geometry) {
+  const PREVIEW_MAX_FEATURES = 96;
+  const PREVIEW_MAX_COORDS_PER_GEOMETRY = 40;
+  const PREVIEW_GRID_SIZE = 10;
+  const PREVIEW_DENSITY_GRID_SIZE = 28;
+
+  function _roundPreviewNumber(value) {
+    var num = Number(value);
+    if (!isFinite(num)) return null;
+    return Number(num.toFixed(6));
+  }
+
+  function _collectCoordPairs(coords, out) {
+    if (!Array.isArray(coords)) return;
+    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+      var x = _roundPreviewNumber(coords[0]);
+      var y = _roundPreviewNumber(coords[1]);
+      if (x !== null && y !== null) out.push([x, y]);
+      return;
+    }
+    coords.forEach(function(child) { _collectCoordPairs(child, out); });
+  }
+
+  function _sampleArrayEvenly(items, maxItems) {
+    if (!Array.isArray(items) || items.length <= maxItems) return items || [];
+    if (maxItems <= 1) return [items[0]];
+    var sampled = [];
+    for (var i = 0; i < maxItems; i++) {
+      sampled.push(items[Math.round(i * (items.length - 1) / (maxItems - 1))]);
+    }
+    return sampled;
+  }
+
+  function _sanitizePreviewPoint(coord) {
+    if (!Array.isArray(coord) || coord.length < 2) return null;
+    var x = _roundPreviewNumber(coord[0]);
+    var y = _roundPreviewNumber(coord[1]);
+    return x === null || y === null ? null : [x, y];
+  }
+
+  function _sanitizePreviewLine(coords, maxCoords) {
+    if (!Array.isArray(coords)) return [];
+    return _sampleArrayEvenly(coords, maxCoords).map(_sanitizePreviewPoint).filter(Boolean);
+  }
+
+  function _sanitizePreviewPolygon(poly, maxCoords) {
+    if (!Array.isArray(poly)) return [];
+    return poly.map(function(ring) {
+      return _sanitizePreviewLine(ring, maxCoords);
+    }).filter(function(ring) { return ring.length >= 3; });
+  }
+
+  function _simplifyPreviewGeometry(geometry) {
     if (!geometry || !geometry.type || !Array.isArray(geometry.coordinates)) return null;
-    return {
-      type: geometry.type,
-      coordinatesText: JSON.stringify(geometry.coordinates)
-    };
+    var coords = geometry.coordinates;
+    if (geometry.type === 'Point') {
+      coords = _sanitizePreviewPoint(coords);
+    } else if (geometry.type === 'MultiPoint' || geometry.type === 'LineString') {
+      coords = _sanitizePreviewLine(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+    } else if (geometry.type === 'MultiLineString' || geometry.type === 'Polygon') {
+      coords = _sanitizePreviewPolygon(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+    } else if (geometry.type === 'MultiPolygon') {
+      coords = coords.map(function(poly) {
+        return _sanitizePreviewPolygon(poly, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+      }).filter(function(poly) { return poly.length; });
+    } else {
+      return null;
+    }
+    if (!coords || (Array.isArray(coords) && !coords.length)) return null;
+    return { type: geometry.type, coordinatesText: JSON.stringify(coords) };
+  }
+
+  function _featureCenter(feature) {
+    var geom = feature && feature.geometry;
+    if (!geom || !Array.isArray(geom.coordinates)) return null;
+    var coords = [];
+    _collectCoordPairs(geom.coordinates, coords);
+    if (!coords.length) return null;
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    coords.forEach(function(c) {
+      minX = Math.min(minX, c[0]); maxX = Math.max(maxX, c[0]);
+      minY = Math.min(minY, c[1]); maxY = Math.max(maxY, c[1]);
+    });
+    return isFinite(minX) && isFinite(maxX) && isFinite(minY) && isFinite(maxY)
+      ? [(minX + maxX) / 2, (minY + maxY) / 2]
+      : null;
+  }
+
+  function _previewFeatureIndexes(features, maxFeatures, bbox) {
+    var count = Array.isArray(features) ? features.length : 0;
+    if (!count) return [];
+    var target = Math.min(count, maxFeatures);
+    if (count <= target) return features.map(function(_, index) { return index; });
+
+    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
+    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
+    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+      return _sampleArrayEvenly(features.map(function(_, index) { return index; }), target);
+    }
+    var spanX = Math.max(maxX - minX, 1e-9);
+    var spanY = Math.max(maxY - minY, 1e-9);
+    var buckets = {};
+
+    features.forEach(function(feature, index) {
+      var center = _featureCenter(feature);
+      if (!center) return;
+      var gx = Math.max(0, Math.min(PREVIEW_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_GRID_SIZE)));
+      var gy = Math.max(0, Math.min(PREVIEW_GRID_SIZE - 1, Math.floor(((center[1] - minY) / spanY) * PREVIEW_GRID_SIZE)));
+      var key = gx + ':' + gy;
+      var cellCenterX = minX + ((gx + 0.5) / PREVIEW_GRID_SIZE) * spanX;
+      var cellCenterY = minY + ((gy + 0.5) / PREVIEW_GRID_SIZE) * spanY;
+      var dist = Math.pow(center[0] - cellCenterX, 2) + Math.pow(center[1] - cellCenterY, 2);
+      if (!buckets[key]) buckets[key] = [];
+      buckets[key].push({ index: index, dist: dist });
+    });
+
+    var bucketList = Object.keys(buckets).sort().map(function(key) {
+      return buckets[key].sort(function(a, b) { return a.dist - b.dist; });
+    });
+    if (!bucketList.length) return _sampleArrayEvenly(features.map(function(_, index) { return index; }), target);
+
+    var selected = [];
+    var used = {};
+    var cursor = 0;
+    while (selected.length < target) {
+      var added = false;
+      bucketList.forEach(function(bucket) {
+        if (selected.length >= target) return;
+        var candidate = bucket[cursor];
+        if (candidate && !used[candidate.index]) {
+          used[candidate.index] = true;
+          selected.push(candidate.index);
+          added = true;
+        }
+      });
+      if (!added) break;
+      cursor++;
+    }
+    if (selected.length < target) {
+      _sampleArrayEvenly(features.map(function(_, index) { return index; }), target).forEach(function(index) {
+        if (selected.length < target && !used[index]) {
+          used[index] = true;
+          selected.push(index);
+        }
+      });
+    }
+    return selected.sort(function(a, b) { return a - b; });
+  }
+
+  function _buildDensityCells(features, bbox) {
+    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
+    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
+    if (!Array.isArray(features) || !isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return [];
+    var spanX = Math.max(maxX - minX, 1e-9);
+    var spanY = Math.max(maxY - minY, 1e-9);
+    var cells = {};
+    features.forEach(function(feature) {
+      var center = _featureCenter(feature);
+      if (!center) return;
+      var x = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_DENSITY_GRID_SIZE)));
+      var y = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((maxY - center[1]) / spanY) * PREVIEW_DENSITY_GRID_SIZE)));
+      var key = x + ':' + y;
+      var props = feature && feature.properties ? feature.properties : {};
+      var color = props._manaColor || props.color || '#0ea5e9';
+      if (!cells[key]) cells[key] = { x: x, y: y, n: 0, c: color };
+      cells[key].n += 1;
+    });
+    return Object.keys(cells).map(function(key) { return cells[key]; });
+  }
+
+  function _encodePreviewGeometry(geometry) {
+    return _simplifyPreviewGeometry(geometry);
   }
 
   function _buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
-    function collectCoordPairs(coords, out) {
-      if (!Array.isArray(coords)) return;
-      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-        out.push([coords[0], coords[1]]);
-        return;
-      }
-      coords.forEach(function(child) { collectCoordPairs(child, out); });
-    }
     geo.features.forEach(function(feature) {
       var geom = feature && feature.geometry;
       if (!geom || !Array.isArray(geom.coordinates)) return;
-      collectCoordPairs(geom.coordinates, points);
+      _collectCoordPairs(geom.coordinates, points);
     });
     if (!points.length) return null;
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -469,16 +626,24 @@
       minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     });
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
-    return {
-      bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
-        var props = feature && feature.properties ? feature.properties : {};
-        return {
-          geometry: _encodePreviewGeometry(feature ? feature.geometry : null),
-          color: props._manaColor || props.color || '#0ea5e9'
-        };
-      }).filter(function(entry) { return !!entry.geometry; })
-    };
+    var bbox = [minX, minY, maxX, maxY];
+    var isLargePreview = geo.features.length > PREVIEW_MAX_FEATURES;
+    var cells = isLargePreview ? _buildDensityCells(geo.features, bbox) : [];
+    var entries = isLargePreview ? [] : _previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
+      var feature = geo.features[index];
+      var props = feature && feature.properties ? feature.properties : {};
+      return {
+        geometry: _encodePreviewGeometry(feature ? feature.geometry : null),
+        color: props._manaColor || props.color || '#0ea5e9'
+      };
+    }).filter(function(entry) { return !!entry.geometry; });
+    return (cells.length || entries.length) ? {
+      bbox: bbox,
+      kind: cells.length ? 'density-grid' : 'geometry',
+      gridSize: cells.length ? PREVIEW_DENSITY_GRID_SIZE : null,
+      cells: cells.length ? cells : null,
+      features: entries
+    } : null;
   }
 
   function _generateMapId(title) {

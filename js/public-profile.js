@@ -56,6 +56,23 @@
     var pad = 0.12;
     function toX(x) { return (((x - minX) / spanX) * (1 - 2 * pad) + pad) * 100; }
     function toY(y) { return (((maxY - y) / spanY) * (1 - 2 * pad) + pad) * 100; }
+    function color(value) { return /^#[0-9a-f]{3,8}$/i.test(value || '') ? value : '#0ea5e9'; }
+    function renderDensityCells() {
+      if (!Array.isArray(preview.cells) || !preview.cells.length) return '';
+      var grid = Math.max(1, Number(preview.gridSize) || 28);
+      var size = 100 / grid;
+      var maxCount = preview.cells.reduce(function(max, cell) {
+        var count = Number(cell && cell.n) || 1;
+        return Math.max(max, count);
+      }, 1);
+      return preview.cells.map(function(cell) {
+        var x = Number(cell && cell.x); var y = Number(cell && cell.y);
+        if (!isFinite(x) || !isFinite(y)) return '';
+        var count = Math.max(1, Number(cell.n) || 1);
+        var opacity = Math.min(0.88, 0.28 + (count / maxCount) * 0.48);
+        return '<rect x="' + (x * size).toFixed(2) + '" y="' + (y * size).toFixed(2) + '" width="' + Math.max(size, 1.2).toFixed(2) + '" height="' + Math.max(size, 1.2).toFixed(2) + '" rx="0.9" fill="' + color(cell.c) + '" fill-opacity="' + opacity.toFixed(2) + '"/>';
+      }).join('');
+    }
     function decodePreviewGeometry(geom) {
       if (!geom) return null;
       if (Array.isArray(geom.coordinates)) return geom;
@@ -65,27 +82,55 @@
       }
       return null;
     }
+    function pointToString(coord) {
+      if (!Array.isArray(coord) || coord.length < 2) return '';
+      var x = Number(coord[0]); var y = Number(coord[1]);
+      if (!isFinite(x) || !isFinite(y)) return '';
+      return toX(x).toFixed(2) + ',' + toY(y).toFixed(2);
+    }
+    function lineToPoints(line) {
+      if (!Array.isArray(line)) return '';
+      return line.map(pointToString).filter(Boolean).join(' ');
+    }
     function ringToPath(ring) {
       if (!Array.isArray(ring) || !ring.length) return '';
-      return ring.map(function(c, idx) {
-        var x = toX(Number(c[0])).toFixed(2);
-        var y = toY(Number(c[1])).toFixed(2);
-        return (idx ? 'L' : 'M') + x + ' ' + y;
-      }).join(' ') + ' Z';
+      var parts = ring.map(function(c, idx) {
+        var point = pointToString(c);
+        if (!point) return '';
+        return (idx ? 'L' : 'M') + point.replace(',', ' ');
+      }).filter(Boolean);
+      return parts.length ? parts.join(' ') + ' Z' : '';
     }
-    var body = '';
+    function renderPolygon(poly, stroke) {
+      if (!Array.isArray(poly) || !poly.length) return '';
+      var path = ringToPath(poly[0]);
+      return path ? '<path d="' + path + '" fill="' + stroke + '" fill-opacity="0.2" stroke="' + stroke + '" stroke-width="1.3"/>' : '';
+    }
+    var body = renderDensityCells();
     preview.features.forEach(function(entry) {
       var geom = decodePreviewGeometry(entry && entry.geometry);
       if (!geom) return;
       var stroke = color(entry.color);
       if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
-        body += '<circle cx="' + toX(Number(geom.coordinates[0])).toFixed(2) + '" cy="' + toY(Number(geom.coordinates[1])).toFixed(2) + '" r="2.7" fill="' + stroke + '" fill-opacity="0.9"/>';
+        var p = pointToString(geom.coordinates).split(',');
+        if (p.length === 2) body += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.7" fill="' + stroke + '" fill-opacity="0.9"/>';
+      } else if (geom.type === 'MultiPoint' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(coord) {
+          var p = pointToString(coord).split(',');
+          if (p.length === 2) body += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.3" fill="' + stroke + '" fill-opacity="0.9"/>';
+        });
       } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
-        var pts = geom.coordinates.map(function(c) { return toX(Number(c[0])).toFixed(2) + ',' + toY(Number(c[1])).toFixed(2); }).join(' ');
-        body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+        var pts = lineToPoints(geom.coordinates);
+        if (pts) body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+      } else if (geom.type === 'MultiLineString' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(line) {
+          var pts = lineToPoints(line);
+          if (pts) body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+        });
       } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
-        var path = ringToPath(geom.coordinates[0]);
-        if (path) body += '<path d="' + path + '" fill="' + stroke + '" fill-opacity="0.2" stroke="' + stroke + '" stroke-width="1.3"/>';
+        body += renderPolygon(geom.coordinates, stroke);
+      } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(poly) { body += renderPolygon(poly, stroke); });
       }
     });
     if (!body) return '';

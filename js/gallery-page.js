@@ -128,7 +128,7 @@
     list.innerHTML = items.map(function(item) {
       const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
       const geo = getPublishedGeo(item);
-      const thumb = renderMapPreviewSVG(item.mapPreview || buildPreviewFromGeo(geo));
+      const thumb = renderMapPreviewSVG(buildPreviewFromGeo(geo) || item.mapPreview);
       const likes = item.likes || 0;
       const authorHandle = item.authorHandle || '';
       const mapSlug = item.slug || item.id;
@@ -260,43 +260,214 @@
     return null;
   }
 
+  const PREVIEW_MAX_FEATURES = 96;
+  const PREVIEW_MAX_COORDS_PER_GEOMETRY = 40;
+  const PREVIEW_GRID_SIZE = 10;
+  const PREVIEW_DENSITY_GRID_SIZE = 28;
+
+  function roundPreviewNumber(value) {
+    var num = Number(value);
+    if (!isFinite(num)) return null;
+    return Number(num.toFixed(6));
+  }
+
+  function collectCoordPairs(coords, out) {
+    if (!Array.isArray(coords)) return;
+    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+      var x = roundPreviewNumber(coords[0]);
+      var y = roundPreviewNumber(coords[1]);
+      if (x !== null && y !== null) out.push([x, y]);
+      return;
+    }
+    coords.forEach(function(child) { collectCoordPairs(child, out); });
+  }
+
+  function sampleArrayEvenly(items, maxItems) {
+    if (!Array.isArray(items) || items.length <= maxItems) return items || [];
+    if (maxItems <= 1) return [items[0]];
+    var sampled = [];
+    for (var i = 0; i < maxItems; i++) {
+      sampled.push(items[Math.round(i * (items.length - 1) / (maxItems - 1))]);
+    }
+    return sampled;
+  }
+
+  function sanitizePreviewPoint(coord) {
+    if (!Array.isArray(coord) || coord.length < 2) return null;
+    var x = roundPreviewNumber(coord[0]);
+    var y = roundPreviewNumber(coord[1]);
+    return x === null || y === null ? null : [x, y];
+  }
+
+  function sanitizePreviewLine(coords, maxCoords) {
+    if (!Array.isArray(coords)) return [];
+    return sampleArrayEvenly(coords, maxCoords).map(sanitizePreviewPoint).filter(Boolean);
+  }
+
+  function sanitizePreviewPolygon(poly, maxCoords) {
+    if (!Array.isArray(poly)) return [];
+    return poly.map(function(ring) {
+      return sanitizePreviewLine(ring, maxCoords);
+    }).filter(function(ring) { return ring.length >= 3; });
+  }
+
+  function simplifyPreviewGeometry(geometry) {
+    if (!geometry || !geometry.type || !Array.isArray(geometry.coordinates)) return null;
+    var coords = geometry.coordinates;
+    if (geometry.type === 'Point') {
+      coords = sanitizePreviewPoint(coords);
+    } else if (geometry.type === 'MultiPoint' || geometry.type === 'LineString') {
+      coords = sanitizePreviewLine(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+    } else if (geometry.type === 'MultiLineString' || geometry.type === 'Polygon') {
+      coords = sanitizePreviewPolygon(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+    } else if (geometry.type === 'MultiPolygon') {
+      coords = coords.map(function(poly) {
+        return sanitizePreviewPolygon(poly, PREVIEW_MAX_COORDS_PER_GEOMETRY);
+      }).filter(function(poly) { return poly.length; });
+    } else {
+      return null;
+    }
+    if (!coords || (Array.isArray(coords) && !coords.length)) return null;
+    return { type: geometry.type, coordinatesText: JSON.stringify(coords) };
+  }
+
+  function featureCenter(feature) {
+    var geom = feature && feature.geometry;
+    if (!geom || !Array.isArray(geom.coordinates)) return null;
+    var coords = [];
+    collectCoordPairs(geom.coordinates, coords);
+    if (!coords.length) return null;
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    coords.forEach(function(c) {
+      minX = Math.min(minX, c[0]); maxX = Math.max(maxX, c[0]);
+      minY = Math.min(minY, c[1]); maxY = Math.max(maxY, c[1]);
+    });
+    return isFinite(minX) && isFinite(maxX) && isFinite(minY) && isFinite(maxY)
+      ? [(minX + maxX) / 2, (minY + maxY) / 2]
+      : null;
+  }
+
+  function previewFeatureIndexes(features, maxFeatures, bbox) {
+    var count = Array.isArray(features) ? features.length : 0;
+    if (!count) return [];
+    var target = Math.min(count, maxFeatures);
+    if (count <= target) return features.map(function(_, index) { return index; });
+
+    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
+    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
+    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+      return sampleArrayEvenly(features.map(function(_, index) { return index; }), target);
+    }
+    var spanX = Math.max(maxX - minX, 1e-9);
+    var spanY = Math.max(maxY - minY, 1e-9);
+    var buckets = {};
+
+    features.forEach(function(feature, index) {
+      var center = featureCenter(feature);
+      if (!center) return;
+      var gx = Math.max(0, Math.min(PREVIEW_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_GRID_SIZE)));
+      var gy = Math.max(0, Math.min(PREVIEW_GRID_SIZE - 1, Math.floor(((center[1] - minY) / spanY) * PREVIEW_GRID_SIZE)));
+      var key = gx + ':' + gy;
+      var cellCenterX = minX + ((gx + 0.5) / PREVIEW_GRID_SIZE) * spanX;
+      var cellCenterY = minY + ((gy + 0.5) / PREVIEW_GRID_SIZE) * spanY;
+      var dist = Math.pow(center[0] - cellCenterX, 2) + Math.pow(center[1] - cellCenterY, 2);
+      if (!buckets[key]) buckets[key] = [];
+      buckets[key].push({ index: index, dist: dist });
+    });
+
+    var bucketList = Object.keys(buckets).sort().map(function(key) {
+      return buckets[key].sort(function(a, b) { return a.dist - b.dist; });
+    });
+    if (!bucketList.length) return sampleArrayEvenly(features.map(function(_, index) { return index; }), target);
+
+    var selected = [];
+    var used = {};
+    var cursor = 0;
+    while (selected.length < target) {
+      var added = false;
+      bucketList.forEach(function(bucket) {
+        if (selected.length >= target) return;
+        var candidate = bucket[cursor];
+        if (candidate && !used[candidate.index]) {
+          used[candidate.index] = true;
+          selected.push(candidate.index);
+          added = true;
+        }
+      });
+      if (!added) break;
+      cursor++;
+    }
+    if (selected.length < target) {
+      sampleArrayEvenly(features.map(function(_, index) { return index; }), target).forEach(function(index) {
+        if (selected.length < target && !used[index]) {
+          used[index] = true;
+          selected.push(index);
+        }
+      });
+    }
+    return selected.sort(function(a, b) { return a - b; });
+  }
+
+  function buildDensityCells(features, bbox) {
+    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
+    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
+    if (!Array.isArray(features) || !isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return [];
+    var spanX = Math.max(maxX - minX, 1e-9);
+    var spanY = Math.max(maxY - minY, 1e-9);
+    var cells = {};
+    features.forEach(function(feature) {
+      var center = featureCenter(feature);
+      if (!center) return;
+      var x = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_DENSITY_GRID_SIZE)));
+      var y = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((maxY - center[1]) / spanY) * PREVIEW_DENSITY_GRID_SIZE)));
+      var key = x + ':' + y;
+      var props = feature && feature.properties ? feature.properties : {};
+      var color = props._manaColor || props.color || '#0ea5e9';
+      if (!cells[key]) cells[key] = { x: x, y: y, n: 0, c: color };
+      cells[key].n += 1;
+    });
+    return Object.keys(cells).map(function(key) { return cells[key]; });
+  }
+
+  function encodePreviewGeometry(geometry) {
+    return simplifyPreviewGeometry(geometry);
+  }
+
   function buildPreviewFromGeo(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
     geo.features.forEach(function(feature) {
       var geom = feature && feature.geometry;
       if (!geom || !Array.isArray(geom.coordinates)) return;
-      if (geom.type === 'Point') points.push(geom.coordinates);
-      if (geom.type === 'LineString' || geom.type === 'MultiPoint') geom.coordinates.forEach(function(c) { points.push(c); });
-      if (geom.type === 'Polygon' || geom.type === 'MultiLineString') geom.coordinates.forEach(function(ring) {
-        if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
-      });
-      if (geom.type === 'MultiPolygon') geom.coordinates.forEach(function(poly) {
-        if (!Array.isArray(poly)) return;
-        poly.forEach(function(ring) {
-          if (Array.isArray(ring)) ring.forEach(function(c) { points.push(c); });
-        });
-      });
+      collectCoordPairs(geom.coordinates, points);
     });
     if (!points.length) return null;
-    var minX = Infinity; var maxX = -Infinity; var minY = Infinity; var maxY = -Infinity;
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     points.forEach(function(c) {
-      var x = Number(c[0]); var y = Number(c[1]);
+      var x = Number(c[0]), y = Number(c[1]);
       if (!isFinite(x) || !isFinite(y)) return;
       minX = Math.min(minX, x); maxX = Math.max(maxX, x);
       minY = Math.min(minY, y); maxY = Math.max(maxY, y);
     });
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
-    return {
-      bbox: [minX, minY, maxX, maxY],
-      features: geo.features.slice(0, 40).map(function(feature) {
-        var props = feature && feature.properties ? feature.properties : {};
-        return {
-          geometry: feature ? feature.geometry : null,
-          color: props._manaColor || props.color || '#0ea5e9'
-        };
-      })
-    };
+    var bbox = [minX, minY, maxX, maxY];
+    var isLargePreview = geo.features.length > PREVIEW_MAX_FEATURES;
+    var cells = isLargePreview ? buildDensityCells(geo.features, bbox) : [];
+    var entries = isLargePreview ? [] : previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
+      var feature = geo.features[index];
+      var props = feature && feature.properties ? feature.properties : {};
+      return {
+        geometry: encodePreviewGeometry(feature ? feature.geometry : null),
+        color: props._manaColor || props.color || '#0ea5e9'
+      };
+    }).filter(function(entry) { return !!entry.geometry; });
+    return (cells.length || entries.length) ? {
+      bbox: bbox,
+      kind: cells.length ? 'density-grid' : 'geometry',
+      gridSize: cells.length ? PREVIEW_DENSITY_GRID_SIZE : null,
+      cells: cells.length ? cells : null,
+      features: entries
+    } : null;
   }
 
   function renderMapPreviewSVG(preview) {
@@ -309,6 +480,23 @@
     var pad = 0.12;
     function toX(x) { return (((x - minX) / spanX) * (1 - 2 * pad) + pad) * 100; }
     function toY(y) { return (((maxY - y) / spanY) * (1 - 2 * pad) + pad) * 100; }
+    function color(value) { return /^#[0-9a-f]{3,8}$/i.test(value || '') ? value : '#0ea5e9'; }
+    function renderDensityCells() {
+      if (!Array.isArray(preview.cells) || !preview.cells.length) return '';
+      var grid = Math.max(1, Number(preview.gridSize) || 28);
+      var size = 100 / grid;
+      var maxCount = preview.cells.reduce(function(max, cell) {
+        var count = Number(cell && cell.n) || 1;
+        return Math.max(max, count);
+      }, 1);
+      return preview.cells.map(function(cell) {
+        var x = Number(cell && cell.x); var y = Number(cell && cell.y);
+        if (!isFinite(x) || !isFinite(y)) return '';
+        var count = Math.max(1, Number(cell.n) || 1);
+        var opacity = Math.min(0.88, 0.28 + (count / maxCount) * 0.48);
+        return '<rect x="' + (x * size).toFixed(2) + '" y="' + (y * size).toFixed(2) + '" width="' + Math.max(size, 1.2).toFixed(2) + '" height="' + Math.max(size, 1.2).toFixed(2) + '" rx="0.9" fill="' + color(cell.c) + '" fill-opacity="' + opacity.toFixed(2) + '"/>';
+      }).join('');
+    }
     function decodePreviewGeometry(geom) {
       if (!geom) return null;
       if (Array.isArray(geom.coordinates)) return geom;
@@ -318,27 +506,55 @@
       }
       return null;
     }
+    function pointToString(coord) {
+      if (!Array.isArray(coord) || coord.length < 2) return '';
+      var x = Number(coord[0]); var y = Number(coord[1]);
+      if (!isFinite(x) || !isFinite(y)) return '';
+      return toX(x).toFixed(2) + ',' + toY(y).toFixed(2);
+    }
+    function lineToPoints(line) {
+      if (!Array.isArray(line)) return '';
+      return line.map(pointToString).filter(Boolean).join(' ');
+    }
     function ringToPath(ring) {
       if (!Array.isArray(ring) || !ring.length) return '';
-      return ring.map(function(c, idx) {
-        var x = toX(Number(c[0])).toFixed(2);
-        var y = toY(Number(c[1])).toFixed(2);
-        return (idx ? 'L' : 'M') + x + ' ' + y;
-      }).join(' ') + ' Z';
+      var parts = ring.map(function(c, idx) {
+        var point = pointToString(c);
+        if (!point) return '';
+        return (idx ? 'L' : 'M') + point.replace(',', ' ');
+      }).filter(Boolean);
+      return parts.length ? parts.join(' ') + ' Z' : '';
     }
-    var body = '';
+    function renderPolygon(poly, stroke) {
+      if (!Array.isArray(poly) || !poly.length) return '';
+      var path = ringToPath(poly[0]);
+      return path ? '<path d="' + path + '" fill="' + stroke + '" fill-opacity="0.2" stroke="' + stroke + '" stroke-width="1.3"/>' : '';
+    }
+    var body = renderDensityCells();
     preview.features.forEach(function(entry) {
       var geom = decodePreviewGeometry(entry && entry.geometry);
       if (!geom) return;
-      var color = entry.color || '#0ea5e9';
+      var stroke = color(entry.color);
       if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
-        body += '<circle cx="' + toX(Number(geom.coordinates[0])).toFixed(2) + '" cy="' + toY(Number(geom.coordinates[1])).toFixed(2) + '" r="2.7" fill="' + color + '" fill-opacity="0.9"/>';
+        var p = pointToString(geom.coordinates).split(',');
+        if (p.length === 2) body += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.7" fill="' + stroke + '" fill-opacity="0.9"/>';
+      } else if (geom.type === 'MultiPoint' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(coord) {
+          var p = pointToString(coord).split(',');
+          if (p.length === 2) body += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.3" fill="' + stroke + '" fill-opacity="0.9"/>';
+        });
       } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
-        var pts = geom.coordinates.map(function(c) { return toX(Number(c[0])).toFixed(2) + ',' + toY(Number(c[1])).toFixed(2); }).join(' ');
-        body += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+        var pts = lineToPoints(geom.coordinates);
+        if (pts) body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+      } else if (geom.type === 'MultiLineString' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(line) {
+          var pts = lineToPoints(line);
+          if (pts) body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+        });
       } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
-        var path = ringToPath(geom.coordinates[0]);
-        if (path) body += '<path d="' + path + '" fill="' + color + '" fill-opacity="0.2" stroke="' + color + '" stroke-width="1.3"/>';
+        body += renderPolygon(geom.coordinates, stroke);
+      } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(poly) { body += renderPolygon(poly, stroke); });
       }
     });
     if (!body) return '';
