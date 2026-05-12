@@ -251,7 +251,7 @@ document.addEventListener('contextmenu', e => {
   // Don't close on right-click (the handler will reopen it)
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeCtx(); closeAttributeDrawer(); }
+  if (e.key === 'Escape') { closeCtx(); closeLayerCtx(); closeTagsMenu(); closeAttributeDrawer(); }
 });
 
 function ctxCopyCoords() {
@@ -429,11 +429,16 @@ function updateCtxStyleSection() {
   if (!ctxTargetLayer) {
     section.style.display = 'none';
     deleteBtn.style.display = 'none';
+    var ctxTagsTrigger = document.getElementById('ctx-tags-trigger');
+    if (ctxTagsTrigger) ctxTagsTrigger.style.display = 'none';
     return;
   }
 
   section.style.display = 'block';
   deleteBtn.style.display = 'flex';
+  var ctxTagsTrigger = document.getElementById('ctx-tags-trigger');
+  if (ctxTagsTrigger) ctxTagsTrigger.style.display = 'flex';
+  _updateTagsCount('ctx-tags-count', { type: 'layer', layer: ctxTargetLayer });
 
   // Show weight row only for non-markers
   weightRow.style.display = (ctxTargetLayer instanceof L.Marker) ? 'none' : 'flex';
@@ -569,6 +574,7 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
+    _updateTagsCount('lctx-tags-count', { type: 'group', gid: id });
   } else {
     // Individual layer
     const layers = [];
@@ -599,11 +605,168 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
+    _updateTagsCount('lctx-tags-count', { type: 'layer', layer: layer });
   }
 
   // Position and show
   menu.classList.add('open');
   _positionFixedMenu(menu, x, y);
+}
+
+
+// ── Tags ──
+let _tagsMenuTarget = null;
+
+function _tagEditorTarget(kind) {
+  if (kind === 'ctx') return ctxTargetLayer ? { type: 'layer', layer: ctxTargetLayer } : null;
+  if (_lctxType === 'group') return { type: 'group', gid: _lctxId };
+  const layers = [];
+  drawnItems.eachLayer(l => layers.push(l));
+  return layers[_lctxId] ? { type: 'layer', layer: layers[_lctxId] } : null;
+}
+
+function _getTargetTags(target) {
+  if (!target) return [];
+  if (target.type === 'group') {
+    const meta = _manaGroupMeta[target.gid];
+    return meta ? _normalizeManaTags(meta.tags) : [];
+  }
+  return _normalizeManaTags(target.layer && target.layer._manaTags);
+}
+
+function _setTargetTags(target, tags) {
+  const clean = _normalizeManaTags(tags);
+  if (!target) return;
+  if (target.type === 'group') {
+    const meta = _manaGroupMeta[target.gid];
+    if (meta) meta.tags = clean;
+  } else if (target.layer) {
+    target.layer._manaTags = clean;
+  }
+}
+
+function _updateTagsCount(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const count = _getTargetTags(target).length;
+  el.textContent = count;
+  el.classList.toggle('is-empty', count === 0);
+}
+
+function _tagTargetLabel(target) {
+  if (!target) return '';
+  if (target.type === 'group') {
+    const meta = _manaGroupMeta[target.gid];
+    return meta ? meta.name : '';
+  }
+  return (target.layer && target.layer._manaName) || t('generic_element');
+}
+
+function _renderTagsMenu() {
+  const menu = document.getElementById('tags-menu');
+  const list = document.getElementById('tags-menu-list');
+  const input = document.getElementById('tags-menu-input');
+  const sub = document.getElementById('tags-menu-sub');
+  if (!menu || !list) return;
+  const target = _tagsMenuTarget;
+  const tags = _getTargetTags(target);
+  list.innerHTML = '';
+  if (sub) {
+    const label = _tagTargetLabel(target);
+    sub.textContent = target && target.type === 'group'
+      ? (label + ' · ' + t('ctx_tags_group_hint'))
+      : label;
+  }
+  if (!tags.length) {
+    const empty = document.createElement('div');
+    empty.className = 'ctx-tags-empty';
+    empty.textContent = t('ctx_tags_empty');
+    list.appendChild(empty);
+  } else {
+    tags.forEach(function(tag) {
+      const chip = document.createElement('span');
+      chip.className = 'ctx-tag-chip';
+      const text = document.createElement('span');
+      text.textContent = '#' + tag;
+      chip.appendChild(text);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.title = t('toast_tag_removed');
+      remove.textContent = '×';
+      remove.onclick = function(e) { e.preventDefault(); e.stopPropagation(); tagsMenuRemoveTag(tag); };
+      chip.appendChild(remove);
+      list.appendChild(chip);
+    });
+  }
+  if (input) input.value = '';
+}
+
+function _openTagsMenu(target, x, y) {
+  if (!target) return;
+  _tagsMenuTarget = target;
+  closeCtx();
+  closeLayerCtx();
+  _renderTagsMenu();
+  const menu = document.getElementById('tags-menu');
+  if (!menu) return;
+  menu.classList.add('open');
+  _positionFixedMenu(menu, x, y);
+  setTimeout(function() {
+    const input = document.getElementById('tags-menu-input');
+    if (input) input.focus();
+  }, 0);
+}
+
+function closeTagsMenu() {
+  const menu = document.getElementById('tags-menu');
+  if (menu) menu.classList.remove('open');
+  _tagsMenuTarget = null;
+}
+
+function openLayerTagsMenu(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const rect = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : { left: 24, bottom: 24 };
+  _openTagsMenu(_tagEditorTarget('lctx'), rect.left, rect.bottom + 6);
+}
+
+function openCtxTagsMenu(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const rect = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : { left: 24, bottom: 24 };
+  _openTagsMenu(_tagEditorTarget('ctx'), rect.left, rect.bottom + 6);
+}
+
+function showLayerTagsBtn(e, type, id) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  _lctxType = type;
+  _lctxId = id;
+  const rect = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : { left: 24, bottom: 24 };
+  _openTagsMenu(_tagEditorTarget('lctx'), rect.left, rect.bottom + 6);
+}
+
+function tagsMenuAddTag() {
+  const input = document.getElementById('tags-menu-input');
+  const target = _tagsMenuTarget;
+  if (!input || !target) return;
+  const tag = _cleanManaTag(input.value);
+  if (!tag) return;
+  const tags = _getTargetTags(target);
+  tags.push(tag);
+  _setTargetTags(target, tags);
+  _renderTagsMenu();
+  if (target.type === 'group') renderLayers();
+  showToast(t('toast_tag_added'));
+  if (typeof saveState === 'function') saveState();
+}
+function tagsMenuRemoveTag(tag) {
+  const target = _tagsMenuTarget;
+  if (!target) return;
+  const key = String(tag).toLowerCase();
+  const tags = _getTargetTags(target).filter(function(tg) { return tg.toLowerCase() !== key; });
+  _setTargetTags(target, tags);
+  _renderTagsMenu();
+  if (target.type === 'group') renderLayers();
+  showToast(t('toast_tag_removed'));
+  if (typeof saveState === 'function') saveState();
 }
 
 // ── Actions ──
@@ -1071,14 +1234,23 @@ function _propDeleteAttr(key) {
 // ── Close & propagation ──
 document.getElementById('layer-ctx-menu').addEventListener('click', e => e.stopPropagation());
 document.getElementById('layer-ctx-menu').addEventListener('mousedown', e => e.stopPropagation());
+var _tagsMenuEl = document.getElementById('tags-menu');
+if (_tagsMenuEl) {
+  _tagsMenuEl.addEventListener('click', e => e.stopPropagation());
+  _tagsMenuEl.addEventListener('mousedown', e => e.stopPropagation());
+}
 document.addEventListener('click', e => {
   const lm = document.getElementById('layer-ctx-menu');
   if (lm && !lm.contains(e.target)) closeLayerCtx();
+  const tm = document.getElementById('tags-menu');
+  if (tm && !tm.contains(e.target)) closeTagsMenu();
 });
 document.addEventListener('contextmenu', e => {
-  // If right-clicking outside the layer-ctx-menu, close it
+  // If right-clicking outside floating menus, close them.
   const lm = document.getElementById('layer-ctx-menu');
   if (lm && !lm.contains(e.target)) closeLayerCtx();
+  const tm = document.getElementById('tags-menu');
+  if (tm && !tm.contains(e.target)) closeTagsMenu();
 });
 
 

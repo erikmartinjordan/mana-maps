@@ -113,7 +113,10 @@ async function _importRestoredGeoJSON(geo) {
           if (layer && layer._manaGroupId) gid = layer._manaGroupId;
         });
       }
-      if (_manaGroupMeta[gid]) _manaGroupMeta[gid].geometryType = savedGeomType;
+      if (_manaGroupMeta[gid]) {
+        _manaGroupMeta[gid].geometryType = savedGeomType;
+        if (firstProps._manaGroupTags) _manaGroupMeta[gid].tags = _normalizeManaTags(firstProps._manaGroupTags);
+      }
     }
   }
 
@@ -140,6 +143,7 @@ async function _importRestoredGeoJSON(geo) {
         layer._manaName = name;
         layer._manaColor = color;
         layer._manaMarkerType = restoredMarkerType;
+        layer._manaTags = _normalizeManaTags(props._manaTags);
         const ptAttrs = _extractUserAttrs(props);
         if (ptAttrs) layer._manaProperties = ptAttrs;
         layer.bindPopup('<strong>' + name + '</strong>');
@@ -149,6 +153,7 @@ async function _importRestoredGeoJSON(geo) {
         const opacity = props._manaOpacity || 1;
         layer = L.polyline(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 });
         layer._manaName = name;
+        layer._manaTags = _normalizeManaTags(props._manaTags);
         const lnAttrs = _extractUserAttrs(props);
         if (lnAttrs) layer._manaProperties = lnAttrs;
       } else if (g.type === 'Polygon') {
@@ -157,6 +162,7 @@ async function _importRestoredGeoJSON(geo) {
         const opacity = props._manaOpacity || 1;
         layer = L.polygon(lls, { color: color, weight: weight, opacity: opacity, fillOpacity: opacity * 0.3 });
         layer._manaName = name;
+        layer._manaTags = _normalizeManaTags(props._manaTags);
         const pgAttrs = _extractUserAttrs(props);
         if (pgAttrs) layer._manaProperties = pgAttrs;
       }
@@ -175,8 +181,10 @@ async function _importRestoredGeoJSON(geo) {
       if (end < ungrouped.length) await _nextRestoreFrame();
     }
 
-    const firstColor = ungrouped[0].properties && (ungrouped[0].properties._manaColor || ungrouped[0].properties.color);
+    const firstProps = ungrouped[0].properties || {};
+    const firstColor = firstProps && (firstProps._manaColor || firstProps.color);
     if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
+    if (firstProps._manaGroupTags && _manaGroupMeta[autoGid]) _manaGroupMeta[autoGid].tags = _normalizeManaTags(firstProps._manaGroupTags);
   }
 
   stats();
