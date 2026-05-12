@@ -30,6 +30,7 @@ function _takeSnapshot() {
     snapshot.groups[gid] = {
       name: _manaGroupMeta[gid].name,
       color: _manaGroupMeta[gid].color,
+      labelField: _manaGroupMeta[gid].labelField || '',
     };
   }
   return JSON.stringify(snapshot);
@@ -88,8 +89,10 @@ function _restoreSnapshot(json) {
       if (!_manaGroupMeta[gid]) {
         const gInfo = snapshot.groups[gid] || {};
         registerGroupMeta(gid, gInfo.name || props._manaGroupName || 'Capa', gInfo.color || color);
+        if (gInfo.labelField && _manaGroupMeta[gid]) _manaGroupMeta[gid].labelField = gInfo.labelField;
       }
       addLayerToGroupMeta(gid, layer);
+      if (_manaGroupMeta[gid] && _manaGroupMeta[gid].labelField) _applyLayerLabel(layer, _manaGroupMeta[gid].labelField);
     }
   });
   stats();

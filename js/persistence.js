@@ -113,7 +113,13 @@ async function _importRestoredGeoJSON(geo) {
           if (layer && layer._manaGroupId) gid = layer._manaGroupId;
         });
       }
-      if (_manaGroupMeta[gid]) _manaGroupMeta[gid].geometryType = savedGeomType;
+      if (_manaGroupMeta[gid]) {
+        _manaGroupMeta[gid].geometryType = savedGeomType;
+        if (firstProps._manaLabelField) {
+          _manaGroupMeta[gid].labelField = String(firstProps._manaLabelField);
+          applyGroupLabels(gid);
+        }
+      }
     }
   }
 
@@ -175,8 +181,13 @@ async function _importRestoredGeoJSON(geo) {
       if (end < ungrouped.length) await _nextRestoreFrame();
     }
 
-    const firstColor = ungrouped[0].properties && (ungrouped[0].properties._manaColor || ungrouped[0].properties.color);
+    const firstProps = ungrouped[0].properties || {};
+    const firstColor = firstProps && (firstProps._manaColor || firstProps.color);
     if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
+    if (firstProps._manaLabelField && _manaGroupMeta[autoGid]) {
+      _manaGroupMeta[autoGid].labelField = String(firstProps._manaLabelField);
+      applyGroupLabels(autoGid);
+    }
   }
 
   stats();

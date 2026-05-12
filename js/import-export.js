@@ -126,6 +126,9 @@ function loadGeoJSON(geo, groupName) {
   const gName = groupName || geo.fileName || t('geom_imported_layer');
   // Register group in metadata registry
   registerGroupMeta(groupId, gName, importColor);
+  if (geo.features && geo.features.length && geo.features[0].properties && geo.features[0].properties._manaLabelField && _manaGroupMeta[groupId]) {
+    _manaGroupMeta[groupId].labelField = String(geo.features[0].properties._manaLabelField);
+  }
 
   const layer = L.geoJSON(null, {
     style: { color: importColor, weight: 2, fillOpacity: .18 },

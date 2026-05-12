@@ -423,12 +423,15 @@ function updateCtxStyleSection() {
   const styleGroupBtn = document.getElementById('ctx-style-group');
   const catSection = document.getElementById('ctx-categorize-section');
   const catList = document.getElementById('ctx-categorize-list');
+  const labelSection = document.getElementById('ctx-label-section');
+  const labelList = document.getElementById('ctx-label-list');
   const opacitySlider = document.getElementById('ctx-opacity');
   const opacityVal = document.getElementById('ctx-opacity-val');
 
   if (!ctxTargetLayer) {
     section.style.display = 'none';
     deleteBtn.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
     return;
   }
 
@@ -479,9 +482,14 @@ function updateCtxStyleSection() {
     } else {
       catSection.style.display = 'none';
     }
+    if (labelSection && labelList) {
+      labelSection.style.display = 'block';
+      labelList.innerHTML = _buildLabelOptions(gid, 'ctxLabelBy');
+    }
   } else {
     styleGroupBtn.style.display = 'none';
     catSection.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
   }
 }
 
@@ -519,6 +527,8 @@ function _openLayerCtx(x, y, type, id) {
   const weightRow = document.getElementById('lctx-weight-row');
   const catSection = document.getElementById('lctx-categorize');
   const catList = document.getElementById('lctx-cat-list');
+  const labelSection = document.getElementById('lctx-labels');
+  const labelList = document.getElementById('lctx-label-list');
   const opSlider = document.getElementById('lctx-opacity');
   const opVal = document.getElementById('lctx-opacity-val');
 
@@ -569,6 +579,10 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
+    if (labelSection && labelList) {
+      labelSection.style.display = 'block';
+      labelList.innerHTML = _buildLabelOptions(id, 'lctxLabelBy');
+    }
   } else {
     // Individual layer
     const layers = [];
@@ -599,11 +613,59 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
   }
 
   // Position and show
   menu.classList.add('open');
   _positionFixedMenu(menu, x, y);
+}
+
+
+// ── QGIS-style map labels ──
+function _labelFieldTitle(field) {
+  return field === '_name' ? t('ctx_label_name_field') : field;
+}
+
+function _buildLabelOptions(gid, actionName) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return '';
+  const active = meta.labelField || '';
+  const attrs = ['_name'].concat(Object.keys(meta.attrs || {}).sort());
+  let html = '<button class="ctx-item ctx-label-item' + (!active ? ' active' : '') + '" onclick="' + actionName + '(\'\')">' +
+    '<span class="ctx-label-main">' + esc(t('ctx_label_off')) + '</span>' +
+    (!active ? '<span class="ctx-label-state">' + esc(t('ctx_label_active')) + '</span>' : '') + '</button>';
+  html += attrs.map(function(field) {
+    const count = field === '_name' ? meta.allLayers.length : (meta.attrs[field] ? meta.attrs[field].values.size : 0);
+    const isActive = active === field;
+    return '<button class="ctx-item ctx-label-item' + (isActive ? ' active' : '') + '" onclick="' + actionName + '(\'' +
+      field.replace(/'/g, "\\'") + '\')">' +
+      '<span class="ctx-label-main">' + esc(_labelFieldTitle(field)) + '</span>' +
+      '<span class="ctx-label-count">' + (isActive ? esc(t('ctx_label_active')) : (count + ' val.')) + '</span></button>';
+  }).join('');
+  return html;
+}
+
+function _applyLabelFromMenu(gid, field) {
+  if (!gid || !_manaGroupMeta[gid]) return;
+  if (typeof pushUndo === 'function') pushUndo();
+  setGroupLabelField(gid, field || '');
+  showToast(field ? t('toast_labels_applied') : t('toast_labels_hidden'));
+}
+
+function lctxLabelBy(field) {
+  if (_lctxType !== 'group') return;
+  _applyLabelFromMenu(_lctxId, field);
+  const list = document.getElementById('lctx-label-list');
+  if (list) list.innerHTML = _buildLabelOptions(_lctxId, 'lctxLabelBy');
+}
+
+function ctxLabelBy(field) {
+  if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
+  const gid = ctxTargetLayer._manaGroupId;
+  _applyLabelFromMenu(gid, field);
+  const list = document.getElementById('ctx-label-list');
+  if (list) list.innerHTML = _buildLabelOptions(gid, 'ctxLabelBy');
 }
 
 // ── Actions ──
@@ -915,6 +977,10 @@ function _propSaveVal(el) {
     var num = parseFloat(newVal);
     _propLayer._manaProperties[key] = (newVal !== "" && !isNaN(num) && String(num) === newVal) ? num : newVal;
   }
+  if (_propLayer._manaGroupId && _manaGroupMeta[_propLayer._manaGroupId]) {
+    var lf = _manaGroupMeta[_propLayer._manaGroupId].labelField;
+    if (lf === key || (key === "name" && lf === "_name")) _applyLayerLabel(_propLayer, lf);
+  }
   if (typeof saveState === "function") saveState();
 }
 
@@ -934,6 +1000,9 @@ function _propRenameKey(el) {
       _manaGroupMeta[gid].attrs[newKey] = _manaGroupMeta[gid].attrs[oldKey];
       delete _manaGroupMeta[gid].attrs[oldKey];
     }
+    if (_manaGroupMeta[gid].labelField === oldKey) {
+      _manaGroupMeta[gid].labelField = newKey;
+    }
     // Rename in ALL features of the group (QGIS-style schema)
     _manaGroupMeta[gid].allLayers.forEach(function(l) {
       if (l._manaProperties && l._manaProperties.hasOwnProperty(oldKey)) {
@@ -942,6 +1011,7 @@ function _propRenameKey(el) {
       }
     });
   }
+  if (gid && _manaGroupMeta[gid]) applyGroupLabels(gid);
   _buildPropEditor();
   var _fb = document.querySelector(".prop-row");
   if (_fb) attrInlineFeedback(_fb, t("attr_renamed", {key: newKey}), "success");
@@ -1056,11 +1126,13 @@ function _propDeleteAttr(key) {
   var gid = _propLayer._manaGroupId;
   if (gid && _manaGroupMeta[gid]) {
     delete _manaGroupMeta[gid].attrs[key];
+    if (_manaGroupMeta[gid].labelField === key) _manaGroupMeta[gid].labelField = '';
     // Remove from ALL features in the group (QGIS-style schema)
     _manaGroupMeta[gid].allLayers.forEach(function(l) {
       if (l._manaProperties) delete l._manaProperties[key];
     });
   }
+  if (gid && _manaGroupMeta[gid]) applyGroupLabels(gid);
   _buildPropEditor();
   var _fb2 = document.querySelector(".prop-row") || document.getElementById("attr-modal-body");
   if (_fb2) attrInlineFeedback(_fb2, t("attr_deleted"), "success");
