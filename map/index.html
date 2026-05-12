@@ -484,6 +484,37 @@ try {
         <!-- ═══ Panel tabla de atributos global ═══ -->
     <div id="attr-table-panel" class="attr-table-panel"></div>
 
+
+    <!-- ═══ Modal de etiquetado ═══ -->
+    <div id="tag-modal" class="attr-modal tag-modal">
+      <div class="attr-modal-box tag-modal-box">
+        <div class="attr-modal-header">
+          <span class="tag-modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
+          <span class="attr-modal-title" id="tag-modal-title" data-i18n="tag_modal_title">Etiquetado</span>
+          <button class="attr-modal-close modal-close-btn" onclick="closeTagModal()">&times;</button>
+        </div>
+        <div class="tag-modal-body">
+          <div class="tag-modal-section">
+            <div class="tag-modal-label" data-i18n="tag_modal_tags">Etiquetas</div>
+            <div id="tag-modal-list" class="tag-modal-list"></div>
+            <div class="tag-modal-add-row">
+              <input id="tag-modal-input" class="tag-modal-input" type="text" maxlength="28" data-i18n-placeholder="ctx_tags_placeholder" placeholder="Nueva etiqueta" onkeydown="if(event.key==='Enter'){event.preventDefault();tagModalAddTag();}"/>
+              <button class="tag-modal-add-btn" onclick="tagModalAddTag()" data-i18n="ctx_tags_add">Añadir</button>
+            </div>
+          </div>
+          <div class="tag-modal-section">
+            <div class="tag-modal-label" data-i18n="tag_modal_design">Diseño del etiquetado</div>
+            <div id="tag-style-options" class="tag-style-options">
+              <button class="tag-style-option" data-style="filled" onclick="tagModalSetStyle('filled')"><span class="layer-tag-chip tag-style-filled">#campo</span><strong data-i18n="tag_style_filled">Relleno</strong></button>
+              <button class="tag-style-option" data-style="outline" onclick="tagModalSetStyle('outline')"><span class="layer-tag-chip tag-style-outline">#campo</span><strong data-i18n="tag_style_outline">Contorno</strong></button>
+              <button class="tag-style-option" data-style="soft" onclick="tagModalSetStyle('soft')"><span class="layer-tag-chip tag-style-soft">#campo</span><strong data-i18n="tag_style_soft">Sutil</strong></button>
+            </div>
+          </div>
+          <div id="tag-modal-hint" class="tag-modal-hint"></div>
+        </div>
+      </div>
+    </div>
+
         <!-- ═══ Panel de estadísticas ═══ -->
     <div id="stats-panel" class="stats-panel"></div>
 
@@ -629,6 +660,13 @@ try {
     <div id="lctx-cat-list"></div>
   </div>
 
+  <!-- Etiquetas -->
+  <div class="ctx-sep"></div>
+  <button class="ctx-item" onclick="lctxOpenTags()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+    <span data-i18n="ctx_tags_open">Etiquetado...</span>
+  </button>
+
   <div class="ctx-sep"></div>
 
   <!-- Eliminar -->
@@ -711,6 +749,15 @@ try {
       <div class="ctx-sep"></div>
       <div class="ctx-section-label" data-i18n="ctx_categorize">Categorizar por atributo</div>
       <div id="ctx-categorize-list"></div>
+    </div>
+
+    <!-- Etiquetas -->
+    <div id="ctx-tags-section">
+      <div class="ctx-sep"></div>
+      <button class="ctx-item" onclick="ctxOpenTags()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span data-i18n="ctx_tags_open">Etiquetado...</span>
+      </button>
     </div>
   </div>
 
