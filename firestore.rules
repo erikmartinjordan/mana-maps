@@ -35,6 +35,30 @@ service cloud.firestore {
         );
     }
 
+    function publicMapViewsIncrement() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+        && (
+          ('views' in resource.data && request.resource.data.views == resource.data.views + 1)
+          || (!('views' in resource.data) && request.resource.data.views == 1)
+        );
+    }
+
+    function publicMapLikesIncrement() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+        && (
+          ('likes' in resource.data && request.resource.data.likes == resource.data.likes + 1)
+          || (!('likes' in resource.data) && request.resource.data.likes == 1)
+        );
+    }
+
+    function canIncrementPublicMapEngagement() {
+      return resource.data.isPublished == true
+        && (
+          publicMapViewsIncrement()
+          || (signedIn() && publicMapLikesIncrement())
+        );
+    }
+
     match /events/{doc} {
       allow read, write: if true;
     }
@@ -91,7 +115,15 @@ service cloud.firestore {
 
       // Owners can always update/delete their shared maps. Non-owners may only
       // collaborate when the owner explicitly shared the map in edit mode.
-      allow update, delete: if signedIn()
+      allow update: if canIncrementPublicMapEngagement()
+        || (signedIn()
+          && (
+            resource.data.ownerUid == request.auth.uid
+            || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
+            || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
+            || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))
+          ));
+      allow delete: if signedIn()
         && (
           resource.data.ownerUid == request.auth.uid
           || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))

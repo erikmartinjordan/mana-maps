@@ -112,6 +112,7 @@
       payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
       payload.public = false;
       payload.likes = 0;
+      payload.views = 0;
     }
 
     const docRef = db.collection(USERS_COL).doc(handle)
@@ -318,6 +319,7 @@
       allowPublicEdit: false,
       createdAt: data.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
       likes: data.likes || 0,
+      views: data.views || 0,
       public: true,
       featureCount: data.featureCount || 0,
       isPublished: true
@@ -416,13 +418,38 @@
 
     const increment = firebase.firestore.FieldValue.increment(1);
 
-    // Increment on public mirror
+    // Increment on public mirror. The public profile reads this denormalized counter.
     await db.collection(PUBLIC_MAPS_COL).doc(mapId).update({ likes: increment });
 
-    // Increment on author's personal copy
-    await db.collection(USERS_COL).doc(authorHandle)
-      .collection('maps').doc(mapId)
-      .update({ likes: increment });
+    // Best-effort sync for the author's personal copy. Public likes should not roll back
+    // if a private mirror is protected by Firestore rules or missing.
+    if (authorHandle) {
+      db.collection(USERS_COL).doc(authorHandle)
+        .collection('maps').doc(mapId)
+        .update({ likes: increment })
+        .catch(function(e) { console.warn('private like counter sync failed:', e); });
+    }
+  }
+
+  /**
+   * Count a public map view. Updates the public mirror used by profiles and,
+   * when allowed, the author's personal copy for continuity on republish.
+   * @param {string} mapId
+   * @param {string} authorHandle
+   */
+  async function incrementMapView(mapId, authorHandle) {
+    const db = getDb();
+    if (!db || !mapId) return;
+
+    const increment = firebase.firestore.FieldValue.increment(1);
+    await db.collection(PUBLIC_MAPS_COL).doc(mapId).update({ views: increment });
+
+    if (authorHandle) {
+      db.collection(USERS_COL).doc(authorHandle)
+        .collection('maps').doc(mapId)
+        .update({ views: increment })
+        .catch(function(e) { console.warn('private view counter sync failed:', e); });
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -687,7 +714,8 @@
     publishMap: publishMap,
     unpublishMap: unpublishMap,
     forkMap: forkMap,
-    likeMap: likeMap
+    likeMap: likeMap,
+    incrementMapView: incrementMapView
   };
 
 })();

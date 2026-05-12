@@ -46,6 +46,28 @@
 
   function color(value) { return /^#[0-9a-f]{3,8}$/i.test(value || '') ? value : '#0ea5e9'; }
 
+  function numericStat(value) {
+    var number = Number(value);
+    return isFinite(number) && number > 0 ? Math.floor(number) : 0;
+  }
+
+  function mapViews(item) {
+    return numericStat(item && (item.views != null ? item.views : item.viewCount));
+  }
+
+  function mapLikes(item) {
+    return numericStat(item && (item.likes != null ? item.likes : item.likeCount));
+  }
+
+  function formatNumber(value) {
+    try { return numericStat(value).toLocaleString('es-ES'); }
+    catch (e) { return String(numericStat(value)); }
+  }
+
+  function mapCountLabel(count) {
+    return count === 1 ? 'mapa público' : 'mapas públicos';
+  }
+
   function renderMapPreviewSVG(preview) {
     if (!preview || !Array.isArray(preview.bbox) || !Array.isArray(preview.features)) return '';
     var bbox = preview.bbox;
@@ -144,6 +166,23 @@
     return '<span>' + escHtml(name.trim().charAt(0).toUpperCase() || '@') + '</span>';
   }
 
+  function renderViewsSummary(maps) {
+    var summary = document.getElementById('public-profile-views-summary');
+    if (!summary) return;
+    var visibleMaps = maps.filter(function(item) { return mapViews(item) > 0; }).slice(0, 12);
+    if (!visibleMaps.length) {
+      summary.innerHTML = '<span class="public-profile-views-empty">Sin visualizaciones todavía</span>';
+      return;
+    }
+    var maxViews = visibleMaps.reduce(function(max, item) { return Math.max(max, mapViews(item)); }, 1);
+    summary.innerHTML = '<div class="public-profile-view-bars">' + visibleMaps.map(function(item) {
+      var views = mapViews(item);
+      var height = Math.max(18, Math.round((views / maxViews) * 100));
+      var title = (item.title || item.name || 'Mapa sin título') + ': ' + formatNumber(views) + ' visualizaciones';
+      return '<span class="public-profile-view-bar" style="--bar-height:' + height + '%" title="' + escHtml(title) + '" aria-label="' + escHtml(title) + '"></span>';
+    }).join('') + '</div>';
+  }
+
   function renderMaps(maps, handle) {
     var list = document.getElementById('public-profile-maps');
     if (!list) return;
@@ -155,6 +194,8 @@
       var mapSlug = item.slug || item.id;
       var created = timestampMs(item);
       var thumb = renderMapPreviewSVG(item.mapPreview);
+      var views = mapViews(item);
+      var likes = mapLikes(item);
       return '' +
         '<article class="public-map-card">' +
           '<a class="public-map-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(item.shareMode || 'view') + '">' +
@@ -163,6 +204,16 @@
           '</a>' +
           '<p>' + escHtml(item.description || '') + '</p>' +
           '<div class="public-map-meta"><span>' + (item.featureCount || 0) + ' elementos</span><span>·</span><span>' + safeDate(created) + '</span></div>' +
+          '<div class="public-map-engagement" aria-label="Actividad del mapa">' +
+            '<span class="public-map-stat" title="Visualizaciones">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>' +
+              '<span>' + formatNumber(views) + '</span>' +
+            '</span>' +
+            '<span class="public-map-stat public-map-like-stat" title="Me gustas">' +
+              '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>' +
+              '<span>' + formatNumber(likes) + '</span>' +
+            '</span>' +
+          '</div>' +
         '</article>';
     }).join('');
   }
@@ -218,11 +269,17 @@
       var bioEl = document.getElementById('public-profile-bio');
       var avatarEl = document.getElementById('public-profile-avatar');
       var countEl = document.getElementById('public-profile-map-count');
+      var labelEl = document.getElementById('public-profile-map-label');
+      var viewsEl = document.getElementById('public-profile-view-count');
       if (nameEl) nameEl.textContent = displayName;
       if (handleEl) handleEl.textContent = '@' + handle;
       if (bioEl) bioEl.textContent = (profile && profile.bio) || 'Mapas públicos creados con Maña Maps.';
       if (avatarEl) avatarEl.innerHTML = renderAvatar(profile, handle);
-      if (countEl) countEl.textContent = String(maps.length);
+      var totalViews = maps.reduce(function(total, item) { return total + mapViews(item); }, 0);
+      if (countEl) countEl.textContent = formatNumber(maps.length);
+      if (labelEl) labelEl.textContent = mapCountLabel(maps.length);
+      if (viewsEl) viewsEl.textContent = formatNumber(totalViews);
+      renderViewsSummary(maps);
       renderMaps(maps, handle);
     } catch (e) {
       console.warn('public profile failed:', e);
