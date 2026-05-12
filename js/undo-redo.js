@@ -23,6 +23,7 @@ function _takeSnapshot() {
       f.properties._manaGroupName = l._manaGroupName || '';
     }
     if (l._manaProperties) f.properties._manaProperties = l._manaProperties;
+    if (l._manaTags && l._manaTags.length) f.properties._manaTags = _normalizeManaTags(l._manaTags);
     snapshot.features.push(f);
   });
   // Save group meta names so we can restore them
@@ -30,6 +31,7 @@ function _takeSnapshot() {
     snapshot.groups[gid] = {
       name: _manaGroupMeta[gid].name,
       color: _manaGroupMeta[gid].color,
+      tags: _normalizeManaTags(_manaGroupMeta[gid].tags),
     };
   }
   return JSON.stringify(snapshot);
@@ -79,6 +81,7 @@ function _restoreSnapshot(json) {
     if (layer && props._manaProperties) {
       layer._manaProperties = props._manaProperties;
     }
+    if (layer && props._manaTags) layer._manaTags = _normalizeManaTags(props._manaTags);
 
     if (layer && props._manaGroupId) {
       layer._manaGroupId = props._manaGroupId;
@@ -88,6 +91,7 @@ function _restoreSnapshot(json) {
       if (!_manaGroupMeta[gid]) {
         const gInfo = snapshot.groups[gid] || {};
         registerGroupMeta(gid, gInfo.name || props._manaGroupName || 'Capa', gInfo.color || color);
+        if (gInfo.tags && _manaGroupMeta[gid]) _manaGroupMeta[gid].tags = _normalizeManaTags(gInfo.tags);
       }
       addLayerToGroupMeta(gid, layer);
     }

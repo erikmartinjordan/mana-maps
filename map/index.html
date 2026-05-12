@@ -629,6 +629,19 @@ try {
     <div id="lctx-cat-list"></div>
   </div>
 
+  <!-- Etiquetas -->
+  <div id="lctx-tags">
+    <div class="ctx-sep"></div>
+    <div class="ctx-section-label" data-i18n="ctx_tags">Etiquetas</div>
+    <div class="ctx-tags-card">
+      <div id="lctx-tags-list" class="ctx-tags-list"></div>
+      <div class="ctx-tag-add-row">
+        <input id="lctx-tag-input" class="ctx-tag-input" type="text" maxlength="28" data-i18n-placeholder="ctx_tags_placeholder" placeholder="Nueva etiqueta" onkeydown="if(event.key==='Enter'){event.preventDefault();lctxAddTag();}"/>
+        <button class="ctx-tag-add-btn" onclick="lctxAddTag()" data-i18n="ctx_tags_add">Añadir</button>
+      </div>
+    </div>
+  </div>
+
   <div class="ctx-sep"></div>
 
   <!-- Eliminar -->
@@ -711,6 +724,19 @@ try {
       <div class="ctx-sep"></div>
       <div class="ctx-section-label" data-i18n="ctx_categorize">Categorizar por atributo</div>
       <div id="ctx-categorize-list"></div>
+    </div>
+
+    <!-- Etiquetas -->
+    <div id="ctx-tags-section">
+      <div class="ctx-sep"></div>
+      <div class="ctx-section-label" data-i18n="ctx_tags">Etiquetas</div>
+      <div class="ctx-tags-card">
+        <div id="ctx-tags-list" class="ctx-tags-list"></div>
+        <div class="ctx-tag-add-row">
+          <input id="ctx-tag-input" class="ctx-tag-input" type="text" maxlength="28" data-i18n-placeholder="ctx_tags_placeholder" placeholder="Nueva etiqueta" onkeydown="if(event.key==='Enter'){event.preventDefault();ctxAddTag();}"/>
+          <button class="ctx-tag-add-btn" onclick="ctxAddTag()" data-i18n="ctx_tags_add">Añadir</button>
+        </div>
+      </div>
     </div>
   </div>
 

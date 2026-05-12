@@ -429,11 +429,16 @@ function updateCtxStyleSection() {
   if (!ctxTargetLayer) {
     section.style.display = 'none';
     deleteBtn.style.display = 'none';
+    var ctxTagsSection = document.getElementById('ctx-tags-section');
+    if (ctxTagsSection) ctxTagsSection.style.display = 'none';
     return;
   }
 
   section.style.display = 'block';
   deleteBtn.style.display = 'flex';
+  var ctxTagsSection = document.getElementById('ctx-tags-section');
+  if (ctxTagsSection) ctxTagsSection.style.display = 'block';
+  _renderTagsEditor('ctx', { type: 'layer', layer: ctxTargetLayer });
 
   // Show weight row only for non-markers
   weightRow.style.display = (ctxTargetLayer instanceof L.Marker) ? 'none' : 'flex';
@@ -569,6 +574,7 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
+    _renderTagsEditor('lctx', { type: 'group', gid: id });
   } else {
     // Individual layer
     const layers = [];
@@ -599,12 +605,111 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
+    _renderTagsEditor('lctx', { type: 'layer', layer: layer });
   }
 
   // Position and show
   menu.classList.add('open');
   _positionFixedMenu(menu, x, y);
 }
+
+
+// ── Tags ──
+function _tagEditorTarget(kind) {
+  if (kind === 'ctx') return ctxTargetLayer ? { type: 'layer', layer: ctxTargetLayer } : null;
+  if (_lctxType === 'group') return { type: 'group', gid: _lctxId };
+  const layers = [];
+  drawnItems.eachLayer(l => layers.push(l));
+  return layers[_lctxId] ? { type: 'layer', layer: layers[_lctxId] } : null;
+}
+
+function _getTargetTags(target) {
+  if (!target) return [];
+  if (target.type === 'group') {
+    const meta = _manaGroupMeta[target.gid];
+    return meta ? _normalizeManaTags(meta.tags) : [];
+  }
+  return _normalizeManaTags(target.layer && target.layer._manaTags);
+}
+
+function _setTargetTags(target, tags) {
+  const clean = _normalizeManaTags(tags);
+  if (!target) return;
+  if (target.type === 'group') {
+    const meta = _manaGroupMeta[target.gid];
+    if (!meta) return;
+    meta.tags = clean;
+    meta.allLayers.forEach(function(layer) { layer._manaTags = clean.slice(); });
+  } else if (target.layer) {
+    target.layer._manaTags = clean;
+  }
+}
+
+function _renderTagsEditor(kind, target) {
+  const list = document.getElementById(kind + '-tags-list');
+  const input = document.getElementById(kind + '-tag-input');
+  if (!list) return;
+  const tags = _getTargetTags(target);
+  list.innerHTML = '';
+  if (!tags.length) {
+    const empty = document.createElement('div');
+    empty.className = 'ctx-tags-empty';
+    empty.textContent = t('ctx_tags_empty');
+    list.appendChild(empty);
+  } else {
+    tags.forEach(function(tag) {
+      const chip = document.createElement('span');
+      chip.className = 'ctx-tag-chip';
+      const text = document.createElement('span');
+      text.textContent = '#' + tag;
+      chip.appendChild(text);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.title = t('toast_tag_removed');
+      remove.textContent = '×';
+      remove.onclick = function(e) { e.preventDefault(); e.stopPropagation(); _removeTag(kind, tag); };
+      chip.appendChild(remove);
+      list.appendChild(chip);
+    });
+  }
+  if (target && target.type === 'group') {
+    const hint = document.createElement('div');
+    hint.className = 'ctx-tags-hint';
+    hint.textContent = t('ctx_tags_group_hint');
+    list.appendChild(hint);
+  }
+  if (input) input.value = '';
+}
+
+function _addTag(kind) {
+  const input = document.getElementById(kind + '-tag-input');
+  const target = _tagEditorTarget(kind);
+  if (!input || !target) return;
+  const tag = _cleanManaTag(input.value);
+  if (!tag) return;
+  if (typeof pushUndo === 'function') pushUndo();
+  const tags = _getTargetTags(target);
+  tags.push(tag);
+  _setTargetTags(target, tags);
+  _renderTagsEditor(kind, target);
+  renderLayers();
+  showToast(t('toast_tag_added'));
+  if (typeof saveState === 'function') saveState();
+}
+function _removeTag(kind, tag) {
+  const target = _tagEditorTarget(kind);
+  if (!target) return;
+  if (typeof pushUndo === 'function') pushUndo();
+  const key = String(tag).toLowerCase();
+  const tags = _getTargetTags(target).filter(function(tg) { return tg.toLowerCase() !== key; });
+  _setTargetTags(target, tags);
+  _renderTagsEditor(kind, target);
+  renderLayers();
+  showToast(t('toast_tag_removed'));
+  if (typeof saveState === 'function') saveState();
+}
+function lctxAddTag() { _addTag('lctx'); }
+function ctxAddTag() { _addTag('ctx'); }
 
 // ── Actions ──
 function _getLctxLayers() {
