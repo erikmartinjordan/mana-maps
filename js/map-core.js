@@ -185,6 +185,7 @@ function registerGroupMeta(gid, name, color, geometryType) {
       attrs: {},
       filter: [],
       hiddenLayers: new Set(),
+      labelField: null,
     };
   }
 }
@@ -194,6 +195,7 @@ function addLayerToGroupMeta(gid, layer) {
   if (!meta) return;
   meta.allLayers.push(layer);
   _refreshGroupAttributeSchema(gid);
+  if (meta.labelField) _applyLayerLabel(layer, meta.labelField);
 }
 
 function _refreshGroupAttributeSchema(gid) {
@@ -230,6 +232,60 @@ function _getGroupAttrValues(gid, field) {
     if (val !== null && val !== undefined && val !== '') values.add(String(val));
   });
   return [...values].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+}
+
+function _layerLabelValue(layer, field) {
+  if (!layer || !field) return '';
+  const props = layer._manaProperties || {};
+  const val = props[field];
+  if (val === null || val === undefined || String(val).trim() === '') return '';
+  return String(val).trim();
+}
+
+function _applyLayerLabel(layer, field) {
+  if (!layer) return;
+  if (layer._manaLabelField && layer.unbindTooltip) {
+    try { layer.unbindTooltip(); } catch (e) {}
+  }
+  layer._manaLabelField = field || null;
+  const label = _layerLabelValue(layer, field);
+  if (!field || !label || !layer.bindTooltip) return;
+  const isMarker = layer instanceof L.Marker;
+  layer.bindTooltip(esc(label), {
+    permanent: true,
+    direction: isMarker ? 'top' : 'center',
+    className: 'mana-map-label',
+    opacity: 1,
+    interactive: false
+  });
+}
+
+function _applyGroupLabels(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  meta.allLayers.forEach(layer => _applyLayerLabel(layer, meta.labelField));
+}
+
+function labelGroupBy(gid, field) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta || !field) return;
+  if (typeof pushUndo === 'function') pushUndo();
+  meta.labelField = field;
+  _applyGroupLabels(gid);
+  renderLayers();
+  showToast(t('toast_labeled') + ' ' + field);
+  if (typeof saveState === 'function') saveState();
+}
+
+function clearGroupLabels(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  if (typeof pushUndo === 'function') pushUndo();
+  meta.labelField = null;
+  _applyGroupLabels(gid);
+  renderLayers();
+  showToast(t('toast_labels_cleared'));
+  if (typeof saveState === 'function') saveState();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -444,6 +500,9 @@ function getEnrichedGeoJSON() {
     f.properties._manaName = f.properties.name;
     if (l._manaGroupId) f.properties._manaGroupId = l._manaGroupId;
     if (l._manaGroupName) f.properties._manaGroupName = l._manaGroupName;
+    if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].labelField) {
+      f.properties._manaLabelField = _manaGroupMeta[l._manaGroupId].labelField;
+    }
     if (l.options && typeof l.options.weight !== 'undefined') f.properties._manaWeight = l.options.weight;
     if (l.options && typeof l.options.opacity !== 'undefined') f.properties._manaOpacity = l.options.opacity;
     if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].geometryType) {
@@ -815,6 +874,7 @@ const ICON = {
   geomLine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>',
   geomPolygon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>',
   table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>',
+  label: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>',
   cursor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>',
 };
 
@@ -894,6 +954,9 @@ function renderLayers() {
     const filterBadge = g.hasFilter
       ? '<span class="filter-active-badge">' + g.visibleCount + '/' + g.totalCount + '</span>'
       : '';
+    const labelBadge = meta.labelField
+      ? '<span class="label-active-badge">' + esc(meta.labelField) + '</span>'
+      : '';
 
     var orderIdx = _groupOrder.indexOf(gid);
     html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
@@ -908,7 +971,7 @@ function renderLayers() {
                    : meta.geometryType === 'polygon' ? ICON.geomPolygon : '';
     html += '  <span class="layer-geom-icon">' + _gtIcon + '</span>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
-    html += '  ' + filterBadge;
+    html += '  ' + filterBadge + labelBadge;
     html += '  <span class="layer-group-badge">' + g.totalCount + '</span>';
     html += '  <span class="' + chevronCls + '" onclick="event.stopPropagation();toggleLayerGroup(' + gid + ')">' + ICON.chevron + '</span>';
     html += '</div>';
@@ -948,6 +1011,7 @@ function renderLayers() {
     // ── Actions row
     html += '<div class="layer-group-actions">';
     html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('panel_style_title') + '">' + ICON.palette + '</button>';
+    html += '  <button class="layer-group-action-btn' + (meta.labelField ? ' has-labels' : '') + '" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('ctx_label_by_attr') + '">' + ICON.label + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="' + t('filter_title') + '">' + ICON.filter + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="openAttrTable(' + gid + ')" title="Tabla de atributos">' + ICON.table + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="' + t('lctx_zoom') + '">' + ICON.search + '</button>';
@@ -1298,6 +1362,7 @@ function attrTableSaveCell(el) {
     _refreshGroupAttributeSchema(gid);
   }
 
+  if (meta.labelField) _applyLayerLabel(layer, meta.labelField);
   if (typeof saveState === 'function') saveState();
 }
 

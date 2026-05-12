@@ -152,6 +152,10 @@ const I18N = {
     ctx_apply_group_style: "Aplicar estilo a toda la capa",
     ctx_attr_table: "Tabla de atributos",
     ctx_categorize: "Categorizar por atributo",
+    ctx_label_by_attr: "Etiquetar por atributo",
+    ctx_labels_off: "Ocultar etiquetas",
+    toast_labeled: "Etiquetas activadas por",
+    toast_labels_cleared: "Etiquetas ocultas",
     // ── Layer context menu ──
     lctx_rename: "Renombrar",
     lctx_zoom: "Zoom a la capa",
@@ -603,6 +607,10 @@ const I18N = {
     ctx_apply_group_style: "Apply style to entire layer",
     ctx_attr_table: "Attribute table",
     ctx_categorize: "Categorize by attribute",
+    ctx_label_by_attr: "Label by attribute",
+    ctx_labels_off: "Hide labels",
+    toast_labeled: "Labels enabled by",
+    toast_labels_cleared: "Labels hidden",
     // ── Layer context menu ──
     lctx_rename: "Rename",
     lctx_zoom: "Zoom to layer",

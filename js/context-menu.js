@@ -413,6 +413,32 @@ function _positionFixedMenu(menu, x, y, margin) {
 // ═══════════════════════════════════════════════════════════════
 // ctxCategorizeBy is now defined in categorize.js
 
+function _ctxJsArg(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function _renderLabelOptions(gid, list, source) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta || !list) return;
+  const attrs = Object.keys(meta.attrs).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+  const fn = source === 'ctx' ? 'ctxLabelBy' : 'lctxLabelBy';
+  const clearFn = source === 'ctx' ? 'ctxClearLabels' : 'lctxClearLabels';
+  let html = '';
+  if (meta.labelField) {
+    html += '<button class="ctx-item ctx-label-clear" onclick="' + clearFn + '()">' +
+      '<span class="ctx-cat-field">' + t('ctx_labels_off') + '</span>' +
+      '<span class="ctx-cat-count">' + esc(meta.labelField) + '</span></button>';
+  }
+  html += attrs.map(a => {
+    const active = meta.labelField === a ? ' active' : '';
+    const count = meta.attrs[a].values.size;
+    return '<button class="ctx-item ctx-cat-item ctx-label-item' + active + '" onclick="' + fn + '(\'' + _ctxJsArg(a) + '\')">' +
+      '<span class="ctx-cat-field">' + esc(a) + '</span>' +
+      '<span class="ctx-cat-count">' + count + ' val.</span></button>';
+  }).join('');
+  list.innerHTML = html;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // CONTEXT MENU — show/hide style section dynamically
 // ═══════════════════════════════════════════════════════════════
@@ -423,12 +449,15 @@ function updateCtxStyleSection() {
   const styleGroupBtn = document.getElementById('ctx-style-group');
   const catSection = document.getElementById('ctx-categorize-section');
   const catList = document.getElementById('ctx-categorize-list');
+  const labelSection = document.getElementById('ctx-label-section');
+  const labelList = document.getElementById('ctx-label-list');
   const opacitySlider = document.getElementById('ctx-opacity');
   const opacityVal = document.getElementById('ctx-opacity-val');
 
   if (!ctxTargetLayer) {
     section.style.display = 'none';
     deleteBtn.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
     return;
   }
 
@@ -479,9 +508,16 @@ function updateCtxStyleSection() {
     } else {
       catSection.style.display = 'none';
     }
+    if (attrs.length && labelSection && labelList) {
+      labelSection.style.display = 'block';
+      _renderLabelOptions(gid, labelList, 'ctx');
+    } else if (labelSection) {
+      labelSection.style.display = 'none';
+    }
   } else {
     styleGroupBtn.style.display = 'none';
     catSection.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
   }
 }
 
@@ -519,6 +555,8 @@ function _openLayerCtx(x, y, type, id) {
   const weightRow = document.getElementById('lctx-weight-row');
   const catSection = document.getElementById('lctx-categorize');
   const catList = document.getElementById('lctx-cat-list');
+  const labelSection = document.getElementById('lctx-labels');
+  const labelList = document.getElementById('lctx-label-list');
   const opSlider = document.getElementById('lctx-opacity');
   const opVal = document.getElementById('lctx-opacity-val');
 
@@ -569,6 +607,12 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
+    if (attrs.length && labelSection && labelList) {
+      labelSection.style.display = 'block';
+      _renderLabelOptions(id, labelList, 'lctx');
+    } else if (labelSection) {
+      labelSection.style.display = 'none';
+    }
   } else {
     // Individual layer
     const layers = [];
@@ -599,6 +643,7 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
   }
 
   // Position and show
@@ -694,6 +739,30 @@ function lctxZoom() {
 }
 
 // lctxCategorize is now defined in categorize.js
+function lctxLabelBy(field) {
+  if (_lctxType !== 'group') return;
+  labelGroupBy(_lctxId, field);
+  const list = document.getElementById('lctx-label-list');
+  if (list) _renderLabelOptions(_lctxId, list, 'lctx');
+}
+function lctxClearLabels() {
+  if (_lctxType !== 'group') return;
+  clearGroupLabels(_lctxId);
+  const list = document.getElementById('lctx-label-list');
+  if (list) _renderLabelOptions(_lctxId, list, 'lctx');
+}
+function ctxLabelBy(field) {
+  if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
+  labelGroupBy(ctxTargetLayer._manaGroupId, field);
+  const list = document.getElementById('ctx-label-list');
+  if (list) _renderLabelOptions(ctxTargetLayer._manaGroupId, list, 'ctx');
+}
+function ctxClearLabels() {
+  if (!ctxTargetLayer || !ctxTargetLayer._manaGroupId) return;
+  clearGroupLabels(ctxTargetLayer._manaGroupId);
+  const list = document.getElementById('ctx-label-list');
+  if (list) _renderLabelOptions(ctxTargetLayer._manaGroupId, list, 'ctx');
+}
 
 async function lctxDelete() {
   closeLayerCtx();
@@ -915,6 +984,8 @@ function _propSaveVal(el) {
     var num = parseFloat(newVal);
     _propLayer._manaProperties[key] = (newVal !== "" && !isNaN(num) && String(num) === newVal) ? num : newVal;
   }
+  var gid = _propLayer._manaGroupId;
+  if (gid && _manaGroupMeta[gid] && _manaGroupMeta[gid].labelField) _applyLayerLabel(_propLayer, _manaGroupMeta[gid].labelField);
   if (typeof saveState === "function") saveState();
 }
 
@@ -934,6 +1005,7 @@ function _propRenameKey(el) {
       _manaGroupMeta[gid].attrs[newKey] = _manaGroupMeta[gid].attrs[oldKey];
       delete _manaGroupMeta[gid].attrs[oldKey];
     }
+    if (_manaGroupMeta[gid].labelField === oldKey) _manaGroupMeta[gid].labelField = newKey;
     // Rename in ALL features of the group (QGIS-style schema)
     _manaGroupMeta[gid].allLayers.forEach(function(l) {
       if (l._manaProperties && l._manaProperties.hasOwnProperty(oldKey)) {
@@ -942,6 +1014,7 @@ function _propRenameKey(el) {
       }
     });
   }
+  if (gid && _manaGroupMeta[gid]) _applyGroupLabels(gid);
   _buildPropEditor();
   var _fb = document.querySelector(".prop-row");
   if (_fb) attrInlineFeedback(_fb, t("attr_renamed", {key: newKey}), "success");
@@ -1056,11 +1129,13 @@ function _propDeleteAttr(key) {
   var gid = _propLayer._manaGroupId;
   if (gid && _manaGroupMeta[gid]) {
     delete _manaGroupMeta[gid].attrs[key];
+    if (_manaGroupMeta[gid].labelField === key) _manaGroupMeta[gid].labelField = null;
     // Remove from ALL features in the group (QGIS-style schema)
     _manaGroupMeta[gid].allLayers.forEach(function(l) {
       if (l._manaProperties) delete l._manaProperties[key];
     });
   }
+  if (gid && _manaGroupMeta[gid]) _applyGroupLabels(gid);
   _buildPropEditor();
   var _fb2 = document.querySelector(".prop-row") || document.getElementById("attr-modal-body");
   if (_fb2) attrInlineFeedback(_fb2, t("attr_deleted"), "success");
