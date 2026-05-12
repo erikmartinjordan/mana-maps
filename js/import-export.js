@@ -126,8 +126,8 @@ function loadGeoJSON(geo, groupName) {
   const gName = groupName || geo.fileName || t('geom_imported_layer');
   // Register group in metadata registry
   registerGroupMeta(groupId, gName, importColor);
-  if (geo.features && geo.features.length && geo.features[0].properties && geo.features[0].properties._manaGroupTags && _manaGroupMeta[groupId]) {
-    _manaGroupMeta[groupId].tags = _normalizeManaTags(geo.features[0].properties._manaGroupTags);
+  if (geo.features && geo.features.length && geo.features[0].properties && geo.features[0].properties._manaLabelField && _manaGroupMeta[groupId]) {
+    _manaGroupMeta[groupId].labelField = String(geo.features[0].properties._manaLabelField);
   }
 
   const layer = L.geoJSON(null, {
@@ -140,7 +140,6 @@ function loadGeoJSON(geo, groupName) {
       const m = L.marker(ll, { icon });
       m._manaName = n; m._manaColor = importedColor;
       m._manaMarkerType = importedMarkerType;
-      m._manaTags = _normalizeManaTags(f.properties && f.properties._manaTags);
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
       m._manaProperties = cloneFeatureProperties(f.properties);
@@ -151,7 +150,6 @@ function loadGeoJSON(geo, groupName) {
       l._manaGroupId = groupId;
       l._manaGroupName = gName;
       l._manaProperties = cloneFeatureProperties(f.properties);
-      l._manaTags = _normalizeManaTags(f.properties && f.properties._manaTags);
       if (!(l instanceof L.Marker)) {
         const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || '';
         if (n) l._manaName = n;

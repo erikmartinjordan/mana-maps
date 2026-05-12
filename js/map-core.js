@@ -185,7 +185,7 @@ function registerGroupMeta(gid, name, color, geometryType) {
       attrs: {},
       filter: [],
       hiddenLayers: new Set(),
-      tags: [],
+      labelField: '',
     };
   }
 }
@@ -195,6 +195,7 @@ function addLayerToGroupMeta(gid, layer) {
   if (!meta) return;
   meta.allLayers.push(layer);
   _refreshGroupAttributeSchema(gid);
+  if (meta.labelField) _applyLayerLabel(layer, meta.labelField);
 }
 
 function _refreshGroupAttributeSchema(gid) {
@@ -445,9 +446,8 @@ function getEnrichedGeoJSON() {
     f.properties._manaName = f.properties.name;
     if (l._manaGroupId) f.properties._manaGroupId = l._manaGroupId;
     if (l._manaGroupName) f.properties._manaGroupName = l._manaGroupName;
-    if (l._manaTags && l._manaTags.length) f.properties._manaTags = _normalizeManaTags(l._manaTags);
-    if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].tags && _manaGroupMeta[l._manaGroupId].tags.length) {
-      f.properties._manaGroupTags = _normalizeManaTags(_manaGroupMeta[l._manaGroupId].tags);
+    if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].labelField) {
+      f.properties._manaLabelField = _manaGroupMeta[l._manaGroupId].labelField;
     }
     if (l.options && typeof l.options.weight !== 'undefined') f.properties._manaWeight = l.options.weight;
     if (l.options && typeof l.options.opacity !== 'undefined') f.properties._manaOpacity = l.options.opacity;
@@ -820,24 +820,47 @@ const ICON = {
   geomLine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>',
   geomPolygon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>',
   table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>',
-  tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+  label: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h10M7 14h6"/></svg>',
   cursor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>',
 };
 
 function esc(s) { return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function _cleanManaTag(tag) { return String(tag || '').trim().replace(/\s+/g, ' ').substring(0, 28); }
-function _normalizeManaTags(tags) {
-  const out = [];
-  (Array.isArray(tags) ? tags : []).forEach(function(tag) {
-    const clean = _cleanManaTag(tag);
-    if (clean && out.map(t => t.toLowerCase()).indexOf(clean.toLowerCase()) === -1) out.push(clean);
-  });
-  return out;
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function _getLayerLabelValue(layer, field) {
+  if (!layer || !field) return '';
+  if (field === '_name') return layer._manaName || '';
+  const props = layer._manaProperties || (layer.feature && layer.feature.properties) || {};
+  const val = props[field];
+  return (val === null || val === undefined) ? '' : String(val).trim();
 }
-function _renderLayerTags(tags, cls) {
-  const clean = _normalizeManaTags(tags);
-  if (!clean.length) return '';
-  return '<div class="' + cls + '">' + clean.slice(0, 6).map(tag => '<span class="layer-tag-chip">#' + esc(tag) + '</span>').join('') + '</div>';
+function _applyLayerLabel(layer, field) {
+  if (!layer || !layer.bindTooltip) return;
+  try { if (layer.getTooltip && layer.getTooltip()) layer.unbindTooltip(); } catch(e) {}
+  layer._manaLabelField = field || '';
+  const text = _getLayerLabelValue(layer, field);
+  if (!text) return;
+  const isMarker = (typeof L !== 'undefined' && layer instanceof L.Marker);
+  layer.bindTooltip(escHtml(text), {
+    permanent: true,
+    direction: isMarker ? 'top' : 'center',
+    offset: isMarker ? [0, -10] : [0, 0],
+    opacity: 1,
+    interactive: false,
+    className: 'mana-map-label'
+  });
+}
+function applyGroupLabels(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  meta.allLayers.forEach(function(layer) { _applyLayerLabel(layer, meta.labelField || ''); });
+}
+function setGroupLabelField(gid, field) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  meta.labelField = field || '';
+  applyGroupLabels(gid);
+  renderLayers();
+  if (typeof saveState === 'function') saveState();
 }
 
 function renderLayers() {
@@ -914,6 +937,7 @@ function renderLayers() {
     const filterBadge = g.hasFilter
       ? '<span class="filter-active-badge">' + g.visibleCount + '/' + g.totalCount + '</span>'
       : '';
+    const labelBadge = meta.labelField ? '<span class="label-active-badge">' + ICON.label + ' ' + esc(meta.labelField === '_name' ? t('ctx_label_name_field') : meta.labelField) + '</span>' : '';
 
     var orderIdx = _groupOrder.indexOf(gid);
     html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
@@ -929,6 +953,7 @@ function renderLayers() {
     html += '  <span class="layer-geom-icon">' + _gtIcon + '</span>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
     html += '  ' + filterBadge;
+    html += '  ' + labelBadge;
     html += '  <span class="layer-group-badge">' + g.totalCount + '</span>';
     html += '  <span class="' + chevronCls + '" onclick="event.stopPropagation();toggleLayerGroup(' + gid + ')">' + ICON.chevron + '</span>';
     html += '</div>';
@@ -936,7 +961,6 @@ function renderLayers() {
       html += '<div class="active-layer-indicator">' + t('layer_active') + '</div>';
     }
     html += '<div class="layer-group-meta">' + typeParts.join(' \u00B7 ') + '</div>';
-    html += _renderLayerTags(meta.tags, 'layer-tags layer-group-tags');
 
     // ── Expanded children
     if (isExpanded) {
@@ -953,7 +977,6 @@ function renderLayers() {
         html += '<div class="layer-item layer-child" onclick="focusLayer(' + index + ')" oncontextmenu="showLayerCtx(event,\'layer\',' + index + ')">';
         html += '  <span class="layer-name">' + esc(name) + '</span>';
         html += '  <span class="layer-type">' + kind + '</span>';
-        html += _renderLayerTags(layer._manaTags, 'layer-tags layer-child-tags');
         html += '</div>';
       });
       if (g.hasFilter && g.visibleCount < g.totalCount) {
@@ -970,7 +993,7 @@ function renderLayers() {
     // ── Actions row
     html += '<div class="layer-group-actions">';
     html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('panel_style_title') + '">' + ICON.palette + '</button>';
-    html += '  <button class="layer-group-action-btn' + ((meta.tags && meta.tags.length) ? ' has-tags' : '') + '" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('ctx_tags') + '">' + ICON.tag + '</button>';
+    html += '  <button class="layer-group-action-btn' + (meta.labelField ? ' has-labels' : '') + '" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('ctx_label_by') + '">' + ICON.label + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="' + t('filter_title') + '">' + ICON.filter + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="openAttrTable(' + gid + ')" title="Tabla de atributos">' + ICON.table + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="' + t('lctx_zoom') + '">' + ICON.search + '</button>';
@@ -1320,6 +1343,7 @@ function attrTableSaveCell(el) {
     layer._manaProperties[field] = (newVal !== '' && !isNaN(num) && String(num) === newVal) ? num : newVal;
     _refreshGroupAttributeSchema(gid);
   }
+  if (meta.labelField === field || (field === '_name' && meta.labelField === '_name')) _applyLayerLabel(layer, meta.labelField);
 
   if (typeof saveState === 'function') saveState();
 }
