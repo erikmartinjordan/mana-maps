@@ -14,11 +14,27 @@ async function installFirebaseSmokeConfig(page) {
   }, firebaseSmokeConfig);
 }
 
-test('home page loads with expected title and main CTA', async ({ page }) => {
+test('home page loads with expected title, main CTA and PWA download prompt', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveTitle(/Maña Maps — Diseña mapas con claridad/i);
   await expect(page.getByRole('link', { name: /Empieza gratis/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Descargar$/i })).toBeVisible();
+  await expect(page.locator('link[rel=\"manifest\"]')).toHaveAttribute('href', '/manifest.webmanifest');
+});
+
+test('PWA manifest exposes installable app metadata', async ({ request }) => {
+  const response = await request.get('/manifest.webmanifest');
+  expect(response.ok()).toBeTruthy();
+
+  const manifest = await response.json();
+  expect(manifest.name).toBe('Maña Maps');
+  expect(manifest.start_url).toBe('/map/');
+  expect(manifest.display).toBe('standalone');
+  expect(manifest.icons).toEqual(expect.arrayContaining([
+    expect.objectContaining({ src: '/icons/icon.svg', sizes: 'any', type: 'image/svg+xml' }),
+    expect.objectContaining({ src: '/icons/maskable-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' })
+  ]));
 });
 
 test('map editor shell loads core UI containers', async ({ page }) => {

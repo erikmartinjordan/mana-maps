@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Maña Maps maskable app icon</title>
+  <desc id="desc">Maskable Maña Maps icon with safe-zone padding and transparent background.</desc>
+  <path fill="#30363B" d="M131.3,99.1C161.6,76.8,199.5,66.4,237.9,71.4C276.4,76.4,315.4,96.8,344.9,123.1C374.4,149.4,394.4,181.6,405.3,216.9C416.2,252.2,418,290.6,405.2,323.8C392.4,357,365,385,331.6,403.8C298.2,422.6,258.8,432.2,219.9,427.1C181,422,142.6,402.2,113.4,375.3C84.2,348.4,64.2,314.4,58.9,277.2C53.6,240,63,199.6,78.8,165.6C94.6,131.6,101,121.4,131.3,99.1Z"/>
+  <path fill="none" stroke="#ffffff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" d="M162 330V194l94 118 94-118v136"/>
+  <path fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" d="M202 150c34-27 73-27 108 0"/>
+</svg>
