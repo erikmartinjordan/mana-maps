@@ -21,7 +21,7 @@
 <title>Maña Maps — Diseña mapas con claridad</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/icons/icon.svg">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Maña Maps">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -65,6 +65,31 @@
   "inLanguage": ["es", "en"],
   "author": { "@type": "Person", "name": "Erik Martín Jordán" }
 }
+</script>
+
+<script>
+  (function() {
+    const redirectToMap = () => {
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      if (isPWA && !window.location.pathname.includes('/map/')) {
+        window.location.replace('/map/?source=pwa');
+        return true;
+      }
+      return false;
+    };
+
+    // 1. Try immediately
+    if (!redirectToMap()) {
+      // 2. If it failed (likely because the "shim" isn't ready), check every 500ms for 3 seconds
+      let checks = 0;
+      const interval = setInterval(() => {
+        if (redirectToMap() || checks > 6) {
+          clearInterval(interval);
+        }
+        checks++;
+      }, 500);
+    }
+  })();
 </script>
 
 <meta name="robots" content="index, follow">
@@ -352,6 +377,8 @@ function applyLang(lang) {
 }
 function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
 applyLang(currentLang);
+
 </script>
+
 </body>
 </html>
