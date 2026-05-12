@@ -107,7 +107,7 @@
   --cta: #17191c;
   --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
   --frame-radius: 28px;
-  --iphone-frame-radius: 34px;
+  --iphone-frame-radius: 28px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -240,10 +240,10 @@ h1 {
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
   .frame {
     width: calc(100% - 20px);
-    margin: max(10px, env(safe-area-inset-top)) auto max(10px, env(safe-area-inset-bottom));
+    min-height: calc(100dvh - 20px);
+    margin: 10px auto;
     border-radius: var(--iphone-frame-radius);
   }
-  .footer { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
   .topbar { padding: 0 16px; height: 66px; }
   .topbar-actions .btn:not(.btn-primary) { padding: 0 14px; }
   .topbar-actions .btn-about { display: none; }
