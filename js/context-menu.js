@@ -295,7 +295,13 @@ function ctxDeleteLayer() {
   if (!ctxTargetLayer) return;
   closeCtx();
   if (typeof pushUndo === 'function') pushUndo();
+  var gid = ctxTargetLayer._manaGroupId;
   drawnItems.removeLayer(ctxTargetLayer);
+  if (gid && _manaGroupMeta[gid]) {
+    _manaGroupMeta[gid].allLayers = _manaGroupMeta[gid].allLayers.filter(function(l) { return l !== ctxTargetLayer; });
+    _manaGroupMeta[gid].hiddenLayers.delete(ctxTargetLayer);
+    refreshLabelsForLayer(gid);
+  }
   ctxTargetLayer = null;
   stats();
   if (typeof saveState === 'function') saveState();
@@ -353,6 +359,7 @@ async function ctxRename() {
   if (ctxTargetLayer.getPopup()) {
     ctxTargetLayer.setPopupContent('<strong>' + name + '</strong>');
   }
+  if (ctxTargetLayer._manaGroupId) refreshLabelsForLayer(ctxTargetLayer._manaGroupId);
   stats(); showToast(t('toast_renamed'));
   if (typeof saveState === 'function') saveState();
 }
@@ -479,6 +486,10 @@ function updateCtxStyleSection() {
     } else {
       catSection.style.display = 'none';
     }
+    if (labelSection) {
+      labelSection.style.display = 'block';
+      _renderLayerLabelPanel(id);
+    }
   } else {
     styleGroupBtn.style.display = 'none';
     catSection.style.display = 'none';
@@ -521,6 +532,7 @@ function _openLayerCtx(x, y, type, id) {
   const catList = document.getElementById('lctx-cat-list');
   const opSlider = document.getElementById('lctx-opacity');
   const opVal = document.getElementById('lctx-opacity-val');
+  const labelSection = document.getElementById('lctx-labels');
 
   if (type === 'group') {
     const meta = _manaGroupMeta[id];
@@ -569,6 +581,10 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
+    if (labelSection) {
+      labelSection.style.display = 'block';
+      _renderLayerLabelPanel(id);
+    }
   } else {
     // Individual layer
     const layers = [];
@@ -599,11 +615,126 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
+    if (labelSection) labelSection.style.display = 'none';
   }
 
   // Position and show
   menu.classList.add('open');
   _positionFixedMenu(menu, x, y);
+}
+
+
+// ── Cartographic labels ──
+let _lctxLabelUpdating = false;
+let _lctxLabelWeight = 'normal';
+let _lctxLabelFontStyle = 'normal';
+
+function _labelFieldOptionsForGroup(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return [];
+  _refreshGroupAttributeSchema(gid);
+  const keys = ['name'].concat(Object.keys(meta.attrs).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })));
+  return keys.filter(function(k, i) { return keys.indexOf(k) === i; });
+}
+
+function _renderLayerLabelPanel(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  _lctxLabelUpdating = true;
+  const style = _normalizeLabelStyle(meta.labelStyle);
+  meta.labelStyle = style;
+
+  const field = document.getElementById('lctx-label-field');
+  if (field) {
+    const options = _labelFieldOptionsForGroup(gid);
+    if (options.indexOf(style.field) === -1) options.unshift(style.field);
+    field.innerHTML = options.map(function(key) {
+      const label = key === 'name' ? 'name / nombre' : key;
+      return '<option value="' + esc(key) + '">' + esc(label) + '</option>';
+    }).join('');
+    field.value = style.field;
+  }
+
+  const enabled = document.getElementById('lctx-label-enabled');
+  const font = document.getElementById('lctx-label-font');
+  const customWrap = document.getElementById('lctx-label-custom-wrap');
+  const customFont = document.getElementById('lctx-label-custom-font');
+  const knownFonts = font ? Array.from(font.options).map(function(o) { return o.value; }) : [];
+  if (enabled) enabled.checked = !!style.enabled;
+  if (font) {
+    if (knownFonts.indexOf(style.fontFamily) !== -1) font.value = style.fontFamily;
+    else font.value = 'custom';
+  }
+  if (customWrap) customWrap.style.display = font && font.value === 'custom' ? 'flex' : 'none';
+  if (customFont) customFont.value = font && font.value === 'custom' ? style.fontFamily : '';
+
+  const size = document.getElementById('lctx-label-size');
+  const color = document.getElementById('lctx-label-color');
+  const haloColor = document.getElementById('lctx-label-halo-color');
+  const haloWidth = document.getElementById('lctx-label-halo-width');
+  const opacity = document.getElementById('lctx-label-opacity');
+  const offsetX = document.getElementById('lctx-label-offset-x');
+  const offsetY = document.getElementById('lctx-label-offset-y');
+  if (size) size.value = style.fontSize;
+  if (color) color.value = style.color;
+  if (haloColor) haloColor.value = style.haloColor;
+  if (haloWidth) haloWidth.value = style.haloWidth;
+  if (opacity) opacity.value = Math.round(style.opacity * 100);
+  if (offsetX) offsetX.value = style.offsetX;
+  if (offsetY) offsetY.value = style.offsetY;
+  _lctxLabelWeight = style.fontWeight;
+  _lctxLabelFontStyle = style.fontStyle;
+  _syncLabelToggleButtons();
+  _lctxLabelUpdating = false;
+}
+
+function _syncLabelToggleButtons() {
+  const bold = document.getElementById('lctx-label-bold');
+  const italic = document.getElementById('lctx-label-italic');
+  if (bold) bold.classList.toggle('active', _lctxLabelWeight === 'bold');
+  if (italic) italic.classList.toggle('active', _lctxLabelFontStyle === 'italic');
+}
+
+function _readLabelPanelStyle() {
+  const font = document.getElementById('lctx-label-font');
+  const customFont = document.getElementById('lctx-label-custom-font');
+  const fontFamily = font && font.value === 'custom' ? (customFont && customFont.value ? customFont.value : 'sans-serif') : (font ? font.value : 'sans-serif');
+  return {
+    enabled: !!(document.getElementById('lctx-label-enabled') && document.getElementById('lctx-label-enabled').checked),
+    field: (document.getElementById('lctx-label-field') && document.getElementById('lctx-label-field').value) || 'name',
+    fontFamily: fontFamily,
+    fontSize: document.getElementById('lctx-label-size') && document.getElementById('lctx-label-size').value,
+    color: document.getElementById('lctx-label-color') && document.getElementById('lctx-label-color').value,
+    fontWeight: _lctxLabelWeight,
+    fontStyle: _lctxLabelFontStyle,
+    haloColor: document.getElementById('lctx-label-halo-color') && document.getElementById('lctx-label-halo-color').value,
+    haloWidth: document.getElementById('lctx-label-halo-width') && document.getElementById('lctx-label-halo-width').value,
+    opacity: ((document.getElementById('lctx-label-opacity') && document.getElementById('lctx-label-opacity').value) || 100) / 100,
+    offsetX: document.getElementById('lctx-label-offset-x') && document.getElementById('lctx-label-offset-x').value,
+    offsetY: document.getElementById('lctx-label-offset-y') && document.getElementById('lctx-label-offset-y').value,
+  };
+}
+
+function lctxLabelChanged() {
+  if (_lctxLabelUpdating || _lctxType !== 'group') return;
+  updateLabelStyle(_lctxId, null, _readLabelPanelStyle());
+  renderLayers();
+}
+function lctxLabelFontChanged() {
+  const font = document.getElementById('lctx-label-font');
+  const customWrap = document.getElementById('lctx-label-custom-wrap');
+  if (customWrap) customWrap.style.display = font && font.value === 'custom' ? 'flex' : 'none';
+  lctxLabelChanged();
+}
+function lctxToggleLabelWeight() {
+  _lctxLabelWeight = _lctxLabelWeight === 'bold' ? 'normal' : 'bold';
+  _syncLabelToggleButtons();
+  lctxLabelChanged();
+}
+function lctxToggleLabelStyle() {
+  _lctxLabelFontStyle = _lctxLabelFontStyle === 'italic' ? 'normal' : 'italic';
+  _syncLabelToggleButtons();
+  lctxLabelChanged();
 }
 
 // ── Actions ──
@@ -662,6 +793,7 @@ function lctxSetOpacity(val) {
 async function lctxRename() {
   closeLayerCtx();
   if (typeof pushUndo === 'function') pushUndo();
+  let renamedLayer = null;
   if (_lctxType === 'group') {
     const meta = _manaGroupMeta[_lctxId];
     if (!meta) return;
@@ -673,6 +805,7 @@ async function lctxRename() {
     drawnItems.eachLayer(l => layers.push(l));
     const layer = layers[_lctxId];
     if (!layer) return;
+    renamedLayer = layer;
     const name = await askName(t('ctx_rename_element'), layer._manaName || t('generic_element'));
     if (name === null) return;
     layer._manaName = name;
@@ -680,6 +813,8 @@ async function lctxRename() {
       layer.setPopupContent('<strong>' + name + '</strong>');
     }
   }
+  if (_lctxType === 'group') refreshLabelsForLayer(_lctxId);
+  else if (renamedLayer && renamedLayer._manaGroupId) refreshLabelsForLayer(renamedLayer._manaGroupId);
   stats(); showToast('Renombrado');
   if (typeof saveState === 'function') saveState();
 }
@@ -706,6 +841,12 @@ async function lctxDelete() {
     const layer = layers[_lctxId];
     if (!layer) return;
     drawnItems.removeLayer(layer);
+    var gid = layer._manaGroupId;
+    if (gid && _manaGroupMeta[gid]) {
+      _manaGroupMeta[gid].allLayers = _manaGroupMeta[gid].allLayers.filter(function(l) { return l !== layer; });
+      _manaGroupMeta[gid].hiddenLayers.delete(layer);
+      refreshLabelsForLayer(gid);
+    }
     stats();
     showToast('Elemento eliminado');
     if (typeof saveState === 'function') saveState();
@@ -915,6 +1056,7 @@ function _propSaveVal(el) {
     var num = parseFloat(newVal);
     _propLayer._manaProperties[key] = (newVal !== "" && !isNaN(num) && String(num) === newVal) ? num : newVal;
   }
+  if (_propLayer && _propLayer._manaGroupId) refreshLabelsForLayer(_propLayer._manaGroupId);
   if (typeof saveState === "function") saveState();
 }
 
@@ -945,6 +1087,7 @@ function _propRenameKey(el) {
   _buildPropEditor();
   var _fb = document.querySelector(".prop-row");
   if (_fb) attrInlineFeedback(_fb, t("attr_renamed", {key: newKey}), "success");
+  if (_propLayer && _propLayer._manaGroupId) refreshLabelsForLayer(_propLayer._manaGroupId);
   if (typeof saveState === "function") saveState();
 }
 
@@ -1007,6 +1150,7 @@ function attrAddProperty() {
         if (!(name in l._manaProperties)) l._manaProperties[name] = "";
       });
     }
+    if (gid) refreshLabelsForLayer(gid);
     if (typeof saveState === "function") saveState();
     // Rebuild so it gets proper event handlers
     _buildPropEditor();
@@ -1064,6 +1208,7 @@ function _propDeleteAttr(key) {
   _buildPropEditor();
   var _fb2 = document.querySelector(".prop-row") || document.getElementById("attr-modal-body");
   if (_fb2) attrInlineFeedback(_fb2, t("attr_deleted"), "success");
+  if (gid) refreshLabelsForLayer(gid);
   if (typeof saveState === "function") saveState();
 }
 

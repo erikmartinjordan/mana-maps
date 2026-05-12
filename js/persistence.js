@@ -113,7 +113,10 @@ async function _importRestoredGeoJSON(geo) {
           if (layer && layer._manaGroupId) gid = layer._manaGroupId;
         });
       }
-      if (_manaGroupMeta[gid]) _manaGroupMeta[gid].geometryType = savedGeomType;
+      if (_manaGroupMeta[gid]) {
+        _manaGroupMeta[gid].geometryType = savedGeomType;
+        if (firstProps._manaLabelStyle) _manaGroupMeta[gid].labelStyle = _normalizeLabelStyle(firstProps._manaLabelStyle);
+      }
     }
   }
 
@@ -175,8 +178,10 @@ async function _importRestoredGeoJSON(geo) {
       if (end < ungrouped.length) await _nextRestoreFrame();
     }
 
-    const firstColor = ungrouped[0].properties && (ungrouped[0].properties._manaColor || ungrouped[0].properties.color);
+    const firstProps = ungrouped[0].properties || {};
+    const firstColor = firstProps && (firstProps._manaColor || firstProps.color);
     if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
+    if (firstProps._manaLabelStyle && _manaGroupMeta[autoGid]) _manaGroupMeta[autoGid].labelStyle = _normalizeLabelStyle(firstProps._manaLabelStyle);
   }
 
   stats();
@@ -419,7 +424,7 @@ async function replaceMapWithGeoJSON(geo) {
   if (!geo || !geo.features) return;
 
   drawnItems.clearLayers();
-  for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
+  for (const gid in _manaGroupMeta) { removeLabelsFromLayer(_manaGroupMeta[gid]); delete _manaGroupMeta[gid]; }
   _activeGroupId = null;
   _manaGroupCounter = 0;
   _manaLayerNameCounter = 0;

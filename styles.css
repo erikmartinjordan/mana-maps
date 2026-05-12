@@ -3059,3 +3059,45 @@ body.profile-page{
 .public-map-card .thumb{height:150px;border-radius:12px;background:linear-gradient(130deg,#f8fafc,#fff 40%,#eef2ff);border:1px solid var(--border);position:relative;overflow:hidden;}
 .public-map-card .thumb::before,.public-map-card .thumb::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(17,24,39,.06) 1px, transparent 1px),linear-gradient(90deg, rgba(17,24,39,.06) 1px, transparent 1px);background-size:30px 30px;}
 .public-map-card .thumb-preview{position:absolute;inset:10px;z-index:1;width:calc(100% - 20px);height:calc(100% - 20px);}
+
+/* ── Cartographic layer labels ──────────────── */
+.mana-map-label-icon{
+  background:transparent;border:none;pointer-events:none;white-space:nowrap;
+}
+.mana-map-label-text{
+  display:inline-block;line-height:1.15;white-space:nowrap;transform:translate(-50%,-50%);
+  user-select:none;pointer-events:none;
+}
+.label-panel-card{
+  margin:5px 8px 8px;padding:9px;border:0.5px solid var(--border);
+  border-radius:10px;background:linear-gradient(180deg,var(--surface-2),rgba(14,165,233,.035));
+}
+.label-toggle-row{
+  display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--primary);
+  margin-bottom:8px;cursor:pointer;
+}
+.label-toggle-row input{accent-color:var(--blue);}
+.label-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.label-grid label{
+  display:flex;flex-direction:column;gap:3px;min-width:0;
+  font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--third);
+}
+.label-grid input,.label-grid select{
+  width:100%;min-width:0;border:0.5px solid var(--border);border-radius:7px;
+  background:var(--surface);color:var(--primary);font:600 11px 'DM Sans',sans-serif;
+  padding:5px 6px;outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.label-grid input[type="color"]{height:28px;padding:2px;cursor:pointer;}
+.label-grid input[type="range"]{padding:0;accent-color:var(--blue);}
+.label-grid input:focus,.label-grid select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(14,165,233,.10);}
+#lctx-label-custom-wrap{grid-column:1/-1;}
+.label-style-toggles{display:flex;gap:6px;margin-top:8px;}
+.label-style-toggles button{
+  flex:1;border:0.5px solid var(--border);border-radius:7px;background:var(--surface);
+  color:var(--primary);font:800 10px 'DM Sans',sans-serif;padding:6px;cursor:pointer;
+  transition:background .12s,border-color .12s,color .12s,transform .12s;
+}
+.label-style-toggles button:hover{border-color:var(--blue);color:var(--blue);}
+.label-style-toggles button.active,.layer-group-action-btn.has-labels,.label-active-badge{
+  background:var(--blue);border-color:var(--blue);color:white;
+}

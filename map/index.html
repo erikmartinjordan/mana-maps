@@ -629,6 +629,43 @@ try {
     <div id="lctx-cat-list"></div>
   </div>
 
+  <!-- Etiquetas cartográficas -->
+  <div id="lctx-labels" style="display:none">
+    <div class="ctx-sep"></div>
+    <div class="ctx-section-label" data-i18n="label_section">Etiquetas</div>
+    <div class="label-panel-card">
+      <label class="label-toggle-row">
+        <input id="lctx-label-enabled" type="checkbox" onchange="lctxLabelChanged()"/>
+        <span data-i18n="label_enable">Mostrar etiquetas de esta capa</span>
+      </label>
+      <div class="label-grid">
+        <label><span data-i18n="label_field">Campo</span><select id="lctx-label-field" onchange="lctxLabelChanged()"></select></label>
+        <label><span data-i18n="label_font">Fuente</span><select id="lctx-label-font" onchange="lctxLabelFontChanged()">
+          <option value="sans-serif">Sans serif</option>
+          <option value="serif">Serif</option>
+          <option value="monospace">Monospace</option>
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="Verdana, sans-serif">Verdana</option>
+          <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+          <option value="custom" data-i18n="label_font_custom">Personalizada</option>
+        </select></label>
+        <label id="lctx-label-custom-wrap" style="display:none"><span data-i18n="label_font_custom">Personalizada</span><input id="lctx-label-custom-font" type="text" placeholder="Inter, sans-serif" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_size">Tamaño</span><input id="lctx-label-size" type="number" min="8" max="32" step="1" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_color">Color</span><input id="lctx-label-color" type="color" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_halo_color">Halo</span><input id="lctx-label-halo-color" type="color" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_halo_width">Grosor halo</span><input id="lctx-label-halo-width" type="number" min="0" max="10" step="1" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_opacity">Opacidad</span><input id="lctx-label-opacity" type="range" min="0" max="100" step="5" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_offset_x">Offset X</span><input id="lctx-label-offset-x" type="number" min="-80" max="80" step="1" oninput="lctxLabelChanged()"/></label>
+        <label><span data-i18n="label_offset_y">Offset Y</span><input id="lctx-label-offset-y" type="number" min="-80" max="80" step="1" oninput="lctxLabelChanged()"/></label>
+      </div>
+      <div class="label-style-toggles">
+        <button id="lctx-label-bold" type="button" onclick="lctxToggleLabelWeight()" data-i18n="label_bold">Negrita</button>
+        <button id="lctx-label-italic" type="button" onclick="lctxToggleLabelStyle()" data-i18n="label_italic">Cursiva</button>
+      </div>
+    </div>
+  </div>
+
   <div class="ctx-sep"></div>
 
   <!-- Eliminar -->

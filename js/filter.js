@@ -102,6 +102,7 @@ function applyFilter(gid) {
     }
   });
 
+  if (typeof refreshLabelsForLayer === 'function') refreshLabelsForLayer(gid);
   stats();
 }
 
@@ -112,6 +113,7 @@ function clearFilter(gid) {
     if (!drawnItems.hasLayer(l)) drawnItems.addLayer(l);
     l._manaFilterHidden = false;
   });
+  if (typeof refreshLabelsForLayer === 'function') refreshLabelsForLayer(gid);
   stats();
 }
 
