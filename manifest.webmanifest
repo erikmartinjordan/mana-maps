@@ -1,0 +1,46 @@
+{
+  "name": "Maña Maps",
+  "short_name": "Maña Maps",
+  "description": "Diseña, importa y exporta mapas claros con Maña Maps.",
+  "id": "/map/",
+  "start_url": "/map/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "orientation": "any",
+  "background_color": "#f5f5f7",
+  "theme_color": "#30363b",
+  "categories": ["productivity", "utilities", "navigation"],
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Abrir editor",
+      "short_name": "Editor",
+      "description": "Crear o editar un mapa en Maña Maps.",
+      "url": "/map/?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "192x192 512x512", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Mis mapas",
+      "short_name": "Mis mapas",
+      "description": "Acceder a tus mapas guardados.",
+      "url": "/my-maps/?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "192x192 512x512", "type": "image/svg+xml" }]
+    }
+  ]
+}
