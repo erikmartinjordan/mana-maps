@@ -104,8 +104,8 @@ async function clearAll() {
   if (ok) {
     if (typeof pushUndo === 'function') pushUndo();
     drawnItems.clearLayers();
-    // Also clear group meta registry
-    for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
+    // Also clear group meta registry and label overlays
+    for (const gid in _manaGroupMeta) { removeLabelsFromLayer(_manaGroupMeta[gid]); delete _manaGroupMeta[gid]; }
     _activeGroupId = null;
     _manaGroupCounter = 0;
     _manaLayerNameCounter = 0;
@@ -168,6 +168,7 @@ function stopEdit() {
     if (l.editing) l.editing.disable();
   });
 
+  if (typeof refreshAllLabels === 'function') refreshAllLabels();
   stats();
   if (typeof saveState === 'function') saveState();
 }

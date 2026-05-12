@@ -30,6 +30,7 @@ function _takeSnapshot() {
     snapshot.groups[gid] = {
       name: _manaGroupMeta[gid].name,
       color: _manaGroupMeta[gid].color,
+      labelStyle: _normalizeLabelStyle(_manaGroupMeta[gid].labelStyle),
     };
   }
   return JSON.stringify(snapshot);
@@ -40,7 +41,7 @@ function _restoreSnapshot(json) {
   const snapshot = JSON.parse(json);
   // Clear current map
   drawnItems.clearLayers();
-  for (const gid in _manaGroupMeta) delete _manaGroupMeta[gid];
+  for (const gid in _manaGroupMeta) { removeLabelsFromLayer(_manaGroupMeta[gid]); delete _manaGroupMeta[gid]; }
 
   // Rebuild layers from snapshot
   const groups = {};
@@ -88,10 +89,12 @@ function _restoreSnapshot(json) {
       if (!_manaGroupMeta[gid]) {
         const gInfo = snapshot.groups[gid] || {};
         registerGroupMeta(gid, gInfo.name || props._manaGroupName || 'Capa', gInfo.color || color);
+        if (gInfo.labelStyle && _manaGroupMeta[gid]) _manaGroupMeta[gid].labelStyle = _normalizeLabelStyle(gInfo.labelStyle);
       }
       addLayerToGroupMeta(gid, layer);
     }
   });
+  refreshAllLabels();
   stats();
   if (typeof saveState === 'function') saveState();
 }

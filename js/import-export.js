@@ -126,6 +126,9 @@ function loadGeoJSON(geo, groupName) {
   const gName = groupName || geo.fileName || t('geom_imported_layer');
   // Register group in metadata registry
   registerGroupMeta(groupId, gName, importColor);
+  if (geo.features && geo.features.length && geo.features[0].properties && geo.features[0].properties._manaLabelStyle && _manaGroupMeta[groupId]) {
+    _manaGroupMeta[groupId].labelStyle = _normalizeLabelStyle(geo.features[0].properties._manaLabelStyle);
+  }
 
   const layer = L.geoJSON(null, {
     style: { color: importColor, weight: 2, fillOpacity: .18 },
@@ -164,6 +167,7 @@ function loadGeoJSON(geo, groupName) {
 
     const bounds = layer.getBounds();
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
+    refreshLabelsForLayer(groupId);
     stats();
     if (typeof saveState === 'function') saveState();
     return layer;

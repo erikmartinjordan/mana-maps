@@ -229,7 +229,11 @@ const toolActions = {
   },
 
   clear_map() {
-    drawnItems.clearLayers(); stats();
+    drawnItems.clearLayers();
+    if (typeof _manaGroupMeta !== 'undefined') {
+      for (const gid in _manaGroupMeta) { if (typeof removeLabelsFromLayer === 'function') removeLabelsFromLayer(_manaGroupMeta[gid]); }
+    }
+    stats();
     return { ok: true, msg: window.t('ai_map_cleared') };
   },
 

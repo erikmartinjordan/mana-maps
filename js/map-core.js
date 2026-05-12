@@ -156,6 +156,7 @@ function addDrawnLayerToGroup(layer) {
 
   drawnItems.addLayer(layer);
   addLayerToGroupMeta(gid, layer);
+  refreshLabelsForLayer(gid);
   stats();
   if (typeof saveState === 'function') saveState();
 }
@@ -173,6 +174,8 @@ const _manaGroupMeta = {};
 //   attrs: { fieldName: { type:'string'|'number', values: Set } },
 //   filter: [ {field, op, value}, ... ],   // active filter rules
 //   hiddenLayers: Set(leafletLayer),        // layers removed by filter
+//   labelStyle: object,                     // per-layer cartographic label settings
+//   labelMarkers: [leafletMarker, ...],     // rendered label overlays
 // }
 
 function registerGroupMeta(gid, name, color, geometryType) {
@@ -185,6 +188,8 @@ function registerGroupMeta(gid, name, color, geometryType) {
       attrs: {},
       filter: [],
       hiddenLayers: new Set(),
+      labelStyle: _defaultLabelStyle(),
+      labelMarkers: [],
     };
   }
 }
@@ -230,6 +235,234 @@ function _getGroupAttrValues(gid, field) {
     if (val !== null && val !== undefined && val !== '') values.add(String(val));
   });
   return [...values].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// CARTOGRAPHIC LABELS (QGIS-style per layer)
+// ═══════════════════════════════════════════════════════════════
+function _defaultLabelStyle() {
+  return {
+    enabled: false,
+    field: 'name',
+    fontFamily: 'sans-serif',
+    fontSize: 12,
+    color: '#333333',
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    haloColor: '#ffffff',
+    haloWidth: 2,
+    opacity: 1,
+    offsetX: 0,
+    offsetY: -10,
+  };
+}
+
+function _normalizeLabelStyle(style) {
+  const base = _defaultLabelStyle();
+  const next = Object.assign({}, base, style || {});
+  next.enabled = !!next.enabled;
+  next.field = String(next.field || base.field);
+  next.fontFamily = String(next.fontFamily || base.fontFamily).replace(/[;<>]/g, '');
+  next.fontSize = Math.max(8, Math.min(32, parseInt(next.fontSize, 10) || base.fontSize));
+  next.color = String(next.color || base.color).replace(/[;<>]/g, '');
+  next.fontWeight = next.fontWeight === 'bold' ? 'bold' : 'normal';
+  next.fontStyle = next.fontStyle === 'italic' ? 'italic' : 'normal';
+  next.haloColor = String(next.haloColor || base.haloColor).replace(/[;<>]/g, '');
+  next.haloWidth = Math.max(0, Math.min(10, parseFloat(next.haloWidth) || 0));
+  next.opacity = Math.max(0, Math.min(1, parseFloat(next.opacity)));
+  if (isNaN(next.opacity)) next.opacity = base.opacity;
+  next.offsetX = Math.max(-80, Math.min(80, parseInt(next.offsetX, 10) || 0));
+  next.offsetY = Math.max(-80, Math.min(80, parseInt(next.offsetY, 10) || 0));
+  return next;
+}
+
+function _resolveLabelLayer(layer) {
+  if (layer === null || layer === undefined) return null;
+  if (typeof layer === 'number' || typeof layer === 'string') return _manaGroupMeta[layer] || null;
+  if (layer.allLayers && layer.hiddenLayers) return layer;
+  if (layer._manaGroupId && _manaGroupMeta[layer._manaGroupId]) return _manaGroupMeta[layer._manaGroupId];
+  return layer;
+}
+
+function _labelLayersFor(layer, features) {
+  if (features && Array.isArray(features)) return features;
+  const target = _resolveLabelLayer(layer);
+  if (!target) return [];
+  if (target.allLayers) return target.allLayers.filter(function(l) {
+    if (target.hiddenLayers && target.hiddenLayers.has(l)) return false;
+    return typeof drawnItems === 'undefined' || drawnItems.hasLayer(l);
+  });
+  if (typeof target.eachLayer === 'function') {
+    const out = [];
+    target.eachLayer(function(l) { out.push(l); });
+    return out;
+  }
+  return [target];
+}
+
+function _labelTextForLayer(layer, field) {
+  const props = layer && (layer._manaProperties || (layer.feature && layer.feature.properties) || {});
+  let val = '';
+  if (field === 'name') val = (layer && layer._manaName) || props.name || props.Name || props.NAME || '';
+  else val = props ? props[field] : '';
+  if (val === null || val === undefined) return '';
+  return String(val).trim();
+}
+
+function _flattenLatLngs(latlngs) {
+  const out = [];
+  (function walk(arr) {
+    if (!arr) return;
+    if (arr.lat !== undefined && arr.lng !== undefined) { out.push(arr); return; }
+    if (Array.isArray(arr)) arr.forEach(walk);
+  })(latlngs);
+  return out;
+}
+
+function _midpointForLine(latlngs) {
+  const pts = _flattenLatLngs(latlngs);
+  if (!pts.length) return null;
+  if (pts.length === 1) return pts[0];
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) total += pts[i - 1].distanceTo ? pts[i - 1].distanceTo(pts[i]) : 0;
+  if (!total) return pts[Math.floor(pts.length / 2)];
+  let half = total / 2;
+  for (let i = 1; i < pts.length; i++) {
+    const seg = pts[i - 1].distanceTo(pts[i]);
+    if (half <= seg) {
+      const r = seg ? half / seg : 0;
+      return L.latLng(pts[i - 1].lat + (pts[i].lat - pts[i - 1].lat) * r, pts[i - 1].lng + (pts[i].lng - pts[i - 1].lng) * r);
+    }
+    half -= seg;
+  }
+  return pts[pts.length - 1];
+}
+
+function _centroidForPolygon(latlngs) {
+  const rings = Array.isArray(latlngs && latlngs[0]) ? latlngs : [latlngs];
+  const ring = _flattenLatLngs(rings[0]);
+  if (!ring.length) return null;
+  let area = 0, cx = 0, cy = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const x0 = ring[j].lng, y0 = ring[j].lat;
+    const x1 = ring[i].lng, y1 = ring[i].lat;
+    const a = x0 * y1 - x1 * y0;
+    area += a;
+    cx += (x0 + x1) * a;
+    cy += (y0 + y1) * a;
+  }
+  area *= 0.5;
+  if (Math.abs(area) < 1e-12) {
+    const sum = ring.reduce(function(acc, pt) { acc.lat += pt.lat; acc.lng += pt.lng; return acc; }, { lat: 0, lng: 0 });
+    return L.latLng(sum.lat / ring.length, sum.lng / ring.length);
+  }
+  return L.latLng(cy / (6 * area), cx / (6 * area));
+}
+
+function _labelAnchorForLayer(layer) {
+  if (!layer) return null;
+  if (layer.getLatLng) return layer.getLatLng();
+  if (layer instanceof L.Polygon) return _centroidForPolygon(layer.getLatLngs());
+  if (layer instanceof L.Polyline) return _midpointForLine(layer.getLatLngs());
+  if (layer.getBounds) return layer.getBounds().getCenter();
+  return null;
+}
+
+function _labelShadow(style) {
+  const w = Number(style.haloWidth) || 0;
+  if (!w) return 'none';
+  const c = style.haloColor;
+  return [
+    '-' + w + 'px 0 ' + c,
+    w + 'px 0 ' + c,
+    '0 -' + w + 'px ' + c,
+    '0 ' + w + 'px ' + c,
+    '-' + w + 'px -' + w + 'px ' + c,
+    w + 'px -' + w + 'px ' + c,
+    '-' + w + 'px ' + w + 'px ' + c,
+    w + 'px ' + w + 'px ' + c,
+  ].join(',');
+}
+
+function _labelHtml(text, style) {
+  return '<span class="mana-map-label-text" style="' +
+    'font-family:' + esc(style.fontFamily) + ';' +
+    'font-size:' + style.fontSize + 'px;' +
+    'color:' + esc(style.color) + ';' +
+    'font-weight:' + style.fontWeight + ';' +
+    'font-style:' + style.fontStyle + ';' +
+    'opacity:' + style.opacity + ';' +
+    'text-shadow:' + esc(_labelShadow(style)) + ';' +
+    '">' + esc(text) + '</span>';
+}
+
+function _labelPaneName() {
+  const paneName = 'manaLabelsPane';
+  if (!map.getPane(paneName)) {
+    const pane = map.createPane(paneName);
+    pane.style.zIndex = 650;
+    pane.style.pointerEvents = 'none';
+  }
+  return paneName;
+}
+
+// Draw labels for a layer group (or a single Leaflet layer) using L.divIcon markers.
+function addLabelsToLayer(layer, features, labelStyle) {
+  const target = _resolveLabelLayer(layer);
+  if (!target) return [];
+  const style = _normalizeLabelStyle(labelStyle || target.labelStyle);
+  target.labelStyle = style;
+  removeLabelsFromLayer(target);
+  if (!style.enabled || !style.field) return [];
+
+  const labels = [];
+  _labelLayersFor(target, features).forEach(function(featureLayer) {
+    const text = _labelTextForLayer(featureLayer, style.field);
+    if (!text) return;
+    const anchor = _labelAnchorForLayer(featureLayer);
+    if (!anchor) return;
+    const icon = L.divIcon({
+      className: 'mana-map-label-icon',
+      html: _labelHtml(text, style),
+      iconSize: null,
+      iconAnchor: [-style.offsetX, -style.offsetY],
+    });
+    const marker = L.marker(anchor, { icon: icon, pane: _labelPaneName(), interactive: false, keyboard: false });
+    marker._manaLabelFor = target;
+    marker.addTo(map);
+    labels.push(marker);
+  });
+  target.labelMarkers = labels;
+  return labels;
+}
+
+function removeLabelsFromLayer(layer) {
+  const target = _resolveLabelLayer(layer);
+  if (!target || !target.labelMarkers) return;
+  target.labelMarkers.forEach(function(marker) {
+    if (map.hasLayer(marker)) map.removeLayer(marker);
+  });
+  target.labelMarkers = [];
+}
+
+function updateLabelStyle(layer, features, newStyle) {
+  const target = _resolveLabelLayer(layer);
+  if (!target) return;
+  target.labelStyle = _normalizeLabelStyle(Object.assign({}, target.labelStyle || {}, newStyle || {}));
+  addLabelsToLayer(target, features, target.labelStyle);
+  if (typeof saveState === 'function') saveState();
+}
+
+function refreshLabelsForLayer(layer) {
+  const target = _resolveLabelLayer(layer);
+  if (!target || !target.labelStyle) return;
+  if (target.labelStyle.enabled) addLabelsToLayer(target, null, target.labelStyle);
+  else removeLabelsFromLayer(target);
+}
+
+function refreshAllLabels() {
+  for (const gid in _manaGroupMeta) refreshLabelsForLayer(_manaGroupMeta[gid]);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -289,7 +522,7 @@ function applyGroupFilter(gid) {
   });
   meta.hiddenLayers.clear();
 
-  if (!rules.length) { stats(); return; }
+  if (!rules.length) { refreshLabelsForLayer(gid); stats(); return; }
 
   // Apply filter: hide non-matching
   let matched = 0;
@@ -304,6 +537,7 @@ function applyGroupFilter(gid) {
     }
   });
 
+  refreshLabelsForLayer(gid);
   stats();
 }
 
@@ -316,6 +550,7 @@ function clearGroupFilter(gid) {
   });
   meta.hiddenLayers.clear();
   delete _filterOpen[gid];
+  refreshLabelsForLayer(gid);
   stats();
 }
 
@@ -448,6 +683,9 @@ function getEnrichedGeoJSON() {
     if (l.options && typeof l.options.opacity !== 'undefined') f.properties._manaOpacity = l.options.opacity;
     if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].geometryType) {
       f.properties._manaGeometryType = _manaGroupMeta[l._manaGroupId].geometryType;
+    }
+    if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].labelStyle) {
+      f.properties._manaLabelStyle = _normalizeLabelStyle(_manaGroupMeta[l._manaGroupId].labelStyle);
     }
     features.push(f);
   });
@@ -815,6 +1053,7 @@ const ICON = {
   geomLine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="2" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="2" fill="currentColor" stroke="none"/></svg>',
   geomPolygon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,19 3,19"/></svg>',
   table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>',
+  label: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>',
   cursor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>',
 };
 
@@ -894,6 +1133,9 @@ function renderLayers() {
     const filterBadge = g.hasFilter
       ? '<span class="filter-active-badge">' + g.visibleCount + '/' + g.totalCount + '</span>'
       : '';
+    const labelBadge = meta.labelStyle && meta.labelStyle.enabled
+      ? '<span class="filter-active-badge label-active-badge">' + t('label_badge') + '</span>'
+      : '';
 
     var orderIdx = _groupOrder.indexOf(gid);
     html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
@@ -908,7 +1150,7 @@ function renderLayers() {
                    : meta.geometryType === 'polygon' ? ICON.geomPolygon : '';
     html += '  <span class="layer-geom-icon">' + _gtIcon + '</span>';
     html += '  <span class="layer-name">' + esc(g.name) + '</span>';
-    html += '  ' + filterBadge;
+    html += '  ' + filterBadge + labelBadge;
     html += '  <span class="layer-group-badge">' + g.totalCount + '</span>';
     html += '  <span class="' + chevronCls + '" onclick="event.stopPropagation();toggleLayerGroup(' + gid + ')">' + ICON.chevron + '</span>';
     html += '</div>';
@@ -948,6 +1190,7 @@ function renderLayers() {
     // ── Actions row
     html += '<div class="layer-group-actions">';
     html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('panel_style_title') + '">' + ICON.palette + '</button>';
+    html += '  <button class="layer-group-action-btn' + (meta.labelStyle && meta.labelStyle.enabled ? ' has-labels' : '') + '" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('label_section') + '">' + ICON.label + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="' + t('filter_title') + '">' + ICON.filter + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="openAttrTable(' + gid + ')" title="Tabla de atributos">' + ICON.table + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="' + t('lctx_zoom') + '">' + ICON.search + '</button>';
@@ -1063,6 +1306,7 @@ async function deleteGroup(gid) {
   if (!ok) return;
   const meta = _manaGroupMeta[gid];
   if (meta) {
+    removeLabelsFromLayer(meta);
     meta.allLayers.forEach(l => {
       if (drawnItems.hasLayer(l)) drawnItems.removeLayer(l);
     });
@@ -1298,6 +1542,7 @@ function attrTableSaveCell(el) {
     _refreshGroupAttributeSchema(gid);
   }
 
+  refreshLabelsForLayer(gid);
   if (typeof saveState === 'function') saveState();
 }
 
