@@ -4,6 +4,7 @@ const MANA_PRECACHED_URLS = [
   '/',
   '/index.html',
   '/map/',
+  '/map/?source=pwa',
   '/map/index.html',
   '/styles.css',
   '/auth-gallery.css',
@@ -44,7 +45,11 @@ const MANA_PRECACHED_URLS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(MANA_CACHE_VERSION)
-      .then((cache) => cache.addAll(MANA_PRECACHED_URLS))
+      .then((cache) => Promise.all(
+        MANA_PRECACHED_URLS.map((url) => cache.add(url).catch((error) => {
+          console.warn('Maña Maps precache skipped:', url, error);
+        }))
+      ))
       .then(() => self.skipWaiting())
   );
 });

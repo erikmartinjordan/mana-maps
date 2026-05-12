@@ -32,8 +32,10 @@ test('PWA manifest exposes installable app metadata', async ({ request }) => {
   expect(manifest.start_url).toBe('/map/?source=pwa');
   expect(manifest.display).toBe('standalone');
   expect(manifest.icons).toEqual(expect.arrayContaining([
-    expect.objectContaining({ src: '/icons/icon.svg', sizes: 'any', type: 'image/svg+xml' }),
-    expect.objectContaining({ src: '/icons/maskable-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' })
+    expect.objectContaining({ src: '/icons/icon.svg', sizes: '192x192', type: 'image/svg+xml' }),
+    expect.objectContaining({ src: '/icons/icon.svg', sizes: '512x512', type: 'image/svg+xml' }),
+    expect.objectContaining({ src: '/icons/maskable-icon.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'maskable' }),
+    expect.objectContaining({ src: '/icons/maskable-icon.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' })
   ]));
 });
 
