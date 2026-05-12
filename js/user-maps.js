@@ -439,6 +439,7 @@
   const PREVIEW_MAX_FEATURES = 96;
   const PREVIEW_MAX_COORDS_PER_GEOMETRY = 40;
   const PREVIEW_GRID_SIZE = 10;
+  const PREVIEW_DENSITY_GRID_SIZE = 28;
 
   function _roundPreviewNumber(value) {
     var num = Number(value);
@@ -583,6 +584,27 @@
     return selected.sort(function(a, b) { return a - b; });
   }
 
+  function _buildDensityCells(features, bbox) {
+    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
+    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
+    if (!Array.isArray(features) || !isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return [];
+    var spanX = Math.max(maxX - minX, 1e-9);
+    var spanY = Math.max(maxY - minY, 1e-9);
+    var cells = {};
+    features.forEach(function(feature) {
+      var center = _featureCenter(feature);
+      if (!center) return;
+      var x = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_DENSITY_GRID_SIZE)));
+      var y = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((maxY - center[1]) / spanY) * PREVIEW_DENSITY_GRID_SIZE)));
+      var key = x + ':' + y;
+      var props = feature && feature.properties ? feature.properties : {};
+      var color = props._manaColor || props.color || '#0ea5e9';
+      if (!cells[key]) cells[key] = { x: x, y: y, n: 0, c: color };
+      cells[key].n += 1;
+    });
+    return Object.keys(cells).map(function(key) { return cells[key]; });
+  }
+
   function _encodePreviewGeometry(geometry) {
     return _simplifyPreviewGeometry(geometry);
   }
@@ -605,7 +627,9 @@
     });
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
     var bbox = [minX, minY, maxX, maxY];
-    var entries = _previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
+    var isLargePreview = geo.features.length > PREVIEW_MAX_FEATURES;
+    var cells = isLargePreview ? _buildDensityCells(geo.features, bbox) : [];
+    var entries = isLargePreview ? [] : _previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
       var feature = geo.features[index];
       var props = feature && feature.properties ? feature.properties : {};
       return {
@@ -613,8 +637,11 @@
         color: props._manaColor || props.color || '#0ea5e9'
       };
     }).filter(function(entry) { return !!entry.geometry; });
-    return entries.length ? {
+    return (cells.length || entries.length) ? {
       bbox: bbox,
+      kind: cells.length ? 'density-grid' : 'geometry',
+      gridSize: cells.length ? PREVIEW_DENSITY_GRID_SIZE : null,
+      cells: cells.length ? cells : null,
       features: entries
     } : null;
   }
