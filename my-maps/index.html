@@ -304,7 +304,7 @@
           '<div class="map-card-title">' + escHtml(m.title) + '</div>' +
           '<div class="map-card-meta">' + badge + '<span>' + m.featureCount + ' elementos</span><span>' + date + '</span></div>' +
           '<div class="map-card-actions">' +
-            '<a class="btn" href="/map/?load=' + encodeURIComponent(m.id) + '">Editar</a>' +
+            '<a class="btn" href="/map/index.html?load=' + encodeURIComponent(m.id) + '">Editar</a>' +
             (m.public
               ? '<button class="btn" onclick="togglePublish(\'' + m.id + '\', false)">Despublicar</button>'
               : '<button class="btn" onclick="togglePublish(\'' + m.id + '\', true)">Publicar</button>') +

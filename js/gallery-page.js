@@ -135,7 +135,7 @@
       var mode = item.shareMode || 'view';
       return '' +
         '<div class="card">' +
-          '<a class="card-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
+          '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
             '<div class="thumb">' + thumb + '</div>' +
             '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +
