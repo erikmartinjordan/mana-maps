@@ -202,7 +202,7 @@
 
   function buildGalleryURL(slug, shareMode) {
     var mode = shareMode === 'edit' ? 'edit' : 'view';
-    return window.location.origin + '/map/?gallery=' + encodeURIComponent(slug) + '&map=' + encodeURIComponent(slug) + '&room=' + encodeURIComponent(slug) + '&mode=' + mode;
+    return window.location.origin + '/map/index.html?gallery=' + encodeURIComponent(slug) + '&map=' + encodeURIComponent(slug) + '&room=' + encodeURIComponent(slug) + '&mode=' + mode;
   }
 
   const PREVIEW_MAX_FEATURES = 96;
