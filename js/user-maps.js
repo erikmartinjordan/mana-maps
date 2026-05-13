@@ -402,6 +402,20 @@
     return result;
   }
 
+
+  function isExpectedCounterSyncMiss(err) {
+    var code = err && (err.code || err.name || err.message || '');
+    return code === 'permission-denied'
+      || code === 'not-found'
+      || String(code).indexOf('Missing or insufficient permissions') !== -1
+      || String(code).indexOf('No document to update') !== -1;
+  }
+
+  function logCounterSyncWarning(label, err) {
+    if (isExpectedCounterSyncMiss(err)) return;
+    console.warn(label, err);
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // LIKE MAP (increment likes counter on public index + user doc)
   // ═══════════════════════════════════════════════════════════════
@@ -427,7 +441,7 @@
       db.collection(USERS_COL).doc(authorHandle)
         .collection('maps').doc(mapId)
         .update({ likes: increment })
-        .catch(function(e) { console.warn('private like counter sync failed:', e); });
+        .catch(function(e) { logCounterSyncWarning('private like counter sync failed:', e); });
     }
   }
 
@@ -448,7 +462,7 @@
       db.collection(USERS_COL).doc(authorHandle)
         .collection('maps').doc(mapId)
         .update({ views: increment })
-        .catch(function(e) { console.warn('private view counter sync failed:', e); });
+        .catch(function(e) { logCounterSyncWarning('private view counter sync failed:', e); });
     }
   }
 
