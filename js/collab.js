@@ -92,16 +92,16 @@
         resolve(auth.currentUser || null);
       }, timeoutMs || 5000);
       var unsubscribe = auth.onAuthStateChanged(function(user) {
-        if (settled || !user) return;
+        if (settled) return;
         settled = true;
         clearTimeout(timer);
-        unsubscribe();
-        resolve(user);
+        if (typeof unsubscribe === 'function') unsubscribe();
+        resolve(user || null);
       }, function() {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
-        unsubscribe();
+        if (typeof unsubscribe === 'function') unsubscribe();
         resolve(null);
       });
     });
@@ -110,18 +110,28 @@
   async function ensurePresenceUid() {
     try {
       if (firebase && firebase.auth && typeof firebase.auth === 'function') {
-        if (firebase.auth().currentUser && firebase.auth().currentUser.uid) {
-          PRESENCE_USER_ID = firebase.auth().currentUser.uid;
+        var auth = firebase.auth();
+        if (auth.currentUser && auth.currentUser.uid) {
+          PRESENCE_USER_ID = auth.currentUser.uid;
           return PRESENCE_USER_ID;
         }
-        var authUser = await waitForAuthUser(6000);
+        var authUser = await waitForAuthUser(2500);
         if (authUser && authUser.uid) {
           PRESENCE_USER_ID = authUser.uid;
           return PRESENCE_USER_ID;
         }
+        if (typeof auth.signInAnonymously === 'function') {
+          authUser = await auth.signInAnonymously().then(function(result) {
+            return (result && result.user) || auth.currentUser || null;
+          });
+          if (authUser && authUser.uid) {
+            PRESENCE_USER_ID = authUser.uid;
+            return PRESENCE_USER_ID;
+          }
+        }
       }
     } catch (e) {
-      console.warn('[collab] ensurePresenceUid fallback', e);
+      console.warn('[collab] anonymous presence sign-in unavailable', e);
     }
     return null;
   }
