@@ -198,7 +198,7 @@
       var likes = mapLikes(item);
       return '' +
         '<article class="public-map-card">' +
-          '<a class="public-map-link" href="/map/?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(item.shareMode || 'view') + '">' +
+          '<a class="public-map-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(item.shareMode || 'view') + '">' +
             '<div class="thumb">' + (thumb || '<span class="public-map-empty-thumb">Vista previa no disponible</span>') + '</div>' +
             '<h3>' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +

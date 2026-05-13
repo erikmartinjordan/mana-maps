@@ -72,7 +72,7 @@
     const redirectToMap = () => {
       const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isPWA && !window.location.pathname.includes('/map/')) {
-        window.location.replace('/map/?source=pwa');
+        window.location.replace('/map/index.html?source=pwa');
         return true;
       }
       return false;
