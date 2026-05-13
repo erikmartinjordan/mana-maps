@@ -314,7 +314,7 @@
       thumbnailUrl: data.thumbnailUrl || '',
       mapPreview: _buildMapPreview(publishGeo) || data.mapPreview,
       geojsonText: publishGeo ? JSON.stringify(publishGeo) : '',
-      shareUrl: window.location.origin + '/map/?gallery=' + encodeURIComponent(mapId) + '&map=' + encodeURIComponent(mapId) + '&room=' + encodeURIComponent(mapId) + '&mode=view',
+      shareUrl: window.location.origin + '/map/index.html?gallery=' + encodeURIComponent(mapId) + '&map=' + encodeURIComponent(mapId) + '&room=' + encodeURIComponent(mapId) + '&mode=view',
       shareMode: 'view',
       allowPublicEdit: false,
       createdAt: data.createdAt || firebase.firestore.FieldValue.serverTimestamp(),

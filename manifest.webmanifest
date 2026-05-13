@@ -3,7 +3,7 @@
   "name": "Maña Maps",
   "short_name": "Maña",
   "display": "standalone",
-  "start_url": "/map/?source=pwa",
+  "start_url": "/map/index.html?source=pwa",
   "scope": "/",
   "theme_color": "transparent",
   "background_color": "transparent",
