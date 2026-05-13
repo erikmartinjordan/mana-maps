@@ -14,7 +14,8 @@
   var REMOTE_CURSOR_MARKERS = {};
   var REMOTE_CURSOR_LAYER = null;
   var CLIENT_ID = sessionStorage.getItem(APP_PREFIX + 'client-id') || Math.random().toString(36).slice(2, 10);
-  var PRESENCE_USER_ID = CLIENT_ID;
+  var GUEST_PRESENCE_ID = 'guest-' + CLIENT_ID;
+  var PRESENCE_USER_ID = GUEST_PRESENCE_ID;
   sessionStorage.setItem(APP_PREFIX + 'client-id', CLIENT_ID);
 
   var userName = localStorage.getItem(APP_PREFIX + 'user-name');
@@ -114,7 +115,7 @@
           PRESENCE_USER_ID = firebase.auth().currentUser.uid;
           return PRESENCE_USER_ID;
         }
-        var authUser = await waitForAuthUser(6000);
+        var authUser = await waitForAuthUser(1500);
         if (authUser && authUser.uid) {
           PRESENCE_USER_ID = authUser.uid;
           return PRESENCE_USER_ID;
@@ -123,7 +124,8 @@
     } catch (e) {
       console.warn('[collab] ensurePresenceUid fallback', e);
     }
-    return null;
+    PRESENCE_USER_ID = GUEST_PRESENCE_ID;
+    return PRESENCE_USER_ID;
   }
 
   function getDeterministicColor(uid) {
@@ -139,6 +141,32 @@
     if (!safe) return 'U';
     var parts = safe.split(/\s+/).slice(0, 2);
     return parts.map(function(p) { return p.charAt(0).toUpperCase(); }).join('') || 'U';
+  }
+
+  function getPresenceProfile() {
+    var profile = window.manaAuth && typeof window.manaAuth.getProfile === 'function' ? window.manaAuth.getProfile() : null;
+    var user = window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function' ? window.manaAuth.getCurrentUser() : null;
+    if (!user && typeof firebase !== 'undefined' && firebase.auth && typeof firebase.auth === 'function') user = firebase.auth().currentUser;
+    var displayName = (profile && profile.displayName) || (user && user.displayName) || userName;
+    var avatarUrl = (profile && profile.avatarUrl) || (user && user.photoURL) || '';
+    var uid = PRESENCE_USER_ID || (user && user.uid) || GUEST_PRESENCE_ID;
+    return {
+      uid: uid,
+      displayName: displayName,
+      name: displayName,
+      avatarUrl: avatarUrl,
+      color: getDeterministicColor(uid)
+    };
+  }
+
+  function renderAvatarFace(u, className) {
+    var bg = u.color || getDeterministicColor(u.uid || u.clientId);
+    var name = u.displayName || u.name || 'User';
+    var avatarUrl = u.avatarUrl || u.photoURL || '';
+    if (avatarUrl) {
+      return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '"><img src="' + escapeHtml(avatarUrl) + '" alt="" loading="lazy"></span>';
+    }
+    return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '">' + getInitials(name) + '</span>';
   }
 
   function getPresenceEl() {
@@ -178,10 +206,7 @@
     }
     el.style.display = 'inline-flex';
     avatars.innerHTML = users.slice(0, 8).map(function(u) {
-      var bg = u.color || getDeterministicColor(u.uid || u.clientId);
-      var initial = getInitials(u.displayName || u.name || 'User');
-      var title = u.displayName || u.name || 'User';
-      return '<span class="presence-avatar" style="background:' + bg + '" title="' + title + '">' + initial + '</span>';
+      return renderAvatarFace(u, 'presence-avatar');
     }).join('');
     count.textContent = users.length;
   }
@@ -209,7 +234,7 @@
       var label = escapeHtml(u.displayName || u.name || 'User');
       var activity = escapeHtml(u.activity || '');
       var markerHtml = '<div class="collab-live-cursor" style="--cursor-color:' + (u.color || '#0ea5e9') + '">' +
-        '<div class="collab-live-cursor-pointer"></div>' +
+        renderAvatarFace(u, 'collab-live-cursor-face') +
         '<div class="collab-live-cursor-label">' + label + (activity ? '<span>' + activity + '</span>' : '') + '</div>' +
       '</div>';
 
@@ -246,12 +271,14 @@
     currentActivity = activity || '';
     if (!window._manaCollabPresenceRef) return;
     var presenceUid = PRESENCE_USER_ID;
+    var profile = getPresenceProfile();
     window._manaCollabPresenceRef.set({
       // Firestore write: heartbeat for this viewer in maps/{mapId}/presence/{userId}.
       uid: presenceUid,
-      displayName: userName,
-      color: getDeterministicColor(presenceUid),
-      name: userName,
+      displayName: profile.displayName,
+      avatarUrl: profile.avatarUrl,
+      color: profile.color,
+      name: profile.name,
       activity: currentActivity,
       clientId: CLIENT_ID,
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
@@ -265,8 +292,17 @@
 
   function updatePresenceCursor(latlng) {
     if (!window._manaCollabPresenceRef) return;
+    var profile = getPresenceProfile();
     var payload = {
+      uid: PRESENCE_USER_ID,
+      displayName: profile.displayName,
+      avatarUrl: profile.avatarUrl,
+      color: profile.color,
+      name: profile.name,
+      clientId: CLIENT_ID,
       cursor: latlng ? { lat: latlng.lat, lng: latlng.lng, updatedAtMs: Date.now() } : null,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastSeenMs: Date.now(),
       updatedAtMs: Date.now()
     };
@@ -428,8 +464,6 @@
     var db = ensureFirebase();
     if (!db) return;
     var presenceUid = await ensurePresenceUid();
-    var canUsePresence = !!presenceUid;
-    if (!canUsePresence) console.warn('[collab] no authenticated user; continuing map sync without presence');
     var params = parseHashParams();
     var activeMapId = params.map || new URLSearchParams(window.location.search || '').get('gallery') || params.room;
     if (!activeMapId) return;
@@ -438,43 +472,40 @@
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
     var mapRef = db.collection('maps').doc(activeMapId);
     window._manaCollabMapRef = mapRef;
-    window._manaCollabPresenceRef = canUsePresence ? mapRef.collection('presence').doc(PRESENCE_USER_ID) : null;
+    window._manaCollabPresenceRef = mapRef.collection('presence').doc(presenceUid);
 
-    if (canUsePresence) {
-      var presenceCol = mapRef.collection('presence');
-      if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
-      // Firestore read: subscribe to active viewers/editors for this shared map.
-      PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
-        var now = Date.now();
-        var users = [];
-        snap.forEach(function(doc) {
-          var d = doc.data() || {};
-          var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
-          if (!lastSeenMs || now - lastSeenMs > 60000) return;
-          users.push({
-            uid: d.uid || doc.id,
-            displayName: d.displayName || d.name || 'User',
-            color: d.color || getDeterministicColor(d.uid || doc.id),
-            activity: d.activity || '',
-            cursor: d.cursor || null,
-            lastSeenMs: lastSeenMs
-          });
+    var presenceCol = mapRef.collection('presence');
+    if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
+    // Firestore read: subscribe to active viewers/editors for this shared map.
+    PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
+      var now = Date.now();
+      var users = [];
+      snap.forEach(function(doc) {
+        var d = doc.data() || {};
+        var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
+        if (!lastSeenMs || now - lastSeenMs > 60000) return;
+        users.push({
+          uid: d.uid || doc.id,
+          displayName: d.displayName || d.name || 'User',
+          color: d.color || getDeterministicColor(d.uid || doc.id),
+          activity: d.activity || '',
+          avatarUrl: d.avatarUrl || d.photoURL || '',
+          cursor: d.cursor || null,
+          lastSeenMs: lastSeenMs
         });
-        renderPresence(users);
-        renderRemoteCursors(users);
-      }, function(err) {
-        console.warn('[collab] presence subscribe failed; disabling presence', err);
-        renderPresence([]);
       });
-    }
+      renderPresence(users);
+      renderRemoteCursors(users);
+    }, function(err) {
+      console.warn('[collab] presence subscribe failed; disabling presence', err);
+      renderPresence([]);
+    });
 
-    if (canUsePresence) {
-      updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
-      if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
-      HEARTBEAT_TIMER = setInterval(function() {
-        updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
-      }, 30000);
-    }
+    updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
+    if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
+    HEARTBEAT_TIMER = setInterval(function() {
+      updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
+    }, 30000);
 
     window.addEventListener('beforeunload', function() {
       if (window._manaCollabPresenceRef) {

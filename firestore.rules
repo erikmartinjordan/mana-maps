@@ -16,6 +16,26 @@ service cloud.firestore {
         && !('email' in request.resource.data);
     }
 
+    function guestPresenceId(userId) {
+      return userId.matches('guest-[a-z0-9]{8,32}');
+    }
+
+    function canWritePresence(userId) {
+      return request.resource.data.uid == userId
+        && (
+          (signedIn() && userId == request.auth.uid)
+          || guestPresenceId(userId)
+        );
+    }
+
+    function canDeletePresence(userId) {
+      return resource.data.uid == userId
+        && (
+          (signedIn() && userId == request.auth.uid)
+          || guestPresenceId(userId)
+        );
+    }
+
     function publicMapExists(mapId) {
       return exists(/databases/$(database)/documents/maps/$(mapId));
     }
@@ -133,9 +153,8 @@ service cloud.firestore {
 
       match /presence/{userId} {
         allow read: if true;
-        allow create, update, delete: if signedIn()
-          && request.auth.uid == userId
-          && request.resource.data.uid == request.auth.uid;
+        allow create, update: if canWritePresence(userId);
+        allow delete: if canDeletePresence(userId);
       }
 
       match /geoChunks/{chunkId} {
