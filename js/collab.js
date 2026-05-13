@@ -15,6 +15,7 @@
   var REMOTE_CURSOR_LAYER = null;
   var CLIENT_ID = sessionStorage.getItem(APP_PREFIX + 'client-id') || Math.random().toString(36).slice(2, 10);
   var PRESENCE_USER_ID = CLIENT_ID;
+  var PRESENCE_IS_GUEST = false;
   sessionStorage.setItem(APP_PREFIX + 'client-id', CLIENT_ID);
 
   var userName = localStorage.getItem(APP_PREFIX + 'user-name');
@@ -92,16 +93,16 @@
         resolve(auth.currentUser || null);
       }, timeoutMs || 5000);
       var unsubscribe = auth.onAuthStateChanged(function(user) {
-        if (settled || !user) return;
+        if (settled) return;
         settled = true;
         clearTimeout(timer);
-        unsubscribe();
-        resolve(user);
+        if (typeof unsubscribe === 'function') unsubscribe();
+        resolve(user || null);
       }, function() {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
-        unsubscribe();
+        if (typeof unsubscribe === 'function') unsubscribe();
         resolve(null);
       });
     });
@@ -110,20 +111,25 @@
   async function ensurePresenceUid() {
     try {
       if (firebase && firebase.auth && typeof firebase.auth === 'function') {
-        if (firebase.auth().currentUser && firebase.auth().currentUser.uid) {
-          PRESENCE_USER_ID = firebase.auth().currentUser.uid;
+        var auth = firebase.auth();
+        if (auth.currentUser && auth.currentUser.uid) {
+          PRESENCE_IS_GUEST = false;
+          PRESENCE_USER_ID = auth.currentUser.uid;
           return PRESENCE_USER_ID;
         }
-        var authUser = await waitForAuthUser(6000);
+        var authUser = await waitForAuthUser(1500);
         if (authUser && authUser.uid) {
+          PRESENCE_IS_GUEST = false;
           PRESENCE_USER_ID = authUser.uid;
           return PRESENCE_USER_ID;
         }
       }
     } catch (e) {
-      console.warn('[collab] ensurePresenceUid fallback', e);
+      console.warn('[collab] auth state unavailable; using guest presence', e);
     }
-    return null;
+    PRESENCE_IS_GUEST = true;
+    PRESENCE_USER_ID = 'guest-' + CLIENT_ID;
+    return PRESENCE_USER_ID;
   }
 
   function getDeterministicColor(uid) {
@@ -253,7 +259,8 @@
       color: getDeterministicColor(presenceUid),
       name: userName,
       activity: currentActivity,
-      clientId: CLIENT_ID,
+      clientId: presenceUid,
+      guestPresence: PRESENCE_IS_GUEST,
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAtMs: Date.now(),

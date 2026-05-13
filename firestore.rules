@@ -59,6 +59,65 @@ service cloud.firestore {
         );
     }
 
+
+    function isGuestPresenceId(userId) {
+      return userId is string
+        && userId.matches('guest-[A-Za-z0-9]{8}');
+    }
+
+    function validPresenceCursor() {
+      return !('cursor' in request.resource.data)
+        || request.resource.data.cursor == null
+        || (
+          request.resource.data.cursor.keys().hasOnly(['lat', 'lng', 'updatedAtMs'])
+          && request.resource.data.cursor.lat is number
+          && request.resource.data.cursor.lng is number
+          && request.resource.data.cursor.updatedAtMs is number
+        );
+    }
+
+    function validPresencePayload(userId) {
+      return request.resource.data.keys().hasOnly([
+          'uid', 'displayName', 'color', 'name', 'activity', 'clientId',
+          'guestPresence', 'cursor', 'lastSeen', 'updatedAt', 'updatedAtMs', 'lastSeenMs'
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.displayName is string
+        && request.resource.data.name is string
+        && request.resource.data.color is string
+        && request.resource.data.activity is string
+        && request.resource.data.clientId is string
+        && request.resource.data.guestPresence is bool
+        && request.resource.data.updatedAtMs is number
+        && request.resource.data.lastSeenMs is number
+        && validPresenceCursor();
+    }
+
+    function canWriteOwnPresence(mapId, userId) {
+      return validPresencePayload(userId)
+        && (
+          (signedIn() && request.auth.uid == userId)
+          || (!signedIn()
+            && isGuestPresenceId(userId)
+            && request.resource.data.guestPresence == true
+            && request.resource.data.clientId == userId
+            && publicMapExists(mapId)
+            && publicMapData(mapId).shareMode == 'edit'
+            && publicMapData(mapId).allowPublicEdit == true)
+        );
+    }
+
+    function canDeleteOwnPresence(mapId, userId) {
+      return (signedIn() && request.auth.uid == userId && resource.data.uid == request.auth.uid)
+        || (!signedIn()
+          && isGuestPresenceId(userId)
+          && resource.data.guestPresence == true
+          && resource.data.clientId == userId
+          && publicMapExists(mapId)
+          && publicMapData(mapId).shareMode == 'edit'
+          && publicMapData(mapId).allowPublicEdit == true);
+    }
+
     match /events/{doc} {
       allow read, write: if true;
     }
@@ -133,9 +192,8 @@ service cloud.firestore {
 
       match /presence/{userId} {
         allow read: if true;
-        allow create, update, delete: if signedIn()
-          && request.auth.uid == userId
-          && request.resource.data.uid == request.auth.uid;
+        allow create, update: if canWriteOwnPresence(mapId, userId);
+        allow delete: if canDeleteOwnPresence(mapId, userId);
       }
 
       match /geoChunks/{chunkId} {

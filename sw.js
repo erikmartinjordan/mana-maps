@@ -53,17 +53,19 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => Promise.allSettled(PRECACHE_URLS.map((url) => {
         const absoluteUrl = new URL(url, self.location.origin);
+        if (!shouldCacheUrl(absoluteUrl)) return Promise.resolve();
+
         const request = new Request(absoluteUrl.href, {
           cache: 'reload',
-          mode: absoluteUrl.origin === self.location.origin ? 'same-origin' : 'no-cors'
+          mode: 'same-origin'
         });
 
         return fetch(request).then((response) => {
-          if (!response || (!response.ok && response.type !== 'opaque')) {
+          if (!response || !response.ok) {
             throw new Error(`Unable to precache ${absoluteUrl.href}`);
           }
 
-          return cache.put(absoluteUrl.href, response);
+          return safeCachePut(cache, absoluteUrl.href, response);
         });
       })))
       .then(() => self.skipWaiting())
@@ -105,8 +107,8 @@ function cacheFirst(request) {
 function networkFirst(request, isNavigation) {
   return caches.open(CACHE_NAME).then((cache) => fetch(request)
     .then((response) => {
-      if (response && (response.ok || response.type === 'opaque')) {
-        cache.put(request, response.clone());
+      if (response && response.ok && shouldCacheUrl(new URL(request.url))) {
+        safeCachePut(cache, request, response.clone());
       }
 
       return response;
@@ -114,4 +116,18 @@ function networkFirst(request, isNavigation) {
     .catch(() => caches.match(request)
       .then((cachedResponse) => cachedResponse || (isNavigation && caches.match('/map/index.html')))
       .then((response) => response || Response.error())));
+}
+
+function shouldCacheUrl(url) {
+  return url.origin === self.location.origin;
+}
+
+function safeCachePut(cache, request, response) {
+  return cache.put(request, response).catch((err) => {
+    if (err && (err.name === 'QuotaExceededError' || String(err.message || '').includes('Quota exceeded'))) {
+      console.warn('[sw] Cache quota exceeded; skipping', typeof request === 'string' ? request : request.url);
+      return undefined;
+    }
+    throw err;
+  });
 }
