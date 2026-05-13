@@ -2719,27 +2719,24 @@ select.ai-input{cursor:pointer;appearance:auto;}
 /* ── Shared map presence avatars ("bolitas") ── */
 .presence-avatars{
   display:none;
+  position:absolute;
+  right:8px;
+  bottom:calc(90px + env(safe-area-inset-bottom));
+  z-index:990;
   align-items:center;
   gap:8px;
   border:1px solid rgba(14,165,233,.25);
-  background:rgba(14,165,233,.08);
+  background:rgba(255,255,255,.92);
   color:#0b5d7a;
   border-radius:999px;
   padding:6px 10px;
-  margin-right:8px;
   min-height:30px;
   max-width:160px;
   overflow:hidden;
-}
-@media (min-width:769px){
-  .presence-avatars{
-    position:fixed;
-    top:56px;
-    right:16px;
-    margin-right:0;
-    z-index:990;
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-  }
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  pointer-events:auto;
 }
 .presence-avatars-list{
   display:flex;
@@ -2772,7 +2769,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 }
 [data-theme="dark"] .presence-avatars{
   border-color:rgba(110,231,255,.22);
-  background:rgba(14,165,233,.14);
+  background:rgba(15,23,42,.88);
   color:#bae6fd;
 }
 
@@ -2786,7 +2783,23 @@ select.ai-input{cursor:pointer;appearance:auto;}
   align-items:flex-start;
   gap:6px;
   pointer-events:none;
-  transform:translate(-14px,-38px);
+  transform:translate(-3px,-3px);
+}
+.collab-live-cursor-pointer{
+  width:24px;
+  height:24px;
+  flex:0 0 auto;
+  color:var(--cursor-color,#0ea5e9);
+  filter:drop-shadow(0 2px 3px rgba(2,8,23,.28));
+}
+.collab-live-cursor-pointer svg{
+  width:100%;
+  height:100%;
+  display:block;
+  stroke:#fff;
+  stroke-width:1.7px;
+  paint-order:stroke fill;
+  fill:currentColor;
 }
 .collab-live-cursor-face{
   width:34px;

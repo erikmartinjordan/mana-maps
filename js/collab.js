@@ -13,6 +13,7 @@
   var ROOM_ID = null;
   var REMOTE_CURSOR_MARKERS = {};
   var REMOTE_CURSOR_LAYER = null;
+  var ACTIVE_MAP_ID = null;
   var CLIENT_ID = sessionStorage.getItem(APP_PREFIX + 'client-id') || Math.random().toString(36).slice(2, 10);
   var GUEST_PRESENCE_ID = 'guest-' + CLIENT_ID;
   var PRESENCE_USER_ID = GUEST_PRESENCE_ID;
@@ -164,7 +165,7 @@
     var name = u.displayName || u.name || 'User';
     var avatarUrl = u.avatarUrl || u.photoURL || '';
     if (avatarUrl) {
-      return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '"><img src="' + escapeHtml(avatarUrl) + '" alt="" loading="lazy"></span>';
+      return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '"><img src="' + escapeHtml(avatarUrl) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>';
     }
     return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '">' + getInitials(name) + '</span>';
   }
@@ -172,14 +173,15 @@
   function getPresenceEl() {
     var el = document.getElementById('presence-avatars');
     if (el) return el;
-    var topbarRight = document.querySelector('#topbar .topbar-right');
-    if (!topbarRight) return null;
+    var host = document.getElementById('map-wrap') || document.querySelector('#topbar .topbar-right');
+    if (!host) return null;
     el = document.createElement('div');
     el.id = 'presence-avatars';
     el.className = 'presence-avatars';
     el.setAttribute('aria-label', tCollab('Usuarios en línea', 'Users online'));
     el.innerHTML = '<div class="presence-avatars-list"></div><span class="presence-avatars-count"></span>';
-    topbarRight.insertBefore(el, topbarRight.firstChild);
+    if (host.id === 'map-wrap') host.appendChild(el);
+    else host.insertBefore(el, host.firstChild);
     return el;
   }
 
@@ -234,6 +236,7 @@
       var label = escapeHtml(u.displayName || u.name || 'User');
       var activity = escapeHtml(u.activity || '');
       var markerHtml = '<div class="collab-live-cursor" style="--cursor-color:' + (u.color || '#0ea5e9') + '">' +
+        '<div class="collab-live-cursor-pointer" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 2l14 13.2-7.1 1.1-3.4 6.2L4 2z"/></svg></div>' +
         renderAvatarFace(u, 'collab-live-cursor-face') +
         '<div class="collab-live-cursor-label">' + label + (activity ? '<span>' + activity + '</span>' : '') + '</div>' +
       '</div>';
@@ -244,8 +247,8 @@
           icon: L.divIcon({
             className: 'collab-live-cursor-marker',
             html: markerHtml,
-            iconSize: [210, 42],
-            iconAnchor: [4, 4]
+            iconSize: [230, 48],
+            iconAnchor: [3, 3]
           })
         }).addTo(layer);
       } else {
@@ -253,8 +256,8 @@
         REMOTE_CURSOR_MARKERS[u.uid].setIcon(L.divIcon({
           className: 'collab-live-cursor-marker',
           html: markerHtml,
-          iconSize: [210, 42],
-          iconAnchor: [4, 4]
+          iconSize: [230, 48],
+          iconAnchor: [3, 3]
         }));
       }
     });
@@ -288,6 +291,20 @@
     }, { merge: true }).catch(function(err) {
       console.warn('[collab] presence update failed', err);
     });
+  }
+
+  function refreshAuthenticatedPresence() {
+    if (!ACTIVE_MAP_ID || !window._manaCollabMapRef) return;
+    var user = window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function' ? window.manaAuth.getCurrentUser() : null;
+    if (!user || !user.uid || user.uid === PRESENCE_USER_ID) {
+      updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
+      return;
+    }
+    var previousRef = window._manaCollabPresenceRef;
+    PRESENCE_USER_ID = user.uid;
+    window._manaCollabPresenceRef = window._manaCollabMapRef.collection('presence').doc(PRESENCE_USER_ID);
+    if (previousRef && previousRef !== window._manaCollabPresenceRef) previousRef.delete().catch(function() {});
+    updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
   }
 
   function updatePresenceCursor(latlng) {
@@ -467,6 +484,7 @@
     var params = parseHashParams();
     var activeMapId = params.map || new URLSearchParams(window.location.search || '').get('gallery') || params.room;
     if (!activeMapId) return;
+    ACTIVE_MAP_ID = activeMapId;
     ROOM_ID = params.room || activeMapId;
 
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
@@ -502,6 +520,7 @@
     });
 
     updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
+    document.addEventListener('manaauth:profile', refreshAuthenticatedPresence);
     if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
     HEARTBEAT_TIMER = setInterval(function() {
       updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
