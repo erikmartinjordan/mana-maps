@@ -2716,66 +2716,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   min-height:30px;
 }
 
-/* ── Shared map presence avatars ("bolitas") ── */
-.presence-avatars{
-  display:none;
-  align-items:center;
-  gap:8px;
-  border:1px solid rgba(14,165,233,.25);
-  background:rgba(14,165,233,.08);
-  color:#0b5d7a;
-  border-radius:999px;
-  padding:6px 10px;
-  margin-right:8px;
-  min-height:30px;
-  max-width:160px;
-  overflow:hidden;
-}
-@media (min-width:769px){
-  .presence-avatars{
-    position:fixed;
-    top:56px;
-    right:16px;
-    margin-right:0;
-    z-index:990;
-    box-shadow:0 4px 12px rgba(0,0,0,.08);
-  }
-}
-.presence-avatars-list{
-  display:flex;
-  align-items:center;
-}
-.presence-avatar{
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-left:-6px;
-  color:#fff;
-  border:1.5px solid rgba(255,255,255,.9);
-  font-size:10px;
-  font-weight:700;
-  overflow:hidden;
-}
-.presence-avatar img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-}
-.presence-avatar:first-child{margin-left:0;}
-.presence-avatars-count{
-  font-size:11px;
-  font-weight:700;
-}
-[data-theme="dark"] .presence-avatars{
-  border-color:rgba(110,231,255,.22);
-  background:rgba(14,165,233,.14);
-  color:#bae6fd;
-}
-
 /* ── Live collaborative cursor markers ── */
 .collab-live-cursor-marker{
   background:transparent;

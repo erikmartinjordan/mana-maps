@@ -109,12 +109,12 @@
 
   async function ensurePresenceUid() {
     try {
-      if (firebase && firebase.auth && typeof firebase.auth === 'function') {
+      if (typeof firebase !== 'undefined' && firebase.auth && typeof firebase.auth === 'function') {
         if (firebase.auth().currentUser && firebase.auth().currentUser.uid) {
           PRESENCE_USER_ID = firebase.auth().currentUser.uid;
           return PRESENCE_USER_ID;
         }
-        var authUser = await waitForAuthUser(6000);
+        var authUser = await waitForAuthUser(1200);
         if (authUser && authUser.uid) {
           PRESENCE_USER_ID = authUser.uid;
           return PRESENCE_USER_ID;
@@ -123,7 +123,8 @@
     } catch (e) {
       console.warn('[collab] ensurePresenceUid fallback', e);
     }
-    return null;
+    PRESENCE_USER_ID = CLIENT_ID;
+    return PRESENCE_USER_ID;
   }
 
   function getDeterministicColor(uid) {
@@ -167,20 +168,6 @@
     return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '">' + getInitials(name) + '</span>';
   }
 
-  function getPresenceEl() {
-    var el = document.getElementById('presence-avatars');
-    if (el) return el;
-    var topbarRight = document.querySelector('#topbar .topbar-right');
-    if (!topbarRight) return null;
-    el = document.createElement('div');
-    el.id = 'presence-avatars';
-    el.className = 'presence-avatars';
-    el.setAttribute('aria-label', tCollab('Usuarios en línea', 'Users online'));
-    el.innerHTML = '<div class="presence-avatars-list"></div><span class="presence-avatars-count"></span>';
-    topbarRight.insertBefore(el, topbarRight.firstChild);
-    return el;
-  }
-
   function escapeHtml(str) {
     return String(str || '')
       .replace(/&/g, '&amp;')
@@ -188,25 +175,6 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
-  }
-
-  function renderPresence(users) {
-    var el = getPresenceEl();
-    if (!el) return;
-    var avatars = el.querySelector('.presence-avatars-list');
-    var count = el.querySelector('.presence-avatars-count');
-    if (!avatars || !count) return;
-    if (!users.length) {
-      avatars.innerHTML = '';
-      count.textContent = '';
-      el.style.display = 'none';
-      return;
-    }
-    el.style.display = 'inline-flex';
-    avatars.innerHTML = users.slice(0, 8).map(function(u) {
-      return renderAvatarFace(u, 'presence-avatar');
-    }).join('');
-    count.textContent = users.length;
   }
 
   function ensureCursorLayer() {
@@ -461,9 +429,7 @@
   async function init() {
     var db = ensureFirebase();
     if (!db) return;
-    var presenceUid = await ensurePresenceUid();
-    var canUsePresence = !!presenceUid;
-    if (!canUsePresence) console.warn('[collab] no authenticated user; continuing map sync without presence');
+    await ensurePresenceUid();
     var params = parseHashParams();
     var activeMapId = params.map || new URLSearchParams(window.location.search || '').get('gallery') || params.room;
     if (!activeMapId) return;
@@ -472,44 +438,39 @@
     window._manaCollabRoomRef = db.collection('collabRooms').doc(ROOM_ID);
     var mapRef = db.collection('maps').doc(activeMapId);
     window._manaCollabMapRef = mapRef;
-    window._manaCollabPresenceRef = canUsePresence ? mapRef.collection('presence').doc(PRESENCE_USER_ID) : null;
+    window._manaCollabPresenceRef = mapRef.collection('presence').doc(PRESENCE_USER_ID);
 
-    if (canUsePresence) {
-      var presenceCol = mapRef.collection('presence');
-      if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
-      // Firestore read: subscribe to active viewers/editors for this shared map.
-      PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
-        var now = Date.now();
-        var users = [];
-        snap.forEach(function(doc) {
-          var d = doc.data() || {};
-          var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
-          if (!lastSeenMs || now - lastSeenMs > 60000) return;
-          users.push({
-            uid: d.uid || doc.id,
-            displayName: d.displayName || d.name || 'User',
-            color: d.color || getDeterministicColor(d.uid || doc.id),
-            activity: d.activity || '',
-            avatarUrl: d.avatarUrl || d.photoURL || '',
-            cursor: d.cursor || null,
-            lastSeenMs: lastSeenMs
-          });
+    var presenceCol = mapRef.collection('presence');
+    if (PRESENCE_UNSUBSCRIBE) PRESENCE_UNSUBSCRIBE();
+    // Firestore read: subscribe to active viewers/editors for this shared map.
+    PRESENCE_UNSUBSCRIBE = presenceCol.onSnapshot(function(snap) {
+      var now = Date.now();
+      var users = [];
+      snap.forEach(function(doc) {
+        var d = doc.data() || {};
+        var lastSeenMs = d.lastSeenMs || d.updatedAtMs || 0;
+        if (!lastSeenMs || now - lastSeenMs > 60000) return;
+        users.push({
+          uid: d.uid || doc.id,
+          displayName: d.displayName || d.name || 'User',
+          color: d.color || getDeterministicColor(d.uid || doc.id),
+          activity: d.activity || '',
+          avatarUrl: d.avatarUrl || d.photoURL || '',
+          cursor: d.cursor || null,
+          lastSeenMs: lastSeenMs
         });
-        renderPresence(users);
-        renderRemoteCursors(users);
-      }, function(err) {
-        console.warn('[collab] presence subscribe failed; disabling presence', err);
-        renderPresence([]);
       });
-    }
+      renderRemoteCursors(users);
+    }, function(err) {
+      console.warn('[collab] presence subscribe failed; hiding remote cursors', err);
+      renderRemoteCursors([]);
+    });
 
-    if (canUsePresence) {
-      updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
-      if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
-      HEARTBEAT_TIMER = setInterval(function() {
-        updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
-      }, 30000);
-    }
+    updatePresenceStatus(tCollab('Navegando mapa', 'Browsing map'));
+    if (HEARTBEAT_TIMER) clearInterval(HEARTBEAT_TIMER);
+    HEARTBEAT_TIMER = setInterval(function() {
+      updatePresenceStatus(currentActivity || tCollab('Navegando mapa', 'Browsing map'));
+    }, 30000);
 
     window.addEventListener('beforeunload', function() {
       if (window._manaCollabPresenceRef) {
