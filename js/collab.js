@@ -141,6 +141,32 @@
     return parts.map(function(p) { return p.charAt(0).toUpperCase(); }).join('') || 'U';
   }
 
+  function getPresenceProfile() {
+    var profile = window.manaAuth && typeof window.manaAuth.getProfile === 'function' ? window.manaAuth.getProfile() : null;
+    var user = window.manaAuth && typeof window.manaAuth.getCurrentUser === 'function' ? window.manaAuth.getCurrentUser() : null;
+    if (!user && typeof firebase !== 'undefined' && firebase.auth && typeof firebase.auth === 'function') user = firebase.auth().currentUser;
+    var displayName = (profile && profile.displayName) || (user && user.displayName) || userName;
+    var avatarUrl = (profile && profile.avatarUrl) || (user && user.photoURL) || '';
+    var uid = (user && user.uid) || PRESENCE_USER_ID;
+    return {
+      uid: uid,
+      displayName: displayName,
+      name: displayName,
+      avatarUrl: avatarUrl,
+      color: getDeterministicColor(uid)
+    };
+  }
+
+  function renderAvatarFace(u, className) {
+    var bg = u.color || getDeterministicColor(u.uid || u.clientId);
+    var name = u.displayName || u.name || 'User';
+    var avatarUrl = u.avatarUrl || u.photoURL || '';
+    if (avatarUrl) {
+      return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '"><img src="' + escapeHtml(avatarUrl) + '" alt="" loading="lazy"></span>';
+    }
+    return '<span class="' + className + '" style="background:' + bg + '" title="' + escapeHtml(name) + '">' + getInitials(name) + '</span>';
+  }
+
   function getPresenceEl() {
     var el = document.getElementById('presence-avatars');
     if (el) return el;
@@ -178,10 +204,7 @@
     }
     el.style.display = 'inline-flex';
     avatars.innerHTML = users.slice(0, 8).map(function(u) {
-      var bg = u.color || getDeterministicColor(u.uid || u.clientId);
-      var initial = getInitials(u.displayName || u.name || 'User');
-      var title = u.displayName || u.name || 'User';
-      return '<span class="presence-avatar" style="background:' + bg + '" title="' + title + '">' + initial + '</span>';
+      return renderAvatarFace(u, 'presence-avatar');
     }).join('');
     count.textContent = users.length;
   }
@@ -209,7 +232,7 @@
       var label = escapeHtml(u.displayName || u.name || 'User');
       var activity = escapeHtml(u.activity || '');
       var markerHtml = '<div class="collab-live-cursor" style="--cursor-color:' + (u.color || '#0ea5e9') + '">' +
-        '<div class="collab-live-cursor-pointer"></div>' +
+        renderAvatarFace(u, 'collab-live-cursor-face') +
         '<div class="collab-live-cursor-label">' + label + (activity ? '<span>' + activity + '</span>' : '') + '</div>' +
       '</div>';
 
@@ -246,12 +269,14 @@
     currentActivity = activity || '';
     if (!window._manaCollabPresenceRef) return;
     var presenceUid = PRESENCE_USER_ID;
+    var profile = getPresenceProfile();
     window._manaCollabPresenceRef.set({
       // Firestore write: heartbeat for this viewer in maps/{mapId}/presence/{userId}.
       uid: presenceUid,
-      displayName: userName,
-      color: getDeterministicColor(presenceUid),
-      name: userName,
+      displayName: profile.displayName,
+      avatarUrl: profile.avatarUrl,
+      color: profile.color,
+      name: profile.name,
       activity: currentActivity,
       clientId: CLIENT_ID,
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
@@ -265,8 +290,17 @@
 
   function updatePresenceCursor(latlng) {
     if (!window._manaCollabPresenceRef) return;
+    var profile = getPresenceProfile();
     var payload = {
+      uid: PRESENCE_USER_ID,
+      displayName: profile.displayName,
+      avatarUrl: profile.avatarUrl,
+      color: profile.color,
+      name: profile.name,
+      clientId: CLIENT_ID,
       cursor: latlng ? { lat: latlng.lat, lng: latlng.lng, updatedAtMs: Date.now() } : null,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastSeenMs: Date.now(),
       updatedAtMs: Date.now()
     };
@@ -456,6 +490,7 @@
             displayName: d.displayName || d.name || 'User',
             color: d.color || getDeterministicColor(d.uid || doc.id),
             activity: d.activity || '',
+            avatarUrl: d.avatarUrl || d.photoURL || '',
             cursor: d.cursor || null,
             lastSeenMs: lastSeenMs
           });
