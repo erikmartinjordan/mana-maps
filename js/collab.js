@@ -151,6 +151,33 @@
     return parts.map(function(p) { return p.charAt(0).toUpperCase(); }).join('') || 'U';
   }
 
+
+  function getAuthUser() {
+    try {
+      return (firebase && firebase.auth && typeof firebase.auth === 'function') ? firebase.auth().currentUser : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function getPresenceDisplayName() {
+    var authUser = getAuthUser();
+    return (authUser && authUser.displayName) || userName;
+  }
+
+  function getPresenceAvatarUrl() {
+    var authUser = getAuthUser();
+    return (authUser && authUser.photoURL) || '';
+  }
+
+  function buildCursorAvatarHtml(user, label) {
+    var avatarUrl = user.avatarUrl || user.photoURL || '';
+    if (avatarUrl) {
+      return '<span class="collab-live-cursor-face has-photo"><img src="' + escapeHtml(avatarUrl) + '" alt="" referrerpolicy="no-referrer"/></span>';
+    }
+    return '<span class="collab-live-cursor-face" title="' + escapeHtml(label) + '" aria-hidden="true"></span>';
+  }
+
   function getPresenceEl() {
     var el = document.getElementById('presence-avatars');
     if (el) return el;
@@ -216,11 +243,16 @@
       if (!seenAt || now - seenAt > 12000) return;
 
       active[u.uid] = true;
-      var label = escapeHtml(u.displayName || u.name || 'User');
+      var rawLabel = u.displayName || u.name || 'User';
+      var label = escapeHtml(rawLabel);
       var activity = escapeHtml(u.activity || '');
       var markerHtml = '<div class="collab-live-cursor" style="--cursor-color:' + (u.color || '#0ea5e9') + '">' +
-        '<div class="collab-live-cursor-pointer"></div>' +
-        '<div class="collab-live-cursor-label">' + label + (activity ? '<span>' + activity + '</span>' : '') + '</div>' +
+        '<div class="collab-live-cursor-pointer" aria-hidden="true"></div>' +
+        '<div class="collab-live-cursor-bubble" title="' + label + '">' +
+          buildCursorAvatarHtml(u, rawLabel) +
+          '<div class="collab-live-cursor-copy"><strong>' + label + '</strong>' +
+          (activity ? '<span>' + activity + '</span>' : '') + '</div>' +
+        '</div>' +
       '</div>';
 
       if (!REMOTE_CURSOR_MARKERS[u.uid]) {
@@ -229,8 +261,8 @@
           icon: L.divIcon({
             className: 'collab-live-cursor-marker',
             html: markerHtml,
-            iconSize: [210, 42],
-            iconAnchor: [4, 4]
+            iconSize: [250, 58],
+            iconAnchor: [5, 5]
           })
         }).addTo(layer);
       } else {
@@ -238,8 +270,8 @@
         REMOTE_CURSOR_MARKERS[u.uid].setIcon(L.divIcon({
           className: 'collab-live-cursor-marker',
           html: markerHtml,
-          iconSize: [210, 42],
-          iconAnchor: [4, 4]
+          iconSize: [250, 58],
+          iconAnchor: [5, 5]
         }));
       }
     });
@@ -259,9 +291,10 @@
     window._manaCollabPresenceRef.set({
       // Firestore write: heartbeat for this viewer in maps/{mapId}/presence/{userId}.
       uid: presenceUid,
-      displayName: userName,
+      displayName: getPresenceDisplayName(),
       color: getDeterministicColor(presenceUid),
-      name: userName,
+      name: getPresenceDisplayName(),
+      avatarUrl: getPresenceAvatarUrl(),
       activity: currentActivity,
       clientId: CLIENT_ID,
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
@@ -466,6 +499,7 @@
             displayName: d.displayName || d.name || 'User',
             color: d.color || getDeterministicColor(d.uid || doc.id),
             activity: d.activity || '',
+            avatarUrl: d.avatarUrl || d.photoURL || '',
             cursor: d.cursor || null,
             lastSeenMs: lastSeenMs
           });

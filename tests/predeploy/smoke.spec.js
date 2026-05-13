@@ -133,7 +133,7 @@ test('map editor shell loads core UI containers', async ({ page }) => {
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
 
-test('shared edit session renders another collaborator and their cursor', async ({ page }) => {
+test('shared edit session renders another collaborator as a cursor bubble with face', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
   await installCollaborativeFirebaseMock(page);
@@ -143,7 +143,8 @@ test('shared edit session renders another collaborator and their cursor', async 
   await expect(page.locator('#presence-avatars')).toBeVisible();
   await expect(page.locator('.presence-avatars-count')).toHaveText('2');
   await expect(page.locator('.presence-avatar[title="Reddit Guest"]')).toBeVisible();
-  await expect(page.locator('.collab-live-cursor-label', { hasText: 'Reddit Guest' })).toBeVisible();
+  await expect(page.locator('.collab-live-cursor-bubble', { hasText: 'Reddit Guest' })).toBeVisible();
+  await expect(page.locator('.collab-live-cursor-face[title="Reddit Guest"]')).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window.__manaFirestoreWrites || []).length)).toBeGreaterThan(0);
 
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
