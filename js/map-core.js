@@ -1059,6 +1059,199 @@ const ICON = {
 
 function esc(s) { return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
+const MANA_STARTER_TEMPLATES = [
+  { id: 'trip', icon: '🧭', color: '#0ea5e9', titleKey: 'template_trip_title', descKey: 'template_trip_desc' },
+  { id: 'sales', icon: '📍', color: '#f97316', titleKey: 'template_sales_title', descKey: 'template_sales_desc' },
+  { id: 'survey', icon: '🌿', color: '#22c55e', titleKey: 'template_survey_title', descKey: 'template_survey_desc' },
+  { id: 'event', icon: '🎪', color: '#8b5cf6', titleKey: 'template_event_title', descKey: 'template_event_desc' },
+];
+
+function _starterTemplateLabel(es, en) {
+  return (typeof LANG !== 'undefined' && LANG === 'en') ? en : es;
+}
+
+function _starterFeature(type, coordinates, properties) {
+  return { type: 'Feature', geometry: { type: type, coordinates: coordinates }, properties: properties || {} };
+}
+
+function _starterTemplateData(id) {
+  const data = {
+    trip: {
+      name: _starterTemplateLabel('Ruta de viaje', 'Travel route'),
+      view: [[40.4088, -3.7149], [40.4261, -3.6844]],
+      layers: [
+        {
+          name: _starterTemplateLabel('Paradas', 'Stops'),
+          color: '#0ea5e9',
+          features: [
+            _starterFeature('Point', [-3.7038, 40.4168], { name: _starterTemplateLabel('Punto de encuentro', 'Meeting point'), type: _starterTemplateLabel('Inicio', 'Start'), order: 1 }),
+            _starterFeature('Point', [-3.6921, 40.4138], { name: _starterTemplateLabel('Museo principal', 'Main museum'), type: _starterTemplateLabel('Visita', 'Visit'), order: 2 }),
+            _starterFeature('Point', [-3.6884, 40.4153], { name: _starterTemplateLabel('Parada para comer', 'Lunch stop'), type: _starterTemplateLabel('Comida', 'Food'), order: 3 }),
+            _starterFeature('Point', [-3.7149, 40.4261], { name: _starterTemplateLabel('Mirador final', 'Final viewpoint'), type: _starterTemplateLabel('Final', 'End'), order: 4 }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Recorrido', 'Itinerary'),
+          color: '#2563eb',
+          features: [
+            _starterFeature('LineString', [[-3.7038, 40.4168], [-3.6921, 40.4138], [-3.6884, 40.4153], [-3.7149, 40.4261]], { name: _starterTemplateLabel('Ruta sugerida', 'Suggested route'), mode: _starterTemplateLabel('A pie', 'Walking') }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Zona de interés', 'Area of interest'),
+          color: '#14b8a6',
+          features: [
+            _starterFeature('Polygon', [[[-3.7215, 40.4102], [-3.6819, 40.4102], [-3.6819, 40.4292], [-3.7215, 40.4292], [-3.7215, 40.4102]]], { name: _starterTemplateLabel('Centro visitable', 'Walkable center'), priority: _starterTemplateLabel('Alta', 'High') }),
+          ],
+        },
+      ],
+    },
+    sales: {
+      name: _starterTemplateLabel('Zonas comerciales', 'Sales territories'),
+      view: [[40.3978, -3.742], [40.443, -3.651]],
+      layers: [
+        {
+          name: _starterTemplateLabel('Territorios', 'Territories'),
+          color: '#f97316',
+          features: [
+            _starterFeature('Polygon', [[[-3.742, 40.3978], [-3.699, 40.3978], [-3.699, 40.423], [-3.742, 40.423], [-3.742, 40.3978]]], { name: _starterTemplateLabel('Zona Oeste', 'West zone'), owner: 'Ana', status: _starterTemplateLabel('Activa', 'Active'), target: 120 }),
+            _starterFeature('Polygon', [[[-3.699, 40.3978], [-3.651, 40.3978], [-3.651, 40.423], [-3.699, 40.423], [-3.699, 40.3978]]], { name: _starterTemplateLabel('Zona Este', 'East zone'), owner: 'Luis', status: _starterTemplateLabel('En revisión', 'Review'), target: 95 }),
+            _starterFeature('Polygon', [[[-3.742, 40.423], [-3.651, 40.423], [-3.651, 40.443], [-3.742, 40.443], [-3.742, 40.423]]], { name: _starterTemplateLabel('Zona Norte', 'North zone'), owner: 'Marta', status: _starterTemplateLabel('Nueva', 'New'), target: 80 }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Clientes clave', 'Key accounts'),
+          color: '#ef4444',
+          features: [
+            _starterFeature('Point', [-3.711, 40.412], { name: _starterTemplateLabel('Cliente A', 'Account A'), revenue: 42, priority: 'A' }),
+            _starterFeature('Point', [-3.674, 40.409], { name: _starterTemplateLabel('Cliente B', 'Account B'), revenue: 25, priority: 'B' }),
+            _starterFeature('Point', [-3.693, 40.433], { name: _starterTemplateLabel('Cliente C', 'Account C'), revenue: 34, priority: 'A' }),
+          ],
+        },
+      ],
+    },
+    survey: {
+      name: _starterTemplateLabel('Trabajo de campo', 'Field survey'),
+      view: [[40.401, -3.744], [40.421, -3.713]],
+      layers: [
+        {
+          name: _starterTemplateLabel('Área de estudio', 'Study area'),
+          color: '#22c55e',
+          features: [
+            _starterFeature('Polygon', [[[-3.744, 40.401], [-3.716, 40.404], [-3.713, 40.421], [-3.739, 40.419], [-3.744, 40.401]]], { name: _starterTemplateLabel('Parcela piloto', 'Pilot plot'), habitat: _starterTemplateLabel('Mixto', 'Mixed') }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Muestras', 'Samples'),
+          color: '#16a34a',
+          features: [
+            _starterFeature('Point', [-3.739, 40.405], { name: 'S-01', status: _starterTemplateLabel('Pendiente', 'Pending'), ph: 7.1 }),
+            _starterFeature('Point', [-3.729, 40.410], { name: 'S-02', status: _starterTemplateLabel('Tomada', 'Collected'), ph: 6.8 }),
+            _starterFeature('Point', [-3.721, 40.417], { name: 'S-03', status: _starterTemplateLabel('Pendiente', 'Pending'), ph: 7.4 }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Transecto', 'Transect'),
+          color: '#0f766e',
+          features: [
+            _starterFeature('LineString', [[-3.741, 40.403], [-3.733, 40.409], [-3.724, 40.414], [-3.716, 40.419]], { name: _starterTemplateLabel('Transecto A', 'Transect A'), length_m: 2100 }),
+          ],
+        },
+      ],
+    },
+    event: {
+      name: _starterTemplateLabel('Evento local', 'Local event'),
+      view: [[40.412, -3.725], [40.426, -3.699]],
+      layers: [
+        {
+          name: _starterTemplateLabel('Zonas del evento', 'Event zones'),
+          color: '#8b5cf6',
+          features: [
+            _starterFeature('Polygon', [[[-3.721, 40.414], [-3.707, 40.414], [-3.707, 40.421], [-3.721, 40.421], [-3.721, 40.414]]], { name: _starterTemplateLabel('Recinto principal', 'Main venue'), capacity: 5000 }),
+            _starterFeature('Polygon', [[[-3.706, 40.415], [-3.699, 40.415], [-3.699, 40.420], [-3.706, 40.420], [-3.706, 40.415]]], { name: _starterTemplateLabel('Zona tranquila', 'Quiet zone'), capacity: 700 }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Servicios', 'Services'),
+          color: '#ec4899',
+          features: [
+            _starterFeature('Point', [-3.718, 40.417], { name: _starterTemplateLabel('Información', 'Information'), category: _starterTemplateLabel('Ayuda', 'Help') }),
+            _starterFeature('Point', [-3.711, 40.419], { name: _starterTemplateLabel('Primeros auxilios', 'First aid'), category: _starterTemplateLabel('Salud', 'Health') }),
+            _starterFeature('Point', [-3.703, 40.418], { name: _starterTemplateLabel('Comida', 'Food'), category: _starterTemplateLabel('Restauración', 'Food') }),
+          ],
+        },
+        {
+          name: _starterTemplateLabel('Accesos', 'Access'),
+          color: '#7c3aed',
+          features: [
+            _starterFeature('LineString', [[-3.725, 40.412], [-3.719, 40.416], [-3.711, 40.418]], { name: _starterTemplateLabel('Entrada oeste', 'West entrance'), type: _starterTemplateLabel('Peatonal', 'Pedestrian') }),
+            _starterFeature('LineString', [[-3.699, 40.426], [-3.704, 40.420], [-3.711, 40.418]], { name: _starterTemplateLabel('Entrada este', 'East entrance'), type: _starterTemplateLabel('Servicios', 'Service') }),
+          ],
+        },
+      ],
+    },
+  };
+  return data[id] || null;
+}
+
+function renderStarterTemplates() {
+  let html = '<div class="starter-templates">';
+  html += '<div class="starter-template-heading"><strong>' + esc(t('template_title')) + '</strong><span>' + esc(t('template_subtitle')) + '</span></div>';
+  html += '<div class="starter-template-grid">';
+  MANA_STARTER_TEMPLATES.forEach(function(tpl) {
+    html += '<button type="button" class="starter-template-card" onclick="applyStarterTemplate(\'' + tpl.id + '\')">';
+    html += '<span class="starter-template-icon" style="background:' + tpl.color + '1f;color:' + tpl.color + '">' + tpl.icon + '</span>';
+    html += '<span class="starter-template-copy"><strong>' + esc(t(tpl.titleKey)) + '</strong><small>' + esc(t(tpl.descKey)) + '</small></span>';
+    html += '</button>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function _clearMapForTemplate() {
+  drawnItems.clearLayers();
+  for (const gid in _manaGroupMeta) { removeLabelsFromLayer(_manaGroupMeta[gid]); delete _manaGroupMeta[gid]; }
+  _activeGroupId = null;
+  _manaGroupCounter = 0;
+  _manaLayerNameCounter = 0;
+  _groupOrder = [];
+  for (const key in _expandedGroups) delete _expandedGroups[key];
+  for (const key in _filterOpen) delete _filterOpen[key];
+}
+
+async function applyStarterTemplate(id) {
+  if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) {
+    if (typeof showToast === 'function') showToast((typeof LANG !== 'undefined' && LANG === 'en') ? 'This shared map is view only.' : 'Este mapa compartido es de solo lectura.');
+    return;
+  }
+  const tpl = _starterTemplateData(id);
+  if (!tpl || typeof loadGeoJSON !== 'function') return;
+
+  let hasContent = false;
+  drawnItems.eachLayer(function() { hasContent = true; });
+  if (hasContent) {
+    const ok = await manaConfirm(t('template_replace_confirm'));
+    if (!ok) return;
+  }
+
+  if (typeof pushUndo === 'function') pushUndo();
+  const prevColor = drawColor;
+  _clearMapForTemplate();
+  const imports = [];
+  for (const layer of tpl.layers) {
+    drawColor = layer.color;
+    imports.push(Promise.resolve(loadGeoJSON({ type: 'FeatureCollection', features: layer.features }, layer.name)));
+  }
+  drawColor = prevColor;
+  await Promise.all(imports);
+  if (tpl.view && tpl.view.length === 2) map.fitBounds(tpl.view, { padding: [28, 28], maxZoom: 14 });
+  const input = document.getElementById('project-name-input');
+  if (input) input.value = tpl.name;
+  if (typeof saveState === 'function') saveState();
+  stats();
+  if (typeof showToast === 'function') showToast(t('template_loaded'));
+}
+
 function renderLayers() {
   const list = document.getElementById('layer-list');
   const layers = [];
@@ -1071,7 +1264,7 @@ function renderLayers() {
   }
 
   if (!layers.length && !totalHidden && !Object.keys(_manaGroupMeta).length) {
-    list.innerHTML = '<p class="empty-note">' + t('layer_empty').replace('\n','<br>') + '</p>';
+    list.innerHTML = '<p class="empty-note">' + t('layer_empty').replace('\n','<br>') + '</p>' + renderStarterTemplates();
     return;
   }
 
@@ -1201,6 +1394,10 @@ function renderLayers() {
 
   list.innerHTML = html;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderLayers === 'function') renderLayers();
+});
 
 
 // ═══════════════════════════════════════════════════════════════
