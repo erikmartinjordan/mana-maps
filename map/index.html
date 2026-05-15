@@ -651,6 +651,12 @@ try {
       <button type="button" class="mk-modal-close" onclick="closeLayerLabelModal()" aria-label="Close">×</button>
     </div>
     <div class="label-panel-card label-panel-modal-card">
+      <div class="label-preview-card">
+        <div class="label-preview-title">Preview</div>
+        <div class="label-preview-canvas">
+          <span id="lctx-label-preview-text" class="label-preview-text">Sample label</span>
+        </div>
+      </div>
       <label class="label-toggle-row">
         <input id="lctx-label-enabled" type="checkbox" onchange="lctxLabelChanged()"/>
         <span data-i18n="label_enable">Mostrar etiquetas de esta capa</span>
@@ -679,6 +685,10 @@ try {
       <div class="label-style-toggles">
         <button id="lctx-label-bold" type="button" onclick="lctxToggleLabelWeight()" data-i18n="label_bold">Negrita</button>
         <button id="lctx-label-italic" type="button" onclick="lctxToggleLabelStyle()" data-i18n="label_italic">Cursiva</button>
+      </div>
+      <div class="label-modal-actions">
+        <button type="button" class="label-modal-btn label-modal-btn-ghost" onclick="cancelLayerLabelModal()">Cancel</button>
+        <button type="button" class="label-modal-btn label-modal-btn-primary" onclick="applyLayerLabelModal()">Apply</button>
       </div>
     </div>
   </div>

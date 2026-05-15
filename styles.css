@@ -3154,3 +3154,20 @@ body.profile-page{
   overflow:auto;
   max-height:calc(86vh - 70px);
 }
+.label-preview-card{
+  border:0.5px solid var(--border);border-radius:9px;background:var(--surface);
+  padding:8px;margin-bottom:8px;
+}
+.label-preview-title{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--third);margin-bottom:6px;}
+.label-preview-canvas{
+  border-radius:8px;padding:16px 12px;text-align:center;
+  background:linear-gradient(135deg,#f8fafc,#eef6ff);
+}
+.label-preview-text{display:inline-block;transform:translate(0,0);}
+.label-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;}
+.label-modal-btn{
+  border:0.5px solid var(--border);border-radius:8px;padding:7px 12px;cursor:pointer;
+  font:700 11px 'DM Sans',sans-serif;
+}
+.label-modal-btn-ghost{background:var(--surface);color:var(--text-2);}
+.label-modal-btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
