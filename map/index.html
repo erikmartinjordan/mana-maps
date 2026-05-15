@@ -634,11 +634,29 @@ try {
     <div id="lctx-cat-list"></div>
   </div>
 
-  <!-- Etiquetas cartográficas -->
-  <div id="lctx-labels" style="display:none">
-    <div class="ctx-sep"></div>
-    <div class="ctx-section-label" data-i18n="label_section">Etiquetas</div>
-    <div class="label-panel-card">
+  <div class="ctx-sep"></div>
+
+  <!-- Eliminar -->
+  <button class="ctx-item danger" onclick="lctxDelete()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+    <span data-i18n="lctx_delete">Eliminar</span>
+  </button>
+</div>
+
+<!-- ═══ Label settings modal ═══ -->
+<div id="lctx-label-modal" class="mk-modal-overlay lctx-label-modal" style="display:none">
+  <div class="mk-modal-box lctx-label-modal-box" role="dialog" aria-modal="true" aria-labelledby="lctx-label-modal-title">
+    <div class="mk-modal-header">
+      <span id="lctx-label-modal-title" data-i18n="label_section">Etiquetas</span>
+      <button type="button" class="mk-modal-close" onclick="closeLayerLabelModal()" aria-label="Close">×</button>
+    </div>
+    <div class="label-panel-card label-panel-modal-card">
+      <div class="label-preview-card">
+        <div class="label-preview-title">Preview</div>
+        <div class="label-preview-canvas">
+          <span id="lctx-label-preview-text" class="label-preview-text">Sample label</span>
+        </div>
+      </div>
       <label class="label-toggle-row">
         <input id="lctx-label-enabled" type="checkbox" onchange="lctxLabelChanged()"/>
         <span data-i18n="label_enable">Mostrar etiquetas de esta capa</span>
@@ -668,16 +686,12 @@ try {
         <button id="lctx-label-bold" type="button" onclick="lctxToggleLabelWeight()" data-i18n="label_bold">Negrita</button>
         <button id="lctx-label-italic" type="button" onclick="lctxToggleLabelStyle()" data-i18n="label_italic">Cursiva</button>
       </div>
+      <div class="label-modal-actions">
+        <button type="button" class="label-modal-btn label-modal-btn-ghost" onclick="cancelLayerLabelModal()">Cancel</button>
+        <button type="button" class="label-modal-btn label-modal-btn-primary" onclick="applyLayerLabelModal()">Apply</button>
+      </div>
     </div>
   </div>
-
-  <div class="ctx-sep"></div>
-
-  <!-- Eliminar -->
-  <button class="ctx-item danger" onclick="lctxDelete()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-    <span data-i18n="lctx_delete">Eliminar</span>
-  </button>
 </div>
 
 <!-- ═══ Menú contextual del mapa ═══ -->

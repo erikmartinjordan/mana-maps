@@ -532,7 +532,6 @@ function _openLayerCtx(x, y, type, id) {
   const catList = document.getElementById('lctx-cat-list');
   const opSlider = document.getElementById('lctx-opacity');
   const opVal = document.getElementById('lctx-opacity-val');
-  const labelSection = document.getElementById('lctx-labels');
 
   if (type === 'group') {
     const meta = _manaGroupMeta[id];
@@ -581,10 +580,6 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
-    if (labelSection) {
-      labelSection.style.display = 'block';
-      _renderLayerLabelPanel(id);
-    }
   } else {
     // Individual layer
     const layers = [];
@@ -615,7 +610,6 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
-    if (labelSection) labelSection.style.display = 'none';
   }
 
   // Position and show
@@ -628,6 +622,51 @@ function _openLayerCtx(x, y, type, id) {
 let _lctxLabelUpdating = false;
 let _lctxLabelWeight = 'normal';
 let _lctxLabelFontStyle = 'normal';
+let _lctxLabelModalGroupId = null;
+let _lctxLabelModalInitialStyle = null;
+
+function openLayerLabelModal(gid) {
+  if (!_manaGroupMeta[gid]) return;
+  _lctxType = 'group';
+  _lctxId = gid;
+  _lctxLabelModalGroupId = gid;
+  _lctxLabelModalInitialStyle = _normalizeLabelStyle(_manaGroupMeta[gid].labelStyle);
+  _renderLayerLabelPanel(gid);
+  var modal = document.getElementById('lctx-label-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  _updateLabelModalPreview();
+  var first = document.getElementById('lctx-label-enabled') || modal.querySelector('button, input, select');
+  if (first) first.focus();
+}
+
+function closeLayerLabelModal() {
+  var modal = document.getElementById('lctx-label-modal');
+  if (modal) modal.style.display = 'none';
+}
+function applyLayerLabelModal() {
+  if (_lctxLabelModalGroupId != null && typeof saveState === 'function') saveState();
+  closeLayerLabelModal();
+}
+function cancelLayerLabelModal() {
+  if (_lctxLabelModalGroupId != null && _lctxLabelModalInitialStyle) {
+    updateLabelStyle(_lctxLabelModalGroupId, null, _lctxLabelModalInitialStyle);
+    renderLayers();
+  }
+  closeLayerLabelModal();
+}
+
+document.addEventListener('click', function(e) {
+  var modal = document.getElementById('lctx-label-modal');
+  if (!modal || modal.style.display === 'none') return;
+  if (e.target === modal) closeLayerLabelModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  var modal = document.getElementById('lctx-label-modal');
+  if (!modal || modal.style.display === 'none') return;
+  if (e.key === 'Escape') closeLayerLabelModal();
+});
 
 function _labelFieldOptionsForGroup(gid) {
   const meta = _manaGroupMeta[gid];
@@ -718,6 +757,7 @@ function _readLabelPanelStyle() {
 function lctxLabelChanged() {
   if (_lctxLabelUpdating || _lctxType !== 'group') return;
   updateLabelStyle(_lctxId, null, _readLabelPanelStyle());
+  _updateLabelModalPreview();
   renderLayers();
 }
 function lctxLabelFontChanged() {
@@ -735,6 +775,21 @@ function lctxToggleLabelStyle() {
   _lctxLabelFontStyle = _lctxLabelFontStyle === 'italic' ? 'normal' : 'italic';
   _syncLabelToggleButtons();
   lctxLabelChanged();
+}
+
+function _updateLabelModalPreview() {
+  var preview = document.getElementById('lctx-label-preview-text');
+  if (!preview) return;
+  var style = _readLabelPanelStyle();
+  preview.textContent = style.enabled ? 'Sample label' : 'Label disabled';
+  preview.style.fontFamily = style.fontFamily || 'sans-serif';
+  preview.style.fontSize = String(style.fontSize || 13) + 'px';
+  preview.style.color = style.color || '#1f2937';
+  preview.style.fontWeight = style.fontWeight || 'normal';
+  preview.style.fontStyle = style.fontStyle || 'normal';
+  preview.style.opacity = style.opacity == null ? 1 : style.opacity;
+  preview.style.textShadow = '0 0 ' + (style.haloWidth || 1) + 'px ' + (style.haloColor || '#ffffff');
+  preview.style.transform = 'translate(' + (style.offsetX || 0) + 'px,' + (style.offsetY || 0) + 'px)';
 }
 
 // ── Actions ──
