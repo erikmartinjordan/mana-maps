@@ -291,17 +291,15 @@ function _mkFind(type) {
 // MARKER PICKER MODAL — full grid with categories
 // ═══════════════════════════════════════════════════════════════
 function openMarkerPicker(callback) {
-  // Remove existing
-  var old = document.getElementById('mk-picker-modal');
-  if (old) old.remove();
+  _mkClosePicker();
 
   var modal = document.createElement('div');
   modal.id = 'mk-picker-modal';
   modal.className = 'mk-modal-overlay';
-  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
 
-  var box = '<div class="mk-modal-box">';
-  box += '<div class="mk-modal-header"><span>' + (LANG==='en'?'Choose marker':'Elegir marcador') + '</span><button class="mk-modal-close" onclick="document.getElementById(\'mk-picker-modal\').remove()">×</button></div>';
+  var titleId = 'mk-modal-title';
+  var box = '<div class="mk-modal-box" role="dialog" aria-modal="true" aria-labelledby="' + titleId + '">';
+  box += '<div class="mk-modal-header"><span id="' + titleId + '">' + (LANG==='en'?'Choose marker':'Elegir marcador') + '</span><button type="button" class="mk-modal-close" aria-label="' + (LANG==='en'?'Close marker picker':'Cerrar selector de marcadores') + '">×</button></div>';
 
   // Search
   box += '<input type="text" class="mk-modal-search" placeholder="' + (LANG==='en'?'Search...':'Buscar...') + '" oninput="_mkFilterPicker(this.value)">';
@@ -318,7 +316,7 @@ function openMarkerPicker(callback) {
       if (m.cat !== cat) return;
       var title = LANG === 'en' ? m.en : m.es;
       var active = m.id === markerType ? ' active' : '';
-      box += '<button class="mk-modal-btn' + active + '" data-id="' + m.id + '" data-label="' + title.toLowerCase() + '" title="' + title + '" onclick="_mkPick(\'' + m.id + '\')">'
+      box += '<button type="button" class="mk-modal-btn' + active + '" data-id="' + m.id + '" data-label="' + title.toLowerCase() + '" title="' + title + '" onclick="_mkPick(\'' + m.id + '\')">'
         + mkPreviewSvg(m.id) + '</button>';
     });
     box += '</div></div>';
@@ -328,16 +326,52 @@ function openMarkerPicker(callback) {
   modal.innerHTML = box;
   document.body.appendChild(modal);
 
+  var search = modal.querySelector('.mk-modal-search');
+  var closeBtn = modal.querySelector('.mk-modal-close');
+  var focusable = function() {
+    return modal.querySelectorAll('button, input, [tabindex]:not([tabindex="-1"])');
+  };
+
   // Store callback
   window._mkPickerCallback = callback || function(id) {
     setMarkerType(id, null);
   };
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) _mkClosePicker();
+  });
+  closeBtn.addEventListener('click', _mkClosePicker);
+  modal.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      _mkClosePicker();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    var nodes = focusable();
+    if (!nodes.length) return;
+    var first = nodes[0];
+    var last = nodes[nodes.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  if (search) search.focus();
+}
+
+function _mkClosePicker() {
+  var modal = document.getElementById('mk-picker-modal');
+  if (modal) modal.remove();
 }
 
 function _mkPick(id) {
   if (window._mkPickerCallback) window._mkPickerCallback(id);
-  var modal = document.getElementById('mk-picker-modal');
-  if (modal) modal.remove();
+  _mkClosePicker();
 }
 
 function _mkFilterPicker(query) {
