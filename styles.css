@@ -3144,3 +3144,13 @@ body.profile-page{
 .label-style-toggles button.active,.layer-group-action-btn.has-labels,.label-active-badge{
   background:var(--blue);border-color:var(--blue);color:white;
 }
+.lctx-label-modal{z-index:10020;}
+.lctx-label-modal-box{
+  width:min(560px,92vw);
+  max-height:86vh;
+}
+.label-panel-modal-card{
+  margin:0 12px 12px;
+  overflow:auto;
+  max-height:calc(86vh - 70px);
+}

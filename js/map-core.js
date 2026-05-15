@@ -1383,7 +1383,7 @@ function renderLayers() {
     // ── Actions row
     html += '<div class="layer-group-actions">';
     html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('panel_style_title') + '">' + ICON.palette + '</button>';
-    html += '  <button class="layer-group-action-btn' + (meta.labelStyle && meta.labelStyle.enabled ? ' has-labels' : '') + '" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('label_section') + '">' + ICON.label + '</button>';
+    html += '  <button class="layer-group-action-btn' + (meta.labelStyle && meta.labelStyle.enabled ? ' has-labels' : '') + '" onclick="openLayerLabelModal(' + gid + ')" title="' + t('label_section') + '">' + ICON.label + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="' + t('filter_title') + '">' + ICON.filter + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="openAttrTable(' + gid + ')" title="Tabla de atributos">' + ICON.table + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="focusGroup(' + gid + ')" title="' + t('lctx_zoom') + '">' + ICON.search + '</button>';
