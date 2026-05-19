@@ -131,13 +131,13 @@ function loadGeoJSON(geo, groupName) {
   }
 
   const layer = L.geoJSON(null, {
-    style: { color: importColor, weight: 2, fillOpacity: .18 },
+    style: { color: importColor, weight: 2, fillOpacity: .18, bubblingMouseEvents: true },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
       const importedColor = (f.properties && (f.properties._manaColor || f.properties.color)) ? String(f.properties._manaColor || f.properties.color) : importColor;
       const importedMarkerType = (f.properties && (f.properties._manaMarkerType || f.properties.markerType)) ? String(f.properties._manaMarkerType || f.properties.markerType) : markerType;
       const icon = makeMarkerIcon(importedColor, importedMarkerType);
-      const m = L.marker(ll, { icon });
+      const m = L.marker(ll, { icon, bubblingMouseEvents: true });
       m._manaName = n; m._manaColor = importedColor;
       m._manaMarkerType = importedMarkerType;
       m._manaGroupId = groupId;
