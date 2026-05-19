@@ -1240,7 +1240,11 @@ async function applyStarterTemplate(id) {
   const imports = [];
   for (const layer of tpl.layers) {
     drawColor = layer.color;
-    imports.push(Promise.resolve(loadGeoJSON({ type: 'FeatureCollection', features: layer.features }, layer.name)));
+    imports.push(Promise.resolve(loadGeoJSON(
+      { type: 'FeatureCollection', features: layer.features },
+      layer.name,
+      { templatePassive: true }
+    )));
   }
   drawColor = prevColor;
   await Promise.all(imports);

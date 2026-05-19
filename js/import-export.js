@@ -112,10 +112,12 @@ function cloneFeatureProperties(properties) {
   return { ...properties };
 }
 
-function loadGeoJSON(geo, groupName) {
+function loadGeoJSON(geo, groupName, opts) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
   if (!geo.features) { manaAlert(t('geojson_invalid'), 'error'); return; }
+  const options = opts || {};
+  const templatePassive = options.templatePassive === true;
   const featureCount = geo.features.length;
   const useChunkedImport = featureCount > 1200;
   const batchSize = 250;
@@ -131,19 +133,27 @@ function loadGeoJSON(geo, groupName) {
   }
 
   const layer = L.geoJSON(null, {
-    style: { color: importColor, weight: 2, fillOpacity: .18 },
+    interactive: !templatePassive,
+    style: { color: importColor, weight: 2, fillOpacity: .18, bubblingMouseEvents: true },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
       const importedColor = (f.properties && (f.properties._manaColor || f.properties.color)) ? String(f.properties._manaColor || f.properties.color) : importColor;
       const importedMarkerType = (f.properties && (f.properties._manaMarkerType || f.properties.markerType)) ? String(f.properties._manaMarkerType || f.properties.markerType) : markerType;
       const icon = makeMarkerIcon(importedColor, importedMarkerType);
-      const m = L.marker(ll, { icon });
+      const m = L.marker(ll, {
+        icon,
+        bubblingMouseEvents: true,
+        interactive: !templatePassive,
+        keyboard: !templatePassive
+      });
       m._manaName = n; m._manaColor = importedColor;
       m._manaMarkerType = importedMarkerType;
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
       m._manaProperties = cloneFeatureProperties(f.properties);
-      m.bindPopup(() => buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
+      if (!templatePassive) {
+        m.bindPopup(() => buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
+      }
       return m;
     },
     onEachFeature: (f, l) => {
@@ -151,9 +161,14 @@ function loadGeoJSON(geo, groupName) {
       l._manaGroupName = gName;
       l._manaProperties = cloneFeatureProperties(f.properties);
       if (!(l instanceof L.Marker)) {
+        if (templatePassive && typeof l.setStyle === 'function') {
+          l.setStyle({ interactive: false });
+        }
         const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || '';
         if (n) l._manaName = n;
-        l.bindPopup(() => buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
+        if (!templatePassive) {
+          l.bindPopup(() => buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
+        }
       }
     }
   });
