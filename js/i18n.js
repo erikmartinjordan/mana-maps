@@ -979,16 +979,36 @@ function persistManaLang(lang) {
   localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
 }
 
-// Spanish-speaking locales (es-ES, es-MX, es-AR, es-CL, ca, gl, eu) → ES
-// Everything else → EN
+// Language detection policy:
+// 1) Persisted setting wins.
+// 2) /en URL path forces EN.
+// 3) Default EN unless browser locale clearly maps to Spain or a Spanish-speaking country.
+var SPANISH_COUNTRIES = {
+  ES: true, AR: true, BO: true, CL: true, CO: true, CR: true, CU: true, DO: true,
+  EC: true, GQ: true, GT: true, HN: true, MX: true, NI: true, PA: true, PE: true,
+  PR: true, PY: true, SV: true, UY: true, VE: true
+};
+
+function getBrowserRegion(navLocale) {
+  if (!navLocale) return '';
+  var locale = String(navLocale).replace('_', '-');
+  var parts = locale.split('-');
+  if (parts.length > 1 && parts[1]) return parts[1].toUpperCase();
+  return '';
+}
+
 let LANG = (function() {
   var stored = getStoredManaLang();
   if (stored) return stored;
   if (window.location.pathname.startsWith('/en')) return 'en';
+
   var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
   var lang2 = nav.slice(0, 2);
-  // Spanish-speaking regions: es-*, ca (Catalan), gl (Galician), eu (Basque)
-  if (lang2 === 'es' || lang2 === 'ca' || lang2 === 'gl' || lang2 === 'eu') return 'es';
+  var region = getBrowserRegion(nav);
+
+  if (lang2 === 'ca' || lang2 === 'gl' || lang2 === 'eu') return 'es';
+  if (lang2 === 'es' && region && SPANISH_COUNTRIES[region]) return 'es';
+
   return 'en';
 })();
 
