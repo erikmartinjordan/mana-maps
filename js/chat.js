@@ -447,11 +447,50 @@ function removeTyping() {
   if (t) t.remove();
 }
 
+
+function extractLibraryBatchPlaces(rawText) {
+  if (!rawText) return [];
+  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const places = [];
+  const seen = new Set();
+
+  for (const line of lines) {
+    if (!/^barcelona\b/i.test(line)) continue;
+    if (!/@/.test(line)) continue;
+
+    let cleaned = line
+      .replace(/\b\d{2,3}(?:\s*\d{2,3}){2,}\b/g, '')
+      .replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/ig, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleaned) continue;
+
+    cleaned = cleaned.replace(/^barcelona\s+/i, '').trim();
+    if (!cleaned) continue;
+
+    const place = cleaned + ', Barcelona';
+    const key = place.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      places.push(place);
+    }
+  }
+
+  return places;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // ENHANCED REGEX FALLBACK (when no API key)
 // ═══════════════════════════════════════════════════════════════
 async function processRegex(cmd) {
   const c = cmd.toLowerCase().trim();
+
+  // Batch import: libraries list to map
+  if (/representa .*bibliotecas?.*mapa/i.test(cmd) || /bibliotecas?.*mapa/i.test(cmd)) {
+    const places = extractLibraryBatchPlaces(cmd);
+    if (places.length) return toolActions.add_multiple_points({ places });
+  }
 
   // Help
   if (/^(ayuda|help|comandos|\?)$/.test(c)) return toolActions.help();
