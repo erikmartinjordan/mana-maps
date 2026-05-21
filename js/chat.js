@@ -504,7 +504,7 @@ async function processRegex(cmd) {
   // Base layers
   if (/sat[eé]lite/.test(c)) return toolActions.set_baselayer({ type: 'satellite' });
   if (/globo|3d globe|esfera|tierra|planet|globe/.test(c)) return toolActions.set_baselayer({ type: 'globe' });
-  if (/^mapa$|callejero|carto/.test(c)) return toolActions.set_baselayer({ type: 'map' });
+  if (/^mapa$|callejero|mapa base/.test(c)) return toolActions.set_baselayer({ type: 'map' });
 
   // Color
   const colorM = c.match(/^(?:color|cambiar? color(?: a)?|set color(?: to)?)\s+(.+)/) || c.match(/^(.+?)\s+colou?r$/);

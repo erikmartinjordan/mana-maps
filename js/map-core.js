@@ -1,8 +1,8 @@
 // ── map-core.js ─ Map init, base layers, resize, stats, utilities ──
 
 // ── BASE LAYERS ──
-const tileMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 20
+const tileMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors', subdomains: 'abcd', maxZoom: 20
 });
 const tileSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   attribution: '&copy; Esri', maxZoom: 20
@@ -24,8 +24,8 @@ function setLeafletAttributionPrefix() {
 setLeafletAttributionPrefix();
 
 // ── Dark/light tile URLs ──
-const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const TILE_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_LIGHT = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_DARK  = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 function setMapThemeTiles() {
   var rootTheme = document.documentElement.getAttribute('data-theme');
@@ -47,15 +47,15 @@ function setMapThemeTiles() {
 
   // ── Globe 3D: swap tile source ──
   if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
-    var src = globeMap.getSource('carto-light');
+    var src = globeMap.getSource('osm-base');
     if (src && src.setTiles) {
       var tpl = isDark
-        ? ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-           'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-           'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png']
-        : ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-           'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-           'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'];
+        ? ['https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+           'https://tile.openstreetmap.org/{z}/{x}/{y}.png']
+        : ['https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+           'https://tile.openstreetmap.org/{z}/{x}/{y}.png'];
       src.setTiles(tpl);
     }
     // Also update point label colors for readability
