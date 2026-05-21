@@ -1,6 +1,11 @@
 // ── tools.js ─ Drawing tools, ruler & geometry editing ──
 
 let activeTool = null, drawHandler = null;
+const RoutePickState = Object.freeze({
+  idle: 'idle',
+  selecting: 'selecting',
+  fetching: 'fetching'
+});
 
 // Select tool state (declared early so stopAll can reference it)
 var _selectMode = false;
@@ -11,9 +16,17 @@ var _SEL_DRAG_THRESHOLD = 5;
 
 // ── P1.2: Edit mode state ──
 let editMode = false;
+let _routeState = RoutePickState.idle;
+let _routePoints = [];
+let _routeLiveLine = null;
+let _routePreviewLine = null;
+let _routeAbortController = null;
+let _routeRequestId = 0;
+const _routeCache = new Map();
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
+  stopRouteSelection();
   stopRuler();
   if (_selectMode) stopSelect();
   document.getElementById('draw-hint').style.display = 'none';
@@ -76,10 +89,133 @@ function setTool(tool) {
   } else if (tool === 'ruler') {
     hint.textContent = t('hint_ruler');
     startRuler();
+  } else if (tool === 'route') {
+    getOrCreateActiveGroup('line');
+    hint.textContent = t('hint_route_start');
+    startRouteSelection();
   } else if (tool === 'select') {
     hint.textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
     startSelect();
   }
+}
+
+function startRouteSelection() {
+  _routeState = RoutePickState.selecting;
+  _routePoints = [];
+  if (_routeLiveLine) { map.removeLayer(_routeLiveLine); _routeLiveLine = null; }
+  map.on('click', onRouteMapClick);
+  map.on('dblclick', onRouteDoubleClick);
+}
+
+function stopRouteSelection() {
+  map.off('click', onRouteMapClick);
+  map.off('dblclick', onRouteDoubleClick);
+  if (_routeAbortController) _routeAbortController.abort();
+  _routeAbortController = null;
+  _routeState = RoutePickState.idle;
+  _routePoints = [];
+  if (_routeLiveLine) { map.removeLayer(_routeLiveLine); _routeLiveLine = null; }
+  if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+}
+
+function onRouteMapClick(e) {
+  if (_routeState === RoutePickState.fetching) return;
+  _routePoints.push(e.latlng);
+  if (_routePoints.length === 1) {
+    drawRoutePreview(_routePoints[0], _routePoints[0]);
+    document.getElementById('draw-hint').textContent = t('hint_route_end');
+    return;
+  }
+  fetchRouteOptimistic(_routePoints[_routePoints.length - 2], _routePoints[_routePoints.length - 1]);
+}
+
+function _routeKey(a, b) {
+  const p = n => Number(n).toFixed(5);
+  return p(a.lat) + ',' + p(a.lng) + '|' + p(b.lat) + ',' + p(b.lng);
+}
+
+const fetchRouteOptimistic = _debounce(async function(from, to) {
+  if (!from || !to) return;
+  _routeState = RoutePickState.fetching;
+  drawRoutePreview(from, to);
+  document.getElementById('draw-hint').textContent = t('hint_route_loading');
+  const key = _routeKey(from, to);
+  if (_routeCache.has(key)) {
+    const cached = _routeCache.get(key);
+    appendRouteSegment(cached.coords);
+    return;
+  }
+  if (_routeAbortController) _routeAbortController.abort();
+  const reqId = ++_routeRequestId;
+  _routeAbortController = new AbortController();
+  try {
+    const url = 'https://router.project-osrm.org/route/v1/driving/' +
+      from.lng + ',' + from.lat + ';' + to.lng + ',' + to.lat + '?overview=full&geometries=geojson';
+    const resp = await fetch(url, { signal: _routeAbortController.signal });
+    if (!resp.ok) throw new Error('routing failed');
+    const data = await resp.json();
+    const route = data && data.routes && data.routes[0];
+    if (!route || reqId !== _routeRequestId) return;
+    const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+    _routeCache.set(key, { coords: coords });
+    appendRouteSegment(coords);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    if (_routePreviewLine) _routePreviewLine.setStyle({ color: '#ef4444', dashArray: '4 8' });
+    document.getElementById('draw-hint').textContent = t('hint_route_fallback');
+    appendRouteSegment([[from.lat, from.lng], [to.lat, to.lng]]);
+  } finally {
+    _routeAbortController = null;
+    _routeState = RoutePickState.selecting;
+    if (activeTool === 'route') document.getElementById('draw-hint').textContent = t('hint_route_end');
+  }
+}, 120);
+
+function drawRoutePreview(start, end) {
+  if (_routePreviewLine) map.removeLayer(_routePreviewLine);
+  _routePreviewLine = L.polyline([start, end], {
+    color: '#0ea5e9', weight: 4, opacity: 0.75, dashArray: '8 8'
+  }).addTo(map);
+}
+
+function appendRouteSegment(coords) {
+  if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (!_routeLiveLine) {
+    _routeLiveLine = L.polyline(coords, { color: drawColor, weight: 4, opacity: 0.9 }).addTo(map);
+    return;
+  }
+  const existing = _routeLiveLine.getLatLngs();
+  const appended = coords.map(c => L.latLng(c[0], c[1]));
+  if (existing.length && appended.length && existing[existing.length - 1].equals(appended[0])) appended.shift();
+  _routeLiveLine.setLatLngs(existing.concat(appended));
+}
+
+function onRouteDoubleClick(e) {
+  if (e && e.originalEvent) e.originalEvent.preventDefault();
+  if (!_routeLiveLine) {
+    document.getElementById('draw-hint').textContent = t('hint_route_start');
+    _routePoints = [];
+    return;
+  }
+  if (typeof pushUndo === 'function') pushUndo();
+  _routeLiveLine._manaName = (typeof LANG !== 'undefined' && LANG === 'en') ? 'Route' : 'Ruta';
+  addDrawnLayerToGroup(_routeLiveLine);
+  map.fitBounds(_routeLiveLine.getBounds(), { padding: [40, 40] });
+  _routeLiveLine = null;
+  _routePoints = [];
+  document.getElementById('draw-hint').textContent = t('hint_route_ready');
+  setTimeout(function() {
+    if (activeTool === 'route') document.getElementById('draw-hint').textContent = t('hint_route_start');
+  }, 1000);
+}
+
+function _debounce(fn, wait) {
+  let timer = null;
+  return function() {
+    const args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function() { fn.apply(null, args); }, wait);
+  };
 }
 
 // Handle draw:created event
