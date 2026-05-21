@@ -1589,6 +1589,7 @@ function selectLayerOnMap(layer, addToSelection) {
     _selectedLayers.add(layer);
   }
   _updateSelectionHighlights();
+  if (typeof window.onSelectionChanged === 'function') window.onSelectionChanged(Array.from(_selectedLayers));
   // If attr table is open, refresh it
   if (_attrTableGid !== null) _renderAttrTableBody(_attrTableGid);
 }
@@ -1596,6 +1597,7 @@ function selectLayerOnMap(layer, addToSelection) {
 function clearSelection() {
   _selectedLayers.clear();
   _updateSelectionHighlights();
+  if (typeof window.onSelectionChanged === 'function') window.onSelectionChanged([]);
 }
 
 function _updateSelectionHighlights() {
