@@ -180,8 +180,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .basemap-card:hover{border-color:var(--border-hover);}
 .basemap-card.active{border-color:#1a1a1a;box-shadow:none;}
 .basemap-thumb{width:100%;height:56px;display:block;background-size:cover;background-position:center;transition:height .15s;}
-.basemap-thumb-map{background-image:url('https://a.basemaps.cartocdn.com/light_all/5/15/12.png');}
-.basemap-thumb-sat{background-image:url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/15');}
+.basemap-thumb-map{background-image:url('https://a.tile.openstreetmap.org/5/15/12.png');filter:grayscale(100%) contrast(90%) brightness(108%);}
+.basemap-thumb-sat{background-image:url('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/5/12/15');filter:saturate(80%) contrast(95%);}
 .basemap-label{font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
   color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   transition:opacity .15s,max-height .15s,padding .15s;max-height:28px;opacity:1;}
@@ -211,6 +211,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 /* ── MAP ─────────────────────────────────────── */
 #map-wrap{position:relative;background:var(--surface-2);overflow:hidden;display:flex;flex-direction:column;}
 #map{flex:1;width:100%;}
+#map.base-map-gray .leaflet-tile-pane{filter:grayscale(100%) contrast(90%) brightness(108%);}
+#globe.base-map-gray .maplibregl-canvas{filter:grayscale(100%) contrast(90%) brightness(108%);}
+#globe.base-map-sat .maplibregl-canvas{filter:saturate(80%) contrast(95%);}
+
 #globe{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:1;background:#0a1628;}
 .maplibregl-canvas{outline:none;}
 .basemap-thumb-globe{
