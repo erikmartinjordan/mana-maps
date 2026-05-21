@@ -11,9 +11,19 @@ var _SEL_DRAG_THRESHOLD = 5;
 
 // ── P1.2: Edit mode state ──
 let editMode = false;
+let _routeStart = null;
+let _routeEnd = null;
+let _routePreviewLine = null;
+let _routePreviewGlow = null;
+let _routePreviewCoords = null;
+let _routeAbortController = null;
+let _routeRequestId = 0;
+const _routeCache = new Map();
+let _routePendingConfirm = false;
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
+  _resetSelectedRouteFlow();
   stopRuler();
   if (_selectMode) stopSelect();
   document.getElementById('draw-hint').style.display = 'none';
@@ -80,6 +90,130 @@ function setTool(tool) {
     hint.textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
     startSelect();
   }
+}
+
+function _resetSelectedRouteFlow() {
+  if (_routeAbortController) _routeAbortController.abort();
+  _routeAbortController = null;
+  _routeStart = null;
+  _routeEnd = null;
+  _routePreviewCoords = null;
+  _routePendingConfirm = false;
+  if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routePreviewGlow) { map.removeLayer(_routePreviewGlow); _routePreviewGlow = null; }
+}
+
+function _routeKey(a, b) {
+  const p = n => Number(n).toFixed(5);
+  return p(a.lat) + ',' + p(a.lng) + '|' + p(b.lat) + ',' + p(b.lng);
+}
+
+const fetchRouteOptimistic = _debounce(async function(commitWhenReady) {
+  if (!_routeStart || !_routeEnd) return;
+  drawRoutePreview([_routeStart, _routeEnd]);
+  document.getElementById('draw-hint').textContent = t('hint_route_loading');
+  const key = _routeKey(_routeStart, _routeEnd);
+  if (_routeCache.has(key)) {
+    const cached = _routeCache.get(key);
+    _routePreviewCoords = cached.coords;
+    drawRoutePreview(cached.coords);
+    document.getElementById('draw-hint').textContent = commitWhenReady ? t('hint_route_loading') : t('hint_route_confirm');
+    if (commitWhenReady) commitRouteLine(cached.coords);
+    return;
+  }
+  if (_routeAbortController) _routeAbortController.abort();
+  const reqId = ++_routeRequestId;
+  _routeAbortController = new AbortController();
+  try {
+    const url = 'https://router.project-osrm.org/route/v1/driving/' +
+      _routeStart.lng + ',' + _routeStart.lat + ';' + _routeEnd.lng + ',' + _routeEnd.lat + '?overview=full&geometries=geojson';
+    const resp = await fetch(url, { signal: _routeAbortController.signal });
+    if (!resp.ok) throw new Error('routing failed');
+    const data = await resp.json();
+    const route = data && data.routes && data.routes[0];
+    if (!route || reqId !== _routeRequestId) return;
+    const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+    _routeCache.set(key, { coords: coords });
+    _routePreviewCoords = coords;
+    drawRoutePreview(coords);
+    if (commitWhenReady) commitRouteLine(coords);
+    else document.getElementById('draw-hint').textContent = t('hint_route_confirm');
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    if (_routePreviewLine) _routePreviewLine.setStyle({ color: '#ef4444', dashArray: '4 8' });
+    document.getElementById('draw-hint').textContent = t('hint_route_fallback');
+    setTimeout(function() {
+      if (activeTool === 'route') document.getElementById('draw-hint').textContent = t('hint_route_start');
+    }, 1200);
+  } finally {
+    _routeAbortController = null;
+    if (commitWhenReady) _routePendingConfirm = false;
+  }
+}, 120);
+
+function drawRoutePreview(coords) {
+  if (_routePreviewLine) map.removeLayer(_routePreviewLine);
+  if (_routePreviewGlow) map.removeLayer(_routePreviewGlow);
+  _routePreviewGlow = L.polyline(coords, {
+    color: '#67e8f9', weight: 10, opacity: 0.2, className: 'route-preview-glow'
+  }).addTo(map);
+  _routePreviewLine = L.polyline(coords, {
+    color: '#0ea5e9', weight: 5, opacity: 0.95, dashArray: '14 10', className: 'route-preview-shine'
+  }).addTo(map);
+}
+
+function commitRouteLine(coords) {
+  if (typeof pushUndo === 'function') pushUndo();
+  if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routePreviewGlow) { map.removeLayer(_routePreviewGlow); _routePreviewGlow = null; }
+  const line = L.polyline(coords, { color: drawColor, weight: 4, opacity: 0.9 });
+  line._manaName = (typeof LANG !== 'undefined' && LANG === 'en') ? 'Route' : 'Ruta';
+  addDrawnLayerToGroup(line);
+  map.fitBounds(line.getBounds(), { padding: [40, 40] });
+  document.getElementById('draw-hint').textContent = t('hint_route_ready');
+  _routeStart = null;
+  _routeEnd = null;
+  _routePreviewCoords = null;
+  setTimeout(function() {
+    if (activeTool === 'select') document.getElementById('draw-hint').textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
+  }, 1000);
+}
+
+function _maybePrepareRouteFromSelection() {
+  if (!_selectMode || typeof _selectedLayers === 'undefined') return;
+  const selectedPoints = [];
+  _selectedLayers.forEach(function(layer) {
+    if (layer && typeof layer.getLatLng === 'function') selectedPoints.push(layer);
+  });
+  if (selectedPoints.length !== 2) {
+    _resetSelectedRouteFlow();
+    return;
+  }
+  const a = selectedPoints[0].getLatLng();
+  const b = selectedPoints[1].getLatLng();
+  _routeStart = a;
+  _routeEnd = b;
+  _routePreviewCoords = null;
+  _routePendingConfirm = true;
+  fetchRouteOptimistic(false);
+}
+
+function _confirmSelectedRouteOnClick() {
+  if (!_routePendingConfirm || !_routeStart || !_routeEnd) return;
+  if (_routePreviewCoords && _routePreviewCoords.length > 1) {
+    commitRouteLine(_routePreviewCoords);
+    return;
+  }
+  fetchRouteOptimistic(true);
+}
+
+function _debounce(fn, wait) {
+  let timer = null;
+  return function() {
+    const args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function() { fn.apply(null, args); }, wait);
+  };
 }
 
 // Handle draw:created event
@@ -415,6 +549,7 @@ function _selOnTouchEnd(e) {
 
 /** Select all features whose representative point falls inside the box (container px). */
 function _selectByBox(x1, y1, x2, y2, additive) {
+  if (_routePendingConfirm) _routePendingConfirm = false;
   if (!additive && typeof clearSelection === 'function') clearSelection();
 
   var selBounds = L.latLngBounds(
@@ -440,10 +575,15 @@ function _selectByBox(x1, y1, x2, y2, additive) {
     var n = _selectedLayers.size;
     if (n > 0) showToast(n + ' elemento' + (n > 1 ? 's' : '') + ' seleccionado' + (n > 1 ? 's' : ''));
   }
+  _maybePrepareRouteFromSelection();
 }
 
 /** Single-click selection: find the closest feature near px coords. */
 function _selectByClick(px, py, additive) {
+  if (_routePendingConfirm) {
+    _confirmSelectedRouteOnClick();
+    return;
+  }
   var latlng = map.containerPointToLatLng([px, py]);
   var bestLayer = null;
   var bestDist = Infinity;
@@ -472,4 +612,5 @@ function _selectByClick(px, py, additive) {
   } else if (!additive) {
     if (typeof clearSelection === 'function') clearSelection();
   }
+  _maybePrepareRouteFromSelection();
 }
