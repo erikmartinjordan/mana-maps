@@ -1,6 +1,12 @@
 // ── tools.js ─ Drawing tools, ruler & geometry editing ──
 
 let activeTool = null, drawHandler = null;
+const RoutePickState = Object.freeze({
+  idle: 'idle',
+  selectingStart: 'selecting-start',
+  selectingEnd: 'selecting-end',
+  fetching: 'fetching'
+});
 
 // Select tool state (declared early so stopAll can reference it)
 var _selectMode = false;
@@ -11,9 +17,19 @@ var _SEL_DRAG_THRESHOLD = 5;
 
 // ── P1.2: Edit mode state ──
 let editMode = false;
+let _routeState = RoutePickState.idle;
+let _routeStart = null;
+let _routeEnd = null;
+let _routePreviewLine = null;
+let _routeStartMarker = null;
+let _routeEndMarker = null;
+let _routeAbortController = null;
+let _routeRequestId = 0;
+const _routeCache = new Map();
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
+  stopRouteSelection();
   stopRuler();
   if (_selectMode) stopSelect();
   document.getElementById('draw-hint').style.display = 'none';
@@ -76,10 +92,125 @@ function setTool(tool) {
   } else if (tool === 'ruler') {
     hint.textContent = t('hint_ruler');
     startRuler();
+  } else if (tool === 'route') {
+    getOrCreateActiveGroup('line');
+    hint.textContent = t('hint_route_start');
+    startRouteSelection();
   } else if (tool === 'select') {
     hint.textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
     startSelect();
   }
+}
+
+function startRouteSelection() {
+  _routeState = RoutePickState.selectingStart;
+  _routeStart = null;
+  _routeEnd = null;
+  map.on('click', onRouteMapClick);
+}
+
+function stopRouteSelection() {
+  map.off('click', onRouteMapClick);
+  if (_routeAbortController) _routeAbortController.abort();
+  _routeAbortController = null;
+  _routeState = RoutePickState.idle;
+  _routeStart = null;
+  _routeEnd = null;
+  if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routeStartMarker) { map.removeLayer(_routeStartMarker); _routeStartMarker = null; }
+  if (_routeEndMarker) { map.removeLayer(_routeEndMarker); _routeEndMarker = null; }
+}
+
+function onRouteMapClick(e) {
+  if (_routeState === RoutePickState.selectingStart) {
+    _routeStart = e.latlng;
+    if (_routeStartMarker) map.removeLayer(_routeStartMarker);
+    _routeStartMarker = L.circleMarker(_routeStart, { radius: 5, color: drawColor, fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(map);
+    _routeState = RoutePickState.selectingEnd;
+    document.getElementById('draw-hint').textContent = t('hint_route_end');
+    return;
+  }
+  if (_routeState !== RoutePickState.selectingEnd) return;
+  _routeEnd = e.latlng;
+  if (_routeEndMarker) map.removeLayer(_routeEndMarker);
+  _routeEndMarker = L.circleMarker(_routeEnd, { radius: 5, color: drawColor, fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(map);
+  fetchRouteOptimistic();
+}
+
+function _routeKey(a, b) {
+  const p = n => Number(n).toFixed(5);
+  return p(a.lat) + ',' + p(a.lng) + '|' + p(b.lat) + ',' + p(b.lng);
+}
+
+const fetchRouteOptimistic = _debounce(async function() {
+  if (!_routeStart || !_routeEnd) return;
+  _routeState = RoutePickState.fetching;
+  drawRoutePreview(_routeStart, _routeEnd);
+  document.getElementById('draw-hint').textContent = t('hint_route_loading');
+  const key = _routeKey(_routeStart, _routeEnd);
+  if (_routeCache.has(key)) {
+    const cached = _routeCache.get(key);
+    commitRouteLine(cached.coords);
+    return;
+  }
+  if (_routeAbortController) _routeAbortController.abort();
+  const reqId = ++_routeRequestId;
+  _routeAbortController = new AbortController();
+  try {
+    const url = 'https://router.project-osrm.org/route/v1/driving/' +
+      _routeStart.lng + ',' + _routeStart.lat + ';' + _routeEnd.lng + ',' + _routeEnd.lat + '?overview=full&geometries=geojson';
+    const resp = await fetch(url, { signal: _routeAbortController.signal });
+    if (!resp.ok) throw new Error('routing failed');
+    const data = await resp.json();
+    const route = data && data.routes && data.routes[0];
+    if (!route || reqId !== _routeRequestId) return;
+    const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+    _routeCache.set(key, { coords: coords });
+    commitRouteLine(coords);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    if (_routePreviewLine) _routePreviewLine.setStyle({ color: '#ef4444', dashArray: '4 8' });
+    document.getElementById('draw-hint').textContent = t('hint_route_fallback');
+    setTimeout(function() {
+      if (activeTool === 'route') document.getElementById('draw-hint').textContent = t('hint_route_start');
+    }, 1200);
+  } finally {
+    _routeAbortController = null;
+    _routeState = RoutePickState.selectingStart;
+    _routeStart = null;
+    _routeEnd = null;
+  }
+}, 120);
+
+function drawRoutePreview(start, end) {
+  if (_routePreviewLine) map.removeLayer(_routePreviewLine);
+  _routePreviewLine = L.polyline([start, end], {
+    color: '#0ea5e9', weight: 4, opacity: 0.75, dashArray: '8 8'
+  }).addTo(map);
+}
+
+function commitRouteLine(coords) {
+  if (typeof pushUndo === 'function') pushUndo();
+  if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  const line = L.polyline(coords, { color: drawColor, weight: 4, opacity: 0.9 });
+  line._manaName = (typeof LANG !== 'undefined' && LANG === 'en') ? 'Route' : 'Ruta';
+  addDrawnLayerToGroup(line);
+  map.fitBounds(line.getBounds(), { padding: [40, 40] });
+  document.getElementById('draw-hint').textContent = t('hint_route_ready');
+  if (_routeStartMarker) { map.removeLayer(_routeStartMarker); _routeStartMarker = null; }
+  if (_routeEndMarker) { map.removeLayer(_routeEndMarker); _routeEndMarker = null; }
+  setTimeout(function() {
+    if (activeTool === 'route') document.getElementById('draw-hint').textContent = t('hint_route_start');
+  }, 1000);
+}
+
+function _debounce(fn, wait) {
+  let timer = null;
+  return function() {
+    const args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function() { fn.apply(null, args); }, wait);
+  };
 }
 
 // Handle draw:created event
