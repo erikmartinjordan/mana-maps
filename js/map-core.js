@@ -1,11 +1,11 @@
 // ── map-core.js ─ Map init, base layers, resize, stats, utilities ──
 
 // ── BASE LAYERS ──
-const tileMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 20
+const tileMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors', subdomains: 'abc', maxZoom: 20
 });
-const tileSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: '&copy; Esri', maxZoom: 20
+const tileSat = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '&copy; USGS', maxZoom: 20
 });
 
 const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([40.416, -3.703], 6);
@@ -24,8 +24,8 @@ function setLeafletAttributionPrefix() {
 setLeafletAttributionPrefix();
 
 // ── Dark/light tile URLs ──
-const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const TILE_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_LIGHT = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_DARK  = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 function setMapThemeTiles() {
   var rootTheme = document.documentElement.getAttribute('data-theme');
@@ -35,27 +35,28 @@ function setMapThemeTiles() {
   // ── 2D Map tiles ──
   tileMap.setUrl(isDark ? TILE_DARK : TILE_LIGHT);
 
-  // ── Satellite: apply CSS filter for night look ──
+  // ── 2D filters ──
   var mapEl = document.getElementById('map');
   if (mapEl) {
-    if (isDark && activeBase === 'satellite') {
-      mapEl.classList.add('sat-dark');
-    } else {
-      mapEl.classList.remove('sat-dark');
-    }
+    mapEl.classList.toggle('base-map-gray', activeBase === 'map');
+    mapEl.classList.toggle('base-map-sat', activeBase === 'satellite');
+    if (isDark && activeBase === 'satellite') mapEl.classList.add('sat-dark');
+    else mapEl.classList.remove('sat-dark');
   }
 
   // ── Globe 3D: swap tile source ──
+  var globeEl = document.getElementById('globe');
+  if (globeEl) {
+    globeEl.classList.toggle('base-map-gray', activeBase !== 'satellite');
+    globeEl.classList.toggle('base-map-sat', activeBase === 'satellite');
+  }
+
   if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
-    var src = globeMap.getSource('carto-light');
+    var src = globeMap.getSource('base-raster');
     if (src && src.setTiles) {
-      var tpl = isDark
-        ? ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-           'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-           'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png']
-        : ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-           'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-           'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'];
+      var tpl = activeBase === 'satellite'
+        ? ['https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}']
+        : ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'];
       src.setTiles(tpl);
     }
     // Also update point label colors for readability
