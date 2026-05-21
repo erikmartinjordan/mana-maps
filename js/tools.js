@@ -26,6 +26,7 @@ let _routeEndMarker = null;
 let _routeAbortController = null;
 let _routeRequestId = 0;
 const _routeCache = new Map();
+let _routePreviewPulse = null;
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
@@ -117,6 +118,7 @@ function stopRouteSelection() {
   _routeStart = null;
   _routeEnd = null;
   if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routePreviewPulse) { clearInterval(_routePreviewPulse); _routePreviewPulse = null; }
   if (_routeStartMarker) { map.removeLayer(_routeStartMarker); _routeStartMarker = null; }
   if (_routeEndMarker) { map.removeLayer(_routeEndMarker); _routeEndMarker = null; }
 }
@@ -185,13 +187,21 @@ const fetchRouteOptimistic = _debounce(async function() {
 function drawRoutePreview(start, end) {
   if (_routePreviewLine) map.removeLayer(_routePreviewLine);
   _routePreviewLine = L.polyline([start, end], {
-    color: '#0ea5e9', weight: 4, opacity: 0.75, dashArray: '8 8'
+    color: '#9ca3af', weight: 4, opacity: 0.85, dashArray: '10 8'
   }).addTo(map);
+  if (_routePreviewPulse) clearInterval(_routePreviewPulse);
+  let pulse = false;
+  _routePreviewPulse = setInterval(function() {
+    if (!_routePreviewLine) return;
+    pulse = !pulse;
+    _routePreviewLine.setStyle({ opacity: pulse ? 0.28 : 0.85 });
+  }, 320);
 }
 
 function commitRouteLine(coords) {
   if (typeof pushUndo === 'function') pushUndo();
   if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routePreviewPulse) { clearInterval(_routePreviewPulse); _routePreviewPulse = null; }
   const line = L.polyline(coords, { color: drawColor, weight: 4, opacity: 0.9 });
   line._manaName = (typeof LANG !== 'undefined' && LANG === 'en') ? 'Route' : 'Ruta';
   addDrawnLayerToGroup(line);
@@ -203,6 +213,33 @@ function commitRouteLine(coords) {
     if (activeTool === 'route') document.getElementById('draw-hint').textContent = t('hint_route_start');
   }, 1000);
 }
+
+window.onSelectionChanged = function(selectedLayers) {
+  const selectedMarkers = selectedLayers.filter(function(layer) { return layer instanceof L.Marker; });
+  if (selectedMarkers.length !== 2) {
+    _routeStart = null;
+    _routeEnd = null;
+    if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+    if (_routePreviewPulse) { clearInterval(_routePreviewPulse); _routePreviewPulse = null; }
+    return;
+  }
+  _routeStart = selectedMarkers[0].getLatLng();
+  _routeEnd = selectedMarkers[1].getLatLng();
+  drawRoutePreview(_routeStart, _routeEnd);
+  const hint = document.getElementById('draw-hint');
+  if (hint) {
+    hint.style.display = 'block';
+    hint.textContent = t('hint_route_click_draw');
+  }
+};
+
+document.addEventListener('click', function(e) {
+  if (!_routeStart || !_routeEnd) return;
+  const hint = document.getElementById('draw-hint');
+  if (!hint || e.target !== hint) return;
+  getOrCreateActiveGroup('line');
+  fetchRouteOptimistic();
+});
 
 function _debounce(fn, wait) {
   let timer = null;

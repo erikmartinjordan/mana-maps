@@ -154,6 +154,7 @@ const I18N = {
     hint_route_loading: "Calculando ruta…",
     hint_route_ready: "Ruta lista ✓",
     hint_route_fallback: "No se pudo calcular la ruta; se muestra línea directa",
+    hint_route_click_draw: "2 puntos seleccionados — haz clic en el hint para trazar la ruta",
     hint_edit: 'Arrastra los vértices para editar. Clic en "Editar" de nuevo para terminar.',
     hint_select: 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)',
     hint_draw_generic: "Haz clic en el mapa para dibujar",
@@ -639,6 +640,7 @@ const I18N = {
     hint_route_loading: "Calculating route…",
     hint_route_ready: "Route ready ✓",
     hint_route_fallback: "Could not calculate route; showing direct line",
+    hint_route_click_draw: "2 points selected — click this hint to draw the route",
     hint_edit: 'Drag vertices to edit. Click "Edit" again to finish.',
     hint_draw_generic: "Click on the map to draw",
     // ── Context menu ──
