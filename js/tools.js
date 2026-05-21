@@ -14,6 +14,8 @@ let editMode = false;
 let _routeStart = null;
 let _routeEnd = null;
 let _routePreviewLine = null;
+let _routePreviewGlow = null;
+let _routePreviewCoords = null;
 let _routeAbortController = null;
 let _routeRequestId = 0;
 const _routeCache = new Map();
@@ -95,8 +97,10 @@ function _resetSelectedRouteFlow() {
   _routeAbortController = null;
   _routeStart = null;
   _routeEnd = null;
+  _routePreviewCoords = null;
   _routePendingConfirm = false;
   if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routePreviewGlow) { map.removeLayer(_routePreviewGlow); _routePreviewGlow = null; }
 }
 
 function _routeKey(a, b) {
@@ -104,14 +108,17 @@ function _routeKey(a, b) {
   return p(a.lat) + ',' + p(a.lng) + '|' + p(b.lat) + ',' + p(b.lng);
 }
 
-const fetchRouteOptimistic = _debounce(async function() {
+const fetchRouteOptimistic = _debounce(async function(commitWhenReady) {
   if (!_routeStart || !_routeEnd) return;
-  drawRoutePreview(_routeStart, _routeEnd);
+  drawRoutePreview([_routeStart, _routeEnd]);
   document.getElementById('draw-hint').textContent = t('hint_route_loading');
   const key = _routeKey(_routeStart, _routeEnd);
   if (_routeCache.has(key)) {
     const cached = _routeCache.get(key);
-    commitRouteLine(cached.coords);
+    _routePreviewCoords = cached.coords;
+    drawRoutePreview(cached.coords);
+    document.getElementById('draw-hint').textContent = commitWhenReady ? t('hint_route_loading') : t('hint_route_confirm');
+    if (commitWhenReady) commitRouteLine(cached.coords);
     return;
   }
   if (_routeAbortController) _routeAbortController.abort();
@@ -127,7 +134,10 @@ const fetchRouteOptimistic = _debounce(async function() {
     if (!route || reqId !== _routeRequestId) return;
     const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
     _routeCache.set(key, { coords: coords });
-    commitRouteLine(coords);
+    _routePreviewCoords = coords;
+    drawRoutePreview(coords);
+    if (commitWhenReady) commitRouteLine(coords);
+    else document.getElementById('draw-hint').textContent = t('hint_route_confirm');
   } catch (err) {
     if (err && err.name === 'AbortError') return;
     if (_routePreviewLine) _routePreviewLine.setStyle({ color: '#ef4444', dashArray: '4 8' });
@@ -137,20 +147,25 @@ const fetchRouteOptimistic = _debounce(async function() {
     }, 1200);
   } finally {
     _routeAbortController = null;
-    _routePendingConfirm = false;
+    if (commitWhenReady) _routePendingConfirm = false;
   }
 }, 120);
 
-function drawRoutePreview(start, end) {
+function drawRoutePreview(coords) {
   if (_routePreviewLine) map.removeLayer(_routePreviewLine);
-  _routePreviewLine = L.polyline([start, end], {
-    color: '#0ea5e9', weight: 4, opacity: 0.75, dashArray: '8 8'
+  if (_routePreviewGlow) map.removeLayer(_routePreviewGlow);
+  _routePreviewGlow = L.polyline(coords, {
+    color: '#67e8f9', weight: 10, opacity: 0.2, className: 'route-preview-glow'
+  }).addTo(map);
+  _routePreviewLine = L.polyline(coords, {
+    color: '#0ea5e9', weight: 5, opacity: 0.95, dashArray: '14 10', className: 'route-preview-shine'
   }).addTo(map);
 }
 
 function commitRouteLine(coords) {
   if (typeof pushUndo === 'function') pushUndo();
   if (_routePreviewLine) { map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+  if (_routePreviewGlow) { map.removeLayer(_routePreviewGlow); _routePreviewGlow = null; }
   const line = L.polyline(coords, { color: drawColor, weight: 4, opacity: 0.9 });
   line._manaName = (typeof LANG !== 'undefined' && LANG === 'en') ? 'Route' : 'Ruta';
   addDrawnLayerToGroup(line);
@@ -158,6 +173,7 @@ function commitRouteLine(coords) {
   document.getElementById('draw-hint').textContent = t('hint_route_ready');
   _routeStart = null;
   _routeEnd = null;
+  _routePreviewCoords = null;
   setTimeout(function() {
     if (activeTool === 'select') document.getElementById('draw-hint').textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
   }, 1000);
@@ -177,14 +193,18 @@ function _maybePrepareRouteFromSelection() {
   const b = selectedPoints[1].getLatLng();
   _routeStart = a;
   _routeEnd = b;
+  _routePreviewCoords = null;
   _routePendingConfirm = true;
-  drawRoutePreview(a, b);
-  document.getElementById('draw-hint').textContent = t('hint_route_confirm');
+  fetchRouteOptimistic(false);
 }
 
 function _confirmSelectedRouteOnClick() {
   if (!_routePendingConfirm || !_routeStart || !_routeEnd) return;
-  fetchRouteOptimistic();
+  if (_routePreviewCoords && _routePreviewCoords.length > 1) {
+    commitRouteLine(_routePreviewCoords);
+    return;
+  }
+  fetchRouteOptimistic(true);
 }
 
 function _debounce(fn, wait) {

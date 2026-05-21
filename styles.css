@@ -2192,6 +2192,24 @@ select.ai-input{cursor:pointer;appearance:auto;}
   transition:none;
 }
 
+/* ── Route preview polish (selected 2-point flow) ── */
+.route-preview-glow{
+  filter: drop-shadow(0 0 8px rgba(14,165,233,.55)) drop-shadow(0 0 16px rgba(34,211,238,.35));
+}
+.route-preview-shine{
+  animation: routePreviewDash 1s linear infinite, routePreviewPulse 1.4s ease-in-out infinite;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes routePreviewDash{
+  from { stroke-dashoffset: 48; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes routePreviewPulse{
+  0%,100% { opacity: .72; }
+  50% { opacity: 1; }
+}
+
 /* ══════════════════════════════════════════
    Componentes inline migrados desde index.html
    ══════════════════════════════════════════ */
