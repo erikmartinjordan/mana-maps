@@ -11,9 +11,19 @@ var _SEL_DRAG_THRESHOLD = 5;
 
 // ── P1.2: Edit mode state ──
 let editMode = false;
+let _routeStart = null;
+let _routeEnd = null;
+let _routePreviewLine = null;
+let _routeStartMarker = null;
+let _routeEndMarker = null;
+let _routeAbortController = null;
+let _routeRequestId = 0;
+const _routeCache = new Map();
+let _routePreviewConfirmHandler = null;
 
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
+  stopRouteProposal();
   stopRuler();
   if (_selectMode) stopSelect();
   document.getElementById('draw-hint').style.display = 'none';
@@ -48,19 +58,9 @@ function setTool(tool) {
   if (tool === 'point') {
     // Ensure active group is compatible with points
     getOrCreateActiveGroup('point');
-    hint.textContent = t('hint_point');
+    hint.textContent = t('hint_route_start');
     document.getElementById('map').classList.add('draw-point-mode');
-    map.once('click', async e => {
-      stopAll();
-      const name = await askName(t('name_point'), t('default_point_name'));
-      if (name === null) return;
-      if (typeof pushUndo === 'function') pushUndo();
-      const icon = makeMarkerIcon(drawColor, markerType);
-      const m = L.marker(e.latlng, { icon });
-      m._manaName = name; m._manaColor = drawColor; m._manaMarkerType = markerType;
-      m.bindPopup('<strong>' + name + '</strong>');
-      addDrawnLayerToGroup(m);
-    });
+    startRouteProposal();
   } else if (tool === 'line') {
     // Ensure active group is compatible with lines
     getOrCreateActiveGroup('line');
@@ -80,6 +80,139 @@ function setTool(tool) {
     hint.textContent = t('hint_select') || 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)';
     startSelect();
   }
+}
+
+function startRouteProposal() {
+  _routeStart = null;
+  _routeEnd = null;
+  map.on('click', onPointRouteClick);
+}
+
+function stopRouteProposal() {
+  map.off('click', onPointRouteClick);
+  if (_routeAbortController) _routeAbortController.abort();
+  _routeAbortController = null;
+  _routeStart = null;
+  _routeEnd = null;
+  if (_routePreviewLine) {
+    if (_routePreviewConfirmHandler) _routePreviewLine.off('click', _routePreviewConfirmHandler);
+    map.removeLayer(_routePreviewLine);
+    _routePreviewLine = null;
+  }
+  _routePreviewConfirmHandler = null;
+  if (_routeStartMarker) { map.removeLayer(_routeStartMarker); _routeStartMarker = null; }
+  if (_routeEndMarker) { map.removeLayer(_routeEndMarker); _routeEndMarker = null; }
+}
+
+function onPointRouteClick(e) {
+  if (!_routeStart) {
+    _routeStart = e.latlng;
+    if (_routeStartMarker) map.removeLayer(_routeStartMarker);
+    _routeStartMarker = L.circleMarker(_routeStart, { radius: 5, color: drawColor, fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(map);
+    document.getElementById('draw-hint').textContent = t('hint_route_end');
+    return;
+  }
+  if (_routeEnd) {
+    _routeStart = e.latlng;
+    _routeEnd = null;
+    if (_routeEndMarker) { map.removeLayer(_routeEndMarker); _routeEndMarker = null; }
+    if (_routePreviewLine) { if (_routePreviewConfirmHandler) _routePreviewLine.off('click', _routePreviewConfirmHandler); map.removeLayer(_routePreviewLine); _routePreviewLine = null; }
+    if (_routeStartMarker) map.removeLayer(_routeStartMarker);
+    _routeStartMarker = L.circleMarker(_routeStart, { radius: 5, color: drawColor, fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(map);
+    document.getElementById('draw-hint').textContent = t('hint_route_end');
+    return;
+  }
+  _routeEnd = e.latlng;
+  if (_routeEndMarker) map.removeLayer(_routeEndMarker);
+  _routeEndMarker = L.circleMarker(_routeEnd, { radius: 5, color: drawColor, fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(map);
+  fetchRouteOptimistic();
+}
+
+function _routeKey(a, b) {
+  const p = n => Number(n).toFixed(5);
+  return p(a.lat) + ',' + p(a.lng) + '|' + p(b.lat) + ',' + p(b.lng);
+}
+
+const fetchRouteOptimistic = _debounce(async function() {
+  if (!_routeStart || !_routeEnd) return;
+  drawRoutePreview(_routeStart, _routeEnd);
+  document.getElementById('draw-hint').textContent = t('hint_route_loading');
+  const key = _routeKey(_routeStart, _routeEnd);
+  if (_routeCache.has(key)) {
+    const cached = _routeCache.get(key);
+    setPreviewRoute(cached.coords);
+    return;
+  }
+  if (_routeAbortController) _routeAbortController.abort();
+  const reqId = ++_routeRequestId;
+  _routeAbortController = new AbortController();
+  try {
+    const url = 'https://router.project-osrm.org/route/v1/driving/' +
+      _routeStart.lng + ',' + _routeStart.lat + ';' + _routeEnd.lng + ',' + _routeEnd.lat + '?overview=full&geometries=geojson';
+    const resp = await fetch(url, { signal: _routeAbortController.signal });
+    if (!resp.ok) throw new Error('routing failed');
+    const data = await resp.json();
+    const route = data && data.routes && data.routes[0];
+    if (!route || reqId !== _routeRequestId) return;
+    const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+    _routeCache.set(key, { coords: coords });
+    setPreviewRoute(coords);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    if (_routePreviewLine) _routePreviewLine.setStyle({ color: '#ef4444', dashArray: '4 8' });
+    document.getElementById('draw-hint').textContent = t('hint_route_fallback');
+    setTimeout(function() {
+      if (activeTool === 'point') document.getElementById('draw-hint').textContent = t('hint_route_end');
+    }, 1200);
+  } finally {
+    _routeAbortController = null;
+  }
+}, 120);
+
+function drawRoutePreview(start, end) {
+  if (_routePreviewLine) map.removeLayer(_routePreviewLine);
+  _routePreviewLine = L.polyline([start, end], {
+    color: '#cfd6df', weight: 5, opacity: 0.85, dashArray: '9 7', lineCap: 'round'
+  }).addTo(map);
+}
+
+function setPreviewRoute(coords) {
+  if (_routePreviewLine) {
+    if (_routePreviewConfirmHandler) _routePreviewLine.off('click', _routePreviewConfirmHandler);
+    map.removeLayer(_routePreviewLine);
+  }
+  _routePreviewLine = L.polyline(coords, { color: '#e5e7eb', weight: 5, opacity: 0.9, dashArray: '9 7', lineCap: 'round' }).addTo(map);
+  _routePreviewConfirmHandler = function() { commitRouteLine(coords); };
+  _routePreviewLine.on('click', _routePreviewConfirmHandler);
+  document.getElementById('draw-hint').textContent = t('hint_route_ready');
+}
+
+function commitRouteLine(coords) {
+  if (typeof pushUndo === 'function') pushUndo();
+  if (_routePreviewLine) {
+    if (_routePreviewConfirmHandler) _routePreviewLine.off('click', _routePreviewConfirmHandler);
+    map.removeLayer(_routePreviewLine);
+    _routePreviewLine = null;
+  }
+  _routePreviewConfirmHandler = null;
+  const line = L.polyline(coords, { color: drawColor, weight: 4, opacity: 0.9 });
+  line._manaName = (typeof LANG !== 'undefined' && LANG === 'en') ? 'Route' : 'Ruta';
+  addDrawnLayerToGroup(line);
+  map.fitBounds(line.getBounds(), { padding: [40, 40] });
+  document.getElementById('draw-hint').textContent = t('hint_route_start');
+  if (_routeStartMarker) { map.removeLayer(_routeStartMarker); _routeStartMarker = null; }
+  if (_routeEndMarker) { map.removeLayer(_routeEndMarker); _routeEndMarker = null; }
+  _routeStart = null;
+  _routeEnd = null;
+}
+
+function _debounce(fn, wait) {
+  let timer = null;
+  return function() {
+    const args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function() { fn.apply(null, args); }, wait);
+  };
 }
 
 // Handle draw:created event
