@@ -21,19 +21,19 @@ function initGlobe() {
         projection: {type: 'globe'},
         glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
         sources: {
-          'carto-light': {
+          'osm-base': {
             type: 'raster',
             tiles: [
-              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
             ],
             tileSize: 256,
-            attribution: '\u00a9 OSM \u00a9 CARTO'
+            attribution: '\u00a9 OpenStreetMap contributors'
           }
         },
         layers: [{
-          id: 'carto', type: 'raster', source: 'carto-light',
+          id: 'osm', type: 'raster', source: 'osm-base',
           minzoom: 0, maxzoom: 20
         }]
       },
