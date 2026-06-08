@@ -98,7 +98,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
-<link rel="stylesheet" href="../styles.css"/>
+<link rel="stylesheet" href="../styles.css?v=1776927833"/>
 
 <!-- ═══ Estilos de componentes ═══ -->
 <style>
@@ -759,6 +759,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.1/leaflet-maplibre-gl.js"></script>
 
 <!-- ═══ Firebase runtime config (must load before app modules) ═══ -->
 <script src="../js/firebase-config.local.js"></script>
@@ -766,6 +767,7 @@
 
 <!-- ═══ App modules (order matters) ═══ -->
 <script src="../js/i18n.js"></script>      <!-- i18n: must load first -->
+<script src="../js/basemap-config.js"></script>
 <script src="../js/markers.js"></script>      <!-- color y marcadores -->
 <script src="../js/modal.js"></script>        <!-- diálogo de nombre -->
 <script src="../js/map-core.js"></script>     <!-- mapa, capas, stats -->

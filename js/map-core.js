@@ -1,63 +1,110 @@
 // ── map-core.js ─ Map init, base layers, resize, stats, utilities ──
 
 // ── BASE LAYERS ──
-const tileMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 20
-});
-const tileSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: '&copy; Esri', maxZoom: 20
-});
+function isDarkMapTheme() {
+  var rootTheme = document.documentElement.getAttribute('data-theme');
+  return rootTheme === 'dark'
+    || (!rootTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+
+function getManaBasemapStyleUrl(isDark) {
+  if (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getStyleUrl) {
+    return window.MANA_BASEMAPS.getStyleUrl(isDark);
+  }
+  return isDark
+    ? 'https://tiles.openfreemap.org/styles/dark'
+    : 'https://tiles.openfreemap.org/styles/positron';
+}
+
+function getManaSatelliteStyleUrl() {
+  if (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getSatelliteStyleUrl) {
+    return window.MANA_BASEMAPS.getSatelliteStyleUrl();
+  }
+  return 'https://tiles.openfreemap.org/styles/liberty';
+}
+
+function getManaBasemapAttribution() {
+  if (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getAttribution) return window.MANA_BASEMAPS.getAttribution();
+  return '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>';
+}
+
+function createManaBaseLayer(isDark) {
+  if (L.maplibreGL) {
+    return L.maplibreGL({ style: getManaBasemapStyleUrl(isDark) });
+  }
+  console.warn('MapLibre Leaflet bridge is unavailable; falling back to OSM raster tiles.');
+  return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+  });
+}
+
+function createManaSatelliteLayer() {
+  if (L.maplibreGL) return L.maplibreGL({ style: getManaSatelliteStyleUrl() });
+  console.warn('MapLibre Leaflet bridge is unavailable; falling back to OSM raster tiles.');
+  return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+  });
+}
+
+let tileMap = createManaBaseLayer(isDarkMapTheme());
+let currentMapAttribution = null;
+let tileSat = createManaSatelliteLayer();
 
 const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 
+function syncManaBasemapAttribution() {
+  if (!map || !map.attributionControl) return;
+  // MapLibre reads detailed attribution from the remote style. Maña Maps keeps
+  // the visible signature intentionally compact in the Leaflet control.
+  if (map.attributionControl._attributions) map.attributionControl._attributions = {};
+  currentMapAttribution = getManaBasemapAttribution();
+  if (activeBase === 'map' || activeBase === 'satellite') {
+    map.attributionControl.addAttribution(currentMapAttribution);
+  }
+  map.attributionControl._update();
+}
+
+function scheduleManaBasemapAttributionSync() {
+  syncManaBasemapAttribution();
+  setTimeout(syncManaBasemapAttribution, 50);
+  setTimeout(syncManaBasemapAttribution, 250);
+  setTimeout(syncManaBasemapAttribution, 1000);
+  setTimeout(syncManaBasemapAttribution, 2000);
+  setTimeout(syncManaBasemapAttribution, 4000);
+}
+
 // ── Leaflet attribution prefix (integrated, minimal) ──
 function setLeafletAttributionPrefix() {
   if (!map || !map.attributionControl) return;
   map.attributionControl.setPrefix(
-    '<a class="leaflet-prefix-link" href="https://leafletjs.com" target="_blank" rel="noopener noreferrer" aria-label="Leaflet (opens in a new tab)">' +
+    '<a class="leaflet-prefix-link" href="https://leafletjs.com" target="_blank" rel="noopener noreferrer">' +
       '<span class="leaflet-prefix-dot" aria-hidden="true"></span>Leaflet' +
     '</a>'
   );
 }
 setLeafletAttributionPrefix();
-
-// ── Dark/light tile URLs ──
-const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const TILE_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+scheduleManaBasemapAttributionSync();
 
 function setMapThemeTiles() {
-  var rootTheme = document.documentElement.getAttribute('data-theme');
-  var isDark = rootTheme === 'dark'
-    || (!rootTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var isDark = isDarkMapTheme();
 
   // ── 2D Map tiles ──
-  tileMap.setUrl(isDark ? TILE_DARK : TILE_LIGHT);
-
-  // ── Satellite: apply CSS filter for night look ──
-  var mapEl = document.getElementById('map');
-  if (mapEl) {
-    if (isDark && activeBase === 'satellite') {
-      mapEl.classList.add('sat-dark');
-    } else {
-      mapEl.classList.remove('sat-dark');
-    }
+  if (activeBase === 'map') {
+    var replacement = createManaBaseLayer(isDark);
+    map.removeLayer(tileMap);
+    tileMap = replacement;
+    tileMap.addTo(map);
+    scheduleManaBasemapAttributionSync();
   }
 
-  // ── Globe 3D: swap tile source ──
+  var mapEl = document.getElementById('map');
+  if (mapEl) mapEl.classList.remove('sat-dark');
+
+  // ── Globe 3D: swap vector style ──
+  if (typeof updateGlobeBaseStyle === 'function') updateGlobeBaseStyle(isDark);
   if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
-    var src = globeMap.getSource('carto-light');
-    if (src && src.setTiles) {
-      var tpl = isDark
-        ? ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-           'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-           'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png']
-        : ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-           'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-           'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'];
-      src.setTiles(tpl);
-    }
     // Also update point label colors for readability
     if (globeMap.getLayer('drawn-point-labels')) {
       globeMap.setPaintProperty('drawn-point-labels', 'text-color', isDark ? '#e8e6e3' : '#30363b');
@@ -595,8 +642,10 @@ function setBaseLayer(type) {
   var globeCtrl = document.getElementById('globe-controls');
 
   // P2.9: Animated transition between 2D and 3D
+  var previousBase = activeBase;
   var isGoing3D = (type === 'globe');
-  var isLeaving3D = (activeBase === 'globe' && type !== 'globe');
+  var isLeaving3D = (previousBase === 'globe' && type !== 'globe');
+  activeBase = type;
 
   if (isGoing3D) {
     // Fade out map, then show globe
@@ -630,6 +679,7 @@ function setBaseLayer(type) {
       mapEl.style.transition = 'opacity 0.2s ease';
       if (type === 'map') { map.removeLayer(tileSat); tileMap.addTo(map); }
       else { map.removeLayer(tileMap); tileSat.addTo(map); }
+      scheduleManaBasemapAttributionSync();
       setTimeout(function(){ map.invalidateSize(); }, 50);
       if (globeMap) {
         var c = globeMap.getCenter();
@@ -641,9 +691,9 @@ function setBaseLayer(type) {
     // Switching between map/satellite (no globe involved)
     if (type === 'map') { map.removeLayer(tileSat); tileMap.addTo(map); }
     else { map.removeLayer(tileMap); tileSat.addTo(map); }
+    scheduleManaBasemapAttributionSync();
     setTimeout(function(){ map.invalidateSize(); }, 50);
   }
-  activeBase = type;
   setMapThemeTiles();
   document.getElementById('bmc-map').classList.toggle('active', type === 'map');
   document.getElementById('bmc-sat').classList.toggle('active', type === 'satellite');
