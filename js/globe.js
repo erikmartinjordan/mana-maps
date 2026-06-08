@@ -16,30 +16,11 @@ function initGlobe() {
 
     globeMap = new maplibregl.Map({
       container: 'globe',
-      style: {
-        version: 8,
-        projection: {type: 'globe'},
-        glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
-        sources: {
-          'carto-light': {
-            type: 'raster',
-            tiles: [
-              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'
-            ],
-            tileSize: 256,
-            attribution: '\u00a9 OSM \u00a9 CARTO'
-          }
-        },
-        layers: [{
-          id: 'carto', type: 'raster', source: 'carto-light',
-          minzoom: 0, maxzoom: 20
-        }]
-      },
+      style: getManaBasemapStyleUrl(isDarkMapTheme()),
       center: [map.getCenter().lng, map.getCenter().lat],
       zoom: Math.max(1.5, map.getZoom() - 1),
-      maxPitch: 85
+      maxPitch: 85,
+      attributionControl: false
     });
 
     globeMap.addControl(new maplibregl.NavigationControl({
@@ -53,6 +34,7 @@ function initGlobe() {
     });
 
     setTimeout(function() { if (globeMap) globeMap.resize(); }, 300);
+    setGlobeAttributionSignature();
 
     globeMap.on('mousedown', function() { if (spinActive) toggleSpin(); });
     globeMap.on('touchstart', function() { if (spinActive) toggleSpin(); });
@@ -60,6 +42,30 @@ function initGlobe() {
     console.error('Error initializing 3D globe:', e);
     manaAlert('Globe 3D init error: ' + e.message, 'error');
   }
+}
+
+function setGlobeAttributionSignature() {
+  var container = document.getElementById('globe');
+  if (!container || container.querySelector('.mana-globe-attribution')) return;
+  var attr = document.createElement('div');
+  attr.className = 'mana-globe-attribution';
+  attr.innerHTML =
+    '<a class="maplibre-prefix-link" href="https://maplibre.org" target="_blank" rel="noopener noreferrer">' +
+      '<span class="leaflet-prefix-dot" aria-hidden="true"></span>MapLibre' +
+    '</a> | <a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>';
+  container.appendChild(attr);
+}
+
+function updateGlobeBaseStyle(isDark) {
+  if (!globeMap || !globeMap.setStyle) return;
+  var nextStyle = getManaBasemapStyleUrl(isDark);
+  if (globeMap._manaStyleUrl === nextStyle) return;
+  globeMap._manaStyleUrl = nextStyle;
+  globeMap.setStyle(nextStyle);
+  globeMap.once('style.load', function() {
+    try { globeMap.setProjection({type: 'globe'}); } catch(e) { console.warn('setProjection:', e); }
+    syncToGlobe();
+  });
 }
 
 function syncToGlobe() {

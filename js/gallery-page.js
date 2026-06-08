@@ -572,9 +572,18 @@
     wrap.style.display = 'block';
 
     const map = L.map('featured-map', { zoomControl: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    if (window.L && L.maplibreGL) {
+      L.maplibreGL({
+        style: window.MANA_BASEMAPS ? window.MANA_BASEMAPS.getStyleUrl(false) : 'https://tiles.openfreemap.org/styles/positron'
+      }).addTo(map);
+      if (map.attributionControl && window.MANA_BASEMAPS) {
+        map.attributionControl.addAttribution(window.MANA_BASEMAPS.getAttribution());
+      }
+    } else {
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+    }
 
     const layer = L.geoJSON(geo).addTo(map);
     const bounds = layer.getBounds();
