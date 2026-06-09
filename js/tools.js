@@ -353,7 +353,7 @@ function rulerMove(e) {
 function rulerFinish(e) {
   e.originalEvent.preventDefault();
   if (rulerPoints.length < 2) { stopRuler(); stopAll(); return; }
-  L.popup({ closeButton: true })
+  var popup = L.popup({ closeButton: true })
     .setLatLng(rulerPoints[Math.floor(rulerPoints.length / 2)])
     .setContent('<strong>' + t('ruler_total') + '</strong><br>' + formatDist(getTotalDist(rulerPoints)))
     .openOn(map);
@@ -367,6 +367,14 @@ function rulerFinish(e) {
   var tbRuler = document.getElementById('tb-ruler');
   if (tbRuler) tbRuler.classList.remove('active');
   activeTool = null;
+
+  map.on('popupclose', function onClose(e) {
+    if (e.popup !== popup) return;
+    rulerMarkers.forEach(function(m) { map.removeLayer(m); });
+    if (rulerLine) map.removeLayer(rulerLine);
+    rulerMarkers = []; rulerLine = null; rulerPoints = [];
+    map.off('popupclose', onClose);
+  });
 }
 
 function getTotalDist(pts) {
