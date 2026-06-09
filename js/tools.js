@@ -357,8 +357,16 @@ function rulerFinish(e) {
     .setLatLng(rulerPoints[Math.floor(rulerPoints.length / 2)])
     .setContent('<strong>' + t('ruler_total') + '</strong><br>' + formatDist(getTotalDist(rulerPoints)))
     .openOn(map);
-  stopRuler();
-  stopAll();
+  map.off('click', rulerClick);
+  map.off('dblclick', rulerFinish);
+  map.off('mousemove', rulerMove);
+  document.getElementById('ruler-tooltip').style.display = 'none';
+  document.getElementById('draw-hint').style.display = 'none';
+  document.getElementById('map').classList.remove('draw-point-mode');
+  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
+  var tbRuler = document.getElementById('tb-ruler');
+  if (tbRuler) tbRuler.classList.remove('active');
+  activeTool = null;
 }
 
 function getTotalDist(pts) {
