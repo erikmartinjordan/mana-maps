@@ -313,6 +313,7 @@ let rulerCompleted = [];
 
 function startRuler() {
   rulerPoints = []; rulerMarkers = []; rulerLine = null; rulerPreview = null;
+  map.doubleClickZoom && map.doubleClickZoom.disable();
   map.on('click', rulerClick);
   map.on('dblclick', rulerFinish);
   map.on('mousemove', rulerMove);
@@ -322,6 +323,7 @@ function stopRuler() {
   map.off('click', rulerClick);
   map.off('dblclick', rulerFinish);
   map.off('mousemove', rulerMove);
+  map.doubleClickZoom && map.doubleClickZoom.enable();
   rulerMarkers.forEach(m => map.removeLayer(m));
   if (rulerLine) map.removeLayer(rulerLine);
   if (rulerPreview) map.removeLayer(rulerPreview);
@@ -333,8 +335,10 @@ function stopRuler() {
   rulerCompleted = [];
 }
 
+let _rulerIgnoreClick = 0;
 function rulerClick(e) {
-  if (rulerPoints.length > 0 && e.latlng.distanceTo(rulerPoints[rulerPoints.length - 1]) < 5) return;
+  if (Date.now() < _rulerIgnoreClick) return;
+  if (rulerPoints.length > 0 && e.latlng.distanceTo(rulerPoints[rulerPoints.length - 1]) < 2) return;
   rulerPoints.push(e.latlng);
   const dot = L.circleMarker(e.latlng, {
     radius: 5, color: '#30363b', fillColor: 'white', fillOpacity: 1, weight: 2
@@ -367,7 +371,7 @@ function rulerMove(e) {
 
 function rulerFinish(e) {
   e.originalEvent.preventDefault();
-  if (rulerPoints.length < 2) { stopRuler(); stopAll(); return; }
+  if (rulerPoints.length < 2) return;
   if (rulerPreview) { map.removeLayer(rulerPreview); rulerPreview = null; }
   if (rulerLine) rulerLine.setLatLngs(rulerPoints);
   var totalDist = Math.round(getTotalDist(rulerPoints));
@@ -379,6 +383,7 @@ function rulerFinish(e) {
   }
   rulerCompleted.push({ markers: rulerMarkers.slice(), line: rulerLine });
   rulerPoints = []; rulerMarkers = []; rulerLine = null;
+  _rulerIgnoreClick = Date.now() + 400;
   document.getElementById('draw-hint').textContent = t('hint_ruler');
 }
 

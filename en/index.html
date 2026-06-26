@@ -806,7 +806,7 @@
   async function doSearch(q) {
     try {
       var r = await fetch(
-        'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=5',
+        'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=10&addressdetails=1',
         { headers: { 'Accept-Language': 'en', 'User-Agent': 'ManaMaps/1.0' } }
       );
       var results = await r.json();
