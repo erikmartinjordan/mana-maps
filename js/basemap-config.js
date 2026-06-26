@@ -9,12 +9,16 @@
         lightStyle: '/styles/mana-positron.json?v=1776927833',
         darkStyle: '/styles/mana-dark.json?v=1776927833',
         satelliteStyle: '/styles/mana-openfreemap-alt.json?v=1776927833',
+        satelliteTileUrl: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        satelliteAttribution: 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>',
         attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>'
       },
       selfHosted: {
         lightStyle: '/tiles/styles/positron/style.json',
         darkStyle: '/tiles/styles/dark/style.json',
         satelliteStyle: '/tiles/styles/alternative/style.json',
+        satelliteTileUrl: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        satelliteAttribution: 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>',
         attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>',
         thumb: '/tiles/previews/positron.png'
       }
@@ -52,6 +56,14 @@
     getSatelliteStyleUrl: function() {
       var p = provider();
       return p.satelliteStyle || p.lightStyle;
+    },
+    getSatelliteTileUrl: function() {
+      var p = provider();
+      return p.satelliteTileUrl || 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+    },
+    getSatelliteAttribution: function() {
+      var p = provider();
+      return p.satelliteAttribution || 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>';
     },
     getAttribution: function() {
       return provider().attribution || DEFAULTS.providers.openfreemap.attribution;

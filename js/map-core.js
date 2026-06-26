@@ -39,10 +39,15 @@ function createManaBaseLayer(isDark) {
 }
 
 function createManaSatelliteLayer() {
-  if (L.maplibreGL) return L.maplibreGL({ style: getManaSatelliteStyleUrl() });
-  console.warn('MapLibre Leaflet bridge is unavailable; falling back to OSM raster tiles.');
-  return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+  var tileUrl = (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getSatelliteTileUrl)
+    ? window.MANA_BASEMAPS.getSatelliteTileUrl()
+    : 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+  var attr = (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getSatelliteAttribution)
+    ? window.MANA_BASEMAPS.getSatelliteAttribution()
+    : 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>';
+  return L.tileLayer(tileUrl, {
+    maxZoom: 22,
+    attribution: attr
   });
 }
 
@@ -59,8 +64,8 @@ function syncManaBasemapAttribution() {
   // MapLibre reads detailed attribution from the remote style. Maña Maps keeps
   // the visible signature intentionally compact in the Leaflet control.
   if (map.attributionControl._attributions) map.attributionControl._attributions = {};
-  currentMapAttribution = getManaBasemapAttribution();
-  if (activeBase === 'map' || activeBase === 'satellite') {
+  if (activeBase === 'map') {
+    currentMapAttribution = getManaBasemapAttribution();
     map.attributionControl.addAttribution(currentMapAttribution);
   }
   map.attributionControl._update();

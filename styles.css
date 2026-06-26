@@ -181,32 +181,14 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .basemap-card.active{border-color:#1a1a1a;box-shadow:none;}
 .basemap-thumb{width:100%;height:56px;display:block;background-size:cover;background-position:center;transition:height .15s;}
 .basemap-thumb-map{
-  background:
-    radial-gradient(ellipse at 88% 18%, rgba(207,215,219,.98) 0 18px, transparent 19px),
-    radial-gradient(ellipse at 18% 24%, rgba(242,242,242,.78) 0 16px, transparent 17px),
-    radial-gradient(ellipse at 78% 78%, rgba(242,242,242,.62) 0 18px, transparent 19px),
-    linear-gradient(32deg, transparent 0 42%, rgba(255,255,255,.96) 43% 47%, transparent 48%),
-    linear-gradient(145deg, transparent 0 34%, rgba(255,255,255,.88) 35% 38%, transparent 39%),
-    linear-gradient(84deg, transparent 0 59%, rgba(255,255,255,.96) 60% 62%, transparent 63%),
-    linear-gradient(18deg, transparent 0 18%, rgba(212,219,224,.72) 19% 20%, transparent 21%),
-    linear-gradient(116deg, transparent 0 70%, rgba(212,219,224,.72) 71% 72%, transparent 73%),
-    linear-gradient(0deg, rgba(232,232,232,.56) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232,232,232,.56) 1px, transparent 1px),
-    #f7f7f7;
-  background-size:auto,auto,auto,auto,auto,auto,auto,auto,22px 22px,22px 22px,auto;
+  background-image:url(https://a.basemaps.cartocdn.com/light_all/2/1/1.png);
+  background-size:cover;
+  background-position:center;
 }
 .basemap-thumb-sat{
-  background:
-    radial-gradient(ellipse at 74% 22%, rgba(88,104,113,.92) 0 18px, transparent 19px),
-    radial-gradient(ellipse at 19% 70%, rgba(189,198,202,.88) 0 20px, transparent 21px),
-    radial-gradient(ellipse at 48% 38%, rgba(224,228,228,.78) 0 14px, transparent 15px),
-    linear-gradient(29deg, transparent 0 40%, rgba(248,249,249,.9) 41% 44%, transparent 45%),
-    linear-gradient(143deg, transparent 0 35%, rgba(132,149,158,.72) 36% 39%, transparent 40%),
-    linear-gradient(93deg, transparent 0 55%, rgba(213,219,221,.78) 56% 59%, transparent 60%),
-    linear-gradient(0deg, rgba(151,166,174,.44) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(151,166,174,.44) 1px, transparent 1px),
-    #cfd7db;
-  background-size:auto,auto,auto,auto,auto,auto,22px 22px,22px 22px,auto;
+  background-image:url(https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=2);
+  background-size:cover;
+  background-position:center;
 }
 .basemap-label{font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
   color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -240,12 +222,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 #globe{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:1;background:#0a1628;}
 .maplibregl-canvas{outline:none;}
 .basemap-thumb-globe{
-  background:radial-gradient(circle at 38% 35%,#5bbfff 0%,#2196F3 25%,#1565C0 50%,#0d3d6e 75%,#0a1628 100%);
-  position:relative;overflow:hidden;
-}
-.basemap-thumb-globe::after{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,0.3) 0%,transparent 45%);
+  background-image:url(globe-thumb.png);
+  background-size:cover;
+  background-position:center;
 }
 .globe-atmosphere{pointer-events:none;position:absolute;inset:0;z-index:2;
   background:radial-gradient(ellipse at center,transparent 55%,rgba(10,22,40,0.5) 100%);
