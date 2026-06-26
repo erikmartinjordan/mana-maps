@@ -191,6 +191,12 @@ map.on('contextmenu', e => {
   ctxLatLng = e.latlng;
   ctxTargetLayer = null;
 
+  // Clean up polygon measurements
+  if (window._polyMeasureLayers) {
+    window._polyMeasureLayers.forEach(function(l) { map.removeLayer(l); });
+    window._polyMeasureLayers = null;
+  }
+
   // Detect layer under click with proper proximity checks
   let bestDist = Infinity;
   drawnItems.eachLayer(l => {
@@ -276,11 +282,12 @@ async function ctxAddPoint() {
   const name = await askName(t('name_point'), t('default_point_name'));
   if (name === null) return;
   const icon = makeMarkerIcon(drawColor, markerType);
-  const m = L.marker(ctxLatLng, { icon }).addTo(drawnItems);
+  const m = L.marker(ctxLatLng, { icon });
   m._manaName = name;
   m._manaColor = drawColor;
   m._manaMarkerType = markerType;
   m.bindPopup('<strong>' + name + '</strong>');
+  addDrawnLayerToGroup(m);
   stats();
   if (typeof saveState === 'function') saveState();
 }
@@ -423,6 +430,61 @@ function _positionFixedMenu(menu, x, y, margin) {
 // ═══════════════════════════════════════════════════════════════
 // CONTEXT MENU — show/hide style section dynamically
 // ═══════════════════════════════════════════════════════════════
+function ctxToggleLabel() {
+  if (!ctxTargetLayer) return;
+  var gid = ctxTargetLayer._manaGroupId;
+  if (gid == null || !_manaGroupMeta[gid]) return;
+  var meta = _manaGroupMeta[gid];
+  var cur = _normalizeLabelStyle(meta.labelStyle);
+  cur.enabled = !cur.enabled;
+  updateLabelStyle(gid, null, cur);
+  renderLayers();
+  closeCtx();
+}
+
+function ctxMeasurePolygon() {
+  if (!ctxTargetLayer || !(ctxTargetLayer instanceof L.Polygon)) return;
+  closeCtx();
+  // Remove previous measurements
+  if (window._polyMeasureLayers) {
+    window._polyMeasureLayers.forEach(function(l) { map.removeLayer(l); });
+  }
+  window._polyMeasureLayers = [];
+
+  var latlngs = ctxTargetLayer.getLatLngs();
+  var ring = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
+  var segs = [];
+  for (var i = 0; i < ring.length; i++) {
+    var a = ring[i], b = ring[(i + 1) % ring.length];
+    var segLine = L.polyline([a, b], {
+      color: '#0ea5e9', weight: 2.5, dashArray: '6 5', opacity: 0.65
+    }).addTo(map);
+    var segDist = Math.round(a.distanceTo(b));
+    segLine.bindTooltip(segDist + ' m', {
+      permanent: true, direction: 'center', className: 'ruler-label'
+    });
+    segs.push(segDist);
+    window._polyMeasureLayers.push(segLine);
+  }
+  // area
+  var area = 0;
+  if (typeof L.GeometryUtil !== 'undefined' && L.GeometryUtil.geodesicArea) {
+    area = Math.abs(L.GeometryUtil.geodesicArea(ring));
+  } else {
+    for (var j = 0, k = ring.length - 1; j < ring.length; k = j++) {
+      area += (ring[k].lng + ring[j].lng) * (ring[k].lat - ring[j].lat);
+    }
+    area = Math.abs(area / 2) * 111319.9 * 111319.9;
+  }
+  var areaStr = area >= 1000000 ? (area / 1000000).toFixed(2) + ' km²' : Math.round(area) + ' m²';
+  var center = ctxTargetLayer.getBounds().getCenter();
+  var areaLayer = L.circleMarker(center, { radius: 1, opacity: 0, fillOpacity: 0, interactive: false }).addTo(map);
+  areaLayer.bindTooltip(areaStr, {
+    permanent: true, direction: 'center', className: 'ruler-label total'
+  });
+  window._polyMeasureLayers.push(areaLayer);
+}
+
 function updateCtxStyleSection() {
   const section = document.getElementById('ctx-style-section');
   const deleteBtn = document.getElementById('ctx-delete-layer');
@@ -486,14 +548,27 @@ function updateCtxStyleSection() {
     } else {
       catSection.style.display = 'none';
     }
-    if (labelSection) {
-      labelSection.style.display = 'block';
-      _renderLayerLabelPanel(id);
-    }
   } else {
     styleGroupBtn.style.display = 'none';
     catSection.style.display = 'none';
   }
+
+  // Show label toggle if the element belongs to a group
+  var labelToggle = document.getElementById('ctx-label-toggle');
+  if (labelToggle) {
+    if (gid && _manaGroupMeta[gid]) {
+      labelToggle.style.display = 'flex';
+      var span = labelToggle.querySelector('span');
+      var enabled = _manaGroupMeta[gid].labelStyle && _manaGroupMeta[gid].labelStyle.enabled;
+      if (span) span.textContent = enabled ? (t('ctx_hide_label') || 'Ocultar etiqueta') : (t('ctx_show_label') || 'Mostrar etiqueta');
+    } else {
+      labelToggle.style.display = 'none';
+    }
+  }
+
+  // Show polygon measure button for polygons
+  var polyBtn = document.getElementById('ctx-measure-polygon');
+  if (polyBtn) polyBtn.style.display = (ctxTargetLayer instanceof L.Polygon) ? 'flex' : 'none';
 }
 
 
@@ -580,6 +655,14 @@ function _openLayerCtx(x, y, type, id) {
     } else {
       catSection.style.display = 'none';
     }
+
+    // Show label toggle
+    var labelBtn = document.getElementById('lctx-label-toggle');
+    if (labelBtn) {
+      labelBtn.style.display = 'flex';
+      var labelSpan = labelBtn.querySelector('span');
+      if (labelSpan) labelSpan.textContent = meta.labelStyle && meta.labelStyle.enabled ? t('lctx_hide_label') || 'Ocultar etiqueta' : t('lctx_show_label') || 'Mostrar etiqueta';
+    }
   } else {
     // Individual layer
     const layers = [];
@@ -610,6 +693,10 @@ function _openLayerCtx(x, y, type, id) {
     opVal.textContent = curOp + '%';
 
     catSection.style.display = 'none';
+
+    // Hide label toggle for individual layers
+    var labelBtn2 = document.getElementById('lctx-label-toggle');
+    if (labelBtn2) labelBtn2.style.display = 'none';
   }
 
   // Position and show
@@ -790,6 +877,17 @@ function _updateLabelModalPreview() {
   preview.style.opacity = style.opacity == null ? 1 : style.opacity;
   preview.style.textShadow = '0 0 ' + (style.haloWidth || 1) + 'px ' + (style.haloColor || '#ffffff');
   preview.style.transform = 'translate(' + (style.offsetX || 0) + 'px,' + (style.offsetY || 0) + 'px)';
+}
+
+function lctxToggleLabel() {
+  if (_lctxType !== 'group' || _lctxId == null) return;
+  const meta = _manaGroupMeta[_lctxId];
+  if (!meta) return;
+  const cur = _normalizeLabelStyle(meta.labelStyle);
+  cur.enabled = !cur.enabled;
+  updateLabelStyle(_lctxId, null, cur);
+  renderLayers();
+  closeLayerCtx();
 }
 
 // ── Actions ──
