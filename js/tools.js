@@ -308,10 +308,10 @@ function stopEdit() {
 }
 
 // ── RULER ──
-let rulerPoints = [], rulerLine = null, rulerMarkers = [];
+let rulerPoints = [], rulerLine = null, rulerMarkers = [], rulerPreview = null;
 
 function startRuler() {
-  rulerPoints = []; rulerMarkers = []; rulerLine = null;
+  rulerPoints = []; rulerMarkers = []; rulerLine = null; rulerPreview = null;
   map.on('click', rulerClick);
   map.on('dblclick', rulerFinish);
   map.on('mousemove', rulerMove);
@@ -323,8 +323,8 @@ function stopRuler() {
   map.off('mousemove', rulerMove);
   rulerMarkers.forEach(m => map.removeLayer(m));
   if (rulerLine) map.removeLayer(rulerLine);
-  rulerPoints = []; rulerMarkers = []; rulerLine = null;
-  document.getElementById('ruler-tooltip').style.display = 'none';
+  if (rulerPreview) map.removeLayer(rulerPreview);
+  rulerPoints = []; rulerMarkers = []; rulerLine = null; rulerPreview = null;
 }
 
 function rulerClick(e) {
@@ -334,33 +334,46 @@ function rulerClick(e) {
     radius: 5, color: '#30363b', fillColor: 'white', fillOpacity: 1, weight: 2
   }).addTo(map);
   rulerMarkers.push(dot);
+  if (rulerPreview) { map.removeLayer(rulerPreview); rulerPreview = null; }
   if (rulerPoints.length >= 2) {
     if (rulerLine) map.removeLayer(rulerLine);
-    rulerLine = L.polyline(rulerPoints, { color: '#0ea5e9', weight: 2, dashArray: '6 4' }).addTo(map);
+    rulerLine = L.polyline(rulerPoints, { color: '#0ea5e9', weight: 2.5 }).addTo(map);
+    var d = Math.round(getTotalDist(rulerPoints));
+    rulerLine.bindTooltip(d + ' m', {
+      permanent: true, direction: 'center', className: 'ruler-label'
+    });
   }
 }
 
 function rulerMove(e) {
+  if (rulerPreview) { map.removeLayer(rulerPreview); rulerPreview = null; }
   if (!rulerPoints.length) return;
-  const tip = document.getElementById('ruler-tooltip');
-  tip.textContent = formatDist(getTotalDist([...rulerPoints, e.latlng]));
-  const pt = map.latLngToContainerPoint(e.latlng);
-  tip.style.left = pt.x + 'px';
-  tip.style.top = pt.y + 'px';
-  tip.style.display = 'block';
+  var last = rulerPoints[rulerPoints.length - 1];
+  var previewPts = [last, e.latlng];
+  rulerPreview = L.polyline(previewPts, {
+    color: '#0ea5e9', weight: 2.5, dashArray: '6 5', opacity: 0.65
+  }).addTo(map);
+  var segDist = Math.round(e.latlng.distanceTo(last));
+  rulerPreview.bindTooltip(segDist + ' m', {
+    permanent: true, direction: 'center', className: 'ruler-label'
+  });
 }
 
 function rulerFinish(e) {
   e.originalEvent.preventDefault();
   if (rulerPoints.length < 2) { stopRuler(); stopAll(); return; }
-  var popup = L.popup({ closeButton: true })
-    .setLatLng(rulerPoints[Math.floor(rulerPoints.length / 2)])
-    .setContent('<strong>' + t('ruler_total') + '</strong><br>' + formatDist(getTotalDist(rulerPoints)))
-    .openOn(map);
+  if (rulerPreview) { map.removeLayer(rulerPreview); rulerPreview = null; }
+  if (rulerLine) rulerLine.setLatLngs(rulerPoints);
+  var totalDist = Math.round(getTotalDist(rulerPoints));
+  if (rulerLine) {
+    rulerLine.unbindTooltip();
+    rulerLine.bindTooltip(totalDist + ' m', {
+      permanent: true, direction: 'center', className: 'ruler-label total'
+    });
+  }
   map.off('click', rulerClick);
   map.off('dblclick', rulerFinish);
   map.off('mousemove', rulerMove);
-  document.getElementById('ruler-tooltip').style.display = 'none';
   document.getElementById('draw-hint').style.display = 'none';
   document.getElementById('map').classList.remove('draw-point-mode');
   document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
@@ -368,12 +381,12 @@ function rulerFinish(e) {
   if (tbRuler) tbRuler.classList.remove('active');
   activeTool = null;
 
-  map.on('popupclose', function onClose(e) {
-    if (e.popup !== popup) return;
+  map.on('click', function cleanRuler(ce) {
+    if (ce.originalEvent.target && ce.originalEvent.target.closest && ce.originalEvent.target.closest('.leaflet-popup')) return;
     rulerMarkers.forEach(function(m) { map.removeLayer(m); });
     if (rulerLine) map.removeLayer(rulerLine);
     rulerMarkers = []; rulerLine = null; rulerPoints = [];
-    map.off('popupclose', onClose);
+    map.off('click', cleanRuler);
   });
 }
 
@@ -384,7 +397,7 @@ function getTotalDist(pts) {
 }
 
 function formatDist(m) {
-  return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
+  return Math.round(m) + ' m';
 }
 
 // ═══════════════════════════════════════════════════════════════
