@@ -309,6 +309,7 @@ function stopEdit() {
 
 // ── RULER ──
 let rulerPoints = [], rulerLine = null, rulerMarkers = [], rulerPreview = null;
+let rulerCompleted = [];
 
 function startRuler() {
   rulerPoints = []; rulerMarkers = []; rulerLine = null; rulerPreview = null;
@@ -324,7 +325,12 @@ function stopRuler() {
   rulerMarkers.forEach(m => map.removeLayer(m));
   if (rulerLine) map.removeLayer(rulerLine);
   if (rulerPreview) map.removeLayer(rulerPreview);
+  rulerCompleted.forEach(function(g) {
+    g.markers.forEach(function(m) { map.removeLayer(m); });
+    if (g.line) map.removeLayer(g.line);
+  });
   rulerPoints = []; rulerMarkers = []; rulerLine = null; rulerPreview = null;
+  rulerCompleted = [];
 }
 
 function rulerClick(e) {
@@ -371,23 +377,9 @@ function rulerFinish(e) {
       permanent: true, direction: 'center', className: 'ruler-label total'
     });
   }
-  map.off('click', rulerClick);
-  map.off('dblclick', rulerFinish);
-  map.off('mousemove', rulerMove);
-  document.getElementById('draw-hint').style.display = 'none';
-  document.getElementById('map').classList.remove('draw-point-mode');
-  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
-  var tbRuler = document.getElementById('tb-ruler');
-  if (tbRuler) tbRuler.classList.remove('active');
-  activeTool = null;
-
-  map.on('click', function cleanRuler(ce) {
-    if (ce.originalEvent.target && ce.originalEvent.target.closest && ce.originalEvent.target.closest('.leaflet-popup')) return;
-    rulerMarkers.forEach(function(m) { map.removeLayer(m); });
-    if (rulerLine) map.removeLayer(rulerLine);
-    rulerMarkers = []; rulerLine = null; rulerPoints = [];
-    map.off('click', cleanRuler);
-  });
+  rulerCompleted.push({ markers: rulerMarkers.slice(), line: rulerLine });
+  rulerPoints = []; rulerMarkers = []; rulerLine = null;
+  document.getElementById('draw-hint').textContent = t('hint_ruler');
 }
 
 function getTotalDist(pts) {
