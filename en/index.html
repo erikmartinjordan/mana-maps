@@ -849,7 +849,13 @@
         btn.addEventListener('click', function() {
           var lat = parseFloat(this.dataset.lat);
           var lng = parseFloat(this.dataset.lng);
-          map.setView([lat, lng], 14);
+          map.setView([lat, lng], 17);
+          var icon = makeMarkerIcon(drawColor, markerType);
+          var m = L.marker([lat, lng], { icon });
+          var label = this.querySelector('.search-result-text').textContent.split(',')[0];
+          m._manaName = label; m._manaColor = drawColor; m._manaMarkerType = markerType;
+          m.bindPopup('<strong>' + label + '</strong>');
+          addDrawnLayerToGroup(m);
           searchDropdown.classList.remove('open');
           searchInput.value = '';
           searchInput.blur();
