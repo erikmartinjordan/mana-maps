@@ -372,7 +372,20 @@
           <div class="sec-label">Color</div>
           <div class="color-row swatch-row" id="color-row"></div>
           <div class="sec-label">Marker type</div>
-          <div class="marker-row" id="marker-row"></div>
+          <div class="marker-row" id="marker-row">
+            <div class="marker-opt active" data-mtype="pin" title="Pin" onclick="setMarkerType('pin',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <div class="marker-opt" data-mtype="circle" title="Circle" onclick="setMarkerType('circle',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>
+            </div>
+            <div class="marker-opt" data-mtype="square" title="Square" onclick="setMarkerType('square',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
+            </div>
+            <div class="marker-opt" data-mtype="star" title="Star" onclick="setMarkerType('star',this)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -582,11 +595,17 @@
 <div id="layer-ctx-menu" class="ctx-menu-float">
   <div id="lctx-title" class="ctx-section-label" style="padding-top:10px"></div>
 
-  <!-- Selector de color -->
-  <div class="ctx-color-row">
+      <!-- Selector de color -->
+      <div class="ctx-color-row">
       </div>
 
-  <!-- Grosor de línea -->
+      <!-- Tipo de marcador (solo puntos) -->
+      <div id="lctx-marker-row" class="ctx-option-row" style="display:none">
+        <span class="ctx-option-label">Marker type</span>
+        <div class="ctx-marker-grid" id="lctx-marker-grid"></div>
+      </div>
+
+      <!-- Grosor de línea -->
   <div id="lctx-weight-row" class="ctx-option-row">
     <span class="ctx-option-label">Weight</span>
     <div class="ctx-weight-opts">
@@ -670,6 +689,12 @@
 
     <!-- Selector de color -->
     <div class="ctx-color-row">
+    </div>
+
+    <!-- Tipo de marcador (solo puntos) -->
+    <div id="ctx-marker-row" class="ctx-option-row" style="display:none">
+      <span class="ctx-option-label">Marker type</span>
+      <div class="ctx-marker-grid" id="ctx-marker-grid"></div>
     </div>
 
     <!-- Grosor de línea -->
@@ -910,13 +935,6 @@
     projInput.value = getProjectName();
   }
   updateMapNameCount();
-
-  // Build dynamic marker row with emojis
-  if (typeof _buildMkRow === 'function') {
-    _buildMkRow(document.getElementById('marker-row'), function(type) {
-      setMarkerType(type, null);
-    });
-  }
 })();
 </script>
 </body>
