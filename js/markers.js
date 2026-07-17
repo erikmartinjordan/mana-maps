@@ -168,11 +168,79 @@ var MK = [
   { id:'signal',        cat:'telecom', es:'Señal',             en:'Signal',                  p:'M12 20a1 1 0 100-2 1 1 0 000 2zm-4-4a5.66 5.66 0 018 0m-12-4a9.9 9.9 0 0116 0M1 8a14.14 14.14 0 0122 0' },
   { id:'pole',          cat:'telecom', es:'Poste',             en:'Pole',                    p:'M12 2v20M6 6h12M4 6v3m16-3v3M8 22h8M6 6l-2-4m14 4l2-4' },
 
+  // ── Emojis (rendered as large emoji on white circle, iOS-style) ──
+  { id:'emoji_home',        cat:'emoji', es:'Casa 🏠',         en:'Home 🏠',                 e:'🏠',  emoji:true },
+  { id:'emoji_building',    cat:'emoji', es:'Edificio 🏢',     en:'Building 🏢',             e:'🏢',  emoji:true },
+  { id:'emoji_hospital',    cat:'emoji', es:'Hospital 🏥',     en:'Hospital 🏥',             e:'🏥',  emoji:true },
+  { id:'emoji_school',      cat:'emoji', es:'Escuela 🏫',      en:'School 🏫',               e:'🏫',  emoji:true },
+  { id:'emoji_church',      cat:'emoji', es:'Iglesia ⛪',       en:'Church ⛪',               e:'⛪',   emoji:true },
+  { id:'emoji_museum',      cat:'emoji', es:'Museo 🏛️',        en:'Museum 🏛️',              e:'🏛️',  emoji:true },
+  { id:'emoji_hotel',       cat:'emoji', es:'Hotel 🏨',        en:'Hotel 🏨',                e:'🏨',  emoji:true },
+  { id:'emoji_store',       cat:'emoji', es:'Tienda 🏪',       en:'Store 🏪',                e:'🏪',  emoji:true },
+  { id:'emoji_bank',        cat:'emoji', es:'Banco 🏦',        en:'Bank 🏦',                 e:'🏦',  emoji:true },
+  { id:'emoji_factory',     cat:'emoji', es:'Fábrica 🏭',      en:'Factory 🏭',              e:'🏭',  emoji:true },
+  { id:'emoji_restaurant',  cat:'emoji', es:'Restaurante 🍽️',  en:'Restaurant 🍽️',          e:'🍽️',  emoji:true },
+  { id:'emoji_burger',      cat:'emoji', es:'Hamburguesa 🍔',  en:'Burger 🍔',               e:'🍔',  emoji:true },
+  { id:'emoji_pizza',       cat:'emoji', es:'Pizza 🍕',        en:'Pizza 🍕',                e:'🍕',  emoji:true },
+  { id:'emoji_coffee',      cat:'emoji', es:'Café ☕',          en:'Coffee ☕',               e:'☕',   emoji:true },
+  { id:'emoji_beer',        cat:'emoji', es:'Cerveza 🍺',      en:'Beer 🍺',                 e:'🍺',  emoji:true },
+  { id:'emoji_wine',        cat:'emoji', es:'Vino 🍷',         en:'Wine 🍷',                 e:'🍷',  emoji:true },
+  { id:'emoji_cocktail',    cat:'emoji', es:'Cóctel 🍹',       en:'Cocktail 🍹',             e:'🍹',  emoji:true },
+  { id:'emoji_sushi',       cat:'emoji', es:'Sushi 🍣',        en:'Sushi 🍣',                e:'🍣',  emoji:true },
+  { id:'emoji_icecream',    cat:'emoji', es:'Helado 🍦',       en:'Ice cream 🍦',            e:'🍦',  emoji:true },
+  { id:'emoji_tree',        cat:'emoji', es:'Árbol 🌲',        en:'Tree 🌲',                 e:'🌲',  emoji:true },
+  { id:'emoji_mountain',    cat:'emoji', es:'Montaña 🏔️',      en:'Mountain 🏔️',            e:'🏔️',  emoji:true },
+  { id:'emoji_beach',       cat:'emoji', es:'Playa 🏖️',        en:'Beach 🏖️',               e:'🏖️',  emoji:true },
+  { id:'emoji_camping',     cat:'emoji', es:'Camping ⛺',       en:'Camping ⛺',              e:'⛺',   emoji:true },
+  { id:'emoji_water',       cat:'emoji', es:'Agua 🌊',         en:'Water 🌊',                e:'🌊',  emoji:true },
+  { id:'emoji_flower',      cat:'emoji', es:'Flor 🌸',         en:'Flower 🌸',               e:'🌸',  emoji:true },
+  { id:'emoji_sun',         cat:'emoji', es:'Sol ☀️',          en:'Sun ☀️',                 e:'☀️',   emoji:true },
+  { id:'emoji_moon',        cat:'emoji', es:'Luna 🌙',         en:'Moon 🌙',                 e:'🌙',  emoji:true },
+  { id:'emoji_star',        cat:'emoji', es:'Estrella ⭐',      en:'Star ⭐',                 e:'⭐',   emoji:true },
+  { id:'emoji_fire',        cat:'emoji', es:'Fuego 🔥',        en:'Fire 🔥',                 e:'🔥',  emoji:true },
+  { id:'emoji_heart',       cat:'emoji', es:'Corazón ❤️',       en:'Heart ❤️',               e:'❤️',   emoji:true },
+  { id:'emoji_diamond',     cat:'emoji', es:'Diamante 💎',      en:'Diamond 💎',              e:'💎',  emoji:true },
+  { id:'emoji_car',         cat:'emoji', es:'Coche 🚗',        en:'Car 🚗',                  e:'🚗',  emoji:true },
+  { id:'emoji_bus',         cat:'emoji', es:'Autobús 🚌',      en:'Bus 🚌',                  e:'🚌',  emoji:true },
+  { id:'emoji_train',       cat:'emoji', es:'Tren 🚂',         en:'Train 🚂',                e:'🚂',  emoji:true },
+  { id:'emoji_plane',       cat:'emoji', es:'Avión ✈️',        en:'Plane ✈️',               e:'✈️',   emoji:true },
+  { id:'emoji_ship',        cat:'emoji', es:'Barco 🚢',        en:'Ship 🚢',                 e:'🚢',  emoji:true },
+  { id:'emoji_bike',        cat:'emoji', es:'Bici 🚲',         en:'Bike 🚲',                 e:'🚲',  emoji:true },
+  { id:'emoji_walk',        cat:'emoji', es:'Caminar 🚶',      en:'Walk 🚶',                 e:'🚶',  emoji:true },
+  { id:'emoji_parking',     cat:'emoji', es:'Parking 🅿️',      en:'Parking 🅿️',             e:'🅿️',   emoji:true },
+  { id:'emoji_fuel',        cat:'emoji', es:'Gasolina ⛽',      en:'Fuel ⛽',                 e:'⛽',   emoji:true },
+  { id:'emoji_camera',      cat:'emoji', es:'Cámara 📷',       en:'Camera 📷',               e:'📷',  emoji:true },
+  { id:'emoji_music',       cat:'emoji', es:'Música 🎵',       en:'Music 🎵',                e:'🎵',  emoji:true },
+  { id:'emoji_soccer',      cat:'emoji', es:'Fútbol ⚽',        en:'Soccer ⚽',               e:'⚽',   emoji:true },
+  { id:'emoji_trophy',      cat:'emoji', es:'Trofeo 🏆',       en:'Trophy 🏆',               e:'🏆',  emoji:true },
+  { id:'emoji_ski',         cat:'emoji', es:'Esquí 🎿',        en:'Ski 🎿',                  e:'🎿',  emoji:true },
+  { id:'emoji_swim',        cat:'emoji', es:'Nadar 🏊',        en:'Swim 🏊',                 e:'🏊',  emoji:true },
+  { id:'emoji_paint',       cat:'emoji', es:'Pintar 🎨',       en:'Paint 🎨',                e:'🎨',  emoji:true },
+  { id:'emoji_game',        cat:'emoji', es:'Videojuego 🎮',   en:'Game 🎮',                 e:'🎮',  emoji:true },
+  { id:'emoji_warning',     cat:'emoji', es:'Aviso ⚠️',         en:'Warning ⚠️',             e:'⚠️',   emoji:true },
+  { id:'emoji_info',        cat:'emoji', es:'Información ℹ️',   en:'Info ℹ️',               e:'ℹ️',   emoji:true },
+  { id:'emoji_question',    cat:'emoji', es:'Pregunta ❓',      en:'Question ❓',             e:'❓',   emoji:true },
+  { id:'emoji_check',       cat:'emoji', es:'Check ✅',        en:'Check ✅',                e:'✅',   emoji:true },
+  { id:'emoji_cross',       cat:'emoji', es:'Cruz ❌',         en:'Cross ❌',                e:'❌',   emoji:true },
+  { id:'emoji_lock',        cat:'emoji', es:'Candado 🔒',      en:'Lock 🔒',                 e:'🔒',  emoji:true },
+  { id:'emoji_key',         cat:'emoji', es:'Llave 🔑',        en:'Key 🔑',                  e:'🔑',  emoji:true },
+  { id:'emoji_target',      cat:'emoji', es:'Objetivo 🎯',      en:'Target 🎯',              e:'🎯',  emoji:true },
+  { id:'emoji_pin',         cat:'emoji', es:'Pin 📍',          en:'Pin 📍',                  e:'📍',  emoji:true },
+  { id:'emoji_pushpin',     cat:'emoji', es:'Chincheta 📌',    en:'Pushpin 📌',              e:'📌',  emoji:true },
+  { id:'emoji_flag',        cat:'emoji', es:'Bandera 🏁',      en:'Flag 🏁',                 e:'🏁',  emoji:true },
+  { id:'emoji_gift',        cat:'emoji', es:'Regalo 🎁',       en:'Gift 🎁',                 e:'🎁',  emoji:true },
+  { id:'emoji_money',       cat:'emoji', es:'Dinero 💰',       en:'Money 💰',                e:'💰',  emoji:true },
+  { id:'emoji_bulb',        cat:'emoji', es:'Bombilla 💡',     en:'Lightbulb 💡',            e:'💡',  emoji:true },
+  { id:'emoji_party',       cat:'emoji', es:'Fiesta 🎉',       en:'Party 🎉',                e:'🎉',  emoji:true },
+  { id:'emoji_trash',       cat:'emoji', es:'Basura 🗑️',       en:'Trash 🗑️',               e:'🗑️',  emoji:true },
+  { id:'emoji_package',     cat:'emoji', es:'Paquete 📦',      en:'Package 📦',              e:'📦',  emoji:true },
+
 ];
 
 // Category labels for the picker modal
 var MK_CATS = {
   shape:     { es: 'Formas',          en: 'Shapes' },
+  emoji:     { es: 'Emojis',          en: 'Emojis' },
   transport: { es: 'Transporte',      en: 'Transport' },
   places:    { es: 'Lugares',         en: 'Places' },
   nature:    { es: 'Naturaleza',      en: 'Nature' },
@@ -185,7 +253,7 @@ var MK_CATS = {
 };
 
 // Quick-access defaults (shown in compact row)
-var MK_DEFAULTS = ['circle','pin','square','star','flag','heart'];
+var MK_DEFAULTS = ['circle','pin','square','star','flag','heart','emoji_star','emoji_heart','emoji_pin','emoji_fire'];
 
 // ═══════════════════════════════════════════════════════════════
 // MAKE MARKER ICON — renders colored map marker
@@ -193,6 +261,15 @@ var MK_DEFAULTS = ['circle','pin','square','star','flag','heart'];
 function makeMarkerIcon(color, type) {
   var def = _mkFind(type);
   var svg, size = [24, 24], anchor = [12, 12], popup = [0, -14];
+
+  // Emoji markers: white circle with shadow + large emoji (iOS-style)
+  if (def && def.emoji) {
+    var emojiSize = 40;
+    svg = '<div style="display:flex;align-items:center;justify-content:center;width:' + emojiSize
+      + 'px;height:' + emojiSize + 'px;background:rgba(255,255,255,0.95);border-radius:50%;'
+      + 'box-shadow:0 2px 8px rgba(0,0,0,0.25);font-size:24px;line-height:1;">' + def.e + '</div>';
+    return L.divIcon({ html: svg, className: '', iconSize: [emojiSize, emojiSize], iconAnchor: [emojiSize/2, emojiSize/2], popupAnchor: [0, -emojiSize/2 - 4] });
+  }
 
   // Basic shapes: custom full-shape SVGs
   if (def && def.shape) {
@@ -259,6 +336,7 @@ function _mkShapeIcon(color, type) {
 function mkPreviewSvg(type) {
   var def = _mkFind(type);
   if (!def) return '';
+  if (def.emoji) return '<span class="mk-emoji-preview">' + def.e + '</span>';
   if (def.shape) return _mkShapePreview(type);
   if (!def.p) return '';
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + def.p + '"/></svg>';

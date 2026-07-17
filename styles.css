@@ -173,6 +173,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .marker-opt:hover{border-color:var(--primary);color:var(--primary);}
 .marker-opt.active{border:1.5px solid #1a1a1a;background:#1a1a1a;color:white;}
 .marker-opt svg{width:14px;height:14px;}
+.marker-opt .mk-emoji-preview{font-size:14px;line-height:1;pointer-events:none;}
 
 /* ── BASEMAP CARDS ───────────────────────────── */
 .basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;transition:grid-template-columns .15s;}
@@ -2584,6 +2585,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
   color:var(--text-2,#555);background:transparent;transition:all .1s;padding:0;
 }
 .ctx-mk-btn svg{width:13px;height:13px;}
+.ctx-mk-btn .mk-emoji-preview{font-size:13px;line-height:1;pointer-events:none;}
 .ctx-mk-btn:hover{border-color:var(--text-2,#374151);color:var(--text,#1a1a1a);}
 .ctx-mk-active{border:1.5px solid var(--blue,#0ea5e9);background:color-mix(in srgb, var(--blue) 10%, transparent);color:var(--blue,#0ea5e9);}
 
@@ -2631,6 +2633,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
   color:var(--text-2,#555);background:transparent;transition:all .1s;padding:0;
 }
 .mk-modal-btn svg{width:16px;height:16px;}
+.mk-modal-btn .mk-emoji-preview{font-size:16px;line-height:1;pointer-events:none;}
 .mk-modal-btn:hover{border-color:var(--text-2);color:var(--text);}
 .mk-modal-btn.active{border:1.5px solid var(--blue);color:var(--blue);background:color-mix(in srgb, var(--blue) 8%, transparent);}
 
