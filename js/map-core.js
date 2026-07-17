@@ -1058,6 +1058,43 @@ function stats() {
   document.getElementById('cnt-lines').textContent = lns;
   document.getElementById('cnt-polygons').textContent = pols;
   renderLayers();
+  renderLegend();
+}
+
+// ── Build legend overlay from group metadata ──
+function renderLegend() {
+  var container = document.getElementById('map-wrap') || document.getElementById('map');
+  if (!container) return;
+  var legend = document.getElementById('map-legend');
+  if (!legend) {
+    legend = document.createElement('div');
+    legend.id = 'map-legend';
+    container.appendChild(legend);
+  }
+
+  var groups = [];
+  for (var gid in _manaGroupMeta) {
+    var m = _manaGroupMeta[gid];
+    if (m.allLayers && m.allLayers.length) {
+      groups.push({ name: m.name, color: m.color });
+    }
+  }
+  // Ignore the "Legend" meta-group itself
+  groups = groups.filter(function(g) {
+    return g.name !== 'Legend' && g.name !== 'Leyenda';
+  });
+
+  if (!groups.length) { legend.classList.add('empty'); return; }
+  legend.classList.remove('empty');
+
+  var html = '<div class="map-legend-title">Legend</div>';
+  groups.forEach(function(g) {
+    html += '<div class="map-legend-item">' +
+      '<span class="map-legend-swatch" style="background:' + g.color + '"></span>' +
+      '<span class="map-legend-label">' + g.name + '</span>' +
+    '</div>';
+  });
+  legend.innerHTML = html;
 }
 
 // ── Track UI state ──
