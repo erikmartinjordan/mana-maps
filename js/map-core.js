@@ -488,6 +488,7 @@ function addLabelsToLayer(layer, features, labelStyle) {
     labels.push(marker);
   });
   target.labelMarkers = labels;
+  _updateLabelVisibility();
   return labels;
 }
 
@@ -799,6 +800,18 @@ map.on('mousemove', e => {
 map.on('mouseout', () => {
   document.getElementById('mouse-coords').textContent = '\u2014 , \u2014';
 });
+
+// ── Zoom-based label visibility ──
+const LABEL_MIN_ZOOM = 4;
+
+function _updateLabelVisibility() {
+  if (!map) return;
+  const pane = map.getPane('manaLabelsPane');
+  if (!pane) return;
+  pane.style.display = map.getZoom() >= LABEL_MIN_ZOOM ? '' : 'none';
+}
+
+map.on('zoomend', _updateLabelVisibility);
 
 // Init coords format button text on load
 document.addEventListener('DOMContentLoaded', () => {
