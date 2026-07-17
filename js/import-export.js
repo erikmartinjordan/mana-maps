@@ -53,7 +53,22 @@ async function processFile(file) {
   const layerName = layerNameFromFile(file.name);
   try {
     if (name.endsWith('.geojson') || name.endsWith('.json')) {
-      loadGeoJSON(JSON.parse(await file.text()), layerName);
+      const geo = JSON.parse(await file.text());
+      if (geo && Array.isArray(geo.features) && geo.features.length) {
+        const groups = {};
+        const ungrouped = [];
+        geo.features.forEach(function(f) {
+          var gn = f.properties && f.properties._manaGroupName;
+          if (gn) { if (!groups[gn]) groups[gn] = []; groups[gn].push(f); }
+          else { ungrouped.push(f); }
+        });
+        var keys = Object.keys(groups);
+        keys.forEach(function(gn) { loadGeoJSON({ type:'FeatureCollection', features:groups[gn] }, gn); });
+        if (ungrouped.length) loadGeoJSON({ type:'FeatureCollection', features:ungrouped }, layerName);
+        return;
+      }
+      loadGeoJSON(geo, layerName);
+      return;
     } else if (name.endsWith('.kml')) {
       loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(await file.text(), 'text/xml')), layerName);
     } else if (name.endsWith('.kmz')) {
