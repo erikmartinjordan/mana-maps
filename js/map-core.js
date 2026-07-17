@@ -711,6 +711,7 @@ function setBaseLayer(type) {
   document.getElementById('bmc-map').classList.toggle('active', type === 'map');
   document.getElementById('bmc-sat').classList.toggle('active', type === 'satellite');
   document.getElementById('bmc-globe').classList.toggle('active', type === 'globe');
+  setTimeout(_initTileLabelHider, 100);
 }
 
 // ── ENRICHED GEOJSON (shared utility) ──
@@ -812,6 +813,50 @@ function _updateLabelVisibility() {
 }
 
 map.on('zoomend', _updateLabelVisibility);
+
+// ── Hide basemap tile labels when zoomed out ──
+const TILE_LABEL_MIN_ZOOM = 5;
+
+const _tileLabelLayerIds = [
+  'place_city','place_city_large','place_town','place_village','place_suburb',
+  'place_capital','place_state','place_country_major','place_country_minor',
+  'place_country_other','place_other','water_name',
+  'label_city','label_city_1','label_city_2','label_city_3',
+  'label_city_capital','label_city_capital_1','label_city_capital_2','label_city_capital_3',
+  'label_town','label_village','label_state','label_other',
+  'label_country_1','label_country_2','label_country_3',
+];
+
+function _getActiveGLMap() {
+  var baseLayer = activeBase === 'satellite' ? tileSat : tileMap;
+  if (!baseLayer) return null;
+  return baseLayer.getMaplibreMap ? baseLayer.getMaplibreMap() : (baseLayer._map || null);
+}
+
+function _updateTileLabelVisibility() {
+  if (!map) return;
+  var glMap = _getActiveGLMap();
+  if (!glMap || !glMap.getStyle || !glMap.getStyle()) return;
+  var hide = map.getZoom() < TILE_LABEL_MIN_ZOOM;
+  var vis = hide ? 'none' : 'visible';
+  for (var i = 0; i < _tileLabelLayerIds.length; i++) {
+    try {
+      var id = _tileLabelLayerIds[i];
+      if (glMap.getLayer(id)) glMap.setLayoutProperty(id, 'visibility', vis);
+    } catch(e) {}
+  }
+}
+
+function _initTileLabelHider() {
+  var glMap = _getActiveGLMap();
+  if (glMap && glMap.on && glMap.getStyle) {
+    glMap.on('load', _updateTileLabelVisibility);
+    if (glMap.getStyle()) _updateTileLabelVisibility();
+  }
+  map.on('zoomend', _updateTileLabelVisibility);
+}
+
+_initTileLabelHider();
 
 // Init coords format button text on load
 document.addEventListener('DOMContentLoaded', () => {
