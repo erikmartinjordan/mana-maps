@@ -251,11 +251,16 @@ function setSharedMapAccess(mode, payload) {
       document.querySelectorAll('.draw-btn, .tool-icon[data-panel="draw"], #project-name-input').forEach(function(el) {
         if (el.id !== 'search-input') el.setAttribute('disabled', 'disabled');
       });
-      var hint = document.getElementById('draw-hint');
-      if (hint) {
-        hint.textContent = (typeof LANG !== 'undefined' && LANG === 'en') ? 'View-only shared map' : 'Mapa compartido de solo lectura';
-        hint.style.display = 'block';
-      }
+       var hint = document.getElementById('draw-hint');
+       if (hint) {
+         hint.textContent = (typeof LANG !== 'undefined' && LANG === 'en') ? 'View-only shared map' : 'Mapa compartido de solo lectura';
+         hint.style.display = 'block';
+         setTimeout(function() {
+           hint.style.opacity = '0';
+           hint.style.transition = 'opacity 0.5s ease';
+           setTimeout(function() { hint.style.display = 'none'; hint.style.opacity = ''; hint.style.transition = ''; }, 500);
+         }, 5000);
+       }
     }, 300);
   }
 }

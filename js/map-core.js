@@ -119,6 +119,7 @@ function setMapThemeTiles() {
       globeMap.setPaintProperty('drawn-points', 'circle-stroke-color', isDark ? '#1a1a1a' : '#ffffff');
     }
   }
+  if (typeof refreshAllLabels === 'function') refreshAllLabels();
 }
 
 const drawnItems = new L.FeatureGroup().addTo(map);
@@ -294,15 +295,16 @@ function _getGroupAttrValues(gid, field) {
 // CARTOGRAPHIC LABELS (QGIS-style per layer)
 // ═══════════════════════════════════════════════════════════════
 function _defaultLabelStyle() {
+  var dark = isDarkMapTheme();
   return {
     enabled: false,
     field: 'name',
     fontFamily: 'sans-serif',
     fontSize: 12,
-    color: '#333333',
+    color: dark ? '#e8e6e3' : '#333333',
     fontWeight: 'normal',
     fontStyle: 'normal',
-    haloColor: '#ffffff',
+    haloColor: dark ? '#1a1a1a' : '#ffffff',
     haloWidth: 2,
     opacity: 1,
     offsetX: 0,
