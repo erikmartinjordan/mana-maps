@@ -511,7 +511,10 @@ function updateLabelStyle(layer, features, newStyle) {
 function refreshLabelsForLayer(layer) {
   const target = _resolveLabelLayer(layer);
   if (!target || !target.labelStyle) return;
-  if (target.labelStyle.enabled) addLabelsToLayer(target, null, target.labelStyle);
+  if (target.labelStyle.enabled) {
+    // Re-normalize to pick up current theme colors
+    target.labelStyle = _normalizeLabelStyle(target.labelStyle);
+    addLabelsToLayer(target, null, target.labelStyle);
   else removeLabelsFromLayer(target);
 }
 
