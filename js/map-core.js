@@ -815,7 +815,7 @@ function _updateLabelVisibility() {
 map.on('zoomend', _updateLabelVisibility);
 
 // ── Hide basemap tile labels when zoomed out ──
-const TILE_LABEL_MIN_ZOOM = 5;
+const TILE_LABEL_MIN_ZOOM = 8;
 
 const _tileLabelLayerIds = [
   'place_city','place_city_large','place_town','place_village','place_suburb',
