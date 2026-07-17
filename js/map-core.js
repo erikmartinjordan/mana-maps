@@ -711,7 +711,8 @@ function setBaseLayer(type) {
   document.getElementById('bmc-map').classList.toggle('active', type === 'map');
   document.getElementById('bmc-sat').classList.toggle('active', type === 'satellite');
   document.getElementById('bmc-globe').classList.toggle('active', type === 'globe');
-  setTimeout(_initTileLabelHider, 100);
+  _tileLabelRetries = 0;
+  _retryTileLabelHide();
 }
 
 // ── ENRICHED GEOJSON (shared utility) ──
@@ -803,7 +804,7 @@ map.on('mouseout', () => {
 });
 
 // ── Zoom-based label visibility ──
-const LABEL_MIN_ZOOM = 4;
+const LABEL_MIN_ZOOM = 0;
 
 function _updateLabelVisibility() {
   if (!map) return;
@@ -813,6 +814,7 @@ function _updateLabelVisibility() {
 }
 
 map.on('zoomend', _updateLabelVisibility);
+_updateLabelVisibility();
 
 // ── Hide basemap tile labels when zoomed out ──
 const TILE_LABEL_MIN_ZOOM = 8;
@@ -836,7 +838,7 @@ function _getActiveGLMap() {
 function _updateTileLabelVisibility() {
   if (!map) return;
   var glMap = _getActiveGLMap();
-  if (!glMap || !glMap.getStyle || !glMap.getStyle()) return;
+  if (!glMap || !glMap.isStyleLoaded || !glMap.isStyleLoaded()) return;
   var hide = map.getZoom() < TILE_LABEL_MIN_ZOOM;
   var vis = hide ? 'none' : 'visible';
   for (var i = 0; i < _tileLabelLayerIds.length; i++) {
@@ -847,16 +849,15 @@ function _updateTileLabelVisibility() {
   }
 }
 
-function _initTileLabelHider() {
-  var glMap = _getActiveGLMap();
-  if (glMap && glMap.on && glMap.getStyle) {
-    glMap.on('load', _updateTileLabelVisibility);
-    if (glMap.getStyle()) _updateTileLabelVisibility();
-  }
-  map.on('zoomend', _updateTileLabelVisibility);
+// Retry until style is loaded (handles race conditions)
+var _tileLabelRetries = 0;
+function _retryTileLabelHide() {
+  _updateTileLabelVisibility();
+  if (++_tileLabelRetries < 30) setTimeout(_retryTileLabelHide, 300);
 }
 
-_initTileLabelHider();
+map.on('zoomend', _updateTileLabelVisibility);
+_retryTileLabelHide();
 
 // Init coords format button text on load
 document.addEventListener('DOMContentLoaded', () => {
