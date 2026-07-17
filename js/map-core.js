@@ -513,7 +513,9 @@ function refreshLabelsForLayer(layer) {
   if (!target || !target.labelStyle) return;
   if (target.labelStyle.enabled) {
     // Re-normalize to pick up current theme colors
-    target.labelStyle = _normalizeLabelStyle(target.labelStyle);
+    const defaults = _defaultLabelStyle();
+    target.labelStyle.color = defaults.color;
+    target.labelStyle.haloColor = defaults.haloColor;
     addLabelsToLayer(target, null, target.labelStyle);
   } else removeLabelsFromLayer(target);
 }
