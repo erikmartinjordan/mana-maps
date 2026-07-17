@@ -729,7 +729,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .dark-toggle{width:44px;height:44px;}
   .ctx-weight-btn{width:44px;height:44px;}
   .mk-modal-btn{width:44px;height:44px;}
-  .ctx-mk-btn{width:44px;height:44px;}
   .filter-rule-remove{width:44px;height:44px;}
   .filter-btn{min-height:44px;padding:8px 14px;}
 
@@ -738,6 +737,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .cat-swatch{width:28px;height:28px;padding:6px;box-sizing:content-box;}
   .cat-dot{width:20px;height:20px;padding:0;box-sizing:border-box;}
   .marker-opt{width:44px;height:44px;}
+  .ctx-marker-grid .marker-opt{width:36px;height:36px;}
   .ctx-swatch{width:28px;height:28px;padding:8px;box-sizing:content-box;}
   .basemap-thumb{height:64px;}
 
@@ -2602,17 +2602,14 @@ select.ai-input{cursor:pointer;appearance:auto;}
 
 /* ═══ Context menu marker type grid ═══ */
 .ctx-marker-grid{
-  display:flex;flex-wrap:wrap;gap:3px;padding:2px 0;
+  display:flex;flex-wrap:wrap;gap:4px;padding:2px 0;
 }
-.ctx-mk-btn{
-  width:26px;height:26px;border-radius:5px;border:0.5px solid var(--border,#e5e7eb);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--text-2,#555);background:transparent;transition:all .1s;padding:0;
+.ctx-marker-grid .marker-opt{
+  width:28px;height:28px;border-radius:6px;
 }
-.ctx-mk-btn svg{width:13px;height:13px;}
-.ctx-mk-btn .mk-emoji-preview{font-size:13px;line-height:1;pointer-events:none;}
-.ctx-mk-btn:hover{border-color:var(--text-2,#374151);color:var(--text,#1a1a1a);}
-.ctx-mk-active{border:1.5px solid var(--blue,#0ea5e9);background:color-mix(in srgb, var(--blue) 10%, transparent);color:var(--blue,#0ea5e9);}
+.ctx-marker-grid .marker-opt svg{width:13px;height:13px;}
+.ctx-marker-grid .mk-emoji-preview{font-size:13px;line-height:1;pointer-events:none;}
+.ctx-marker-grid .mk-more-btn{font-size:14px;font-weight:400;}
 
 /* ═══ Marker picker modal ═══ */
 .mk-modal-overlay{
