@@ -503,6 +503,12 @@ function clearLegacyLocalMapData() {
 
   await restoreFromURL();
   clearLegacyLocalMapData();
+  // Re-render labels with correct theme colors after async data load
+  if (typeof refreshAllLabels === 'function') {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { refreshAllLabels(); });
+    });
+  }
 })();
 
 function waitForFirebaseSdk(timeoutMs) {
