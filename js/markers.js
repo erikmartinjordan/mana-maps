@@ -467,3 +467,34 @@ function _mkFilterPicker(query) {
     cat.style.display = visible.length ? '' : 'none';
   });
 }
+
+// ═══════════════════════════════════════════════════════════════
+// COMPACT MARKER ROW BUILDER (6 defaults + "+" button)
+// ═══════════════════════════════════════════════════════════════
+function _buildMkRow(container, onPick) {
+  var html = '';
+  MK_DEFAULTS.forEach(function(id) {
+    var active = id === markerType ? ' active' : '';
+    var def = _mkFind(id);
+    var title = def ? (LANG === 'en' ? def.en : def.es) : id;
+    html += '<div class="marker-opt' + active + '" data-mtype="' + id + '" title="' + title + '">'
+      + mkPreviewSvg(id) + '</div>';
+  });
+  html += '<div class="marker-opt mk-more-btn" title="' + (LANG === 'en' ? 'More markers' : 'Más marcadores') + '">+</div>';
+  container.innerHTML = html;
+  container.querySelectorAll('.marker-opt:not(.mk-more-btn)').forEach(function(opt) {
+    opt.onclick = function() {
+      container.querySelectorAll('.marker-opt').forEach(function(o) { o.classList.remove('active'); });
+      opt.classList.add('active');
+      onPick(opt.dataset.mtype);
+    };
+  });
+  container.querySelector('.mk-more-btn').onclick = function() {
+    openMarkerPicker(function(id) {
+      onPick(id);
+      container.querySelectorAll('.marker-opt').forEach(function(o) {
+        o.classList.toggle('active', o.dataset.mtype === id);
+      });
+    });
+  };
+}

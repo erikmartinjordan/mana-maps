@@ -186,6 +186,12 @@ async function _importRestoredGeoJSON(geo) {
 
   stats();
   if (typeof renderLayers === 'function') renderLayers();
+  // Recalculate map size after async data load so markers align with basemap
+  if (typeof map !== 'undefined') {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { map.invalidateSize(); });
+    });
+  }
 }
 
 
