@@ -515,7 +515,7 @@ function refreshLabelsForLayer(layer) {
     // Re-normalize to pick up current theme colors
     target.labelStyle = _normalizeLabelStyle(target.labelStyle);
     addLabelsToLayer(target, null, target.labelStyle);
-  else removeLabelsFromLayer(target);
+  } else removeLabelsFromLayer(target);
 }
 
 function refreshAllLabels() {
