@@ -8,6 +8,7 @@
   --surface:#ffffff;--surface-2:#f3f4f6;--surface-3:#f9fafb;
   --border-hover:#d1d5db;
   --text:#1a1a1a;--text-2:#374151;--text-3:#9ca3af;
+  --map-bg:#f7f7f7;
   --toolbar-w:52px;--panel-w:236px;--right-w:320px;
   --radius:10px;--radius-sm:6px;
   /* ── Semantic aliases ── */
@@ -218,7 +219,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .starter-template-copy small{font-size:10.5px;line-height:1.3;color:var(--third);font-weight:600;}
 
 /* ── MAP ─────────────────────────────────────── */
-#map-wrap{position:relative;background:var(--surface-2);overflow:hidden;display:flex;flex-direction:column;}
+#map-wrap{position:relative;background:var(--map-bg);overflow:hidden;display:flex;flex-direction:column;}
 #map{flex:1;width:100%;}
 #globe{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:1;background:#0a1628;}
 .maplibregl-canvas{outline:none;}
@@ -2321,6 +2322,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
     --text:#e7edf0;--text-2:#9bacb7;--text-3:#71838f;
     --blue:#38bdf8;--green:#34d399;--red:#f87171;
     --border-hover:#3c4e59;
+    --map-bg:#172027;
   }
 }
 
@@ -2337,6 +2339,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
   --text:#e7edf0;--text-2:#9bacb7;--text-3:#71838f;
   --blue:#38bdf8;--green:#34d399;--red:#f87171;
   --border-hover:#3c4e59;
+  --map-bg:#172027;
 }
 
 [data-theme="light"] {
@@ -2347,6 +2350,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
   --surface:#ffffff;--surface-2:#f3f4f6;--surface-3:#f9fafb;
   --text:#1a1a1a;--text-2:#374151;--text-3:#9ca3af;
   --border-hover:#d1d5db;
+  --map-bg:#f7f7f7;
 }
 
 /* ── Inline attribute feedback (Notion-style) ── */

@@ -571,10 +571,11 @@
     if (!wrap || !meta || !target) return;
     wrap.style.display = 'block';
 
-    const map = L.map('featured-map', { zoomControl: false });
+    const map = L.map('featured-map', { zoomControl: false, worldCopyJump: true });
     if (window.L && L.maplibreGL) {
       L.maplibreGL({
-        style: window.MANA_BASEMAPS ? window.MANA_BASEMAPS.getStyleUrl(false) : 'https://tiles.openfreemap.org/styles/positron'
+        style: window.MANA_BASEMAPS ? window.MANA_BASEMAPS.getStyleUrl(false) : 'https://tiles.openfreemap.org/styles/positron',
+        renderWorldCopies: false
       }).addTo(map);
       if (map.attributionControl && window.MANA_BASEMAPS) {
         map.attributionControl.addAttribution(window.MANA_BASEMAPS.getAttribution());
