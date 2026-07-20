@@ -96,7 +96,8 @@
 <meta name="theme-color" content="#f5f5f7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<noscript><style>.reveal{opacity:1 !important;transform:none !important;}</style></noscript>
 <style>
 :root {
   --bg: #f5f5f7;
@@ -105,6 +106,7 @@
   --muted: #5f6670;
   --line: rgba(16,24,40,0.12);
   --cta: #17191c;
+  --blue: #0a84ff;
   --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
   --frame-radius: 28px;
   --iphone-frame-radius: 28px;
@@ -131,6 +133,10 @@ html, body {
   overflow: hidden;
 }
 
+/* ── Scroll reveal ── */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .65s ease, transform .65s cubic-bezier(.22,.61,.36,1); }
+.reveal.in { opacity: 1; transform: none; }
+
 /* ── Topbar ── */
 .topbar {
   height: 72px; padding: 0 28px;
@@ -152,6 +158,7 @@ html, body {
   border: 1px solid var(--line); background: #fff; border-radius: 999px;
   height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600;
   text-decoration: none; color: var(--text); display: inline-flex; align-items: center;
+  gap: 7px;
   transition: transform .15s, opacity .15s; cursor: pointer;
   font-family: 'DM Sans', sans-serif;
 }
@@ -172,10 +179,14 @@ html, body {
   gap: 28px; padding: 64px 48px 44px; align-items: center;
 }
 .eyebrow {
-  display: inline-flex; border: 1px solid var(--line);
+  display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line);
   background: rgba(255,255,255,.84); border-radius: 999px;
   padding: 7px 12px; font-size: 12px; font-weight: 600;
   color: var(--muted); margin-bottom: 18px;
+}
+.eyebrow::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue); box-shadow: 0 0 0 3px rgba(10,132,255,.15);
 }
 h1 {
   font-size: clamp(34px, 5vw, 60px); line-height: 1.02;
@@ -204,26 +215,157 @@ h1 {
     radial-gradient(circle at 28% 78%, rgba(17,24,39,0.09), transparent 36%),
     #ffffff;
   background-size: 40px 40px, 40px 40px, cover, cover, auto;
+  box-shadow: 0 10px 30px rgba(15,23,42,.06);
+}
+.map-route { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.map-route .route-line {
+  fill: none; stroke: var(--blue); stroke-width: 1.7;
+  stroke-dasharray: 5 4; stroke-linecap: round; stroke-linejoin: round; opacity: .55;
+}
+.map-route .zone {
+  fill: rgba(10,132,255,.09); stroke: rgba(10,132,255,.4);
+  stroke-width: 1.1; stroke-linejoin: round;
 }
 .pin {
-  position: absolute; width: 12px; height: 12px; border-radius: 50%;
-  background: #0a84ff; box-shadow: 0 0 0 8px rgba(10,132,255,0.12);
+  position: absolute; width: 12px; height: 12px; border-radius: 50%; z-index: 2;
+  background: var(--blue); box-shadow: 0 0 0 8px rgba(10,132,255,0.12);
+  animation: pinPulse 2.8s ease-out infinite;
 }
 .pin.one { top: 28%; left: 33%; }
-.pin.two { top: 46%; left: 63%; }
-.pin.three { top: 66%; left: 43%; }
+.pin.two { top: 46%; left: 63%; animation-delay: .6s; }
+.pin.three { top: 66%; left: 43%; animation-delay: 1.2s; }
+@keyframes pinPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(10,132,255,.30); }
+  70%  { box-shadow: 0 0 0 12px rgba(10,132,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(10,132,255,0); }
+}
 
-/* ── Stats ── */
+/* ── Mock UI pills ── */
+.mock {
+  position: absolute; z-index: 3;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+  border: 1px solid rgba(16,24,40,.10); border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(15,23,42,.09);
+  color: var(--muted); font-size: 12px; font-weight: 500;
+}
+.mock svg { flex-shrink: 0; }
+.mock-search { top: 14px; left: 14px; height: 34px; padding: 0 14px; animation: floatY 5s ease-in-out infinite; }
+.mock-search svg { width: 13px; height: 13px; }
+.mock-tools { top: 14px; right: 14px; height: 34px; padding: 0 5px; gap: 2px; }
+.mock-tools span {
+  width: 25px; height: 25px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; color: #7b828c;
+}
+.mock-tools span.on { background: var(--cta); color: #fff; }
+.mock-tools svg { width: 12px; height: 12px; }
+.mock-coords {
+  left: 14px; bottom: 14px; height: 26px; padding: 0 11px;
+  font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: .02em;
+}
+.mock-ai { right: 14px; bottom: 14px; height: 30px; padding: 0 12px; font-size: 11.5px; font-weight: 600; color: var(--text); animation: floatY 6s ease-in-out infinite reverse; }
+.mock-ai svg { width: 12px; height: 12px; color: var(--blue); }
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* ── Section head ── */
+.section-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; padding: 0 48px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.section-title { font-size: 21px; font-weight: 800; letter-spacing: -0.03em; }
+.section-sub { color: var(--muted); font-size: 14px; margin-top: 4px; max-width: 520px; line-height: 1.5; }
+.section-link {
+  font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none;
+  white-space: nowrap; transition: color .15s;
+}
+.section-link:hover { color: var(--text); }
+
+/* ── Stats / features ── */
 .stats {
   display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
   gap: 14px; padding: 0 48px 48px;
 }
 .stat {
   border: 1px solid var(--line); border-radius: 16px;
-  padding: 16px; background: rgba(255,255,255,.75);
+  padding: 18px; background: rgba(255,255,255,.75);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
 }
-.stat-value { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
-.stat-label { color: var(--muted); font-size: 13px; }
+.stat:hover {
+  transform: translateY(-2px); border-color: rgba(16,24,40,.22);
+  box-shadow: 0 10px 26px rgba(15,23,42,.08);
+}
+.stat-icon {
+  width: 34px; height: 34px; border-radius: 10px; margin-bottom: 14px;
+  background: rgba(10,132,255,.10); color: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-icon svg { width: 16px; height: 16px; }
+.stat-value { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.stat-label { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+/* ── Showcase (gallery strip) ── */
+.showcase {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px; padding: 0 48px 52px;
+}
+.show-card {
+  display: block; text-decoration: none; color: inherit;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: rgba(255,255,255,.75); padding: 12px;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.show-card:hover {
+  transform: translateY(-2px); border-color: rgba(16,24,40,.22);
+  box-shadow: 0 10px 26px rgba(15,23,42,.08);
+}
+.show-thumb {
+  height: 110px; border-radius: 10px; margin-bottom: 12px;
+  border: 1px solid rgba(16,24,40,.08);
+  background:
+    linear-gradient(rgba(17,24,39,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,0.05) 1px, transparent 1px),
+    #ffffff;
+  background-size: 26px 26px, 26px 26px, auto;
+  position: relative; overflow: hidden;
+}
+.show-thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.show-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; padding: 0 2px; }
+.show-meta { font-size: 12px; color: var(--muted); margin-top: 3px; padding: 0 2px; }
+
+/* ── CTA band ── */
+.cta-band {
+  position: relative; overflow: hidden;
+  margin: 0 48px 48px; border-radius: 22px;
+  border: 1px solid rgba(16,24,40,.25);
+  background: linear-gradient(150deg, #1d2024 0%, #111316 100%);
+  color: #fff; padding: 42px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 28px; flex-wrap: wrap;
+}
+.cta-band::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  -webkit-mask-image: radial-gradient(circle at 88% 10%, black, transparent 72%);
+  mask-image: radial-gradient(circle at 88% 10%, black, transparent 72%);
+}
+.cta-band::after {
+  content: ""; position: absolute; width: 360px; height: 360px;
+  right: -90px; top: -140px; pointer-events: none;
+  background: radial-gradient(circle, rgba(10,132,255,.32), transparent 65%);
+}
+.cta-band > * { position: relative; z-index: 1; }
+.cta-band h2 { font-size: clamp(22px, 3vw, 30px); letter-spacing: -0.03em; margin-bottom: 8px; }
+.cta-band p { color: rgba(255,255,255,.62); font-size: 15px; line-height: 1.5; max-width: 440px; }
+.cta-band .cta-row { flex-shrink: 0; }
+.cta-band .btn-primary { background: #fff; color: var(--cta); }
+.cta-band .btn-ghost-light { background: transparent; color: #fff; border-color: rgba(255,255,255,.28); }
+.cta-band .btn-ghost-light:hover { border-color: rgba(255,255,255,.5); }
 
 /* ── Footer ── */
 .footer {
@@ -237,7 +379,10 @@ h1 {
 /* ── Mobile ── */
 @media (max-width: 920px) {
   .hero { grid-template-columns: 1fr; padding: 48px 24px 28px; }
+  .section-head { padding: 0 24px; }
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
+  .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
+  .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
   .frame {
     width: calc(100% - 20px);
     min-height: calc(100dvh - 20px);
@@ -246,15 +391,23 @@ h1 {
   }
   .topbar { padding: 0 16px; height: 66px; }
   .topbar-actions .btn:not(.btn-primary) { padding: 0 14px; }
-  .topbar-actions .btn-about { display: none; }
+  .topbar-actions .btn-about, .topbar-actions .btn-gallery { display: none; }
 }
 @media (max-width: 480px) {
-  .topbar-actions .btn-about { display: none; }
+  .topbar-actions .btn-about, .topbar-actions .btn-gallery { display: none; }
   h1 { font-size: 32px; }
+  .mock-ai { display: none; }
+  .preview { min-height: 320px; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .pin, .mock-search, .mock-ai { animation: none; }
 }
 
 /* ── Focus visible ── */
-.btn:focus-visible, .lang-toggle:focus-visible {
+.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible {
   outline: 2px solid #0a84ff; outline-offset: 2px;
 }
 </style>
@@ -276,12 +429,13 @@ h1 {
     <div class="topbar-actions">
       <button class="lang-toggle" id="lang-btn" onclick="toggleLang()" aria-label="Change language">EN</button>
       <a class="btn btn-about" href="/about" data-i18n="nav_about">Acerca de</a>
+      <a class="btn btn-gallery" href="/gallery" data-i18n="nav_gallery">Galer&#237;a</a>
       <a class="btn btn-primary" href="/map" data-i18n="nav_cta">Abrir app</a>
     </div>
   </header>
 
   <section class="hero">
-    <div>
+    <div class="reveal">
       <span class="eyebrow" data-i18n="eyebrow">Dise&#241;ado para foco total</span>
       <h1 data-i18n="headline">Mapas claros.<br>Decisiones r&#225;pidas.</h1>
       <p class="lead" data-i18n="lead">Ma&#241;a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.</p>
@@ -290,34 +444,112 @@ h1 {
         <a class="btn" href="/changelog" data-i18n="cta_changelog">Ver novedades</a>
       </div>
     </div>
-    <aside class="preview" aria-label="Map preview">
+    <aside class="preview reveal" aria-label="Map preview" style="transition-delay:120ms">
       <div class="map-card">
+        <svg class="map-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <polygon class="zone" points="68,56 87,62 83,85 62,79"/>
+          <path class="route-line" d="M34.2 29.5 L64.2 47.5 L44.2 67.5"/>
+        </svg>
         <span class="pin one"></span>
         <span class="pin two"></span>
         <span class="pin three"></span>
+        <div class="mock mock-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+          <span data-i18n="mock_search">Buscar un lugar&#8230;</span>
+        </div>
+        <div class="mock mock-tools" aria-hidden="true">
+          <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 18 L10 8 L16 13 L20 5"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3l8 5-3 11H7L4 8z"/></svg></span>
+        </div>
+        <div class="mock mock-coords" aria-hidden="true">41.3874&deg; N &middot; 2.1686&deg; E</div>
+        <div class="mock mock-ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l2.1 6.1L20 10l-5.9 1.9L12 18l-2.1-6.1L4 10l5.9-1.9z"/></svg>
+          <span data-i18n="mock_ai">IA: ruta por el Eixample</span>
+        </div>
       </div>
     </aside>
   </section>
 
+  <div class="section-head reveal">
+    <h2 class="section-title" data-i18n="features_title">Todo lo esencial, sin ruido</h2>
+  </div>
   <section class="stats" aria-label="Features">
-    <article class="stat">
+    <article class="stat reveal">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
       <div class="stat-value" data-i18n="stat1_val">Sin registro</div>
       <div class="stat-label" data-i18n="stat1_lbl">Empieza en un clic, sin fricci&#243;n.</div>
     </article>
-    <article class="stat">
+    <article class="stat reveal" style="transition-delay:80ms">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg></div>
       <div class="stat-value" data-i18n="stat2_val">Formatos GIS</div>
       <div class="stat-label" data-i18n="stat2_lbl">GeoJSON, KML, KMZ, CSV y Shapefile.</div>
     </article>
-    <article class="stat">
+    <article class="stat reveal" style="transition-delay:160ms">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l2.1 6.1L20 10l-5.9 1.9L12 18l-2.1-6.1L4 10l5.9-1.9z"/></svg></div>
       <div class="stat-value" data-i18n="stat3_val">IA integrada</div>
       <div class="stat-label" data-i18n="stat3_lbl">Comandos naturales para mapear m&#225;s r&#225;pido.</div>
     </article>
+  </section>
+
+  <div class="section-head reveal">
+    <div>
+      <h2 class="section-title" data-i18n="showcase_title">Crea. Publica. Inspira.</h2>
+      <p class="section-sub" data-i18n="showcase_sub">Publica tus mapas en la galer&#237;a y deja que otros los abran y los adapten.</p>
+    </div>
+    <a class="section-link" href="/gallery" data-i18n="showcase_link">Ver galer&#237;a &rarr;</a>
+  </div>
+  <section class="showcase" aria-label="Gallery preview">
+    <a class="show-card reveal" href="/gallery">
+      <div class="show-thumb">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <polyline points="12,72 30,44 52,58 74,26 90,36" fill="none" stroke="#0a84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="72" r="3.4" fill="#0a84ff"/>
+          <circle cx="90" cy="36" r="3.4" fill="#0a84ff"/>
+        </svg>
+      </div>
+      <div class="show-title" data-i18n="show1_t">Rutas y tracks</div>
+      <div class="show-meta" data-i18n="show1_m">Dibuja recorridos precisos</div>
+    </a>
+    <a class="show-card reveal" href="/gallery" style="transition-delay:80ms">
+      <div class="show-thumb">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <polygon points="16,30 44,22 52,46 28,58" fill="rgba(10,132,255,.14)" stroke="#0a84ff" stroke-width="1.6" stroke-linejoin="round"/>
+          <polygon points="58,52 84,44 90,70 66,80" fill="rgba(100,116,139,.12)" stroke="#64748b" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="show-title" data-i18n="show2_t">Zonas y pol&#237;gonos</div>
+      <div class="show-meta" data-i18n="show2_m">Delimita &#225;reas con claridad</div>
+    </a>
+    <a class="show-card reveal" href="/gallery" style="transition-delay:160ms">
+      <div class="show-thumb">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <circle cx="26" cy="34" r="8" fill="rgba(10,132,255,.12)"/><circle cx="26" cy="34" r="3" fill="#0a84ff"/>
+          <circle cx="58" cy="62" r="8" fill="rgba(10,132,255,.12)"/><circle cx="58" cy="62" r="3" fill="#0a84ff"/>
+          <circle cx="78" cy="28" r="8" fill="rgba(10,132,255,.12)"/><circle cx="78" cy="28" r="3" fill="#0a84ff"/>
+        </svg>
+      </div>
+      <div class="show-title" data-i18n="show3_t">Puntos de inter&#233;s</div>
+      <div class="show-meta" data-i18n="show3_m">Marca lo que importa</div>
+    </a>
+  </section>
+
+  <section class="cta-band reveal" aria-label="Call to action">
+    <div>
+      <h2 data-i18n="cta_title">&#191;Listo para dise&#241;ar tu mapa?</h2>
+      <p data-i18n="cta_sub">Gratis y sin registro. Abre la app y empieza en segundos.</p>
+    </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/map" data-i18n="cta_start">Empieza gratis</a>
+      <a class="btn btn-ghost-light" href="/gallery" data-i18n="showcase_link">Ver galer&#237;a &rarr;</a>
+    </div>
   </section>
 
   <footer class="footer">
     <span data-i18n="footer_made">Hecho con &#9829; en Barcelona.</span>
     <span>
       <a href="/about" data-i18n="nav_about">Acerca de</a> &middot;
+      <a href="/gallery" data-i18n="nav_gallery">Galer&#237;a</a> &middot;
       <a href="/changelog" data-i18n="cta_changelog">Ver novedades</a> &middot;
       <a href="/open" data-i18n="nav_stats">Estad&#237;sticas</a> &middot;
       <a href="/pricing" data-i18n="nav_pricing">Precios</a>
@@ -329,28 +561,48 @@ h1 {
 <script>
 var LANG = {
   es: {
-    nav_about:'Acerca de', nav_cta:'Abrir app', nav_stats:'Estad\u00edsticas', nav_pricing:'Precios',
+    nav_about:'Acerca de', nav_cta:'Abrir app', nav_stats:'Estad\u00edsticas', nav_pricing:'Precios', nav_gallery:'Galer\u00eda',
     eyebrow:'Dise\u00f1ado para foco total',
     headline:'Mapas claros.<br>Decisiones r\u00e1pidas.',
     lead:'Ma\u00f1a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.',
     cta_start:'Empieza gratis', cta_changelog:'Ver novedades',
+    mock_search:'Buscar un lugar\u2026', mock_ai:'IA: ruta por el Eixample',
+    features_title:'Todo lo esencial, sin ruido',
     stat1_val:'Sin registro', stat1_lbl:'Empieza en un clic, sin fricci\u00f3n.',
     stat2_val:'Formatos GIS', stat2_lbl:'GeoJSON, KML, KMZ, CSV y Shapefile.',
     stat3_val:'IA integrada', stat3_lbl:'Comandos naturales para mapear m\u00e1s r\u00e1pido.',
+    showcase_title:'Crea. Publica. Inspira.',
+    showcase_sub:'Publica tus mapas en la galer\u00eda y deja que otros los abran y los adapten.',
+    showcase_link:'Ver galer\u00eda \u2192',
+    show1_t:'Rutas y tracks', show1_m:'Dibuja recorridos precisos',
+    show2_t:'Zonas y pol\u00edgonos', show2_m:'Delimita \u00e1reas con claridad',
+    show3_t:'Puntos de inter\u00e9s', show3_m:'Marca lo que importa',
+    cta_title:'\u00bfListo para dise\u00f1ar tu mapa?',
+    cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
     footer_made:'Hecho con \u2665 en Barcelona.',
     page_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
     meta_desc:'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
     lang_btn:'EN'
   },
   en: {
-    nav_about:'About', nav_cta:'Open app', nav_stats:'Stats', nav_pricing:'Pricing',
+    nav_about:'About', nav_cta:'Open app', nav_stats:'Stats', nav_pricing:'Pricing', nav_gallery:'Gallery',
     eyebrow:'Designed for total focus',
     headline:'Clear maps.<br>Fast decisions.',
     lead:'Ma\u00f1a Maps turns geospatial tasks into a simple experience: draw, import and export in seconds with a clean, intuitive, noise-free interface.',
     cta_start:'Start for free', cta_changelog:'What\u2019s new',
+    mock_search:'Search for a place\u2026', mock_ai:'AI: route via Eixample',
+    features_title:'Everything essential, no noise',
     stat1_val:'No signup', stat1_lbl:'Start in one click, zero friction.',
     stat2_val:'GIS formats', stat2_lbl:'GeoJSON, KML, KMZ, CSV & Shapefile.',
     stat3_val:'Built-in AI', stat3_lbl:'Natural language commands for faster mapping.',
+    showcase_title:'Create. Publish. Inspire.',
+    showcase_sub:'Publish your maps to the gallery and let others open and adapt them.',
+    showcase_link:'View gallery \u2192',
+    show1_t:'Routes & tracks', show1_m:'Draw precise paths',
+    show2_t:'Areas & polygons', show2_m:'Outline areas clearly',
+    show3_t:'Points of interest', show3_m:'Mark what matters',
+    cta_title:'Ready to design your map?',
+    cta_sub:'Free, no signup. Open the app and start in seconds.',
     footer_made:'Made with \u2665 in Barcelona.',
     page_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
     meta_desc:'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
@@ -385,6 +637,21 @@ function applyLang(lang) {
 function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
 applyLang(currentLang);
 
+// ── Scroll reveal ──
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) {
+    els.forEach(function(el) { el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(function(el) { io.observe(el); });
+})();
 </script>
 
 </body>

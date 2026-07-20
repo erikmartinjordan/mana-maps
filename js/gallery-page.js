@@ -121,7 +121,12 @@
     list.classList.remove('empty-state');
     if (!items.length) {
       list.classList.add('empty-state');
-      list.innerHTML = '<div class="empty">Todavía no hay mapas publicados. Comparte uno desde el botón "Compartir" en /map.</div>';
+      list.innerHTML = '<div class="empty">' +
+        '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>' +
+        '<div class="empty-title">Todavía no hay mapas publicados</div>' +
+        '<div class="empty-sub">Sé el primero: crea un mapa y compártelo desde el botón "Compartir" del editor.</div>' +
+        '<a class="btn btn-primary" href="/map/">Crear mapa</a>' +
+      '</div>';
       return;
     }
 
@@ -571,6 +576,9 @@
     if (!wrap || !meta || !target) return;
     wrap.style.display = 'block';
 
+    const titleEl = document.getElementById('featured-title');
+    if (titleEl) titleEl.textContent = item.name || item.title || 'Mapa destacado';
+
     const map = L.map('featured-map', { zoomControl: false, worldCopyJump: true });
     if (window.L && L.maplibreGL) {
       L.maplibreGL({
@@ -591,7 +599,8 @@
     if (bounds && bounds.isValid()) map.fitBounds(bounds.pad(0.2));
 
     const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
-    meta.textContent = (item.name || 'Mapa sin título') + ' · ' + (item.featureCount || 0) + ' elementos · ' + safeDate(created);
+    const author = item.authorHandle ? '@' + item.authorHandle + ' · ' : '';
+    meta.textContent = author + (item.featureCount || 0) + ' elementos · ' + safeDate(created);
   }
 
   async function init() {

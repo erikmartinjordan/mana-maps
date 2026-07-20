@@ -1,10 +1,10 @@
-const CACHE_NAME = 'mana-maps-pwa-v3';
+const CACHE_NAME = 'mana-maps-pwa-v4';
 const PRECACHE_URLS = [
   '/',
   '/map/',
   '/map/index.html',
   '/js/pwa.js',
-  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap',
+  'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap',
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
