@@ -3,3 +3,5 @@
 js/firebase-config.local.js
 .env
 .env.*
+
+node_modules/
