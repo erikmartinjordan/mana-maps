@@ -579,7 +579,7 @@
     const titleEl = document.getElementById('featured-title');
     if (titleEl) titleEl.textContent = item.name || item.title || 'Mapa destacado';
 
-    const map = L.map('featured-map', { zoomControl: false, worldCopyJump: true });
+    const map = L.map('featured-map', { zoomControl: false, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 1 });
     if (window.L && L.maplibreGL) {
       L.maplibreGL({
         style: window.MANA_BASEMAPS ? window.MANA_BASEMAPS.getStyleUrl(false) : 'https://tiles.openfreemap.org/styles/positron',
