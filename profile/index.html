@@ -9,6 +9,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=1776927833"/>
+  <script>
+    (function() {
+      var darkPref = localStorage.getItem('mana-dark');
+      if (darkPref === 'true') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else if (darkPref === 'false') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 </head>
 <body class="profile-page">
   <main class="profile-shell">
