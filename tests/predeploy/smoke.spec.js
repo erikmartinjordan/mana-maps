@@ -18,7 +18,7 @@ test('home page loads with expected title and main CTA', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveTitle(/Maña Maps — Diseña mapas con claridad/i);
-  await expect(page.getByRole('link', { name: /Empieza gratis/i })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Empieza gratis/i }).first()).toBeVisible();
 });
 
 test('map editor shell loads core UI containers', async ({ page }) => {
