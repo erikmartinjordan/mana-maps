@@ -69,6 +69,10 @@
   }
 
   function renderMapPreviewSVG(preview) {
+    // Shared library: Web-Mercator aware, aspect-correct styled previews.
+    if (window.ManaMapPreview && typeof window.ManaMapPreview.renderSVG === 'function') {
+      return window.ManaMapPreview.renderSVG(preview);
+    }
     if (!preview || !Array.isArray(preview.bbox) || !Array.isArray(preview.features)) return '';
     var bbox = preview.bbox;
     var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);

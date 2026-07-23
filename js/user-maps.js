@@ -353,8 +353,10 @@
 
   /**
    * Fork a public map into the current user's collection as a new private map.
+   * Reads from the public mirror /maps/{mapId} (world-readable per Firestore
+   * rules), with a legacy fallback to the author's private collection.
    * @param {string} sourceMapId - the public map ID
-   * @param {string} sourceHandle - the author's handle
+   * @param {string} [sourceHandle] - the author's handle (optional, attribution only)
    * @returns {Promise<{mapId: string}>}
    */
   async function forkMap(sourceMapId, sourceHandle) {
@@ -364,26 +366,51 @@
     const db = getDb();
     if (!db) throw new Error('firestore-unavailable');
 
-    // Read from source user's maps
-    const sourceRef = db.collection(USERS_COL).doc(sourceHandle)
-      .collection('maps').doc(sourceMapId);
-    const sourceDoc = await sourceRef.get();
+    let title = '';
+    let geojson = null;
 
-    if (!sourceDoc.exists) throw new Error('source-not-found');
-    const sourceData = sourceDoc.data();
+    // Preferred source: the public mirror. Works for every published map,
+    // including bot-published maps without an author handle.
+    const publicRef = db.collection(PUBLIC_MAPS_COL).doc(sourceMapId);
+    const publicDoc = await publicRef.get();
+    if (publicDoc.exists) {
+      const publicData = publicDoc.data() || {};
+      title = publicData.title || publicData.name || '';
+      geojson = _readInlineGeo(publicData);
+      if (!geojson && publicData.geojsonChunked && publicData.geojsonChunked.chunkCount) {
+        const chunkSnap = await publicRef.collection(publicData.geojsonChunked.collection || 'geoChunks')
+          .orderBy('index', 'asc')
+          .limit(publicData.geojsonChunked.chunkCount)
+          .get();
+        let raw = '';
+        chunkSnap.forEach(function (doc) { raw += doc.data().text || ''; });
+        try { geojson = raw ? JSON.parse(raw) : null; } catch (e) { geojson = null; }
+      }
+    }
 
-    if (!sourceData.public) throw new Error('source-not-public');
-
-    // Load GeoJSON (inline or chunked)
-    let geojson = sourceData.geojson;
-    if (!geojson && sourceData.geojsonChunked && sourceData.geojsonChunked.chunkCount) {
-      const chunkSnap = await sourceRef.collection(sourceData.geojsonChunked.collection || 'geoChunks')
-        .orderBy('index', 'asc')
-        .limit(sourceData.geojsonChunked.chunkCount)
-        .get();
-      let raw = '';
-      chunkSnap.forEach(function (doc) { raw += doc.data().text || ''; });
-      try { geojson = JSON.parse(raw); } catch (e) { geojson = null; }
+    // Legacy fallback: author's personal collection (only readable if rules allow).
+    if ((!geojson || !geojson.features) && sourceHandle) {
+      try {
+        const sourceRef = db.collection(USERS_COL).doc(sourceHandle)
+          .collection('maps').doc(sourceMapId);
+        const sourceDoc = await sourceRef.get();
+        if (sourceDoc.exists) {
+          const sourceData = sourceDoc.data() || {};
+          title = title || sourceData.title || '';
+          geojson = sourceData.geojson;
+          if (!geojson && sourceData.geojsonChunked && sourceData.geojsonChunked.chunkCount) {
+            const chunkSnap = await sourceRef.collection(sourceData.geojsonChunked.collection || 'geoChunks')
+              .orderBy('index', 'asc')
+              .limit(sourceData.geojsonChunked.chunkCount)
+              .get();
+            let raw = '';
+            chunkSnap.forEach(function (doc) { raw += doc.data().text || ''; });
+            try { geojson = JSON.parse(raw); } catch (e) { geojson = null; }
+          }
+        }
+      } catch (e) {
+        console.warn('legacy fork source unreadable:', e);
+      }
     }
 
     if (!geojson || !geojson.features) throw new Error('no-geojson');
@@ -391,11 +418,10 @@
     // Save as new private map for current user
     const result = await saveMap({
       mapId: null,
-      title: (sourceData.title || 'Forked map') + ' (fork)',
-      description: txt(
-        'Bifurcado de @' + sourceHandle,
-        'Forked from @' + sourceHandle
-      ),
+      title: (title || 'Forked map') + ' (fork)',
+      description: sourceHandle
+        ? txt('Bifurcado de @' + sourceHandle, 'Forked from @' + sourceHandle)
+        : txt('Bifurcado de la galería pública', 'Forked from the public gallery'),
       geojson: geojson
     });
 
@@ -637,6 +663,10 @@
   }
 
   function _buildMapPreview(geo) {
+    // Shared library: Web-Mercator aware, Douglas–Peucker simplified previews.
+    if (window.ManaMapPreview && typeof window.ManaMapPreview.build === 'function') {
+      return window.ManaMapPreview.build(geo);
+    }
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
     geo.features.forEach(function(feature) {

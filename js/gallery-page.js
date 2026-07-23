@@ -2,6 +2,7 @@
 
 (function() {
   const MAPS_COLLECTION = 'maps';
+  const LIKES_STORAGE_KEY = 'mana-gallery-likes';
   const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
 
@@ -30,6 +31,38 @@
     const params = new URLSearchParams(window.location.search);
     return params.get('slug') || params.get('map');
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // TOAST (self-contained, the gallery page has no toast infra)
+  // ═══════════════════════════════════════════════════════════════
+
+  var _toastTimer = null;
+
+  function galleryToast(message, opts) {
+    var options = opts || {};
+    var toast = document.getElementById('gallery-toast');
+    if (!toast) {
+      var style = document.createElement('style');
+      style.textContent = '.gallery-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);z-index:10001;padding:11px 18px;border-radius:14px;background:rgba(17,18,20,.94);color:#fff;font-family:DM Sans,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;font-weight:600;box-shadow:0 16px 44px rgba(0,0,0,.26);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;max-width:min(420px,calc(100vw - 32px));text-align:center}.gallery-toast.open{opacity:1;transform:translateX(-50%) translateY(0)}.gallery-toast a{color:#7dd3fc;font-weight:700;text-decoration:none;margin-left:6px}.gallery-toast a:hover{text-decoration:underline}';
+      document.head.appendChild(style);
+      toast = document.createElement('div');
+      toast.id = 'gallery-toast';
+      toast.className = 'gallery-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = escHtml(message) + (options.linkUrl && options.linkLabel
+      ? '<a href="' + options.linkUrl + '">' + escHtml(options.linkLabel) + ' &rarr;</a>'
+      : '');
+    requestAnimationFrame(function() { toast.classList.add('open'); });
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function() { toast.classList.remove('open'); }, options.duration || 3800);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // REMOTE DATA
+  // ═══════════════════════════════════════════════════════════════
 
   async function remoteMaps() {
     if (typeof firebase === 'undefined') return [];
@@ -115,121 +148,6 @@
     }
   }
 
-  function renderCards(items) {
-    const list = document.getElementById('gallery-list');
-    if (!list) return;
-    list.classList.remove('empty-state');
-    if (!items.length) {
-      list.classList.add('empty-state');
-      list.innerHTML = '<div class="empty">' +
-        '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>' +
-        '<div class="empty-title">Todavía no hay mapas publicados</div>' +
-        '<div class="empty-sub">Sé el primero: crea un mapa y compártelo desde el botón "Compartir" del editor.</div>' +
-        '<a class="btn btn-primary" href="/map/">Crear mapa</a>' +
-      '</div>';
-      return;
-    }
-
-    list.innerHTML = items.map(function(item) {
-      const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
-      const geo = getPublishedGeo(item);
-      const thumb = renderMapPreviewSVG(buildPreviewFromGeo(geo) || item.mapPreview);
-      const likes = item.likes || 0;
-      const authorHandle = item.authorHandle || '';
-      const mapSlug = item.slug || item.id;
-      var mode = item.shareMode || 'view';
-      return '' +
-        '<div class="card">' +
-          '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
-            '<div class="thumb">' + thumb + '</div>' +
-            '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
-          '</a>' +
-          '<div class="meta">' +
-            (authorHandle ? '<a class="meta-author" href="/@' + encodeURIComponent(authorHandle) + '">@' + escHtml(authorHandle) + '</a><span>·</span>' : '') +
-            '<span>' + (item.featureCount || 0) + ' elementos</span>' +
-            '<span>·</span>' +
-            '<span>' + safeDate(created) + '</span>' +
-          '</div>' +
-          '<div class="card-actions">' +
-            '<button class="card-action-btn card-like-btn" data-map-id="' + mapSlug + '" data-author="' + authorHandle + '" onclick="galleryLike(this)">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
-              '<span class="like-count">' + likes + '</span>' +
-            '</button>' +
-            '<button class="card-action-btn card-fork-btn" data-map-id="' + mapSlug + '" data-author="' + authorHandle + '" onclick="galleryFork(this)">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
-              '<span>Fork</span>' +
-            '</button>' +
-          '</div>' +
-        '</div>';
-    }).join('');
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // LIKE & FORK HANDLERS
-  // ═══════════════════════════════════════════════════════════════
-
-  window.galleryLike = async function(btn) {
-    var mapId = btn.getAttribute('data-map-id');
-    var author = btn.getAttribute('data-author');
-    if (!mapId) return;
-
-    // Auth gate: only authenticated users can like
-    if (window.manaAuth) {
-      var user = window.manaAuth.getCurrentUser();
-      if (!user || user.isAnonymous) {
-        window.manaAuth.openAuthModal();
-        return;
-      }
-    }
-
-    // Optimistic UI update
-    var countEl = btn.querySelector('.like-count');
-    var current = parseInt(countEl.textContent || '0', 10);
-    countEl.textContent = current + 1;
-    btn.classList.add('liked');
-
-    // Persist like
-    if (window.manaMaps && author) {
-      try {
-        await window.manaMaps.likeMap(mapId, author);
-      } catch (e) {
-        console.warn('like failed:', e);
-        countEl.textContent = current; // rollback
-        btn.classList.remove('liked');
-      }
-    }
-  };
-
-  window.galleryFork = async function(btn) {
-    var mapId = btn.getAttribute('data-map-id');
-    var author = btn.getAttribute('data-author');
-    if (!mapId || !author) return;
-
-    // Auth gate: only authenticated users can fork
-    if (window.manaAuth) {
-      var user = window.manaAuth.getCurrentUser();
-      if (!user || user.isAnonymous) {
-        window.manaAuth.openAuthModal();
-        return;
-      }
-    }
-
-    btn.disabled = true;
-    btn.querySelector('span').textContent = '...';
-
-    try {
-      if (window.manaMaps) {
-        await window.manaMaps.forkMap(mapId, author);
-        btn.querySelector('span').textContent = '✓';
-        btn.classList.add('forked');
-      }
-    } catch (e) {
-      console.warn('fork failed:', e);
-      btn.querySelector('span').textContent = 'Fork';
-      btn.disabled = false;
-    }
-  };
-
   function getPublishedGeo(item) {
     if (!item) return null;
     if (item.geojson && item.geojson.features) return item.geojson;
@@ -265,310 +183,294 @@
     return null;
   }
 
-  const PREVIEW_MAX_FEATURES = 96;
-  const PREVIEW_MAX_COORDS_PER_GEOMETRY = 40;
-  const PREVIEW_GRID_SIZE = 10;
-  const PREVIEW_DENSITY_GRID_SIZE = 28;
+  // ═══════════════════════════════════════════════════════════════
+  // THUMBNAILS (shared preview library)
+  // ═══════════════════════════════════════════════════════════════
 
-  function roundPreviewNumber(value) {
-    var num = Number(value);
-    if (!isFinite(num)) return null;
-    return Number(num.toFixed(6));
+  function renderThumb(item) {
+    if (!window.ManaMapPreview) return '';
+    var built = window.ManaMapPreview.build(getPublishedGeo(item));
+    return window.ManaMapPreview.renderSVG(built || item.mapPreview);
   }
 
-  function collectCoordPairs(coords, out) {
-    if (!Array.isArray(coords)) return;
-    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-      var x = roundPreviewNumber(coords[0]);
-      var y = roundPreviewNumber(coords[1]);
-      if (x !== null && y !== null) out.push([x, y]);
+  // ═══════════════════════════════════════════════════════════════
+  // LIKED STATE (Firestore rules only allow +1, so likes are one-shot)
+  // ═══════════════════════════════════════════════════════════════
+
+  function getLikedMapIds() {
+    try {
+      var raw = localStorage.getItem(LIKES_STORAGE_KEY);
+      var parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function hasLiked(mapId) {
+    return getLikedMapIds().indexOf(mapId) >= 0;
+  }
+
+  function markLiked(mapId) {
+    try {
+      var ids = getLikedMapIds();
+      if (ids.indexOf(mapId) < 0) {
+        ids.push(mapId);
+        localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(ids.slice(-500)));
+      }
+    } catch (e) {}
+  }
+
+  function unmarkLiked(mapId) {
+    try {
+      var ids = getLikedMapIds().filter(function(id) { return id !== mapId; });
+      localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(ids));
+    } catch (e) {}
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CARDS
+  // ═══════════════════════════════════════════════════════════════
+
+  function renderCards(items) {
+    const list = document.getElementById('gallery-list');
+    if (!list) return;
+    list.classList.remove('empty-state');
+    if (!items.length) {
+      list.classList.add('empty-state');
+      list.innerHTML = '<div class="empty">' +
+        '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>' +
+        '<div class="empty-title">Todavía no hay mapas publicados</div>' +
+        '<div class="empty-sub">Sé el primero: crea un mapa y compártelo desde el botón "Compartir" del editor.</div>' +
+        '<a class="btn btn-primary" href="/map/">Crear mapa</a>' +
+      '</div>';
       return;
     }
-    coords.forEach(function(child) { collectCoordPairs(child, out); });
+
+    list.innerHTML = items.map(function(item) {
+      const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
+      const thumb = renderThumb(item);
+      const likes = item.likes || 0;
+      const authorHandle = item.authorHandle || '';
+      const mapSlug = item.slug || item.id;
+      var mode = item.shareMode || 'view';
+      var likedClass = hasLiked(mapSlug) ? ' liked' : '';
+      return '' +
+        '<div class="card">' +
+          '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
+            '<div class="thumb">' + thumb + '</div>' +
+            '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
+          '</a>' +
+          '<div class="meta">' +
+            (authorHandle ? '<a class="meta-author" href="/@' + encodeURIComponent(authorHandle) + '">@' + escHtml(authorHandle) + '</a><span>·</span>' : '') +
+            '<span>' + (item.featureCount || 0) + ' elementos</span>' +
+            '<span>·</span>' +
+            '<span>' + safeDate(created) + '</span>' +
+          '</div>' +
+          '<div class="card-actions">' +
+            '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
+              '<span class="like-count">' + likes + '</span>' +
+            '</button>' +
+            '<button class="card-action-btn card-fork-btn" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryFork(this)">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
+              '<span>Fork</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+    }).join('');
   }
 
-  function sampleArrayEvenly(items, maxItems) {
-    if (!Array.isArray(items) || items.length <= maxItems) return items || [];
-    if (maxItems <= 1) return [items[0]];
-    var sampled = [];
-    for (var i = 0; i < maxItems; i++) {
-      sampled.push(items[Math.round(i * (items.length - 1) / (maxItems - 1))]);
+  // ═══════════════════════════════════════════════════════════════
+  // LIKE & FORK HANDLERS
+  // ═══════════════════════════════════════════════════════════════
+
+  window.galleryLike = async function(btn) {
+    var mapId = btn.getAttribute('data-map-id');
+    var author = btn.getAttribute('data-author') || '';
+    if (!mapId) return;
+
+    // Auth gate: only authenticated users can like
+    if (window.manaAuth) {
+      var user = window.manaAuth.getCurrentUser();
+      if (!user || user.isAnonymous) {
+        window.manaAuth.openAuthModal();
+        return;
+      }
     }
-    return sampled;
-  }
 
-  function sanitizePreviewPoint(coord) {
-    if (!Array.isArray(coord) || coord.length < 2) return null;
-    var x = roundPreviewNumber(coord[0]);
-    var y = roundPreviewNumber(coord[1]);
-    return x === null || y === null ? null : [x, y];
-  }
-
-  function sanitizePreviewLine(coords, maxCoords) {
-    if (!Array.isArray(coords)) return [];
-    return sampleArrayEvenly(coords, maxCoords).map(sanitizePreviewPoint).filter(Boolean);
-  }
-
-  function sanitizePreviewPolygon(poly, maxCoords) {
-    if (!Array.isArray(poly)) return [];
-    return poly.map(function(ring) {
-      return sanitizePreviewLine(ring, maxCoords);
-    }).filter(function(ring) { return ring.length >= 3; });
-  }
-
-  function simplifyPreviewGeometry(geometry) {
-    if (!geometry || !geometry.type || !Array.isArray(geometry.coordinates)) return null;
-    var coords = geometry.coordinates;
-    if (geometry.type === 'Point') {
-      coords = sanitizePreviewPoint(coords);
-    } else if (geometry.type === 'MultiPoint' || geometry.type === 'LineString') {
-      coords = sanitizePreviewLine(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
-    } else if (geometry.type === 'MultiLineString' || geometry.type === 'Polygon') {
-      coords = sanitizePreviewPolygon(coords, PREVIEW_MAX_COORDS_PER_GEOMETRY);
-    } else if (geometry.type === 'MultiPolygon') {
-      coords = coords.map(function(poly) {
-        return sanitizePreviewPolygon(poly, PREVIEW_MAX_COORDS_PER_GEOMETRY);
-      }).filter(function(poly) { return poly.length; });
-    } else {
-      return null;
+    // One like per map per browser: Firestore rules only allow +1 increments.
+    if (hasLiked(mapId)) {
+      galleryToast('Ya has marcado este mapa como favorito');
+      btn.classList.add('liked');
+      return;
     }
-    if (!coords || (Array.isArray(coords) && !coords.length)) return null;
-    return { type: geometry.type, coordinatesText: JSON.stringify(coords) };
-  }
 
-  function featureCenter(feature) {
-    var geom = feature && feature.geometry;
-    if (!geom || !Array.isArray(geom.coordinates)) return null;
-    var coords = [];
-    collectCoordPairs(geom.coordinates, coords);
-    if (!coords.length) return null;
+    // Optimistic UI update
+    var countEl = btn.querySelector('.like-count');
+    var current = parseInt(countEl.textContent || '0', 10);
+    countEl.textContent = current + 1;
+    btn.classList.add('liked');
+    markLiked(mapId);
+
+    // Persist like (works for every published map, author handle is optional)
+    if (window.manaMaps && typeof window.manaMaps.likeMap === 'function') {
+      try {
+        await window.manaMaps.likeMap(mapId, author);
+      } catch (e) {
+        console.warn('like failed:', e);
+        countEl.textContent = current; // rollback
+        btn.classList.remove('liked');
+        unmarkLiked(mapId);
+        galleryToast('No se pudo guardar tu like. Inténtalo de nuevo.');
+      }
+    }
+  };
+
+  window.galleryFork = async function(btn) {
+    var mapId = btn.getAttribute('data-map-id');
+    var author = btn.getAttribute('data-author') || '';
+    if (!mapId) return;
+
+    // Auth gate: only authenticated users can fork
+    if (window.manaAuth) {
+      var user = window.manaAuth.getCurrentUser();
+      if (!user || user.isAnonymous) {
+        window.manaAuth.openAuthModal();
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.querySelector('span').textContent = '...';
+
+    try {
+      if (window.manaMaps && typeof window.manaMaps.forkMap === 'function') {
+        await window.manaMaps.forkMap(mapId, author);
+        btn.querySelector('span').textContent = '✓';
+        btn.classList.add('forked');
+        galleryToast('Fork guardado en tus mapas', { linkUrl: '/my-maps/', linkLabel: 'Abrir Mis mapas', duration: 5200 });
+        return;
+      }
+      throw new Error('fork-unavailable');
+    } catch (e) {
+      console.warn('fork failed:', e);
+      btn.querySelector('span').textContent = 'Fork';
+      btn.disabled = false;
+      galleryToast('No se pudo hacer fork de este mapa.');
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // FEATURED MAP — pure MapLibre GL (no Leaflet bridge => no zoom desync)
+  // ═══════════════════════════════════════════════════════════════
+
+  var _featuredMap = null;
+
+  function collectGeoBounds(geo) {
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    coords.forEach(function(c) {
-      minX = Math.min(minX, c[0]); maxX = Math.max(maxX, c[0]);
-      minY = Math.min(minY, c[1]); maxY = Math.max(maxY, c[1]);
-    });
-    return isFinite(minX) && isFinite(maxX) && isFinite(minY) && isFinite(maxY)
-      ? [(minX + maxX) / 2, (minY + maxY) / 2]
-      : null;
-  }
-
-  function previewFeatureIndexes(features, maxFeatures, bbox) {
-    var count = Array.isArray(features) ? features.length : 0;
-    if (!count) return [];
-    var target = Math.min(count, maxFeatures);
-    if (count <= target) return features.map(function(_, index) { return index; });
-
-    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
-    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
-    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
-      return sampleArrayEvenly(features.map(function(_, index) { return index; }), target);
+    function walk(coords) {
+      if (!Array.isArray(coords)) return;
+      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+        var x = coords[0], y = coords[1];
+        if (!isFinite(x) || !isFinite(y)) return;
+        // Normalize antimeridian-crossing longitudes into a sane range.
+        if (x < -180) x += 360; else if (x > 180) x -= 360;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, Math.max(-86, y)); maxY = Math.max(maxY, Math.min(86, y));
+        return;
+      }
+      coords.forEach(walk);
     }
-    var spanX = Math.max(maxX - minX, 1e-9);
-    var spanY = Math.max(maxY - minY, 1e-9);
-    var buckets = {};
-
-    features.forEach(function(feature, index) {
-      var center = featureCenter(feature);
-      if (!center) return;
-      var gx = Math.max(0, Math.min(PREVIEW_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_GRID_SIZE)));
-      var gy = Math.max(0, Math.min(PREVIEW_GRID_SIZE - 1, Math.floor(((center[1] - minY) / spanY) * PREVIEW_GRID_SIZE)));
-      var key = gx + ':' + gy;
-      var cellCenterX = minX + ((gx + 0.5) / PREVIEW_GRID_SIZE) * spanX;
-      var cellCenterY = minY + ((gy + 0.5) / PREVIEW_GRID_SIZE) * spanY;
-      var dist = Math.pow(center[0] - cellCenterX, 2) + Math.pow(center[1] - cellCenterY, 2);
-      if (!buckets[key]) buckets[key] = [];
-      buckets[key].push({ index: index, dist: dist });
-    });
-
-    var bucketList = Object.keys(buckets).sort().map(function(key) {
-      return buckets[key].sort(function(a, b) { return a.dist - b.dist; });
-    });
-    if (!bucketList.length) return sampleArrayEvenly(features.map(function(_, index) { return index; }), target);
-
-    var selected = [];
-    var used = {};
-    var cursor = 0;
-    while (selected.length < target) {
-      var added = false;
-      bucketList.forEach(function(bucket) {
-        if (selected.length >= target) return;
-        var candidate = bucket[cursor];
-        if (candidate && !used[candidate.index]) {
-          used[candidate.index] = true;
-          selected.push(candidate.index);
-          added = true;
-        }
-      });
-      if (!added) break;
-      cursor++;
-    }
-    if (selected.length < target) {
-      sampleArrayEvenly(features.map(function(_, index) { return index; }), target).forEach(function(index) {
-        if (selected.length < target && !used[index]) {
-          used[index] = true;
-          selected.push(index);
-        }
-      });
-    }
-    return selected.sort(function(a, b) { return a - b; });
-  }
-
-  function buildDensityCells(features, bbox) {
-    var minX = Number(bbox && bbox[0]); var minY = Number(bbox && bbox[1]);
-    var maxX = Number(bbox && bbox[2]); var maxY = Number(bbox && bbox[3]);
-    if (!Array.isArray(features) || !isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return [];
-    var spanX = Math.max(maxX - minX, 1e-9);
-    var spanY = Math.max(maxY - minY, 1e-9);
-    var cells = {};
-    features.forEach(function(feature) {
-      var center = featureCenter(feature);
-      if (!center) return;
-      var x = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((center[0] - minX) / spanX) * PREVIEW_DENSITY_GRID_SIZE)));
-      var y = Math.max(0, Math.min(PREVIEW_DENSITY_GRID_SIZE - 1, Math.floor(((maxY - center[1]) / spanY) * PREVIEW_DENSITY_GRID_SIZE)));
-      var key = x + ':' + y;
-      var props = feature && feature.properties ? feature.properties : {};
-      var color = props._manaColor || props.color || '#0ea5e9';
-      if (!cells[key]) cells[key] = { x: x, y: y, n: 0, c: color };
-      cells[key].n += 1;
-    });
-    return Object.keys(cells).map(function(key) { return cells[key]; });
-  }
-
-  function encodePreviewGeometry(geometry) {
-    return simplifyPreviewGeometry(geometry);
-  }
-
-  function buildPreviewFromGeo(geo) {
-    if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
-    var points = [];
-    geo.features.forEach(function(feature) {
-      var geom = feature && feature.geometry;
-      if (!geom || !Array.isArray(geom.coordinates)) return;
-      collectCoordPairs(geom.coordinates, points);
-    });
-    if (!points.length) return null;
-    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    points.forEach(function(c) {
-      var x = Number(c[0]), y = Number(c[1]);
-      if (!isFinite(x) || !isFinite(y)) return;
-      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    (geo.features || []).forEach(function(f) {
+      if (f && f.geometry && Array.isArray(f.geometry.coordinates)) walk(f.geometry.coordinates);
     });
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
-    var bbox = [minX, minY, maxX, maxY];
-    var isLargePreview = geo.features.length > PREVIEW_MAX_FEATURES;
-    var cells = isLargePreview ? buildDensityCells(geo.features, bbox) : [];
-    var entries = isLargePreview ? [] : previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
-      var feature = geo.features[index];
-      var props = feature && feature.properties ? feature.properties : {};
-      return {
-        geometry: encodePreviewGeometry(feature ? feature.geometry : null),
-        color: props._manaColor || props.color || '#0ea5e9'
-      };
-    }).filter(function(entry) { return !!entry.geometry; });
-    return (cells.length || entries.length) ? {
-      bbox: bbox,
-      kind: cells.length ? 'density-grid' : 'geometry',
-      gridSize: cells.length ? PREVIEW_DENSITY_GRID_SIZE : null,
-      cells: cells.length ? cells : null,
-      features: entries
-    } : null;
+    return [[minX, minY], [maxX, maxY]];
   }
 
-  function renderMapPreviewSVG(preview) {
-    if (!preview || !Array.isArray(preview.bbox) || !Array.isArray(preview.features)) return '';
-    var bbox = preview.bbox;
-    var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
-    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return '';
-    var spanX = Math.max(maxX - minX, 1e-9);
-    var spanY = Math.max(maxY - minY, 1e-9);
-    var pad = 0.12;
-    function toX(x) { return (((x - minX) / spanX) * (1 - 2 * pad) + pad) * 100; }
-    function toY(y) { return (((maxY - y) / spanY) * (1 - 2 * pad) + pad) * 100; }
-    function color(value) { return /^#[0-9a-f]{3,8}$/i.test(value || '') ? value : '#0ea5e9'; }
-    function renderDensityCells() {
-      if (!Array.isArray(preview.cells) || !preview.cells.length) return '';
-      var grid = Math.max(1, Number(preview.gridSize) || 28);
-      var size = 100 / grid;
-      var maxCount = preview.cells.reduce(function(max, cell) {
-        var count = Number(cell && cell.n) || 1;
-        return Math.max(max, count);
-      }, 1);
-      return preview.cells.map(function(cell) {
-        var x = Number(cell && cell.x); var y = Number(cell && cell.y);
-        if (!isFinite(x) || !isFinite(y)) return '';
-        var count = Math.max(1, Number(cell.n) || 1);
-        var opacity = Math.min(0.88, 0.28 + (count / maxCount) * 0.48);
-        return '<rect x="' + (x * size).toFixed(2) + '" y="' + (y * size).toFixed(2) + '" width="' + Math.max(size, 1.2).toFixed(2) + '" height="' + Math.max(size, 1.2).toFixed(2) + '" rx="0.9" fill="' + color(cell.c) + '" fill-opacity="' + opacity.toFixed(2) + '"/>';
-      }).join('');
+  function featuredPopupHtml(props) {
+    var name = props && (props._manaName || props.name || props.Name);
+    if (!name) return '';
+    return '<div class="featured-popup">' + escHtml(String(name)) + '</div>';
+  }
+
+  function addFeaturedDataLayers(map, geo) {
+    if (!map.getSource('featured-data')) {
+      map.addSource('featured-data', { type: 'geojson', data: geo });
+    } else {
+      map.getSource('featured-data').setData(geo);
     }
-    function decodePreviewGeometry(geom) {
-      if (!geom) return null;
-      if (Array.isArray(geom.coordinates)) return geom;
-      if (typeof geom.coordinatesText === 'string' && geom.coordinatesText) {
-        try { return { type: geom.type, coordinates: JSON.parse(geom.coordinatesText) }; }
-        catch (e) { return null; }
-      }
-      return null;
-    }
-    function pointToString(coord) {
-      if (!Array.isArray(coord) || coord.length < 2) return '';
-      var x = Number(coord[0]); var y = Number(coord[1]);
-      if (!isFinite(x) || !isFinite(y)) return '';
-      return toX(x).toFixed(2) + ',' + toY(y).toFixed(2);
-    }
-    function lineToPoints(line) {
-      if (!Array.isArray(line)) return '';
-      return line.map(pointToString).filter(Boolean).join(' ');
-    }
-    function ringToPath(ring) {
-      if (!Array.isArray(ring) || !ring.length) return '';
-      var parts = ring.map(function(c, idx) {
-        var point = pointToString(c);
-        if (!point) return '';
-        return (idx ? 'L' : 'M') + point.replace(',', ' ');
-      }).filter(Boolean);
-      return parts.length ? parts.join(' ') + ' Z' : '';
-    }
-    function renderPolygon(poly, stroke) {
-      if (!Array.isArray(poly) || !poly.length) return '';
-      var path = ringToPath(poly[0]);
-      return path ? '<path d="' + path + '" fill="' + stroke + '" fill-opacity="0.2" stroke="' + stroke + '" stroke-width="1.3"/>' : '';
-    }
-    var body = renderDensityCells();
-    preview.features.forEach(function(entry) {
-      var geom = decodePreviewGeometry(entry && entry.geometry);
-      if (!geom) return;
-      var stroke = color(entry.color);
-      if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
-        var p = pointToString(geom.coordinates).split(',');
-        if (p.length === 2) body += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.7" fill="' + stroke + '" fill-opacity="0.9"/>';
-      } else if (geom.type === 'MultiPoint' && Array.isArray(geom.coordinates)) {
-        geom.coordinates.forEach(function(coord) {
-          var p = pointToString(coord).split(',');
-          if (p.length === 2) body += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.3" fill="' + stroke + '" fill-opacity="0.9"/>';
-        });
-      } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
-        var pts = lineToPoints(geom.coordinates);
-        if (pts) body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
-      } else if (geom.type === 'MultiLineString' && Array.isArray(geom.coordinates)) {
-        geom.coordinates.forEach(function(line) {
-          var pts = lineToPoints(line);
-          if (pts) body += '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
-        });
-      } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
-        body += renderPolygon(geom.coordinates, stroke);
-      } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
-        geom.coordinates.forEach(function(poly) { body += renderPolygon(poly, stroke); });
+    var colorExpr = ['coalesce', ['get', '_manaColor'], ['get', 'color'], '#0ea5e9'];
+    var isPolygon = ['==', ['geometry-type'], 'Polygon'];
+    var isLine = ['==', ['geometry-type'], 'LineString'];
+    var isPoint = ['==', ['geometry-type'], 'Point'];
+
+    map.addLayer({
+      id: 'featured-fills', type: 'fill', source: 'featured-data', filter: isPolygon,
+      paint: { 'fill-color': colorExpr, 'fill-opacity': 0.16 }
+    });
+    map.addLayer({
+      id: 'featured-fill-outlines', type: 'line', source: 'featured-data', filter: isPolygon,
+      layout: { 'line-join': 'round' },
+      paint: { 'line-color': colorExpr, 'line-opacity': 0.9, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 1, 10, 2.4] }
+    });
+    map.addLayer({
+      id: 'featured-line-casing', type: 'line', source: 'featured-data', filter: isLine,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#ffffff', 'line-opacity': 0.85, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 2.6, 10, 6.4] }
+    });
+    map.addLayer({
+      id: 'featured-lines', type: 'line', source: 'featured-data', filter: isLine,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': colorExpr, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 1.4, 10, 3.6] }
+    });
+    map.addLayer({
+      id: 'featured-point-halo', type: 'circle', source: 'featured-data', filter: isPoint,
+      paint: { 'circle-color': '#ffffff', 'circle-opacity': 0.92, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4.4, 10, 8.6] }
+    });
+    map.addLayer({
+      id: 'featured-points', type: 'circle', source: 'featured-data', filter: isPoint,
+      paint: {
+        'circle-color': colorExpr,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 2.8, 10, 6],
+        'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.2
       }
     });
-    if (!body) return '';
-    return '<svg class="thumb-preview" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';
+    map.addLayer({
+      id: 'featured-point-labels', type: 'symbol', source: 'featured-data', filter: isPoint,
+      layout: {
+        'text-field': ['coalesce', ['get', '_manaName'], ['get', 'name'], ['get', 'Name'], ''],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 10.5,
+        'text-offset': [0, 1.05],
+        'text-anchor': 'top',
+        'text-optional': true,
+        'text-max-width': 12
+      },
+      paint: { 'text-color': '#334155', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 }
+    });
+
+    var interactiveLayers = ['featured-points', 'featured-lines', 'featured-fills'];
+    map.on('mousemove', function(e) {
+      var feats = map.queryRenderedFeatures(e.point, { layers: interactiveLayers });
+      map.getCanvas().style.cursor = feats.length ? 'pointer' : '';
+    });
+    map.on('click', function(e) {
+      var feats = map.queryRenderedFeatures(e.point, { layers: interactiveLayers });
+      if (!feats.length) return;
+      var html = featuredPopupHtml(feats[0].properties);
+      if (!html) return;
+      new maplibregl.Popup({ closeButton: false, offset: 14, maxWidth: '260px' })
+        .setLngLat(e.lngLat)
+        .setHTML(html)
+        .addTo(map);
+    });
   }
 
   async function showFeatured(item) {
+    if (!item) return;
     const geo = await getPublishedGeoAsync(item);
-    if (!item || !geo || !window.L) return;
 
     const wrap = document.getElementById('featured-wrap');
     const meta = document.getElementById('featured-meta');
@@ -579,29 +481,60 @@
     const titleEl = document.getElementById('featured-title');
     if (titleEl) titleEl.textContent = item.name || item.title || 'Mapa destacado';
 
-    const map = L.map('featured-map', { zoomControl: false, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 1 });
-    if (window.L && L.maplibreGL) {
-      L.maplibreGL({
-        style: window.MANA_BASEMAPS ? window.MANA_BASEMAPS.getStyleUrl(false) : 'https://tiles.openfreemap.org/styles/positron',
-        renderWorldCopies: false
-      }).addTo(map);
-      if (map.attributionControl && window.MANA_BASEMAPS) {
-        map.attributionControl.addAttribution(window.MANA_BASEMAPS.getAttribution());
-      }
-    } else {
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
+    // Reset any previous instance (realtime updates can re-trigger).
+    if (_featuredMap) {
+      try { _featuredMap.remove(); } catch (e) {}
+      _featuredMap = null;
+    }
+    target.innerHTML = '';
+
+    if (!geo || !geo.features || !geo.features.length || !window.maplibregl) {
+      // Graceful fallback: static high-quality preview, zero interaction.
+      var fallbackSvg = window.ManaMapPreview
+        ? window.ManaMapPreview.renderSVG(window.ManaMapPreview.build(geo) || item.mapPreview)
+        : '';
+      target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';
+      return;
     }
 
-    const layer = L.geoJSON(geo).addTo(map);
-    const bounds = layer.getBounds();
-    if (bounds && bounds.isValid()) map.fitBounds(bounds.pad(0.2));
+    var styleUrl = window.MANA_BASEMAPS
+      ? window.MANA_BASEMAPS.getStyleUrl(false)
+      : 'https://tiles.openfreemap.org/styles/positron';
+
+    var map = new maplibregl.Map({
+      container: target,
+      style: styleUrl,
+      center: [0, 25],
+      zoom: 1.4,
+      minZoom: 1,
+      maxZoom: 18,
+      maxBounds: [[-179.9, -86], [179.9, 86]],
+      renderWorldCopies: false,
+      attributionControl: { compact: true }
+    });
+    _featuredMap = map;
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.scrollZoom.setWheelZoomRate(1 / 240); // smooth, predictable wheel zoom
+
+    var bounds = collectGeoBounds(geo);
+    if (bounds) {
+      map.fitBounds(bounds, { padding: { top: 40, bottom: 40, left: 48, right: 48 }, duration: 0, maxZoom: 11 });
+    }
+
+    map.on('load', function() { addFeaturedDataLayers(map, geo); });
+    map.on('error', function(e) {
+      if (e && e.error && e.error.status === 404) return; // ignore missing tiles
+      console.warn('featured map error:', e && e.error ? e.error.message : e);
+    });
 
     const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
     const author = item.authorHandle ? '@' + item.authorHandle + ' · ' : '';
     meta.textContent = author + (item.featureCount || 0) + ' elementos · ' + safeDate(created);
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // INIT + REALTIME
+  // ═══════════════════════════════════════════════════════════════
 
   async function init() {
     const merged = await remoteMaps();

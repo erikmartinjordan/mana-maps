@@ -379,6 +379,10 @@
   }
 
   function buildMapPreview(geo) {
+    // Shared library: Web-Mercator aware, Douglas–Peucker simplified previews.
+    if (window.ManaMapPreview && typeof window.ManaMapPreview.build === 'function') {
+      return window.ManaMapPreview.build(geo);
+    }
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var points = [];
     geo.features.forEach(function(feature) {
