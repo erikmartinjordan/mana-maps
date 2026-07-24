@@ -30,7 +30,7 @@ function getManaBasemapAttribution() {
 
 function createManaBaseLayer(isDark) {
   if (L.maplibreGL) {
-    return L.maplibreGL({ style: getManaBasemapStyleUrl(isDark), renderWorldCopies: false });
+    return L.maplibreGL({ style: getManaBasemapStyleUrl(isDark), renderWorldCopies: true });
   }
   console.warn('MapLibre Leaflet bridge is unavailable; falling back to OSM raster tiles.');
   return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,7 +55,7 @@ let tileMap = createManaBaseLayer(isDarkMapTheme());
 let currentMapAttribution = null;
 let tileSat = createManaSatelliteLayer();
 
-const map = L.map('map', { zoomControl: true, preferCanvas: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 1 }).setView([40.416, -3.703], 6);
+const map = L.map('map', { zoomControl: true, preferCanvas: true, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 1 }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 
