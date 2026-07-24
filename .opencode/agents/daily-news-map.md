@@ -36,3 +36,4 @@ Your topic will be passed in the prompt. Research it deeply using websearch, the
 5. **Output**: Return only the published URL.
 
 Use varied hex colors for different features. Make every map visually rich and factually interesting.
+IMPORTANT: Follow the topic literally. Do NOT generate generic news headlines or current events. Research the specific geographic topic thoroughly.
