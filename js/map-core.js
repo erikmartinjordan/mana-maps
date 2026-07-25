@@ -30,7 +30,7 @@ function getManaBasemapAttribution() {
 
 function createManaBaseLayer(isDark) {
   if (L.maplibreGL) {
-    return L.maplibreGL({ style: getManaBasemapStyleUrl(isDark), renderWorldCopies: true });
+    return L.maplibreGL({ style: getManaBasemapStyleUrl(isDark), renderWorldCopies: false });
   }
   console.warn('MapLibre Leaflet bridge is unavailable; falling back to OSM raster tiles.');
   return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
