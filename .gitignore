@@ -5,3 +5,4 @@ js/firebase-config.local.js
 .env.*
 
 node_modules/
+test-results/
