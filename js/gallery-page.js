@@ -514,7 +514,16 @@
     });
     _featuredMap = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    map.scrollZoom.setWheelZoomRate(1 / 240); // smooth, predictable wheel zoom
+    // Disable animated scroll zoom: snap instantly to avoid visual drift of features
+    map.scrollZoom.disable();
+    map.getContainer().addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var z = map.getZoom();
+      var r = map.getContainer().getBoundingClientRect();
+      var c = map.unproject([e.clientX - r.left, e.clientY - r.top]);
+      var nz = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), z - e.deltaY * 0.01));
+      map.jumpTo({ zoom: nz, center: c });
+    }, { passive: false });
 
     var bounds = collectGeoBounds(geo);
     if (bounds) {
