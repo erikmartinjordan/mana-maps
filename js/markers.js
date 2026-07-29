@@ -262,13 +262,13 @@ function makeMarkerIcon(color, type) {
   var def = _mkFind(type);
   var svg, size = [24, 24], anchor = [12, 12], popup = [0, -14];
 
-  // Emoji markers: colored circle with white border + emoji inside (iOS-style)
+  // Emoji markers: die-cut sticker style (white outline follows emoji shape — cobe style)
   if (def && def.emoji) {
-    var emojiSize = 40;
-    svg = '<div style="display:flex;align-items:center;justify-content:center;width:' + emojiSize
-      + 'px;height:' + emojiSize + 'px;background:' + color + ';border-radius:50%;'
-      + 'border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:24px;line-height:1;">' + def.e + '</div>';
-    return L.divIcon({ html: svg, className: '', iconSize: [emojiSize, emojiSize], iconAnchor: [emojiSize/2, emojiSize/2], popupAnchor: [0, -emojiSize/2 - 4] });
+    var sz = 50;
+    svg = '<div style="display:flex;align-items:center;justify-content:center;width:' + sz
+      + 'px;height:' + sz + 'px;font-size:40px;line-height:1;'
+      + 'filter:url(#sticker-outline) drop-shadow(0 3px 6px rgba(0,0,0,0.2));">' + def.e + '</div>';
+    return L.divIcon({ html: svg, className: '', iconSize: [sz, sz], iconAnchor: [sz/2, sz/2], popupAnchor: [0, -sz/2 - 4] });
   }
 
   // Basic shapes: custom full-shape SVGs

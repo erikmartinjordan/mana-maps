@@ -1022,6 +1022,17 @@ function toggleDarkMode() {
   if (typeof setMapThemeTiles === 'function') setMapThemeTiles();
 }
 </script>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <filter id="sticker-outline">
+    <feMorphology in="SourceAlpha" result="Dilated" operator="dilate" radius="2.5"></feMorphology>
+    <feFlood flood-color="#ffffff" result="OutlineColor"></feFlood>
+    <feComposite in="OutlineColor" in2="Dilated" operator="in" result="Outline"></feComposite>
+    <feMerge>
+      <feMergeNode in="Outline"></feMergeNode>
+      <feMergeNode in="SourceGraphic"></feMergeNode>
+    </feMerge>
+  </filter>
+</defs></svg>
 <script defer src="/js/categorize.js?v=1776927826"></script>  <!-- QGIS-style categorization -->
 <script defer src="/js/shortcuts.js?v=1776927826"></script>  <!-- keyboard shortcuts -->
 </body>
