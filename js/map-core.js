@@ -55,7 +55,7 @@ let tileMap = createManaBaseLayer(isDarkMapTheme());
 let currentMapAttribution = null;
 let tileSat = createManaSatelliteLayer();
 
-const map = L.map('map', { zoomAnimation: false, zoomControl: true, preferCanvas: true, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 1 }).setView([40.416, -3.703], 6);
+const map = L.map('map', { zoomAnimation: false, zoomControl: true, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 3 }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 
@@ -831,8 +831,8 @@ const _tileLabelLayerIds = [
 
 function _getActiveGLMap() {
   var baseLayer = activeBase === 'satellite' ? tileSat : tileMap;
-  if (!baseLayer) return null;
-  return baseLayer.getMaplibreMap ? baseLayer.getMaplibreMap() : (baseLayer._map || null);
+  if (!baseLayer || !baseLayer.getMaplibreMap) return null;
+  return baseLayer.getMaplibreMap();
 }
 
 function _updateTileLabelVisibility() {
