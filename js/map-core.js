@@ -55,7 +55,7 @@ let tileMap = createManaBaseLayer(isDarkMapTheme());
 let currentMapAttribution = null;
 let tileSat = createManaSatelliteLayer();
 
-const map = L.map('map', { zoomAnimation: false, zoomControl: true, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 4 }).setView([40.416, -3.703], 6);
+const map = L.map('map', { zoomAnimation: false, zoomControl: true, worldCopyJump: false, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 1, minZoom: 4 }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 

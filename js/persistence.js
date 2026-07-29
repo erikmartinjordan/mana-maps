@@ -359,6 +359,11 @@ async function restoreFromURL() {
         const personalMap = await window.manaMaps.getMap(personalMapId);
         if (personalMap && personalMap.geojson && personalMap.geojson.features && personalMap.geojson.features.length) {
           await _importRestoredGeoJSON(personalMap.geojson);
+          if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
+            requestAnimationFrame(function() {
+              try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
+            });
+          }
           const input = document.getElementById('project-name-input');
           if (input) input.value = personalMap.title || '';
           if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId(personalMapId);
@@ -378,6 +383,11 @@ async function restoreFromURL() {
           const accessMode = getRequestedShareMode(galleryPayload);
           setSharedMapAccess(accessMode, galleryPayload);
           await _importRestoredGeoJSON(galleryGeo);
+          if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
+            requestAnimationFrame(function() {
+              try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
+            });
+          }
           incrementPublishedMapView(db, gallerySlug, galleryPayload);
           const input = document.getElementById('project-name-input');
           if (input) input.value = galleryPayload.title || galleryPayload.name || '';
@@ -389,6 +399,11 @@ async function restoreFromURL() {
         const legacyPayload = legacyDoc && legacyDoc.exists ? legacyDoc.data() : null;
         if (legacyPayload && legacyPayload.geojson && legacyPayload.geojson.features && legacyPayload.geojson.features.length) {
           await _importRestoredGeoJSON(legacyPayload.geojson);
+          if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
+            requestAnimationFrame(function() {
+              try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
+            });
+          }
           return true;
         }
       }
@@ -402,6 +417,11 @@ async function restoreFromURL() {
         const payload = doc && doc.exists ? doc.data() : null;
         if (payload && payload.geojson && payload.geojson.features && payload.geojson.features.length) {
           await _importRestoredGeoJSON(payload.geojson);
+          if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
+            requestAnimationFrame(function() {
+              try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
+            });
+          }
           return true;
         }
       }
@@ -420,6 +440,11 @@ async function restoreFromURL() {
         const geo = JSON.parse(decodeURIComponent(encoded));
         if (geo && geo.features && geo.features.length) {
           await _importRestoredGeoJSON(geo);
+          if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
+            requestAnimationFrame(function() {
+              try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
+            });
+          }
           return true;
         }
       }
