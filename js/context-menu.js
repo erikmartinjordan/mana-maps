@@ -1089,7 +1089,7 @@ function _buildPropEditor() {
   var props = _propLayer._manaProperties || {};
   var entries = [{ key: "name", val: _propLayer._manaName || "" }];
   Object.keys(props).forEach(function(k) {
-    if (k.charAt(0) === "_" || k === "bbox" || k === "name") return;
+    if (k.charAt(0) === "_" || k === "bbox" || k === "name" || k === "color" || k === "markerType") return;
     var v = props[k];
     entries.push({ key: k, val: (v !== null && v !== undefined) ? String(v) : "" });
   });
