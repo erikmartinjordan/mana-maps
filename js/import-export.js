@@ -154,7 +154,8 @@ function loadGeoJSON(geo, groupName, opts) {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
       const importedColor = (f.properties && (f.properties._manaColor || f.properties.color)) ? String(f.properties._manaColor || f.properties.color) : importColor;
       const importedMarkerType = (f.properties && (f.properties._manaMarkerType || f.properties.markerType)) ? String(f.properties._manaMarkerType || f.properties.markerType) : markerType;
-      const icon = makeMarkerIcon(importedColor, importedMarkerType);
+      const emojiSize = importedMarkerType.indexOf('emoji_') === 0 && f.properties ? _emojiSizeFromArea(_parseArea(f.properties.Area)) : null;
+      const icon = makeMarkerIcon(importedColor, importedMarkerType, emojiSize);
       const m = L.marker(ll, {
         icon,
         bubblingMouseEvents: true,

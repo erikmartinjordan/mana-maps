@@ -255,18 +255,39 @@ var MK_CATS = {
 // Quick-access defaults (shown in compact row)
 var MK_DEFAULTS = ['circle','pin','square','star','emoji_pin','emoji_star','emoji_heart'];
 
+// ── Parse area string (e.g. "~18.5M ha", "~424,000 ha") to numeric hectares ──
+function _parseArea(str) {
+  if (!str || typeof str !== 'string') return 0;
+  var s = str.replace(/[~, ]/g, '').toLowerCase();
+  var m;
+  if ((m = s.match(/^([\d.]+)m(?:ha)?$/))) return parseFloat(m[1]) * 1000000;
+  if ((m = s.match(/^([\d.]+)k(?:ha)?$/))) return parseFloat(m[1]) * 1000;
+  if ((m = s.match(/^([\d.]+)ha$/))) return parseFloat(m[1]);
+  return 0;
+}
+
+// ── Compute emoji marker size (px) from area in hectares ──
+function _emojiSizeFromArea(ha) {
+  if (ha >= 10000000) return 66;  // Gigafire
+  if (ha >= 1000000)  return 58;  // Mega
+  if (ha >= 100000)   return 50;  // Large
+  if (ha >= 10000)    return 42;  // Medium
+  return 34;                       // Small
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MAKE MARKER ICON — renders colored map marker
 // ═══════════════════════════════════════════════════════════════
-function makeMarkerIcon(color, type) {
+function makeMarkerIcon(color, type, emojiSize) {
   var def = _mkFind(type);
   var svg, size = [24, 24], anchor = [12, 12], popup = [0, -14];
 
   // Emoji markers: die-cut sticker style (white outline follows emoji shape — cobe style)
   if (def && def.emoji) {
-    var sz = 50;
+    var sz = emojiSize || 50;
+    var fs = Math.max(10, Math.round(sz * 0.8));
     svg = '<div style="display:flex;align-items:center;justify-content:center;width:' + sz
-      + 'px;height:' + sz + 'px;font-size:40px;line-height:1;'
+      + 'px;height:' + sz + 'px;font-size:' + fs + 'px;line-height:1;'
       + 'filter:url(#sticker-outline) drop-shadow(0 3px 6px rgba(0,0,0,0.2));">' + def.e + '</div>';
     return L.divIcon({ html: svg, className: '', iconSize: [sz, sz], iconAnchor: [sz/2, sz/2], popupAnchor: [0, -sz/2 - 4] });
   }

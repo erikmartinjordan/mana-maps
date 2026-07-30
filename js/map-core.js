@@ -262,7 +262,7 @@ function _refreshGroupAttributeSchema(gid) {
   meta.allLayers.forEach(layer => {
     const props = layer._manaProperties || {};
     for (const [key, val] of Object.entries(props)) {
-      if (!key || key.startsWith('_') || key === 'bbox' || key === 'name') continue;
+      if (!key || key.startsWith('_') || key === 'bbox' || key === 'name' || key === 'color' || key === 'markerType') continue;
       if (!attrs[key]) attrs[key] = { type: 'string', values: new Set() };
       if (val !== null && val !== undefined && val !== '') {
         attrs[key].values.add(String(val));
@@ -1159,6 +1159,17 @@ function renderLegend() {
       '<span class="map-legend-swatch" style="background:' + g.color + '"></span>' +
       '<span class="map-legend-label">' + g.name + '</span>' +
     '</div>';
+    // Check if the group has features with Area attribute → show size legend
+    var meta = _manaGroupMeta[Object.keys(_manaGroupMeta).find(function(k) { return _manaGroupMeta[k].name === g.name; })];
+    if (meta && meta.allLayers && meta.allLayers.some(function(l) { return l._manaProperties && l._manaProperties.Area; })) {
+      html += '<div class="map-legend-sizes">' +
+        '<div class="map-legend-size"><span class="mle-emoji" style="font-size:32px">🔥</span> Gigafire &gt;10M ha</div>' +
+        '<div class="map-legend-size"><span class="mle-emoji" style="font-size:28px">🔥</span> Mega 1-10M ha</div>' +
+        '<div class="map-legend-size"><span class="mle-emoji" style="font-size:24px">🔥</span> Large 100k-1M ha</div>' +
+        '<div class="map-legend-size"><span class="mle-emoji" style="font-size:20px">🔥</span> Medium 10k-100k ha</div>' +
+        '<div class="map-legend-size"><span class="mle-emoji" style="font-size:17px">🔥</span> Small &lt;10k ha</div>' +
+      '</div>';
+    }
   });
   legend.innerHTML = html;
 }
