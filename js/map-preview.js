@@ -7,7 +7,7 @@
 //     kind: 'geometry' | 'density-grid',
 //     gridSize: number | null,
 //     cells: [{ x, y, n, c }] | null,
-//     features: [{ geometry: { type, coordinatesText }, color }] }
+//     features: [{ geometry: { type, coordinatesText }, color, emoji? }] }
 //
 // Rendering uses a Web Mercator projection and an aspect-correct viewBox so
 // shapes keep their real-world proportions. Geometry simplification uses
@@ -23,6 +23,26 @@
   var PREVIEW_MIN_COORDS_PER_GEOMETRY = 48;
   var PREVIEW_MAX_COORDS_PER_GEOMETRY = 260;
   var DEFAULT_COLOR = '#0ea5e9';
+
+  var EMOJI_MARKER_MAP = {
+    emoji_home:'🏠', emoji_building:'🏢', emoji_hospital:'🏥', emoji_school:'🏫',
+    emoji_church:'⛪', emoji_museum:'🏛️', emoji_hotel:'🏨', emoji_store:'🏪',
+    emoji_bank:'🏦', emoji_factory:'🏭', emoji_restaurant:'🍽️', emoji_burger:'🍔',
+    emoji_pizza:'🍕', emoji_coffee:'☕', emoji_beer:'🍺', emoji_wine:'🍷',
+    emoji_cocktail:'🍹', emoji_sushi:'🍣', emoji_icecream:'🍦', emoji_tree:'🌲',
+    emoji_mountain:'🏔️', emoji_beach:'🏖️', emoji_camping:'⛺', emoji_water:'🌊',
+    emoji_flower:'🌸', emoji_sun:'☀️', emoji_moon:'🌙', emoji_star:'⭐',
+    emoji_fire:'🔥', emoji_heart:'❤️', emoji_diamond:'💎', emoji_car:'🚗',
+    emoji_bus:'🚌', emoji_train:'🚂', emoji_plane:'✈️', emoji_ship:'🚢',
+    emoji_bike:'🚲', emoji_walk:'🚶', emoji_parking:'🅿️', emoji_fuel:'⛽',
+    emoji_camera:'📷', emoji_music:'🎵', emoji_soccer:'⚽', emoji_trophy:'🏆',
+    emoji_ski:'🎿', emoji_swim:'🏊', emoji_paint:'🎨', emoji_game:'🎮',
+    emoji_warning:'⚠️', emoji_info:'ℹ️', emoji_question:'❓', emoji_check:'✅',
+    emoji_cross:'❌', emoji_lock:'🔒', emoji_key:'🔑', emoji_target:'🎯',
+    emoji_pin:'📍', emoji_pushpin:'📌', emoji_flag:'🏁', emoji_gift:'🎁',
+    emoji_money:'💰', emoji_bulb:'💡', emoji_party:'🎉', emoji_trash:'🗑️',
+    emoji_package:'📦'
+  };
 
   // ── numbers ──────────────────────────────────────────────────────────────
 
@@ -317,12 +337,21 @@
       PREVIEW_MIN_COORDS_PER_GEOMETRY,
       Math.min(PREVIEW_MAX_COORDS_PER_GEOMETRY, Math.floor(PREVIEW_TOTAL_COORD_BUDGET / geo.features.length))
     );
+    function featureEmoji(feature) {
+      var props = feature && feature.properties ? feature.properties : {};
+      var markerType = props._manaMarkerType || '';
+      return markerType.indexOf('emoji_') === 0 ? (EMOJI_MARKER_MAP[markerType] || '') : '';
+    }
+
     var entries = isLargePreview ? [] : previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
       var feature = geo.features[index];
-      return {
+      var entry = {
         geometry: simplifyPreviewGeometry(feature ? feature.geometry : null, coordBudget),
         color: featureColor(feature)
       };
+      var emoji = featureEmoji(feature);
+      if (emoji) entry.emoji = emoji;
+      return entry;
     }).filter(function(entry) { return !!entry.geometry; });
     return (cells.length || entries.length) ? {
       bbox: bbox,
@@ -455,15 +484,39 @@
           });
         } else if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
           p = pointToString(geom.coordinates).split(',');
-          if (p.length === 2) points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.6 * unit).toFixed(2) +
-            '" fill="#ffffff" fill-opacity="0.9"/>' +
-            '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (2.5 * unit).toFixed(2) + '" fill="' + stroke + '"/>';
+          if (p.length === 2) {
+            var emojiChar = entry.emoji || '';
+            if (emojiChar) {
+              var emojiSize = (7 * unit).toFixed(2);
+              points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.2 * unit).toFixed(2) +
+                '" fill="#ffffff" fill-opacity="0.85"/>' +
+                '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.2 * unit).toFixed(2) +
+                '" fill="' + stroke + '" fill-opacity="0.2"/>' +
+                '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '">' + emojiChar + '</text>';
+            } else {
+              points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.6 * unit).toFixed(2) +
+                '" fill="#ffffff" fill-opacity="0.9"/>' +
+                '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (2.5 * unit).toFixed(2) + '" fill="' + stroke + '"/>';
+            }
+          }
         } else if (geom.type === 'MultiPoint' && Array.isArray(geom.coordinates)) {
           for (i = 0; i < geom.coordinates.length; i++) {
             p = pointToString(geom.coordinates[i]).split(',');
-            if (p.length === 2) points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.2 * unit).toFixed(2) +
-              '" fill="#ffffff" fill-opacity="0.9"/>' +
-              '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (2.2 * unit).toFixed(2) + '" fill="' + stroke + '"/>';
+            if (p.length === 2) {
+              var emojiChar2 = entry.emoji || '';
+              if (emojiChar2) {
+                var emojiSize2 = (6.5 * unit).toFixed(2);
+                points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (4.8 * unit).toFixed(2) +
+                  '" fill="#ffffff" fill-opacity="0.85"/>' +
+                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (4.8 * unit).toFixed(2) +
+                  '" fill="' + stroke + '" fill-opacity="0.2"/>' +
+                  '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize2 + '">' + emojiChar2 + '</text>';
+              } else {
+                points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.2 * unit).toFixed(2) +
+                  '" fill="#ffffff" fill-opacity="0.9"/>' +
+                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (2.2 * unit).toFixed(2) + '" fill="' + stroke + '"/>';
+              }
+            }
           }
         }
       });

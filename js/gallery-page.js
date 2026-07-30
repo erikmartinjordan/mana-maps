@@ -64,10 +64,18 @@
   // REMOTE DATA
   // ═══════════════════════════════════════════════════════════════
 
+  function getLocalFallbackMaps() {
+    if (!window.MANA_LOCAL_MAPS || !Array.isArray(window.MANA_LOCAL_MAPS)) return [];
+    return window.MANA_LOCAL_MAPS.map(function(m, i) {
+      if (m && m.id && m.geojsonText) return m;
+      return null;
+    }).filter(Boolean);
+  }
+
   async function remoteMaps() {
-    if (typeof firebase === 'undefined') return [];
+    if (typeof firebase === 'undefined') return getLocalFallbackMaps();
     try {
-      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return []; firebase.initializeApp(firebaseConfig); }
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return getLocalFallbackMaps(); firebase.initializeApp(firebaseConfig); }
       const db = firebase.firestore();
       // Firestore read: initial published maps list for gallery bootstrap.
       let snap = null;
@@ -93,16 +101,18 @@
             .get();
         }
       }
+      if (!snap || !snap.docs) return getLocalFallbackMaps();
       const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       items.sort(function(a, b) {
         const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
         const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
         return bTs - aTs;
       });
-      return items.slice(0, 36);
+      const local = getLocalFallbackMaps();
+      return items.slice(0, 36).concat(local);
     } catch (e) {
       console.warn('gallery remoteMaps fallback local:', e);
-      return [];
+      return getLocalFallbackMaps();
     }
   }
 
