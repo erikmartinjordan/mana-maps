@@ -108,8 +108,19 @@
         const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
         return bTs - aTs;
       });
-      const local = getLocalFallbackMaps();
-      return items.slice(0, 36).concat(local);
+      if (!items.length) return getLocalFallbackMaps();
+      // Only use the bundled fallback map (gallery-local.js) when the remote
+      // query returns nothing. Appending it unconditionally made the demo
+      // "Worst Wildfires" map render twice in the grid (it is also published
+      // to Firestore) until the realtime listener replaced the list.
+      const seen = {};
+      const unique = items.filter(function(item) {
+        var key = item.slug || item.id;
+        if (!key || seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+      return unique.slice(0, 36);
     } catch (e) {
       console.warn('gallery remoteMaps fallback local:', e);
       return getLocalFallbackMaps();
