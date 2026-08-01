@@ -24,6 +24,12 @@
   var PREVIEW_MAX_COORDS_PER_GEOMETRY = 260;
   var DEFAULT_COLOR = '#0ea5e9';
 
+  // Raster basemap behind preview features so the map context is identifiable.
+  var PREVIEW_TILE_TARGET = 2;
+  var PREVIEW_TILE_MAX = 24;
+  var PREVIEW_TILE_URL_DEFAULT = 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+  var _tileClipId = 0;
+
   var EMOJI_MARKER_MAP = {
     emoji_home:'🏠', emoji_building:'🏢', emoji_hospital:'🏥', emoji_school:'🏫',
     emoji_church:'⛪', emoji_museum:'🏛️', emoji_hotel:'🏨', emoji_store:'🏪',
@@ -397,6 +403,73 @@
     // Stroke scale: relative to canvas so previews look consistent at any aspect.
     var unit = Math.min(viewW, viewH) / 100;
 
+    // Raster basemap tiles rendered in Web Mercator so they align with the
+    // feature projection. Tiles are clipped to the map area.
+    function renderTileBackground() {
+      var url = PREVIEW_TILE_URL_DEFAULT;
+      if (window.MANA_BASEMAPS && typeof window.MANA_BASEMAPS.getPreviewTileUrl === 'function') {
+        var custom = window.MANA_BASEMAPS.getPreviewTileUrl();
+        if (custom) url = custom;
+      }
+      if (url.indexOf('{z}') < 0) return '';
+
+      var xSpanWorld = Math.max(pMaxX - pMinX, 1e-9);
+      var ySpanWorld = Math.max(pMaxY - pMinY, 1e-9);
+      if (xSpanWorld <= 1e-9 || ySpanWorld <= 1e-9) return '';
+
+      var world = 2 * Math.PI;
+      var spanWorld = Math.max(xSpanWorld, ySpanWorld);
+      var target = PREVIEW_TILE_TARGET;
+      var z, across, down;
+      for (var attempt = 0; attempt < 10; attempt++) {
+        z = Math.max(0, Math.min(19, Math.ceil(Math.log2(target * world / spanWorld))));
+        var nz = Math.pow(2, z);
+        across = Math.max(1, Math.ceil(nz * xSpanWorld / world));
+        down = Math.max(1, Math.ceil(nz * ySpanWorld / world));
+        if (across * down <= PREVIEW_TILE_MAX) break;
+        target *= 1.6;
+      }
+      var n = Math.pow(2, z);
+
+      function tileXY(lng, lat) {
+        var xt = (lng + 180) / 360 * n;
+        var latRad = Math.max(-MERCATOR_MAX_LAT, Math.min(MERCATOR_MAX_LAT, lat)) * Math.PI / 180;
+        var yt = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+        return { x: xt, y: yt };
+      }
+
+      var tMin = tileXY(minX, maxY);
+      var tMax = tileXY(maxX, minY);
+      var x0 = Math.max(0, Math.floor(tMin.x));
+      var y0 = Math.max(0, Math.floor(tMin.y));
+      var x1 = Math.min(n - 1, Math.floor(tMax.x));
+      var y1 = Math.min(n - 1, Math.floor(tMax.y));
+
+      var images = '';
+      for (var tx = x0; tx <= x1; tx++) {
+        for (var ty = y0; ty <= y1; ty++) {
+          var west = tx / n * 360 - 180;
+          var east = (tx + 1) / n * 360 - 180;
+          var north = Math.atan(Math.sinh(Math.PI * (1 - 2 * ty / n))) * 180 / Math.PI;
+          var south = Math.atan(Math.sinh(Math.PI * (1 - 2 * (ty + 1) / n))) * 180 / Math.PI;
+          var ix = toX(west);
+          var iy = toY(north);
+          var iw = toX(east) - ix;
+          var ih = toY(south) - iy;
+          if (iw <= 0.01 || ih <= 0.01) continue;
+          images += '<image x="' + ix.toFixed(2) + '" y="' + iy.toFixed(2) +
+            '" width="' + iw.toFixed(2) + '" height="' + ih.toFixed(2) +
+            '" preserveAspectRatio="none" href="' + url.replace('{z}', z).replace('{x}', tx).replace('{y}', ty) + '"/>';
+        }
+      }
+      if (!images) return '';
+      var clipId = 'mana-preview-' + (++_tileClipId);
+      var radius = Math.min(w, h) * 0.02;
+      return '<clipPath id="' + clipId + '"><rect x="' + padX.toFixed(2) + '" y="' + padY.toFixed(2) +
+        '" width="' + w.toFixed(2) + '" height="' + h.toFixed(2) + '" rx="' + radius.toFixed(2) + '"/></clipPath>' +
+        '<g clip-path="url(#' + clipId + ')">' + images + '</g>';
+    }
+
     function renderDensityCells() {
       if (!Array.isArray(preview.cells) || !preview.cells.length) return '';
       var grid = Math.max(1, Number(preview.gridSize) || PREVIEW_DENSITY_GRID_SIZE);
@@ -446,7 +519,7 @@
       return d ? d + (close ? ' Z' : '') : '';
     }
 
-    var body = renderDensityCells();
+    var body = renderTileBackground() + renderDensityCells();
 
     if (Array.isArray(preview.features)) {
       // Two passes: fills first, then lines, then points (proper layering).

@@ -11,7 +11,9 @@
         satelliteStyle: '/styles/mana-openfreemap-alt.json?v=1776927833',
         satelliteTileUrl: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
         satelliteAttribution: 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>',
-        attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>'
+        attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>',
+        previewTileUrl: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        previewTileAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>'
       },
       selfHosted: {
         lightStyle: '/tiles/styles/positron/style.json',
@@ -20,7 +22,9 @@
         satelliteTileUrl: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
         satelliteAttribution: 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>',
         attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>',
-        thumb: '/tiles/previews/positron.png'
+        thumb: '/tiles/previews/positron.png',
+        previewTileUrl: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        previewTileAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>'
       }
     }
   };
@@ -70,6 +74,12 @@
     },
     getThumb: function() {
       return provider().thumb || '';
+    },
+    getPreviewTileUrl: function() {
+      return provider().previewTileUrl || 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+    },
+    getPreviewTileAttribution: function() {
+      return provider().previewTileAttribution || '';
     },
     setProvider: function(name) {
       if (!providers[name]) return false;
