@@ -24,11 +24,17 @@
   var PREVIEW_MAX_COORDS_PER_GEOMETRY = 260;
   var DEFAULT_COLOR = '#0ea5e9';
 
-  // Raster basemap behind preview features so the map context is identifiable.
-  var PREVIEW_TILE_TARGET = 2;
-  var PREVIEW_TILE_MAX = 24;
-  var PREVIEW_TILE_URL_DEFAULT = 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-  var _tileClipId = 0;
+  // Stylized vector basemap behind preview features: soft ocean gradient,
+  // simplified world land silhouette, and a faint graticule. Label-free so the
+  // map context stays identifiable without raster-tile clutter. The land
+  // outline is defined once in js/world-land.js (canonical lon*10000,
+  // mercatorY*10000 coords) and reused via <use> with an affine transform.
+  var BASEMAP_OCEAN_TOP = '#eef5fb';
+  var BASEMAP_OCEAN_BOTTOM = '#d7e6f2';
+  var BASEMAP_LAND_FILL = '#f3edd9';
+  var BASEMAP_LAND_STROKE = '#e3dabd';
+  var BASEMAP_GRATICULE = '#c6d9e8';
+  var _bgClipId = 0;
 
   var EMOJI_MARKER_MAP = {
     emoji_home:'🏠', emoji_building:'🏢', emoji_hospital:'🏥', emoji_school:'🏫',
@@ -403,86 +409,82 @@
     // Stroke scale: relative to canvas so previews look consistent at any aspect.
     var unit = Math.min(viewW, viewH) / 100;
 
-    // Raster basemap tiles rendered in Web Mercator so they align with the
-    // feature projection. The tile field covers the entire visible box (bbox +
-    // breathing room) so previews fill the card edge to edge.
-    function renderTileBackground() {
-      var url = PREVIEW_TILE_URL_DEFAULT;
-      if (window.MANA_BASEMAPS && typeof window.MANA_BASEMAPS.getPreviewTileUrl === 'function') {
-        var custom = window.MANA_BASEMAPS.getPreviewTileUrl();
-        if (custom) url = custom;
+    // Shared simplified world-land silhouette, lazily injected once into the
+    // document as a hidden <path id="mana-land-path"> referenced via <use>.
+    function ensureLandPath() {
+      if (!window.WORLD_LAND_PATH) return false;
+      if (document.getElementById('mana-land-path')) return true;
+      try {
+        var holder = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        holder.setAttribute('width', '0');
+        holder.setAttribute('height', '0');
+        holder.setAttribute('aria-hidden', 'true');
+        holder.style.position = 'absolute';
+        holder.style.overflow = 'hidden';
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('id', 'mana-land-path');
+        path.setAttribute('d', window.WORLD_LAND_PATH);
+        holder.appendChild(path);
+        document.body.appendChild(holder);
+        return true;
+      } catch (e) {
+        return false;
       }
-      if (url.indexOf('{z}') < 0) return '';
+    }
 
-      var xSpanWorld = Math.max(pMaxX - pMinX, 1e-9);
-      var ySpanWorld = Math.max(pMaxY - pMinY, 1e-9);
-      if (xSpanWorld <= 1e-9 || ySpanWorld <= 1e-9) return '';
+    // Vector basemap rendered in Web Mercator so it aligns with the feature
+    // projection. The ocean fill covers the entire visible box (bbox + breathing
+    // room) so previews fill the card edge to edge.
+    function renderVectorBackground() {
+      var clipId = 'mana-preview-' + (++_bgClipId);
+      var radius = Math.min(viewW, viewH) * 0.02;
 
-      // Inverse of toX/toY → world coordinates of the viewBox corners.
-      function invLon(sx) { return ((sx - padX) / w) * xSpanWorld + pMinX; }
-      function invLat(sy) {
-        var my = pMaxY - ((sy - padY) / h) * ySpanWorld;
-        return Math.atan(Math.sinh(my)) * 180 / Math.PI;
-      }
+      // Affine map from canonical land coords → viewBox coords:
+      //   toX(cx) = A*cx + B,  toY(cy) = C*cy + D   (cy = mercatorY*10000)
+      var A = w * Math.PI / (180 * 10000 * spanX);
+      var C = -h / (10000 * spanY);
+      var B = padX - A * (minX * 10000);
+      var D = (pMaxY / spanY) * h + padY;
 
-      var westLng = invLon(0) * 180 / Math.PI;
-      var eastLng = invLon(viewW) * 180 / Math.PI;
-      var northLat = invLat(0);
-      var southLat = invLat(viewH);
-      var boxSpanX = Math.max(eastLng - westLng, 1e-9) * Math.PI / 180;
-      var boxSpanY = Math.max(mercatorY(northLat) - mercatorY(southLat), 1e-9);
-
-      var world = 2 * Math.PI;
-      var boxSpan = Math.max(boxSpanX, boxSpanY);
-      var target = PREVIEW_TILE_TARGET;
-      var z;
-      for (var attempt = 0; attempt < 10; attempt++) {
-        z = Math.max(0, Math.min(19, Math.ceil(Math.log2(target * world / boxSpan))));
-        var nz = Math.pow(2, z);
-        var across = Math.max(1, Math.ceil(nz * boxSpanX / world));
-        var down = Math.max(1, Math.ceil(nz * boxSpanY / world));
-        if (across * down <= PREVIEW_TILE_MAX) break;
-        target *= 1.6;
-      }
-      var n = Math.pow(2, z);
-
-      function tileXY(lng, lat) {
-        var xt = (lng + 180) / 360 * n;
-        var latRad = Math.max(-MERCATOR_MAX_LAT, Math.min(MERCATOR_MAX_LAT, lat)) * Math.PI / 180;
-        var yt = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
-        return { x: xt, y: yt };
+      var land = '';
+      if (window.WORLD_LAND_PATH && ensureLandPath()) {
+        land = '<use href="#mana-land-path" fill="' + BASEMAP_LAND_FILL +
+          '" stroke="' + BASEMAP_LAND_STROKE + '" stroke-width="' + (0.5 * unit).toFixed(2) +
+          '" stroke-linejoin="round" transform="matrix(' +
+          A.toFixed(10) + ' 0 0 ' + C.toFixed(10) + ' ' + B.toFixed(10) + ' ' + D.toFixed(10) + ')"/>';
       }
 
-      var tMin = tileXY(westLng, northLat);
-      var tMax = tileXY(eastLng, southLat);
-      var x0 = Math.max(0, Math.floor(Math.min(tMin.x, tMax.x)));
-      var y0 = Math.max(0, Math.floor(Math.min(tMin.y, tMax.y)));
-      var x1 = Math.min(n - 1, Math.floor(Math.max(tMin.x, tMax.x)));
-      var y1 = Math.min(n - 1, Math.floor(Math.max(tMin.y, tMax.y)));
-
-      var images = '';
-      for (var tx = x0; tx <= x1; tx++) {
-        for (var ty = y0; ty <= y1; ty++) {
-          var west = tx / n * 360 - 180;
-          var east = (tx + 1) / n * 360 - 180;
-          var north = Math.atan(Math.sinh(Math.PI * (1 - 2 * ty / n))) * 180 / Math.PI;
-          var south = Math.atan(Math.sinh(Math.PI * (1 - 2 * (ty + 1) / n))) * 180 / Math.PI;
-          var ix = toX(west);
-          var iy = toY(north);
-          var iw = toX(east) - ix;
-          var ih = toY(south) - iy;
-          if (iw <= 0.01 || ih <= 0.01) continue;
-          images += '<image x="' + ix.toFixed(2) + '" y="' + iy.toFixed(2) +
-            '" width="' + iw.toFixed(2) + '" height="' + ih.toFixed(2) +
-            '" preserveAspectRatio="none" href="' + url.replace('{z}', z).replace('{x}', tx).replace('{y}', ty) + '"/>';
+      // Faint graticule across the visible box (every 30° lon / 15° lat).
+      var grat = '';
+      var lonStart = Math.ceil(minX / 30) * 30;
+      for (var lon = lonStart; lon <= maxX; lon += 30) {
+        var gx = toX(lon);
+        if (gx > 0 && gx < viewW) {
+          grat += 'M' + gx.toFixed(2) + ' ' + toY(Math.max(minY, -85)).toFixed(2) +
+            ' L' + gx.toFixed(2) + ' ' + toY(Math.min(maxY, 85)).toFixed(2);
         }
       }
-      if (!images) return '';
-      var clipId = 'mana-preview-' + (++_tileClipId);
-      var radius = Math.min(viewW, viewH) * 0.02;
+      var latStart = Math.ceil(minY / 15) * 15;
+      for (var lat = latStart; lat <= maxY; lat += 15) {
+        var gy = toY(lat);
+        if (gy > 0 && gy < viewH) {
+          grat += 'M' + toX(Math.max(minX, -180)).toFixed(2) + ' ' + gy.toFixed(2) +
+            ' L' + toX(Math.min(maxX, 180)).toFixed(2) + ' ' + gy.toFixed(2);
+        }
+      }
+
       return '<clipPath id="' + clipId + '"><rect x="0" y="0" width="' + viewW.toFixed(2) +
         '" height="' + viewH.toFixed(2) + '" rx="' + radius.toFixed(2) + '"/></clipPath>' +
-        '<g clip-path="url(#' + clipId + ')">' + images + '</g>';
+        '<g clip-path="url(#' + clipId + ')">' +
+        '<rect x="0" y="0" width="' + viewW.toFixed(2) + '" height="' + viewH.toFixed(2) +
+        '" fill="url(#' + clipId + '-ocean)"/>' +
+        land +
+        (grat ? '<path d="' + grat + '" fill="none" stroke="' + BASEMAP_GRATICULE +
+          '" stroke-width="' + (0.5 * unit).toFixed(2) + '" stroke-opacity="0.55"/>' : '') +
+        '</g>' +
+        '<defs><linearGradient id="' + clipId + '-ocean" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + BASEMAP_OCEAN_TOP + '"/>' +
+        '<stop offset="1" stop-color="' + BASEMAP_OCEAN_BOTTOM + '"/></linearGradient></defs>';
     }
 
     function renderDensityCells() {
@@ -534,7 +536,7 @@
       return d ? d + (close ? ' Z' : '') : '';
     }
 
-    var body = renderTileBackground() + renderDensityCells();
+    var body = renderVectorBackground() + renderDensityCells();
 
     if (Array.isArray(preview.features)) {
       // Two passes: fills first, then lines, then points (proper layering).
