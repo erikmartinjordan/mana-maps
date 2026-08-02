@@ -404,7 +404,8 @@
     var unit = Math.min(viewW, viewH) / 100;
 
     // Raster basemap tiles rendered in Web Mercator so they align with the
-    // feature projection. Tiles are clipped to the map area.
+    // feature projection. The tile field covers the entire visible box (bbox +
+    // breathing room) so previews fill the card edge to edge.
     function renderTileBackground() {
       var url = PREVIEW_TILE_URL_DEFAULT;
       if (window.MANA_BASEMAPS && typeof window.MANA_BASEMAPS.getPreviewTileUrl === 'function') {
@@ -417,15 +418,29 @@
       var ySpanWorld = Math.max(pMaxY - pMinY, 1e-9);
       if (xSpanWorld <= 1e-9 || ySpanWorld <= 1e-9) return '';
 
+      // Inverse of toX/toY → world coordinates of the viewBox corners.
+      function invLon(sx) { return ((sx - padX) / w) * xSpanWorld + pMinX; }
+      function invLat(sy) {
+        var my = pMaxY - ((sy - padY) / h) * ySpanWorld;
+        return Math.atan(Math.sinh(my)) * 180 / Math.PI;
+      }
+
+      var westLng = invLon(0) * 180 / Math.PI;
+      var eastLng = invLon(viewW) * 180 / Math.PI;
+      var northLat = invLat(0);
+      var southLat = invLat(viewH);
+      var boxSpanX = Math.max(eastLng - westLng, 1e-9) * Math.PI / 180;
+      var boxSpanY = Math.max(mercatorY(northLat) - mercatorY(southLat), 1e-9);
+
       var world = 2 * Math.PI;
-      var spanWorld = Math.max(xSpanWorld, ySpanWorld);
+      var boxSpan = Math.max(boxSpanX, boxSpanY);
       var target = PREVIEW_TILE_TARGET;
-      var z, across, down;
+      var z;
       for (var attempt = 0; attempt < 10; attempt++) {
-        z = Math.max(0, Math.min(19, Math.ceil(Math.log2(target * world / spanWorld))));
+        z = Math.max(0, Math.min(19, Math.ceil(Math.log2(target * world / boxSpan))));
         var nz = Math.pow(2, z);
-        across = Math.max(1, Math.ceil(nz * xSpanWorld / world));
-        down = Math.max(1, Math.ceil(nz * ySpanWorld / world));
+        var across = Math.max(1, Math.ceil(nz * boxSpanX / world));
+        var down = Math.max(1, Math.ceil(nz * boxSpanY / world));
         if (across * down <= PREVIEW_TILE_MAX) break;
         target *= 1.6;
       }
@@ -438,12 +453,12 @@
         return { x: xt, y: yt };
       }
 
-      var tMin = tileXY(minX, maxY);
-      var tMax = tileXY(maxX, minY);
-      var x0 = Math.max(0, Math.floor(tMin.x));
-      var y0 = Math.max(0, Math.floor(tMin.y));
-      var x1 = Math.min(n - 1, Math.floor(tMax.x));
-      var y1 = Math.min(n - 1, Math.floor(tMax.y));
+      var tMin = tileXY(westLng, northLat);
+      var tMax = tileXY(eastLng, southLat);
+      var x0 = Math.max(0, Math.floor(Math.min(tMin.x, tMax.x)));
+      var y0 = Math.max(0, Math.floor(Math.min(tMin.y, tMax.y)));
+      var x1 = Math.min(n - 1, Math.floor(Math.max(tMin.x, tMax.x)));
+      var y1 = Math.min(n - 1, Math.floor(Math.max(tMin.y, tMax.y)));
 
       var images = '';
       for (var tx = x0; tx <= x1; tx++) {
@@ -464,9 +479,9 @@
       }
       if (!images) return '';
       var clipId = 'mana-preview-' + (++_tileClipId);
-      var radius = Math.min(w, h) * 0.02;
-      return '<clipPath id="' + clipId + '"><rect x="' + padX.toFixed(2) + '" y="' + padY.toFixed(2) +
-        '" width="' + w.toFixed(2) + '" height="' + h.toFixed(2) + '" rx="' + radius.toFixed(2) + '"/></clipPath>' +
+      var radius = Math.min(viewW, viewH) * 0.02;
+      return '<clipPath id="' + clipId + '"><rect x="0" y="0" width="' + viewW.toFixed(2) +
+        '" height="' + viewH.toFixed(2) + '" rx="' + radius.toFixed(2) + '"/></clipPath>' +
         '<g clip-path="url(#' + clipId + ')">' + images + '</g>';
     }
 
@@ -601,8 +616,27 @@
       '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';
   }
 
+  // Aspect ratio of the rendered viewBox (bbox + breathing room), so cards can
+  // size their thumb box to match the map exactly and fill it edge to edge.
+  function mapPreviewAspect(preview) {
+    if (!preview || !Array.isArray(preview.bbox)) return 1.6;
+    var bbox = preview.bbox;
+    var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
+    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return 1.6;
+    var pMinX = minX * Math.PI / 180, pMaxX = maxX * Math.PI / 180;
+    var pMinY = mercatorY(minY), pMaxY = mercatorY(maxY);
+    var spanX = Math.max(pMaxX - pMinX, 1e-9);
+    var spanY = Math.max(pMaxY - pMinY, 1e-9);
+    var aspect = spanX / spanY;
+    var w = aspect >= 1 ? 100 : 100 * aspect;
+    var h = aspect >= 1 ? 100 / aspect : 100;
+    var padX = w * 0.09 + 2.5, padY = h * 0.09 + 2.5;
+    return (w + 2 * padX) / (h + 2 * padY);
+  }
+
   window.ManaMapPreview = {
     build: buildMapPreview,
-    renderSVG: renderMapPreviewSVG
+    renderSVG: renderMapPreviewSVG,
+    aspectOf: mapPreviewAspect
   };
 })();

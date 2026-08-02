@@ -198,12 +198,20 @@
       var mapSlug = item.slug || item.id;
       var created = timestampMs(item);
       var thumb = renderMapPreviewSVG(item.mapPreview);
+      var aspectStyle = '';
+      if (window.ManaMapPreview && window.ManaMapPreview.aspectOf) {
+        var aspect = window.ManaMapPreview.aspectOf(item.mapPreview);
+        if (isFinite(aspect) && aspect > 0) {
+          aspect = Math.max(0.6, Math.min(2.5, aspect));
+          aspectStyle = ' style="aspect-ratio:' + aspect + ';height:auto"';
+        }
+      }
       var views = mapViews(item);
       var likes = mapLikes(item);
       return '' +
         '<article class="public-map-card">' +
           '<a class="public-map-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(item.shareMode || 'view') + '">' +
-            '<div class="thumb">' + (thumb || '<span class="public-map-empty-thumb">Vista previa no disponible</span>') + '</div>' +
+            '<div class="thumb"' + aspectStyle + '>' + (thumb || '<span class="public-map-empty-thumb">Vista previa no disponible</span>') + '</div>' +
             '<h3>' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +
           '<p>' + escHtml(item.description || '') + '</p>' +

@@ -214,6 +214,17 @@
     return window.ManaMapPreview.renderSVG(built || item.mapPreview);
   }
 
+  // Sizes the thumb box to the map's aspect ratio so the preview fills the
+  // whole card instead of leaving empty margins.
+  function thumbAspectStyle(item) {
+    if (!window.ManaMapPreview || !window.ManaMapPreview.aspectOf) return '';
+    var preview = window.ManaMapPreview.build(getPublishedGeo(item)) || item.mapPreview;
+    var aspect = window.ManaMapPreview.aspectOf(preview);
+    if (!isFinite(aspect) || aspect <= 0) return '';
+    aspect = Math.max(0.6, Math.min(2.5, aspect));
+    return ' style="aspect-ratio:' + aspect + ';height:auto"';
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // LIKED STATE (Firestore rules only allow +1, so likes are one-shot)
   // ═══════════════════════════════════════════════════════════════
@@ -279,7 +290,7 @@
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
-            '<div class="thumb">' + thumb + '</div>' +
+            '<div class="thumb"' + thumbAspectStyle(item) + '>' + thumb + '</div>' +
             '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +
           '<div class="meta">' +
