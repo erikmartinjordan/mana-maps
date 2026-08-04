@@ -202,7 +202,6 @@
       if (window.ManaMapPreview && window.ManaMapPreview.aspectOf) {
         var aspect = window.ManaMapPreview.aspectOf(item.mapPreview);
         if (isFinite(aspect) && aspect > 0) {
-          aspect = Math.max(0.6, Math.min(2.5, aspect));
           aspectStyle = ' style="aspect-ratio:' + aspect + ';height:auto"';
         }
       }

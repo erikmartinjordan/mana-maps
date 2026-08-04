@@ -19,6 +19,8 @@
   var PREVIEW_MAX_FEATURES = 96;
   var PREVIEW_GRID_SIZE = 10;
   var PREVIEW_DENSITY_GRID_SIZE = 28;
+  var PREVIEW_MIN_ASPECT = 0.6;
+  var PREVIEW_MAX_ASPECT = 2.5;
   var PREVIEW_TOTAL_COORD_BUDGET = 2600;
   var PREVIEW_MIN_COORDS_PER_GEOMETRY = 48;
   var PREVIEW_MAX_COORDS_PER_GEOMETRY = 260;
@@ -384,24 +386,53 @@
     return Math.log(Math.tan(Math.PI / 4 + rad / 2));
   }
 
-  function renderMapPreviewSVG(preview) {
-    if (!preview || !Array.isArray(preview.bbox)) return '';
-    var bbox = preview.bbox;
+  // Aspect-correct content region (largest side = 100) plus breathing room.
+  // The final canvas aspect is clamped to [PREVIEW_MIN_ASPECT, PREVIEW_MAX_ASPECT]
+  // so degenerate maps (e.g. points aligned on one axis) still get bounded
+  // cards; extra room is added evenly so the map stays centered. aspectOf()
+  // mirrors this exactly so thumb boxes always match the rendered SVG and the
+  // preview fills them edge to edge (no letterboxing).
+  function previewCanvas(bbox) {
+    if (!bbox || bbox.length < 4) return null;
     var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
-    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return '';
-
-    // Project to Web Mercator so shapes keep real-world proportions.
+    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return null;
     var pMinX = minX * Math.PI / 180, pMaxX = maxX * Math.PI / 180;
     var pMinY = mercatorY(minY), pMaxY = mercatorY(maxY);
     var spanX = Math.max(pMaxX - pMinX, 1e-9);
     var spanY = Math.max(pMaxY - pMinY, 1e-9);
-
-    // Aspect-correct canvas (largest side = 100) + breathing room.
     var aspect = spanX / spanY;
     var w = aspect >= 1 ? 100 : 100 * aspect;
     var h = aspect >= 1 ? 100 / aspect : 100;
-    var padX = w * 0.09 + 2.5, padY = h * 0.09 + 2.5;
-    var viewW = w + 2 * padX, viewH = h + 2 * padY;
+    var viewW = w + 2 * (w * 0.09 + 2.5);
+    var viewH = h + 2 * (h * 0.09 + 2.5);
+    var viewAspect = viewW / viewH;
+    if (viewAspect > PREVIEW_MAX_ASPECT) {
+      viewH = viewW / PREVIEW_MAX_ASPECT;
+    } else if (viewAspect < PREVIEW_MIN_ASPECT) {
+      viewW = viewH * PREVIEW_MIN_ASPECT;
+    }
+    return {
+      w: w, h: h,
+      padX: (viewW - w) / 2,
+      padY: (viewH - h) / 2,
+      viewW: viewW, viewH: viewH,
+      pMinX: pMinX, pMaxY: pMaxY,
+      spanX: spanX, spanY: spanY
+    };
+  }
+
+  function renderMapPreviewSVG(preview) {
+    if (!preview || !Array.isArray(preview.bbox)) return '';
+    var bbox = preview.bbox;
+    var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
+    var canvas = previewCanvas(bbox);
+    if (!canvas) return '';
+
+    var w = canvas.w, h = canvas.h;
+    var padX = canvas.padX, padY = canvas.padY;
+    var viewW = canvas.viewW, viewH = canvas.viewH;
+    var spanX = canvas.spanX, spanY = canvas.spanY;
+    var pMinX = canvas.pMinX, pMaxY = canvas.pMaxY;
 
     function toX(x) { return ((x * Math.PI / 180 - pMinX) / spanX) * w + padX; }
     function toY(y) { return ((pMaxY - mercatorY(y)) / spanY) * h + padY; }
@@ -622,18 +653,9 @@
   // size their thumb box to match the map exactly and fill it edge to edge.
   function mapPreviewAspect(preview) {
     if (!preview || !Array.isArray(preview.bbox)) return 1.6;
-    var bbox = preview.bbox;
-    var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
-    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return 1.6;
-    var pMinX = minX * Math.PI / 180, pMaxX = maxX * Math.PI / 180;
-    var pMinY = mercatorY(minY), pMaxY = mercatorY(maxY);
-    var spanX = Math.max(pMaxX - pMinX, 1e-9);
-    var spanY = Math.max(pMaxY - pMinY, 1e-9);
-    var aspect = spanX / spanY;
-    var w = aspect >= 1 ? 100 : 100 * aspect;
-    var h = aspect >= 1 ? 100 / aspect : 100;
-    var padX = w * 0.09 + 2.5, padY = h * 0.09 + 2.5;
-    return (w + 2 * padX) / (h + 2 * padY);
+    var canvas = previewCanvas(preview.bbox);
+    if (!canvas) return 1.6;
+    return canvas.viewW / canvas.viewH;
   }
 
   window.ManaMapPreview = {
