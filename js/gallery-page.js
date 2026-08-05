@@ -216,13 +216,14 @@
 
   // Sizes the thumb box to the map's aspect ratio so the preview fills the
   // whole card instead of leaving empty margins. aspectOf already returns the
-  // clamped canvas aspect that renderSVG uses, so the box always matches.
+  // clamped canvas aspect that renderSVG uses; content-box makes the ratio
+  // apply to the area inside the 1px border so the match is exact.
   function thumbAspectStyle(item) {
     if (!window.ManaMapPreview || !window.ManaMapPreview.aspectOf) return '';
     var preview = window.ManaMapPreview.build(getPublishedGeo(item)) || item.mapPreview;
     var aspect = window.ManaMapPreview.aspectOf(preview);
     if (!isFinite(aspect) || aspect <= 0) return '';
-    return ' style="aspect-ratio:' + aspect + ';height:auto"';
+    return ' style="aspect-ratio:' + aspect + ';height:auto;box-sizing:content-box"';
   }
 
   // ═══════════════════════════════════════════════════════════════

@@ -202,7 +202,7 @@
       if (window.ManaMapPreview && window.ManaMapPreview.aspectOf) {
         var aspect = window.ManaMapPreview.aspectOf(item.mapPreview);
         if (isFinite(aspect) && aspect > 0) {
-          aspectStyle = ' style="aspect-ratio:' + aspect + ';height:auto"';
+          aspectStyle = ' style="aspect-ratio:' + aspect + ';height:auto;box-sizing:content-box"';
         }
       }
       var views = mapViews(item);

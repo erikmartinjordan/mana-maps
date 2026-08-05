@@ -411,6 +411,10 @@
     } else if (viewAspect < PREVIEW_MIN_ASPECT) {
       viewW = viewH * PREVIEW_MIN_ASPECT;
     }
+    // Round the canvas to the same precision as the emitted viewBox attribute
+    // so aspectOf() and the rendered SVG agree exactly (no sub-pixel gap).
+    viewW = Math.round(viewW * 100) / 100;
+    viewH = Math.round(viewH * 100) / 100;
     return {
       w: w, h: h,
       padX: (viewW - w) / 2,
