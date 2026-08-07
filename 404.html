@@ -1,62 +1,349 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Perfil — Maña Maps</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=1776927834"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>404 — Página no encontrada · Maña Maps</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://maña.com/404.html">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<noscript><style>.reveal{opacity:1 !important;transform:none !important;}</style></noscript>
+<style>
+:root {
+  --bg: #f5f5f7;
+  --surface: rgba(255,255,255,0.72);
+  --text: #111214;
+  --muted: #5f6670;
+  --line: rgba(16,24,40,0.12);
+  --cta: #17191c;
+  --blue: #0a84ff;
+  --red: #ff453a;
+  --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --frame-radius: 28px;
+  --iphone-frame-radius: 28px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 10% 0%, #ffffff 0%, #f5f5f7 48%, #efeff1 100%);
+  color: var(--text);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+.frame {
+  width: min(1120px, calc(100% - 40px));
+  margin: 24px auto;
+  border: 1px solid var(--line);
+  border-radius: var(--frame-radius);
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ── Scroll reveal ── */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .65s ease, transform .65s cubic-bezier(.22,.61,.36,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── Topbar ── */
+.topbar {
+  height: 72px; padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand-logo { position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+.brand-logo svg { width: 100%; height: 100%; }
+.brand-logo span {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: Tahoma, Verdana, sans-serif; font-weight: 900; font-size: 15px;
+  color: white; line-height: 1; pointer-events: none;
+}
+.brand-word { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.brand-sub { font-size: 11px; color: var(--muted); margin-left: 3px; font-weight: 600; vertical-align: super; }
+.topbar-actions { display: inline-flex; gap: 10px; align-items: center; }
+.btn {
+  border: 1px solid var(--line); background: #fff; border-radius: 999px;
+  height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600;
+  text-decoration: none; color: var(--text); display: inline-flex; align-items: center;
+  gap: 7px;
+  transition: transform .15s, opacity .15s; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(.97); opacity: .8; transition: none; }
+.btn-primary { background: var(--cta); color: #fff; border-color: transparent; }
+.btn-ghost { background: transparent; }
+.lang-toggle {
+  border: 1px solid var(--line); background: none; border-radius: 999px;
+  height: 34px; padding: 0 12px; font-size: 12px; font-weight: 700;
+  color: var(--muted); cursor: pointer; font-family: 'DM Mono', monospace;
+  letter-spacing: .5px; transition: color .15s, background .15s;
+}
+.lang-toggle:hover { color: var(--text); background: rgba(0,0,0,.04); }
+
+/* ── Error hero ── */
+.error-hero {
+  position: relative;
+  display: grid; grid-template-columns: 1.1fr 1fr;
+  gap: 44px; padding: 56px 48px 48px; align-items: center;
+}
+.error-hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(rgba(10,132,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,132,255,0.05) 1px, transparent 1px),
+    radial-gradient(ellipse at 12% 20%, rgba(10,132,255,0.07) 0%, transparent 55%);
+  background-size: 32px 32px, 32px 32px, cover;
+}
+.error-hero > * { position: relative; z-index: 1; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.84); border-radius: 999px;
+  padding: 7px 12px; font-size: 12px; font-weight: 600;
+  color: var(--muted); margin-bottom: 20px;
+}
+.eyebrow::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 0 3px rgba(255,69,58,.16);
+}
+
+.big-404 {
+  font-size: clamp(116px, 16vw, 200px); font-weight: 900;
+  letter-spacing: -0.05em; line-height: .92; margin-bottom: 14px;
+  background-image:
+    linear-gradient(rgba(23,25,28,.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,25,28,.09) 1px, transparent 1px),
+    linear-gradient(180deg, #26292e 0%, #0f1012 100%);
+  background-size: 30px 30px, 30px 30px, cover;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; user-select: none;
+}
+
+h1 {
+  font-size: clamp(26px, 3.4vw, 40px); line-height: 1.08;
+  letter-spacing: -0.03em; margin-bottom: 14px;
+}
+.lead {
+  font-size: 16px; line-height: 1.55;
+  color: var(--muted); max-width: 480px; margin-bottom: 8px;
+}
+.coords {
+  font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted);
+  letter-spacing: .4px; margin: 20px 0 26px;
+  display: inline-flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+}
+.coords::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--red); box-shadow: 0 0 0 3px rgba(255,69,58,.15);
+}
+.cta-row { display: inline-flex; gap: 12px; flex-wrap: wrap; }
+
+/* ── Art ── */
+.error-art { position: relative; }
+.error-art svg { width: 100%; height: auto; display: block; }
+.route-line { stroke-dasharray: 2 9; animation: march 1s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -22; } }
+.pin-bob { animation: bob 2.6s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--line); padding: 18px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--muted); font-size: 12px; gap: 8px; flex-wrap: wrap;
+}
+.footer a { color: var(--muted); text-decoration: none; }
+.footer a:hover { color: var(--text); }
+
+/* ── Mobile ── */
+@media (max-width: 920px) {
+  .error-hero { grid-template-columns: 1fr; padding: 44px 24px 32px; }
+  .cta-row .btn:not(.btn-primary) { padding: 0 14px; }
+  .frame {
+    width: calc(100% - 20px);
+    min-height: calc(100dvh - 20px);
+    margin: 10px auto;
+    border-radius: var(--iphone-frame-radius);
+  }
+  .topbar { padding: 0 16px; height: 66px; }
+  .topbar-actions .btn { display: none; }
+}
+@media (max-width: 480px) {
+  .error-art { margin-top: 8px; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .route-line, .pin-bob { animation: none; }
+}
+
+/* ── Focus visible ── */
+.btn:focus-visible, .lang-toggle:focus-visible {
+  outline: 2px solid #0a84ff; outline-offset: 2px;
+}
+</style>
 </head>
-<body class="profile-page public-profile-page">
-  <main class="profile-shell">
-    <div class="profile-topbar">
-      <a class="mana-logo-wrap" href="/">
-        <div class="mana-logo-icon">
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
-              d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
-              transform="translate(100 100)"/>
-          </svg>
-          <span>M&#771;</span>
-        </div>
-        <span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span>
-      </a>
-      <nav class="profile-nav" aria-label="Navegación">
-        <a class="btn btn-ghost" href="/gallery/">Galería</a>
-        <a class="btn btn-primary" href="/map/">Editor</a>
-      </nav>
+<body>
+<main class="frame">
+  <header class="topbar">
+    <a class="brand" href="/">
+      <div class="brand-logo">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+            d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+            transform="translate(100 100)"/>
+        </svg>
+        <span>M&#771;</span>
+      </div>
+      <span><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
+    </a>
+    <div class="topbar-actions">
+      <button class="lang-toggle" id="lang-btn" onclick="toggleLang()" aria-label="Change language">EN</button>
+      <a class="btn btn-ghost" href="/gallery/" data-i18n="nav_gallery">Galer&#237;a</a>
+      <a class="btn btn-primary" href="/map/" data-i18n="nav_cta">Abrir app</a>
     </div>
+  </header>
 
-    <section id="public-profile-view" class="public-profile-card" style="display:block" aria-live="polite">
-      <div class="public-profile-hero">
-        <div id="public-profile-avatar" class="public-profile-avatar"><span>@</span></div>
-        <div class="public-profile-copy">
-          <h1 id="public-profile-name">Perfil</h1>
-          <span id="public-profile-handle" class="public-profile-handle">@</span>
-          <p id="public-profile-bio">Cargando perfil…</p>
-          <div class="public-profile-stats">
-            <strong id="public-profile-map-count">0</strong>
-            <span>mapas públicos</span>
-          </div>
-        </div>
+  <section class="error-hero">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="eyebrow">Error 404 &middot; Fuera de cobertura</span>
+      <div class="big-404" aria-hidden="true">404</div>
+      <h1 data-i18n="headline">Te has salido del mapa.</h1>
+      <p class="lead" data-i18n="lead">La p&#225;gina que buscabas no existe, se ha movido o nunca estuvo aqu&#237;. No pasa nada: siempre hay una ruta de vuelta.</p>
+      <div class="coords" data-i18n="coords">40.4168&deg; N, 3.7038&deg; O &middot; fuera del mapa</div>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/" data-i18n="cta_home">Volver al inicio</a>
+        <a class="btn btn-ghost" href="/gallery/" data-i18n="cta_gallery">Ver galer&#237;a</a>
+        <a class="btn btn-ghost" href="/map/" data-i18n="cta_map">Abrir editor</a>
       </div>
-      <div class="public-profile-section-head">
-        <h2>Mapas públicos</h2>
-        <a class="btn btn-ghost" href="/gallery/">Ver galería</a>
-      </div>
-      <div id="public-profile-maps" class="public-profile-grid">
-        <div class="public-profile-empty">Cargando mapas…</div>
-      </div>
-    </section>
-  </main>
+    </div>
+    <div class="error-art reveal" style="transition-delay:120ms">
+      <svg viewBox="0 0 460 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustraci&#243;n de un mapa con una ruta punteada que termina fuera del mapa">
+        <defs>
+          <pattern id="mm-grid" width="34" height="34" patternUnits="userSpaceOnUse">
+            <path d="M34 0H0V34" stroke="rgba(16,24,40,.07)" stroke-width="1" fill="none"/>
+          </pattern>
+          <radialGradient id="mm-glow" cx="68%" cy="30%" r="55%">
+            <stop offset="0%" stop-color="rgba(10,132,255,.14)"/>
+            <stop offset="100%" stop-color="rgba(10,132,255,0)"/>
+          </radialGradient>
+        </defs>
+        <rect x="1" y="1" width="458" height="418" rx="24" fill="#fff"/>
+        <rect x="1" y="1" width="458" height="418" rx="24" fill="url(#mm-grid)"/>
+        <rect x="1" y="1" width="458" height="418" rx="24" stroke="rgba(16,24,40,.09)"/>
+        <circle cx="330" cy="150" r="150" fill="url(#mm-glow)"/>
 
-  <script defer src="/js/firebase-config.local.js"></script>
-  <script defer src="/js/firebase.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script defer src="/js/public-profile.js"></script>
+        <polygon points="40,120 92,96 112,146 64,170" fill="rgba(10,132,255,.10)" stroke="#0a84ff" stroke-opacity=".35" stroke-width="1.4" stroke-linejoin="round"/>
+        <polygon points="52,262 96,246 108,288 66,302" fill="rgba(100,116,139,.08)" stroke="#64748b" stroke-opacity=".3" stroke-width="1.2" stroke-linejoin="round"/>
+
+        <path class="route-line" d="M66 346 C 120 322, 128 240, 200 244 S 288 186, 338 142" stroke="#0a84ff" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <circle cx="66" cy="346" r="7" fill="#fff" stroke="#0a84ff" stroke-width="3"/>
+        <circle cx="66" cy="346" r="2.6" fill="#0a84ff"/>
+        <circle cx="188" cy="244" r="3.6" fill="#0a84ff" opacity=".45"/>
+
+        <rect x="298" y="102" width="78" height="74" rx="10" stroke="#0a84ff" stroke-opacity=".5" stroke-width="1.6" stroke-dasharray="5 5" fill="none"/>
+        <ellipse cx="337" cy="196" rx="15" ry="5" fill="rgba(16,24,40,.16)"/>
+        <g class="pin-bob">
+          <path d="M337 130c-15.8 0-28.6 12.8-28.6 28.6 0 21.4 28.6 40.9 28.6 40.9s28.6-19.5 28.6-40.9c0-15.8-12.8-28.6-28.6-28.6z" fill="#0a84ff"/>
+          <circle cx="337" cy="158.6" r="10.5" fill="#f5f7fa"/>
+          <circle cx="337" cy="158.6" r="13.5" stroke="#0a84ff" stroke-opacity=".25" stroke-width="6"/>
+          <text x="337" y="163.4" text-anchor="middle" font-family="'DM Sans', sans-serif" font-weight="800" font-size="15" fill="#0a84ff">?</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span data-i18n="footer_made">Hecho con &#9829; en Barcelona.</span>
+    <span>
+      <a href="/about" data-i18n="nav_about">Acerca de</a> &middot;
+      <a href="/gallery/" data-i18n="nav_gallery">Galer&#237;a</a> &middot;
+      <a href="/changelog" data-i18n="nav_changelog">Ver novedades</a> &middot;
+      <a href="/pricing" data-i18n="nav_pricing">Precios</a>
+    </span>
+    <span>&copy; Ma&#241;a Maps</span>
+  </footer>
+</main>
+
+<script>
+var LANG = {
+  es: {
+    nav_about:'Acerca de', nav_cta:'Abrir app', nav_gallery:'Galer\u00eda', nav_changelog:'Ver novedades', nav_pricing:'Precios',
+    eyebrow:'Error 404 \u00b7 Fuera de cobertura',
+    headline:'Te has salido del mapa.',
+    lead:'La p\u00e1gina que buscabas no existe, se ha movido o nunca estuvo aqu\u00ed. No pasa nada: siempre hay una ruta de vuelta.',
+    coords:'40.4168\u00b0 N, 3.7038\u00b0 O \u00b7 fuera del mapa',
+    cta_home:'Volver al inicio', cta_gallery:'Ver galer\u00eda', cta_map:'Abrir editor',
+    footer_made:'Hecho con \u2665 en Barcelona.',
+    page_title:'404 \u2014 P\u00e1gina no encontrada | Ma\u00f1a Maps',
+    lang_btn:'EN'
+  },
+  en: {
+    nav_about:'About', nav_cta:'Open app', nav_gallery:'Gallery', nav_changelog:'What\u2019s new', nav_pricing:'Pricing',
+    eyebrow:'Error 404 \u00b7 Out of coverage',
+    headline:'You\u2019ve gone off the map.',
+    lead:'The page you\u2019re looking for doesn\u2019t exist, has moved, or was never here. No worries: there\u2019s always a way back.',
+    coords:'40.4168\u00b0 N, 3.7038\u00b0 W \u00b7 off the map',
+    cta_home:'Back to home', cta_gallery:'View gallery', cta_map:'Open editor',
+    footer_made:'Made with \u2665 in Barcelona.',
+    page_title:'404 \u2014 Page not found | Ma\u00f1a Maps',
+    lang_btn:'ES'
+  }
+};
+var MANA_LANG_KEY = 'mana-lang';
+var MANA_LEGACY_LANDING_LANG_KEY = 'mana-landing-lang';
+function getStoredLang() {
+  var stored = localStorage.getItem(MANA_LANG_KEY) || localStorage.getItem(MANA_LEGACY_LANDING_LANG_KEY);
+  return LANG[stored] ? stored : 'es';
+}
+function persistLang(lang) {
+  localStorage.setItem(MANA_LANG_KEY, lang);
+  localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
+}
+var currentLang = getStoredLang();
+function applyLang(lang) {
+  currentLang = lang;
+  persistLang(lang);
+  document.documentElement.lang = lang;
+  var strings = LANG[lang];
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (strings[key]) el.innerHTML = strings[key];
+  });
+  document.title = strings.page_title;
+  var btn = document.getElementById('lang-btn');
+  if (btn) btn.textContent = strings.lang_btn;
+}
+function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
+applyLang(currentLang);
+
+// ── Scroll reveal ──
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) {
+    els.forEach(function(el) { el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(function(el) { io.observe(el); });
+})();
+</script>
+
 </body>
 </html>
