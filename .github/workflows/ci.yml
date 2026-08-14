@@ -1,4 +1,4 @@
-name: Pre-deployment Tests
+name: Validación y Despliegue
 
 on:
   push:
@@ -6,13 +6,14 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   merge_group:
-
-concurrency:
-  group: pre-deploy-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   static-checks:
@@ -137,3 +138,79 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  changelog:
+    name: Update Changelog
+    needs: [static-checks, js-syntax, e2e-smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: erikmartinjordan/mana-maps
+        run: python .github/scripts/generate_changelog.py
+
+      - name: Commit changelog
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add changelog/index.html
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: update changelog"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Deploy GitHub Pages
+    needs: [static-checks, js-syntax, e2e-smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Generate Firebase runtime config
+        env:
+          FIREBASE_PRE_CONFIG_JSON: ${{ secrets.FIREBASE_PRE_CONFIG_JSON }}
+          FIREBASE_PRO_CONFIG_JSON: ${{ secrets.FIREBASE_PRO_CONFIG_JSON }}
+        run: node .github/scripts/generate-firebase-config.js
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
