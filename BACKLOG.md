@@ -12,4 +12,4 @@ Formato: "- [x] descripcion".
 
 - [x] Anadir alt descriptivo y unico a las imagenes destacadas de la galeria (gallery/index.html)
 - [x] Añadir `display=swap` a la URL de Google Fonts de la portada para evitar texto invisible durante la carga
-- [ ] Añadir `twitter:image:alt` a la portada con el mismo texto descriptivo de su imagen Open Graph
+- [x] Añadir `twitter:image:alt` a la portada con el mismo texto descriptivo de su imagen Open Graph (14-08)
