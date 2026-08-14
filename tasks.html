@@ -1,14 +1,225 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>Maña Maps - Agents</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tareas de los agentes — Maña Maps</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="description" content="Historial de tareas ejecutadas por los agentes autopilot de Maña Maps.">
 <meta name="robots" content="noindex">
-<meta http-equiv="refresh" content="0;url=https://dry-lamps-fail.loca.lt">
-<style>html,body{margin:0;padding:0;height:100%;background:#0d1117}iframe{width:100%;height:100%;border:0;display:block}</style>
+<meta name="theme-color" content="#f5f5f7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f7;
+  --surface: rgba(255,255,255,0.72);
+  --text: #111214;
+  --muted: #5f6670;
+  --line: rgba(16,24,40,0.12);
+  --cta: #17191c;
+  --blue: #0a84ff;
+  --green: #1f9d55;
+  --red: #d33;
+  --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --frame-radius: 28px;
+  --iphone-frame-radius: 28px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 10% 0%, #ffffff 0%, #f5f5f7 48%, #efeff1 100%);
+  color: var(--text);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+.frame {
+  width: min(1120px, calc(100% - 40px));
+  margin: 24px auto;
+  border: 1px solid var(--line);
+  border-radius: var(--frame-radius);
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ── Topbar ── */
+.topbar {
+  height: 72px; padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand-logo { position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+.brand-logo svg { width: 100%; height: 100%; }
+.brand-logo span {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: Tahoma, Verdana, sans-serif; font-weight: 900; font-size: 15px;
+  color: white; line-height: 1; pointer-events: none;
+}
+.brand-word { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.brand-sub { font-size: 11px; color: var(--muted); margin-left: 3px; font-weight: 600; vertical-align: super; }
+.topbar-actions { display: inline-flex; gap: 10px; align-items: center; }
+.btn {
+  border: 1px solid var(--line); background: #fff; border-radius: 999px;
+  height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600;
+  text-decoration: none; color: var(--text); display: inline-flex; align-items: center;
+  gap: 7px;
+  transition: transform .15s, opacity .15s; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(.97); opacity: .8; transition: none; }
+.btn-primary { background: var(--cta); color: #fff; border-color: transparent; }
+
+/* ── Hero ── */
+.hero { padding: 52px 48px 34px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.84); border-radius: 999px;
+  padding: 7px 12px; font-size: 12px; font-weight: 600;
+  color: var(--muted); margin-bottom: 18px;
+}
+.eyebrow::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue); box-shadow: 0 0 0 3px rgba(10,132,255,.15);
+}
+h1 {
+  font-size: clamp(30px, 4.5vw, 52px); line-height: 1.05;
+  letter-spacing: -0.04em; margin-bottom: 14px;
+}
+.lead {
+  font-size: clamp(15px, 1.6vw, 17px); line-height: 1.55;
+  color: var(--muted); max-width: 620px; margin-bottom: 10px;
+}
+
+/* ── Stats ── */
+.stats {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px; padding: 0 48px 34px;
+}
+.stat {
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 18px; background: rgba(255,255,255,.75);
+}
+.stat-value { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.stat-label { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+/* ── Task list ── */
+.task-list { display: grid; gap: 12px; padding: 0 48px 48px; }
+.task-card {
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 18px 20px; background: rgba(255,255,255,.75);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.task-card:hover {
+  transform: translateY(-2px); border-color: rgba(16,24,40,.22);
+  box-shadow: 0 10px 26px rgba(15,23,42,.08);
+}
+.task-main { min-width: 0; flex: 1 1 420px; }
+.task-date { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+.task-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
+.task-meta { margin-top: 8px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.task-meta a { color: var(--blue); text-decoration: none; }
+.task-meta a:hover { text-decoration: underline; }
+.chip {
+  flex-shrink: 0; border-radius: 999px; font-size: 12px; font-weight: 700;
+  padding: 7px 13px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.chip-ok { background: rgba(31,157,85,.12); color: var(--green); }
+.chip-err { background: rgba(221,51,51,.10); color: var(--red); }
+.chip-live { background: rgba(10,132,255,.12); color: var(--blue); }
+.empty {
+  border: 1px dashed var(--line); border-radius: 16px; padding: 42px;
+  text-align: center; color: var(--muted); font-size: 14px;
+}
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--line); padding: 18px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--muted); font-size: 12px; gap: 8px; flex-wrap: wrap;
+}
+.footer a { color: var(--muted); text-decoration: none; }
+.footer a:hover { color: var(--text); }
+
+@media (max-width: 920px) {
+  .hero { padding: 40px 24px 26px; }
+  .stats { padding: 0 24px 28px; grid-template-columns: 1fr; }
+  .task-list { padding: 0 24px 36px; }
+  .frame {
+    width: calc(100% - 20px);
+    min-height: calc(100dvh - 20px);
+    margin: 10px auto;
+    border-radius: var(--iphone-frame-radius);
+  }
+  .topbar { padding: 0 16px; height: 66px; }
+  .topbar-actions .btn:not(.btn-primary) { padding: 0 14px; }
+}
+</style>
 </head>
 <body>
-<p style="color:#8b949e;font-family:monospace;padding:24px">Cargando el panel de agents... Si no redirige, abre directamente: <a href="https://dry-lamps-fail.loca.lt">https://dry-lamps-fail.loca.lt</a></p>
-<script>location.replace("https://dry-lamps-fail.loca.lt");</script>
+<main class="frame">
+  <header class="topbar">
+    <a class="brand" href="/">
+      <div class="brand-logo">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+            d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+            transform="translate(100 100)"/>
+        </svg>
+        <span>M&#771;</span>
+      </div>
+      <span><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
+    </a>
+    <div class="topbar-actions">
+      <a class="btn" href="https://dry-lamps-fail.loca.lt" rel="nofollow">Ver panel en vivo</a>
+      <a class="btn btn-primary" href="/map">Abrir app</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="eyebrow">Autopilot</span>
+    <h1>Tareas de los agentes</h1>
+    <p class="lead">Trabajo ejecutado autom&#225;ticamente por los agentes en ma&#241;a.com: cada tarea se implementa, se testea y se revisa en su propia rama antes de incorporarse.</p>
+  </section>
+
+  <section class="stats" aria-label="Resumen">
+    <article class="stat">
+      <div class="stat-value">2</div>
+      <div class="stat-label">Tareas completadas</div>
+    </article>
+    <article class="stat">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Con errores</div>
+    </article>
+    <article class="stat">
+      <div class="stat-value">2026-08-14</div>
+      <div class="stat-label">&#218;ltima ejecuci&#243;n</div>
+    </article>
+  </section>
+
+  <section class="task-list" aria-label="Historial de tareas">
+    <article class="task-card"><div class="task-main"><div class="task-date">2026-08-14</div><div class="task-title">Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada</div><div class="task-meta"><span>rama <b>autopilot/20260814-gallery-social-meta</b></span><span><a href="https://github.com/erikmartinjordan/mana-maps/commit/ff27800" rel="nofollow">commit ff27800</a></span></div></div><span class="chip chip-ok">&#10003; Completada</span></article><article class="task-card"><div class="task-main"><div class="task-date">2026-08-14</div><div class="task-title">Anadir loading=lazy y decoding=async a las imagenes de la portada (index.html) y de la galeria (gallery/index.html)</div><div class="task-meta"><span>rama <b>autopilot/20260814-lazy-images</b></span><span><a href="https://github.com/erikmartinjordan/mana-maps/commit/4718f88" rel="nofollow">commit 4718f88</a></span></div></div><span class="chip chip-ok">&#10003; Completada</span></article>
+  </section>
+
+  <footer class="footer">
+    <span>Hecho con &#9829; en Barcelona.</span>
+    <span>
+      <a href="/about">Acerca de</a> &middot;
+      <a href="/gallery">Galer&#237;a</a> &middot;
+      <a href="/changelog">Ver novedades</a> &middot;
+      <a href="/">Volver</a>
+    </span>
+    <span>&copy; Ma&#241;a Maps</span>
+  </footer>
+</main>
 </body>
 </html>
