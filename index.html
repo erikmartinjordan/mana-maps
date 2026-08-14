@@ -571,6 +571,13 @@ applyLang(currentLang);
 })();
 </script>
 
+<script>
+  document.querySelectorAll('img').forEach(function (image) {
+    image.loading = 'lazy';
+    image.decoding = 'async';
+  });
+</script>
+
 <script type="module">
 import createGlobe from 'https://esm.sh/cobe';
 
