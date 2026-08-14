@@ -39,5 +39,7 @@
   </url>
   <url>
     <loc>https://maña.com/pricing/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>
