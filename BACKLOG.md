@@ -13,6 +13,6 @@ Formato: "- [x] descripcion".
 - [x] Anadir alt descriptivo y unico a las imagenes destacadas de la galeria (gallery/index.html)
 - [x] Añadir `display=swap` a la URL de Google Fonts de la portada para evitar texto invisible durante la carga
 - [x] Añadir `twitter:image:alt` a la portada con el mismo texto descriptivo de su imagen Open Graph (14-08)
-- [ ] Añadir en la portada un bloque breve de preguntas frecuentes sobre exportación, IA y privacidad, con un enlace contextual a /pricing/ para resolver objeciones y captar búsquedas long-tail
+- [x] Añadir en la portada un bloque breve de preguntas frecuentes sobre exportación, IA y privacidad, con un enlace contextual a /pricing/ para resolver objeciones y captar búsquedas long-tail
 - [ ] Incorporar en la portada una comparación visible y concisa entre el uso gratuito y las opciones de /pricing/, con un CTA específico por beneficio
 - [ ] Añadir un enlace HTML rastreable desde la portada hacia la galería pública, acompañado de copy orientado a descubrir ejemplos de mapas
