@@ -208,10 +208,23 @@
   // THUMBNAILS (shared preview library)
   // ═══════════════════════════════════════════════════════════════
 
+  function thumbAccessibleLabel(item) {
+    var title = item && (item.title || item.name) || 'Mapa sin título';
+    var mapId = item && (item.slug || item.id);
+    // Include the stable map identifier so two maps with the same title still
+    // expose different names to assistive technology.
+    return 'Vista previa del mapa «' + title + '»' + (mapId ? ' (' + mapId + ')' : '');
+  }
+
   function renderThumb(item) {
     if (!window.ManaMapPreview) return '';
     var built = window.ManaMapPreview.build(getPublishedGeo(item));
-    return window.ManaMapPreview.renderSVG(built || item.mapPreview);
+    var svg = window.ManaMapPreview.renderSVG(built || item.mapPreview);
+    if (!svg) return '';
+    return svg.replace(
+      '<svg class="thumb-preview"',
+      '<svg class="thumb-preview" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
+    );
   }
 
   // Sizes the thumb box to the map's aspect ratio so the preview fills the
@@ -525,7 +538,7 @@
     if (!geo || !geo.features || !geo.features.length || !window.maplibregl) {
       // Graceful fallback: static high-quality preview, zero interaction.
       var fallbackSvg = window.ManaMapPreview
-        ? window.ManaMapPreview.renderSVG(window.ManaMapPreview.build(geo) || item.mapPreview)
+        ? renderThumb(item)
         : '';
       target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';
       return;
