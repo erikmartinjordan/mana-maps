@@ -10,4 +10,4 @@ Formato: "- [x] descripcion".
 - [x] Añadir un enlace visible a Precios en la navegación superior de la portada para reducir fricción hacia la conversión
 - [x] Dar al globo interactivo un nombre accesible y un fallback textual para usuarios de lector de pantalla o sin JavaScript
 
-- [ ] Anadir alt descriptivo y unico a las imagenes destacadas de la galeria (gallery/index.html)
+- [x] Anadir alt descriptivo y unico a las imagenes destacadas de la galeria (gallery/index.html)
