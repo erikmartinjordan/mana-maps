@@ -8,4 +8,4 @@ Formato: "- [x] descripcion".
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
 - [x] Añadir un enlace visible a Precios en la navegación superior de la portada para reducir fricción hacia la conversión
-- [ ] Dar al globo interactivo un nombre accesible y un fallback textual para usuarios de lector de pantalla o sin JavaScript
+- [x] Dar al globo interactivo un nombre accesible y un fallback textual para usuarios de lector de pantalla o sin JavaScript
