@@ -159,6 +159,39 @@
       .skel-thumb,.skel-line{animation:none}
     }
     .btn:focus-visible,.card-action-btn:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
+
+    /* ── Auth modal ── */
+    .share-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(17,24,39,.4);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px}
+    .share-modal.open{display:flex}
+    .modal-close-btn{width:44px;height:44px;border-radius:10px;border:none;background:none;cursor:pointer;font-size:20px;color:var(--muted);display:grid;place-items:center;transition:background .12s,color .12s;flex-shrink:0}
+    .modal-close-btn:hover{background:#f3f4f6;color:var(--text)}
+    .share-close{position:absolute;right:8px;top:8px}
+    .auth-modal-box{width:min(380px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 16px 64px rgba(15,23,42,.2);padding:32px 28px 28px;position:relative}
+    .auth-modal-header{text-align:center;margin-bottom:24px}
+    .auth-logo{width:44px;height:44px;margin:0 auto 14px;position:relative}
+    .auth-logo svg{width:100%;height:100%}
+    .auth-logo span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Tahoma,Verdana,sans-serif;font-weight:900;font-size:14px;color:#fff;line-height:1}
+    .auth-modal-box h3{font-size:20px;font-weight:800;color:var(--text);margin:0}
+    .auth-subtitle{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5}
+    .auth-form{display:flex;flex-direction:column;gap:14px}
+    .auth-field{display:flex;flex-direction:column;gap:5px}
+    .auth-field label{font-size:12px;font-weight:600;color:var(--muted)}
+    .auth-field input{width:100%;height:42px;padding:0 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+    .auth-field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.12)}
+    .auth-field input::placeholder{color:var(--muted);font-size:13px}
+    .auth-submit-btn{width:100%;height:44px;border:none;border-radius:10px;background:var(--cta);color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s,transform .1s;margin-top:4px}
+    .auth-submit-btn:hover{opacity:.88;transform:translateY(-1px)}
+    .auth-signup-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:2px}
+    .auth-signup-hint a{color:var(--blue);text-decoration:none;font-weight:600}
+    .auth-signup-hint a:hover{text-decoration:underline}
+    .auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+    .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+    .auth-divider span{font-size:12px;color:var(--muted);font-weight:500}
+    .auth-google-btn{width:100%;height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;transition:border-color .14s,background .14s,transform .14s}
+    .auth-google-btn:hover{border-color:rgba(16,24,40,.25);background:#f6f7f9;transform:translateY(-1px)}
+    .auth-google-btn:active{transform:scale(.98)}
+    .auth-guest-link{display:block;width:100%;margin-top:14px;border:none;background:none;font-size:12.5px;color:var(--muted);font-family:'DM Sans',sans-serif;cursor:pointer;text-align:center;transition:color .12s;padding:6px}
+    .auth-guest-link:hover{color:var(--text)}
   </style>
 </head>
 <body>
@@ -217,6 +250,45 @@
       <span>&copy; Maña Maps</span>
     </footer>
   </main>
+
+  <div id="auth-modal" class="share-modal" aria-hidden="true">
+    <div class="auth-modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <button class="modal-close-btn share-close" onclick="closeAuthModal()" aria-label="Cerrar">&times;</button>
+      <div class="auth-modal-header">
+        <div class="auth-logo">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="#30363B" d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z" transform="translate(100 100)"/>
+          </svg>
+          <span>M&#771;</span>
+        </div>
+        <h3 id="auth-modal-title">Inicia sesi&#243;n</h3>
+        <p class="auth-subtitle">Guarda, comparte y da me gusta a los mapas.</p>
+      </div>
+      <form class="auth-form" onsubmit="signInWithEmail(event)" autocomplete="on">
+        <div class="auth-field">
+          <label for="auth-email">Correo electr&#243;nico</label>
+          <input id="auth-email" type="email" placeholder="tu@email.com" required autocomplete="email" spellcheck="false"/>
+        </div>
+        <div class="auth-field">
+          <label for="auth-password">Contrase&#241;a</label>
+          <input id="auth-password" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required autocomplete="current-password"/>
+        </div>
+        <button type="submit" class="auth-submit-btn">Iniciar sesi&#243;n</button>
+        <p class="auth-signup-hint"><span>&#191;No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode(event)">Crear cuenta</a></p>
+      </form>
+      <div class="auth-divider"><span>o</span></div>
+      <button class="auth-google-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span>Continuar con Google</span>
+      </button>
+      <button class="auth-guest-link" onclick="continueAsGuest()">Continuar como invitado</button>
+    </div>
+  </div>
 
   <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
   <script src="/js/basemap-config.js"></script>

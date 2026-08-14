@@ -318,80 +318,81 @@
   // LIKE & FORK HANDLERS
   // ═══════════════════════════════════════════════════════════════
 
-  window.galleryLike = async function(btn) {
+  window.galleryLike = function(btn) {
     var mapId = btn.getAttribute('data-map-id');
     var author = btn.getAttribute('data-author') || '';
     if (!mapId) return;
 
-    // Auth gate: only authenticated users can like
-    if (window.manaAuth) {
-      var user = window.manaAuth.getCurrentUser();
-      if (!user || user.isAnonymous) {
-        window.manaAuth.openAuthModal();
+    var doLike = async function() {
+      // One like per map per browser: Firestore rules only allow +1 increments.
+      if (hasLiked(mapId)) {
+        galleryToast('Ya has marcado este mapa como favorito');
+        btn.classList.add('liked');
         return;
       }
-    }
 
-    // One like per map per browser: Firestore rules only allow +1 increments.
-    if (hasLiked(mapId)) {
-      galleryToast('Ya has marcado este mapa como favorito');
+      // Optimistic UI update
+      var countEl = btn.querySelector('.like-count');
+      var current = parseInt(countEl.textContent || '0', 10);
+      countEl.textContent = current + 1;
       btn.classList.add('liked');
+      markLiked(mapId);
+
+      // Persist like (works for every published map, author handle is optional)
+      if (window.manaMaps && typeof window.manaMaps.likeMap === 'function') {
+        try {
+          await window.manaMaps.likeMap(mapId, author);
+        } catch (e) {
+          console.warn('like failed:', e);
+          countEl.textContent = current; // rollback
+          btn.classList.remove('liked');
+          unmarkLiked(mapId);
+          galleryToast('No se pudo guardar tu like. Inténtalo de nuevo.');
+        }
+      }
+    };
+
+    // Auth gate: only authenticated users can like. requireAuth re-runs the
+    // action right after login so the like is not lost.
+    if (window.manaAuth && typeof window.manaAuth.requireAuth === 'function') {
+      window.manaAuth.requireAuth(doLike);
       return;
     }
-
-    // Optimistic UI update
-    var countEl = btn.querySelector('.like-count');
-    var current = parseInt(countEl.textContent || '0', 10);
-    countEl.textContent = current + 1;
-    btn.classList.add('liked');
-    markLiked(mapId);
-
-    // Persist like (works for every published map, author handle is optional)
-    if (window.manaMaps && typeof window.manaMaps.likeMap === 'function') {
-      try {
-        await window.manaMaps.likeMap(mapId, author);
-      } catch (e) {
-        console.warn('like failed:', e);
-        countEl.textContent = current; // rollback
-        btn.classList.remove('liked');
-        unmarkLiked(mapId);
-        galleryToast('No se pudo guardar tu like. Inténtalo de nuevo.');
-      }
-    }
+    doLike();
   };
 
-  window.galleryFork = async function(btn) {
+  window.galleryFork = function(btn) {
     var mapId = btn.getAttribute('data-map-id');
     var author = btn.getAttribute('data-author') || '';
     if (!mapId) return;
 
-    // Auth gate: only authenticated users can fork
-    if (window.manaAuth) {
-      var user = window.manaAuth.getCurrentUser();
-      if (!user || user.isAnonymous) {
-        window.manaAuth.openAuthModal();
-        return;
-      }
-    }
+    var doFork = async function() {
+      btn.disabled = true;
+      btn.querySelector('span').textContent = '...';
 
-    btn.disabled = true;
-    btn.querySelector('span').textContent = '...';
-
-    try {
-      if (window.manaMaps && typeof window.manaMaps.forkMap === 'function') {
-        await window.manaMaps.forkMap(mapId, author);
-        btn.querySelector('span').textContent = '✓';
-        btn.classList.add('forked');
-        galleryToast('Fork guardado en tus mapas', { linkUrl: '/my-maps/', linkLabel: 'Abrir Mis mapas', duration: 5200 });
-        return;
+      try {
+        if (window.manaMaps && typeof window.manaMaps.forkMap === 'function') {
+          await window.manaMaps.forkMap(mapId, author);
+          btn.querySelector('span').textContent = '✓';
+          btn.classList.add('forked');
+          galleryToast('Fork guardado en tus mapas', { linkUrl: '/my-maps/', linkLabel: 'Abrir Mis mapas', duration: 5200 });
+          return;
+        }
+        throw new Error('fork-unavailable');
+      } catch (e) {
+        console.warn('fork failed:', e);
+        btn.querySelector('span').textContent = 'Fork';
+        btn.disabled = false;
+        galleryToast('No se pudo hacer fork de este mapa.');
       }
-      throw new Error('fork-unavailable');
-    } catch (e) {
-      console.warn('fork failed:', e);
-      btn.querySelector('span').textContent = 'Fork';
-      btn.disabled = false;
-      galleryToast('No se pudo hacer fork de este mapa.');
+    };
+
+    // Auth gate: only authenticated users can fork.
+    if (window.manaAuth && typeof window.manaAuth.requireAuth === 'function') {
+      window.manaAuth.requireAuth(doFork);
+      return;
     }
+    doFork();
   };
 
   // ═══════════════════════════════════════════════════════════════

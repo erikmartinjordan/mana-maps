@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '..', '..');
 
 module.exports = defineConfig({
   testDir: __dirname,
-  testMatch: 'smoke.spec.js',
+  testMatch: /(smoke|gallery-smoke)\.spec\.js/,
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
