@@ -11,5 +11,5 @@ Formato: "- [x] descripcion".
 - [x] Dar al globo interactivo un nombre accesible y un fallback textual para usuarios de lector de pantalla o sin JavaScript
 
 - [x] Anadir alt descriptivo y unico a las imagenes destacadas de la galeria (gallery/index.html)
-- [ ] Añadir `display=swap` a la URL de Google Fonts de la portada para evitar texto invisible durante la carga
+- [x] Añadir `display=swap` a la URL de Google Fonts de la portada para evitar texto invisible durante la carga
 - [ ] Añadir `twitter:image:alt` a la portada con el mismo texto descriptivo de su imagen Open Graph
