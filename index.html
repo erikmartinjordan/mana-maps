@@ -288,6 +288,33 @@ h1 {
 .show-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; padding: 0 2px; }
 .show-meta { font-size: 12px; color: var(--muted); margin-top: 3px; padding: 0 2px; }
 
+/* ── FAQ ── */
+.faq {
+  display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr);
+  gap: 28px; padding: 0 48px 52px;
+}
+.faq-intro .section-sub { margin-top: 8px; }
+.faq-list { display: grid; gap: 10px; }
+.faq-item {
+  border: 1px solid var(--line); border-radius: 14px;
+  background: rgba(255,255,255,.75); padding: 0 18px;
+}
+.faq-item summary {
+  cursor: pointer; list-style: none; padding: 17px 24px 17px 0;
+  font-size: 14px; font-weight: 700; position: relative;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+'; position: absolute; right: 0; color: var(--blue);
+  font-size: 20px; font-weight: 400; line-height: 1;
+}
+.faq-item[open] summary::after { content: '−'; }
+.faq-answer {
+  color: var(--muted); font-size: 13px; line-height: 1.55;
+  padding: 0 0 17px;
+}
+.faq-answer a { color: var(--text); font-weight: 700; }
+
 /* ── CTA band ── */
 .cta-band {
   position: relative; overflow: hidden;
@@ -335,6 +362,7 @@ h1 {
   .section-head { padding: 0 24px; }
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
   .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
+  .faq { padding: 0 24px 36px; grid-template-columns: 1fr; gap: 18px; }
   .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
   #globe { height: min(520px, 55vh); min-height: 340px; }
   .frame {
@@ -467,6 +495,27 @@ h1 {
     </a>
   </section>
 
+  <section class="faq reveal" id="faq" aria-labelledby="faq-title">
+    <div class="faq-intro">
+      <h2 class="section-title" id="faq-title" data-i18n="faq_title">Preguntas frecuentes</h2>
+      <p class="section-sub" data-i18n="faq_sub">Respuestas rápidas sobre exportación, IA y privacidad.</p>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary data-i18n="faq_export_q">¿En qué formatos puedo exportar?</summary>
+        <p class="faq-answer" data-i18n="faq_export_a">Puedes exportar tus mapas a GeoJSON, KML, KMZ, CSV y Shapefile para continuar tu trabajo en tus herramientas GIS habituales.</p>
+      </details>
+      <details class="faq-item">
+        <summary data-i18n="faq_ai_q">¿Cómo me ayuda la IA a crear mapas?</summary>
+        <p class="faq-answer" data-i18n="faq_ai_a">La IA entiende comandos naturales para ayudarte a dibujar y organizar datos geoespaciales más rápido, sin sustituir tu control sobre el mapa.</p>
+      </details>
+      <details class="faq-item">
+        <summary data-i18n="faq_privacy_q">¿Qué ocurre con mis datos?</summary>
+        <p class="faq-answer" data-i18n="faq_privacy_a">Puedes empezar sin registro y tus mapas permanecen bajo tu control. Consulta las <a href="/pricing">opciones de privacidad y colaboración de cada plan</a> cuando necesites más.</p>
+      </details>
+    </div>
+  </section>
+
   <section class="cta-band reveal" aria-label="Call to action">
     <div>
       <h2 data-i18n="cta_title">&#191;Listo para dise&#241;ar tu mapa?</h2>
@@ -510,6 +559,10 @@ var LANG = {
     show1_t:'Rutas y tracks', show1_m:'Dibuja recorridos precisos',
     show2_t:'Zonas y pol\u00edgonos', show2_m:'Delimita \u00e1reas con claridad',
     show3_t:'Puntos de inter\u00e9s', show3_m:'Marca lo que importa',
+    faq_title:'Preguntas frecuentes', faq_sub:'Respuestas rápidas sobre exportación, IA y privacidad.',
+    faq_export_q:'¿En qué formatos puedo exportar?', faq_export_a:'Puedes exportar tus mapas a GeoJSON, KML, KMZ, CSV y Shapefile para continuar tu trabajo en tus herramientas GIS habituales.',
+    faq_ai_q:'¿Cómo me ayuda la IA a crear mapas?', faq_ai_a:'La IA entiende comandos naturales para ayudarte a dibujar y organizar datos geoespaciales más rápido, sin sustituir tu control sobre el mapa.',
+    faq_privacy_q:'¿Qué ocurre con mis datos?', faq_privacy_a:'Puedes empezar sin registro y tus mapas permanecen bajo tu control. Consulta las <a href="/pricing">opciones de privacidad y colaboración de cada plan</a> cuando necesites más.',
     cta_title:'\u00bfListo para dise\u00f1ar tu mapa?',
     cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
     footer_made:'Hecho con \u2665 en Barcelona.',
@@ -534,6 +587,10 @@ var LANG = {
     show1_t:'Routes & tracks', show1_m:'Draw precise paths',
     show2_t:'Areas & polygons', show2_m:'Outline areas clearly',
     show3_t:'Points of interest', show3_m:'Mark what matters',
+    faq_title:'Frequently asked questions', faq_sub:'Quick answers about exports, AI and privacy.',
+    faq_export_q:'Which formats can I export?', faq_export_a:'Export your maps to GeoJSON, KML, KMZ, CSV and Shapefile to continue working in your usual GIS tools.',
+    faq_ai_q:'How does AI help me create maps?', faq_ai_a:'AI understands natural-language commands to help you draw and organise geospatial data faster, while keeping you in control of the map.',
+    faq_privacy_q:'What happens to my data?', faq_privacy_a:'You can start without signing up and keep control of your maps. See the <a href="/pricing">privacy and collaboration options for each plan</a> when you need more.',
     cta_title:'Ready to design your map?',
     cta_sub:'Free, no signup. Open the app and start in seconds.',
     footer_made:'Made with \u2665 in Barcelona.',
