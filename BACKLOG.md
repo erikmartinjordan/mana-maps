@@ -28,3 +28,6 @@ Formato: "- [x] descripcion".
 - [x] Actualizar el aria-label del selector de idioma al cambiar entre español e inglés y verificar su anuncio en lector de pantalla (15-08)
 - [x] Localizar los `aria-label` estáticos de las secciones de la portada al cambiar entre español e inglés y verificar su anuncio en lector de pantalla (15-08)
 - [x] Añadir un fallback visible cuando falle la carga del módulo externo del globo 3D, manteniendo una alternativa textual útil (15-08)
+- [ ] Añadir datos estructurados de BreadcrumbList a /pricing/ y /gallery/ y validarlos sin duplicar el JSON-LD existente
+- [ ] Añadir enlaces hreflang y canónicos coherentes a las páginas públicas localizadas, empezando por /pricing/ y /gallery/
+- [ ] Añadir un bloque de comparación de planes con CTA persistente al hacer scroll en /pricing/ para mejorar la conversión móvil
