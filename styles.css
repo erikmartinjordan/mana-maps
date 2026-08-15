@@ -606,8 +606,8 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
     grid-template-columns:1fr !important;
     grid-template-rows:1fr;
     grid-template-rows:1fr;
-    height:calc(100vh - 48px);
-    height:calc(100dvh - 48px);
+    height:calc(100vh - 50px);
+    height:calc(100dvh - 50px);
     position:relative;
   }
 
@@ -680,6 +680,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   #toolbar{gap:6px;padding:8px 0;}
   #map-bottom-bar{gap:8px;}
   .topbar-right{gap:8px;}
+  .map-name-count{display:none;}
 }
 
 /* ══ SMALL MOBILE ≤ 480px ══════════════════════════════════════ */

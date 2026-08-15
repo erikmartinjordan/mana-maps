@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=1776927834"/>
+  <style>
+    @media (max-width:600px) {
+      .profile-topbar { gap: 12px; flex-wrap: wrap; }
+      .profile-nav { width: 100%; justify-content: stretch; }
+      .profile-nav .btn { flex: 1 1 0; justify-content: center; }
+      .profile-card { border-radius: 18px; }
+    }
+  </style>
   <script>
     (function() {
       var darkPref = localStorage.getItem('mana-dark');
