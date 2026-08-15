@@ -26,3 +26,5 @@ Formato: "- [x] descripcion".
 - [x] Revisar el globo terraqueo de la portada en movil: no se ve simetricamente circular (parece deformado) (15-08)
 - [x] Sincronizar og:title, og:description y etiquetas Twitter con el idioma seleccionado en la portada (15-08)
 - [x] Actualizar el aria-label del selector de idioma al cambiar entre español e inglés y verificar su anuncio en lector de pantalla (15-08)
+- [ ] Localizar los `aria-label` estáticos de las secciones de la portada al cambiar entre español e inglés y verificar su anuncio en lector de pantalla
+- [ ] Añadir un fallback visible cuando falle la carga del módulo externo del globo 3D, manteniendo una alternativa textual útil
