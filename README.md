@@ -17,7 +17,6 @@
 
 <p align="center">
   <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml/badge.svg" alt="Pre-deployment Tests"></a>
-  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml/badge.svg" alt="Update Changelog"></a>
   <a href="https://maña.com"><img src="https://img.shields.io/badge/deployment-live-success?logo=githubpages" alt="Live Site"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
