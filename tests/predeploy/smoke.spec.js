@@ -45,6 +45,15 @@ test('landing page and task navigation remain usable on mobile', async ({ page }
   expect(await page.locator('body').evaluate((body) => body.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
+test('landing globe keeps a circular container on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto('/');
+
+  const globe = await page.locator('#globe').boundingBox();
+  expect(globe).not.toBeNull();
+  expect(Math.abs(globe.width - globe.height)).toBeLessThanOrEqual(1);
+});
+
 test('map editor shell loads core UI containers', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
