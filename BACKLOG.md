@@ -33,5 +33,5 @@ Formato: "- [x] descripcion".
 - [x] Añadir un bloque de comparación de planes con CTA persistente al hacer scroll en /pricing/ para mejorar la conversión móvil (15-08)
 - [x] Mejorar la fluidez del globo interactivo de la portada en iPhone: al arrastrarlo debe deslizarse suavemente en horizontal y vertical (15-08)
 - [x] Comprimir `globe-thumb.png` y `og-card.png` manteniendo su calidad visual, y verificar la reducción de peso sin romper sus referencias (15-08)
-- [ ] Añadir en `/pricing/` un bloque breve de preguntas frecuentes sobre facturación, cancelación y privacidad con CTA contextual a cada plan
+- [x] Añadir en `/pricing/` un bloque breve de preguntas frecuentes sobre facturación, cancelación y privacidad con CTA contextual a cada plan (15-08)
 - [ ] Incorporar un enlace visible desde `/gallery/` hacia `/pricing/` junto a cada ejemplo destacado para conectar descubrimiento con conversión
