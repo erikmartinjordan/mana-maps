@@ -1,4 +1,4 @@
-name: Validación y Despliegue
+name: Validate & Deploy
 
 on:
   push:
