@@ -19,4 +19,4 @@ Formato: "- [x] descripcion".
 - [x] Arreglar los dos badges rotos del README.md: el de Pre-deployment Tests (pre-deploy-tests.yml) y el de Update Changelog (update-changelog.yml) no muestran imagen correcta (15-08)
 - [x] Revisar que todas las tareas de maña.com/tasks tengan fecha y hora correctas
 - [x] Arreglar en movil los botones Ver novedades y Abrir app que quedan en dos lineas (15-08)
-- [ ] Revisar que la web y los nuevos botones se vean correctamente en movil (no partidos en dos lineas)
+- [x] Revisar que la web y los nuevos botones se vean correctamente en movil (no partidos en dos lineas) (15-08)

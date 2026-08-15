@@ -21,6 +21,30 @@ test('home page loads with expected title and main CTA', async ({ page }) => {
   await expect(page.getByRole('link', { name: /Empieza gratis/i }).first()).toBeVisible();
 });
 
+test('landing page and task navigation remain usable on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto('/');
+
+  await expect(page.getByRole('link', { name: /Empieza gratis/i }).first()).toBeVisible();
+  expect(await page.locator('body').evaluate((body) => body.scrollWidth <= window.innerWidth)).toBe(true);
+
+  await page.goto('/tasks.html');
+  const actions = page.locator('.topbar-actions .btn');
+  await expect(actions).toHaveCount(2);
+  for (const action of await actions.all()) {
+    await expect(action).toBeVisible();
+    const buttonLayout = await action.evaluate((element) => ({
+      rect: element.getBoundingClientRect().toJSON(),
+      whiteSpace: getComputedStyle(element).whiteSpace
+    }));
+    expect(buttonLayout.rect.height).toBeLessThanOrEqual(38);
+    expect(buttonLayout.rect.left).toBeGreaterThanOrEqual(0);
+    expect(buttonLayout.rect.right).toBeLessThanOrEqual(320);
+    expect(buttonLayout.whiteSpace).toBe('nowrap');
+  }
+  expect(await page.locator('body').evaluate((body) => body.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
 test('map editor shell loads core UI containers', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
