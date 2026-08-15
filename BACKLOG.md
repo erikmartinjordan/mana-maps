@@ -18,3 +18,4 @@ Formato: "- [x] descripcion".
 - [x] Añadir un enlace HTML rastreable desde la portada hacia la galería pública, acompañado de copy orientado a descubrir ejemplos de mapas
 - [ ] Arreglar los dos badges rotos del README.md: el de Pre-deployment Tests (pre-deploy-tests.yml) y el de Update Changelog (update-changelog.yml) no muestran imagen correcta
 - [ ] Revisar que todas las tareas de maña.com/tasks tengan fecha y hora correctas
+- [ ] Arreglar en movil los botones Ver novedades y Abrir app que quedan en dos lineas
