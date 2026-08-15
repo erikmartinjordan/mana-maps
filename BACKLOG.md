@@ -37,4 +37,3 @@ Formato: "- [x] descripcion".
 - [x] Incorporar un enlace visible desde `/gallery/` hacia `/pricing/` junto a cada ejemplo destacado para conectar descubrimiento con conversión (15-08)
 - [ ] En móvil, separar el selector de idioma, Pricing y Open app para que no queden demasiado juntos
 - [ ] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería
-- [ ] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería
