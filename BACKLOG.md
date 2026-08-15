@@ -22,5 +22,5 @@ Formato: "- [x] descripcion".
 - [x] Revisar que la web y los nuevos botones se vean correctamente en movil (no partidos en dos lineas) (15-08)
 - [x] Añadir JSON-LD de WebSite y Organization a la portada, comprobando que sea válido y no duplique datos existentes (15-08)
 - [x] Añadir en /pricing/ un enlace contextual a un ejemplo de la galería y un CTA de prueba junto a cada plan (15-08)
-- [ ] Completar sitemap.xml con las páginas públicas importantes que faltan y verificar que cada URL devuelve una página indexable
+- [x] Completar sitemap.xml con las páginas públicas importantes que faltan y verificar que cada URL devuelve una página indexable (15-08)
 - [ ] Revisar el globo terraqueo de la portada en movil: no se ve simetricamente circular (parece deformado)

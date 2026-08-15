@@ -2,43 +2,48 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://maña.com/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://maña.com/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://maña.com/en/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://maña.com/en/"/>
+    <loc>https://xn--maa-8ma.com/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/en/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://maña.com/en/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://maña.com/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://maña.com/en/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://maña.com/en/"/>
+    <loc>https://xn--maa-8ma.com/en/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/en/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://maña.com/about/</loc>
+    <loc>https://xn--maa-8ma.com/about/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://maña.com/changelog/</loc>
+    <loc>https://xn--maa-8ma.com/changelog/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://maña.com/gallery/</loc>
+    <loc>https://xn--maa-8ma.com/gallery/</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://maña.com/open/</loc>
+    <loc>https://xn--maa-8ma.com/map/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/open/</loc>
     <changefreq>daily</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://maña.com/pricing/</loc>
+    <loc>https://xn--maa-8ma.com/pricing/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
