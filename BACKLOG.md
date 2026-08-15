@@ -24,5 +24,5 @@ Formato: "- [x] descripcion".
 - [x] Añadir en /pricing/ un enlace contextual a un ejemplo de la galería y un CTA de prueba junto a cada plan (15-08)
 - [x] Completar sitemap.xml con las páginas públicas importantes que faltan y verificar que cada URL devuelve una página indexable (15-08)
 - [x] Revisar el globo terraqueo de la portada en movil: no se ve simetricamente circular (parece deformado) (15-08)
-- [ ] Sincronizar og:title, og:description y etiquetas Twitter con el idioma seleccionado en la portada
+- [x] Sincronizar og:title, og:description y etiquetas Twitter con el idioma seleccionado en la portada (15-08)
 - [ ] Actualizar el aria-label del selector de idioma al cambiar entre español e inglés y verificar su anuncio en lector de pantalla

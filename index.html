@@ -613,6 +613,11 @@ var LANG = {
     footer_made:'Hecho con \u2665 en Barcelona.',
     page_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
     meta_desc:'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
+    og_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
+    og_description:'Crea mapas limpios y precisos en segundos. Dibuja, importa y exporta en GeoJSON, KML, Shapefile. IA integrada. Gratis.',
+    twitter_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
+    twitter_description:'Crea mapas limpios en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
+    twitter_image_alt:'Ma\u00f1a Maps \u2014 Editor de mapas online',
     lang_btn:'EN'
   },
   en: {
@@ -646,6 +651,11 @@ var LANG = {
     footer_made:'Made with \u2665 in Barcelona.',
     page_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
     meta_desc:'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
+    og_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
+    og_description:'Create clean, precise maps in seconds. Draw, import and export GeoJSON, KML and Shapefile. Built-in AI. Free.',
+    twitter_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
+    twitter_description:'Create clean maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
+    twitter_image_alt:'Ma\u00f1a Maps \u2014 Online map editor',
     lang_btn:'ES'
   }
 };
@@ -672,6 +682,17 @@ function applyLang(lang) {
   document.title = strings.page_title;
   var desc = document.querySelector('meta[name="description"]');
   if (desc) desc.setAttribute('content', strings.meta_desc);
+  var socialMeta = {
+    'meta[property="og:title"]': strings.og_title,
+    'meta[property="og:description"]': strings.og_description,
+    'meta[name="twitter:title"]': strings.twitter_title,
+    'meta[name="twitter:description"]': strings.twitter_description,
+    'meta[name="twitter:image:alt"]': strings.twitter_image_alt
+  };
+  Object.keys(socialMeta).forEach(function(selector) {
+    var meta = document.querySelector(selector);
+    if (meta) meta.setAttribute('content', socialMeta[selector]);
+  });
   var globeCanvas = document.getElementById('cobe-canvas');
   if (globeCanvas) globeCanvas.setAttribute('aria-label', strings.globe_label);
   document.getElementById('lang-btn').textContent = strings.lang_btn;
