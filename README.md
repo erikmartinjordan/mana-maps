@@ -11,13 +11,13 @@
 <p align="center">
   <a href="https://maña.com">Live Site</a> •
   <a href="https://maña.com/map/">Editor</a> •
-  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml">Tests</a> •
+  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml">Tests</a> •
   <a href="https://github.com/erikmartinjordan/mana-maps">GitHub</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/pre-deploy-tests.yml/badge.svg" alt="Pre-deployment Tests"></a>
-  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/update-changelog.yml/badge.svg" alt="Update Changelog"></a>
+  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml/badge.svg" alt="Pre-deployment Tests"></a>
+  <a href="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml"><img src="https://github.com/erikmartinjordan/mana-maps/actions/workflows/ci.yml/badge.svg" alt="Update Changelog"></a>
   <a href="https://maña.com"><img src="https://img.shields.io/badge/deployment-live-success?logo=githubpages" alt="Live Site"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
