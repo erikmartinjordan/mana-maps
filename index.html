@@ -388,7 +388,14 @@ h1 {
   .comparison-grid { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
-  #globe { height: min(520px, 55vh); min-height: 340px; }
+  /* Keep the Cobe canvas square on narrow screens so the globe remains circular. */
+  #globe {
+    width: min(100%, 520px);
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
   .frame {
     width: calc(100% - 20px);
     min-height: calc(100dvh - 20px);
@@ -402,7 +409,7 @@ h1 {
 @media (max-width: 480px) {
   .topbar-actions .btn-about, .topbar-actions .btn-gallery { display: none; }
   h1 { font-size: 32px; }
-  #globe { height: min(520px, 42vh); min-height: 260px; }
+  #globe { width: 100%; }
 }
 
 /* ── Reduced motion ── */
