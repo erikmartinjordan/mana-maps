@@ -217,6 +217,10 @@
   transition: all 0.12s;
 }
 
+.card-pricing-link {
+  text-decoration: none;
+}
+
 .card-action-btn:hover {
   background: var(--surface-2, #f3f4f6);
   color: var(--text, #121316);

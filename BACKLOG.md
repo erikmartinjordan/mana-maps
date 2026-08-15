@@ -34,6 +34,7 @@ Formato: "- [x] descripcion".
 - [x] Mejorar la fluidez del globo interactivo de la portada en iPhone: al arrastrarlo debe deslizarse suavemente en horizontal y vertical (15-08)
 - [x] Comprimir `globe-thumb.png` y `og-card.png` manteniendo su calidad visual, y verificar la reducción de peso sin romper sus referencias (15-08)
 - [x] Añadir en `/pricing/` un bloque breve de preguntas frecuentes sobre facturación, cancelación y privacidad con CTA contextual a cada plan (15-08)
-- [ ] Incorporar un enlace visible desde `/gallery/` hacia `/pricing/` junto a cada ejemplo destacado para conectar descubrimiento con conversión
+- [x] Incorporar un enlace visible desde `/gallery/` hacia `/pricing/` junto a cada ejemplo destacado para conectar descubrimiento con conversión (15-08)
 - [ ] En móvil, separar el selector de idioma, Pricing y Open app para que no queden demasiado juntos
+- [ ] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería
 - [ ] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería
