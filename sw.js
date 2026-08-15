@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v5';
+const CACHE_NAME = 'mana-maps-pwa-v6';
 const PRECACHE_URLS = [
   '/',
   '/map/',

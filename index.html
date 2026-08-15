@@ -797,10 +797,11 @@ var spinActive = true;
 var spinRAF = null;
 var idleTimer = null;
 var userInteracted = false;
+var isDragging = false;
 
 function animate() {
   if (spinActive) targetPhi += reduceMotion ? 0 : 0.003;
-  else {
+  else if (!isDragging) {
     targetPhi += velocityPhi;
     targetTheta = Math.max(-1.1, Math.min(1.1, targetTheta + velocityTheta));
     velocityPhi *= 0.94;
@@ -823,6 +824,7 @@ animate();
   function onDown(e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     isDown = true;
+    isDragging = true;
     userInteracted = true;
     if (spinActive) spinActive = false;
     clearTimeout(idleTimer);
@@ -830,25 +832,38 @@ animate();
     velocityTheta = 0;
     lastX = e.clientX;
     lastY = e.clientY;
-    canvas.setPointerCapture(e.pointerId);
+    if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId);
     e.preventDefault();
   }
 
   function onMove(e) {
     if (!isDown) return;
-    var dx = e.clientX - lastX;
-    var dy = e.clientY - lastY;
-    velocityPhi = dx * 0.005;
-    velocityTheta = dy * 0.004;
-    targetPhi += velocityPhi;
-    targetTheta = Math.max(-1.1, Math.min(1.1, targetTheta + velocityTheta));
-    lastX = e.clientX;
-    lastY = e.clientY;
+    // Safari can coalesce touch events. Applying every sample keeps the
+    // gesture continuous instead of making the globe jump between events.
+    var samples = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    samples.forEach(function(sample) {
+      var dx = sample.clientX - lastX;
+      var dy = sample.clientY - lastY;
+      var nextPhiVelocity = dx * 0.005;
+      var nextThetaVelocity = dy * 0.004;
+      // Keep a little momentum for the release, without adding velocity on
+      // every animation frame while the finger is still down.
+      velocityPhi = velocityPhi * 0.65 + nextPhiVelocity * 0.35;
+      velocityTheta = velocityTheta * 0.65 + nextThetaVelocity * 0.35;
+      targetPhi += dx * 0.005;
+      targetTheta = Math.max(-1.1, Math.min(1.1, targetTheta + dy * 0.004));
+      lastX = sample.clientX;
+      lastY = sample.clientY;
+    });
     e.preventDefault();
   }
 
-  function onUp() {
+  function onUp(e) {
     isDown = false;
+    isDragging = false;
+    if (e && canvas.releasePointerCapture && canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) {
+      canvas.releasePointerCapture(e.pointerId);
+    }
     idleTimer = setTimeout(function() {
       if (userInteracted) { spinActive = true; }
     }, 3000);
@@ -858,6 +873,7 @@ animate();
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerup', onUp);
   canvas.addEventListener('pointercancel', onUp);
+  window.addEventListener('blur', onUp);
 })();
 } catch (error) {
   var fallback = document.getElementById('globe-fallback');
