@@ -70,7 +70,7 @@ html, body {
   border: 1px solid var(--line); background: #fff; border-radius: 999px;
   height: 38px; padding: 0 18px; font-size: 13px; font-weight: 600;
   text-decoration: none; color: var(--text); display: inline-flex; align-items: center;
-  gap: 7px;
+  gap: 7px; white-space: nowrap;
   transition: transform .15s, opacity .15s; cursor: pointer;
   font-family: 'DM Sans', sans-serif;
 }
@@ -162,6 +162,10 @@ h1 {
   }
   .topbar { padding: 0 16px; height: 66px; }
   .topbar-actions .btn:not(.btn-primary) { padding: 0 14px; }
+}
+
+@media (max-width: 560px) {
+  .brand > span { display: none; }
 }
 </style>
 </head>
