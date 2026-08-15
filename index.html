@@ -259,6 +259,27 @@ h1 {
 .stat-value { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
 .stat-label { color: var(--muted); font-size: 13px; line-height: 1.45; }
 
+/* ── Free vs Pro comparison ── */
+.comparison-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px; padding: 0 48px 52px;
+}
+.comparison-card {
+  display: flex; flex-direction: column; gap: 12px;
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 22px; background: rgba(255,255,255,.75);
+}
+.comparison-card.is-pro {
+  border-color: rgba(10,132,255,.32);
+  background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(232,244,255,.7));
+}
+.comparison-card h3 { font-size: 18px; letter-spacing: -0.02em; }
+.comparison-price { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 700; }
+.comparison-price small { font-family: 'DM Sans', sans-serif; color: var(--muted); font-size: 12px; font-weight: 500; }
+.comparison-card ul { display: grid; gap: 8px; list-style: none; color: var(--muted); font-size: 13px; line-height: 1.4; margin-bottom: 6px; }
+.comparison-card li::before { content: '✓'; color: var(--blue); font-weight: 800; margin-right: 8px; }
+.comparison-card .btn { align-self: flex-start; margin-top: auto; }
+
 /* ── Showcase (gallery strip) ── */
 .showcase {
   display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
@@ -334,6 +355,7 @@ h1 {
   .hero { grid-template-columns: 1fr; padding: 48px 24px 28px; }
   .section-head { padding: 0 24px; }
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
+  .comparison-grid { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
   #globe { height: min(520px, 55vh); min-height: 340px; }
@@ -402,6 +424,36 @@ h1 {
       <p id="globe-fallback" class="globe-fallback" data-i18n="globe_fallback">Globo 3D interactivo de Maña Maps. Arrastra para girarlo.</p>
       <noscript><p class="globe-noscript-fallback">Globo 3D de Maña Maps. Activa JavaScript para girarlo e interactuar con él.</p></noscript>
     </div>
+  </section>
+
+  <div class="section-head reveal">
+    <div>
+      <h2 class="section-title" data-i18n="comparison_title">Empieza gratis. Crece cuando lo necesites.</h2>
+      <p class="section-sub" data-i18n="comparison_sub">Todo lo esencial para crear mapas, y más control cuando tu proyecto crece.</p>
+    </div>
+    <a class="section-link" href="/pricing" data-i18n="comparison_link">Comparar planes &rarr;</a>
+  </div>
+  <section class="comparison-grid" aria-label="Comparación entre el plan gratuito y Pro">
+    <article class="comparison-card reveal">
+      <h3 data-i18n="comparison_free_title">Gratis</h3>
+      <div class="comparison-price">0 € <small data-i18n="comparison_free_period">para siempre</small></div>
+      <ul>
+        <li data-i18n="comparison_free_1">Dibuja, mide e importa sin registrarte</li>
+        <li data-i18n="comparison_free_2">Exporta en formatos GIS</li>
+        <li data-i18n="comparison_free_3">Guarda hasta 3 mapas</li>
+      </ul>
+      <a class="btn btn-primary" href="/map" data-i18n="comparison_free_cta">Crea tu primer mapa</a>
+    </article>
+    <article class="comparison-card is-pro reveal" style="transition-delay:80ms">
+      <h3 data-i18n="comparison_pro_title">Maña Cloud Pro</h3>
+      <div class="comparison-price">4,99 € <small data-i18n="comparison_pro_period">/ mes</small></div>
+      <ul>
+        <li data-i18n="comparison_pro_1">Mapas guardados ilimitados</li>
+        <li data-i18n="comparison_pro_2">Enlaces privados y permisos de edición</li>
+        <li data-i18n="comparison_pro_3">Colabora y comparte con más flexibilidad</li>
+      </ul>
+      <a class="btn" href="/pricing" data-i18n="comparison_pro_cta">Guarda y comparte con Pro</a>
+    </article>
   </section>
 
   <div class="section-head reveal">
@@ -504,6 +556,15 @@ var LANG = {
     stat1_val:'Sin registro', stat1_lbl:'Empieza en un clic, sin fricci\u00f3n.',
     stat2_val:'Formatos GIS', stat2_lbl:'GeoJSON, KML, KMZ, CSV y Shapefile.',
     stat3_val:'IA integrada', stat3_lbl:'Comandos naturales para mapear m\u00e1s r\u00e1pido.',
+    comparison_title:'Empieza gratis. Crece cuando lo necesites.',
+    comparison_sub:'Todo lo esencial para crear mapas, y m\u00e1s control cuando tu proyecto crece.',
+    comparison_link:'Comparar planes \u2192',
+    comparison_free_title:'Gratis', comparison_free_period:'para siempre',
+    comparison_free_1:'Dibuja, mide e importa sin registrarte', comparison_free_2:'Exporta en formatos GIS', comparison_free_3:'Guarda hasta 3 mapas',
+    comparison_free_cta:'Crea tu primer mapa',
+    comparison_pro_title:'Maña Cloud Pro', comparison_pro_period:'/ mes',
+    comparison_pro_1:'Mapas guardados ilimitados', comparison_pro_2:'Enlaces privados y permisos de edici\u00f3n', comparison_pro_3:'Colabora y comparte con m\u00e1s flexibilidad',
+    comparison_pro_cta:'Guarda y comparte con Pro',
     showcase_title:'Crea. Publica. Inspira.',
     showcase_sub:'Publica tus mapas en la galer\u00eda y deja que otros los abran y los adapten.',
     showcase_link:'Ver galer\u00eda \u2192',
@@ -528,6 +589,15 @@ var LANG = {
     stat1_val:'No signup', stat1_lbl:'Start in one click, zero friction.',
     stat2_val:'GIS formats', stat2_lbl:'GeoJSON, KML, KMZ, CSV & Shapefile.',
     stat3_val:'Built-in AI', stat3_lbl:'Natural language commands for faster mapping.',
+    comparison_title:'Start free. Grow when you need to.',
+    comparison_sub:'Everything you need to create maps, plus more control as your project grows.',
+    comparison_link:'Compare plans \u2192',
+    comparison_free_title:'Free', comparison_free_period:'forever',
+    comparison_free_1:'Draw, measure and import without signing up', comparison_free_2:'Export in GIS formats', comparison_free_3:'Save up to 3 maps',
+    comparison_free_cta:'Create your first map',
+    comparison_pro_title:'Maña Cloud Pro', comparison_pro_period:'/ month',
+    comparison_pro_1:'Unlimited saved maps', comparison_pro_2:'Private links and editing permissions', comparison_pro_3:'Collaborate and share with more flexibility',
+    comparison_pro_cta:'Save and share with Pro',
     showcase_title:'Create. Publish. Inspire.',
     showcase_sub:'Publish your maps to the gallery and let others open and adapt them.',
     showcase_link:'View gallery \u2192',
