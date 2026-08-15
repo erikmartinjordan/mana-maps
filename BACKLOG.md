@@ -31,4 +31,4 @@ Formato: "- [x] descripcion".
 - [x] Añadir datos estructurados de BreadcrumbList a /pricing/ y /gallery/ y validarlos sin duplicar el JSON-LD existente (15-08)
 - [x] Añadir enlaces hreflang y canónicos coherentes a las páginas públicas localizadas, empezando por /pricing/ y /gallery/ (15-08)
 - [x] Añadir un bloque de comparación de planes con CTA persistente al hacer scroll en /pricing/ para mejorar la conversión móvil (15-08)
-- [ ] Mejorar la fluidez del globo interactivo de la portada en iPhone: al arrastrarlo debe deslizarse suavemente en horizontal y vertical
+- [x] Mejorar la fluidez del globo interactivo de la portada en iPhone: al arrastrarlo debe deslizarse suavemente en horizontal y vertical (15-08)
