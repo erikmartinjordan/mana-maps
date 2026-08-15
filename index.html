@@ -242,6 +242,10 @@ h1 {
   background: rgba(255,255,255,.88); color: var(--muted); text-align: center;
   font-size: 14px; line-height: 1.5;
 }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
 
 /* Grid overlay + accent glow */
 #globe::after {
@@ -438,7 +442,8 @@ h1 {
       <span><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
     </a>
     <div class="topbar-actions">
-      <button class="lang-toggle" id="lang-btn" onclick="toggleLang()" aria-label="Change language">EN</button>
+      <button class="lang-toggle" id="lang-btn" onclick="toggleLang()" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés">EN</button>
+      <span id="lang-status" class="sr-only" aria-live="polite" aria-atomic="true"></span>
       <a class="btn btn-about" href="/about" data-i18n="nav_about">Acerca de</a>
       <a class="btn btn-gallery" href="/gallery" data-i18n="nav_gallery">Galer&#237;a</a>
       <a class="btn btn-pricing" href="/pricing" data-i18n="nav_pricing">Precios</a>
@@ -618,7 +623,7 @@ var LANG = {
     twitter_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
     twitter_description:'Crea mapas limpios en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
     twitter_image_alt:'Ma\u00f1a Maps \u2014 Editor de mapas online',
-    lang_btn:'EN'
+    lang_btn:'EN', lang_aria_label:'Cambiar idioma. Idioma actual: español. Cambiar a inglés', lang_changed:'Idioma cambiado a español.'
   },
   en: {
     nav_about:'About', nav_cta:'Open app', nav_stats:'Stats', nav_pricing:'Pricing', nav_gallery:'Gallery',
@@ -656,7 +661,7 @@ var LANG = {
     twitter_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
     twitter_description:'Create clean maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
     twitter_image_alt:'Ma\u00f1a Maps \u2014 Online map editor',
-    lang_btn:'ES'
+    lang_btn:'ES', lang_aria_label:'Change language. Current language: English. Switch to Spanish', lang_changed:'Language changed to English.'
   }
 };
 var MANA_LANG_KEY = 'mana-lang';
@@ -671,6 +676,7 @@ function persistLang(lang) {
 }
 var currentLang = getStoredLang();
 function applyLang(lang) {
+  var languageChanged = currentLang !== lang;
   currentLang = lang;
   persistLang(lang);
   document.documentElement.lang = lang;
@@ -695,7 +701,10 @@ function applyLang(lang) {
   });
   var globeCanvas = document.getElementById('cobe-canvas');
   if (globeCanvas) globeCanvas.setAttribute('aria-label', strings.globe_label);
-  document.getElementById('lang-btn').textContent = strings.lang_btn;
+  var languageButton = document.getElementById('lang-btn');
+  languageButton.textContent = strings.lang_btn;
+  languageButton.setAttribute('aria-label', strings.lang_aria_label);
+  if (languageChanged) document.getElementById('lang-status').textContent = strings.lang_changed;
 }
 function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
 applyLang(currentLang);

@@ -54,6 +54,18 @@ test('landing globe keeps a circular container on mobile', async ({ page }) => {
   expect(Math.abs(globe.width - globe.height)).toBeLessThanOrEqual(1);
 });
 
+test('language selector exposes the selected language to assistive technology', async ({ page }) => {
+  await page.goto('/');
+
+  const languageButton = page.locator('#lang-btn');
+  await expect(languageButton).toHaveAttribute('aria-label', /Idioma actual: español/i);
+
+  await languageButton.click();
+
+  await expect(languageButton).toHaveAttribute('aria-label', /Current language: English.*Switch to Spanish/i);
+  await expect(page.locator('#lang-status')).toHaveText('Language changed to English.');
+});
+
 test('map editor shell loads core UI containers', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
