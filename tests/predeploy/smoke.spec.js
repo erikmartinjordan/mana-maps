@@ -66,6 +66,28 @@ test('language selector exposes the selected language to assistive technology', 
   await expect(page.locator('#lang-status')).toHaveText('Language changed to English.');
 });
 
+test('landing section labels follow the selected language', async ({ page }) => {
+  await page.goto('/');
+
+  const sections = {
+    comparison: page.locator('.comparison-grid'),
+    features: page.locator('.stats'),
+    showcase: page.locator('.showcase'),
+    cta: page.locator('.cta-band')
+  };
+  await expect(sections.comparison).toHaveAttribute('aria-label', 'Comparación entre el plan gratuito y Pro');
+  await expect(sections.features).toHaveAttribute('aria-label', 'Características');
+  await expect(sections.showcase).toHaveAttribute('aria-label', 'Vista previa de la galería');
+  await expect(sections.cta).toHaveAttribute('aria-label', 'Llamada a la acción');
+
+  await page.locator('#lang-btn').click();
+
+  await expect(sections.comparison).toHaveAttribute('aria-label', 'Comparison of the Free and Pro plans');
+  await expect(sections.features).toHaveAttribute('aria-label', 'Features');
+  await expect(sections.showcase).toHaveAttribute('aria-label', 'Gallery preview');
+  await expect(sections.cta).toHaveAttribute('aria-label', 'Call to action');
+});
+
 test('map editor shell loads core UI containers', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));

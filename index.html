@@ -475,7 +475,7 @@ h1 {
     </div>
     <a class="section-link" href="/pricing" data-i18n="comparison_link">Comparar planes &rarr;</a>
   </div>
-  <section class="comparison-grid" aria-label="Comparación entre el plan gratuito y Pro">
+  <section class="comparison-grid" aria-label="Comparación entre el plan gratuito y Pro" data-i18n-aria-label="comparison_aria">
     <article class="comparison-card reveal">
       <h3 data-i18n="comparison_free_title">Gratis</h3>
       <div class="comparison-price">0 € <small data-i18n="comparison_free_period">para siempre</small></div>
@@ -501,7 +501,7 @@ h1 {
   <div class="section-head reveal">
     <h2 class="section-title" data-i18n="features_title">Todo lo esencial, sin ruido</h2>
   </div>
-  <section class="stats" aria-label="Features">
+  <section class="stats" aria-label="Características" data-i18n-aria-label="features_aria">
     <article class="stat reveal">
       <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
       <div class="stat-value" data-i18n="stat1_val">Sin registro</div>
@@ -526,7 +526,7 @@ h1 {
     </div>
     <a class="section-link" href="/gallery" data-i18n="showcase_link">Ver galer&#237;a &rarr;</a>
   </div>
-  <section class="showcase" aria-label="Gallery preview">
+  <section class="showcase" aria-label="Vista previa de la galería" data-i18n-aria-label="showcase_aria">
     <a class="show-card reveal" href="/gallery">
       <div class="show-thumb">
         <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -561,7 +561,7 @@ h1 {
     </a>
   </section>
 
-  <section class="cta-band reveal" aria-label="Call to action">
+  <section class="cta-band reveal" aria-label="Llamada a la acción" data-i18n-aria-label="cta_aria">
     <div>
       <h2 data-i18n="cta_title">&#191;Listo para dise&#241;ar tu mapa?</h2>
       <p data-i18n="cta_sub">Gratis y sin registro. Abre la app y empieza en segundos.</p>
@@ -595,12 +595,14 @@ var LANG = {
     lead:'Ma\u00f1a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.',
     cta_start:'Empieza gratis', cta_changelog:'Ver novedades',
     features_title:'Todo lo esencial, sin ruido',
+    features_aria:'Caracter\u00edsticas',
     stat1_val:'Sin registro', stat1_lbl:'Empieza en un clic, sin fricci\u00f3n.',
     stat2_val:'Formatos GIS', stat2_lbl:'GeoJSON, KML, KMZ, CSV y Shapefile.',
     stat3_val:'IA integrada', stat3_lbl:'Comandos naturales para mapear m\u00e1s r\u00e1pido.',
     comparison_title:'Empieza gratis. Crece cuando lo necesites.',
     comparison_sub:'Todo lo esencial para crear mapas, y m\u00e1s control cuando tu proyecto crece.',
     comparison_link:'Comparar planes \u2192',
+    comparison_aria:'Comparaci\u00f3n entre el plan gratuito y Pro',
     comparison_free_title:'Gratis', comparison_free_period:'para siempre',
     comparison_free_1:'Dibuja, mide e importa sin registrarte', comparison_free_2:'Exporta en formatos GIS', comparison_free_3:'Guarda hasta 3 mapas',
     comparison_free_cta:'Crea tu primer mapa',
@@ -610,11 +612,13 @@ var LANG = {
     showcase_title:'Crea. Publica. Inspira.',
     showcase_sub:'Publica tus mapas en la galer\u00eda y deja que otros los abran y los adapten.',
     showcase_link:'Ver galer\u00eda \u2192',
+    showcase_aria:'Vista previa de la galer\u00eda',
     show1_t:'Rutas y tracks', show1_m:'Dibuja recorridos precisos',
     show2_t:'Zonas y pol\u00edgonos', show2_m:'Delimita \u00e1reas con claridad',
     show3_t:'Puntos de inter\u00e9s', show3_m:'Marca lo que importa',
     cta_title:'\u00bfListo para dise\u00f1ar tu mapa?',
     cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
+    cta_aria:'Llamada a la acci\u00f3n',
     footer_made:'Hecho con \u2665 en Barcelona.',
     page_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
     meta_desc:'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
@@ -633,12 +637,14 @@ var LANG = {
     lead:'Ma\u00f1a Maps turns geospatial tasks into a simple experience: draw, import and export in seconds with a clean, intuitive, noise-free interface.',
     cta_start:'Start for free', cta_changelog:'What\u2019s new',
     features_title:'Everything essential, no noise',
+    features_aria:'Features',
     stat1_val:'No signup', stat1_lbl:'Start in one click, zero friction.',
     stat2_val:'GIS formats', stat2_lbl:'GeoJSON, KML, KMZ, CSV & Shapefile.',
     stat3_val:'Built-in AI', stat3_lbl:'Natural language commands for faster mapping.',
     comparison_title:'Start free. Grow when you need to.',
     comparison_sub:'Everything you need to create maps, plus more control as your project grows.',
     comparison_link:'Compare plans \u2192',
+    comparison_aria:'Comparison of the Free and Pro plans',
     comparison_free_title:'Free', comparison_free_period:'forever',
     comparison_free_1:'Draw, measure and import without signing up', comparison_free_2:'Export in GIS formats', comparison_free_3:'Save up to 3 maps',
     comparison_free_cta:'Create your first map',
@@ -648,11 +654,13 @@ var LANG = {
     showcase_title:'Create. Publish. Inspire.',
     showcase_sub:'Publish your maps to the gallery and let others open and adapt them.',
     showcase_link:'View gallery \u2192',
+    showcase_aria:'Gallery preview',
     show1_t:'Routes & tracks', show1_m:'Draw precise paths',
     show2_t:'Areas & polygons', show2_m:'Outline areas clearly',
     show3_t:'Points of interest', show3_m:'Mark what matters',
     cta_title:'Ready to design your map?',
     cta_sub:'Free, no signup. Open the app and start in seconds.',
+    cta_aria:'Call to action',
     footer_made:'Made with \u2665 in Barcelona.',
     page_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
     meta_desc:'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
@@ -684,6 +692,10 @@ function applyLang(lang) {
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
     if (strings[key]) el.innerHTML = strings[key];
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-aria-label');
+    if (strings[key]) el.setAttribute('aria-label', strings[key]);
   });
   document.title = strings.page_title;
   var desc = document.querySelector('meta[name="description"]');
