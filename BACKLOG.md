@@ -20,3 +20,6 @@ Formato: "- [x] descripcion".
 - [x] Revisar que todas las tareas de maña.com/tasks tengan fecha y hora correctas
 - [x] Arreglar en movil los botones Ver novedades y Abrir app que quedan en dos lineas (15-08)
 - [x] Revisar que la web y los nuevos botones se vean correctamente en movil (no partidos en dos lineas) (15-08)
+- [ ] Añadir JSON-LD de WebSite y Organization a la portada, comprobando que sea válido y no duplique datos existentes
+- [ ] Añadir en /pricing/ un enlace contextual a un ejemplo de la galería y un CTA de prueba junto a cada plan
+- [ ] Completar sitemap.xml con las páginas públicas importantes que faltan y verificar que cada URL devuelve una página indexable
