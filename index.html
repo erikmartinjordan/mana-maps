@@ -68,6 +68,36 @@
 }
 </script>
 
+<!-- WebSite and publisher structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://maña.com/#website",
+      "url": "https://maña.com/",
+      "name": "Maña Maps",
+      "description": "Editor de mapas interactivo online con exportación a GeoJSON, KML, Shapefile y CSV.",
+      "inLanguage": ["es", "en"],
+      "publisher": { "@id": "https://maña.com/#organization" }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://maña.com/#organization",
+      "name": "Maña Maps",
+      "url": "https://maña.com/",
+      "logo": "https://maña.com/favicon.svg",
+      "founder": {
+        "@type": "Person",
+        "name": "Erik Martín Jordán",
+        "url": "https://erikmartinjordan.com"
+      }
+    }
+  ]
+}
+</script>
+
 <script>
   (function() {
     const redirectToMap = () => {
