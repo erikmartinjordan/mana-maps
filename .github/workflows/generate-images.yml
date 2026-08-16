@@ -31,7 +31,14 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Render map images
-        run: node tools/render-map-images.js
+        run: |
+          set -e
+          echo "--- pwd: $(pwd) ---"
+          echo "--- ls tools: ---"
+          ls -la tools/
+          echo "--- node_modules/playwright-core? ---"
+          ls node_modules/playwright-core/package.json 2>&1 || echo "NO playwright-core en node_modules"
+          node tools/render-map-images.js 2>&1 | tail -40 || echo "RENDER_FAILED rc=$?"
 
       - name: Commit generated images
         run: |
