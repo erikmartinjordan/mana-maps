@@ -19,7 +19,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 #topbar{
   height:56px;border-bottom:1px solid var(--border);background:var(--bg);
   display:flex;align-items:center;padding:0 20px;gap:12px;
-  position:sticky;top:0;z-index:100;min-width:0;overflow:hidden;
+  position:sticky;top:0;z-index:100;
 }
 .mana-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
 .mana-logo-icon{position:relative;width:36px;height:36px;flex-shrink:0;}
@@ -31,7 +31,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 }
 .logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);}
 .logo-sub{font-size:10px;color:var(--third);font-weight:600;vertical-align:super;margin-left:1px;letter-spacing:.02em;}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:1;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
   font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;
@@ -64,7 +64,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .badge-docs{background:#fef9c3;color:#92400e;}
 .badge-chore{background:#f1f5f9;color:#475569;}
 .entry-body{flex:1;min-width:0;}
-.entry-title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;line-height:1.4;overflow-wrap:anywhere;}
+.entry-title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;line-height:1.4;}
 .entry-meta{display:flex;align-items:center;gap:10px;margin-top:6px;}
 .entry-sha{
   font-family:'DM Mono',monospace;font-size:10px;color:var(--third);
@@ -75,7 +75,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .page-footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--third);}
 .page-footer a{color:var(--third);text-decoration:none;}
 .page-footer a:hover{color:var(--primary);}
-@media(max-width:480px){#topbar{padding:0 12px}.topbar-right .btn-ghost{display:none}.topbar-right .btn{padding:7px 11px;font-size:12px}}
 </style>
 </head>
 <body>
@@ -103,6 +102,17 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   <div class="timeline">
     <div class="day-group">
       <div class="day-label">16 de agosto de 2026</div>
+
+      <div class="entry">
+        <div class="entry-badge"><span class="badge badge-fix">fix</span></div>
+        <div class="entry-body">
+          <div class="entry-title">ajustar navegación móvil en todas las páginas</div>
+          <div class="entry-meta">
+            <a class="entry-sha" href="https://github.com/erikmartinjordan/mana-maps/commit/7429da4df728c454f10e2b5b1e0b7cabee8060b0" target="_blank">7429da4</a>
+            <span class="entry-time">06:51</span>
+          </div>
+        </div>
+      </div>
 
       <div class="entry">
         <div class="entry-badge"><span class="badge badge-chore">chore</span></div>
