@@ -28,5 +28,8 @@
   if (window.MANA_MINWAGE_MAP) {
     window.MANA_LOCAL_MAPS.push(window.MANA_MINWAGE_MAP);
   }
+  // Mapa mundial de cables de fibra óptica submarina.
+  if (window.MANA_FIBRA_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_FIBRA_MAP);
+  }
 })();
-
