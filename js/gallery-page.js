@@ -108,11 +108,9 @@
         const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
         return bTs - aTs;
       });
-      if (!items.length) return getLocalFallbackMaps();
-      // Only use the bundled fallback map (gallery-local.js) when the remote
-      // query returns nothing. Appending it unconditionally made the demo
-      // "Worst Wildfires" map render twice in the grid (it is also published
-      // to Firestore) until the realtime listener replaced the list.
+      // Combinar remotos + locales, deduplicando por slug. Los mapas locales
+      // (p.ej. minwage, fibra) se anaden al final solo si no existen ya en
+      // Firestore (evita duplicar "Worst Wildfires" que esta publicado).
       const seen = {};
       const unique = items.filter(function(item) {
         var key = item.slug || item.id;
@@ -120,7 +118,14 @@
         seen[key] = true;
         return true;
       });
-      return unique.slice(0, 36);
+      const locals = getLocalFallbackMaps();
+      for (var i = 0; i < locals.length; i++) {
+        var lkey = locals[i].slug || locals[i].id;
+        if (!lkey || seen[lkey]) continue;
+        seen[lkey] = true;
+        unique.push(locals[i]);
+      }
+      return unique.slice(0, 40);
     } catch (e) {
       console.warn('gallery remoteMaps fallback local:', e);
       return getLocalFallbackMaps();
@@ -637,8 +642,24 @@
           const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
           return bTs - aTs;
         });
+        // Combinar remotos + locales (dedup por slug) para que los mapas
+        // locales no publicados en Firestore sigan visibles en tiempo real.
+        const seen = {};
+        const unique = remote.filter(function(item) {
+          const key = item.slug || item.id;
+          if (!key || seen[key]) return false;
+          seen[key] = true;
+          return true;
+        });
+        const locals = getLocalFallbackMaps();
+        for (var i = 0; i < locals.length; i++) {
+          const lkey = locals[i].slug || locals[i].id;
+          if (!lkey || seen[lkey]) continue;
+          seen[lkey] = true;
+          unique.push(locals[i]);
+        }
         mergedList.length = 0;
-        mergedList.push.apply(mergedList, remote.slice(0, 36));
+        mergedList.push.apply(mergedList, unique.slice(0, 40));
         renderCards(mergedList);
       }
 
