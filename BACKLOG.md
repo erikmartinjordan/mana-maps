@@ -37,3 +37,6 @@ Formato: "- [x] descripcion".
 - [x] Incorporar un enlace visible desde `/gallery/` hacia `/pricing/` junto a cada ejemplo destacado para conectar descubrimiento con conversión (15-08)
 - [x] En móvil, separar el selector de idioma, Pricing y Open app para que no queden demasiado juntos (16-08)
 - [x] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería (16-08)
+- [ ] Añadir controles de teclado con flechas al globo 3D enfocable y verificar que la rotación sea perceptible sin ratón
+- [ ] Añadir preconnect a `https://esm.sh` antes de cargar Cobe y verificar que mejora el inicio del globo sin errores de consola
+- [ ] Marcar como decorativo el SVG del logotipo dentro del enlace de marca y verificar que un lector de pantalla anuncia solo el nombre del sitio
