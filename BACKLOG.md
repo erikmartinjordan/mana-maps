@@ -35,5 +35,5 @@ Formato: "- [x] descripcion".
 - [x] Comprimir `globe-thumb.png` y `og-card.png` manteniendo su calidad visual, y verificar la reducción de peso sin romper sus referencias (15-08)
 - [x] Añadir en `/pricing/` un bloque breve de preguntas frecuentes sobre facturación, cancelación y privacidad con CTA contextual a cada plan (15-08)
 - [x] Incorporar un enlace visible desde `/gallery/` hacia `/pricing/` junto a cada ejemplo destacado para conectar descubrimiento con conversión (15-08)
-- [ ] En móvil, separar el selector de idioma, Pricing y Open app para que no queden demasiado juntos
+- [x] En móvil, separar el selector de idioma, Pricing y Open app para que no queden demasiado juntos (16-08)
 - [ ] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería
