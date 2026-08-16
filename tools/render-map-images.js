@@ -43,10 +43,17 @@ function buildMapSVG(geo) {
   for (const f of geo.features) {
     const g = f.geometry;
     if (!g) continue;
-    const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
-    for (const poly of polys) {
-      const ring = poly[0];
-      for (const [x, y] of ring) {
+    const coordsToScan = g.type === 'LineString' ? [g.coordinates]
+      : g.type === 'MultiLineString' ? g.coordinates
+      : g.type === 'Polygon' ? [g.coordinates]
+      : g.type === 'MultiPolygon' ? g.coordinates
+      : g.type === 'Point' ? [[g.coordinates]]
+      : g.type === 'MultiPoint' ? [g.coordinates]
+      : [];
+    for (const coordSet of coordsToScan) {
+      const list = g.type === 'Polygon' ? (coordSet[0] || []) : coordSet;
+      for (const [x, y] of list) {
+        if (typeof x !== 'number' || typeof y !== 'number') continue;
         if (x < minX) minX = x;
         if (x > maxX) maxX = x;
         const my = mercY(y);
@@ -86,9 +93,17 @@ function buildMapSVG(geo) {
   let paths = '';
   let bounds = 0;
   for (const f of geo.features) {
-    const color = (f.properties && (f.properties._manaColor || f.properties.color)) || '#444';
+    const color = (f.properties && (f.properties._manaColor || f.properties.color)) || '#4ade80';
+    const weight = Number((f.properties && f.properties._manaWeight) || 2.5);
     const g = f.geometry;
     if (!g) continue;
+    if (g.type === 'LineString') {
+      const coords = g.coordinates.map(([x, y]) => tx(x).toFixed(1) + ',' + ty(mercY(y)).toFixed(1));
+      if (coords.length < 2) continue;
+      paths += '<path d="M' + coords.join('L') + '" fill="none" stroke="' + color + '" stroke-width="' + weight + '" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>';
+      bounds++;
+      continue;
+    }
     const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
     for (const poly of polys) {
       if (!poly || !poly.length) continue;
