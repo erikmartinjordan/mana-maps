@@ -42,4 +42,4 @@ Formato: "- [x] descripcion".
 - [x] Marcar como decorativo el SVG del logotipo dentro del enlace de marca y verificar que un lector de pantalla anuncia solo el nombre del sitio (16-08)
 - [x] Añadir un enlace «Saltar al contenido» visible al recibir foco en la portada y verificar que lleva al contenido principal (16-08)
 - [x] Revisar la portada y /pricing/ para añadir `font-display: swap` a cualquier fuente local o externa que aún bloquee el texto, verificando que no haya FOUT excesivo (16-08)
-- [ ] Añadir una sección de casos de uso enlazable en la portada con tres ejemplos concretos y enlaces hacia ejemplos relevantes de la galería para captar búsquedas long-tail
+- [x] Añadir una sección de casos de uso enlazable en la portada con tres ejemplos concretos y enlaces hacia ejemplos relevantes de la galería para captar búsquedas long-tail (16-08)
