@@ -36,7 +36,7 @@ function simplifyRing(ring, tol) {
 }
 
 // Construye el SVG del mapa
-function buildMapSVG(geo) {
+function buildMapSVG(geo, worldLandPath) {
   // bbox (lons en grados, lats convertidas a mercY)
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   const ringCoords = [];
@@ -62,21 +62,20 @@ function buildMapSVG(geo) {
       }
     }
   }
-  if (minX === Infinity) return '';
+  if (minX === Infinity) { minX = -180; maxX = 180; minY = mercY(-60); maxY = mercY(85); }
   // padding
-  const dx = (maxX - minX) * 0.03, dy = (maxY - minY) * 0.05;
+  const dx = (maxX - minX) * 0.02, dy = (maxY - minY) * 0.06;
   minX -= dx; maxX += dx; minY -= dy; maxY += dy;
   const spanX = maxX - minX, spanY = maxY - minY;
 
-  // Lienzo 1200x630. El mundo es muy panoramico en Mercator; para que llene
-  // el lienzo usamos escalas independientes por eje (distorsion aceptable en
-  // choropleths de prensa).
+  // Lienzo 1200x630. Mundo panoramico en Mercator; escalas independientes
+  // por eje para llenar el lienzo (distorsion aceptable).
   const W = 1200, H = 630;
-  const mapAreaTop = 120, mapAreaBottom = 610;
+  const mapAreaTop = 130, mapAreaBottom = 610;
   const availH = mapAreaBottom - mapAreaTop;
-  const availW = W - 80;
-  const scaleX = availW / spanX;              // px por grado de lon
-  const scaleY = availH / spanY;              // px por unidad mercY
+  const availW = W - 72;
+  const scaleX = availW / spanX;
+  const scaleY = availH / spanY;
   const mapW = spanX * scaleX;
   const mapH = spanY * scaleY;
   const offX = (W - mapW) / 2;
@@ -90,6 +89,31 @@ function buildMapSVG(geo) {
     return 'M' + coords.join('L') + 'Z';
   }
 
+  // Fondo: silueta de tierra (gris muy tenue) via world-land path canónico.
+  let land = '';
+  if (worldLandPath) {
+    // Coords canonicas: (lon*10000, mercY*10000). Mapear al lienzo:
+    //   px = offX + (lon/10000 - minX) * scaleX  =>  A*cx + B
+    const A = scaleX / 10000;
+    const C = -scaleY / 10000;
+    const B = offX - (minX * 10000) * A;
+    const D = offY + (maxY * 10000) * C;
+    land = '<path d="' + worldLandPath + '" fill="#1c2833" stroke="#2c3e50" stroke-width="0.6" transform="matrix(' +
+      A.toFixed(10) + ' 0 0 ' + C.toFixed(10) + ' ' + B.toFixed(10) + ' ' + D.toFixed(10) + ')"/>';
+  }
+
+  // Graticule sutil (cada 30° lon / 15° lat)
+  let grat = '';
+  for (let lon = Math.ceil(minX / 30) * 30; lon <= maxX; lon += 30) {
+    const gx = tx(lon);
+    if (gx > -2 && gx < W + 2) grat += 'M' + gx.toFixed(1) + ' ' + ty(Math.max(minY, mercY(-80))).toFixed(1) + ' L' + gx.toFixed(1) + ' ' + ty(Math.min(maxY, mercY(80))).toFixed(1);
+  }
+  for (let lat = -75; lat <= 75; lat += 15) {
+    const gy = ty(mercY(lat));
+    if (gy > -2 && gy < H + 2) grat += 'M' + tx(Math.max(minX, -170)).toFixed(1) + ' ' + gy.toFixed(1) + ' L' + tx(Math.min(maxX, 170)).toFixed(1) + ' ' + gy.toFixed(1);
+  }
+  const gratSvg = grat ? '<path d="' + grat + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>' : '';
+
   let paths = '';
   let bounds = 0;
   for (const f of geo.features) {
@@ -100,7 +124,9 @@ function buildMapSVG(geo) {
     if (g.type === 'LineString') {
       const coords = g.coordinates.map(([x, y]) => tx(x).toFixed(1) + ',' + ty(mercY(y)).toFixed(1));
       if (coords.length < 2) continue;
-      paths += '<path d="M' + coords.join('L') + '" fill="none" stroke="' + color + '" stroke-width="' + weight + '" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>';
+      // casing blanco + linea de color (igual que el renderer de la app)
+      paths += '<path d="M' + coords.join('L') + '" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="' + (weight + 3.5) + '" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="M' + coords.join('L') + '" fill="none" stroke="' + color + '" stroke-width="' + weight + '" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.95"/>';
       bounds++;
       continue;
     }
@@ -109,12 +135,14 @@ function buildMapSVG(geo) {
       if (!poly || !poly.length) continue;
       const ring = simplifyRing(poly[0], 0.05);
       if (ring.length < 3) continue;
-      paths += '<path d="' + ringPath(ring) + '" fill="' + color + '" stroke="#0b0f14" stroke-width="0.6" stroke-linejoin="round"/>';
+      paths += '<path d="' + ringPath(ring) + '" fill="' + color + '" fill-opacity="0.92" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" stroke-linejoin="round"/>';
       bounds++;
     }
   }
   return {
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">' + paths + '</svg>',
+    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">' +
+      '<defs><linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1b2a"/><stop offset="1" stop-color="#1b263b"/></linearGradient></defs>' +
+      '<rect width="' + W + '" height="' + H + '" fill="url(#ocean)"/>' + land + gratSvg + paths + '</svg>',
     count: bounds
   };
 }
@@ -177,6 +205,17 @@ function loadMaps() {
   console.log('Mapas encontrados:', maps.length);
   const logLines = ['Mapas: ' + maps.length];
 
+  // Cargar el path de tierra canónico (lon*10000, mercY*10000)
+  let worldLandPath = null;
+  try {
+    const wl = fs.readFileSync(path.join(ROOT, 'js/world-land.js'), 'utf8');
+    const m = wl.match(/WORLD_LAND_PATH\s*=\s*["']([^"']+)["']/);
+    if (m) worldLandPath = m[1];
+  } catch (e) {
+    console.warn('sin world-land.js:', e.message);
+  }
+  console.log('world-land path:', worldLandPath ? worldLandPath.length + ' chars' : 'NO');
+
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
   let ok = 0, fail = 0;
@@ -184,7 +223,7 @@ function loadMaps() {
     const slug = map.slug || map.id || file.replace(/^gallery-|\.js$/g, '');
     try {
       const geo = JSON.parse(map.geojsonText || map.mapDataText || '{"type":"FeatureCollection","features":[]}');
-      const { svg, count } = buildMapSVG(geo);
+      const { svg, count } = buildMapSVG(geo, worldLandPath);
       if (!svg) throw new Error('sin geometrias');
       const html = renderPage(map, svg);
       await page.setContent(html, { waitUntil: 'load' });
