@@ -23,4 +23,10 @@
     views: 0,
     likes: 0
   }];
+
+  // Añadir el mapa de salario mínimo por país (generado por autopilot/strategy)
+  if (window.MANA_MINWAGE_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_MINWAGE_MAP);
+  }
 })();
+
