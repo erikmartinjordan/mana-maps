@@ -39,4 +39,4 @@ Formato: "- [x] descripcion".
 - [x] Ocultar la opción de continuar como invitado en el modal de fork o compartir de la galería (16-08)
 - [x] Añadir controles de teclado con flechas al globo 3D enfocable y verificar que la rotación sea perceptible sin ratón (16-08)
 - [x] Añadir preconnect a `https://esm.sh` antes de cargar Cobe y verificar que mejora el inicio del globo sin errores de consola (16-08)
-- [ ] Marcar como decorativo el SVG del logotipo dentro del enlace de marca y verificar que un lector de pantalla anuncia solo el nombre del sitio
+- [x] Marcar como decorativo el SVG del logotipo dentro del enlace de marca y verificar que un lector de pantalla anuncia solo el nombre del sitio (16-08)
