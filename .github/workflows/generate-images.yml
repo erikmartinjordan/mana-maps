@@ -1,0 +1,46 @@
+name: Generate Map Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/gallery-*.js'
+      - 'tools/render-map-images.js'
+      - '.github/workflows/generate-images.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm init -y
+          npm install --save-dev playwright-core
+          npx playwright install --with-deps chromium
+
+      - name: Render map images
+        run: node tools/render-map-images.js
+
+      - name: Commit generated images
+        run: |
+          git config user.name "autopilot[bot]"
+          git config user.email "autopilot@erikmartinjordan.dev"
+          if git diff --quiet HEAD -- data/*.png og-cards/; then
+            echo "Sin cambios de imagen"
+          else
+            git add data/*.png og-cards/
+            git commit -m "chore: generar imagenes OG de mapas"
+            git push
+          fi
