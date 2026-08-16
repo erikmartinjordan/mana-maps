@@ -422,7 +422,8 @@ h1 {
     margin: 10px auto;
     border-radius: var(--iphone-frame-radius);
   }
-  .topbar { padding: 0 16px; height: 66px; }
+  .topbar { padding: 0 16px; height: 66px; min-width: 0; overflow: hidden; }
+  .topbar-actions { min-width: 0; flex-shrink: 1; }
   .topbar-actions { gap: 8px; }
   .topbar-actions .btn { padding: 0 12px; }
   .topbar-actions .btn-about, .topbar-actions .btn-gallery { display: none; }
@@ -445,6 +446,9 @@ h1 {
   .cta-row .btn { flex: 1 1 auto; justify-content: center; padding-inline: 12px; }
   .section-head, .stats, .comparison-grid, .showcase { padding-left: 18px; padding-right: 18px; }
   .cta-band { margin-left: 18px; margin-right: 18px; padding: 26px 18px; }
+}
+@media (max-width: 360px) {
+  .topbar-actions .btn-pricing { display: none; }
 }
 
 /* ── Reduced motion ── */

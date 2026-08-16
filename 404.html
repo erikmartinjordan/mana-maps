@@ -175,7 +175,8 @@ h1 {
     margin: 10px auto;
     border-radius: var(--iphone-frame-radius);
   }
-  .topbar { padding: 0 16px; height: 66px; }
+  .topbar { padding: 0 16px; height: 66px; min-width: 0; overflow: hidden; }
+  .topbar-actions { min-width: 0; flex-shrink: 1; }
   .topbar-actions .btn { display: none; }
 }
 @media (max-width: 480px) {

@@ -66,7 +66,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 #topbar{
   height:56px;border-bottom:1px solid var(--border);background:var(--bg);
   display:flex;align-items:center;padding:0 20px;gap:12px;
-  position:sticky;top:0;z-index:100;
+  position:sticky;top:0;z-index:100;min-width:0;overflow:hidden;
 }
 .mana-logo-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
 .mana-logo-icon{position:relative;width:36px;height:36px;flex-shrink:0;}
@@ -78,7 +78,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 }
 .logo-wordmark{font-size:17px;font-weight:900;letter-spacing:-0.5px;color:var(--primary);}
 .logo-sub{font-size:10px;color:var(--third);font-weight:600;vertical-align:super;margin-left:1px;letter-spacing:.02em;}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:1;}
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
   font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;
@@ -113,6 +113,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 /* FEATURE GRID */
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:480px){.feat-grid{grid-template-columns:1fr;}}
+@media(max-width:480px){#topbar{padding:0 12px}.topbar-right .btn-ghost{display:none}.topbar-right .btn{padding:7px 11px;font-size:12px}}
 .feat-card{
   background:var(--bgBox);border:1px solid var(--border);border-radius:14px;
   padding:16px 18px;display:flex;gap:12px;align-items:flex-start;
