@@ -45,6 +45,16 @@ test('landing page and task navigation remain usable on mobile', async ({ page }
   expect(await page.locator('body').evaluate((body) => body.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
+test('landing and pricing pages load Google Fonts with swap', async ({ page }) => {
+  for (const path of ['/', '/pricing/']) {
+    await page.goto(path);
+    const fontStylesheet = page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"]');
+
+    await expect(fontStylesheet).toHaveCount(1);
+    await expect(fontStylesheet).toHaveAttribute('href', /[?&]display=swap(?:&|$)/);
+  }
+});
+
 test('landing globe keeps a circular container on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto('/');
