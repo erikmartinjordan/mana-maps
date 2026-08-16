@@ -14,6 +14,8 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 function loadMaps() {
   const maps = [];
   const files = fs.readdirSync(DATA).filter((f) => /^gallery-.*\.js$/.test(f));
+  console.log('archivos en data/:', fs.readdirSync(DATA).join(', '));
+  console.log('candidatos gallery-*.js:', files.join(', ') || '(ninguno)');
   for (const file of files) {
     const code = fs.readFileSync(path.join(DATA, file), 'utf8');
     const g = code.match(/window\.\w+\s*=\s*(\{[\s\S]*?\});?\s*$/);

@@ -43,10 +43,15 @@ jobs:
         run: |
           git config user.name "autopilot[bot]"
           git config user.email "autopilot@erikmartinjordan.dev"
-          if git diff --quiet HEAD -- data/*.png og-cards/; then
+          echo "--- og-cards contenido: ---"
+          ls -la og-cards/ 2>&1 || echo "no og-cards dir"
+          echo "--- git status: ---"
+          git status --short
+          git add -A og-cards/
+          if git diff --cached --quiet; then
             echo "Sin cambios de imagen"
           else
-            git add data/*.png og-cards/
             git commit -m "chore: generar imagenes OG de mapas"
             git push
+            echo "Imagenes commiteadas"
           fi
