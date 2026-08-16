@@ -15,7 +15,7 @@
   --shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;
   --green:#10b981;--red:#ef4444;--amber:#f59e0b;--purple:#8b5cf6;
 }
-html,body{height:100%;background:var(--bg);color:var(--primary);}
+html,body{height:100%;background:var(--bg);color:var(--primary);overflow-x:hidden;}
 #topbar{
   height:56px;border-bottom:1px solid var(--border);background:var(--bg);
   display:flex;align-items:center;padding:0 20px;gap:12px;
@@ -64,7 +64,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .badge-docs{background:#fef9c3;color:#92400e;}
 .badge-chore{background:#f1f5f9;color:#475569;}
 .entry-body{flex:1;min-width:0;}
-.entry-title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;line-height:1.4;}
+.entry-title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;line-height:1.4;overflow-wrap:anywhere;}
 .entry-meta{display:flex;align-items:center;gap:10px;margin-top:6px;}
 .entry-sha{
   font-family:'DM Mono',monospace;font-size:10px;color:var(--third);
