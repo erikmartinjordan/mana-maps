@@ -445,7 +445,7 @@ h1 {
 }
 
 /* ── Focus visible ── */
-.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible {
+.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible, #cobe-canvas:focus-visible {
   outline: 2px solid #0a84ff; outline-offset: 2px;
 }
 </style>
@@ -485,8 +485,8 @@ h1 {
       </div>
     </div>
     <div id="globe" class="reveal" style="transition-delay:120ms">
-      <canvas id="cobe-canvas" role="img" tabindex="0" aria-label="Globo 3D interactivo de Maña Maps" aria-describedby="globe-fallback"></canvas>
-      <p id="globe-fallback" class="globe-fallback" role="status" aria-live="polite" data-i18n="globe_fallback">Globo 3D interactivo de Maña Maps. Arrastra para girarlo.</p>
+      <canvas id="cobe-canvas" role="img" tabindex="0" aria-label="Globo 3D interactivo de Maña Maps" aria-describedby="globe-fallback" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown"></canvas>
+      <p id="globe-fallback" class="globe-fallback" role="status" aria-live="polite" data-i18n="globe_fallback">Globo 3D interactivo de Maña Maps. Arrastra o usa las flechas del teclado para girarlo.</p>
       <noscript><p class="globe-noscript-fallback">Globo 3D de Maña Maps. Activa JavaScript para girarlo e interactuar con él.</p></noscript>
     </div>
   </section>
@@ -613,7 +613,7 @@ var LANG = {
   es: {
     nav_about:'Acerca de', nav_cta:'Abrir app', nav_stats:'Estad\u00edsticas', nav_pricing:'Precios', nav_gallery:'Galer\u00eda',
     eyebrow:'Dise\u00f1ado para foco total', globe_label:'Globo 3D interactivo de Ma\u00f1a Maps',
-    globe_fallback:'Globo 3D interactivo de Ma\u00f1a Maps. Arrastra para girarlo.',
+    globe_fallback:'Globo 3D interactivo de Ma\u00f1a Maps. Arrastra o usa las flechas del teclado para girarlo.',
     headline:'Mapas claros.<br>Decisiones r\u00e1pidas.',
     lead:'Ma\u00f1a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.',
     cta_start:'Empieza gratis', cta_changelog:'Ver novedades',
@@ -655,7 +655,7 @@ var LANG = {
   en: {
     nav_about:'About', nav_cta:'Open app', nav_stats:'Stats', nav_pricing:'Pricing', nav_gallery:'Gallery',
     eyebrow:'Designed for total focus', globe_label:'Maña Maps interactive 3D globe',
-    globe_fallback:'Maña Maps interactive 3D globe. Drag to rotate it.',
+    globe_fallback:'Maña Maps interactive 3D globe. Drag it or use the arrow keys to rotate it.',
     headline:'Clear maps.<br>Fast decisions.',
     lead:'Ma\u00f1a Maps turns geospatial tasks into a simple experience: draw, import and export in seconds with a clean, intuitive, noise-free interface.',
     cta_start:'Start for free', cta_changelog:'What\u2019s new',
@@ -884,10 +884,32 @@ animate();
     }, 3000);
   }
 
+  function onKeyDown(e) {
+    var stepPhi = 0.14;
+    var stepTheta = 0.1;
+    var handled = true;
+    if (e.key === 'ArrowLeft') targetPhi -= stepPhi;
+    else if (e.key === 'ArrowRight') targetPhi += stepPhi;
+    else if (e.key === 'ArrowUp') targetTheta = Math.max(-1.1, targetTheta - stepTheta);
+    else if (e.key === 'ArrowDown') targetTheta = Math.min(1.1, targetTheta + stepTheta);
+    else handled = false;
+    if (!handled) return;
+
+    e.preventDefault();
+    userInteracted = true;
+    isDragging = false;
+    spinActive = false;
+    velocityPhi = 0;
+    velocityTheta = 0;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function() { spinActive = true; }, 3000);
+  }
+
   canvas.addEventListener('pointerdown', onDown);
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerup', onUp);
   canvas.addEventListener('pointercancel', onUp);
+  canvas.addEventListener('keydown', onKeyDown);
   window.addEventListener('blur', onUp);
 })();
 } catch (error) {
