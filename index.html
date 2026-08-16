@@ -359,6 +359,37 @@ h1 {
 .show-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; padding: 0 2px; }
 .show-meta { font-size: 12px; color: var(--muted); margin-top: 3px; padding: 0 2px; }
 
+/* ── Use cases ── */
+.usecases {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px; padding: 0 48px 52px;
+}
+.usecase-card {
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: rgba(255,255,255,.75); padding: 22px;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.usecase-card:hover {
+  transform: translateY(-2px); border-color: rgba(16,24,40,.22);
+  box-shadow: 0 10px 26px rgba(15,23,42,.08);
+}
+.usecase-icon {
+  width: 38px; height: 38px; border-radius: 11px; margin-bottom: 14px;
+  background: rgba(10,132,255,.10); color: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+}
+.usecase-icon svg { width: 18px; height: 18px; }
+.usecase-card h3 { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+.usecase-card p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+.usecase-link {
+  margin-top: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: var(--blue);
+}
+.usecase-card:hover .usecase-link { text-decoration: underline; }
+
 /* ── CTA band ── */
 .cta-band {
   position: relative; overflow: hidden;
@@ -407,6 +438,7 @@ h1 {
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
   .comparison-grid { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
+  .usecases { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
   /* Keep the Cobe canvas square on narrow screens so the globe remains circular. */
   #globe {
@@ -444,7 +476,7 @@ h1 {
   .hero { padding: 36px 18px 24px; }
   .cta-row { width: 100%; gap: 8px; }
   .cta-row .btn { flex: 1 1 auto; justify-content: center; padding-inline: 12px; }
-  .section-head, .stats, .comparison-grid, .showcase { padding-left: 18px; padding-right: 18px; }
+  .section-head, .stats, .comparison-grid, .showcase, .usecases { padding-left: 18px; padding-right: 18px; }
   .cta-band { margin-left: 18px; margin-right: 18px; padding: 26px 18px; }
 }
 @media (max-width: 360px) {
@@ -457,7 +489,7 @@ h1 {
 }
 
 /* ── Focus visible ── */
-.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible, #cobe-canvas:focus-visible {
+.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible, .usecase-card:focus-visible, #cobe-canvas:focus-visible {
   outline: 2px solid #0a84ff; outline-offset: 2px;
 }
 </style>
@@ -597,6 +629,34 @@ h1 {
     </a>
   </section>
 
+  <div class="section-head reveal">
+    <div>
+      <h2 class="section-title" data-i18n="usecases_title">Casos de uso reales</h2>
+      <p class="section-sub" data-i18n="usecases_sub">Ejemplos concretos creados con Ma&#241;a Maps: &#225;brelos, expl&#243;ralos o ad&#225;ptalos a tu proyecto.</p>
+    </div>
+    <a class="section-link" href="/gallery" data-i18n="showcase_link">Ver galer&#237;a &rarr;</a>
+  </div>
+  <section class="usecases" id="casos-de-uso" aria-label="Casos de uso" data-i18n-aria-label="usecases_aria">
+    <a class="usecase-card reveal" href="/map/index.html?gallery=worst-wildfires-world&amp;map=worst-wildfires-world&amp;room=worst-wildfires-world&amp;mode=view">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2s6 5.4 6 10a6 6 0 0 1-12 0c0-4.6 6-10 6-10z"/><circle cx="12" cy="12" r="2"/></svg></div>
+      <h3 data-i18n="usecase1_t">Mapa de incendios forestales</h3>
+      <p data-i18n="usecase1_d">Los grandes incendios del mundo, con superficie afectada, a&#241;o y consecuencias, listos para explorar.</p>
+      <span class="usecase-link" data-i18n="usecase1_l">Abrir ejemplo &rarr;</span>
+    </a>
+    <a class="usecase-card reveal" href="/map/index.html?gallery=minimum-wage-by-country&amp;map=minimum-wage-by-country&amp;room=minimum-wage-by-country&amp;mode=view" style="transition-delay:80ms">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg></div>
+      <h3 data-i18n="usecase2_t">Salario m&#237;nimo por pa&#237;s</h3>
+      <p data-i18n="usecase2_d">Compara de un vistazo el salario m&#237;nimo entre pa&#237;ses y visualiza las diferencias econ&#243;micas globales.</p>
+      <span class="usecase-link" data-i18n="usecase2_l">Abrir ejemplo &rarr;</span>
+    </a>
+    <a class="usecase-card reveal" href="/map/index.html?gallery=submarine-fiber-cables&amp;map=submarine-fiber-cables&amp;room=submarine-fiber-cables&amp;mode=view" style="transition-delay:160ms">
+      <div class="usecase-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z"/></svg></div>
+      <h3 data-i18n="usecase3_t">Cables submarinos de fibra &#243;ptica</h3>
+      <p data-i18n="usecase3_d">La red f&#237;sica que conecta Internet en todo el mundo: rutas, longitudes y puntos de aterrizaje.</p>
+      <span class="usecase-link" data-i18n="usecase3_l">Abrir ejemplo &rarr;</span>
+    </a>
+  </section>
+
   <section class="cta-band reveal" aria-label="Llamada a la acción" data-i18n-aria-label="cta_aria">
     <div>
       <h2 data-i18n="cta_title">&#191;Listo para dise&#241;ar tu mapa?</h2>
@@ -652,6 +712,18 @@ var LANG = {
     show1_t:'Rutas y tracks', show1_m:'Dibuja recorridos precisos',
     show2_t:'Zonas y pol\u00edgonos', show2_m:'Delimita \u00e1reas con claridad',
     show3_t:'Puntos de inter\u00e9s', show3_m:'Marca lo que importa',
+    usecases_title:'Casos de uso reales',
+    usecases_sub:'Ejemplos concretos creados con Ma\u00f1a Maps: \u00e1brelos, expl\u00f3ralos o ad\u00e1ptalos a tu proyecto.',
+    usecases_aria:'Casos de uso',
+    usecase1_t:'Mapa de incendios forestales',
+    usecase1_d:'Los grandes incendios del mundo, con superficie afectada, a\u00f1o y consecuencias, listos para explorar.',
+    usecase1_l:'Abrir ejemplo \u2192',
+    usecase2_t:'Salario m\u00ednimo por pa\u00eds',
+    usecase2_d:'Compara de un vistazo el salario m\u00ednimo entre pa\u00edses y visualiza las diferencias econ\u00f3micas globales.',
+    usecase2_l:'Abrir ejemplo \u2192',
+    usecase3_t:'Cables submarinos de fibra \u00f3ptica',
+    usecase3_d:'La red f\u00edsica que conecta Internet en todo el mundo: rutas, longitudes y puntos de aterrizaje.',
+    usecase3_l:'Abrir ejemplo \u2192',
     cta_title:'\u00bfListo para dise\u00f1ar tu mapa?',
     cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
     cta_aria:'Llamada a la acci\u00f3n',
@@ -694,6 +766,18 @@ var LANG = {
     show1_t:'Routes & tracks', show1_m:'Draw precise paths',
     show2_t:'Areas & polygons', show2_m:'Outline areas clearly',
     show3_t:'Points of interest', show3_m:'Mark what matters',
+    usecases_title:'Real-world use cases',
+    usecases_sub:'Concrete examples built with Ma\u00f1a Maps: open them, explore them or adapt them to your project.',
+    usecases_aria:'Use cases',
+    usecase1_t:'Wildfire map',
+    usecase1_d:'The world\u2019s largest wildfires, with affected area, year and impact, ready to explore.',
+    usecase1_l:'Open example \u2192',
+    usecase2_t:'Minimum wage by country',
+    usecase2_d:'Compare minimum wages across countries at a glance and visualize global economic differences.',
+    usecase2_l:'Open example \u2192',
+    usecase3_t:'Submarine fiber-optic cables',
+    usecase3_d:'The physical network behind the Internet: routes, lengths and landing points worldwide.',
+    usecase3_l:'Open example \u2192',
     cta_title:'Ready to design your map?',
     cta_sub:'Free, no signup. Open the app and start in seconds.',
     cta_aria:'Call to action',
