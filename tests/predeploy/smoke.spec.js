@@ -55,6 +55,27 @@ test('landing and pricing pages load Google Fonts with swap', async ({ page }) =
   }
 });
 
+test('public navigation bars stay inside the viewport on mobile', async ({ page }) => {
+  const routes = [
+    '/open/', '/pricing/', '/about/', '/changelog/', '/gallery/',
+    '/my-maps/', '/profile/', '/tasks.html', '/404.html'
+  ];
+
+  for (const route of routes) {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto(route);
+    expect(await page.locator('body').evaluate((body) => body.scrollWidth <= window.innerWidth), route).toBe(true);
+
+    const topbar = page.locator('#topbar, .topbar, .top').first();
+    if (await topbar.count()) {
+      const bounds = await topbar.boundingBox();
+      expect(bounds, route).not.toBeNull();
+      expect(bounds.x, route).toBeGreaterThanOrEqual(0);
+      expect(bounds.x + bounds.width, route).toBeLessThanOrEqual(320);
+    }
+  }
+});
+
 test('landing globe keeps a circular container on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto('/');

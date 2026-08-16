@@ -126,13 +126,14 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .footer-sub{margin-top:4px;font-size:11px;color:var(--third);}
 
 /* ── Mobile responsive (stats page) ── */
-@media (max-width: 640px) {
-  #topbar { padding: 0 12px; gap: 8px; }
+  @media (max-width: 640px) {
+   #topbar { padding: 0 12px; gap: 8px; }
   /* Keep the compact mobile header to the essential controls. The full
      navigation remains available from the page footer. */
-  .topbar-right > a.btn-ghost { display: none; }
-  .topbar-right { gap: 4px; }
-  .topbar-right .btn { padding: 6px 10px; font-size: 12px; }
+   .topbar-right > a.btn-ghost { display: none; }
+   .topbar-right { gap: 6px; min-width: 0; }
+   .topbar-right .btn { padding: 6px 10px; font-size: 12px; flex-shrink: 0; }
+   .topbar-right .lang-toggle { flex-shrink: 0; padding-inline: 9px; }
   .page { padding: 28px 16px 60px; }
   .hero { gap: 14px; }
   .hero-logo { width: 48px; height: 48px; }
@@ -150,12 +151,17 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   .breakdown-card { padding: 14px 16px; }
   .page-footer { margin-top: 40px; }
 }
-@media (max-width: 400px) {
+ @media (max-width: 400px) {
   .topbar-right .btn.btn-ghost { display: none; }
   .hero { flex-direction: column; text-align: center; gap: 10px; }
   .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .kpi-value { font-size: 22px; }
-}
+ }
+ @media (max-width: 360px) {
+   #topbar { padding-inline: 8px; gap: 6px; }
+   .logo-wordmark { font-size: 15px; }
+   .topbar-right .btn-primary { padding-inline: 8px; }
+ }
 </style>
 </head>
 <body>
