@@ -40,3 +40,6 @@ Formato: "- [x] descripcion".
 - [x] Añadir controles de teclado con flechas al globo 3D enfocable y verificar que la rotación sea perceptible sin ratón (16-08)
 - [x] Añadir preconnect a `https://esm.sh` antes de cargar Cobe y verificar que mejora el inicio del globo sin errores de consola (16-08)
 - [x] Marcar como decorativo el SVG del logotipo dentro del enlace de marca y verificar que un lector de pantalla anuncia solo el nombre del sitio (16-08)
+- [ ] Añadir un enlace «Saltar al contenido» visible al recibir foco en la portada y verificar que lleva al contenido principal
+- [ ] Revisar la portada y /pricing/ para añadir `font-display: swap` a cualquier fuente local o externa que aún bloquee el texto, verificando que no haya FOUT excesivo
+- [ ] Añadir una sección de casos de uso enlazable en la portada con tres ejemplos concretos y enlaces hacia ejemplos relevantes de la galería para captar búsquedas long-tail
