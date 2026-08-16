@@ -76,24 +76,31 @@ function renderPage(map, worldLand, previewJs) {
   const previewJs = fs.readFileSync(path.join(ROOT, 'js/map-preview.js'), 'utf8');
   const maps = loadMaps();
   console.log('Mapas encontrados:', maps.length);
+  const logLines = ['Mapas: ' + maps.length];
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+  let ok = 0, fail = 0;
   for (const { file, map } of maps) {
     const slug = map.slug || map.id || file.replace(/^gallery-|\.js$/g, '');
     const html = renderPage(map, worldLand, previewJs);
-    await page.setContent(html, { waitUntil: 'load' });
     try {
+      await page.setContent(html, { waitUntil: 'load' });
       await page.waitForFunction(() => window.__renderReady === true, null, { timeout: 15000 });
+      await page.waitForTimeout(300);
+      const out = path.join(OUT_DIR, slug + '.png');
+      await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1200, height: 630 } });
+      console.log('OK', out);
+      logLines.push('OK ' + slug + ' ' + fs.statSync(out).size + ' bytes');
+      ok++;
     } catch (e) {
-      console.error('no render', slug, e.message);
-      continue;
+      console.error('FAIL', slug, e.message);
+      logLines.push('FAIL ' + slug + ' ' + e.message);
+      fail++;
     }
-    await page.waitForTimeout(300);
-    const out = path.join(OUT_DIR, slug + '.png');
-    await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1200, height: 630 } });
-    console.log('OK', out);
   }
   await browser.close();
-  console.log('FIN');
+  fs.writeFileSync(path.join(OUT_DIR, '_render.log'), logLines.join('\n'));
+  console.log('FIN ok=' + ok + ' fail=' + fail);
+  if (fail > 0) process.exit(1);
 })();
