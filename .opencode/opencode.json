@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "mapmaker": {
+      "description": "Agente que crea mapas de datos excelentes y compartibles para la galeria",
+      "mode": "primary",
+      "prompt": "{file:/home/erik/autopilot/agents/mapmaker.md}",
+      "steps": 40,
+      "permission": {
+        "question": "deny",
+        "read": "allow",
+        "edit": "allow",
+        "bash": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "webfetch": "allow",
+        "websearch": "deny",
+        "task": "allow",
+        "todowrite": "allow",
+        "lsp": "deny",
+        "skill": "deny"
+      }
+    }
+  }
+}
