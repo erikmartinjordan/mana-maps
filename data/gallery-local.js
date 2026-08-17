@@ -34,4 +34,8 @@
   if (window.MANA_FIBRA_MAP) {
     window.MANA_LOCAL_MAPS.push(window.MANA_FIBRA_MAP);
   }
+  // Mapa mundial de volcanes activos.
+  if (window.MANA_VOLCANES_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_VOLCANES_MAP);
+  }
 })();
