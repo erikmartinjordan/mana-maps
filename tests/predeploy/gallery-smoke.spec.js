@@ -1,8 +1,17 @@
 const { test, expect } = require('@playwright/test');
 
+// The gallery page loads external CDNs (maplibre-gl from unpkg.com, Firebase
+// from gstatic.com, Google Fonts) that block the browser "load" event. In CI
+// or with a slow network that event can take longer than the test timeout, so
+// this smoke test aborts those third-party requests: it only needs the bundled
+// local maps and the auth modal, and stays deterministic without external deps.
+const EXTERNAL_CDN = /^https?:\/\/(unpkg\.com|www\.gstatic\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)/;
+
 test('gallery loads without errors and like/fork show auth modal', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
+
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
 
   // No Firebase config: remoteMaps falls back to the bundled local map.
   await page.addInitScript(() => {
