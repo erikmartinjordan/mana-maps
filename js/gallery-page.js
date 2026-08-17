@@ -21,6 +21,24 @@
     }
   }
 
+  // Fuente y año de los datos del mapa (dataSource + dataDate/dataYear). Se
+  // muestra en las tarjetas para dar credibilidad y aportar contexto SEO.
+  function dataSourceLabel(item) {
+    if (!item) return '';
+    var src = item.dataSource || '';
+    var year = '';
+    if (item.dataDate) {
+      year = String(item.dataDate).slice(0, 4);
+    } else if (item.dataYear) {
+      year = String(item.dataYear);
+    }
+    if (!src && !year) return '';
+    var parts = [];
+    if (src) parts.push('Fuente: ' + src);
+    if (year) parts.push(year);
+    return parts.join(' · ');
+  }
+
   function isFirestoreIndexError(err) {
     if (!err) return false;
     var msg = String(err && err.message ? err.message : err).toLowerCase();
@@ -306,6 +324,7 @@
       const mapSlug = item.slug || item.id;
       var mode = item.shareMode || 'view';
       var likedClass = hasLiked(mapSlug) ? ' liked' : '';
+      var sourceLabel = dataSourceLabel(item);
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
@@ -318,6 +337,7 @@
             '<span>·</span>' +
             '<span>' + safeDate(created) + '</span>' +
           '</div>' +
+          (sourceLabel ? '<div class="meta-source" title="Fuente y año de los datos">' + escHtml(sourceLabel) + '</div>' : '') +
           '<div class="card-actions">' +
             '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +

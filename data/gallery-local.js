@@ -16,6 +16,8 @@
     shareMode: 'view',
     allowPublicEdit: false,
     isPublished: true,
+    dataSource: 'Compilación de incendios de gran impacto (NASA FIRMS, reportes públicos)',
+    dataDate: '2024-12-01',
     geojsonText: JSON.stringify(geo),
     geojsonChunked: null,
     createdAtMs: Date.now(),
