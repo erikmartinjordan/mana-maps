@@ -21,6 +21,14 @@ test('gallery loads without errors and like/fork show auth modal', async ({ page
 
   await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
 
+  // The bundled local maps (wildfires, minimum wage, submarine cables, active
+  // volcanoes) must render as cards following the same pattern.
+  const volcanoCard = page.locator('.card', { hasText: 'Active Volcanoes of the World' });
+  await expect(volcanoCard.first()).toBeVisible({ timeout: 20_000 });
+  await expect(volcanoCard.first()).toContainText('86 elementos');
+  await expect(volcanoCard.first().locator('.meta-source')).toContainText('Smithsonian Global Volcanism Program');
+  await expect(volcanoCard.first().locator('.meta-source')).toContainText('2026');
+
   const likeBtn = page.locator('.card-like-btn').first();
   await expect(likeBtn).toBeVisible({ timeout: 20_000 });
 
