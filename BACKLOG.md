@@ -45,6 +45,6 @@ Formato: "- [x] descripcion".
 - [x] Añadir una sección de casos de uso enlazable en la portada con tres ejemplos concretos y enlaces hacia ejemplos relevantes de la galería para captar búsquedas long-tail (16-08)
 - [x] Mostrar en cada tarjeta del grid de la galería la fuente y el año de los datos de los mapas locales (salario mínimo, cables submarinos, incendios) para mejorar credibilidad y SEO (17-08)
 - [x] Añadir un nuevo mapa local a la galería (volcanes activos del mundo) con su archivo de datos en data/ y su tarjeta en gallery/index.html siguiendo el patrón de los mapas existentes (18-08)
-- [ ] Reducir el peso de data/gallery-minwage.js (255 KB) simplificando geometrías y verificar que la galería carga más rápido sin pérdida visual
+- [x] Reducir el peso de data/gallery-minwage.js (255 KB) simplificando geometrías y verificar que la galería carga más rápido sin pérdida visual (18-08)
 - [ ] Eliminar de la página principal las dos tarjetas de precio: Gratis y maña Pro
 - [ ] Eliminar los botones «Ver precios» de las diferentes tarjetas de la galería
