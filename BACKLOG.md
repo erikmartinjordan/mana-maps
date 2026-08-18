@@ -4,7 +4,7 @@ Tareas pendientes para los agentes autopilot.
 Formato: "- [x] descripcion".
 
 - [ ] Arreglar los tests que fallan tras: Añadir un nuevo mapa local a la galería (volcanes activos del mundo) con su archivo de datos en data/ y su tarjeta en gallery/index.html siguiendo el patrón de los mapas existentes
-- [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
+- [ ] Arreglar los tests que fallan tras: Arreglar los tests que fallan tras: Añadir un nuevo mapa local a la galería (volcanes activos del mundo) con su archivo de datos en data/ y su tarjeta en gallery/index.html siguiendo el patrón de los mapas existentes
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
 - [x] Añadir un enlace visible a Precios en la navegación superior de la portada para reducir fricción hacia la conversión
