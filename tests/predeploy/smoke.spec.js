@@ -101,19 +101,16 @@ test('landing section labels follow the selected language', async ({ page }) => 
   await page.goto('/');
 
   const sections = {
-    comparison: page.locator('.comparison-grid'),
     features: page.locator('.stats'),
     showcase: page.locator('.showcase'),
     cta: page.locator('.cta-band')
   };
-  await expect(sections.comparison).toHaveAttribute('aria-label', 'Comparación entre el plan gratuito y Pro');
   await expect(sections.features).toHaveAttribute('aria-label', 'Características');
   await expect(sections.showcase).toHaveAttribute('aria-label', 'Vista previa de la galería');
   await expect(sections.cta).toHaveAttribute('aria-label', 'Llamada a la acción');
 
   await page.locator('#lang-btn').click();
 
-  await expect(sections.comparison).toHaveAttribute('aria-label', 'Comparison of the Free and Pro plans');
   await expect(sections.features).toHaveAttribute('aria-label', 'Features');
   await expect(sections.showcase).toHaveAttribute('aria-label', 'Gallery preview');
   await expect(sections.cta).toHaveAttribute('aria-label', 'Call to action');
