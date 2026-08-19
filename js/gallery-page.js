@@ -347,9 +347,6 @@
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
               '<span>Fork</span>' +
             '</button>' +
-            '<a class="card-action-btn card-pricing-link" href="/pricing/" aria-label="Ver precios de Maña Maps">' +
-              '<span>Ver precios</span>' +
-            '</a>' +
           '</div>' +
         '</div>';
     }).join('');
