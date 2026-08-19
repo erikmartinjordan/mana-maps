@@ -47,4 +47,4 @@ Formato: "- [x] descripcion".
 - [x] Añadir un nuevo mapa local a la galería (volcanes activos del mundo) con su archivo de datos en data/ y su tarjeta en gallery/index.html siguiendo el patrón de los mapas existentes (18-08)
 - [x] Reducir el peso de data/gallery-minwage.js (255 KB) simplificando geometrías y verificar que la galería carga más rápido sin pérdida visual (18-08)
 - [x] Eliminar de la página principal las dos tarjetas de precio: Gratis y maña Pro (19-08)
-- [ ] Eliminar los botones «Ver precios» de las diferentes tarjetas de la galería
+- [x] Eliminar los botones «Ver precios» de las diferentes tarjetas de la galería (19-08)
