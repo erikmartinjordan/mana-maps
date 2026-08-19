@@ -48,3 +48,4 @@ Formato: "- [x] descripcion".
 - [x] Reducir el peso de data/gallery-minwage.js (255 KB) simplificando geometrías y verificar que la galería carga más rápido sin pérdida visual (18-08)
 - [x] Eliminar de la página principal las dos tarjetas de precio: Gratis y maña Pro (19-08)
 - [x] Eliminar los botones «Ver precios» de las diferentes tarjetas de la galería (19-08)
+- [ ] Simplificación y limpieza del repo: eliminar archivos antiguos/residuales, definir bien la carpeta de agentes y asegurar que todo funciona correctamente tras la limpieza
