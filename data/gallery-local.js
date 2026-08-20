@@ -38,4 +38,8 @@
   if (window.MANA_VOLCANES_MAP) {
     window.MANA_LOCAL_MAPS.push(window.MANA_VOLCANES_MAP);
   }
+  // Mapa de puntos más altos por continente.
+  if (window.MANA_PEAKS_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_PEAKS_MAP);
+  }
 })();
