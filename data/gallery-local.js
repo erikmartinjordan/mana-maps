@@ -12,6 +12,7 @@
     authorHandle: '',
     lang: 'en',
     featureCount: geo.features.length,
+    tags: ['Naturaleza', 'Medio Ambiente'],
     visibility: 'public',
     shareMode: 'view',
     allowPublicEdit: false,

@@ -325,6 +325,10 @@
       var mode = item.shareMode || 'view';
       var likedClass = hasLiked(mapSlug) ? ' liked' : '';
       var sourceLabel = dataSourceLabel(item);
+      var tags = Array.isArray(item.tags) ? item.tags : [];
+      var tagsHtml = tags.length
+        ? '<div class="card-tags">' + tags.map(function(t) { return '<span class="card-tag">' + escHtml(t) + '</span>'; }).join('') + '</div>'
+        : '';
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
@@ -338,6 +342,7 @@
             '<span>' + safeDate(created) + '</span>' +
           '</div>' +
           (sourceLabel ? '<div class="meta-source" title="Fuente y año de los datos">' + escHtml(sourceLabel) + '</div>' : '') +
+          tagsHtml +
           '<div class="card-actions">' +
             '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +

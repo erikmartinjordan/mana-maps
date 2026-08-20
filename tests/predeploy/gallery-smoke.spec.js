@@ -29,6 +29,11 @@ test('gallery loads without errors and like/fork show auth modal', async ({ page
   await expect(volcanoCard.first().locator('.meta-source')).toContainText('Smithsonian Global Volcanism Program');
   await expect(volcanoCard.first().locator('.meta-source')).toContainText('2026');
 
+  // Tags badges must be visible inside the card (Naturaleza, Geografía)
+  await expect(volcanoCard.first().locator('.card-tag').first()).toBeVisible();
+  await expect(volcanoCard.first().locator('.card-tags')).toContainText('Naturaleza');
+  await expect(volcanoCard.first().locator('.card-tags')).toContainText('Geografía');
+
   const likeBtn = page.locator('.card-like-btn').first();
   await expect(likeBtn).toBeVisible({ timeout: 20_000 });
 
