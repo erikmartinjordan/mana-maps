@@ -49,3 +49,19 @@ Formato: "- [x] descripcion".
 - [x] Eliminar de la página principal las dos tarjetas de precio: Gratis y maña Pro (19-08)
 - [x] Eliminar los botones «Ver precios» de las diferentes tarjetas de la galería (19-08)
 - [x] Simplificación y limpieza del repo: eliminar archivos antiguos/residuales, definir bien la carpeta de agentes y asegurar que todo funciona correctamente tras la limpieza (20-08)
+
+## Auditoría de calidad de la galería (20-08-2026)
+
+### Estado actual
+5 mapas locales: Wildfires (7 pts), Min Wage (162 países), Fiber Cables (23 líneas), Volcanoes (86 pts), Seven Summits (7 pts). Todos en inglés. Fuentes documentadas. Tamaños: 8KB–148KB. La galería carga skeletons y renderiza tarjetas con título, autor y fuente.
+
+### Oportunidades detectadas
+- Sin categorías/tags en los mapas → impossible filtrar o agrupar por tema.
+- Sin barra de filtros → el usuario solo puede scrollear todo el grid.
+- Solo 5 mapas locales → poco contenido para SEO y conversión.
+- Todos los mapas en inglés → la audiencia principal es hispanohablante.
+
+### Nuevas tareas
+- [ ] Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.)
+- [ ] Añadir barra de filtros por tag sobre el grid de la galería con deep-linkable URLs (?tag=economia) y actualización del aria-live
+- [ ] Nuevo mapa local: "Océanos y Mares del Mundo" con polígonos de las 5 zonas oceánicas principales + marcas de mares notables, usando datos de GEBCO/IHO, siguiendo el patrón de gallery-volcanes.js
