@@ -89,5 +89,5 @@ const js = '// ── world-land.js ─ simplified world land path for stylized 
   '// via a shared <path id="mana-land-path"> referenced with <use>.\n' +
   '// Regenerate with: node tools/gen-world-land.js <ne_110m_land.geojson>\n' +
   'window.WORLD_LAND_PATH = "' + path + '";\n';
-fs.writeFileSync('/Users/erikmartin/Desktop/Proyectos/mana-maps/js/world-land.js', js);
+fs.writeFileSync('js/world-land.js', js);
 console.log('written js/world-land.js');

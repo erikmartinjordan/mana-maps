@@ -6,3 +6,6 @@ js/firebase-config.local.js
 
 node_modules/
 test-results/
+og-cards/_render.log
+*.log
+.DS_Store
