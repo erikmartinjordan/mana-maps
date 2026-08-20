@@ -3,7 +3,7 @@
 Tareas pendientes para los agentes autopilot.
 Formato: "- [x] descripcion".
 
-- [ ] Arreglar los tests que fallan tras: Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.)
+- [x] Arreglar los tests que fallan tras: Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.) (20-08)
 - [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
@@ -62,6 +62,6 @@ Formato: "- [x] descripcion".
 - Todos los mapas en inglés → la audiencia principal es hispanohablante.
 
 ### Nuevas tareas
-- [ ] Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.)
+- [x] Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.) (20-08)
 - [ ] Añadir barra de filtros por tag sobre el grid de la galería con deep-linkable URLs (?tag=economia) y actualización del aria-live
 - [ ] Nuevo mapa local: "Océanos y Mares del Mundo" con polígonos de las 5 zonas oceánicas principales + marcas de mares notables, usando datos de GEBCO/IHO, siguiendo el patrón de gallery-volcanes.js
