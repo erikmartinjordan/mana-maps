@@ -3,6 +3,7 @@
 // Source: Natural Earth 110m land polygons (GeoJSON). Usage:
 //   node tools/gen-world-land.js <path/to/ne_110m_land.geojson>
 const fs = require('fs');
+const path = require('path');
 const geoPath = process.argv[2] || '/var/folders/mj/87d56wh11nn1hcjjtl_hjk7h0000gn/T/opencode/ne_110m_land.geojson';
 const geo = JSON.parse(fs.readFileSync(geoPath, 'utf8'));
 
@@ -89,5 +90,6 @@ const js = '// ── world-land.js ─ simplified world land path for stylized 
   '// via a shared <path id="mana-land-path"> referenced with <use>.\n' +
   '// Regenerate with: node tools/gen-world-land.js <ne_110m_land.geojson>\n' +
   'window.WORLD_LAND_PATH = "' + path + '";\n';
-fs.writeFileSync('/Users/erikmartin/Desktop/Proyectos/mana-maps/js/world-land.js', js);
+const outPath = path.join(__dirname, '..', 'js', 'world-land.js');
+fs.writeFileSync(outPath, js);
 console.log('written js/world-land.js');
