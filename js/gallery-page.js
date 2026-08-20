@@ -462,9 +462,42 @@
   }
 
   function featuredPopupHtml(props) {
-    var name = props && (props._manaName || props.name || props.Name);
+    if (!props) return '';
+    var name = props._manaName || props.name || props.Name;
     if (!name) return '';
-    return '<div class="featured-popup">' + escHtml(String(name)) + '</div>';
+    var html = '<div class="featured-popup"><strong>' + escHtml(String(name)) + '</strong>';
+    // Show salary info if available
+    if (props._wageFormatted && props._wageFormatted !== 'N/A') {
+      html += '<br><span style="font-size:12px;color:#475569">' + escHtml(props._wageFormatted) + ' anuales';
+      if (props._wageMonthly && props._wageMonthly !== 'N/A') {
+        html += ' · ' + escHtml(props._wageMonthly);
+      }
+      html += '</span>';
+    }
+    // Show fiber cable info if available
+    if (props._lengthFormatted) {
+      html += '<br><span style="font-size:12px;color:#475569">' + escHtml(props._lengthFormatted);
+      if (props.ready_for_service) html += ' · ' + props.ready_for_service;
+      html += '</span>';
+    }
+    if (props._countriesES) {
+      html += '<br><span style="font-size:11px;color:#64748b">' + escHtml(props._countriesES) + '</span>';
+    }
+    // Show generic properties for other maps
+    if (!props._wageFormatted && !props._lengthFormatted) {
+      var extra = [];
+      if (props.Deaths) extra.push('Muertes: ' + props.Deaths);
+      if (props.Area) extra.push('Área: ' + props.Area);
+      if (props.Year) extra.push('Año: ' + props.Year);
+      if (props.Location) extra.push(props.Location);
+      if (props.year) extra.push(props.year);
+      if (props.elevation_m) extra.push(props.elevation_m + ' m');
+      if (extra.length) {
+        html += '<br><span style="font-size:12px;color:#475569">' + escHtml(extra.join(' · ')) + '</span>';
+      }
+    }
+    html += '</div>';
+    return html;
   }
 
   function addFeaturedDataLayers(map, geo) {
@@ -498,6 +531,18 @@
       paint: { 'line-color': colorExpr, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 1.4, 10, 3.6] }
     });
     map.addLayer({
+      id: 'featured-line-labels', type: 'symbol', source: 'featured-data', filter: isLine,
+      layout: {
+        'symbol-placement': 'line',
+        'text-field': ['coalesce', ['get', '_manaName'], ['get', 'name'], ''],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 3, 8, 10, 11],
+        'text-optional': true,
+        'text-max-width': 14
+      },
+      paint: { 'text-color': '#1e293b', 'text-halo-color': '#ffffff', 'text-halo-width': 2 }
+    });
+    map.addLayer({
       id: 'featured-point-halo', type: 'circle', source: 'featured-data', filter: isPoint,
       paint: { 'circle-color': '#ffffff', 'circle-opacity': 0.92, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4.4, 10, 8.6] }
     });
@@ -524,16 +569,49 @@
     });
 
     var interactiveLayers = ['featured-points', 'featured-lines', 'featured-fills'];
+    var _hoverPopup = null;
+
+    function hoverPopupHtml(props) {
+      if (!props) return '';
+      var name = props._manaName || props.name || props.Name;
+      if (!name) return '';
+      // Compact one-liner for hover
+      var parts = [String(name)];
+      if (props._wageFormatted && props._wageFormatted !== 'N/A') parts.push(props._wageFormatted);
+      if (props._lengthFormatted) parts.push(props._lengthFormatted);
+      if (props.ready_for_service) parts.push(props.ready_for_service);
+      return '<div class="featured-popup">' + escHtml(parts.join(' · ')) + '</div>';
+    }
+
     map.on('mousemove', function(e) {
       var feats = map.queryRenderedFeatures(e.point, { layers: interactiveLayers });
       map.getCanvas().style.cursor = feats.length ? 'pointer' : '';
+      // Show hover tooltip
+      if (feats.length) {
+        var html = hoverPopupHtml(feats[0].properties);
+        if (html) {
+          if (!_hoverPopup) {
+            _hoverPopup = new maplibregl.Popup({ closeButton: false, offset: 8, maxWidth: '260px', closeOnClick: false, closeOnMove: true })
+              .setLngLat(e.lngLat)
+              .setHTML(html)
+              .addTo(map);
+          } else {
+            _hoverPopup.setLngLat(e.lngLat).setHTML(html);
+          }
+        }
+      } else if (_hoverPopup) {
+        _hoverPopup.remove();
+        _hoverPopup = null;
+      }
     });
     map.on('click', function(e) {
       var feats = map.queryRenderedFeatures(e.point, { layers: interactiveLayers });
       if (!feats.length) return;
+      // Remove hover popup before showing click popup
+      if (_hoverPopup) { _hoverPopup.remove(); _hoverPopup = null; }
       var html = featuredPopupHtml(feats[0].properties);
       if (!html) return;
-      new maplibregl.Popup({ closeButton: false, offset: 14, maxWidth: '260px' })
+      new maplibregl.Popup({ closeButton: false, offset: 14, maxWidth: '280px' })
         .setLngLat(e.lngLat)
         .setHTML(html)
         .addTo(map);
