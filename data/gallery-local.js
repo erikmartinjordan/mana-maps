@@ -43,4 +43,8 @@
   if (window.MANA_PEAKS_MAP) {
     window.MANA_LOCAL_MAPS.push(window.MANA_PEAKS_MAP);
   }
+  // Mapa mundial de océanos y mares.
+  if (window.MANA_OCEANS_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_OCEANS_MAP);
+  }
 })();
