@@ -22,7 +22,8 @@ test('gallery loads without errors and like/fork show auth modal', async ({ page
   await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
 
   // The bundled local maps (wildfires, minimum wage, submarine cables, active
-  // volcanoes) must render as cards following the same pattern.
+  // volcanoes, peaks, oceans & seas) must render as cards following the same
+  // pattern.
   const volcanoCard = page.locator('.card', { hasText: 'Active Volcanoes of the World' });
   await expect(volcanoCard.first()).toBeVisible({ timeout: 20_000 });
   await expect(volcanoCard.first()).toContainText('86 elementos');
@@ -33,6 +34,15 @@ test('gallery loads without errors and like/fork show auth modal', async ({ page
   await expect(volcanoCard.first().locator('.card-tag').first()).toBeVisible();
   await expect(volcanoCard.first().locator('.card-tags')).toContainText('Naturaleza');
   await expect(volcanoCard.first().locator('.card-tags')).toContainText('Geografía');
+
+  // The oceans & seas map card must render with correct feature count, source
+  // and tags (added 2026-08-21).
+  const oceanCard = page.locator('.card', { hasText: 'Océanos y Mares del Mundo' });
+  await expect(oceanCard.first()).toBeVisible({ timeout: 20_000 });
+  await expect(oceanCard.first()).toContainText('15 elementos');
+  await expect(oceanCard.first().locator('.meta-source')).toContainText('GEBCO');
+  await expect(oceanCard.first().locator('.card-tags')).toContainText('Geografía');
+  await expect(oceanCard.first().locator('.card-tags')).toContainText('Naturaleza');
 
   const likeBtn = page.locator('.card-like-btn').first();
   await expect(likeBtn).toBeVisible({ timeout: 20_000 });

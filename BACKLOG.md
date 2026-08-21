@@ -3,7 +3,7 @@
 Tareas pendientes para los agentes autopilot.
 Formato: "- [x] descripcion".
 
-- [ ] Arreglar los tests que fallan tras: Nuevo mapa local: "Océanos y Mares del Mundo" con polígonos de las 5 zonas oceánicas principales + marcas de mares notables, usando datos de GEBCO/IHO, siguiendo el patrón de gallery-volcanes.js
+- [x] Arreglar los tests que fallan tras: Nuevo mapa local: "Océanos y Mares del Mundo" con polígonos de las 5 zonas oceánicas principales + marcas de mares notables, usando datos de GEBCO/IHO, siguiendo el patrón de gallery-volcanes.js (21-08)
 - [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
