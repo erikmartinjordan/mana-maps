@@ -65,3 +65,15 @@ Formato: "- [x] descripcion".
 - [x] Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.) (20-08)
 - [x] Añadir barra de filtros por tag sobre el grid de la galería con deep-linkable URLs (?tag=economia) y actualización del aria-live (21-08)
 - [x] Nuevo mapa local: "Océanos y Mares del Mundo" con polígonos de las 5 zonas oceánicas principales + marcas de mares notables, usando datos de GEBCO/IHO, siguiendo el patrón de gallery-volcanes.js (21-08)
+
+## Auditoría de calidad de la galería — segunda ronda (21-08-2026)
+
+### Oportunidades detectadas
+- El campo `description` de cada mapa no se muestra en las tarjetas de la galería: contenido SEO y de comprensión del usuario desaprovechado.
+- 4 de 7 mapas locales tienen títulos y descripciones en inglés (Wildfires, Volcanes, Peaks, Deserts) en un sitio cuya audiencia principal es hispanohablante.
+- Solo 7 mapas locales: poco contenido para SEO orgánico. Falta un tema de alto interés buscado en español.
+
+### Nuevas tareas
+- [ ] Mostrar el campo `description` de cada mapa truncado a 2 líneas debajo de las tags en las tarjetas de la galería, mejorando SEO y comprensión del usuario (21-08)
+- [ ] Traducir al español los títulos, descripciones y datos de los 4 mapas que aún están en inglés (Wildfires, Volcanes, Peaks, Deserts) en sus archivos de data/ para unificar el idioma de la galería (21-08)
+- [ ] Nuevo mapa local: "Ríos Más Largos del Mundo" con los 10 ríos principales, puntos de nacimiento y desembocadura, usando datos de ONU/USGS, siguiendo el patrón de gallery-oceans.js (21-08)
