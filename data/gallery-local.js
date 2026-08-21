@@ -47,4 +47,8 @@
   if (window.MANA_OCEANS_MAP) {
     window.MANA_LOCAL_MAPS.push(window.MANA_OCEANS_MAP);
   }
+  // Mapa de desiertos principales del mundo.
+  if (window.MANA_DESERTS_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_DESERTS_MAP);
+  }
 })();
