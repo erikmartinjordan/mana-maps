@@ -63,5 +63,5 @@ Formato: "- [x] descripcion".
 
 ### Nuevas tareas
 - [x] Añadir campo `tags` (array) a cada definición de mapa local y mostrar badges de categoría en las tarjetas de la galería (Economía, Geografía, Naturaleza, Infraestructura, etc.) (20-08)
-- [ ] Añadir barra de filtros por tag sobre el grid de la galería con deep-linkable URLs (?tag=economia) y actualización del aria-live
+- [x] Añadir barra de filtros por tag sobre el grid de la galería con deep-linkable URLs (?tag=economia) y actualización del aria-live (21-08)
 - [ ] Nuevo mapa local: "Océanos y Mares del Mundo" con polígonos de las 5 zonas oceánicas principales + marcas de mares notables, usando datos de GEBCO/IHO, siguiendo el patrón de gallery-volcanes.js
