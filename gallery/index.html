@@ -154,6 +154,45 @@
     }
     .grid .card-actions{margin:10px 4px 0;padding:10px 0 2px}
 
+    /* ── Filter bar ── */
+    .filter-bar{
+      display:flex;flex-wrap:wrap;gap:8px;padding:0 48px;margin-bottom:20px;
+      align-items:center;
+    }
+    .filter-bar-label{
+      font-size:13px;font-weight:700;color:var(--muted);letter-spacing:-.01em;
+      margin-right:4px;white-space:nowrap;
+    }
+    .filter-btn{
+      display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 14px;
+      border-radius:999px;border:1px solid var(--line);background:#fff;
+      color:var(--text);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+      cursor:pointer;transition:all .15s ease;white-space:nowrap;
+    }
+    .filter-btn:hover{border-color:rgba(16,24,40,.22);background:#f8f9fb}
+    .filter-btn.active{
+      background:var(--cta);color:#fff;border-color:transparent;
+      box-shadow:0 2px 8px rgba(17,25,28,.18);
+    }
+    .filter-btn.active:hover{opacity:.88}
+    .filter-count{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+      background:rgba(10,132,255,.1);color:#0369a1;font-size:10px;font-weight:800;
+    }
+    .filter-btn.active .filter-count{background:rgba(255,255,255,.22);color:#fff}
+    .filter-clear{
+      display:none;align-items:center;gap:5px;height:34px;padding:0 12px;
+      border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.7);
+      color:var(--muted);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+      cursor:pointer;transition:all .15s ease;margin-left:4px;
+    }
+    .filter-clear:hover{background:#fff;color:var(--text)}
+    .filter-clear.visible{display:inline-flex}
+    .filter-result-text{
+      font-size:13px;color:var(--muted);padding:0 48px 4px;
+    }
+
     /* ── Empty state ── */
     .empty{
       break-inside:avoid;border:1px dashed var(--line);border-radius:20px;
@@ -199,6 +238,7 @@
       #featured-wrap{margin:0 24px 20px;padding:14px}
       #featured-map{height:260px}
       .grid{padding:0 24px 32px}
+      .filter-bar{padding:0 24px}
     }
     @media (max-width:560px){
       .topbar{padding:0 10px;height:60px}
@@ -210,6 +250,8 @@
       .hero{padding:30px 18px 22px}
       #featured-wrap{margin-left:18px;margin-right:18px}
       .grid{padding-left:18px;padding-right:18px}
+      .filter-bar{padding:0 18px;gap:6px}
+      .filter-btn{height:30px;padding:0 10px;font-size:11px}
       .grid .thumb{height:180px}
       .footer{padding:16px 18px;flex-direction:column;align-items:flex-start}
     }
@@ -276,6 +318,11 @@
       <h1>Galería de mapas</h1>
       <p>Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.</p>
     </section>
+
+    <div id="filter-bar" class="filter-bar" role="toolbar" aria-label="Filtrar mapas por categoría" hidden>
+      <span class="filter-bar-label">Categorías:</span>
+    </div>
+    <div id="filter-status" class="filter-result-text" aria-live="polite" role="status"></div>
 
     <section id="featured-wrap" aria-label="Mapa destacado">
       <div class="featured-head">

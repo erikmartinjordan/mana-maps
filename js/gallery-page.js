@@ -358,6 +358,148 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // FILTER BY TAG
+  // ═══════════════════════════════════════════════════════════════
+
+  var _allMaps = [];
+  var _activeFilter = null;
+
+  function getTagLabel(tag) {
+    return tag.charAt(0).toUpperCase() + tag.slice(1);
+  }
+
+  function getTagSlug(tag) {
+    return tag.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
+  function collectTags(maps) {
+    var tagSet = {};
+    maps.forEach(function(m) {
+      var tags = Array.isArray(m.tags) ? m.tags : [];
+      tags.forEach(function(t) { tagSet[t] = true; });
+    });
+    return Object.keys(tagSet).sort(function(a, b) {
+      return getTagLabel(a).localeCompare(getTagLabel(b), 'es');
+    });
+  }
+
+  function renderFilterBar(maps) {
+    var bar = document.getElementById('filter-bar');
+    var statusEl = document.getElementById('filter-status');
+    if (!bar) return;
+    var tags = collectTags(maps);
+    if (!tags.length) {
+      bar.hidden = true;
+      return;
+    }
+
+    // Build tag→count map for display
+    var counts = {};
+    tags.forEach(function(t) { counts[t] = 0; });
+    maps.forEach(function(m) {
+      var mt = Array.isArray(m.tags) ? m.tags : [];
+      mt.forEach(function(t) { if (counts[t] !== undefined) counts[t]++; });
+    });
+
+    // Read initial filter from URL
+    var params = new URLSearchParams(window.location.search);
+    var initialTag = params.get('tag');
+    if (initialTag) {
+      // Find the actual tag matching the slug
+      var matched = tags.find(function(t) { return getTagSlug(t) === initialTag; });
+      if (matched) _activeFilter = matched;
+    }
+
+    var html = '<span class="filter-bar-label">Categorías:</span>';
+    tags.forEach(function(tag) {
+      var slug = getTagSlug(tag);
+      var active = _activeFilter === tag;
+      html += '<button class="filter-btn' + (active ? ' active' : '') + '" data-tag="' + escHtml(tag) + '" data-slug="' + escHtml(slug) + '" aria-pressed="' + active + '">' +
+        escHtml(getTagLabel(tag)) +
+        ' <span class="filter-count">' + counts[tag] + '</span>' +
+      '</button>';
+    });
+    html += '<button class="filter-clear' + (_activeFilter ? ' visible' : '') + '" id="filter-clear-btn" aria-label="Mostrar todos los mapas">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      ' Limpiar' +
+    '</button>';
+    bar.innerHTML = html;
+    bar.hidden = false;
+
+    // Attach click handlers
+    bar.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tag = btn.getAttribute('data-tag');
+        if (_activeFilter === tag) {
+          _activeFilter = null;
+        } else {
+          _activeFilter = tag;
+        }
+        applyFilter();
+      });
+    });
+
+    var clearBtn = bar.querySelector('#filter-clear-btn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        _activeFilter = null;
+        applyFilter();
+      });
+    }
+
+    // Apply initial filter from URL
+    if (_activeFilter) applyFilter();
+  }
+
+  function applyFilter() {
+    var bar = document.getElementById('filter-bar');
+    var statusEl = document.getElementById('filter-status');
+    var list = document.getElementById('gallery-list');
+
+    // Update button states
+    if (bar) {
+      bar.querySelectorAll('.filter-btn').forEach(function(btn) {
+        var tag = btn.getAttribute('data-tag');
+        var active = _activeFilter === tag;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active);
+      });
+      var clearBtn = bar.querySelector('#filter-clear-btn');
+      if (clearBtn) clearBtn.classList.toggle('visible', !!_activeFilter);
+    }
+
+    // Update URL
+    var url = new URL(window.location.href);
+    if (_activeFilter) {
+      url.searchParams.set('tag', getTagSlug(_activeFilter));
+    } else {
+      url.searchParams.delete('tag');
+    }
+    window.history.replaceState(null, '', url);
+
+    // Filter the cards
+    var filtered = _activeFilter
+      ? _allMaps.filter(function(m) {
+          var tags = Array.isArray(m.tags) ? m.tags : [];
+          return tags.indexOf(_activeFilter) >= 0;
+        })
+      : _allMaps;
+
+    renderCards(filtered);
+
+    // Announce to screen readers
+    if (statusEl) {
+      if (_activeFilter) {
+        statusEl.textContent = 'Mostrando ' + filtered.length + ' mapa' + (filtered.length !== 1 ? 's' : '') + ' en «' + getTagLabel(_activeFilter) + '».';
+      } else {
+        statusEl.textContent = 'Mostrando todos los mapas (' + filtered.length + ').';
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // LIKE & FORK HANDLERS
   // ═══════════════════════════════════════════════════════════════
 
@@ -708,7 +850,9 @@
       return bTs - aTs;
     });
 
-    renderCards(merged);
+    _allMaps = merged;
+    renderFilterBar(merged);
+    if (_activeFilter) applyFilter(); else renderCards(merged);
     subscribeToPublishedMaps(merged);
 
     const mapId = getQueryMapId();
@@ -760,7 +904,9 @@
         }
         mergedList.length = 0;
         mergedList.push.apply(mergedList, unique.slice(0, 40));
-        renderCards(mergedList);
+        _allMaps = mergedList;
+        renderFilterBar(mergedList);
+        if (_activeFilter) applyFilter(); else renderCards(mergedList);
       }
 
       baseQuery
