@@ -75,5 +75,5 @@ Formato: "- [x] descripcion".
 
 ### Nuevas tareas
 - [x] Mostrar el campo `description` de cada mapa truncado a 2 líneas debajo de las tags en las tarjetas de la galería, mejorando SEO y comprensión del usuario (21-08)
-- [ ] Traducir al español los títulos, descripciones y datos de los 4 mapas que aún están en inglés (Wildfires, Volcanes, Peaks, Deserts) en sus archivos de data/ para unificar el idioma de la galería (21-08)
-- [ ] Nuevo mapa local: "Ríos Más Largos del Mundo" con los 10 ríos principales, puntos de nacimiento y desembocadura, usando datos de ONU/USGS, siguiendo el patrón de gallery-oceans.js (21-08)
+- [ ] Traducir al español los títulos, descripciones y datos de los mapas aún en inglés (Wildfires, Volcanes, Peaks, Deserts, Minimum Wage, Fiber Cables) actualizando directamente sus documentos en Firestore (maps/<slug> vía REST); ya no existen archivos data/ (21-08)
+- [ ] Nuevo mapa: "Ríos Más Largos del Mundo" con los 10 ríos principales (nacimientos y desembocaduras), usando geometrías reales de Natural Earth/ONU y publicado directamente en Firestore siguiendo el estándar de AGENTS.md (21-08)
