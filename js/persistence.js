@@ -373,36 +373,8 @@ async function restoreFromURL() {
       }
     }
 
-    function findLocalMap(slug) {
-      if (!window.MANA_LOCAL_MAPS || !Array.isArray(window.MANA_LOCAL_MAPS)) return null;
-      for (var i = 0; i < window.MANA_LOCAL_MAPS.length; i++) {
-        var m = window.MANA_LOCAL_MAPS[i];
-        if ((m.slug || m.id) === slug && m.geojsonText) {
-          try {
-            var parsed = JSON.parse(m.geojsonText);
-            return parsed && parsed.features ? { payload: m, geo: parsed } : null;
-          } catch (e) { return null; }
-        }
-      }
-      return null;
-    }
-
     const gallerySlug = search.get('gallery') || search.get('slug');
     if (gallerySlug) {
-      var localMap = findLocalMap(gallerySlug);
-      if (localMap) {
-        await _importRestoredGeoJSON(localMap.geo);
-        if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
-          requestAnimationFrame(function() {
-            try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
-          });
-        }
-        const input = document.getElementById('project-name-input');
-        if (input) input.value = localMap.payload.title || localMap.payload.name || '';
-        if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId('');
-        return true;
-      }
-
       const db = getSharedMapsDb();
       if (db) {
         const galleryDoc = await db.collection(MAPS_COLLECTION).doc(gallerySlug).get();

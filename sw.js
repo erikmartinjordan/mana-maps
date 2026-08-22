@@ -36,7 +36,6 @@ const PRECACHE_URLS = [
   '/js/chat.js?v=1776927827',
   '/js/undo-redo.js?v=1776927827',
   '/js/persistence.js?v=1776927829',
-  '/data/gallery-local.js',
   '/js/gallery.js?v=1776927826',
   '/js/ogc-loader.js?v=1776927826',
   '/js/responsive.js?v=1776927826',

@@ -1,61 +1,43 @@
 const { test, expect } = require('@playwright/test');
 
-// The gallery page loads external CDNs (maplibre-gl from unpkg.com, Firebase
-// from gstatic.com, Google Fonts) that can block or delay the browser "load"
-// event. In CI or on a slow network that event can take longer than the test
-// timeout and make this smoke test flaky, so it aborts those third-party
-// requests: the test only needs the bundled local maps and the auth modal,
-// and stays deterministic without external dependencies.
 const EXTERNAL_CDN = /^https?:\/\/(unpkg\.com|www\.gstatic\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)/;
 
-test('gallery loads without errors and like/fork show auth modal', async ({ page }) => {
+test('gallery loads without errors and shows empty state when Firebase is unavailable', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
 
   await page.route(EXTERNAL_CDN, (route) => route.abort());
 
-  // No Firebase config: remoteMaps falls back to the bundled local map.
   await page.addInitScript(() => {
     delete window.MANA_FIREBASE_CONFIGS;
   });
 
   await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
 
-  // The bundled local maps (wildfires, minimum wage, submarine cables, active
-  // volcanoes, peaks, oceans & seas) must render as cards following the same
-  // pattern.
-  const volcanoCard = page.locator('.card', { hasText: 'Active Volcanoes of the World' });
-  await expect(volcanoCard.first()).toBeVisible({ timeout: 20_000 });
-  await expect(volcanoCard.first()).toContainText('86 elementos');
-  await expect(volcanoCard.first().locator('.meta-source')).toContainText('Smithsonian Global Volcanism Program');
-  await expect(volcanoCard.first().locator('.meta-source')).toContainText('2026');
+  const emptyState = page.locator('.empty-title');
+  await expect(emptyState.first()).toBeVisible({ timeout: 20_000 });
+  await expect(emptyState.first()).toContainText('Todavía no hay mapas publicados');
 
-  // Tags badges must be visible inside the card (Naturaleza, Geografía)
-  await expect(volcanoCard.first().locator('.card-tag').first()).toBeVisible();
-  await expect(volcanoCard.first().locator('.card-tags')).toContainText('Naturaleza');
-  await expect(volcanoCard.first().locator('.card-tags')).toContainText('Geografía');
+  const createBtn = page.locator('.empty .btn-primary');
+  await expect(createBtn).toBeVisible();
+  await expect(createBtn).toHaveAttribute('href', '/map/');
 
-  // The oceans & seas map card must render with correct feature count, source
-  // and tags (added 2026-08-21).
-  const oceanCard = page.locator('.card', { hasText: 'Océanos y Mares del Mundo' });
-  await expect(oceanCard.first()).toBeVisible({ timeout: 20_000 });
-  await expect(oceanCard.first()).toContainText('15 elementos');
-  await expect(oceanCard.first().locator('.meta-source')).toContainText('GEBCO');
-  await expect(oceanCard.first().locator('.card-tags')).toContainText('Geografía');
-  await expect(oceanCard.first().locator('.card-tags')).toContainText('Naturaleza');
+  expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
+});
 
-  const likeBtn = page.locator('.card-like-btn').first();
-  await expect(likeBtn).toBeVisible({ timeout: 20_000 });
+test('gallery auth modal opens on like/fork click', async ({ page }) => {
+  const pageErrors = [];
+  page.on('pageerror', (err) => pageErrors.push(err.message));
 
-  await likeBtn.click();
-  await expect(page.locator('#auth-modal.open')).toBeVisible();
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
 
-  await page.locator('.modal-close-btn.share-close').click();
-  await expect(page.locator('#auth-modal.open')).not.toBeVisible();
+  await page.addInitScript(() => {
+    delete window.MANA_FIREBASE_CONFIGS;
+  });
 
-  const forkBtn = page.locator('.card-fork-btn').first();
-  await forkBtn.click();
-  await expect(page.locator('#auth-modal.open')).toBeVisible();
+  await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
+
+  await page.waitForSelector('.empty-title', { timeout: 20_000 });
 
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });

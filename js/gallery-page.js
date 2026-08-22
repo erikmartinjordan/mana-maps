@@ -82,18 +82,10 @@
   // REMOTE DATA
   // ═══════════════════════════════════════════════════════════════
 
-  function getLocalFallbackMaps() {
-    if (!window.MANA_LOCAL_MAPS || !Array.isArray(window.MANA_LOCAL_MAPS)) return [];
-    return window.MANA_LOCAL_MAPS.map(function(m, i) {
-      if (m && m.id && m.geojsonText) return m;
-      return null;
-    }).filter(Boolean);
-  }
-
   async function remoteMaps() {
-    if (typeof firebase === 'undefined') return getLocalFallbackMaps();
+    if (typeof firebase === 'undefined') return [];
     try {
-      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return getLocalFallbackMaps(); firebase.initializeApp(firebaseConfig); }
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return []; firebase.initializeApp(firebaseConfig); }
       const db = firebase.firestore();
       // Firestore read: initial published maps list for gallery bootstrap.
       let snap = null;
@@ -119,34 +111,23 @@
             .get();
         }
       }
-      if (!snap || !snap.docs) return getLocalFallbackMaps();
+      if (!snap || !snap.docs) return [];
       const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       items.sort(function(a, b) {
         const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
         const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
         return bTs - aTs;
       });
-      // Combinar remotos + locales, deduplicando por slug. Los mapas locales
-      // (p.ej. minwage, fibra) se anaden al final solo si no existen ya en
-      // Firestore (evita duplicar "Worst Wildfires" que esta publicado).
       const seen = {};
-      const unique = items.filter(function(item) {
+      return items.filter(function(item) {
         var key = item.slug || item.id;
         if (!key || seen[key]) return false;
         seen[key] = true;
         return true;
-      });
-      const locals = getLocalFallbackMaps();
-      for (var i = 0; i < locals.length; i++) {
-        var lkey = locals[i].slug || locals[i].id;
-        if (!lkey || seen[lkey]) continue;
-        seen[lkey] = true;
-        unique.push(locals[i]);
-      }
-      return unique.slice(0, 40);
+      }).slice(0, 40);
     } catch (e) {
-      console.warn('gallery remoteMaps fallback local:', e);
-      return getLocalFallbackMaps();
+      console.warn('gallery remoteMaps error:', e);
+      return [];
     }
   }
 
@@ -589,6 +570,75 @@
 
   var _featuredMap = null;
 
+  function ensureLegendStyles() {
+    if (document.getElementById('featured-legend-style')) return;
+    var st = document.createElement('style');
+    st.id = 'featured-legend-style';
+    st.textContent =
+      '.featured-legend{position:absolute;left:12px;bottom:34px;z-index:6;background:rgba(255,255,255,.93);' +
+      'backdrop-filter:blur(6px);border:1px solid rgba(16,24,40,.14);border-radius:12px;padding:10px 13px;' +
+      "font-family:'DM Sans',sans-serif;font-size:11px;color:#334155;box-shadow:0 6px 20px rgba(15,23,42,.14);line-height:1.35}" +
+      '.featured-legend-title{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#64748b;margin-bottom:7px}' +
+      '.featured-legend-steps{display:flex;border-radius:4px;overflow:hidden;border:1px solid rgba(16,24,40,.18)}' +
+      '.featured-legend-steps span{width:26px;height:11px;display:block}' +
+      '.featured-legend-scale{display:flex;justify-content:space-between;margin-top:4px;font-weight:600;color:#475569}' +
+      '.featured-legend-item{display:flex;align-items:center;gap:6px;margin-top:8px;font-weight:600;color:#475569}' +
+      '.featured-legend-item i{width:12px;height:12px;border-radius:3px;border:1px solid rgba(16,24,40,.22);flex-shrink:0}' +
+      '@media (max-width:560px){.featured-legend{left:8px;bottom:52px;padding:8px 10px;font-size:10px}.featured-legend-steps span{width:20px}}';
+    document.head.appendChild(st);
+  }
+
+  // Leyenda genérica para coropletas: agrupa polígonos por _manaGroupName y,
+  // si un grupo tiene >=3 colores distintos con «Profundidad media» parseable,
+  // pinta una escala discreta min→max. Devuelve '' si no aplica.
+  function buildDepthLegend(geo) {
+    var groups = {};
+    (geo.features || []).forEach(function(f) {
+      var p = f && f.properties;
+      if (!p) return;
+      var gname = p._manaGroupName;
+      if (!gname || !p._manaColor) return;
+      if (!groups[gname]) groups[gname] = { colors: {}, depths: [] };
+      var bucket = groups[gname];
+      if (!bucket.colors[p._manaColor]) {
+        bucket.colors[p._manaColor] = true;
+        var m = /([\d.,\s]+)\s*m/.exec(String(p['Profundidad media'] || ''));
+        if (m) {
+          var val = parseFloat(m[1].replace(/[.\s]/g, '').replace(',', '.'));
+          if (isFinite(val)) bucket.depths.push({ v: val, c: p._manaColor });
+        }
+      }
+    });
+    var rampGroup = null, plainGroup = null;
+    Object.keys(groups).forEach(function(gname) {
+      var uniqDepths = {};
+      groups[gname].depths.forEach(function(d) { uniqDepths[d.c] = d; });
+      var steps = Object.keys(uniqDepths).map(function(k) { return uniqDepths[k]; }).sort(function(a, b) { return a.v - b.v; });
+      groups[gname].steps = steps;
+      if (steps.length >= 3 && !rampGroup) rampGroup = { name: gname, steps: steps };
+      else if (!plainGroup && steps.length === 0 && Object.keys(groups[gname].colors).length === 1) {
+        plainGroup = { name: gname, color: Object.keys(groups[gname].colors)[0] };
+      }
+    });
+    if (!rampGroup) return '';
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: intensidad del azul según profundidad media">' +
+      '<div class="featured-legend-title">Profundidad media</div>' +
+      '<div class="featured-legend-steps">';
+    rampGroup.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
+    html += '</div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(formatMeters(rampGroup.steps[0].v)) + '</span>' +
+      '<span>' + escHtml(formatMeters(rampGroup.steps[rampGroup.steps.length - 1].v)) + '</span></div>';
+    if (plainGroup) {
+      html += '<div class="featured-legend-item"><i style="background:' + plainGroup.color + '"></i>' + escHtml(plainGroup.name) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function formatMeters(v) {
+    return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
+  }
+
   function collectGeoBounds(geo) {
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     function walk(coords) {
@@ -633,15 +683,19 @@
     if (props._countriesES) {
       html += '<br><span style="font-size:11px;color:#64748b">' + escHtml(props._countriesES) + '</span>';
     }
-    // Show generic properties for other maps
+    // Show generic properties for other maps (curated Spanish keys first,
+    // then any remaining human-readable string props).
     if (!props._wageFormatted && !props._lengthFormatted) {
       var extra = [];
-      if (props.Deaths) extra.push('Muertes: ' + props.Deaths);
-      if (props.Area) extra.push('Área: ' + props.Area);
-      if (props.Year) extra.push('Año: ' + props.Year);
-      if (props.Location) extra.push(props.Location);
-      if (props.year) extra.push(props.year);
-      if (props.elevation_m) extra.push(props.elevation_m + ' m');
+      var seenKeys = {};
+      ['Superficie', 'Profundidad media', 'Profundidad máxima', 'Dato', 'Deaths', 'Area', 'Year', 'Location'].forEach(function(k) {
+        if (props[k] !== undefined && props[k] !== '') { extra.push(props[k]); seenKeys[k] = true; }
+      });
+      Object.keys(props).forEach(function(k) {
+        if (seenKeys[k] || k.charAt(0) === '_' || k === 'name' || k === 'Name' || k === 'Description') return;
+        var v = props[k];
+        if (typeof v === 'string' && v.length < 60) extra.push(v);
+      });
       if (extra.length) {
         html += '<br><span style="font-size:12px;color:#475569">' + escHtml(extra.join(' · ')) + '</span>';
       }
@@ -663,12 +717,28 @@
 
     map.addLayer({
       id: 'featured-fills', type: 'fill', source: 'featured-data', filter: isPolygon,
-      paint: { 'fill-color': colorExpr, 'fill-opacity': 0.16 }
+      paint: { 'fill-color': colorExpr, 'fill-opacity': ['coalesce', ['get', '_manaFillOpacity'], 0.16] }
     });
     map.addLayer({
       id: 'featured-fill-outlines', type: 'line', source: 'featured-data', filter: isPolygon,
       layout: { 'line-join': 'round' },
-      paint: { 'line-color': colorExpr, 'line-opacity': 0.9, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 1, 10, 2.4] }
+      paint: {
+        'line-color': ['coalesce', ['get', '_manaBorderColor'], colorExpr],
+        'line-opacity': 0.9,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 2, ['coalesce', ['get', '_manaWeight'], 1], 10, ['*', ['coalesce', ['get', '_manaWeight'], 1], 2]]
+      }
+    });
+    map.addLayer({
+      id: 'featured-fill-labels', type: 'symbol', source: 'featured-data', filter: isPolygon,
+      layout: {
+        'text-field': ['coalesce', ['get', '_manaName'], ['get', 'name'], ''],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 12,
+        'text-letter-spacing': 0.04,
+        'text-optional': true,
+        'text-max-width': 12
+      },
+      paint: { 'text-color': '#274b63', 'text-halo-color': '#ffffff', 'text-halo-width': 2 }
     });
     map.addLayer({
       id: 'featured-line-casing', type: 'line', source: 'featured-data', filter: isLine,
@@ -797,6 +867,10 @@
       return;
     }
 
+    ensureLegendStyles();
+    var legendHtml = buildDepthLegend(geo);
+    if (legendHtml) target.insertAdjacentHTML('beforeend', legendHtml);
+
     var styleUrl = window.MANA_BASEMAPS
       ? window.MANA_BASEMAPS.getStyleUrl(false)
       : 'https://tiles.openfreemap.org/styles/positron';
@@ -889,8 +963,6 @@
           const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
           return bTs - aTs;
         });
-        // Combinar remotos + locales (dedup por slug) para que los mapas
-        // locales no publicados en Firestore sigan visibles en tiempo real.
         const seen = {};
         const unique = remote.filter(function(item) {
           const key = item.slug || item.id;
@@ -898,13 +970,6 @@
           seen[key] = true;
           return true;
         });
-        const locals = getLocalFallbackMaps();
-        for (var i = 0; i < locals.length; i++) {
-          const lkey = locals[i].slug || locals[i].id;
-          if (!lkey || seen[lkey]) continue;
-          seen[lkey] = true;
-          unique.push(locals[i]);
-        }
         mergedList.length = 0;
         mergedList.push.apply(mergedList, unique.slice(0, 40));
         _allMaps = mergedList;
