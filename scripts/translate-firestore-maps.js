@@ -24,7 +24,7 @@ const COLLECTION = 'maps';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
-// ─── Auth: Service Account OR Firebase Auth (publisher) ──────────
+// ─── Auth: Service Account, ADC (refresh_token), OR Firebase Auth (publisher) ──
 function loadServiceAccount() {
   const credsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (!credsPath) return null;
@@ -33,7 +33,41 @@ function loadServiceAccount() {
     console.error(`WARN: Service account file not found: ${absPath}`);
     return null;
   }
-  return JSON.parse(fs.readFileSync(absPath, 'utf8'));
+  const creds = JSON.parse(fs.readFileSync(absPath, 'utf8'));
+  // Only return if it's a service account (has client_email + private_key)
+  if (creds.type === 'service_account' && creds.client_email && creds.private_key) return creds;
+  return null;
+}
+
+function loadADC() {
+  // Try standard ADC locations
+  const home = require('os').homedir();
+  const candidates = [
+    process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    path.join(home, '.config/gcloud/application_default_credentials.json'),
+    // Legacy gcloud credentials
+    ...(() => {
+      try {
+        const legacyDir = path.join(home, '.config/gcloud/legacy_credentials');
+        if (fs.existsSync(legacyDir)) {
+          return fs.readdirSync(legacyDir)
+            .filter(d => !d.startsWith('.'))
+            .map(d => path.join(legacyDir, d, 'adc.json'));
+        }
+      } catch (_) {}
+      return [];
+    })(),
+  ].filter(Boolean);
+
+  for (const p of candidates) {
+    const absPath = path.resolve(p);
+    if (!fs.existsSync(absPath)) continue;
+    try {
+      const creds = JSON.parse(fs.readFileSync(absPath, 'utf8'));
+      if (creds.type === 'authorized_user' && creds.refresh_token) return creds;
+    } catch (_) {}
+  }
+  return null;
 }
 
 function loadPublisherCredentials() {
@@ -81,6 +115,30 @@ async function firebaseAuthSignIn(email, password, apiKey) {
     throw new Error(`Firebase Auth sign-in failed (${res.status}): ${JSON.stringify(res.data)}`);
   }
   return res.data.idToken;
+}
+
+// ADC (authorized_user with refresh_token) → Google OAuth2 access token
+function getAccessTokenFromADC(adc) {
+  return new Promise((resolve, reject) => {
+    const postData = `client_id=${encodeURIComponent(adc.client_id)}&client_secret=${encodeURIComponent(adc.client_secret)}&refresh_token=${encodeURIComponent(adc.refresh_token)}&grant_type=refresh_token`;
+    const req = https.request('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(postData) }
+    }, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.access_token) resolve(parsed.access_token);
+          else reject(new Error('ADC token error: ' + data));
+        } catch (e) { reject(e); }
+      });
+    });
+    req.on('error', reject);
+    req.write(postData);
+    req.end();
+  });
 }
 
 // Service Account → Google OAuth2 access token
@@ -142,6 +200,13 @@ async function getAccessToken() {
     return firebaseAuthSignIn(pub.email, pub.password, pub.apiKey);
   }
 
+  // Try ADC (refresh_token from gcloud auth) as last resort
+  const adc = loadADC();
+  if (adc) {
+    console.log('Using ADC (refresh_token) authentication.');
+    return getAccessTokenFromADC(adc);
+  }
+
   console.error('ERROR: No credentials found. Set GOOGLE_APPLICATION_CREDENTIALS (service account) or PUBLISHER_CREDENTIALS (publisher email/password).');
   process.exit(1);
 }
@@ -187,12 +252,17 @@ async function getMapDoc(token, slug) {
   return res.data;
 }
 
-async function updateMapFields(token, slug, fields) {
+async function updateMapFields(token, slug, fields, allExistingFields) {
   // Firestore REST PATCH with updateMask — each field path must be a separate query param
-  const fieldPaths = Object.keys(fields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
+  // IMPORTANT: We must send ALL existing fields (merged with changes) so that
+  // request.resource.data contains fields like createdBy that Firestore rules
+  // need to evaluate permissions. Otherwise, PATCH with only changed fields
+  // results in a 403 because createdBy is missing from request.resource.data.
+  const mergedFields = { ...allExistingFields, ...fields };
+  const fieldPaths = Object.keys(mergedFields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
   const urlPath = `/${COLLECTION}/${slug}?${fieldPaths}`;
 
-  const body = { fields };
+  const body = { fields: mergedFields };
   const res = await firestoreRequest(token, 'PATCH', urlPath, body);
   if (res.status >= 400) {
     throw new Error(`UPDATE ${slug} failed (${res.status}): ${JSON.stringify(res.data)}`);
@@ -684,9 +754,9 @@ async function main() {
       continue;
     }
 
-    // 3. Write update
+    // 3. Write update — send ALL existing fields merged with changes
     try {
-      await updateMapFields(token, slug, updateFields);
+      await updateMapFields(token, slug, updateFields, doc.fields);
       console.log('  UPDATED ✓');
       totalUpdated++;
     } catch (e) {
