@@ -135,10 +135,12 @@ service cloud.firestore {
 
       // Owners can always update/delete their shared maps. Non-owners may only
       // collaborate when the owner explicitly shared the map in edit mode.
+      // Original creators can also update their own maps.
       allow update: if canIncrementPublicMapEngagement()
         || (signedIn()
           && (
             resource.data.ownerUid == request.auth.uid
+            || resource.data.createdBy == request.auth.uid
             || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
             || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
             || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))
@@ -146,6 +148,7 @@ service cloud.firestore {
       allow delete: if signedIn()
         && (
           resource.data.ownerUid == request.auth.uid
+          || resource.data.createdBy == request.auth.uid
           || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
           || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
           || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))

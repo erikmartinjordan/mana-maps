@@ -3,12 +3,13 @@
 // Traduce al español los títulos, descripciones y datos de los mapas en inglés
 // almacenados en Firestore (colección 'maps').
 //
-// Requiere: GOOGLE_APPLICATION_CREDENTIALS apuntando a un service account JSON
-// con permisos de escritura en Firestore del proyecto mana-maps-pro-f2177.
+// Autenticación (dos opciones):
+//   1) GOOGLE_APPLICATION_CREDENTIALS → service account JSON
+//   2) PUBLISHER_CREDENTIALS → archivo JSON con { email, password, apiKey, projectId }
+//      (usa Firebase Auth Identity Toolkit para obtener un ID token)
 //
 // Uso:
-//   GOOGLE_APPLICATION_CREDENTIALS=./service-account.json \
-//     node scripts/translate-firestore-maps.js [--dry-run]
+//   node scripts/translate-firestore-maps.js [--dry-run]
 
 'use strict';
 
@@ -23,22 +24,67 @@ const COLLECTION = 'maps';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
-// ─── Service Account Auth ────────────────────────────────────────
+// ─── Auth: Service Account OR Firebase Auth (publisher) ──────────
 function loadServiceAccount() {
   const credsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (!credsPath) {
-    console.error('ERROR: Set GOOGLE_APPLICATION_CREDENTIALS env var to the path of a service account JSON.');
-    process.exit(1);
-  }
+  if (!credsPath) return null;
   const absPath = path.resolve(credsPath);
   if (!fs.existsSync(absPath)) {
-    console.error(`ERROR: Service account file not found: ${absPath}`);
-    process.exit(1);
+    console.error(`WARN: Service account file not found: ${absPath}`);
+    return null;
   }
   return JSON.parse(fs.readFileSync(absPath, 'utf8'));
 }
 
-function getAccessToken(sa) {
+function loadPublisherCredentials() {
+  const credsPath = process.env.PUBLISHER_CREDENTIALS;
+  if (!credsPath) return null;
+  const absPath = path.resolve(credsPath);
+  if (!fs.existsSync(absPath)) {
+    console.error(`WARN: Publisher credentials file not found: ${absPath}`);
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(absPath, 'utf8'));
+}
+
+function httpsRequest(url, options, body) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const req = https.request({
+      hostname: parsedUrl.hostname,
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: options.method || 'GET',
+      headers: options.headers || {}
+    }, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
+        catch (e) { resolve({ status: res.statusCode, data, parseError: true }); }
+      });
+    });
+    req.on('error', reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+// Firebase Auth Identity Toolkit sign-in → returns idToken
+async function firebaseAuthSignIn(email, password, apiKey) {
+  const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+  const body = JSON.stringify({ email, password, returnSecureToken: true });
+  const res = await httpsRequest(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+  }, body);
+  if (res.status !== 200) {
+    throw new Error(`Firebase Auth sign-in failed (${res.status}): ${JSON.stringify(res.data)}`);
+  }
+  return res.data.idToken;
+}
+
+// Service Account → Google OAuth2 access token
+function getAccessTokenFromSA(sa) {
   return new Promise((resolve, reject) => {
     const now = Math.floor(Date.now() / 1000);
     const payload = {
@@ -49,7 +95,6 @@ function getAccessToken(sa) {
       iat: now
     };
 
-    // Simple JWT sign with RSA-SHA256
     const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
     const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
     const signInput = `${header}.${body}`;
@@ -80,6 +125,25 @@ function getAccessToken(sa) {
     req.write(postData);
     req.end();
   });
+}
+
+async function getAccessToken() {
+  // Try service account first
+  const sa = loadServiceAccount();
+  if (sa) {
+    console.log('Using service account authentication.');
+    return getAccessTokenFromSA(sa);
+  }
+
+  // Fall back to publisher Firebase Auth
+  const pub = loadPublisherCredentials();
+  if (pub && pub.email && pub.password && pub.apiKey) {
+    console.log('Using Firebase Auth (publisher) authentication.');
+    return firebaseAuthSignIn(pub.email, pub.password, pub.apiKey);
+  }
+
+  console.error('ERROR: No credentials found. Set GOOGLE_APPLICATION_CREDENTIALS (service account) or PUBLISHER_CREDENTIALS (publisher email/password).');
+  process.exit(1);
 }
 
 // ─── Firestore REST helpers ──────────────────────────────────────
@@ -124,9 +188,9 @@ async function getMapDoc(token, slug) {
 }
 
 async function updateMapFields(token, slug, fields) {
-  // Firestore REST PATCH with updateMask
-  const fieldMask = Object.keys(fields).join(',');
-  const urlPath = `/${COLLECTION}/${slug}?updateMask.fieldPaths=${encodeURIComponent(fieldMask)}`;
+  // Firestore REST PATCH with updateMask — each field path must be a separate query param
+  const fieldPaths = Object.keys(fields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
+  const urlPath = `/${COLLECTION}/${slug}?${fieldPaths}`;
 
   const body = { fields };
   const res = await firestoreRequest(token, 'PATCH', urlPath, body);
@@ -526,12 +590,9 @@ function translateFeatureProperties(props, translations) {
 // ─── Main ────────────────────────────────────────────────────────
 async function main() {
   console.log(`\n=== translate-firestore-maps.js ${DRY_RUN ? '(DRY RUN)' : ''} ===\n`);
-
-  const sa = loadServiceAccount();
-  console.log(`Service account: ${sa.client_email}`);
   console.log(`Project: ${PROJECT_ID}\n`);
 
-  const token = await getAccessToken(sa);
+  const token = await getAccessToken();
   console.log('Access token obtained.\n');
 
   let totalUpdated = 0;
