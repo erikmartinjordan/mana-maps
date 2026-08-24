@@ -477,7 +477,13 @@ async function main() {
   
   // Authenticate
   console.log('Authenticating...');
-  const token = await getAccessToken();
+  const { token, uid } = await getAccessToken();
+  
+  // Use authenticated uid for Firestore rules (createdBy must == request.auth.uid)
+  if (uid) {
+    docFields.createdBy = fsStr(uid);
+    docFields.ownerUid = fsStr(uid);
+  }
   
   // Check if doc already exists
   console.log(`Checking if /maps/${SLUG} exists...`);
@@ -496,7 +502,7 @@ async function main() {
     console.log('Updated successfully!');
   } else {
     console.log('Creating new document...');
-    const res = await firestoreRequest(token, 'POST', `/${COLLECTION}`, { fields: docFields });
+    const res = await firestoreRequest(token, 'POST', `/${COLLECTION}?documentId=${SLUG}`, { fields: docFields });
     if (res.status >= 400) {
       console.error('Create failed:', res.status, JSON.stringify(res.data).substring(0, 500));
       process.exit(1);
