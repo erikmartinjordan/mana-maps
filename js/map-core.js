@@ -58,6 +58,23 @@ let tileSat = createManaSatelliteLayer();
 const map = L.map('map', { zoomAnimation: false, zoomControl: true, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 0.4, minZoom: 0 }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
+window._autoGlobeLock = false;
+
+function maybeSwitchToGlobe() {
+  if (window._autoGlobeLock || activeBase === 'globe') return;
+  if (map.getZoom() > 0.8) return;
+  window._autoGlobeLock = true;
+  setBaseLayer('globe');
+  setTimeout(function(){ window._autoGlobeLock = false; }, 700);
+}
+map.on('zoomend', maybeSwitchToGlobe);
+map.getContainer().addEventListener('wheel', function(e){
+  if (e.deltaY > 0 && map.getZoom() <= 0.6 && activeBase !== 'globe' && !window._autoGlobeLock) {
+    window._autoGlobeLock = true;
+    setBaseLayer('globe');
+    setTimeout(function(){ window._autoGlobeLock = false; }, 700);
+  }
+}, {passive: true});
 
 function syncManaBasemapAttribution() {
   if (!map || !map.attributionControl) return;
