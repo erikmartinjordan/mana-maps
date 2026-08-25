@@ -84,6 +84,7 @@ function updateGlobeBaseStyle(isDark) {
 function syncToGlobe() {
   if (!globeMap) return;
   if (globeMap.getLayer('drawn-point-labels')) globeMap.removeLayer('drawn-point-labels');
+  if (globeMap.getLayer('drawn-emoji-points')) globeMap.removeLayer('drawn-emoji-points');
   if (globeMap.getLayer('drawn-points')) globeMap.removeLayer('drawn-points');
   if (globeMap.getLayer('drawn-lines')) globeMap.removeLayer('drawn-lines');
   if (globeMap.getLayer('drawn-fills')) globeMap.removeLayer('drawn-fills');
@@ -92,7 +93,43 @@ function syncToGlobe() {
   var geo = getEnrichedGeoJSON();
   if (!geo.features.length) return;
 
-  geo.features.forEach(function(f) { f.properties._type = f.geometry.type; });
+  var _emojiMap = {
+    emoji_fire:'\uD83D\uDD25', emoji_water:'\uD83C\uDF0A', emoji_star:'\u2B50', emoji_heart:'\u2764\uFE0F', emoji_diamond:'\uD83D\uDC8E',
+    emoji_home:'\uD83C\uDFE0', emoji_building:'\uD83C\uDFE2', emoji_tree:'\uD83C\uDF32', emoji_mountain:'\uD83C\uDFD4\uFE0F', emoji_beach:'\uD83C\uDFD6\uFE0F',
+    emoji_camping:'\u26FA', emoji_flower:'\uD83C\uDF38', emoji_sun:'\u2600\uFE0F', emoji_moon:'\uD83C\uDF19', emoji_car:'\uD83D\uDE97', emoji_bus:'\uD83D\uDE8C',
+    emoji_train:'\uD83D\uDE82', emoji_plane:'\u2708\uFE0F', emoji_ship:'\uD83D\uDEA2', emoji_bike:'\uD83D\uDEB2', emoji_walk:'\uD83D\uDEB6', emoji_parking:'\uD83C\uDD7F\uFE0F',
+    emoji_fuel:'\u26FD', emoji_camera:'\uD83D\uDCF7', emoji_music:'\uD83C\uDFB5', emoji_soccer:'\u26BD', emoji_trophy:'\uD83C\uDFC6', emoji_ski:'\uD83C\uDFBF',
+    emoji_swim:'\uD83C\uDFCA', emoji_paint:'\uD83C\uDFA8', emoji_game:'\uD83C\uDFAE', emoji_warning:'\u26A0\uFE0F', emoji_info:'\u2139\uFE0F', emoji_question:'\u2753',
+    emoji_check:'\u2705', emoji_cross:'\u274C', emoji_lock:'\uD83D\uDD12', emoji_key:'\uD83D\uDD11', emoji_target:'\uD83C\uDFAF', emoji_pin:'\uD83D\uDCCC',
+    emoji_pushpin:'\uD83D\uDCCC', emoji_flag:'\uD83C\uDFC1', emoji_gift:'\uD83C\uDF81', emoji_money:'\uD83D\uDCB0', emoji_bulb:'\uD83D\uDCA1', emoji_party:'\uD83C\uDF89',
+    emoji_trash:'\uD83D\uDDD1\uFE0F', emoji_package:'\uD83D\uDCE6', emoji_hospital:'\uD83C\uDFE5', emoji_school:'\uD83C\uDFEB', emoji_church:'\u26EA',
+    emoji_museum:'\uD83C\uDFDB\uFE0F', emoji_hotel:'\uD83C\uDFE8', emoji_store:'\uD83C\uDFEA', emoji_bank:'\uD83C\uDFE6', emoji_factory:'\uD83C\uDFED', emoji_restaurant:'\uD83C\uDF7D\uFE0F',
+    emoji_burger:'\uD83C\uDF54', emoji_pizza:'\uD83C\uDF55', emoji_coffee:'\u2615', emoji_beer:'\uD83C\uDF7A', emoji_wine:'\uD83C\uDF77', emoji_cocktail:'\uD83C\uDF79',
+    emoji_sushi:'\uD83C\uDF63', emoji_icecream:'\uD83C\uDF66'
+  };
+  geo.features.forEach(function(f) {
+    f.properties._type = f.geometry.type;
+    var mt = f.properties._manaMarkerType;
+    if (mt && _emojiMap[mt]) {
+      f.properties._manaEmoji = _emojiMap[mt];
+      var sz = f.properties._manaEmojiSize;
+      if (!sz) {
+        var areaStr = f.properties.Area || f.properties.area || '';
+        var ha = 0;
+        if (typeof _parseArea === 'function') ha = _parseArea(areaStr);
+        else if (typeof areaStr === 'string') {
+          var s = areaStr.replace(/[~, ]/g,'').toLowerCase();
+          var mm = s.match(/^([\d.]+)m/); if (mm) ha = parseFloat(mm[1])*1e6;
+          else { mm = s.match(/^([\d.]+)k/); if (mm) ha = parseFloat(mm[1])*1e3; }
+        }
+        if (ha >= 1e7) f.properties._manaEmojiSize = 42;
+        else if (ha >= 1e6) f.properties._manaEmojiSize = 36;
+        else if (ha >= 1e5) f.properties._manaEmojiSize = 30;
+        else if (ha >= 1e4) f.properties._manaEmojiSize = 26;
+        else f.properties._manaEmojiSize = 22;
+      }
+    }
+  });
 
   globeMap.addSource('drawn', { type: 'geojson', data: geo });
 
@@ -106,10 +143,24 @@ function syncToGlobe() {
     filter: ['any', ['==', ['get', '_type'], 'LineString'], ['==', ['get', '_type'], 'Polygon']],
     paint: { 'line-color': ['get', 'color'], 'line-width': 2.5 }
   });
+  // Separate circle vs emoji points so fire/water stickers keep their shape in 3D
   globeMap.addLayer({
     id: 'drawn-points', type: 'circle', source: 'drawn',
-    filter: ['==', ['get', '_type'], 'Point'],
+    filter: ['all', ['==', ['get', '_type'], 'Point'], ['!', ['in', ['get', '_manaMarkerType'], ['literal', ['emoji_fire','emoji_water','emoji_star','emoji_heart','emoji_diamond','emoji_home','emoji_building','emoji_tree','emoji_mountain','emoji_beach','emoji_camping','emoji_flower','emoji_sun','emoji_moon','emoji_car','emoji_bus','emoji_train','emoji_plane','emoji_ship','emoji_bike','emoji_walk','emoji_parking','emoji_fuel','emoji_camera','emoji_music','emoji_soccer','emoji_trophy','emoji_ski','emoji_swim','emoji_paint','emoji_game','emoji_warning','emoji_info','emoji_question','emoji_check','emoji_cross','emoji_lock','emoji_key','emoji_target','emoji_pin','emoji_pushpin','emoji_flag','emoji_gift','emoji_money','emoji_bulb','emoji_party','emoji_trash','emoji_package','emoji_hospital','emoji_school','emoji_church','emoji_museum','emoji_hotel','emoji_store','emoji_bank','emoji_factory','emoji_restaurant','emoji_burger','emoji_pizza','emoji_coffee','emoji_beer','emoji_wine','emoji_cocktail','emoji_sushi','emoji_icecream']]]]],
     paint: { 'circle-radius': 7, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 }
+  });
+  globeMap.addLayer({
+    id: 'drawn-emoji-points', type: 'symbol', source: 'drawn',
+    filter: ['all', ['==', ['get', '_type'], 'Point'], ['in', ['get', '_manaMarkerType'], ['literal', ['emoji_fire','emoji_water','emoji_star','emoji_heart','emoji_diamond','emoji_home','emoji_building','emoji_tree','emoji_mountain','emoji_beach','emoji_camping','emoji_flower','emoji_sun','emoji_moon','emoji_car','emoji_bus','emoji_train','emoji_plane','emoji_ship','emoji_bike','emoji_walk','emoji_parking','emoji_fuel','emoji_camera','emoji_music','emoji_soccer','emoji_trophy','emoji_ski','emoji_swim','emoji_paint','emoji_game','emoji_warning','emoji_info','emoji_question','emoji_check','emoji_cross','emoji_lock','emoji_key','emoji_target','emoji_pin','emoji_pushpin','emoji_flag','emoji_gift','emoji_money','emoji_bulb','emoji_party','emoji_trash','emoji_package','emoji_hospital','emoji_school','emoji_church','emoji_museum','emoji_hotel','emoji_store','emoji_bank','emoji_factory','emoji_restaurant','emoji_burger','emoji_pizza','emoji_coffee','emoji_beer','emoji_wine','emoji_cocktail','emoji_sushi','emoji_icecream']]]],
+    layout: {
+      'text-field': ['get', '_manaEmoji'],
+      'text-size': ['coalesce', ['get', '_manaEmojiSize'], 28],
+      'text-allow-overlap': true,
+      'text-ignore-placement': true,
+      'text-anchor': 'center',
+      'text-font': ['Open Sans Regular']
+    },
+    paint: { 'text-halo-color': '#ffffff', 'text-halo-width': 0 }
   });
   globeMap.addLayer({
     id: 'drawn-point-labels', type: 'symbol', source: 'drawn',
