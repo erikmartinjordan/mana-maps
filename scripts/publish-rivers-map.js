@@ -438,7 +438,7 @@ async function main() {
     shareMode: fsStr('view'),
     allowPublicEdit: fsBool(false),
     isPublished: fsBool(true),
-    shareUrl: fsStr(`https://mana.com/gallery/?slug=${SLUG}`),
+    shareUrl: fsStr(`https://maña.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText),
     geojsonChunked: fsNull(),
     dataSource: fsStr('Natural Earth 50m rivers_lake_centerlines (naturalearthdata.com)'),
@@ -517,7 +517,7 @@ async function main() {
     const isPublished = verify.data.fields?.isPublished?.booleanValue;
     const fc = verify.data.fields?.featureCount?.integerValue;
     console.log(`✓ isPublished: ${isPublished}, featureCount: ${fc}`);
-    console.log(`✓ Gallery URL: https://mana.com/gallery/?slug=${SLUG}`);
+    console.log(`✓ Gallery URL: https://maña.com/gallery/?slug=${SLUG}`);
   } else {
     console.error('Verification failed:', verify.status);
   }
