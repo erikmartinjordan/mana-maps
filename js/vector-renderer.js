@@ -161,9 +161,10 @@
     drawnItems.eachLayer(function (l) {
       if (!(l instanceof L.Marker)) return;
       var ll = l.getLatLng();
+      var lng = ((ll.lng + 180) % 360 + 360) % 360 - 180;
       features.push({
         type: 'Feature',
-        geometry: { type: 'Point', coordinates: [ll.lng, ll.lat] },
+        geometry: { type: 'Point', coordinates: [lng, ll.lat] },
         properties: {
           name: l._manaName || '',
           color: l._manaColor || '#0ea5e9',
