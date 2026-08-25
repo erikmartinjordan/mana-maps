@@ -39,13 +39,13 @@ function initGlobe() {
     globeMap.on('mousedown', function() { if (spinActive) toggleSpin(); });
     globeMap.on('touchstart', function() { if (spinActive) toggleSpin(); });
     globeMap.on('zoom', function(){
-      if (globeMap.getZoom() > 2.2 && typeof activeBase !== 'undefined' && activeBase === 'globe' && !window._autoGlobeLock) {
+      if (globeMap.getZoom() > 3.5 && typeof activeBase !== 'undefined' && activeBase === 'globe' && !window._autoGlobeLock) {
         window._autoGlobeLock = true;
         if (typeof setBaseLayer === 'function') {
           var c = globeMap.getCenter();
           setBaseLayer('map');
           setTimeout(function(){ 
-            if (typeof map !== 'undefined' && map.setView) map.setView([c.lat, c.lng], 3, {animate:false});
+            if (typeof map !== 'undefined' && map.setView) map.setView([c.lat, c.lng], 3.5, {animate:false});
             window._autoGlobeLock = false;
           }, 400);
         }

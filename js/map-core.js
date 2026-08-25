@@ -62,14 +62,14 @@ window._autoGlobeLock = false;
 
 function maybeSwitchToGlobe() {
   if (window._autoGlobeLock || activeBase === 'globe') return;
-  if (map.getZoom() > 0.8) return;
+  if (map.getZoom() > 2) return;
   window._autoGlobeLock = true;
   setBaseLayer('globe');
   setTimeout(function(){ window._autoGlobeLock = false; }, 700);
 }
 map.on('zoomend', maybeSwitchToGlobe);
 map.getContainer().addEventListener('wheel', function(e){
-  if (e.deltaY > 0 && map.getZoom() <= 0.6 && activeBase !== 'globe' && !window._autoGlobeLock) {
+  if (e.deltaY > 0 && map.getZoom() <= 2.2 && activeBase !== 'globe' && !window._autoGlobeLock) {
     window._autoGlobeLock = true;
     setBaseLayer('globe');
     setTimeout(function(){ window._autoGlobeLock = false; }, 700);
