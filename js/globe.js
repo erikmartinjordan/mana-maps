@@ -47,7 +47,7 @@ function initGlobe() {
           setTimeout(function(){ 
             if (typeof map !== 'undefined' && map.setView) map.setView([c.lat, c.lng], 3.5, {animate:false});
             window._autoGlobeLock = false;
-          }, 400);
+          }, 450);
         }
       }
     });

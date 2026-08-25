@@ -65,14 +65,14 @@ function maybeSwitchToGlobe() {
   if (map.getZoom() > 2) return;
   window._autoGlobeLock = true;
   setBaseLayer('globe');
-  setTimeout(function(){ window._autoGlobeLock = false; }, 700);
+  setTimeout(function(){ window._autoGlobeLock = false; }, 450);
 }
 map.on('zoomend', maybeSwitchToGlobe);
 map.getContainer().addEventListener('wheel', function(e){
   if (e.deltaY > 0 && map.getZoom() <= 2.2 && activeBase !== 'globe' && !window._autoGlobeLock) {
     window._autoGlobeLock = true;
     setBaseLayer('globe');
-    setTimeout(function(){ window._autoGlobeLock = false; }, 700);
+    setTimeout(function(){ window._autoGlobeLock = false; }, 450);
   }
 }, {passive: true});
 
@@ -690,7 +690,11 @@ function setBaseLayer(type) {
       globeEl.style.opacity = '0';
       globeEl.style.transition = 'opacity 0.2s ease';
       if (!globeMap) { requestAnimationFrame(function(){ initGlobe(); }); }
-      else { requestAnimationFrame(function(){ globeMap.resize(); syncToGlobe(); }); }
+      else { requestAnimationFrame(function(){ 
+        var c = map.getCenter();
+        try{ globeMap.setCenter([c.lng, c.lat]); globeMap.setZoom(Math.max(1.2, map.getZoom())); }catch(e){}
+        globeMap.resize(); syncToGlobe(); 
+      }); }
       requestAnimationFrame(function() { globeEl.style.opacity = '1'; });
     }, 200);
   } else if (isLeaving3D) {
