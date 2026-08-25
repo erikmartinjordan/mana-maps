@@ -128,7 +128,9 @@ function setMapThemeTiles() {
   // ── Globe 3D: swap vector style ──
   if (typeof updateGlobeBaseStyle === 'function') updateGlobeBaseStyle(isDark);
   if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
-    // Also update point label colors for readability
+    if (globeMap.getLayer('drawn-fills')) {
+      globeMap.setPaintProperty('drawn-fills', 'fill-opacity', isDark ? 0.32 : 0.25);
+    }
     if (globeMap.getLayer('drawn-point-labels')) {
       globeMap.setPaintProperty('drawn-point-labels', 'text-color', isDark ? '#e8e6e3' : '#30363b');
       globeMap.setPaintProperty('drawn-point-labels', 'text-halo-color', isDark ? '#1a1a1a' : '#ffffff');

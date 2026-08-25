@@ -167,10 +167,11 @@ function syncToGlobe() {
 
   globeMap.addSource('drawn', { type: 'geojson', data: geo });
 
+  var _isDarkGlobe = (typeof isDarkMapTheme === 'function' && isDarkMapTheme());
   globeMap.addLayer({
     id: 'drawn-fills', type: 'fill', source: 'drawn',
     filter: ['==', ['get', '_type'], 'Polygon'],
-    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.25 }
+    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': _isDarkGlobe ? 0.32 : 0.25 }
   });
   globeMap.addLayer({
     id: 'drawn-lines', type: 'line', source: 'drawn',
@@ -181,7 +182,7 @@ function syncToGlobe() {
   globeMap.addLayer({
     id: 'drawn-points', type: 'circle', source: 'drawn',
     filter: ['all', ['==', ['get', '_type'], 'Point'], ['!', ['in', ['get', '_manaMarkerType'], ['literal', ['emoji_fire','emoji_water','emoji_star','emoji_heart','emoji_diamond','emoji_home','emoji_building','emoji_tree','emoji_mountain','emoji_beach','emoji_camping','emoji_flower','emoji_sun','emoji_moon','emoji_car','emoji_bus','emoji_train','emoji_plane','emoji_ship','emoji_bike','emoji_walk','emoji_parking','emoji_fuel','emoji_camera','emoji_music','emoji_soccer','emoji_trophy','emoji_ski','emoji_swim','emoji_paint','emoji_game','emoji_warning','emoji_info','emoji_question','emoji_check','emoji_cross','emoji_lock','emoji_key','emoji_target','emoji_pin','emoji_pushpin','emoji_flag','emoji_gift','emoji_money','emoji_bulb','emoji_party','emoji_trash','emoji_package','emoji_hospital','emoji_school','emoji_church','emoji_museum','emoji_hotel','emoji_store','emoji_bank','emoji_factory','emoji_restaurant','emoji_burger','emoji_pizza','emoji_coffee','emoji_beer','emoji_wine','emoji_cocktail','emoji_sushi','emoji_icecream']]]]],
-    paint: { 'circle-radius': 7, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 }
+    paint: { 'circle-radius': 7, 'circle-color': ['get', 'color'], 'circle-stroke-color': _isDarkGlobe ? '#1a1a1a' : '#ffffff', 'circle-stroke-width': 2 }
   });
   globeMap.addLayer({
     id: 'drawn-emoji-points', type: 'symbol', source: 'drawn',
@@ -202,7 +203,7 @@ function syncToGlobe() {
       'text-offset': [0, 1.8], 'text-anchor': 'top',
       'text-font': ['Open Sans Regular']
     },
-    paint: { 'text-color': '#30363b', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 }
+    paint: { 'text-color': _isDarkGlobe ? '#e8e6e3' : '#30363b', 'text-halo-color': _isDarkGlobe ? '#1a1a1a' : '#ffffff', 'text-halo-width': 1.5 }
   });
 }
 
