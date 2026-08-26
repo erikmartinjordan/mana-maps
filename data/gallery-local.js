@@ -51,4 +51,8 @@
   if (window.MANA_DESERTS_MAP) {
     window.MANA_LOCAL_MAPS.push(window.MANA_DESERTS_MAP);
   }
+  // Mapa de los 10 ríos más largos del mundo.
+  if (window.MANA_RIOS_MAP) {
+    window.MANA_LOCAL_MAPS.push(window.MANA_RIOS_MAP);
+  }
 })();
