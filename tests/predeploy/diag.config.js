@@ -1,0 +1,21 @@
+const { defineConfig } = require('@playwright/test');
+const path = require('path');
+
+const repoRoot = path.resolve(__dirname, '..', '..');
+
+module.exports = defineConfig({
+  testDir: __dirname,
+  testMatch: /gallery-diagnostic\.spec\.js/,
+  timeout: 30_000,
+  workers: 1,
+  use: {
+    baseURL: 'http://127.0.0.1:4180',
+    headless: true,
+  },
+  webServer: {
+    command: `python3 -m http.server 4180 --bind 127.0.0.1 --directory "${repoRoot}"`,
+    url: 'http://127.0.0.1:4180',
+    reuseExistingServer: false,
+    timeout: 15_000,
+  },
+});
