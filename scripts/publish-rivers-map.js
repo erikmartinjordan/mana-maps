@@ -233,8 +233,23 @@ function fsMap(obj) {
   return { mapValue: { fields } };
 }
 
-// ─── GeoJSON generation from Natural Earth ───────────────────────
-async function generateGeoJSON() {
+// ─── GeoJSON loading / generation ────────────────────────────────
+async function loadOrGenerateGeoJSON() {
+  // Try loading from local fallback data first (gallery-rios.js)
+  const localPath = path.join(__dirname, '..', 'data', 'gallery-rios.js');
+  if (fs.existsSync(localPath)) {
+    const code = fs.readFileSync(localPath, 'utf8');
+    const match = code.match(/window\.MANA_RIOS_MAP\s*=\s*(\{.*\});/s);
+    if (match) {
+      const localData = JSON.parse(match[1]);
+      if (localData.geojsonText) {
+        console.log('Loaded GeoJSON from local fallback (data/gallery-rios.js)');
+        return JSON.parse(localData.geojsonText);
+      }
+    }
+  }
+
+  // Fallback: generate from Natural Earth shapefiles
   const shapefile = require('/tmp/opencode/node_modules/shapefile');
   
   const shpPath = '/tmp/opencode/rivers_data/ne_50m_rivers_lake_centerlines.shp';
@@ -395,8 +410,8 @@ function buildMapPreview(geojson) {
 
 // ─── Main ────────────────────────────────────────────────────────
 async function main() {
-  console.log('Generating GeoJSON from Natural Earth data...');
-  const geojson = await generateGeoJSON();
+  console.log('Loading/generating GeoJSON...');
+  const geojson = await loadOrGenerateGeoJSON();
   console.log(`Generated ${geojson.features.length} river features`);
   
   const geojsonText = JSON.stringify(geojson);
