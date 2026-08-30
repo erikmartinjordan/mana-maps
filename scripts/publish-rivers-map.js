@@ -299,7 +299,7 @@ async function loadOrGenerateGeoJSON() {
   }
 
   // Fallback: generate from Natural Earth shapefiles
-  const shapefile = require('/tmp/opencode/node_modules/shapefile');
+  const shapefile = require('shapefile');
   
   const shpPath = '/tmp/opencode/rivers_data/ne_50m_rivers_lake_centerlines.shp';
   const dbfPath = '/tmp/opencode/rivers_data/ne_50m_rivers_lake_centerlines.dbf';
