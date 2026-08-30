@@ -150,10 +150,21 @@ function getAccessTokenFromSA(sa) {
 
 function loadPublisherCredentials() {
   const credsPath = process.env.PUBLISHER_CREDENTIALS;
-  if (!credsPath) return null;
-  const absPath = path.resolve(credsPath);
-  if (!fs.existsSync(absPath)) return null;
-  return JSON.parse(fs.readFileSync(absPath, 'utf8'));
+  if (credsPath) {
+    const absPath = path.resolve(credsPath);
+    if (fs.existsSync(absPath)) return JSON.parse(fs.readFileSync(absPath, 'utf8'));
+  }
+  // fallback: ~/autopilot/.publisher-credentials.json (usado por run_loop)
+  try {
+    const home = require('os').homedir();
+    const fallback = home + '/.publisher-credentials.json';
+    // also check /Users/Erik/autopilot/.publisher-credentials.json when running in Docker as /home/erik
+    const alt = '/home/erik/autopilot/.publisher-credentials.json';
+    for (const cand of [fallback, alt, '/Users/Erik/autopilot/.publisher-credentials.json']) {
+      if (fs.existsSync(cand)) return JSON.parse(fs.readFileSync(cand, 'utf8'));
+    }
+  } catch(_){}
+  return null;
 }
 
 async function firebaseAuthSignIn(email, password, apiKey) {
