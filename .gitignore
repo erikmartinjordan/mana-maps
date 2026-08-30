@@ -9,3 +9,5 @@ test-results/
 og-cards/_render.log
 *.log
 .DS_Store
+.firebaserc
+firebase.json

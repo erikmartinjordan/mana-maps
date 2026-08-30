@@ -44,6 +44,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/maps/$(mapId)).data;
     }
 
+    function isPublisher() {
+      return request.auth.uid == 'VQaLSYq64cQ8GGtCe0JbHkYFKUT2';
+    }
+
     function canWritePublicMap(mapId) {
       return signedIn()
         && publicMapExists(mapId)
@@ -137,6 +141,7 @@ service cloud.firestore {
       // collaborate when the owner explicitly shared the map in edit mode.
       // Original creators can also update their own maps.
       allow update: if canIncrementPublicMapEngagement()
+        || isPublisher()
         || (signedIn()
           && (
             resource.data.ownerUid == request.auth.uid
@@ -145,14 +150,15 @@ service cloud.firestore {
             || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
             || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))
           ));
-      allow delete: if signedIn()
-        && (
-          resource.data.ownerUid == request.auth.uid
-          || resource.data.createdBy == request.auth.uid
-          || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
-          || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
-          || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))
-        );
+      allow delete: if isPublisher()
+        || (signedIn()
+          && (
+            resource.data.ownerUid == request.auth.uid
+            || resource.data.createdBy == request.auth.uid
+            || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
+            || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
+            || (!('authorHandle' in resource.data) && !('ownerUid' in resource.data))
+          ));
 
       match /presence/{userId} {
         allow read: if true;
