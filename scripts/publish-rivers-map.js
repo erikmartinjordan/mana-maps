@@ -347,15 +347,23 @@ async function loadOrGenerateGeoJSON() {
       continue;
     }
     
-    const allCoords = [];
+    // Fix: no concatenar todos los tramos (creaba rectas de 1000km entre segmentos desordenados)
+    // Tomar solo el feature más largo (cauce principal)
+    let longest = matches[0];
+    let maxLen = 0;
     for (const m of matches) {
-      if (m.geometry.type === 'LineString') {
-        allCoords.push(...m.geometry.coordinates);
-      } else if (m.geometry.type === 'MultiLineString') {
-        for (const line of m.geometry.coordinates) {
-          allCoords.push(...line);
-        }
-      }
+      let len = 0;
+      if (m.geometry.type === 'LineString') len = m.geometry.coordinates.length;
+      else if (m.geometry.type === 'MultiLineString') len = m.geometry.coordinates.reduce((s, line) => s + line.length, 0);
+      if (len > maxLen) { maxLen = len; longest = m; }
+    }
+    let allCoords;
+    if (longest.geometry.type === 'LineString') {
+      allCoords = longest.geometry.coordinates.slice();
+    } else {
+      // MultiLineString: elegir la línea más larga
+      let longestLine = longest.geometry.coordinates.reduce((a, b) => a.length > b.length ? a : b);
+      allCoords = longestLine.slice();
     }
     
     // Simplify to max ~150 points per river
