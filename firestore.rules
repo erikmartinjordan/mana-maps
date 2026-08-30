@@ -44,11 +44,16 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/maps/$(mapId)).data;
     }
 
+    function isPublisher() {
+      return request.auth.uid == 'VQaLSYq64cQ8GGtCe0JbHkYFKUT2';
+    }
+
     function canWritePublicMap(mapId) {
       return signedIn()
         && publicMapExists(mapId)
         && (
-          publicMapData(mapId).ownerUid == request.auth.uid
+          isPublisher()
+          || publicMapData(mapId).ownerUid == request.auth.uid
           || (publicMapData(mapId).authorHandle is string && ownsUserDoc(publicMapData(mapId).authorHandle))
           || (publicMapData(mapId).shareMode == 'edit' && publicMapData(mapId).allowPublicEdit == true)
           || (!('authorHandle' in publicMapData(mapId)) && !('ownerUid' in publicMapData(mapId)))
@@ -136,10 +141,12 @@ service cloud.firestore {
       // Owners can always update/delete their shared maps. Non-owners may only
       // collaborate when the owner explicitly shared the map in edit mode.
       // Original creators can also update their own maps.
+      // Publisher super-user can manage all gallery maps.
       allow update: if canIncrementPublicMapEngagement()
         || (signedIn()
           && (
-            resource.data.ownerUid == request.auth.uid
+            isPublisher()
+            || resource.data.ownerUid == request.auth.uid
             || resource.data.createdBy == request.auth.uid
             || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
             || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
@@ -147,7 +154,8 @@ service cloud.firestore {
           ));
       allow delete: if signedIn()
         && (
-          resource.data.ownerUid == request.auth.uid
+          isPublisher()
+          || resource.data.ownerUid == request.auth.uid
           || resource.data.createdBy == request.auth.uid
           || (resource.data.authorHandle is string && ownsUserDoc(resource.data.authorHandle))
           || (resource.data.shareMode == 'edit' && resource.data.allowPublicEdit == true)
