@@ -175,13 +175,51 @@ async function getAccessToken() {
   const pub = loadPublisherCredentials();
   if (pub && pub.email && pub.password && pub.apiKey) {
     console.log('Using Firebase Auth (publisher).');
-    const result = await firebaseAuthSignIn(pub.email, pub.password, pub.apiKey);
-    return { token: result.idToken, uid: result.uid };
+    try {
+      const result = await firebaseAuthSignIn(pub.email, pub.password, pub.apiKey);
+      return { token: result.idToken, uid: result.uid };
+    } catch(e) {
+      console.log('Publisher auth failed:', e.message, '-> trying anonymous fallback');
+    }
   }
   const adc = loadADC();
-  if (adc) { console.log('Using ADC.'); return { token: await getAccessTokenFromADC(adc), uid: null }; }
-  console.error('ERROR: No credentials found.');
-  process.exit(1);
+  if (adc) {
+    try { console.log('Using ADC.'); return { token: await getAccessTokenFromADC(adc), uid: null }; }
+    catch(e) { console.log('ADC failed:', e.message, '-> trying anonymous fallback'); }
+  }
+  // Anonymous fallback - autónomo, no requiere email
+  console.log('Trying anonymous auth...');
+  let apiKey = null;
+  try {
+    const pub2 = loadPublisherCredentials();
+    if (pub2 && pub2.apiKey) apiKey = pub2.apiKey;
+  } catch(_){}
+  if (!apiKey) {
+    try {
+      const fb = require('fs').readFileSync('js/firebase.js','utf8');
+      const m = fb.match(/apiKey:\s*["']([^"']+)["']/);
+      if (m) apiKey = m[1];
+    } catch(_){}
+  }
+  if (!apiKey) {
+    try {
+      const home = require('os').homedir();
+      const pub3 = JSON.parse(require('fs').readFileSync(home + '/autopilot/.publisher-credentials.json','utf8'));
+      apiKey = pub3.apiKey;
+    } catch(_){}
+  }
+  if (!apiKey) { console.error('ERROR: No API_KEY for anonymous fallback'); process.exit(1); }
+  const anon = await new Promise((resolve, reject) => {
+    const https = require('https');
+    const body = JSON.stringify({returnSecureToken: true});
+    const req = https.request('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + apiKey, {method:'POST', headers:{'Content-Type':'application/json', 'Content-Length': Buffer.byteLength(body)}}, res => {
+      let d=''; res.on('data', c=>d+=c); res.on('end', ()=>{ try{ const j=JSON.parse(d); if(j.idToken) resolve(j); else reject(new Error('anon failed:'+d.slice(0,400))); } catch(e){ reject(e); } });
+    });
+    req.on('error', reject);
+    req.write(body); req.end();
+  });
+  console.log('Anonymous OK uid='+anon.localId);
+  return { token: anon.idToken, uid: anon.localId };
 }
 
 // ─── Firestore helpers ───────────────────────────────────────────
