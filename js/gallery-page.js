@@ -685,43 +685,43 @@
     return html;
   }
 
-  // Leyenda para salario mínimo por USD: agrupa por _manaGroupName y
-  // pinta rampa claro→oscuro ordenada por «Salario mínimo USD anual».
+  // Leyenda clasificada para salario mínimo por USD — agrupa por «Salario mínimo USD anual».
+  // Rampa azul claro→oscuro #eff3ff→#08306b (ramp real del GeoJSON), gris #d9d9d9 sin dato.
+  // Buckets clasificados con etiquetas claras en USD y EUR (0,924 €/$ Banco Mundial PA.NUS.FCRF 2024).
   function buildWageLegend(geo) {
-    var groups = {};
-    (geo.features || []).forEach(function(f) {
-      var p = f && f.properties;
-      if (!p) return;
-      var gname = p._manaGroupName;
-      if (!gname || !p._manaColor) return;
+    if (!geo || !geo.features || !geo.features.length) return '';
+    var hasWage = 0, hasColor = false;
+    for (var i = 0; i < geo.features.length; i++) {
+      var p = geo.features[i] && geo.features[i].properties;
+      if (!p) continue;
+      if (p._manaColor) hasColor = true;
       var raw = p['Salario mínimo USD anual'];
-      if (raw == null) return;
-      var usd = parseFloat(String(raw).replace(/[^\d.-]/g, ''));
-      if (!isFinite(usd) || usd <= 0) return;
-      if (!groups[gname]) groups[gname] = { colors: {}, wages: [] };
-      var bucket = groups[gname];
-      if (!bucket.colors[p._manaColor]) {
-        bucket.colors[p._manaColor] = true;
-        bucket.wages.push({ v: usd, c: p._manaColor });
+      if (raw != null) {
+        var v = parseFloat(String(raw).replace(/[^\d.-]/g, ''));
+        if (isFinite(v) && v > 0) hasWage++;
       }
-    });
-    var rampGroup = null;
-    Object.keys(groups).forEach(function(gname) {
-      var uniq = {};
-      groups[gname].wages.forEach(function(d) { uniq[d.c] = d; });
-      var steps = Object.keys(uniq).map(function(k) { return uniq[k]; }).sort(function(a, b) { return a.v - b.v; });
-      groups[gname].steps = steps;
-      if (steps.length >= 3 && !rampGroup) rampGroup = { name: gname, steps: steps };
-    });
-    if (!rampGroup) return '';
-    function fmtUSD(v) { return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $'; }
-    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: intensidad del azul según salario mínimo en USD, claro bajo → oscuro alto">' +
-      '<div class="featured-legend-title">Salario mínimo (USD/año)</div>' +
+    }
+    if (hasWage < 3 || !hasColor) return '';
+    // Buckets clasificados 5 wage + 1 sin dato = 6 totales (ej del encargo).
+    // Colores tomados de la rampa real: #eff3ff ≤500, #c6dbef ≤1500, #9ecae1 ≤3500, #6baed6 ≤7000, #4292c6 ≤14000, #2171b5 ≤25000, #08519c ≤40000, #08306b >40000
+    var buckets = [
+      { label: 'Sin dato', color: '#d9d9d9', isNoData: true },
+      { label: '< 5.000 $', sub: '< 4.620 €', color: '#c6dbef' },
+      { label: '5.000–10.000 $', sub: '4.620–9.240 €', color: '#6baed6' },
+      { label: '10.000–20.000 $', sub: '9.240–18.480 €', color: '#4292c6' },
+      { label: '20.000–35.000 $', sub: '18.480–32.340 €', color: '#2171b5' },
+      { label: '> 35.000 $', sub: '> 32.340 €', color: '#08306b' }
+    ];
+    var wageBuckets = buckets.slice(1);
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: salario mínimo anual por colores, gris sin dato, azules claro bajo → oscuro alto">' +
+      '<div class="featured-legend-title">Salario mínimo anual (USD)</div>' +
       '<div class="featured-legend-steps">';
-    rampGroup.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
+    wageBuckets.forEach(function(b) { html += '<span style="background:' + b.color + '" title="' + escHtml(b.label + ' · ' + b.sub) + '"></span>'; });
     html += '</div>' +
-      '<div class="featured-legend-scale"><span>' + escHtml(fmtUSD(rampGroup.steps[0].v)) + '</span>' +
-      '<span>' + escHtml(fmtUSD(rampGroup.steps[rampGroup.steps.length - 1].v)) + '</span></div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(wageBuckets[0].label) + '</span><span>' + escHtml(wageBuckets[wageBuckets.length - 1].label) + '</span></div>' +
+      '<div class="featured-legend-scale" style="margin-top:2px;font-size:10px;color:#64748b"><span>' + escHtml(wageBuckets[0].sub) + '</span><span>' + escHtml(wageBuckets[wageBuckets.length - 1].sub) + '</span></div>' +
+      '<div class="featured-legend-item"><i style="background:' + buckets[0].color + '"></i>' + escHtml(buckets[0].label) + '</div>' +
+      '<div style="font-size:10px;color:#64748b;margin-top:4px">EUR ≈ USD × 0,924 (Banco Mundial 2024)</div>' +
       '</div>';
     return html;
   }
