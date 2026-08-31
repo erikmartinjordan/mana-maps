@@ -685,6 +685,47 @@
     return html;
   }
 
+  // Leyenda para salario mínimo por USD: agrupa por _manaGroupName y
+  // pinta rampa claro→oscuro ordenada por «Salario mínimo USD anual».
+  function buildWageLegend(geo) {
+    var groups = {};
+    (geo.features || []).forEach(function(f) {
+      var p = f && f.properties;
+      if (!p) return;
+      var gname = p._manaGroupName;
+      if (!gname || !p._manaColor) return;
+      var raw = p['Salario mínimo USD anual'];
+      if (raw == null) return;
+      var usd = parseFloat(String(raw).replace(/[^\d.-]/g, ''));
+      if (!isFinite(usd) || usd <= 0) return;
+      if (!groups[gname]) groups[gname] = { colors: {}, wages: [] };
+      var bucket = groups[gname];
+      if (!bucket.colors[p._manaColor]) {
+        bucket.colors[p._manaColor] = true;
+        bucket.wages.push({ v: usd, c: p._manaColor });
+      }
+    });
+    var rampGroup = null;
+    Object.keys(groups).forEach(function(gname) {
+      var uniq = {};
+      groups[gname].wages.forEach(function(d) { uniq[d.c] = d; });
+      var steps = Object.keys(uniq).map(function(k) { return uniq[k]; }).sort(function(a, b) { return a.v - b.v; });
+      groups[gname].steps = steps;
+      if (steps.length >= 3 && !rampGroup) rampGroup = { name: gname, steps: steps };
+    });
+    if (!rampGroup) return '';
+    function fmtUSD(v) { return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $'; }
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: intensidad del azul según salario mínimo en USD, claro bajo → oscuro alto">' +
+      '<div class="featured-legend-title">Salario mínimo (USD/año)</div>' +
+      '<div class="featured-legend-steps">';
+    rampGroup.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
+    html += '</div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(fmtUSD(rampGroup.steps[0].v)) + '</span>' +
+      '<span>' + escHtml(fmtUSD(rampGroup.steps[rampGroup.steps.length - 1].v)) + '</span></div>' +
+      '</div>';
+    return html;
+  }
+
   function collectGeoBounds(geo) {
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     function walk(coords) {
@@ -712,8 +753,15 @@
     var name = props._manaName || props.name || props.Name;
     if (!name) return '';
     var html = '<div class="featured-popup"><strong>' + escHtml(String(name)) + '</strong>';
-    // Show salary info if available
-    if (props._wageFormatted && props._wageFormatted !== 'N/A') {
+    // Show salary info: nuevo mapa usa "Salario mínimo" (local) + "Salario mínimo USD"
+    if (props['Salario mínimo USD'] && props['Salario mínimo']) {
+      html += '<br><span style="font-size:12px;color:#475569">' + escHtml(props['Salario mínimo']) + '</span>';
+      html += '<br><span style="font-size:12px;color:#1e40af;font-weight:600">' + escHtml(props['Salario mínimo USD']) + '</span>';
+      if (props['Continente']) html += '<br><span style="font-size:11px;color:#64748b">' + escHtml(props['Continente']) + ' · ' + escHtml(props['Moneda'] || '') + '</span>';
+    } else if (props['Salario mínimo USD']) {
+      html += '<br><span style="font-size:12px;color:#475569">' + escHtml(props['Salario mínimo USD']) + '</span>';
+      if (props['Salario mínimo']) html += '<br><span style="font-size:11px;color:#64748b">' + escHtml(props['Salario mínimo']) + '</span>';
+    } else if (props._wageFormatted && props._wageFormatted !== 'N/A') {
       html += '<br><span style="font-size:12px;color:#475569">' + escHtml(props._wageFormatted) + ' anuales';
       if (props._wageMonthly && props._wageMonthly !== 'N/A') {
         html += ' · ' + escHtml(props._wageMonthly);
@@ -844,7 +892,13 @@
       if (!props) return '';
       var name = props._manaName || props.name || props.Name;
       if (!name) return '';
-      // Compact one-liner for hover
+      // Compact one-liner for hover: prioriza salario local + USD
+      if (props['Salario mínimo'] && props['Salario mínimo USD']) {
+        return '<div class="featured-popup"><strong>' + escHtml(String(name)) + '</strong><br>' + escHtml(props['Salario mínimo']) + ' · ' + escHtml(props['Salario mínimo USD']) + '</div>';
+      }
+      if (props['Salario mínimo USD']) {
+        return '<div class="featured-popup"><strong>' + escHtml(String(name)) + '</strong><br>' + escHtml(props['Salario mínimo USD']) + '</div>';
+      }
       var parts = [String(name)];
       if (props._wageFormatted && props._wageFormatted !== 'N/A') parts.push(props._wageFormatted);
       if (props._lengthFormatted) parts.push(props._lengthFormatted);
@@ -918,7 +972,7 @@
     }
 
     ensureLegendStyles();
-    var legendHtml = buildDepthLegend(geo) || buildYearLegend(geo);
+    var legendHtml = buildDepthLegend(geo) || buildYearLegend(geo) || buildWageLegend(geo);
     if (legendHtml) target.insertAdjacentHTML('beforeend', legendHtml);
 
     var styleUrl = window.MANA_BASEMAPS
