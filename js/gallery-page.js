@@ -639,6 +639,52 @@
     return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
   }
 
+  // Leyenda para mapas de líneas por año (p. ej. fibra submarina): agrupa
+  // por _manaGroupName y pinta rampa claro→oscuro ordenada por «Año».
+  // Devuelve '' si no hay clave Año parseable con >=3 colores.
+  function buildYearLegend(geo) {
+    var groups = {};
+    (geo.features || []).forEach(function(f) {
+      var p = f && f.properties;
+      if (!p) return;
+      var gname = p._manaGroupName;
+      if (!gname || !p._manaColor) return;
+      var rawYear = p['Año'] != null ? p['Año'] : p.ready_for_service;
+      var year = parseInt(String(rawYear).replace(/[^\d-]/g, ''), 10);
+      if (!isFinite(year) || year < 1900 || year > 2100) return;
+      if (!groups[gname]) groups[gname] = { colors: {}, years: [] };
+      var bucket = groups[gname];
+      if (!bucket.colors[p._manaColor]) {
+        bucket.colors[p._manaColor] = true;
+        bucket.years.push({ v: year, c: p._manaColor });
+      }
+    });
+    var rampGroup = null, plainGroup = null;
+    Object.keys(groups).forEach(function(gname) {
+      var uniq = {};
+      groups[gname].years.forEach(function(d) { uniq[d.c] = d; });
+      var steps = Object.keys(uniq).map(function(k) { return uniq[k]; }).sort(function(a, b) { return a.v - b.v; });
+      groups[gname].steps = steps;
+      if (steps.length >= 3 && !rampGroup) rampGroup = { name: gname, steps: steps };
+      else if (!plainGroup && steps.length === 0 && Object.keys(groups[gname].colors).length === 1) {
+        plainGroup = { name: gname, color: Object.keys(groups[gname].colors)[0] };
+      }
+    });
+    if (!rampGroup) return '';
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: color por año de puesta en servicio, claro antiguo → oscuro reciente">' +
+      '<div class="featured-legend-title">Año de puesta en servicio</div>' +
+      '<div class="featured-legend-steps">';
+    rampGroup.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
+    html += '</div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(String(rampGroup.steps[0].v)) + '</span>' +
+      '<span>' + escHtml(String(rampGroup.steps[rampGroup.steps.length - 1].v)) + '</span></div>';
+    if (plainGroup) {
+      html += '<div class="featured-legend-item"><i style="background:' + plainGroup.color + '"></i>' + escHtml(plainGroup.name) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
   function collectGeoBounds(geo) {
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     function walk(coords) {
@@ -677,18 +723,21 @@
     // Show fiber cable info if available
     if (props._lengthFormatted) {
       html += '<br><span style="font-size:12px;color:#475569">' + escHtml(props._lengthFormatted);
-      if (props.ready_for_service) html += ' · ' + props.ready_for_service;
+      if (props['Año']) html += ' · ' + escHtml(String(props['Año']));
+      else if (props.ready_for_service) html += ' · ' + escHtml(String(props.ready_for_service));
       html += '</span>';
+    } else if (props['Año']) {
+      html += '<br><span style="font-size:12px;color:#475569">Año: ' + escHtml(String(props['Año'])) + '</span>';
     }
     if (props._countriesES) {
       html += '<br><span style="font-size:11px;color:#64748b">' + escHtml(props._countriesES) + '</span>';
     }
     // Show generic properties for other maps (curated Spanish keys first,
     // then any remaining human-readable string props).
-    if (!props._wageFormatted && !props._lengthFormatted) {
+    if (!props._wageFormatted && !props._lengthFormatted && !props['Año']) {
       var extra = [];
       var seenKeys = {};
-      ['Superficie', 'Profundidad media', 'Profundidad máxima', 'Dato', 'Deaths', 'Area', 'Year', 'Location'].forEach(function(k) {
+      ['Superficie', 'Profundidad media', 'Profundidad máxima', 'Dato', 'Deaths', 'Area', 'Año', 'Year', 'Location'].forEach(function(k) {
         if (props[k] !== undefined && props[k] !== '') { extra.push(props[k]); seenKeys[k] = true; }
       });
       Object.keys(props).forEach(function(k) {
@@ -711,9 +760,9 @@
       map.getSource('featured-data').setData(geo);
     }
     var colorExpr = ['coalesce', ['get', '_manaColor'], ['get', 'color'], '#0ea5e9'];
-    var isPolygon = ['==', ['geometry-type'], 'Polygon'];
-    var isLine = ['==', ['geometry-type'], 'LineString'];
-    var isPoint = ['==', ['geometry-type'], 'Point'];
+    var isPolygon = ['any', ['==', ['geometry-type'], 'Polygon'], ['==', ['geometry-type'], 'MultiPolygon']];
+    var isLine = ['any', ['==', ['geometry-type'], 'LineString'], ['==', ['geometry-type'], 'MultiLineString']];
+    var isPoint = ['any', ['==', ['geometry-type'], 'Point'], ['==', ['geometry-type'], 'MultiPoint']];
 
     map.addLayer({
       id: 'featured-fills', type: 'fill', source: 'featured-data', filter: isPolygon,
@@ -743,12 +792,12 @@
     map.addLayer({
       id: 'featured-line-casing', type: 'line', source: 'featured-data', filter: isLine,
       layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': '#ffffff', 'line-opacity': 0.85, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 2.6, 10, 6.4] }
+      paint: { 'line-color': '#ffffff', 'line-opacity': 0.85, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, ['+', ['coalesce', ['get', '_manaWeight'], 2.8], 0.8], 10, ['+', ['*', ['coalesce', ['get', '_manaWeight'], 2.8], 2.0], 0.8]] }
     });
     map.addLayer({
       id: 'featured-lines', type: 'line', source: 'featured-data', filter: isLine,
       layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': colorExpr, 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 1.4, 10, 3.6] }
+      paint: { 'line-color': colorExpr, 'line-opacity': ['coalesce', ['get', '_manaFillOpacity'], ['get', '_manaOpacity'], 0.95], 'line-width': ['interpolate', ['linear'], ['zoom'], 2, ['coalesce', ['get', '_manaWeight'], 2.8], 10, ['*', ['coalesce', ['get', '_manaWeight'], 2.8], 1.9]] }
     });
     map.addLayer({
       id: 'featured-line-labels', type: 'symbol', source: 'featured-data', filter: isLine,
@@ -799,7 +848,8 @@
       var parts = [String(name)];
       if (props._wageFormatted && props._wageFormatted !== 'N/A') parts.push(props._wageFormatted);
       if (props._lengthFormatted) parts.push(props._lengthFormatted);
-      if (props.ready_for_service) parts.push(props.ready_for_service);
+      if (props['Año']) parts.push(String(props['Año']));
+      else if (props.ready_for_service) parts.push(String(props.ready_for_service));
       return '<div class="featured-popup">' + escHtml(parts.join(' · ')) + '</div>';
     }
 
@@ -868,7 +918,7 @@
     }
 
     ensureLegendStyles();
-    var legendHtml = buildDepthLegend(geo);
+    var legendHtml = buildDepthLegend(geo) || buildYearLegend(geo);
     if (legendHtml) target.insertAdjacentHTML('beforeend', legendHtml);
 
     var styleUrl = window.MANA_BASEMAPS
