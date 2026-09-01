@@ -471,9 +471,23 @@ async function main() {
   const geojson = await loadOrGenerateGeoJSON();
   console.log(`Generated ${geojson.features.length} river features`);
   
+  // Legend genérica — se guarda en geojson.legend y doc.legend (sin inferencia en galería)
+  const riverLegendSteps = [
+    { v: 4444, c: '#E3F2FD', label: '4.444 km – Amur' },
+    { v: 4700, c: '#BBDEFB', label: '4.700 km – Congo' },
+    { v: 4880, c: '#90CAF9', label: '4.880 km – Paraná' },
+    { v: 5410, c: '#64B5F6', label: '5.410 km – Ob-Irtysh' },
+    { v: 5464, c: '#42A5F5', label: '5.464 km – Río Amarillo' },
+    { v: 5539, c: '#2196F3', label: '5.539 km – Yenisei' },
+    { v: 6275, c: '#1E88E5', label: '6.275 km – Misisipi' },
+    { v: 6300, c: '#1976D2', label: '6.300 km – Yangtsé' },
+    { v: 6400, c: '#1565C0', label: '6.400 km – Amazonas' },
+    { v: 6650, c: '#0D47A1', label: '6.650 km – Nilo' }
+  ];
+  geojson.legend = { title: 'Longitud del río', steps: riverLegendSteps };
   const geojsonText = JSON.stringify(geojson);
   console.log(`GeoJSON size: ${(geojsonText.length / 1024).toFixed(1)} KB`);
-  
+
   if (geojsonText.length > 1048576) {
     console.error('ERROR: GeoJSON exceeds 1 MiB Firestore limit');
     process.exit(1);
@@ -516,6 +530,20 @@ async function main() {
     dataSource: fsStr('Natural Earth 50m rivers_lake_centerlines (naturalearthdata.com)'),
     dataDate: fsStr('2024-12-01'),
     tags: fsArr(['Geografía', 'Hidrografía', 'Naturaleza']),
+    legend: {
+      mapValue: {
+        fields: {
+          title: { stringValue: 'Longitud del río' },
+          steps: {
+            arrayValue: {
+              values: riverLegendSteps.map(s => ({
+                mapValue: { fields: { v: { doubleValue: s.v }, c: { stringValue: s.c }, label: { stringValue: s.label } } }
+              }))
+            }
+          }
+        }
+      }
+    },
     authorHandle: fsStr('maña-maps'),
     createdBy: fsStr('maña-maps'),
     ownerUid: fsStr('maña-maps'),

@@ -437,6 +437,16 @@ function buildMapPreview(geo){
 
 async function main(){
   const geo=await buildGeoJSON();
+  // Legend genérica — clasificada USD/EUR sin inferencia (solo doc.legend)
+  const wageLegendSteps = [
+    { v: 0, c: '#d9d9d9', label: 'Sin dato' },
+    { v: 2500, c: '#c6dbef', label: '< 5.000 $' },
+    { v: 7500, c: '#6baed6', label: '5.000–10.000 $' },
+    { v: 15000, c: '#4292c6', label: '10.000–20.000 $' },
+    { v: 27500, c: '#2171b5', label: '20.000–35.000 $' },
+    { v: 40000, c: '#08306b', label: '> 35.000 $' }
+  ];
+  geo.legend = { title: 'Salario mínimo anual (USD)', steps: wageLegendSteps };
   const geojsonText=JSON.stringify(geo);
   console.log(`GeoJSON ${(geojsonText.length/1024).toFixed(1)} KB, features ${geo.features.length}`);
   if(geojsonText.length>1048576){ console.error('ERROR >1MiB'); process.exit(1); }
@@ -485,6 +495,20 @@ async function main(){
     dataDate:fsStr('2024-12-01'),
     dataYear:fsInt(2024),
     tags:fsArr(['Economía','Trabajo','Países']),
+    legend: {
+      mapValue: {
+        fields: {
+          title: { stringValue: 'Salario mínimo anual (USD)' },
+          steps: {
+            arrayValue: {
+              values: wageLegendSteps.map(s => ({
+                mapValue: { fields: { v: { doubleValue: s.v }, c: { stringValue: s.c }, label: { stringValue: s.label } } }
+              }))
+            }
+          }
+        }
+      }
+    },
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,
     views:fsInt(0), likes:fsInt(0)

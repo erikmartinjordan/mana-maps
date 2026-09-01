@@ -588,141 +588,69 @@
     document.head.appendChild(st);
   }
 
-  // Leyenda genérica para coropletas: agrupa polígonos por _manaGroupName y,
-  // si un grupo tiene >=3 colores distintos con «Profundidad media» parseable,
-  // pinta una escala discreta min→max. Devuelve '' si no aplica.
-  function buildDepthLegend(geo) {
-    var groups = {};
-    (geo.features || []).forEach(function(f) {
-      var p = f && f.properties;
-      if (!p) return;
-      var gname = p._manaGroupName;
-      if (!gname || !p._manaColor) return;
-      if (!groups[gname]) groups[gname] = { colors: {}, depths: [] };
-      var bucket = groups[gname];
-      if (!bucket.colors[p._manaColor]) {
-        bucket.colors[p._manaColor] = true;
-        var m = /([\d.,\s]+)\s*m/.exec(String(p['Profundidad media'] || ''));
-        if (m) {
-          var val = parseFloat(m[1].replace(/[.\s]/g, '').replace(',', '.'));
-          if (isFinite(val)) bucket.depths.push({ v: val, c: p._manaColor });
+  // Leyenda genérica: solo se dibuja si existe doc.legend (o geo.legend o doc.fields.legend).
+  // Espera {title, steps:[{c|color, label, v}]}. No infiere desde properties.
+  function buildGenericLegend(geo, docLegend) {
+    var legend = docLegend || null;
+    if (!legend && geo && geo.legend) legend = geo.legend;
+    // Soporte para payload REST de Firestore (fields.legend como mapValue)
+    if (!legend && geo && geo.fields && geo.fields.legend) legend = geo.fields.legend;
+    if (!legend) return '';
+    // Si legend viene como Firestore REST mapValue, normalizar
+    if (legend.mapValue && legend.mapValue.fields) {
+      var lf = legend.mapValue.fields;
+      var restTitle = lf.title && lf.title.stringValue ? lf.title.stringValue : null;
+      var restSteps = lf.steps && lf.steps.arrayValue && Array.isArray(lf.steps.arrayValue.values) ? lf.steps.arrayValue.values : null;
+      if (restTitle || restSteps) {
+        legend = { title: restTitle, steps: restSteps };
+      }
+    }
+    // También soportar doc.fields.legend en tupla SDK donde steps ya es REST arrayValue
+    if (legend && legend.fields && legend.fields.title) {
+      // ya es {fields:{title:{stringValue},steps:{arrayValue:...}}}
+      var f2 = legend.fields;
+      legend = {
+        title: f2.title ? f2.title.stringValue : null,
+        steps: f2.steps && f2.steps.arrayValue ? f2.steps.arrayValue.values : f2.steps
+      };
+    }
+    if (!legend || typeof legend.title !== 'string' || !legend.title) return '';
+    var rawSteps = legend.steps;
+    if (!Array.isArray(rawSteps) || !rawSteps.length) return '';
+    var steps = [];
+    for (var i = 0; i < rawSteps.length; i++) {
+      var s = rawSteps[i];
+      if (!s) continue;
+      // Firestore REST step: {mapValue:{fields:{v:{doubleValue},c:{stringValue},label:{stringValue}}}}
+      if (s.mapValue && s.mapValue.fields) {
+        var sf = s.mapValue.fields;
+        var c = sf.c ? sf.c.stringValue : (sf.color ? sf.color.stringValue : null);
+        var label = sf.label ? sf.label.stringValue : '';
+        var vRaw = sf.v;
+        var v = null;
+        if (vRaw) {
+          if (vRaw.doubleValue != null) v = vRaw.doubleValue;
+          else if (vRaw.integerValue != null) v = parseInt(vRaw.integerValue, 10);
+          else if (vRaw.stringValue != null) v = parseFloat(vRaw.stringValue);
         }
+        if (c && label) steps.push({ c: c, color: c, label: label, v: v });
+        continue;
       }
-    });
-    var rampGroup = null, plainGroup = null;
-    Object.keys(groups).forEach(function(gname) {
-      var uniqDepths = {};
-      groups[gname].depths.forEach(function(d) { uniqDepths[d.c] = d; });
-      var steps = Object.keys(uniqDepths).map(function(k) { return uniqDepths[k]; }).sort(function(a, b) { return a.v - b.v; });
-      groups[gname].steps = steps;
-      if (steps.length >= 3 && !rampGroup) rampGroup = { name: gname, steps: steps };
-      else if (!plainGroup && steps.length === 0 && Object.keys(groups[gname].colors).length === 1) {
-        plainGroup = { name: gname, color: Object.keys(groups[gname].colors)[0] };
-      }
-    });
-    if (!rampGroup) return '';
-    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: intensidad del azul según profundidad media">' +
-      '<div class="featured-legend-title">Profundidad media</div>' +
-      '<div class="featured-legend-steps">';
-    rampGroup.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
-    html += '</div>' +
-      '<div class="featured-legend-scale"><span>' + escHtml(formatMeters(rampGroup.steps[0].v)) + '</span>' +
-      '<span>' + escHtml(formatMeters(rampGroup.steps[rampGroup.steps.length - 1].v)) + '</span></div>';
-    if (plainGroup) {
-      html += '<div class="featured-legend-item"><i style="background:' + plainGroup.color + '"></i>' + escHtml(plainGroup.name) + '</div>';
+      var color = s.c || s.color || s.colour;
+      var lbl = s.label || s.text || '';
+      var val = s.v != null ? s.v : (s.value != null ? s.value : null);
+      if (color && lbl) steps.push({ c: color, color: color, label: lbl, v: val });
     }
+    if (!steps.length) return '';
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(legend.title) + '">' +
+      '<div class="featured-legend-title">' + escHtml(legend.title) + '</div>' +
+      '<div class="featured-legend-steps">';
+    for (var j = 0; j < steps.length; j++) {
+      html += '<span style="background:' + escHtml(steps[j].color) + '" title="' + escHtml(steps[j].label) + '"></span>';
+    }
+    html += '</div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(steps[0].label) + '</span><span>' + escHtml(steps[steps.length - 1].label) + '</span></div>';
     html += '</div>';
-    return html;
-  }
-
-  function formatMeters(v) {
-    return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
-  }
-
-  // Leyenda para mapas de líneas por año (p. ej. fibra submarina): agrupa
-  // por _manaGroupName y pinta rampa claro→oscuro ordenada por «Año».
-  // Devuelve '' si no hay clave Año parseable con >=3 colores.
-  function buildYearLegend(geo) {
-    var groups = {};
-    (geo.features || []).forEach(function(f) {
-      var p = f && f.properties;
-      if (!p) return;
-      var gname = p._manaGroupName;
-      if (!gname || !p._manaColor) return;
-      var rawYear = p['Año'] != null ? p['Año'] : p.ready_for_service;
-      var year = parseInt(String(rawYear).replace(/[^\d-]/g, ''), 10);
-      if (!isFinite(year) || year < 1900 || year > 2100) return;
-      if (!groups[gname]) groups[gname] = { colors: {}, years: [] };
-      var bucket = groups[gname];
-      if (!bucket.colors[p._manaColor]) {
-        bucket.colors[p._manaColor] = true;
-        bucket.years.push({ v: year, c: p._manaColor });
-      }
-    });
-    var rampGroup = null, plainGroup = null;
-    Object.keys(groups).forEach(function(gname) {
-      var uniq = {};
-      groups[gname].years.forEach(function(d) { uniq[d.c] = d; });
-      var steps = Object.keys(uniq).map(function(k) { return uniq[k]; }).sort(function(a, b) { return a.v - b.v; });
-      groups[gname].steps = steps;
-      if (steps.length >= 3 && !rampGroup) rampGroup = { name: gname, steps: steps };
-      else if (!plainGroup && steps.length === 0 && Object.keys(groups[gname].colors).length === 1) {
-        plainGroup = { name: gname, color: Object.keys(groups[gname].colors)[0] };
-      }
-    });
-    if (!rampGroup) return '';
-    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: color por año de puesta en servicio, claro antiguo → oscuro reciente">' +
-      '<div class="featured-legend-title">Año de puesta en servicio</div>' +
-      '<div class="featured-legend-steps">';
-    rampGroup.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
-    html += '</div>' +
-      '<div class="featured-legend-scale"><span>' + escHtml(String(rampGroup.steps[0].v)) + '</span>' +
-      '<span>' + escHtml(String(rampGroup.steps[rampGroup.steps.length - 1].v)) + '</span></div>';
-    if (plainGroup) {
-      html += '<div class="featured-legend-item"><i style="background:' + plainGroup.color + '"></i>' + escHtml(plainGroup.name) + '</div>';
-    }
-    html += '</div>';
-    return html;
-  }
-
-  // Leyenda clasificada para salario mínimo por USD — agrupa por «Salario mínimo USD anual».
-  // Rampa azul claro→oscuro #eff3ff→#08306b (ramp real del GeoJSON), gris #d9d9d9 sin dato.
-  // Buckets clasificados con etiquetas claras en USD y EUR (0,924 €/$ Banco Mundial PA.NUS.FCRF 2024).
-  function buildWageLegend(geo) {
-    if (!geo || !geo.features || !geo.features.length) return '';
-    var hasWage = 0, hasColor = false;
-    for (var i = 0; i < geo.features.length; i++) {
-      var p = geo.features[i] && geo.features[i].properties;
-      if (!p) continue;
-      if (p._manaColor) hasColor = true;
-      var raw = p['Salario mínimo USD anual'];
-      if (raw != null) {
-        var v = parseFloat(String(raw).replace(/[^\d.-]/g, ''));
-        if (isFinite(v) && v > 0) hasWage++;
-      }
-    }
-    if (hasWage < 3 || !hasColor) return '';
-    // Buckets clasificados 5 wage + 1 sin dato = 6 totales (ej del encargo).
-    // Colores tomados de la rampa real: #eff3ff ≤500, #c6dbef ≤1500, #9ecae1 ≤3500, #6baed6 ≤7000, #4292c6 ≤14000, #2171b5 ≤25000, #08519c ≤40000, #08306b >40000
-    var buckets = [
-      { label: 'Sin dato', color: '#d9d9d9', isNoData: true },
-      { label: '< 5.000 $', sub: '< 4.620 €', color: '#c6dbef' },
-      { label: '5.000–10.000 $', sub: '4.620–9.240 €', color: '#6baed6' },
-      { label: '10.000–20.000 $', sub: '9.240–18.480 €', color: '#4292c6' },
-      { label: '20.000–35.000 $', sub: '18.480–32.340 €', color: '#2171b5' },
-      { label: '> 35.000 $', sub: '> 32.340 €', color: '#08306b' }
-    ];
-    var wageBuckets = buckets.slice(1);
-    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: salario mínimo anual por colores, gris sin dato, azules claro bajo → oscuro alto">' +
-      '<div class="featured-legend-title">Salario mínimo anual (USD)</div>' +
-      '<div class="featured-legend-steps">';
-    wageBuckets.forEach(function(b) { html += '<span style="background:' + b.color + '" title="' + escHtml(b.label + ' · ' + b.sub) + '"></span>'; });
-    html += '</div>' +
-      '<div class="featured-legend-scale"><span>' + escHtml(wageBuckets[0].label) + '</span><span>' + escHtml(wageBuckets[wageBuckets.length - 1].label) + '</span></div>' +
-      '<div class="featured-legend-scale" style="margin-top:2px;font-size:10px;color:#64748b"><span>' + escHtml(wageBuckets[0].sub) + '</span><span>' + escHtml(wageBuckets[wageBuckets.length - 1].sub) + '</span></div>' +
-      '<div class="featured-legend-item"><i style="background:' + buckets[0].color + '"></i>' + escHtml(buckets[0].label) + '</div>' +
-      '<div style="font-size:10px;color:#64748b;margin-top:4px">EUR ≈ USD × 0,924 (Banco Mundial 2024)</div>' +
-      '</div>';
     return html;
   }
 
@@ -972,7 +900,8 @@
     }
 
     ensureLegendStyles();
-    var legendHtml = buildDepthLegend(geo) || buildYearLegend(geo) || buildWageLegend(geo);
+    var docLegend = item.legend || (item.fields && item.fields.legend) || (geo && geo.legend) || null;
+    var legendHtml = buildGenericLegend(geo, docLegend);
     if (legendHtml) target.insertAdjacentHTML('beforeend', legendHtml);
 
     var styleUrl = window.MANA_BASEMAPS

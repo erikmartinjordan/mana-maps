@@ -137,6 +137,23 @@ async function main(){
   if(!fs.existsSync(geoPath)){console.error('No geojson at',geoPath); process.exit(1);}
   const geo=JSON.parse(fs.readFileSync(geoPath,'utf8'));
   console.log(`Loaded ${geo.features.length} features`);
+  // Legend genérica — rampa por año claro antiguo → oscuro reciente (sin inferencia en galería)
+  const fiberLegendSteps = [
+    { v: 2000, c: '#E3F2FD', label: '2000' },
+    { v: 2002, c: '#D1E4F5', label: '2002' },
+    { v: 2009, c: '#BFD6EE', label: '2009' },
+    { v: 2010, c: '#AEC7E6', label: '2010' },
+    { v: 2012, c: '#9CB9DE', label: '2012' },
+    { v: 2016, c: '#8AABD7', label: '2016' },
+    { v: 2017, c: '#789DCF', label: '2017' },
+    { v: 2018, c: '#668EC7', label: '2018' },
+    { v: 2020, c: '#5480C0', label: '2020' },
+    { v: 2021, c: '#4372B8', label: '2021' },
+    { v: 2022, c: '#3164B0', label: '2022' },
+    { v: 2024, c: '#1F55A9', label: '2024' },
+    { v: 2025, c: '#0D47A1', label: '2025' }
+  ];
+  geo.legend = { title: 'Año de puesta en servicio', steps: fiberLegendSteps };
   const geojsonText=JSON.stringify(geo);
   console.log(`GeoJSON size ${(geojsonText.length/1024).toFixed(1)} KB`);
   if(geojsonText.length>1048576){console.error('ERROR exceeds 1MiB'); process.exit(1);}
@@ -202,6 +219,20 @@ async function main(){
     dataSource:fsStr('TeleGeography / submarinecablemap.com (puntos de aterrizaje oficiales) — trazado interpolado por gran círculo; GEBCO/NOAA para contexto oceánico'),
     dataDate:fsStr('2026-08-16'),
     tags:fsArr(['Infraestructura','Tecnología','Conectividad']),
+    legend: {
+      mapValue: {
+        fields: {
+          title: { stringValue: 'Año de puesta en servicio' },
+          steps: {
+            arrayValue: {
+              values: fiberLegendSteps.map(s => ({
+                mapValue: { fields: { v: { doubleValue: s.v }, c: { stringValue: s.c }, label: { stringValue: s.label } } }
+              }))
+            }
+          }
+        }
+      }
+    },
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,
     views:fsInt(0), likes:fsInt(0)
