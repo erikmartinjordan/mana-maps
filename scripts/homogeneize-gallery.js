@@ -40,13 +40,15 @@ const MAPS_TO_UPDATE = {
     tags: ['Geografía', 'Naturaleza', 'Clima'],
   },
   'minimum-wage-by-country': {
-    tags: ['Economía', 'Datos', 'Países'],
+    tags: ['Economía', 'Geografía'],
+    fixLabelStyle: true,  // completar _manaLabelStyle donde falta
   },
   'submarine-fiber-cables': {
-    tags: ['Infraestructura', 'Tecnología', 'Conectividad'],
+    tags: ['Infraestructura', 'Tecnología', 'Geografía'],
+    fixLabelStyle: true,  // completar _manaLabelStyle donde falta
   },
   'worst-wildfires-world': {
-    tags: ['Naturaleza', 'Medio Ambiente', 'Desastres'],
+    tags: ['Naturaleza', 'Medio Ambiente'],
   },
 };
 
@@ -286,14 +288,14 @@ async function main() {
     const updateFields = {};
     const currentFields = map.rawDoc.fields;
 
-    // Tags
-    if (config.tags && (!map.tags || map.tags.length === 0)) {
-      updateFields.tags = fsArr(config.tags);
-    } else if (config.tags && config.tags.length > map.tags.length) {
-      // Merge tags (avoid duplicates)
-      const merged = [...new Set([...map.tags, ...config.tags])];
-      if (merged.length > map.tags.length) {
-        updateFields.tags = fsArr(merged);
+    // Tags — replace if different from current
+    if (config.tags) {
+      const currentTags = map.tags || [];
+      const targetTags = config.tags;
+      const sameLength = currentTags.length === targetTags.length;
+      const sameContent = sameLength && currentTags.every((t, i) => t === targetTags[i]);
+      if (!sameContent) {
+        updateFields.tags = fsArr(targetTags);
       }
     }
 
@@ -329,7 +331,94 @@ async function main() {
     }
   }
 
-  // 3. Delete test maps
+  // 3. Fix _manaLabelStyle in GeoJSON features where missing
+  for (const [slug, config] of Object.entries(MAPS_TO_UPDATE)) {
+    if (!config.fixLabelStyle) continue;
+
+    const map = allMaps.find(m => m.id === slug);
+    if (!map) {
+      console.log(`SKIP labelStyle ${slug}: not found in collection`);
+      continue;
+    }
+
+    // Get geojsonText from the raw document
+    const geoField = map.rawDoc.fields && map.rawDoc.fields.geojsonText;
+    if (!geoField || !geoField.stringValue) {
+      console.log(`SKIP labelStyle ${slug}: no geojsonText`);
+      continue;
+    }
+
+    let geo;
+    try {
+      geo = JSON.parse(geoField.stringValue);
+    } catch (e) {
+      console.error(`SKIP labelStyle ${slug}: invalid GeoJSON: ${e.message}`);
+      continue;
+    }
+
+    if (!geo.features || !Array.isArray(geo.features)) {
+      console.log(`SKIP labelStyle ${slug}: no features array`);
+      continue;
+    }
+
+    // Default label style based on geometry type
+    const defaultLabelStylePolygon = {
+      fontSize: 11,
+      fontFamily: 'DM Sans, sans-serif',
+      fontWeight: '600',
+      color: '#1e293b',
+      haloWidth: 3,
+      haloColor: '#FFFFFF',
+      placement: 'point'
+    };
+    const defaultLabelStyleLine = {
+      fontSize: 11,
+      fontFamily: 'Arial, sans-serif',
+      fontWeight: 'bold',
+      color: '#0D47A1',
+      haloWidth: 3,
+      haloColor: '#FFFFFF',
+      placement: 'line'
+    };
+
+    let featuresFixed = 0;
+    for (const feature of geo.features) {
+      if (!feature.properties) feature.properties = {};
+      if (!feature.properties._manaLabelStyle || Object.keys(feature.properties._manaLabelStyle).length === 0) {
+        const geomType = feature.geometry && feature.geometry.type;
+        feature.properties._manaLabelStyle = (geomType === 'LineString' || geomType === 'MultiLineString')
+          ? { ...defaultLabelStyleLine }
+          : { ...defaultLabelStylePolygon };
+        featuresFixed++;
+      }
+    }
+
+    if (featuresFixed === 0) {
+      console.log(`OK labelStyle ${slug}: all features already have _manaLabelStyle`);
+      continue;
+    }
+
+    console.log(`FIX labelStyle ${slug}: added _manaLabelStyle to ${featuresFixed} features`);
+
+    if (DRY_RUN) {
+      updated++;
+      continue;
+    }
+
+    try {
+      const newGeoText = JSON.stringify(geo);
+      const updateFields = { geojsonText: fsStr(newGeoText) };
+      const currentFields = map.rawDoc.fields;
+      await updateMapFields(token, slug, updateFields, currentFields);
+      console.log(`  ✓ Updated geojsonText (${featuresFixed} features fixed)`);
+      updated++;
+    } catch (e) {
+      console.error(`  ✗ Error updating labelStyle: ${e.message}`);
+      errors++;
+    }
+  }
+
+  // 4. Delete test maps
   for (const slug of TEST_MAPS_TO_DELETE) {
     const map = allMaps.find(m => m.id === slug);
     if (!map) {
@@ -354,7 +443,7 @@ async function main() {
     }
   }
 
-  console.log(`\n=== Done: ${updated} updated, ${deleted} deleted, ${errors} errors ===\n`);
+  console.log(`\n=== Done: ${updated} updated/fixed, ${deleted} deleted, ${errors} errors ===\n`);
   process.exit(errors > 0 ? 1 : 0);
 }
 
