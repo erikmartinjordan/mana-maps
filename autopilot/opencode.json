@@ -1,0 +1,86 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "autopilot": {
+      "description": "Agente autónomo que implementa tareas del BACKLOG de mana-maps",
+      "mode": "primary",
+      "prompt": "{file:./agents/autopilot.md}",
+      "steps": 60,
+      "permission": {
+        "question": "deny",
+        "read": "allow",
+        "edit": "allow",
+        "bash": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "webfetch": "allow",
+        "websearch": "deny",
+        "task": "allow",
+        "todowrite": "allow",
+        "lsp": "deny",
+        "skill": "deny"
+      }
+    },
+    "reviewer": {
+      "description": "Revisa el diff sin modificar nada antes de un push",
+      "mode": "subagent",
+      "prompt": "{file:./agents/reviewer.md}",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": {
+          "git status *": "allow",
+          "git diff *": "allow",
+          "*": "deny"
+        },
+        "edit": "deny",
+        "question": "deny",
+        "webfetch": "deny"
+      }
+    },
+    "mapmaker": {
+      "description": "Agente que crea mapas de datos excelentes y compartibles para la galeria",
+      "mode": "primary",
+      "prompt": "{file:./agents/mapmaker.md}",
+      "steps": 40,
+      "permission": {
+        "question": "deny",
+        "read": "allow",
+        "edit": "allow",
+        "bash": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "webfetch": "allow",
+        "websearch": "deny",
+        "task": "allow",
+        "todowrite": "allow",
+        "lsp": "deny",
+        "skill": "deny"
+      }
+    },
+    "ideator": {
+      "description": "Ideador GIS estricto — audita galería Firestore y propone fixes",
+      "mode": "primary",
+      "prompt": "{file:./agents/ideator.md}",
+      "permission": {
+        "question": "deny",
+        "read": "allow",
+        "edit": "allow",
+        "bash": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "webfetch": "allow",
+        "websearch": "deny",
+        "task": "allow",
+        "todowrite": "allow",
+        "lsp": "deny",
+        "skill": "deny"
+      }
+    }
+  }
+}

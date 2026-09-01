@@ -1,0 +1,9 @@
+Anadir en index.html de mana-maps, dentro de <div class="topbar-actions"> (antes del boton "Abrir app"):
+
+  <a class="btn btn-about" href="PON_AQUI_LA_URL_DEL_PANEL" target="_blank">Agents</a>
+
+Una vez el tunel este activo en el iMac, la URL estara en:
+  ~/autopilot/panel-url.txt
+  (~/autopilot/scripts/tunnel.sh status)
+
+Alternativa sin tocar el repo: un shortlink (ej. bit.ly) al panel.

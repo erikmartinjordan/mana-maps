@@ -1,0 +1,31 @@
+{
+  "dir": "~/autopilot",
+  "repos": [
+    {
+      "name": "mana-maps",
+      "url": "git@github.com:erikmartinjordan/mana-maps.git",
+      "branch": "autopilot",
+      "tests": "npx playwright test -c tests/predeploy/playwright.config.js",
+      "backlog": "BACKLOG.md",
+      "autoMerge": true
+    }
+  ],
+  "whatsapp": {
+    "ownerNumber": "34677000000",
+    "dailyTime": "20:00"
+  },
+  "githubToken": "",
+  "loop": {
+    "intervalMinutes": 45,
+    "maxRunsPerDay": 0,
+    "agentTimeoutMinutes": 30,
+    "ideationTimeoutMinutes": 20
+  },
+  "model": "opencode-go/mimo-v2.5",
+  "maps": {
+    "minIntervalHours": 3
+  },
+  "ideation": {
+    "minIntervalHours": 12
+  }
+}
