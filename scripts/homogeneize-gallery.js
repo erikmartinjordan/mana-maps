@@ -18,6 +18,7 @@ const COLLECTION = 'maps';
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // ─── Config de mapas a actualizar ──────────────────────────────
+// useReplaceTags: true → reemplaza tags por las indicadas (no merge)
 const MAPS_TO_UPDATE = {
   'active-volcanoes-world': {
     tags: ['Naturaleza', 'Volcanes', 'Geología'],
@@ -40,13 +41,43 @@ const MAPS_TO_UPDATE = {
     tags: ['Geografía', 'Naturaleza', 'Clima'],
   },
   'minimum-wage-by-country': {
-    tags: ['Economía', 'Datos', 'Países'],
+    tags: ['Economía', 'Geografía'],
+    useReplaceTags: true, // reemplazar tags exactas
   },
   'submarine-fiber-cables': {
-    tags: ['Infraestructura', 'Tecnología', 'Conectividad'],
+    tags: ['Infraestructura', 'Tecnología', 'Geografía'],
+    useReplaceTags: true,
   },
   'worst-wildfires-world': {
-    tags: ['Naturaleza', 'Medio Ambiente', 'Desastres'],
+    tags: ['Naturaleza', 'Medio Ambiente'],
+    useReplaceTags: true,
+  },
+};
+
+// ─── Mapas que necesitan _manaLabelStyle en geojsonText ──────
+// Solo parchea features que NO tengan _manaLabelStyle ya definido.
+const LABELSTYLE_PATCH_MAPS = {
+  'minimum-wage-by-country': {
+    defaultStyle: {
+      fontSize: 11,
+      fontFamily: 'DM Sans, sans-serif',
+      fontWeight: '600',
+      color: '#1e293b',
+      haloWidth: 3,
+      haloColor: '#FFFFFF',
+      placement: 'point'
+    }
+  },
+  'submarine-fiber-cables': {
+    defaultStyle: {
+      fontSize: 10,
+      fontFamily: 'DM Sans, sans-serif',
+      fontWeight: '600',
+      color: '#1e293b',
+      haloWidth: 2,
+      haloColor: '#FFFFFF',
+      placement: 'line'
+    }
   },
 };
 
@@ -287,13 +318,22 @@ async function main() {
     const currentFields = map.rawDoc.fields;
 
     // Tags
-    if (config.tags && (!map.tags || map.tags.length === 0)) {
-      updateFields.tags = fsArr(config.tags);
-    } else if (config.tags && config.tags.length > map.tags.length) {
-      // Merge tags (avoid duplicates)
-      const merged = [...new Set([...map.tags, ...config.tags])];
-      if (merged.length > map.tags.length) {
-        updateFields.tags = fsArr(merged);
+    if (config.tags) {
+      if (config.useReplaceTags) {
+        // Reemplazar tags por las indicadas (no merge)
+        const currentTags = (map.tags || []).slice().sort().join(',');
+        const targetTags = config.tags.slice().sort().join(',');
+        if (currentTags !== targetTags) {
+          updateFields.tags = fsArr(config.tags);
+        }
+      } else if (!map.tags || map.tags.length === 0) {
+        updateFields.tags = fsArr(config.tags);
+      } else if (config.tags.length > map.tags.length) {
+        // Merge tags (avoid duplicates)
+        const merged = [...new Set([...map.tags, ...config.tags])];
+        if (merged.length > map.tags.length) {
+          updateFields.tags = fsArr(merged);
+        }
       }
     }
 
@@ -329,7 +369,84 @@ async function main() {
     }
   }
 
-  // 3. Delete test maps
+  // 3. Patch _manaLabelStyle in geojsonText where missing
+  let patched = 0;
+  for (const [slug, patchConfig] of Object.entries(LABELSTYLE_PATCH_MAPS)) {
+    const map = allMaps.find(m => m.id === slug);
+    if (!map) {
+      console.log(`SKIP labelStyle ${slug}: not found in collection`);
+      continue;
+    }
+
+    // Read the full document to get geojsonText
+    const docRes = await firestoreRequest(token, 'GET', `/${COLLECTION}/${slug}`);
+    if (docRes.status !== 200) {
+      console.error(`  ✗ READ ${slug} failed (${docRes.status})`);
+      errors++;
+      continue;
+    }
+    const doc = docRes.data;
+    const geoTextVal = extractField(doc, 'geojsonText');
+    if (!geoTextVal || typeof geoTextVal !== 'string') {
+      console.log(`SKIP labelStyle ${slug}: no geojsonText`);
+      continue;
+    }
+
+    let geo;
+    try {
+      geo = JSON.parse(geoTextVal);
+    } catch (e) {
+      console.error(`  ✗ Parse geojsonText ${slug} failed: ${e.message}`);
+      errors++;
+      continue;
+    }
+
+    if (!geo.features || !Array.isArray(geo.features)) {
+      console.log(`SKIP labelStyle ${slug}: no features array`);
+      continue;
+    }
+
+    let missingCount = 0;
+    for (const feature of geo.features) {
+      if (!feature.properties) feature.properties = {};
+      if (!feature.properties._manaLabelStyle) {
+        feature.properties._manaLabelStyle = { ...patchConfig.defaultStyle };
+        missingCount++;
+      }
+    }
+
+    if (missingCount === 0) {
+      console.log(`OK labelStyle ${slug}: all ${geo.features.length} features already have _manaLabelStyle`);
+      continue;
+    }
+
+    console.log(`PATCH labelStyle ${slug}: adding _manaLabelStyle to ${missingCount}/${geo.features.length} features`);
+
+    if (DRY_RUN) {
+      patched++;
+      continue;
+    }
+
+    try {
+      const updatedGeoText = JSON.stringify(geo);
+      // Check size limit (1 MiB)
+      if (Buffer.byteLength(updatedGeoText, 'utf8') > 1024 * 1024) {
+        console.error(`  ✗ ${slug}: updated geojsonText exceeds 1 MiB, skipping`);
+        errors++;
+        continue;
+      }
+      const currentFields = doc.fields;
+      currentFields.geojsonText = fsStr(updatedGeoText);
+      await updateMapFields(token, slug, { geojsonText: currentFields.geojsonText }, currentFields);
+      console.log(`  ✓ Patched ${missingCount} features with _manaLabelStyle`);
+      patched++;
+    } catch (e) {
+      console.error(`  ✗ Error patching ${slug}: ${e.message}`);
+      errors++;
+    }
+  }
+
+  // 4. Delete test maps
   for (const slug of TEST_MAPS_TO_DELETE) {
     const map = allMaps.find(m => m.id === slug);
     if (!map) {
@@ -354,7 +471,7 @@ async function main() {
     }
   }
 
-  console.log(`\n=== Done: ${updated} updated, ${deleted} deleted, ${errors} errors ===\n`);
+  console.log(`\n=== Done: ${updated} updated, ${patched} labelStyle-patched, ${deleted} deleted, ${errors} errors ===\n`);
   process.exit(errors > 0 ? 1 : 0);
 }
 
