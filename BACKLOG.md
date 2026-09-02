@@ -1,6 +1,6 @@
 # BACKLOG
 
-- [x] Arreglar los tests que fallan tras: Nuevo mapa: "Ríos Más Largos del Mundo" con los 10 ríos principales (nacimientos y desembocaduras), usando geometrías reales de Natural Earth/ONU y publicado directamente en Firestore siguiendo el estándar de AGENTS.md (21-08)
+- [ ] Arreglar los tests que fallan tras: 
 - [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
