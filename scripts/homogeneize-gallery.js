@@ -23,12 +23,14 @@ const MAPS_TO_UPDATE = {
     tags: ['Naturaleza', 'Volcanes', 'Geología'],
   },
   'arrecifes-de-coral-fosas-oceanicas-y-naufragios-famosos-3172026-1785478772912': {
-    tags: ['Naturaleza', 'Oceanografía', 'Medio Ambiente'],
-    description: 'Arrecifes de coral, fosas oceánicas y naufragios famosos del mundo, con datos de profundidad y ubicación.',
+    tags: ['Naturaleza', 'Océanos'],
+    dataSource: 'GEBCO/IHO',
+    dataDate: '2024',
   },
   'ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436': {
-    tags: ['Historia', 'Arqueología', 'Geografía'],
-    description: 'Ciudades perdidas y ruinas arqueológicas fascinantes de todo el mundo, desde Machu Picchu hasta Pompeya.',
+    tags: ['Historia', 'Geografía'],
+    dataSource: 'UNESCO/Composición propia',
+    dataDate: '2026',
   },
   'highest-peaks-per-continent': {
     tags: ['Naturaleza', 'Montañas', 'Geografía'],
@@ -227,6 +229,8 @@ async function listPublishedMaps(token) {
       description: extractField(doc, 'description') || '',
       lang: extractField(doc, 'lang') || '',
       tags: extractField(doc, 'tags') || [],
+      dataSource: extractField(doc, 'dataSource') || '',
+      dataDate: extractField(doc, 'dataDate') || '',
       isPublished: extractField(doc, 'isPublished'),
       shareMode: extractField(doc, 'shareMode') || '',
       rawDoc: doc,
@@ -263,13 +267,15 @@ async function main() {
   console.log(`Found ${allMaps.length} documents in maps collection:\n`);
 
   // Print audit table
-  console.log('SLUG | TITLE | TAGS | DESCRIPTION | LANG');
-  console.log('-----|-------|------|-------------|-----');
+  console.log('SLUG | TITLE | TAGS | DESCRIPTION | LANG | SOURCE | DATE');
+  console.log('-----|-------|------|-------------|------|--------|-----');
   for (const m of allMaps) {
     const tagStr = m.tags.length > 0 ? `[${m.tags.join(', ')}]` : 'MISSING';
-    const descStr = m.description ? m.description.substring(0, 50) + '...' : 'MISSING';
+    const descStr = m.description ? m.description.substring(0, 40) + '...' : 'MISSING';
     const langStr = m.lang || 'MISSING';
-    console.log(`${m.id} | ${m.title.substring(0, 30)} | ${tagStr} | ${descStr} | ${langStr}`);
+    const srcStr = m.dataSource || '-';
+    const dateStr = m.dataDate || '-';
+    console.log(`${m.id.substring(0, 30)} | ${m.title.substring(0, 25)} | ${tagStr} | ${descStr} | ${langStr} | ${srcStr} | ${dateStr}`);
   }
   console.log('');
 
@@ -307,6 +313,16 @@ async function main() {
     // lang
     if (!map.lang || map.lang !== 'es') {
       updateFields.lang = fsStr('es');
+    }
+
+    // dataSource — add if missing or different
+    if (config.dataSource && map.dataSource !== config.dataSource) {
+      updateFields.dataSource = fsStr(config.dataSource);
+    }
+
+    // dataDate — add if missing or different
+    if (config.dataDate && map.dataDate !== config.dataDate) {
+      updateFields.dataDate = fsStr(config.dataDate);
     }
 
     if (Object.keys(updateFields).length === 0) {
