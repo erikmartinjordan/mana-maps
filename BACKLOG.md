@@ -56,4 +56,4 @@
 - [x] Homogeneizar galería (2/4): añadir tags a minimum-wage-by-country [Economía,Geografía], submarine-fiber-cables [Infraestructura,Tecnología,Geografía] y worst-wildfires-world [Naturaleza,Medio Ambiente] y completar _manaLabelStyle donde falta (minimum-wage 162, submarine-fiber 23) (01-09)
 - [x] Homogeneizar galería (3/4): completar descripción y dataSource/dataDate en arrecifes-de-coral... [Arrecifes GEBCO/IHO] y ciudades-perdidas... [Historia,Arqueología] con tags [Naturaleza,Océanos] y [Historia,Geografía], y traducir props restantes a ES (02-09)
 - [x] Homogeneizar galería (4/4) (02-09): verificar lang=es en todos, borrar mapas de prueba j9T7rtBWYFHcG5EYku0W y npH7euhfmwQU1RehAtnD (ya borrados, confirmar 404), y validar visual en /gallery/?tag= y /gallery/?slug= para los 10 mapas
-- [ ] Arreglar los botones zoom in/zoom out de los mapas, pues se solapan con los usuarios activos revisando el mapa (revisar z-index y posición en map/index.html y gallery/index.html)
+- [x] Arreglar los botones zoom in/zoom out de los mapas, pues se solapan con los usuarios activos revisando el mapa (revisar z-index y posición en map/index.html y gallery/index.html) (02-09)

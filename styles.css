@@ -312,16 +312,23 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   box-shadow:var(--shadow);
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
+  opacity:0.55;
+  transition:opacity .2s;
+  z-index:400;
+}
+#map-wrap:hover .leaflet-control-zoom,
+#map-wrap .leaflet-control-zoom:focus-within{
+  opacity:1;
 }
 #map-wrap .leaflet-control-zoom a{
-  width:38px;
-  height:38px;
+  width:34px;
+  height:34px;
   border:0.5px solid var(--border);
   background:color-mix(in srgb, var(--surface) 92%, transparent);
   color:var(--primary);
   font-weight:700;
-  font-size:20px;
-  line-height:36px;
+  font-size:18px;
+  line-height:32px;
   transition:background .15s,color .15s,border-color .15s,transform .08s;
 }
 #map-wrap .leaflet-control-zoom a:first-child{border-radius:12px 12px 0 0;}
