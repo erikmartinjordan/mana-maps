@@ -49,6 +49,11 @@ const MAPS_TO_UPDATE = {
     tags: ['Infraestructura', 'Tecnología', 'Geografía'],
     fixLabelStyle: true,  // completar _manaLabelStyle donde falta
   },
+  'oceans-and-seas-world': {
+    tags: ['Geografía', 'Naturaleza'],
+    dataSource: 'Natural Earth 1:50m; límites IHO S-23; batimetría GEBCO/NOAA',
+    dataDate: '2026',
+  },
   'worst-wildfires-world': {
     tags: ['Naturaleza', 'Medio Ambiente'],
   },
