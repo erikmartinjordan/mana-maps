@@ -5,6 +5,7 @@ js/firebase-config.local.js
 .env.*
 
 node_modules/
+autopilot/reports/
 test-results/
 og-cards/_render.log
 *.log

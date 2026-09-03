@@ -588,6 +588,85 @@
     document.head.appendChild(st);
   }
 
+  // ── Leyenda declarada por el mapa (legendKey) ─────────────────────────
+  // Cada mapa puede declarar en su documento qué clave numérica ordena su
+  // rampa de colores (p. ej. «Salario mínimo USD anual»). Así la leyenda
+  // deja de depender de heurísticas frágiles. Si el mapa no declara
+  // legendKey, se vuelve a las heurísticas (buildDepth/Year/WageLegend).
+  function parsePropNumber(raw) {
+    if (raw == null) return NaN;
+    var s = String(raw);
+    // «4.280 m» / «1.247 m» / «6.26» / «55.000» -> 4280 / 1247 / 6.26 / 55000
+    var m = s.replace(/[^\d.,\-]/g, '');
+    if (m === '') return NaN;
+    var num;
+    if (m.indexOf(',') !== -1) {
+      // formato europeo: puntos = miles, coma = decimal
+      num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
+    } else if (/^\d{1,3}(\.\d{3})+$/.test(m)) {
+      // miles puros con punto (4.280, 55.000) -> quitar puntos
+      num = parseFloat(m.replace(/\./g, ''));
+    } else {
+      // decimal con punto (6.26, 2.31) o entero
+      num = parseFloat(m);
+    }
+    return isFinite(num) ? num : NaN;
+  }
+
+  function formatLegendValue(v, fmt) {
+    if (fmt === 'year') return String(Math.round(v));
+    if (fmt === 'meters') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
+    if (fmt === 'usd') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $';
+    // number genérico: separador de miles, hasta 2 decimales
+    var rounded = Math.round(v * 100) / 100;
+    var parts = String(rounded).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parts.join(',');
+  }
+
+  function buildLegendForKey(geo, item) {
+    var key = item && item.legendKey;
+    if (!key) return '';
+    var title = (item && item.legendTitle) || key;
+    var fmt = (item && item.legendFormat) || 'number';
+    var groups = {};
+    (geo.features || []).forEach(function(f) {
+      var p = f && f.properties;
+      if (!p) return;
+      var gname = p._manaGroupName;
+      if (!gname || !p._manaColor) return;
+      var v = parsePropNumber(p[key]);
+      if (!isFinite(v)) return;
+      if (!groups[gname]) groups[gname] = { colors: {}, vals: [] };
+      var b = groups[gname];
+      if (!b.colors[p._manaColor]) {
+        b.colors[p._manaColor] = true;
+        b.vals.push({ v: v, c: p._manaColor });
+      }
+    });
+    var ramp = null;
+    Object.keys(groups).forEach(function(gname) {
+      var u = {};
+      groups[gname].vals.forEach(function(d) { u[d.c] = d; });
+      var steps = Object.keys(u).map(function(k) { return u[k]; }).sort(function(a, b) { return a.v - b.v; });
+      if (steps.length >= 3 && !ramp) ramp = { name: gname, steps: steps };
+    });
+    if (!ramp) return '';
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
+      '<div class="featured-legend-title">' + escHtml(title) + '</div>' +
+      '<div class="featured-legend-steps">';
+    ramp.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
+    html += '</div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(formatLegendValue(ramp.steps[0].v, fmt)) + '</span>' +
+      '<span>' + escHtml(formatLegendValue(ramp.steps[ramp.steps.length - 1].v, fmt)) + '</span></div>' +
+      '</div>';
+    return html;
+  }
+
+  function buildFeaturedLegend(geo, item) {
+    return buildLegendForKey(geo, item) || buildDepthLegend(geo) || buildYearLegend(geo) || buildWageLegend(geo);
+  }
+
   // Leyenda genérica para coropletas: agrupa polígonos por _manaGroupName y,
   // si un grupo tiene >=3 colores distintos con «Profundidad media» parseable,
   // pinta una escala discreta min→max. Devuelve '' si no aplica.
@@ -972,7 +1051,7 @@
     }
 
     ensureLegendStyles();
-    var legendHtml = buildDepthLegend(geo) || buildYearLegend(geo) || buildWageLegend(geo);
+    var legendHtml = buildFeaturedLegend(geo, item);
     if (legendHtml) target.insertAdjacentHTML('beforeend', legendHtml);
 
     var styleUrl = window.MANA_BASEMAPS
