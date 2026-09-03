@@ -353,6 +353,9 @@ async function restoreFromURL() {
     }
 
     const search = new URLSearchParams(window.location.search || '');
+    // Reset leyenda declarada; los flujos por gallery la vuelven a poblar si el
+    // mapa declara legendKey (evita mostrar la rampa de un mapa anterior).
+    window.MANA_LOADED_LEGEND = null;
     const personalMapId = search.get('load');
     if (personalMapId) {
       await waitForPersonalMaps(5000);
@@ -379,6 +382,11 @@ async function restoreFromURL() {
       if (db) {
         const galleryDoc = await db.collection(MAPS_COLLECTION).doc(gallerySlug).get();
         const galleryPayload = galleryDoc && galleryDoc.exists ? galleryDoc.data() : null;
+        // Exponer los metadatos de leyenda del mapa cargado para que la vista
+        // del editor (/map/) pueda pintar la rampa numérica declarada (legendKey).
+        window.MANA_LOADED_LEGEND = (galleryPayload && galleryPayload.legendKey)
+          ? { key: galleryPayload.legendKey, title: galleryPayload.legendTitle || galleryPayload.legendKey, format: galleryPayload.legendFormat || 'number' }
+          : null;
         const galleryGeo = await readPublishedGeo(db, gallerySlug, galleryPayload);
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
           const accessMode = getRequestedShareMode(galleryPayload);

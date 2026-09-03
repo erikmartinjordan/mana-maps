@@ -1152,6 +1152,52 @@ function stats() {
 }
 
 // ── Build legend overlay from group metadata ──
+
+// Helpers de leyenda numérica declarada por el mapa (legendKey), usados
+// también por la rampa en la vista /map/. Prefijo _mana para evitar colisiones.
+function _manaParsePropNumber(raw) {
+  if (raw == null) return NaN;
+  var s = String(raw);
+  var m = s.replace(/[^\d.,\-]/g, '');
+  if (m === '') return NaN;
+  var num;
+  if (m.indexOf(',') !== -1) {
+    num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(m)) {
+    num = parseFloat(m.replace(/\./g, ''));
+  } else {
+    num = parseFloat(m);
+  }
+  return isFinite(num) ? num : NaN;
+}
+
+function _manaFormatLegendValue(v, fmt) {
+  if (fmt === 'year') return String(Math.round(v));
+  if (fmt === 'meters') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
+  if (fmt === 'usd') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $';
+  var rounded = Math.round(v * 100) / 100;
+  var parts = String(rounded).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return parts.join(',');
+}
+
+function _manaLayerColor(l) {
+  if (!l) return null;
+  if (typeof l._manaColor === 'string' && l._manaColor) return l._manaColor;
+  if (l.options && typeof l.options.color === 'string' && l.options.color) return l.options.color;
+  if (l.feature && l.feature.properties) {
+    var c = l.feature.properties._manaColor || l.feature.properties.color;
+    if (typeof c === 'string' && c) return c;
+  }
+  return null;
+}
+
+function _manaLayerProp(l, key) {
+  if (!l) return null;
+  var props = l._manaProperties || (l.feature && l.feature.properties) || {};
+  return props[key];
+}
+
 function renderLegend() {
   var container = document.getElementById('map-wrap') || document.getElementById('map');
   if (!container) return;
@@ -1162,9 +1208,53 @@ function renderLegend() {
     container.appendChild(legend);
   }
 
+  // Rampa numérica declarada (legendKey): si el mapa declara una clave y hay
+  // rampa válida dentro de un grupo, la pintamos en lugar de la lista de grupos.
+  var li = window.MANA_LOADED_LEGEND;
+  if (li && li.key) {
+    var ramps = {};
+    for (var gid in _manaGroupMeta) {
+      var meta = _manaGroupMeta[gid];
+      if (!meta.allLayers || !meta.allLayers.length) continue;
+      var gname = meta.name;
+      var colors = {};
+      var vals = [];
+      meta.allLayers.forEach(function(l) {
+        var c = _manaLayerColor(l);
+        if (!c) return;
+        var v = _manaParsePropNumber(_manaLayerProp(l, li.key));
+        if (!isFinite(v)) return;
+        if (!colors[c]) {
+          colors[c] = true;
+          vals.push({ v: v, c: c });
+        }
+      });
+      var uniq = {};
+      vals.forEach(function(d) { uniq[d.c] = d; });
+      var steps = Object.keys(uniq).map(function(k) { return uniq[k]; }).sort(function(a, b) { return a.v - b.v; });
+      if (steps.length >= 3) ramps[gname] = { steps: steps };
+    }
+    var rampName = Object.keys(ramps)[0];
+    if (rampName) {
+      var rsteps = ramps[rampName].steps;
+      var rtitle = li.title || rampName;
+      var rformat = li.format || 'number';
+      var rh = '<div class="map-legend-title">' + rtitle + '</div>' +
+        '<div class="map-legend-ramp"><div class="map-legend-ramp-steps">';
+      rsteps.forEach(function(s) { rh += '<span style="background:' + s.c + '"></span>'; });
+      rh += '</div><div class="map-legend-ramp-scale"><span>' +
+        _manaFormatLegendValue(rsteps[0].v, rformat) + '</span><span>' +
+        _manaFormatLegendValue(rsteps[rsteps.length - 1].v, rformat) +
+        '</span></div></div>';
+      legend.classList.remove('empty');
+      legend.innerHTML = rh;
+      return;
+    }
+  }
+
   var groups = [];
-  for (var gid in _manaGroupMeta) {
-    var m = _manaGroupMeta[gid];
+  for (var gid2 in _manaGroupMeta) {
+    var m = _manaGroupMeta[gid2];
     if (m.allLayers && m.allLayers.length) {
       groups.push({ name: m.name, color: m.color });
     }

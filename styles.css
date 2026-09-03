@@ -2523,6 +2523,10 @@ select.ai-input{cursor:pointer;appearance:auto;}
 .map-legend-sizes { margin: 4px 0 2px 20px; display: flex; flex-direction: column; gap: 2px; }
 .map-legend-size { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-3); white-space: nowrap; }
 .mle-emoji { line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
+.map-legend-ramp { display: flex; flex-direction: column; gap: 4px; }
+.map-legend-ramp-steps { display: flex; border-radius: 4px; overflow: hidden; border: 1px solid rgba(16,24,40,.18); height: 12px; }
+.map-legend-ramp-steps span { flex: 1; height: 12px; display: block; }
+.map-legend-ramp-scale { display: flex; justify-content: space-between; font-weight: 600; color: var(--text-2); font-size: 11px; }
 
 /* ── Toolbar utility buttons (dark/lang in bottom) ── */
 .tb-util{opacity:.65;transition:opacity .15s;}
