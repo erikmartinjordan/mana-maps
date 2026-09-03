@@ -1,0 +1,1112 @@
+{
+  "_source": "UNESCO World Heritage Centre — IHP-WINS 2025",
+  "_date": "2025-07-24",
+  "countries": [
+    {
+      "name": "China",
+      "sites": 59,
+      "cultural": 40,
+      "natural": 15,
+      "mixed": 4
+    },
+    {
+      "name": "Italia",
+      "sites": 54,
+      "cultural": 50,
+      "natural": 4,
+      "mixed": 0
+    },
+    {
+      "name": "Francia",
+      "sites": 47,
+      "cultural": 40,
+      "natural": 6,
+      "mixed": 1
+    },
+    {
+      "name": "España",
+      "sites": 46,
+      "cultural": 42,
+      "natural": 3,
+      "mixed": 1
+    },
+    {
+      "name": "Alemania",
+      "sites": 44,
+      "cultural": 43,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "India",
+      "sites": 43,
+      "cultural": 35,
+      "natural": 7,
+      "mixed": 1
+    },
+    {
+      "name": "México",
+      "sites": 36,
+      "cultural": 28,
+      "natural": 6,
+      "mixed": 2
+    },
+    {
+      "name": "Reino Unido",
+      "sites": 32,
+      "cultural": 26,
+      "natural": 5,
+      "mixed": 1
+    },
+    {
+      "name": "Rusia",
+      "sites": 29,
+      "cultural": 20,
+      "natural": 9,
+      "mixed": 0
+    },
+    {
+      "name": "Irán",
+      "sites": 28,
+      "cultural": 27,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Japón",
+      "sites": 25,
+      "cultural": 20,
+      "natural": 5,
+      "mixed": 0
+    },
+    {
+      "name": "Brasil",
+      "sites": 24,
+      "cultural": 14,
+      "natural": 9,
+      "mixed": 1
+    },
+    {
+      "name": "Estados Unidos",
+      "sites": 23,
+      "cultural": 12,
+      "natural": 10,
+      "mixed": 1
+    },
+    {
+      "name": "Turquía",
+      "sites": 22,
+      "cultural": 20,
+      "natural": 0,
+      "mixed": 2
+    },
+    {
+      "name": "Australia",
+      "sites": 21,
+      "cultural": 5,
+      "natural": 12,
+      "mixed": 4
+    },
+    {
+      "name": "Canadá",
+      "sites": 20,
+      "cultural": 10,
+      "natural": 9,
+      "mixed": 1
+    },
+    {
+      "name": "Grecia",
+      "sites": 20,
+      "cultural": 18,
+      "natural": 0,
+      "mixed": 2
+    },
+    {
+      "name": "Corea del Sur",
+      "sites": 17,
+      "cultural": 15,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Portugal",
+      "sites": 16,
+      "cultural": 15,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "República Checa",
+      "sites": 14,
+      "cultural": 14,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Suecia",
+      "sites": 13,
+      "cultural": 12,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Polonia",
+      "sites": 13,
+      "cultural": 13,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Perú",
+      "sites": 12,
+      "cultural": 8,
+      "natural": 2,
+      "mixed": 2
+    },
+    {
+      "name": "Etiopía",
+      "sites": 12,
+      "cultural": 10,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Indonesia",
+      "sites": 10,
+      "cultural": 6,
+      "natural": 4,
+      "mixed": 0
+    },
+    {
+      "name": "Sudáfrica",
+      "sites": 10,
+      "cultural": 7,
+      "natural": 3,
+      "mixed": 0
+    },
+    {
+      "name": "Rumania",
+      "sites": 10,
+      "cultural": 9,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Bélgica",
+      "sites": 10,
+      "cultural": 10,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Dinamarca",
+      "sites": 10,
+      "cultural": 7,
+      "natural": 3,
+      "mixed": 0
+    },
+    {
+      "name": "Argentina",
+      "sites": 9,
+      "cultural": 4,
+      "natural": 5,
+      "mixed": 0
+    },
+    {
+      "name": "Cuba",
+      "sites": 9,
+      "cultural": 7,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Israel",
+      "sites": 9,
+      "cultural": 9,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Túnez",
+      "sites": 9,
+      "cultural": 8,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Bulgaria",
+      "sites": 9,
+      "cultural": 7,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Marruecos",
+      "sites": 9,
+      "cultural": 9,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Kenia",
+      "sites": 8,
+      "cultural": 5,
+      "natural": 3,
+      "mixed": 0
+    },
+    {
+      "name": "Colombia",
+      "sites": 8,
+      "cultural": 5,
+      "natural": 2,
+      "mixed": 1
+    },
+    {
+      "name": "Tailandia",
+      "sites": 8,
+      "cultural": 5,
+      "natural": 3,
+      "mixed": 0
+    },
+    {
+      "name": "Vietnam",
+      "sites": 8,
+      "cultural": 6,
+      "natural": 1,
+      "mixed": 1
+    },
+    {
+      "name": "Suiza",
+      "sites": 8,
+      "cultural": 6,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Sri Lanka",
+      "sites": 8,
+      "cultural": 6,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Arabia Saudita",
+      "sites": 8,
+      "cultural": 7,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Tanzania",
+      "sites": 7,
+      "cultural": 3,
+      "natural": 3,
+      "mixed": 1
+    },
+    {
+      "name": "Noruega",
+      "sites": 7,
+      "cultural": 6,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Argelia",
+      "sites": 7,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Jordania",
+      "sites": 7,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Austria",
+      "sites": 7,
+      "cultural": 7,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Croacia",
+      "sites": 7,
+      "cultural": 6,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Egipto",
+      "sites": 7,
+      "cultural": 6,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Chile",
+      "sites": 6,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Bolivia",
+      "sites": 6,
+      "cultural": 5,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Senegal",
+      "sites": 6,
+      "cultural": 4,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Líbano",
+      "sites": 6,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Irak",
+      "sites": 6,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Pakistán",
+      "sites": 6,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Siria",
+      "sites": 6,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Hungría",
+      "sites": 6,
+      "cultural": 6,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Filipinas",
+      "sites": 6,
+      "cultural": 3,
+      "natural": 3,
+      "mixed": 0
+    },
+    {
+      "name": "Malasia",
+      "sites": 6,
+      "cultural": 4,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "República Democrática del Congo",
+      "sites": 5,
+      "cultural": 0,
+      "natural": 5,
+      "mixed": 0
+    },
+    {
+      "name": "Omán",
+      "sites": 5,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Camboya",
+      "sites": 5,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Ucrania",
+      "sites": 5,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Finlandia",
+      "sites": 5,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Eslovaquia",
+      "sites": 5,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Yemen",
+      "sites": 5,
+      "cultural": 4,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Libia",
+      "sites": 5,
+      "cultural": 5,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Uzbekistán",
+      "sites": 4,
+      "cultural": 4,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Panamá",
+      "sites": 4,
+      "cultural": 2,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Guatemala",
+      "sites": 4,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Ecuador",
+      "sites": 4,
+      "cultural": 2,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Zimbabue",
+      "sites": 4,
+      "cultural": 3,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Malí",
+      "sites": 4,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Mongolia",
+      "sites": 4,
+      "cultural": 4,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Nepal",
+      "sites": 4,
+      "cultural": 2,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Tayikistán",
+      "sites": 4,
+      "cultural": 2,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Azerbaiyán",
+      "sites": 4,
+      "cultural": 4,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Georgia",
+      "sites": 4,
+      "cultural": 3,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Kazajistán",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Sudán",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Uruguay",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Costa Rica",
+      "sites": 3,
+      "cultural": 1,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Venezuela",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Surinam",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Burkina Faso",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Malaui",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Madagascar",
+      "sites": 3,
+      "cultural": 1,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Laos",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Corea del Norte",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Bangladés",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Turkmenistán",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Armenia",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Lituania",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Nueva Zelanda",
+      "sites": 3,
+      "cultural": 0,
+      "natural": 2,
+      "mixed": 1
+    },
+    {
+      "name": "Islandia",
+      "sites": 3,
+      "cultural": 1,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Chipre",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Uganda",
+      "sites": 3,
+      "cultural": 1,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Bosnia y Herzegovina",
+      "sites": 3,
+      "cultural": 2,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Malta",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Baréin",
+      "sites": 3,
+      "cultural": 3,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Chad",
+      "sites": 2,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 1
+    },
+    {
+      "name": "Nicaragua",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Honduras",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Jamaica",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Botsuana",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Namibia",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Mauritania",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Níger",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Nigeria",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Camerún",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Ghana",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Gabón",
+      "sites": 2,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 1
+    },
+    {
+      "name": "Emiratos Árabes Unidos",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Birmania",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Afganistán",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Bielorrusia",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Letonia",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Albania",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Irlanda",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Eslovenia",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Ruanda",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Montenegro",
+      "sites": 2,
+      "cultural": 1,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Seychelles",
+      "sites": 2,
+      "cultural": 0,
+      "natural": 2,
+      "mixed": 0
+    },
+    {
+      "name": "Mauricio",
+      "sites": 2,
+      "cultural": 2,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Fiyi",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Papúa Nueva Guinea",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Haití",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "República Dominicana",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "El Salvador",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Belice",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Benín",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Guinea-Bisáu",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Sierra Leona",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "República Centroafricana",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "República del Congo",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Mozambique",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Angola",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Gambia",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Catar",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Vanuatu",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Kirguistán",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Estonia",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Luxemburgo",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Islas Salomón",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Eritrea",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Paraguay",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Islas Marshall",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Singapur",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "San Marino",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Santa Lucía",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "San Cristóbal y Nieves",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Palaos",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 0,
+      "mixed": 1
+    },
+    {
+      "name": "Kiribati",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Dominica",
+      "sites": 1,
+      "cultural": 0,
+      "natural": 1,
+      "mixed": 0
+    },
+    {
+      "name": "Cabo Verde",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Barbados",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Antigua y Barbuda",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    },
+    {
+      "name": "Andorra",
+      "sites": 1,
+      "cultural": 1,
+      "natural": 0,
+      "mixed": 0
+    }
+  ]
+}
