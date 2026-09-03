@@ -1,6 +1,6 @@
 # BACKLOG
 
-- [ ] Arreglar los tests que fallan tras: 
+- [x] Arreglar los tests que fallan: fix min-width:0 overflow en .kpi-card de /open/ y aumentar timeout del test de navegación móvil (03-09)
 - [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica

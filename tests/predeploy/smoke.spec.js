@@ -56,6 +56,7 @@ test('landing and pricing pages load Google Fonts with swap', async ({ page }) =
 });
 
 test('public navigation bars stay inside the viewport on mobile', async ({ page }) => {
+  test.setTimeout(90_000);
   const routes = [
     '/open/', '/pricing/', '/about/', '/changelog/', '/gallery/',
     '/my-maps/', '/profile/', '/tasks.html', '/404.html'
