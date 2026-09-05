@@ -59,4 +59,4 @@
 - [x] Arreglar los botones zoom in/zoom out de los mapas, pues se solapan con los usuarios activos revisando el mapa (revisar z-index y posición en map/index.html y gallery/index.html) (02-09)
 - [x] Añadir legendKey/legendTitle/legendFormat a los mapas coropletas de Firestore (minimum-wage-by-country y patrimonio-unesco-por-pais) para que la leyenda del mapa destacado use la clave numérica en lugar de heurísticas frágiles (05-09)
 - [x] Publicar en Firestore el mapa de tasa de fertilidad mundial (data/fertility-rate-world.geojson, 171 países) con tags [Demografía,Población,Geografía], description y dataSource/dataDate, y añadirlo como mapa destacado rotatorio en /gallery/ (04-09) (05-09)
-- [ ] Añadir al sitemap.xml las URLs individuales de los mapas publicados (/gallery/?slug=<slug>) con priority 0.6 y changefreq weekly para mejorar la descubribilidad SEO de cada landing de mapa (04-09)
+- [x] Añadir al sitemap.xml las URLs individuales de los mapas publicados (/gallery/?slug=<slug>) con priority 0.6 y changefreq weekly para mejorar la descubribilidad SEO de cada landing de mapa (04-09) (05-09)

@@ -47,4 +47,54 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=active-volcanoes-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=arrecifes-de-coral-fosas-oceanicas-y-naufragios-famosos-3172026-1785478772912</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=fertility-rate-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=highest-peaks-per-continent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=largest-islands-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=longest-rivers-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=major-deserts-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=minimum-wage-by-country</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=oceans-and-seas-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>
