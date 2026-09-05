@@ -1116,16 +1116,25 @@
     subscribeToPublishedMaps(merged);
 
     const mapId = getQueryMapId();
-    if (!mapId) return;
-    let selected = merged.find(function(i) { return (i.slug || i.id) === mapId; });
-    if (!selected) {
-      selected = await remoteMapById(mapId);
-      if (selected) {
-        merged.unshift(selected);
-        renderCards(merged);
+    if (mapId) {
+      // Direct link: show the requested map as featured
+      let selected = merged.find(function(i) { return (i.slug || i.id) === mapId; });
+      if (!selected) {
+        selected = await remoteMapById(mapId);
+        if (selected) {
+          merged.unshift(selected);
+          renderCards(merged);
+        }
       }
+      if (selected) await showFeatured(selected);
+    } else if (merged.length) {
+      // Rotating featured map: deterministic per day so all visitors see the
+      // same map, but it changes daily.  Uses a simple hash of today's date.
+      var today = new Date();
+      var seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+      var idx = seed % merged.length;
+      await showFeatured(merged[idx]);
     }
-    if (selected) await showFeatured(selected);
   }
 
   init();
