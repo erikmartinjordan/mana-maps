@@ -97,4 +97,19 @@
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=patrimonio-unesco-por-pais</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=submarine-fiber-cables</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=worst-wildfires-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>
