@@ -465,6 +465,8 @@ async function buildGeoJSON() {
 }
 
 function buildMapPreview(geo) {
+  // Preview fiel: usa todos los países como Polygon/MultiPolygon con más detalle.
+  // No convertir a LineString (eso hacía que las miniaturas parezcan hilos).
   let bbox = [180, 90, -180, -90];
   function walk(coords) {
     if (typeof coords[0] === 'number') {
@@ -473,17 +475,27 @@ function buildMapPreview(geo) {
     } else coords.forEach(walk);
   }
   geo.features.forEach(f => walk(f.geometry.coordinates));
+  // Sampling ligero: 80 puntos por anillo preserva forma sin exceder Firestore.
+  function sampleRing(ring, maxPts) {
+    if (!ring || ring.length <= maxPts) return ring;
+    const step = Math.ceil(ring.length / maxPts);
+    const out = [];
+    for (let i = 0; i < ring.length; i += step) out.push(ring[i]);
+    if (out[out.length - 1] !== ring[ring.length - 1]) out.push(ring[ring.length - 1]);
+    return out;
+  }
   const previewFeatures = geo.features.map(f => {
     const g = f.geometry;
-    let coords = [];
-    if (g.type === 'Polygon') coords = g.coordinates[0];
-    else if (g.type === 'MultiPolygon') coords = g.coordinates[0][0];
-    if (!coords || coords.length < 2) coords = [[0, 0], [1, 1]];
-    const step = Math.max(1, Math.floor(coords.length / 30));
-    const samp = [];
-    for (let i = 0; i < coords.length; i += step) samp.push(coords[i]);
-    if (samp.length < 2) samp.push(coords[coords.length - 1]);
-    return { geometry: { type: 'LineString', coordinatesText: JSON.stringify(samp) }, color: f.properties._manaColor, emoji: null };
+    let geom = null;
+    if (g.type === 'Polygon') {
+      geom = { type: 'Polygon', coordinatesText: JSON.stringify(g.coordinates.map(r => sampleRing(r, 80))) };
+    } else if (g.type === 'MultiPolygon') {
+      geom = { type: 'MultiPolygon', coordinatesText: JSON.stringify(g.coordinates.map(poly => poly.map(r => sampleRing(r, 80)))) };
+    } else {
+      // fallback genérico
+      geom = { type: g.type, coordinatesText: JSON.stringify(g.coordinates) };
+    }
+    return { geometry: geom, color: f.properties._manaColor, emoji: null };
   });
   return { bbox, kind: 'geometry', gridSize: 8, cells: null, features: previewFeatures };
 }
