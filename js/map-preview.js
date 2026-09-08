@@ -16,14 +16,14 @@
 (function() {
   'use strict';
 
-  var PREVIEW_MAX_FEATURES = 96;
+  var PREVIEW_MAX_FEATURES = 300;
   var PREVIEW_GRID_SIZE = 10;
   var PREVIEW_DENSITY_GRID_SIZE = 28;
   var PREVIEW_MIN_ASPECT = 0.6;
   var PREVIEW_MAX_ASPECT = 2.5;
-  var PREVIEW_TOTAL_COORD_BUDGET = 2600;
-  var PREVIEW_MIN_COORDS_PER_GEOMETRY = 48;
-  var PREVIEW_MAX_COORDS_PER_GEOMETRY = 260;
+  var PREVIEW_TOTAL_COORD_BUDGET = 10000;
+  var PREVIEW_MIN_COORDS_PER_GEOMETRY = 64;
+  var PREVIEW_MAX_COORDS_PER_GEOMETRY = 400;
   var DEFAULT_COLOR = '#0ea5e9';
 
   // Stylized vector basemap behind preview features: soft ocean gradient,
@@ -184,7 +184,7 @@
     return dx * dx + dy * dy;
   }
 
-  // Simplify a line/ring: Douglas–Peucker at ~0.35% of the geometry diagonal,
+  // Simplify a line/ring: Douglas–Peucker at ~0.15% of the geometry diagonal,
   // escalating tolerance if the result still exceeds the coordinate budget.
   function simplifyLine(coords, maxCoords, closed) {
     if (!Array.isArray(coords)) return [];
@@ -198,7 +198,7 @@
     if (clean.length <= maxCoords) return clean;
     var minLen = closed ? 4 : 2;
     var spanSq = lineSpanSq(clean);
-    var factor = 0.0035;
+    var factor = 0.0015;
     var out = clean;
     for (var attempt = 0; attempt < 6; attempt++) {
       var tolSq = spanSq * factor * factor;
@@ -345,8 +345,14 @@
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
     var bbox = geoBBox(geo);
     if (!bbox) return null;
-    var isLargePreview = geo.features.length > PREVIEW_MAX_FEATURES;
-    var cells = isLargePreview ? buildDensityCells(geo.features, bbox) : [];
+    // Density grid only makes sense for point-heavy maps; for polygons/lines
+    // the shapes are the map — nunca convertir una coropleta en cuadraditos.
+    var geomTypes = {};
+    geo.features.forEach(function(f) { var t = f && f.geometry && f.geometry.type; if (t) geomTypes[t] = (geomTypes[t] || 0) + 1; });
+    var polygonCount = (geomTypes.Polygon || 0) + (geomTypes.MultiPolygon || 0);
+    var lineCount = (geomTypes.LineString || 0) + (geomTypes.MultiLineString || 0);
+    var useDensityGrid = geo.features.length > PREVIEW_MAX_FEATURES && polygonCount < geo.features.length * 0.5 && lineCount < geo.features.length * 0.5;
+    var cells = useDensityGrid ? buildDensityCells(geo.features, bbox) : [];
     var coordBudget = Math.max(
       PREVIEW_MIN_COORDS_PER_GEOMETRY,
       Math.min(PREVIEW_MAX_COORDS_PER_GEOMETRY, Math.floor(PREVIEW_TOTAL_COORD_BUDGET / geo.features.length))
@@ -357,7 +363,7 @@
       return markerType.indexOf('emoji_') === 0 ? (EMOJI_MARKER_MAP[markerType] || '') : '';
     }
 
-    var entries = isLargePreview ? [] : previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
+    var entries = useDensityGrid ? [] : previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
       var feature = geo.features[index];
       var entry = {
         geometry: simplifyPreviewGeometry(feature ? feature.geometry : null, coordBudget),
@@ -584,14 +590,14 @@
         if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
           var d = '';
           geom.coordinates.forEach(function(ring) { d += lineToPath(ring, true); });
-          if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="0.16" stroke="' + stroke +
-            '" stroke-opacity="0.9" stroke-width="' + (1.5 * unit).toFixed(2) + '" stroke-linejoin="round"/>';
+          if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="0.24" stroke="' + stroke +
+            '" stroke-opacity="0.92" stroke-width="' + (1.4 * unit).toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>';
         } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
           geom.coordinates.forEach(function(poly) {
             var d = '';
             poly.forEach(function(ring) { d += lineToPath(ring, true); });
-            if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="0.16" stroke="' + stroke +
-              '" stroke-opacity="0.9" stroke-width="' + (1.5 * unit).toFixed(2) + '" stroke-linejoin="round"/>';
+            if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="0.24" stroke="' + stroke +
+              '" stroke-opacity="0.92" stroke-width="' + (1.4 * unit).toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>';
           });
         } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
           var dl = lineToPath(geom.coordinates, false);
