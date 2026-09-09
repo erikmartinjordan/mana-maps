@@ -567,6 +567,16 @@
     renderFilterBar(merged);
     if (_activeFilter) applyFilter(); else renderCards(merged);
     subscribeToPublishedMaps(merged);
+
+    // Update CollectionPage numberOfItems for SEO
+    var ldEl = document.getElementById('ld-collection');
+    if (ldEl && merged.length) {
+      try {
+        var ld = JSON.parse(ldEl.textContent);
+        ld.numberOfItems = merged.length;
+        ldEl.textContent = JSON.stringify(ld);
+      } catch (_) {}
+    }
   }
 
   init();
@@ -599,6 +609,16 @@
         _allMaps = mergedList;
         renderFilterBar(mergedList);
         if (_activeFilter) applyFilter(); else renderCards(mergedList);
+
+        // Update CollectionPage numberOfItems for SEO
+        var ldEl = document.getElementById('ld-collection');
+        if (ldEl && mergedList.length) {
+          try {
+            var ld = JSON.parse(ldEl.textContent);
+            ld.numberOfItems = mergedList.length;
+            ldEl.textContent = JSON.stringify(ld);
+          } catch (_) {}
+        }
       }
 
       baseQuery
