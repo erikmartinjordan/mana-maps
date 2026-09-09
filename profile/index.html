@@ -146,7 +146,7 @@
   <script defer src="/js/map-preview.js"></script>
   <script defer src="/js/public-profile.js"></script>
   <script>
-    var LANG = localStorage.getItem('mana-landing-lang') || 'es';
+    var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es';
     function manaAlert(message) { setProfileStatus(message, 'error'); }
     function showToast(message) { setProfileStatus(message, 'ok'); }
     function setProfileStatus(message, type) {

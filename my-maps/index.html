@@ -145,7 +145,7 @@
     document.head.appendChild(authModalStyle);
 
     // Global LANG detection
-    var LANG = localStorage.getItem('mana-landing-lang') || 'es';
+    var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es';
 
     var _toastTimer = null;
     var _confirmResolve = null;
