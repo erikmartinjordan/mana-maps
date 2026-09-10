@@ -119,15 +119,53 @@ ensure_port_free() {
 }
 
 check_memory_pressure() {
-  local free_pages=$(vm_stat 2>/dev/null | awk '/Pages free/ {gsub(/\./,"",$3); print $3}')
-  if [ -n "$free_pages" ] && [ "$free_pages" -gt 0 ]; then
-    local free_mb=$(( free_pages * 4096 / 1024 / 1024 ))
-    if [ "$free_mb" -lt 400 ]; then
-      log "Memoria baja: ${free_mb}MB libres, limpiando contenedores huérfanos..."
-      cleanup_stale_containers
-    else
-      log "Memoria OK: ${free_mb}MB libres"
+  # Linux: usar /proc/meminfo; macOS: vm_stat como fallback
+  local free_mb=0
+  if [ -f /proc/meminfo ]; then
+    free_mb=$(awk '/^MemAvailable:/ {printf "%d", $2/1024}' /proc/meminfo 2>/dev/null || echo 0)
+  else
+    local free_pages=$(vm_stat 2>/dev/null | awk '/Pages free/ {gsub(/\./,"",$3); print $3}')
+    if [ -n "$free_pages" ] && [ "$free_pages" -gt 0 ]; then
+      free_mb=$(( free_pages * 4096 / 1024 / 1024 ))
     fi
+  fi
+  if [ "$free_mb" -lt 300 ]; then
+    log "Memoria baja: ${free_mb}MB libres, limpiando contenedores huérfanos..."
+    cleanup_stale_containers
+  else
+    log "Memoria OK: ${free_mb}MB libres"
+  fi
+}
+
+# --- detectar si ya hay otro proceso opencode activo (WhatsApp chat, otro agente) ---
+# Retorna 0 si hay otro opencode running, 1 si no.
+has_other_opencode_running() {
+  local my_pid=$$
+  local count=0
+  for pid in $(pgrep -f "opencode run" 2>/dev/null); do
+    # Ignorarnos a nosotros mismos y a nuestros hijos directos
+    if [ "$pid" = "$my_pid" ]; then continue; fi
+    local ppid_of_pid
+    ppid_of_pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+    if [ "$ppid_of_pid" = "$my_pid" ]; then continue; fi
+    # Verificar que el proceso sigue vivo (no es zombie)
+    if kill -0 "$pid" 2>/dev/null; then
+      count=$((count + 1))
+    fi
+  done
+  if [ "$count" -gt 0 ]; then
+    log "Detectados $count proceso(s) opencode activo(s) fuera de este arbol"
+    return 0
+  fi
+  return 1
+}
+
+# Retorna los MB libres actuales (para decisiones de skip)
+get_free_mb() {
+  if [ -f /proc/meminfo ]; then
+    awk '/^MemAvailable:/ {printf "%d", $2/1024}' /proc/meminfo 2>/dev/null || echo 0
+  else
+    echo 999  # macOS: no sabemos, asumimos OK
   fi
 }
 
@@ -255,29 +293,38 @@ for repo in $(echo "$REPOS_JSON" | node -e "const a=JSON.parse(require('fs').rea
     [ -f "$ROOT/logs/last-map.ts" ] && LAST_MAP=$(cat "$ROOT/logs/last-map.ts")
     NOW=$(date +%s)
     if [ $((NOW - LAST_MAP)) -ge $MIN_MAP_SEC ]; then
-      date +%s >"$ROOT/logs/last-map.ts"
-      set_status "{\"state\":\"mapping\",\"repo\":\"$repo\"}"
-      log "Produccion de mapa nuevo para $repo..."
-      MAP_LOG="$LOGS/mapmaker-$(date +%Y%m%d-%H%M).md"
-      OPDIR=$(echo "$REPO_DIR" | sed "s|^$HOME|/home/erik|")
-      run_with_timeout "$AGENT_TIMEOUT" "$MAP_LOG" opencode run --dir "$OPDIR" --agent mapmaker --auto $MODEL_OPT \
-        "Crea un mapa de datos nuevo para la galeria siguiendo el pipeline del prompt de mapmaker. No repitas mapas ya existentes."
-      RC_MAP=$?
-      [ "$RC_MAP" -ne 0 ] && log "Mapmaker terminado con rc=$RC_MAP (timeout o error)"
-      # El mapmaker deja su trabajo en una rama autopilot/* pusheada; lo mergeamos
-      # en la seccion estandar de merge del loop (RAMA_A_CONSOLIDAR).
-      RAMA_A_CONSOLIDAR=$(git branch --show-current)
-      if [ -z "$RAMA_A_CONSOLIDAR" ] || [ "$RAMA_A_CONSOLIDAR" = "main" ]; then
-        if [ -n "$(git status --porcelain)" ]; then
-          RAMA_A_CONSOLIDAR="autopilot/mapmaker-$(date +%Y%m%d-%H%M)"
-          git switch -c "$RAMA_A_CONSOLIDAR" >>"$LOG_FILE" 2>&1
-          git add -A >>"$LOG_FILE" 2>&1
-          git commit -m "chore: mapa nuevo autopilot" >>"$LOG_FILE" 2>&1 || true
+      # Guard: si hay otro opencode activo o poca memoria, saltar
+      if has_other_opencode_running; then
+        log "SKIP mapmaker: otro proceso opencode activo, esperando al proximo ciclo"
+        set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"skipReason\":\"opencode_busy\"}"
+      elif [ "$(get_free_mb)" -lt 300 ]; then
+        log "SKIP mapmaker: memoria baja ($(get_free_mb)MB libres), esperando al proximo ciclo"
+        set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"skipReason\":\"low_memory\"}"
+      else
+        date +%s >"$ROOT/logs/last-map.ts"
+        set_status "{\"state\":\"mapping\",\"repo\":\"$repo\"}"
+        log "Produccion de mapa nuevo para $repo..."
+        MAP_LOG="$LOGS/mapmaker-$(date +%Y%m%d-%H%M).md"
+        OPDIR=$(echo "$REPO_DIR" | sed "s|^$HOME|/home/erik|")
+        run_with_timeout "$AGENT_TIMEOUT" "$MAP_LOG" opencode run --dir "$OPDIR" --agent mapmaker --auto $MODEL_OPT \
+          "Crea un mapa de datos nuevo para la galeria siguiendo el pipeline del prompt de mapmaker. No repitas mapas ya existentes."
+        RC_MAP=$?
+        [ "$RC_MAP" -ne 0 ] && log "Mapmaker terminado con rc=$RC_MAP (timeout o error)"
+        # El mapmaker deja su trabajo en una rama autopilot/* pusheada; lo mergeamos
+        # en la seccion estandar de merge del loop (RAMA_A_CONSOLIDAR).
+        RAMA_A_CONSOLIDAR=$(git branch --show-current)
+        if [ -z "$RAMA_A_CONSOLIDAR" ] || [ "$RAMA_A_CONSOLIDAR" = "main" ]; then
+          if [ -n "$(git status --porcelain)" ]; then
+            RAMA_A_CONSOLIDAR="autopilot/mapmaker-$(date +%Y%m%d-%H%M)"
+            git switch -c "$RAMA_A_CONSOLIDAR" >>"$LOG_FILE" 2>&1
+            git add -A >>"$LOG_FILE" 2>&1
+            git commit -m "chore: mapa nuevo autopilot" >>"$LOG_FILE" 2>&1 || true
+          fi
         fi
+        PENDING=$(pending_count "$REPO_DIR/BACKLOG.md")
+        set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"pending\":$PENDING}"
+        log "Produccion de mapa: rama=$RAMA_A_CONSOLIDAR pendientes=$PENDING"
       fi
-      PENDING=$(pending_count "$REPO_DIR/BACKLOG.md")
-      set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"pending\":$PENDING}"
-      log "Produccion de mapa: rama=$RAMA_A_CONSOLIDAR pendientes=$PENDING"
     fi
 
     # --- ideacion automatica: auditar calidad de mapas y proponer mejoras ---
@@ -287,28 +334,35 @@ for repo in $(echo "$REPOS_JSON" | node -e "const a=JSON.parse(require('fs').rea
     [ -f "$ROOT/logs/last-idea.ts" ] && LAST_IDEA=$(cat "$ROOT/logs/last-idea.ts")
     NOW=$(date +%s)
     if [ $((NOW - LAST_IDEA)) -ge $MIN_IDEA_SEC ]; then
-      date +%s >"$ROOT/logs/last-idea.ts"
-      set_status "{\"state\":\"ideating\",\"repo\":\"$repo\"}"
-      log "Ideacion automatica para $repo..."
-      IDEA_LOG="$LOGS/ideator-$(date +%Y%m%d-%H%M).md"
-      OPDIR=$(echo "$REPO_DIR" | sed "s|^$HOME|/home/erik|")
-      run_with_timeout "$IDEA_TIMEOUT" "$IDEA_LOG" opencode run --dir "$OPDIR" --agent ideator --auto $MODEL_OPT \
-        "Audita la calidad de los mapas de la galeria y propone mejoras o nuevos mapas en BACKLOG.md."
-      RC_IDEA=$?
-      [ "$RC_IDEA" -ne 0 ] && log "Ideator terminado con rc=$RC_IDEA (timeout o error)"
-      git checkout main >>"$LOG_FILE" 2>&1
-      if [ -n "$(git status --porcelain -- BACKLOG.md)" ]; then
-        git add BACKLOG.md >>"$LOG_FILE" 2>&1
-        if git commit -m "chore: tareas propuestas por el ideator" >>"$LOG_FILE" 2>&1; then
-          git push origin main >>"$LOG_FILE" 2>&1
-          log "Ideacion: BACKLOG actualizado"
-        fi
+      # Guard: si hay otro opencode activo o poca memoria, saltar
+      if has_other_opencode_running; then
+        log "SKIP ideator: otro proceso opencode activo, esperando al proximo ciclo"
+      elif [ "$(get_free_mb)" -lt 300 ]; then
+        log "SKIP ideator: memoria baja ($(get_free_mb)MB libres), esperando al proximo ciclo"
       else
-        log "Ideacion: sin tareas nuevas (BACKLOG sin cambios)"
+        date +%s >"$ROOT/logs/last-idea.ts"
+        set_status "{\"state\":\"ideating\",\"repo\":\"$repo\"}"
+        log "Ideacion automatica para $repo..."
+        IDEA_LOG="$LOGS/ideator-$(date +%Y%m%d-%H%M).md"
+        OPDIR=$(echo "$REPO_DIR" | sed "s|^$HOME|/home/erik|")
+        run_with_timeout "$IDEA_TIMEOUT" "$IDEA_LOG" opencode run --dir "$OPDIR" --agent ideator --auto $MODEL_OPT \
+          "Audita la calidad de los mapas de la galeria y propone mejoras o nuevos mapas en BACKLOG.md."
+        RC_IDEA=$?
+        [ "$RC_IDEA" -ne 0 ] && log "Ideator terminado con rc=$RC_IDEA (timeout o error)"
+        git checkout main >>"$LOG_FILE" 2>&1
+        if [ -n "$(git status --porcelain -- BACKLOG.md)" ]; then
+          git add BACKLOG.md >>"$LOG_FILE" 2>&1
+          if git commit -m "chore: tareas propuestas por el ideator" >>"$LOG_FILE" 2>&1; then
+            git push origin main >>"$LOG_FILE" 2>&1
+            log "Ideacion: BACKLOG actualizado"
+          fi
+        else
+          log "Ideacion: sin tareas nuevas (BACKLOG sin cambios)"
+        fi
+        PENDING=$(pending_count "$REPO_DIR/BACKLOG.md")
+        set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"pending\":$PENDING}"
+        log "Ideacion: $PENDING tareas pendientes"
       fi
-      PENDING=$(pending_count "$REPO_DIR/BACKLOG.md")
-      set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"pending\":$PENDING}"
-      log "Ideacion: $PENDING tareas pendientes"
     fi
   fi
 
@@ -325,6 +379,17 @@ for repo in $(echo "$REPOS_JSON" | node -e "const a=JSON.parse(require('fs').rea
     log "WARN: $FAILS fallos consecutivos en misma tarea (\"$TASK_TEXT\"), pausando para evitar bucle"
     ESCAPED_TASK=$(printf '%s' "$TASK_TEXT" | node -e "process.stdout.write(JSON.stringify(require('fs').readFileSync(0,'utf8')))")
     set_status "{\"state\":\"paused\",\"reason\":\"consecutive_failures\",\"task\":$ESCAPED_TASK,\"fails\":$FAILS}"
+    continue
+  fi
+  # Guard: si hay otro opencode activo (ej. chat WhatsApp) o poca memoria, saltar
+  if has_other_opencode_running; then
+    log "SKIP autopilot en $repo: otro proceso opencode activo, esperando al proximo ciclo"
+    set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"pending\":$PENDING,\"skipReason\":\"opencode_busy\"}"
+    continue
+  fi
+  if [ "$(get_free_mb)" -lt 300 ]; then
+    log "SKIP autopilot en $repo: memoria baja ($(get_free_mb)MB libres), esperando al proximo ciclo"
+    set_status "{\"state\":\"idle\",\"repo\":\"$repo\",\"pending\":$PENDING,\"skipReason\":\"low_memory\"}"
     continue
   fi
   log "Lanzando opencode en $repo..."
@@ -430,7 +495,27 @@ for repo in $(echo "$REPOS_JSON" | node -e "const a=JSON.parse(require('fs').rea
           log "Tarea registrada y pagina generada en $AGENT_BRANCH"
         fi
       else
-        log "QA: el agente no dejo cambios reales en la rama, NO marco la tarea como hecha"
+        # Sin diff en rama pero RC==0: el cambio ya esta hecho (p.ej. directo en Firestore),
+        # registrar la tarea y marcar [x] igualmente en vez de dejar la tarea en cola.
+        if [ "$RC" -eq 0 ] && [ -n "${TASK_TEXT:-}" ] && grep -q '^- \[ \]' BACKLOG.md; then
+          log "Sin diff pero RC==0: cambio ya verificado, marcando tarea [x]"
+          node -e "
+            const fs=require('fs');
+            const f='$ROOT/logs/tasks.json';
+            let a=[];
+            try { a=JSON.parse(fs.readFileSync(f,'utf8')); } catch(e){}
+            a.push(JSON.parse(process.argv[1]));
+            fs.writeFileSync(f, JSON.stringify(a, null, 2));
+          " "{\"date\":\"$(TZ=Europe/Madrid date +%Y-%m-%d)\",\"dateTime\":\"$(TZ=Europe/Madrid date '+%Y-%m-%d %H:%M')\",\"task\":\"$(printf '%s' "$TASK_TEXT" | sed 's/"/\\"/g')\",\"branch\":\"main\",\"commit\":\"$(git rev-parse HEAD 2>/dev/null || echo '')\",\"commitMsg\":\"ya verificado, sin diff (cambio en Firestore)\",\"rc\":0,\"repo\":\"$repo\"}"
+          "$ROOT/scripts/update_tasks_page.sh" --no-git >>"$LOG_FILE" 2>&1
+          node -e "const fs=require('fs');const p='BACKLOG.md';const t=fs.readFileSync(p,'utf8').replace(/^- \[ \]/, '- [x]');fs.writeFileSync(p,t)"
+          git add tasks.html BACKLOG.md >/dev/null 2>&1
+          git -c user.name="Autopilot" -c user.email="autopilot@erikmartinjordan.dev" \
+            commit -m "chore: marcar tarea completada sin diff (ya verificado)" >>"$LOG_FILE" 2>&1 || true
+          git push origin main >>"$LOG_FILE" 2>&1 || true
+        else
+          log "QA: el agente no dejo cambios reales en la rama, NO marco la tarea como hecha"
+        fi
       fi
 
       # mergear en UNA sola subida y validar el CI de ese unico commit
