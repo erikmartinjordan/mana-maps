@@ -222,6 +222,20 @@
   // CARDS
   // ═══════════════════════════════════════════════════════════════
 
+  // Keep JSON-LD numberOfItems in sync with the actual map count so search
+  // engines always see the correct collection size.
+  function syncJsonLdCount(count) {
+    var el = document.getElementById('ld-collection');
+    if (!el) return;
+    try {
+      var ld = JSON.parse(el.textContent);
+      if (ld.mainEntity && ld.mainEntity.numberOfItems !== count) {
+        ld.mainEntity.numberOfItems = count;
+        el.textContent = JSON.stringify(ld);
+      }
+    } catch (_) {}
+  }
+
   function renderCards(items) {
     const list = document.getElementById('gallery-list');
     if (!list) return;
@@ -566,6 +580,7 @@
     _allMaps = merged;
     renderFilterBar(merged);
     if (_activeFilter) applyFilter(); else renderCards(merged);
+    syncJsonLdCount(merged.length);
     subscribeToPublishedMaps(merged);
   }
 
@@ -599,6 +614,7 @@
         _allMaps = mergedList;
         renderFilterBar(mergedList);
         if (_activeFilter) applyFilter(); else renderCards(mergedList);
+        syncJsonLdCount(mergedList.length);
       }
 
       baseQuery
