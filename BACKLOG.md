@@ -66,3 +66,4 @@
 - [x] Re-habilitar descripciones visibles en tarjetas de la galería: quitar `display:none !important` de `.card-desc` y `.meta-source` en gallery/index.html para mostrar descripciones truncadas, mejorando SEO y descubribilidad de mapas (08-09)
 - [ ] Verificar si cobertura-forestal-por-pais está publicado en Firestore y añadir su entrada al sitemap.xml con priority 0.6 y changefreq weekly si es así (08-09)
 - [x] Añadir JSON-LD CollectionPage a /gallery/ con name, description y numberOfItems para mejorar datos estructurados SEO de la colección de mapas (08-09)
+- [ ] Eliminar 'Datos agregados desde Firebase Firestore' en la página de estadísticas (/open/index.html:217 y js/i18n.js:439 open_footer_sub) — pie innecesario (08-09)
