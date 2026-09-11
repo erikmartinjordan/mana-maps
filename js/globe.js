@@ -171,12 +171,12 @@ function syncToGlobe() {
   globeMap.addLayer({
     id: 'drawn-fills', type: 'fill', source: 'drawn',
     filter: ['==', ['get', '_type'], 'Polygon'],
-    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': _isDarkGlobe ? 0.32 : 0.25 }
+    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['coalesce', ['get', '_manaFillOpacity'], _isDarkGlobe ? 0.32 : 0.25] }
   });
   globeMap.addLayer({
     id: 'drawn-lines', type: 'line', source: 'drawn',
     filter: ['any', ['==', ['get', '_type'], 'LineString'], ['==', ['get', '_type'], 'Polygon']],
-    paint: { 'line-color': ['get', 'color'], 'line-width': 2.5 }
+    paint: { 'line-color': ['coalesce', ['get', '_manaBorderColor'], ['get', 'color']], 'line-width': 2.5 }
   });
   // Separate circle vs emoji points so fire/water stickers keep their shape in 3D
   globeMap.addLayer({

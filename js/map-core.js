@@ -129,7 +129,7 @@ function setMapThemeTiles() {
   if (typeof updateGlobeBaseStyle === 'function') updateGlobeBaseStyle(isDark);
   if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
     if (globeMap.getLayer('drawn-fills')) {
-      globeMap.setPaintProperty('drawn-fills', 'fill-opacity', isDark ? 0.32 : 0.25);
+      globeMap.setPaintProperty('drawn-fills', 'fill-opacity', ['coalesce', ['get', '_manaFillOpacity'], isDark ? 0.32 : 0.25]);
     }
     if (globeMap.getLayer('drawn-point-labels')) {
       globeMap.setPaintProperty('drawn-point-labels', 'text-color', isDark ? '#e8e6e3' : '#30363b');
@@ -757,9 +757,12 @@ function getEnrichedGeoJSON() {
       }
     }
     // Set color and name last (these are Maña-specific display properties)
-    const layerColor = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : ((l.options && l.options.color) || '#0ea5e9');
+    const isMarkerLayer = (l instanceof L.Marker);
+    const layerColor = l._manaColor || (l.options && l.options.color) || '#0ea5e9';
     f.properties.color = layerColor;
     f.properties._manaColor = layerColor;
+    if (!isMarkerLayer && l.options && l.options.color) f.properties._manaBorderColor = l.options.color;
+    if (!isMarkerLayer && l.options && typeof l.options.fillOpacity === 'number') f.properties._manaFillOpacity = l.options.fillOpacity;
     if (l instanceof L.Marker) {
       f.properties.markerType = l._manaMarkerType || markerType || 'circle';
       f.properties._manaMarkerType = f.properties.markerType;
