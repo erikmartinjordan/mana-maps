@@ -185,7 +185,7 @@ async function main(){
     geojsonText:fsStr(geojsonText), geojsonChunked:fsNull(),
     dataSource:fsStr('Natural Earth 50m (geometría de islas) + Wikipedia (superficie y población)'),
     dataDate:fsStr('2026-09'),
-    tags:fsArr(['Geografía','Islas','Naturaleza','Mundo']),
+    tags:fsArr(['Geografía','Naturaleza','Islas','Océanos']),
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,
     views:fsInt(0), likes:fsInt(0)
