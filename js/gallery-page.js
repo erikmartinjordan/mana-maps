@@ -291,11 +291,13 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // FILTER BY TAG
+  // CATEGORÍAS — botón desplegable multi-selección
   // ═══════════════════════════════════════════════════════════════
 
   var _allMaps = [];
-  var _activeFilter = null;
+  var _activeTags = [];
+  var _allTags = [];
+  var _tagCounts = {};
 
   function getTagLabel(tag) {
     return tag.charAt(0).toUpperCase() + tag.slice(1);
@@ -318,158 +320,179 @@
     });
   }
 
-  function updateFilterScrollButtons() {
-    var bar = document.getElementById('filter-bar');
-    var leftBtn = document.getElementById('filter-scroll-left');
-    var rightBtn = document.getElementById('filter-scroll-right');
-    if (!bar || !leftBtn || !rightBtn) return;
-    var canScroll = bar.scrollWidth > bar.clientWidth + 4;
-    if (!canScroll) {
-      leftBtn.classList.remove('visible');
-      rightBtn.classList.remove('visible');
+  function updateCatButton() {
+    var count = document.getElementById('cat-dd-count');
+    if (count) {
+      if (_activeTags.length) { count.textContent = _activeTags.length; count.hidden = false; }
+      else { count.hidden = true; }
+    }
+    var clear = document.getElementById('cat-clear');
+    if (clear) clear.disabled = !_activeTags.length;
+  }
+
+  function closeCatDropdown() {
+    var dd = document.getElementById('cat-dd');
+    var btn = document.getElementById('cat-dd-btn');
+    if (!dd) return;
+    dd.classList.remove('open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function filterCatOptions(q) {
+    q = (q || '').toLowerCase();
+    document.querySelectorAll('#cat-opts .cat-opt').forEach(function(el) {
+      el.style.display = el.textContent.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+    });
+  }
+
+  function renderCatOptions() {
+    var opts = document.getElementById('cat-opts');
+    if (!opts) return;
+    if (!_allTags.length) {
+      opts.innerHTML = '<div class="cat-opt-empty">Sin categorías</div>';
       return;
     }
-    leftBtn.classList.toggle('visible', bar.scrollLeft > 4);
-    rightBtn.classList.toggle('visible', bar.scrollLeft + bar.clientWidth < bar.scrollWidth - 4);
-  }
-
-  function initFilterScroll() {
-    var bar = document.getElementById('filter-bar');
-    var leftBtn = document.getElementById('filter-scroll-left');
-    var rightBtn = document.getElementById('filter-scroll-right');
-    if (!bar || !leftBtn || !rightBtn) return;
-    leftBtn.addEventListener('click', function() { bar.scrollBy({ left: -200, behavior: 'smooth' }); });
-    rightBtn.addEventListener('click', function() { bar.scrollBy({ left: 200, behavior: 'smooth' }); });
-    bar.addEventListener('scroll', updateFilterScrollButtons, { passive: true });
-    window.addEventListener('resize', updateFilterScrollButtons);
-    // drag-to-scroll
-    var isDown = false, startX, scrollLeft;
-    bar.addEventListener('mousedown', function(e) { isDown = true; bar.style.cursor = 'grabbing'; startX = e.pageX - bar.offsetLeft; scrollLeft = bar.scrollLeft; });
-    bar.addEventListener('mouseleave', function() { isDown = false; bar.style.cursor = ''; });
-    bar.addEventListener('mouseup', function() { isDown = false; bar.style.cursor = ''; });
-    bar.addEventListener('mousemove', function(e) {
-      if (!isDown) return;
-      e.preventDefault();
-      var x = e.pageX - bar.offsetLeft;
-      bar.scrollLeft = scrollLeft - (x - startX);
+    opts.innerHTML = _allTags.map(function(tag) {
+      var on = _activeTags.indexOf(tag) >= 0;
+      return '<label class="cat-opt"><input type="checkbox" data-tag="' + escHtml(tag) + '"' + (on ? ' checked' : '') + '>' +
+        '<span>' + escHtml(getTagLabel(tag)) + '</span>' +
+        '<span class="cat-opt-n">' + (_tagCounts[tag] || 0) + '</span></label>';
+    }).join('');
+    opts.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var tag = cb.getAttribute('data-tag');
+        if (cb.checked) { if (_activeTags.indexOf(tag) < 0) _activeTags.push(tag); }
+        else { _activeTags = _activeTags.filter(function(t) { return t !== tag; }); }
+        renderCatActive();
+        updateCatButton();
+        applyFilter();
+      });
     });
   }
-  // init once on load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFilterScroll);
-  } else {
-    initFilterScroll();
-  }
 
-  function renderFilterBar(maps) {
-    var bar = document.getElementById('filter-bar');
-    var wrap = document.getElementById('filter-bar-wrap');
-    if (!bar || !wrap) return;
-    var tags = collectTags(maps);
-    if (!tags.length) {
-      wrap.hidden = true;
-      return;
-    }
-
-    // Build tag→count map for display
-    var counts = {};
-    tags.forEach(function(t) { counts[t] = 0; });
-    maps.forEach(function(m) {
-      var mt = Array.isArray(m.tags) ? m.tags : [];
-      mt.forEach(function(t) { if (counts[t] !== undefined) counts[t]++; });
-    });
-
-    // Read initial filter from URL
-    var params = new URLSearchParams(window.location.search);
-    var initialTag = params.get('tag');
-    if (initialTag) {
-      var matched = tags.find(function(t) { return getTagSlug(t) === initialTag; });
-      if (matched) _activeFilter = matched;
-    }
-
-    var html = '<span class="filter-bar-label">Categorías:</span>';
-    tags.forEach(function(tag) {
-      var slug = getTagSlug(tag);
-      var active = _activeFilter === tag;
-      html += '<button class="filter-btn' + (active ? ' active' : '') + '" data-tag="' + escHtml(tag) + '" data-slug="' + escHtml(slug) + '" aria-pressed="' + active + '">' +
-        escHtml(getTagLabel(tag)) +
-        ' <span class="filter-count">' + counts[tag] + '</span>' +
-      '</button>';
-    });
-    html += '<button class="filter-clear' + (_activeFilter ? ' visible' : '') + '" id="filter-clear-btn" aria-label="Mostrar todos los mapas">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
-      ' Limpiar' +
-    '</button>';
-    bar.innerHTML = html;
-    wrap.hidden = false;
-    // refresh scroll buttons after render
-    requestAnimationFrame(function() { updateFilterScrollButtons(); setTimeout(updateFilterScrollButtons, 100); });
-
-    // Attach click handlers
-    bar.querySelectorAll('.filter-btn').forEach(function(btn) {
+  function renderCatActive() {
+    var el = document.getElementById('cat-active');
+    if (!el) return;
+    if (!_activeTags.length) { el.innerHTML = ''; return; }
+    el.innerHTML = _activeTags.map(function(tag) {
+      var label = escHtml(getTagLabel(tag));
+      return '<span class="cat-chip">' + label +
+        '<button type="button" data-tag="' + escHtml(tag) + '" aria-label="Quitar ' + label + '">&times;</button></span>';
+    }).join('') +
+      (_activeTags.length > 1 ? '<button class="cat-clear-inline" type="button" id="cat-clear-inline">Limpiar todo</button>' : '');
+    el.querySelectorAll('.cat-chip button').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var tag = btn.getAttribute('data-tag');
-        if (_activeFilter === tag) {
-          _activeFilter = null;
-        } else {
-          _activeFilter = tag;
-        }
+        _activeTags = _activeTags.filter(function(t) { return t !== tag; });
+        renderCatOptions();
+        renderCatActive();
+        updateCatButton();
         applyFilter();
       });
     });
+    var inline = el.querySelector('#cat-clear-inline');
+    if (inline) inline.addEventListener('click', clearCatSelection);
+  }
 
-    var clearBtn = bar.querySelector('#filter-clear-btn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', function() {
-        _activeFilter = null;
-        applyFilter();
-      });
+  function clearCatSelection() {
+    _activeTags = [];
+    renderCatOptions();
+    renderCatActive();
+    updateCatButton();
+    applyFilter();
+  }
+
+  function initCatDropdown() {
+    var dd = document.getElementById('cat-dd');
+    var btn = document.getElementById('cat-dd-btn');
+    var search = document.getElementById('cat-search');
+    var apply = document.getElementById('cat-apply');
+    var clear = document.getElementById('cat-clear');
+    if (!dd || !btn) return;
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var open = dd.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open && search) {
+        search.value = '';
+        filterCatOptions('');
+        setTimeout(function() { search.focus(); }, 40);
+      }
+    });
+    if (search) search.addEventListener('input', function() { filterCatOptions(search.value); });
+    if (apply) apply.addEventListener('click', closeCatDropdown);
+    if (clear) clear.addEventListener('click', clearCatSelection);
+    document.addEventListener('click', function(e) { if (!dd.contains(e.target)) closeCatDropdown(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeCatDropdown(); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCatDropdown);
+  } else {
+    initCatDropdown();
+  }
+
+  function renderCatBar(maps) {
+    var bar = document.getElementById('cat-bar');
+    if (!bar) return;
+    _allTags = collectTags(maps);
+    if (!_allTags.length) { bar.hidden = true; return; }
+    bar.hidden = false;
+
+    _tagCounts = {};
+    _allTags.forEach(function(t) { _tagCounts[t] = 0; });
+    maps.forEach(function(m) {
+      var mt = Array.isArray(m.tags) ? m.tags : [];
+      mt.forEach(function(t) { if (_tagCounts[t] !== undefined) _tagCounts[t]++; });
+    });
+
+    // Categorías activas desde la URL: ?tags=slug1,slug2 (o ?tag=slug legado)
+    var params = new URLSearchParams(window.location.search);
+    var initTags = params.get('tags');
+    if (initTags) {
+      _activeTags = initTags.split(',').map(function(slug) {
+        return _allTags.find(function(t) { return getTagSlug(t) === slug; });
+      }).filter(Boolean);
+    } else {
+      var legacyTag = params.get('tag');
+      if (legacyTag) {
+        var matched = _allTags.find(function(t) { return getTagSlug(t) === legacyTag; });
+        if (matched) _activeTags = [matched];
+      }
     }
 
-    // Apply initial filter from URL
-    if (_activeFilter) applyFilter();
+    renderCatOptions();
+    renderCatActive();
+    updateCatButton();
+    if (_activeTags.length) applyFilter();
   }
 
   function applyFilter() {
-    var bar = document.getElementById('filter-bar');
     var statusEl = document.getElementById('filter-status');
-    var list = document.getElementById('gallery-list');
 
-    // Update button states
-    if (bar) {
-      bar.querySelectorAll('.filter-btn').forEach(function(btn) {
-        var tag = btn.getAttribute('data-tag');
-        var active = _activeFilter === tag;
-        btn.classList.toggle('active', active);
-        btn.setAttribute('aria-pressed', active);
-      });
-      var clearBtn = bar.querySelector('#filter-clear-btn');
-      if (clearBtn) clearBtn.classList.toggle('visible', !!_activeFilter);
-    }
-
-    // Update URL
+    // URL: ?tags=a,b (limpia el ?tag= legado)
     var url = new URL(window.location.href);
-    if (_activeFilter) {
-      url.searchParams.set('tag', getTagSlug(_activeFilter));
+    url.searchParams.delete('tag');
+    if (_activeTags.length) {
+      url.searchParams.set('tags', _activeTags.map(getTagSlug).join(','));
     } else {
-      url.searchParams.delete('tag');
+      url.searchParams.delete('tags');
     }
     window.history.replaceState(null, '', url);
 
-    // Filter the cards
-    var filtered = _activeFilter
+    // Multi-selección con lógica OR: el mapa aparece si tiene alguna categoría elegida
+    var filtered = _activeTags.length
       ? _allMaps.filter(function(m) {
           var tags = Array.isArray(m.tags) ? m.tags : [];
-          return tags.indexOf(_activeFilter) >= 0;
+          return _activeTags.some(function(t) { return tags.indexOf(t) >= 0; });
         })
       : _allMaps;
 
     renderCards(filtered);
 
-    // Announce to screen readers
     if (statusEl) {
-      if (_activeFilter) {
-        statusEl.textContent = 'Mostrando ' + filtered.length + ' mapa' + (filtered.length !== 1 ? 's' : '') + ' en «' + getTagLabel(_activeFilter) + '».';
+      if (_activeTags.length) {
+        var names = _activeTags.map(function(t) { return '«' + getTagLabel(t) + '»'; }).join(', ');
+        statusEl.textContent = 'Mostrando ' + filtered.length + ' mapa' + (filtered.length !== 1 ? 's' : '') + ' en ' + names + '.';
       } else {
         statusEl.textContent = 'Mostrando todos los mapas (' + filtered.length + ').';
       }
@@ -570,8 +593,8 @@
     });
 
     _allMaps = merged;
-    renderFilterBar(merged);
-    if (_activeFilter) applyFilter(); else renderCards(merged);
+    renderCatBar(merged);
+    if (!_activeTags.length) renderCards(merged);
     syncJsonLdCount(merged.length);
     subscribeToPublishedMaps(merged);
   }
@@ -604,8 +627,8 @@
         mergedList.length = 0;
         mergedList.push.apply(mergedList, unique.slice(0, 40));
         _allMaps = mergedList;
-        renderFilterBar(mergedList);
-        if (_activeFilter) applyFilter(); else renderCards(mergedList);
+        renderCatBar(mergedList);
+        if (!_activeTags.length) renderCards(mergedList);
         syncJsonLdCount(mergedList.length);
       }
 

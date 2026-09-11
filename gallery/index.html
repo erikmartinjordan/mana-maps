@@ -236,67 +236,82 @@
     }
     .grid .card-actions{margin:10px 4px 0;padding:10px 0 2px}
 
-    /* ── Filter bar — scroll infinito ── */
-    .filter-bar-wrap{
-      position:relative;margin:0 48px 20px;
-      display:flex;align-items:center;gap:8px;
+    /* ── Categorías: botón desplegable multi-selección ── */
+    .cat-bar{
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+      margin:0 48px 20px;position:relative;z-index:20;
     }
-    .filter-bar{
-      display:flex;flex-wrap:nowrap;gap:8px;align-items:center;
-      overflow-x:auto;overflow-y:hidden;
-      scrollbar-width:none;-ms-overflow-style:none;
-      -webkit-overflow-scrolling:touch;
-      scroll-behavior:smooth;
-      padding:2px 2px 6px;
-      flex:1;min-width:0;
-      mask-image:linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent);
-      -webkit-mask-image:linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent);
-    }
-    .filter-bar::-webkit-scrollbar{display:none}
-    .filter-bar-label{
-      font-size:13px;font-weight:700;color:var(--muted);letter-spacing:-.01em;
-      white-space:nowrap;flex-shrink:0;
-    }
-    .filter-scroll-btn{
-      display:none;flex-shrink:0;
-      width:30px;height:30px;border-radius:999px;
-      border:1px solid var(--line);background:#fff;color:var(--text);
-      align-items:center;justify-content:center;cursor:pointer;
-      box-shadow:0 2px 8px rgba(15,23,42,.08);
-      transition:all .15s ease;
-    }
-    .filter-scroll-btn.visible{display:inline-flex}
-    .filter-scroll-btn:hover{border-color:rgba(16,24,40,.22);background:#f8f9fb}
-    .filter-scroll-btn svg{width:14px;height:14px}
-    .filter-btn{
-      display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 14px;
+    .cat-dd{position:relative;flex-shrink:0}
+    .cat-dd-btn{
+      display:inline-flex;align-items:center;gap:9px;height:42px;padding:0 16px;
       border-radius:999px;border:1px solid var(--line);background:#fff;
-      color:var(--text);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
-      cursor:pointer;transition:all .15s ease;white-space:nowrap;flex-shrink:0;
+      color:var(--text);font-size:13.5px;font-weight:700;font-family:'DM Sans',sans-serif;
+      cursor:pointer;transition:all .15s ease;box-shadow:0 2px 8px rgba(15,23,42,.05);
     }
-    .filter-btn:hover{border-color:rgba(16,24,40,.22);background:#f8f9fb}
-    .filter-btn.active{
-      background:var(--cta);color:#fff;border-color:transparent;
-      box-shadow:0 2px 8px rgba(17,25,28,.18);
-    }
-    .filter-btn.active:hover{opacity:.88}
-    .filter-count{
+    .cat-dd-btn:hover{border-color:rgba(16,24,40,.22);background:#f8f9fb}
+    .cat-dd.open .cat-dd-btn{border-color:rgba(16,24,40,.28);background:#f8f9fb}
+    .cat-dd-btn svg{width:15px;height:15px}
+    .cat-dd-btn .cat-dd-chev{transition:transform .2s;color:var(--muted)}
+    .cat-dd.open .cat-dd-chev{transform:rotate(180deg)}
+    .cat-dd-count{
       display:inline-flex;align-items:center;justify-content:center;
-      min-width:18px;height:18px;padding:0 5px;border-radius:999px;
-      background:rgba(10,132,255,.1);color:#0369a1;font-size:10px;font-weight:800;
+      min-width:20px;height:20px;padding:0 6px;border-radius:999px;
+      background:var(--cta);color:#fff;font-size:11px;font-weight:800;
     }
-    .filter-btn.active .filter-count{background:rgba(255,255,255,.22);color:#fff}
-    .filter-clear{
-      display:none;align-items:center;gap:5px;height:34px;padding:0 12px;
-      border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.7);
-      color:var(--muted);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
-      cursor:pointer;transition:all .15s ease;flex-shrink:0;
+    .cat-panel{
+      position:absolute;top:calc(100% + 8px);left:0;z-index:60;width:300px;
+      background:#fff;border:1px solid var(--line);border-radius:16px;
+      box-shadow:0 20px 50px rgba(15,23,42,.16);padding:14px;
+      display:none;
     }
-    .filter-clear:hover{background:#fff;color:var(--text)}
-    .filter-clear.visible{display:inline-flex}
-    .filter-result-text{
-      font-size:13px;color:var(--muted);padding:0 48px 4px;
+    .cat-dd.open .cat-panel{display:block;animation:catPop .16s ease}
+    @keyframes catPop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    .cat-search{
+      width:100%;height:38px;border:1px solid var(--line);border-radius:10px;
+      padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;
+      color:var(--text);background:#fff;outline:none;margin-bottom:10px;
     }
+    .cat-search:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.12)}
+    .cat-opts{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:0 6px}
+    .cat-opt{
+      display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;
+      cursor:pointer;font-size:13.5px;font-weight:600;transition:background .12s;user-select:none;
+    }
+    .cat-opt:hover{background:#f3f5f8}
+    .cat-opt input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+    .cat-opt .cat-opt-n{margin-left:auto;font-size:11.5px;color:var(--muted);font-weight:700}
+    .cat-opt-empty{font-size:12.5px;color:var(--muted);padding:10px;text-align:center}
+    .cat-foot{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+    .cat-clear{
+      flex:1;height:38px;border-radius:9px;border:1px solid var(--line);background:#fff;
+      font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);
+      transition:all .15s;
+    }
+    .cat-clear:hover{background:#f3f5f8;color:var(--text)}
+    .cat-clear:disabled{opacity:.45;cursor:default}
+    .cat-apply{
+      flex:1.4;height:38px;border-radius:9px;border:none;background:var(--cta);color:#fff;
+      font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;
+    }
+    .cat-apply:hover{opacity:.88}
+    .cat-active{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:0}
+    .cat-chip{
+      display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 12px;
+      border-radius:999px;background:rgba(10,132,255,.1);color:#0369a1;
+      font-size:12px;font-weight:700;
+    }
+    .cat-chip button{
+      border:none;background:none;cursor:pointer;color:#0369a1;font-size:15px;line-height:1;
+      padding:3px 5px;border-radius:50%;transition:background .12s;
+    }
+    .cat-chip button:hover{background:rgba(3,105,161,.14)}
+    .cat-clear-inline{
+      border:none;background:none;cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;
+      font-family:'DM Sans',sans-serif;text-decoration:underline;text-underline-offset:2px;
+      padding:0 2px;
+    }
+    .cat-clear-inline:hover{color:var(--text)}
+    .filter-result-text{font-size:13px;color:var(--muted);padding:0 48px 4px;margin-top:-8px}
 
     /* ── Empty state ── */
     .empty{
@@ -341,7 +356,7 @@
       .topbar{padding:0 16px;height:66px}
       .hero{padding:36px 24px 26px}
       .grid{padding:0 24px 32px}
-      .filter-bar-wrap{margin:0 24px 16px}
+      .cat-bar{margin:0 24px 16px}
     }
     @media (max-width:560px){
       .topbar{padding:0 10px;height:60px}
@@ -352,8 +367,9 @@
       .topbar-actions .btn-ghost{display:none}
       .hero{padding:30px 18px 22px}
       .grid{padding-left:18px;padding-right:18px}
-      .filter-bar-wrap{margin:0 18px 14px;gap:6px}
-      .filter-btn{height:30px;padding:0 10px;font-size:11px}
+      .cat-bar{margin:0 18px 14px;gap:8px}
+      .cat-dd-btn{height:38px;padding:0 14px;font-size:13px}
+      .cat-panel{width:min(300px,calc(100vw - 56px))}
       .grid .thumb{height:180px}
       .footer{padding:16px 18px;flex-direction:column;align-items:flex-start}
     }
@@ -421,12 +437,24 @@
       <p>Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.</p>
     </section>
 
-    <div class="filter-bar-wrap" id="filter-bar-wrap" hidden>
-      <button class="filter-scroll-btn" id="filter-scroll-left" aria-label="Desplazar categorías a la izquierda" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div id="filter-bar" class="filter-bar" role="toolbar" aria-label="Filtrar mapas por categoría">
-        <span class="filter-bar-label">Categorías:</span>
+    <div class="cat-bar" id="cat-bar" hidden>
+      <div class="cat-dd" id="cat-dd">
+        <button class="cat-dd-btn" id="cat-dd-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="cat-panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          Categorías
+          <span class="cat-dd-count" id="cat-dd-count" hidden>0</span>
+          <svg class="cat-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="cat-panel" id="cat-panel" role="dialog" aria-label="Elegir categorías">
+          <input class="cat-search" id="cat-search" type="search" placeholder="Buscar categoría…" autocomplete="off" spellcheck="false"/>
+          <div class="cat-opts" id="cat-opts" role="group" aria-label="Opciones de categoría"></div>
+          <div class="cat-foot">
+            <button class="cat-clear" id="cat-clear" type="button">Limpiar</button>
+            <button class="cat-apply" id="cat-apply" type="button">Aplicar</button>
+          </div>
+        </div>
       </div>
-      <button class="filter-scroll-btn" id="filter-scroll-right" aria-label="Desplazar categorías a la derecha" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <div class="cat-active" id="cat-active"></div>
     </div>
     <div id="filter-status" class="filter-result-text" aria-live="polite" role="status"></div>
 
