@@ -263,12 +263,6 @@
       var tagsHtml = tags.length
         ? '<div class="card-tags">' + tags.map(function(t) { return '<span class="card-tag">' + escHtml(t) + '</span>'; }).join('') + '</div>'
         : '';
-      var descHtml = item.description
-        ? '<div class="card-desc">' + escHtml(item.description) + '</div>'
-        : '';
-      var sourceHtml = item.dataSource
-        ? '<div class="meta-source">' + escHtml(item.dataSource) + (item.dataDate ? ' (' + escHtml(item.dataDate) + ')' : '') + '</div>'
-        : '';
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
@@ -281,8 +275,6 @@
             '<span>·</span>' +
             '<span>' + safeDate(created) + '</span>' +
           '</div>' +
-          descHtml +
-          sourceHtml +
           tagsHtml +
           '<div class="card-actions">' +
             '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +

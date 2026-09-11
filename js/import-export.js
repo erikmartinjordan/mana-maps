@@ -149,7 +149,13 @@ function loadGeoJSON(geo, groupName, opts) {
 
   const layer = L.geoJSON(null, {
     interactive: !templatePassive,
-    style: { color: importColor, weight: 2, fillOpacity: .18, bubblingMouseEvents: true },
+    style: (f) => {
+      const p = (f && f.properties) || {};
+      const c = (p._manaColor || p.color) ? String(p._manaColor || p.color) : importColor;
+      const border = p._manaBorderColor ? String(p._manaBorderColor) : c;
+      const fillOpacity = (typeof p._manaFillOpacity === 'number') ? p._manaFillOpacity : .18;
+      return { color: border, weight: 2, fillColor: c, fillOpacity: fillOpacity, bubblingMouseEvents: true };
+    },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
       const importedColor = (f.properties && (f.properties._manaColor || f.properties.color)) ? String(f.properties._manaColor || f.properties.color) : importColor;
@@ -177,6 +183,9 @@ function loadGeoJSON(geo, groupName, opts) {
       l._manaGroupName = gName;
       l._manaProperties = cloneFeatureProperties(f.properties);
       if (!(l instanceof L.Marker)) {
+        const fp = f.properties || {};
+        const fc = (fp._manaColor || fp.color) ? String(fp._manaColor || fp.color) : importColor;
+        l._manaColor = fc;
         if (templatePassive && typeof l.setStyle === 'function') {
           l.setStyle({ interactive: false });
         }
