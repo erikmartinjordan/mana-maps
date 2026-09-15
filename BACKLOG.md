@@ -69,4 +69,4 @@
 - [x] Eliminar 'Datos agregados desde Firebase Firestore' en la página de estadísticas (/open/index.html:217 y js/i18n.js:439 open_footer_sub) — pie innecesario (08-09) (12-09)
 - [x] Mejorar mapa worst-wildfires-world: añadir dataSource (Global Fire Emissions Database/GFED) y dataDate, que están vacíos (auditoría 12-09) (13-09)
 - [x] Añadir campo `enabled: true` a _manaLabelStyle de minimum-wage-by-country en Firestore para cumplir AGENTS.md (205 features sin enabled) (auditoría 12-09) (14-09)
-- [ ] Crear mapa: "Índice de Felicidad Mundial por País" — coropleta mundial, World Happiness Report 2024/Gallup, tags [Bienestar,Geografía,Sociedad], hook: "¿Qué país es el más feliz del mundo?" (12-09)
+- [x] Crear mapa: "Índice de Felicidad Mundial por País" — coropleta mundial, World Happiness Report 2024/Gallup, tags [Bienestar,Geografía,Sociedad], hook: "¿Qué país es el más feliz del mundo?" (12-09) (15-09)
