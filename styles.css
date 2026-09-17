@@ -714,7 +714,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 }
 
 /* ══ TOUCH IMPROVEMENTS ════════════════════════════════════════ */
-/* ══ TOUCH IMPROVEMENTS ════════════════════════════════════════ */
 @media (hover:none) and (pointer:coarse){
 
   /* ── P1: Touch targets ≥ 44px (Apple HIG) ── */
