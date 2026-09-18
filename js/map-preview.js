@@ -26,17 +26,77 @@
   var PREVIEW_MAX_COORDS_PER_GEOMETRY = 400;
   var DEFAULT_COLOR = '#0ea5e9';
 
-  // Stylized vector basemap behind preview features: soft ocean gradient,
-  // simplified world land silhouette, and a faint graticule. Label-free so the
-  // map context stays identifiable without raster-tile clutter. The land
-  // outline is defined once in js/world-land.js (canonical lon*10000,
-  // mercatorY*10000 coords) and reused via <use> with an affine transform.
-  var BASEMAP_OCEAN_TOP = '#eef5fb';
-  var BASEMAP_OCEAN_BOTTOM = '#d7e6f2';
+  // Stylized vector basemap behind preview features: soft ocean gradient with a
+  // gentle continental-shelf halo around a simplified world land silhouette.
+  // Label-free so the map context stays identifiable without raster-tile
+  // clutter. The land outline is defined once in js/world-land.js (canonical
+  // lon*10000, mercatorY*10000 coords); its projection is baked per preview so
+  // shelf/foam strokes keep their width (stroke widths collapse under <use>
+  // with the tiny affine transform).
+  var BASEMAP_OCEAN_TOP = '#f0f8fd';
+  var BASEMAP_OCEAN_MID = '#d3e7f5';
+  var BASEMAP_OCEAN_BOTTOM = '#b4d4ec';
   var BASEMAP_LAND_FILL = '#f3edd9';
   var BASEMAP_LAND_STROKE = '#e3dabd';
-  var BASEMAP_GRATICULE = '#c6d9e8';
+  var BASEMAP_FOAM = '#ffffff';
+  var BASEMAP_SHELVES = [
+    { color: '#a9cee9', width: 48, opacity: 0.55, blur: 14 },
+    { color: '#8fbfe0', width: 28, opacity: 0.60, blur: 6 },
+    { color: '#74aed6', width: 12, opacity: 0.72, blur: 6 }
+  ];
+  var SVG_NS = 'http://www.w3.org/2000/svg';
   var _bgClipId = 0;
+  var _landViewCache = {};
+  var _landViewCounter = 0;
+
+  // Shared hidden holder for the baked land paths + shelf blur filters.
+  function _previewDefsHolder() {
+    var holder = document.getElementById('mana-preview-defs');
+    if (holder) return holder;
+    holder = document.createElementNS(SVG_NS, 'svg');
+    holder.setAttribute('id', 'mana-preview-defs');
+    holder.setAttribute('width', '0');
+    holder.setAttribute('height', '0');
+    holder.setAttribute('aria-hidden', 'true');
+    holder.style.position = 'absolute';
+    holder.style.overflow = 'hidden';
+    var defs = document.createElementNS(SVG_NS, 'defs');
+    BASEMAP_SHELVES.forEach(function(s, i) {
+      var f = document.createElementNS(SVG_NS, 'filter');
+      f.setAttribute('id', 'mana-shelf-blur-' + i);
+      f.setAttribute('x', '-20%');
+      f.setAttribute('y', '-20%');
+      f.setAttribute('width', '140%');
+      f.setAttribute('height', '140%');
+      var b = document.createElementNS(SVG_NS, 'feGaussianBlur');
+      b.setAttribute('stdDeviation', String(s.blur));
+      f.appendChild(b);
+      defs.appendChild(f);
+    });
+    holder.appendChild(defs);
+    document.body.appendChild(holder);
+    return holder;
+  }
+
+  function ensureLandViewPath(key, dView) {
+    if (_landViewCache[key]) return _landViewCache[key];
+    var holder = _previewDefsHolder();
+    var id = 'mana-land-view-' + (++_landViewCounter);
+    var path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('id', id);
+    path.setAttribute('d', dView);
+    holder.appendChild(path);
+    _landViewCache[key] = id;
+    return id;
+  }
+
+  // Bake the preview's affine projection into the canonical land path (M/L/Z).
+  function transformLandPath(A, B, C, D) {
+    if (!window.WORLD_LAND_PATH) return '';
+    return window.WORLD_LAND_PATH.replace(/([ML])(-?[0-9.]+) (-?[0-9.]+)/g, function(m, cmd, x, y) {
+      return cmd + (A * parseFloat(x) + B).toFixed(1) + ' ' + (C * parseFloat(y) + D).toFixed(1);
+    });
+  }
 
   var EMOJI_MARKER_MAP = {
     emoji_home:'🏠', emoji_building:'🏢', emoji_hospital:'🏥', emoji_school:'🏫',
@@ -487,31 +547,25 @@
       var B = padX - A * (minX * 10000);
       var D = (pMaxY / spanY) * h + padY;
 
+      // Bake the land projection and cache it per bbox (most gallery maps share
+      // the same world bbox, so it is built once and reused).
       var land = '';
-      if (window.WORLD_LAND_PATH && ensureLandPath()) {
-        land = '<use href="#mana-land-path" fill="' + BASEMAP_LAND_FILL +
-          '" stroke="' + BASEMAP_LAND_STROKE + '" stroke-width="' + (0.5 * unit).toFixed(2) +
-          '" stroke-linejoin="round" transform="matrix(' +
-          A.toFixed(10) + ' 0 0 ' + C.toFixed(10) + ' ' + B.toFixed(10) + ' ' + D.toFixed(10) + ')"/>';
+      var landViewId = null;
+      if (window.WORLD_LAND_PATH) {
+        var dView = transformLandPath(A, B, C, D);
+        var viewKey = minX.toFixed(3) + ',' + minY.toFixed(3) + ',' + maxX.toFixed(3) + ',' + maxY.toFixed(3);
+        landViewId = dView ? ensureLandViewPath(viewKey, dView) : null;
       }
-
-      // Faint graticule across the visible box (every 30° lon / 15° lat).
-      var grat = '';
-      var lonStart = Math.ceil(minX / 30) * 30;
-      for (var lon = lonStart; lon <= maxX; lon += 30) {
-        var gx = toX(lon);
-        if (gx > 0 && gx < viewW) {
-          grat += 'M' + gx.toFixed(2) + ' ' + toY(Math.max(minY, -85)).toFixed(2) +
-            ' L' + gx.toFixed(2) + ' ' + toY(Math.min(maxY, 85)).toFixed(2);
-        }
-      }
-      var latStart = Math.ceil(minY / 15) * 15;
-      for (var lat = latStart; lat <= maxY; lat += 15) {
-        var gy = toY(lat);
-        if (gy > 0 && gy < viewH) {
-          grat += 'M' + toX(Math.max(minX, -180)).toFixed(2) + ' ' + gy.toFixed(2) +
-            ' L' + toX(Math.min(maxX, 180)).toFixed(2) + ' ' + gy.toFixed(2);
-        }
+      if (landViewId) {
+        var useOpen = '<use href="#' + landViewId + '"';
+        BASEMAP_SHELVES.forEach(function(s, i) {
+          land += useOpen + ' fill="none" stroke="' + s.color + '" stroke-width="' + s.width +
+            '" stroke-opacity="' + s.opacity + '" stroke-linejoin="round" filter="url(#mana-shelf-blur-' + i + ')"/>';
+        });
+        land += useOpen + ' fill="' + BASEMAP_LAND_FILL + '" stroke="' + BASEMAP_LAND_STROKE +
+          '" stroke-width="1.1" stroke-linejoin="round"/>';
+        land += useOpen + ' fill="none" stroke="' + BASEMAP_FOAM +
+          '" stroke-width="1.6" stroke-opacity="0.75" stroke-linejoin="round"/>';
       }
 
       return '<clipPath id="' + clipId + '"><rect x="0" y="0" width="' + viewW.toFixed(2) +
@@ -520,11 +574,10 @@
         '<rect x="0" y="0" width="' + viewW.toFixed(2) + '" height="' + viewH.toFixed(2) +
         '" fill="url(#' + clipId + '-ocean)"/>' +
         land +
-        (grat ? '<path d="' + grat + '" fill="none" stroke="' + BASEMAP_GRATICULE +
-          '" stroke-width="' + (0.5 * unit).toFixed(2) + '" stroke-opacity="0.55"/>' : '') +
         '</g>' +
         '<defs><linearGradient id="' + clipId + '-ocean" x1="0" y1="0" x2="0" y2="1">' +
         '<stop offset="0" stop-color="' + BASEMAP_OCEAN_TOP + '"/>' +
+        '<stop offset="0.5" stop-color="' + BASEMAP_OCEAN_MID + '"/>' +
         '<stop offset="1" stop-color="' + BASEMAP_OCEAN_BOTTOM + '"/></linearGradient></defs>';
     }
 

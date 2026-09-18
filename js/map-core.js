@@ -261,6 +261,7 @@ function registerGroupMeta(gid, name, color, geometryType) {
       attrs: {},
       filter: [],
       hiddenLayers: new Set(),
+      visible: true,              // manual visibility toggle (eye button)
       labelStyle: _defaultLabelStyle(),
       labelMarkers: [],
     };
@@ -742,7 +743,18 @@ function setBaseLayer(type) {
 // ── ENRICHED GEOJSON (shared utility) ──
 function getEnrichedGeoJSON() {
   const features = [];
-  drawnItems.eachLayer(function(l) {
+  // Export every layer on the map, plus the ones hidden manually with the eye
+  // button (removed from the map but still part of the project). Hidden layers
+  // are flagged with _manaGroupHidden so they can be restored on reload.
+  const exportLayers = [];
+  drawnItems.eachLayer(function(l) { exportLayers.push(l); });
+  for (const gid in _manaGroupMeta) {
+    const meta = _manaGroupMeta[gid];
+    if (meta && meta.visible === false) {
+      meta.allLayers.forEach(function(l) { if (!drawnItems.hasLayer(l)) exportLayers.push(l); });
+    }
+  }
+  exportLayers.forEach(function(l) {
     const f = l.toGeoJSON();
     // Merge attribute table data (_manaProperties) into exported properties
     // Start from toGeoJSON() base (may have original import props), then overlay edits
@@ -778,6 +790,11 @@ function getEnrichedGeoJSON() {
     }
     if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].labelStyle) {
       f.properties._manaLabelStyle = _normalizeLabelStyle(_manaGroupMeta[l._manaGroupId].labelStyle);
+    }
+    if (l._manaGroupId && _manaGroupMeta[l._manaGroupId] && _manaGroupMeta[l._manaGroupId].visible === false) {
+      // Clone properties: Leaflet's toGeoJSON() reuses layer.feature.properties
+      // by reference, so mutating it would leak the flag onto the layer itself.
+      f.properties = Object.assign({}, f.properties, { _manaGroupHidden: true });
     }
     features.push(f);
   });
@@ -891,6 +908,135 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('coords-format-btn');
   if (btn) btn.textContent = _coordFormat === 'DD' ? 'DMS' : 'DD';
 });
+
+// ── LIVE LOCATION (GPS) ──
+// Watches the device position and draws a blue dot + accuracy ring on top of
+// the map. These layers live outside drawnItems, so they are never saved,
+// exported nor counted in stats.
+let _locateWatchId = null;
+let _locateMarker = null;
+let _locateAccuracy = null;
+
+function _setLocateButtonState(state) {
+  const btn = document.getElementById('locate-btn');
+  if (!btn) return;
+  btn.classList.toggle('active', state === 'active');
+  btn.classList.toggle('locating', state === 'locating');
+  btn.setAttribute('aria-pressed', state === 'active' ? 'true' : 'false');
+}
+
+function _clearLocateLayers() {
+  if (_locateMarker) { map.removeLayer(_locateMarker); _locateMarker = null; }
+  if (_locateAccuracy) { map.removeLayer(_locateAccuracy); _locateAccuracy = null; }
+}
+
+function stopLiveLocation() {
+  if (_locateWatchId !== null && navigator.geolocation) {
+    navigator.geolocation.clearWatch(_locateWatchId);
+  }
+  _locateWatchId = null;
+  _clearLocateLayers();
+  _setLocateButtonState('idle');
+}
+
+function _onLocationUpdate(pos) {
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
+  const acc = pos.coords.accuracy || 0;
+  const isFirst = !_locateMarker;
+
+  if (isFirst) {
+    _locateAccuracy = L.circle([lat, lng], {
+      radius: acc, color: '#0ea5e9', weight: 1, opacity: 0.45,
+      fillColor: '#0ea5e9', fillOpacity: 0.12, interactive: false
+    }).addTo(map);
+    _locateMarker = L.circleMarker([lat, lng], {
+      radius: 7, color: '#ffffff', weight: 3,
+      fillColor: '#0ea5e9', fillOpacity: 1, interactive: false
+    }).addTo(map);
+    _locateMarker.bringToFront();
+    map.setView([lat, lng], Math.max(map.getZoom(), 15));
+    _setLocateButtonState('active');
+    if (typeof showToast === 'function') showToast(t('locate_live_active'));
+  } else {
+    _locateMarker.setLatLng([lat, lng]);
+    _locateAccuracy.setLatLng([lat, lng]);
+    _locateAccuracy.setRadius(acc);
+  }
+}
+
+function _onLocationError(err, highAccuracy) {
+  // Keep the last known position if a transient error arrives after a fix.
+  if (_locateMarker) return;
+
+  // Desktop browsers (Safari in particular) often fail when asked for high
+  // accuracy without a precise source. Retry once with network accuracy.
+  if (highAccuracy && _locateWatchId !== null && err && (err.code === 2 || err.code === 3)) {
+    navigator.geolocation.clearWatch(_locateWatchId);
+    _locateWatchId = null;
+    _startLocateWatch(false);
+    return;
+  }
+
+  stopLiveLocation();
+  let key = 'locate_unavailable';
+  if (err && err.code === 1) key = 'locate_denied';
+  else if (err && err.code === 3) key = 'locate_timeout';
+  if (typeof showToast === 'function') showToast(t(key));
+}
+
+function _startLocateWatch(highAccuracy) {
+  _locateWatchId = navigator.geolocation.watchPosition(
+    _onLocationUpdate,
+    function(err) { _onLocationError(err, highAccuracy); },
+    {
+      enableHighAccuracy: highAccuracy,
+      maximumAge: highAccuracy ? 5000 : 30000,
+      timeout: highAccuracy ? 15000 : 60000
+    }
+  );
+}
+
+function toggleLiveLocation() {
+  if (_locateWatchId !== null) {
+    stopLiveLocation();
+    if (typeof showToast === 'function') showToast(t('locate_stopped'));
+    return;
+  }
+  if (!navigator.geolocation) {
+    if (typeof showToast === 'function') showToast(t('locate_unsupported'));
+    return;
+  }
+  if (window.isSecureContext === false) {
+    if (typeof showToast === 'function') showToast(t('locate_insecure'));
+    return;
+  }
+  if (activeBase === 'globe') setBaseLayer('map');
+  _setLocateButtonState('locating');
+  if (typeof showToast === 'function') showToast(t('locate_locating'));
+  _startLocateWatch(true);
+}
+
+// Mount the locate button as a Leaflet control so it sits beside the
+// attribution tag in the bottom-right corner.
+const ManaLocateControl = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd: function() {
+    // Guard against a stale button left in the DOM by a cached (pre-service
+    // worker) HTML build.
+    var stale = document.getElementById('locate-btn');
+    if (stale && stale.parentNode) stale.parentNode.removeChild(stale);
+    var wrap = L.DomUtil.create('div', 'mana-locate-control');
+    wrap.innerHTML =
+      '<button id="locate-btn" type="button" onclick="toggleLiveLocation()" title="Mi ubicaci\u00f3n" aria-label="Mi ubicaci\u00f3n" aria-pressed="false" data-i18n-title="locate_title" data-i18n-aria-label="locate_title">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><line x1="12" y1="1.5" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22.5" y2="12"/></svg>' +
+      '</button>';
+    L.DomEvent.disableClickPropagation(wrap);
+    L.DomEvent.disableScrollPropagation(wrap);
+    return wrap;
+  }
+});
+map.addControl(new ManaLocateControl());
 
 // ── RESIZE HANDLES ──
 // Unified resize + collapse system for left (sidebar) and right (chat) panels.
@@ -1341,6 +1487,9 @@ const ICON = {
   table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>',
   label: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 10h8M8 14h5"/></svg>',
   cursor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>',
+  grip: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
 };
 
 function esc(s) { return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -1573,6 +1722,7 @@ function renderLayers() {
       totalCount: meta.allLayers.length,
       visibleCount: meta.allLayers.length - meta.hiddenLayers.size,
       hasFilter: meta.filter.length > 0,
+      visible: meta.visible !== false,
       visibleLayers: [],
     };
     groupOrder.push(+gid);
@@ -1621,11 +1771,11 @@ function renderLayers() {
       : '';
 
     var orderIdx = _groupOrder.indexOf(gid);
-    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
+    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + (!g.visible ? ' is-hidden' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
 
     // ── Header: click sets active, chevron toggles expand
     html += '<div class="layer-group-header" onclick="setActiveGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
-    html += '  <span class="layer-drag-handle" title="' + t('layer_drag_hint') + '">&#8942;&#8942;</span>';
+    html += '  <span class="layer-drag-handle" title="' + t('layer_drag_hint') + '" aria-hidden="true">' + ICON.grip + '</span>';
     html += '  <div class="layer-dot" style="background:' + g.color + '"></div>';
     // Geometry type icon
     const _gtIcon = meta.geometryType === 'point' ? ICON.geomPoint
@@ -1672,6 +1822,7 @@ function renderLayers() {
 
     // ── Actions row
     html += '<div class="layer-group-actions">';
+    html += '  <button class="layer-group-action-btn vis-btn' + (g.visible ? '' : ' hidden') + '" onclick="event.stopPropagation();toggleGroupVisibility(' + gid + ')" title="' + (g.visible ? t('layer_hide') : t('layer_show')) + '" aria-label="' + (g.visible ? t('layer_hide') : t('layer_show')) + '" aria-pressed="' + (!g.visible) + '">' + (g.visible ? ICON.eye : ICON.eyeOff) + '</button>';
     html += '  <button class="layer-group-action-btn" onclick="showLayerCtxBtn(event,\'group\',' + gid + ')" title="' + t('panel_style_title') + '">' + ICON.palette + '</button>';
     html += '  <button class="layer-group-action-btn' + (meta.labelStyle && meta.labelStyle.enabled ? ' has-labels' : '') + '" onclick="openLayerLabelModal(' + gid + ')" title="' + t('label_section') + '">' + ICON.label + '</button>';
     html += '  <button class="layer-group-action-btn' + (isFilterOpen ? ' active' : '') + (g.hasFilter ? ' has-filter' : '') + '" onclick="toggleFilterPanel(' + gid + ')" title="' + t('filter_title') + '">' + ICON.filter + '</button>';
@@ -1768,6 +1919,36 @@ function renderFilterPanel(gid, meta) {
 function toggleLayerGroup(gid) {
   _expandedGroups[gid] = !_expandedGroups[gid];
   renderLayers();
+}
+
+// Show/hide a whole group without deleting it. Hidden groups stay in the
+// project (exported with _manaGroupHidden) and are restored on reload.
+function setGroupVisibility(gid, visible, opts) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  meta.visible = !!visible;
+
+  if (meta.visible) {
+    // Restore every layer, then let the active filter re-hide non-matching ones.
+    meta.allLayers.forEach(l => { if (!drawnItems.hasLayer(l)) drawnItems.addLayer(l); });
+    applyGroupFilter(gid);
+  } else {
+    meta.allLayers.forEach(l => { if (drawnItems.hasLayer(l)) drawnItems.removeLayer(l); });
+    if (typeof removeLabelsFromLayer === 'function') removeLabelsFromLayer(meta);
+  }
+
+  if (!opts || !opts.silent) {
+    if (meta.visible && typeof refreshLabelsForLayer === 'function') refreshLabelsForLayer(gid);
+    if (typeof renderLayers === 'function') renderLayers();
+    if (typeof stats === 'function') stats();
+    if (typeof saveState === 'function') saveState();
+  }
+}
+
+function toggleGroupVisibility(gid) {
+  const meta = _manaGroupMeta[gid];
+  if (!meta) return;
+  setGroupVisibility(gid, meta.visible === false);
 }
 
 function toggleFilterPanel(gid) {

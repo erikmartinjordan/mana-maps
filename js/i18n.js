@@ -80,6 +80,8 @@ const I18N = {
     template_loaded: "Plantilla cargada",
     layer_active: "▶ Capa activa — dibuja para añadir elementos",
     layer_drag_hint: "Arrastra para reordenar",
+    layer_hide: "Ocultar capa",
+    layer_show: "Mostrar capa",
     // ── Basemap ──
     basemap_map: "Mapa",
     basemap_satellite: "Satélite",
@@ -158,6 +160,16 @@ const I18N = {
     hint_edit: 'Arrastra los vértices para editar. Clic en "Editar" de nuevo para terminar.',
     hint_select: 'Clic en un elemento para seleccionarlo (Shift+clic para selección múltiple)',
     hint_draw_generic: "Haz clic en el mapa para dibujar",
+    // ── Live location ──
+    locate_title: "Mi ubicación",
+    locate_locating: "Localizando…",
+    locate_live_active: "Ubicación en directo activada",
+    locate_stopped: "Ubicación en directo desactivada",
+    locate_unsupported: "Tu navegador no soporta geolocalización",
+    locate_insecure: "La ubicación solo funciona en HTTPS o localhost",
+    locate_denied: "Permiso de ubicación denegado",
+    locate_unavailable: "No se pudo obtener tu ubicación. Activa los servicios de ubicación del sistema",
+    locate_timeout: "Se agotó el tiempo para localizar",
     // ── Context menu ──
     ctx_copy_coords: "Copiar coordenadas",
     ctx_add_point: "Añadir punto aquí",
@@ -599,6 +611,8 @@ const I18N = {
     template_loaded: "Template loaded",
     layer_active: "▶ Active layer — draw to add elements",
     layer_drag_hint: "Drag to reorder",
+    layer_hide: "Hide layer",
+    layer_show: "Show layer",
     // ── Basemap ──
     basemap_map: "Map",
     basemap_satellite: "Satellite",
@@ -676,6 +690,16 @@ const I18N = {
     hint_route_fallback: "Could not calculate route; showing direct line",
     hint_edit: 'Drag vertices to edit. Click "Edit" again to finish.',
     hint_draw_generic: "Click on the map to draw",
+    // ── Live location ──
+    locate_title: "My location",
+    locate_locating: "Locating…",
+    locate_live_active: "Live location enabled",
+    locate_stopped: "Live location disabled",
+    locate_unsupported: "Your browser does not support geolocation",
+    locate_insecure: "Location only works over HTTPS or localhost",
+    locate_denied: "Location permission denied",
+    locate_unavailable: "Could not get your location. Enable system location services",
+    locate_timeout: "Locating timed out",
     // ── Context menu ──
     ctx_copy_coords: "Copy coordinates",
     ctx_add_point: "Add point here",

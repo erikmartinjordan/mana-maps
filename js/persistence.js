@@ -118,6 +118,15 @@ async function _importRestoredGeoJSON(geo) {
         if (firstProps._manaLabelStyle) _manaGroupMeta[gid].labelStyle = _normalizeLabelStyle(firstProps._manaLabelStyle);
       }
     }
+    if (firstProps._manaGroupHidden) {
+      let hiddenGid = null;
+      for (const g in _manaGroupMeta) {
+        if (_manaGroupMeta[g] && _manaGroupMeta[g].name === gn) hiddenGid = g;
+      }
+      if (hiddenGid != null && typeof setGroupVisibility === 'function') {
+        setGroupVisibility(hiddenGid, false, { silent: true });
+      }
+    }
   }
 
   // Import ungrouped features in chunks so large saved maps do not block the UI.
@@ -183,6 +192,9 @@ async function _importRestoredGeoJSON(geo) {
     const firstColor = firstProps && (firstProps._manaColor || firstProps.color);
     if (firstColor) _manaGroupMeta[autoGid].color = firstColor;
     if (firstProps._manaLabelStyle && _manaGroupMeta[autoGid]) _manaGroupMeta[autoGid].labelStyle = _normalizeLabelStyle(firstProps._manaLabelStyle);
+    if (firstProps._manaGroupHidden && typeof setGroupVisibility === 'function') {
+      setGroupVisibility(autoGid, false, { silent: true });
+    }
   }
 
   stats();

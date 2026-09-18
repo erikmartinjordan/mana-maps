@@ -290,8 +290,14 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 }
 
 /* ── Leaflet attribution (integrated + minimal) ── */
-#map-wrap .leaflet-control-attribution{
+/* Bottom-right corner holds the locate button + attribution tag side by side. */
+#map-wrap .leaflet-bottom.leaflet-right{
+  display:flex;align-items:center;flex-direction:row;gap:6px;
   margin:0 8px calc(60px + env(safe-area-inset-bottom)) 0;
+}
+#map-wrap .leaflet-bottom.leaflet-right .leaflet-control{float:none;clear:none;margin:0;}
+#map-wrap .leaflet-control-attribution{
+  margin:0;
   padding:4px 8px;
   border:0.5px solid var(--border);
   border-radius:999px;
@@ -659,7 +665,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   #map-bottom-bar{padding:6px 8px;gap:4px;}
   .stat-pill{padding:4px 8px;font-size:11px;}
   #coords-overlay{display:none;}
-  #map-wrap .leaflet-control-attribution{
+  #map-wrap .leaflet-bottom.leaflet-right{
     margin:0 8px calc(72px + env(safe-area-inset-bottom)) 0;
   }
   .leaflet-badge-wrap{margin-bottom:64px;}
@@ -1955,13 +1961,20 @@ select.ai-input{cursor:pointer;appearance:auto;}
 /* ── Target layer selector (draw into group) ── */
 
 /* ── Layer drag-and-drop reordering ── */
-.layer-drag-handle{cursor:grab;color:var(--third);font-size:12px;letter-spacing:-2px;
-  opacity:0.4;transition:opacity .15s;user-select:none;padding:0 2px;flex-shrink:0;}
-.layer-group-header:hover .layer-drag-handle{opacity:0.8;}
-.layer-drag-handle:active{cursor:grabbing;}
+.layer-drag-handle{cursor:grab;color:var(--third);display:grid;place-items:center;
+  opacity:0.45;transition:opacity .15s,color .15s;user-select:none;flex-shrink:0;padding:0 1px;}
+.layer-drag-handle svg{width:13px;height:13px;display:block;pointer-events:none;}
+.layer-group-header:hover .layer-drag-handle{opacity:0.85;color:var(--text-2);}
+.layer-drag-handle:active{cursor:grabbing;opacity:1;}
 .layer-group{transition:transform .15s,opacity .15s,box-shadow .15s;border-radius:10px;}
 .layer-group.dragging{opacity:0.4;transform:scale(0.97);}
 .layer-group.drag-over{box-shadow:0 -2px 0 0 var(--blue);border-radius:10px;}
+
+/* ── Layer visibility toggle ── */
+.layer-group-action-btn.vis-btn.hidden{background:#eef2f7;border-color:var(--border-hover);color:#64748b;}
+.layer-group.is-hidden{opacity:0.48;}
+.layer-group.is-hidden .layer-name{text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:var(--third);}
+.layer-group.is-hidden:hover{opacity:0.72;}
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2267,6 +2280,22 @@ select.ai-input{cursor:pointer;appearance:auto;}
 }
 .coords-toggle-btn:hover{opacity:1;}
 
+/* ── Live location button ── */
+.mana-locate-control{line-height:0;}
+#locate-btn{
+  width:30px;height:30px;flex-shrink:0;display:grid;place-items:center;padding:0;
+  background:color-mix(in srgb, var(--surface) 92%, transparent);
+  border:0.5px solid var(--border);border-radius:50%;
+  color:var(--text-2);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  transition:background .15s,color .15s,border-color .15s,box-shadow .15s;
+}
+#locate-btn svg{width:16px;height:16px;display:block;}
+#locate-btn:hover{color:var(--primary);border-color:var(--border-hover);}
+#locate-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--blue) 22%, transparent);}
+#locate-btn.locating svg{animation:locate-pulse 1s ease-in-out infinite;}
+@keyframes locate-pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
 /* ── WMS layer list ── */
 .wms-layer-item {
   display: flex;
@@ -2428,6 +2457,9 @@ select.ai-input{cursor:pointer;appearance:auto;}
   :root:not([data-theme="light"]) .mana-alert.info{background:var(--blue);color:#111;}
   :root:not([data-theme="light"]) .mana-alert.warning{background:#f59e0b;color:#111;}
   :root:not([data-theme="light"]) .mana-alert.error{background:var(--red);color:#111;}
+  :root:not([data-theme="light"]) #toast{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .msg.user{background:var(--blue);color:#111;}
+  :root:not([data-theme="light"]) .auth-submit-btn{background:var(--blue);color:#111;}
   :root:not([data-theme="light"]) #map-bottom-bar{background:var(--surface);border-color:var(--border);}
   :root:not([data-theme="light"]) #chat-send{background:var(--blue);color:#111;}
   :root:not([data-theme="light"]) .basemap-card{background:var(--surface);}
@@ -2453,6 +2485,9 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .mana-alert.info{background:var(--blue);color:#111;}
   .mana-alert.warning{background:#f59e0b;color:#111;}
   .mana-alert.error{background:var(--red);color:#111;}
+  #toast{background:var(--blue);color:#111;}
+  .msg.user{background:var(--blue);color:#111;}
+  .auth-submit-btn{background:var(--blue);color:#111;}
   #map-bottom-bar{background:var(--surface);border-color:var(--border);}
   #chat-send{background:var(--blue);color:#111;}
   .basemap-card{background:var(--surface);}
