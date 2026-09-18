@@ -38,7 +38,7 @@
     var toast = document.getElementById('gallery-toast');
     if (!toast) {
       var style = document.createElement('style');
-      style.textContent = '.gallery-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);z-index:10001;padding:11px 18px;border-radius:14px;background:rgba(17,18,20,.94);color:#fff;font-family:DM Sans,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;font-weight:600;box-shadow:0 16px 44px rgba(0,0,0,.26);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;max-width:min(420px,calc(100vw - 32px));text-align:center}.gallery-toast.open{opacity:1;transform:translateX(-50%) translateY(0)}.gallery-toast a{color:#7dd3fc;font-weight:700;text-decoration:none;margin-left:6px}.gallery-toast a:hover{text-decoration:underline}';
+      style.textContent = '.gallery-toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);z-index:10001;padding:7px 18px;border-radius:50px;background:#1a1a1a;color:#fff;font-family:\'DM Sans\',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:12px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.08);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:min(420px,calc(100vw - 32px));text-align:center}.gallery-toast.open{opacity:1;transform:translateX(-50%) translateY(0)}.gallery-toast a{color:inherit;font-weight:700;text-decoration:underline;margin-left:6px}@media (prefers-color-scheme: dark){.gallery-toast{background:#0ea5e9;color:#111}}';
       document.head.appendChild(style);
       toast = document.createElement('div');
       toast.id = 'gallery-toast';
