@@ -210,7 +210,7 @@ h1 {
       <span><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
     </a>
     <div class="topbar-actions">
-      <button class="lang-toggle" id="lang-btn" onclick="toggleLang()" aria-label="Change language">EN</button>
+      <button class="lang-toggle" id="lang-btn" onclick="toggleLang()" aria-label="Cambiar idioma. Idioma actual: espa\u00f1ol. Cambiar a ingl\u00e9s">EN</button>
       <a class="btn btn-ghost" href="/gallery/" data-i18n="nav_gallery">Galer&#237;a</a>
       <a class="btn btn-primary" href="/map/" data-i18n="nav_cta">Abrir app</a>
     </div>
@@ -288,7 +288,7 @@ var LANG = {
     cta_home:'Volver al inicio', cta_gallery:'Ver galer\u00eda', cta_map:'Abrir editor',
     footer_made:'Hecho con \u2665 en Barcelona.',
     page_title:'404 \u2014 P\u00e1gina no encontrada | Ma\u00f1a Maps',
-    lang_btn:'EN'
+    lang_btn:'EN', lang_aria_label:'Cambiar idioma. Idioma actual: espa\u00f1ol. Cambiar a ingl\u00e9s'
   },
   en: {
     nav_about:'About', nav_cta:'Open app', nav_gallery:'Gallery', nav_changelog:'What\u2019s new', nav_pricing:'Pricing',
@@ -299,7 +299,7 @@ var LANG = {
     cta_home:'Back to home', cta_gallery:'View gallery', cta_map:'Open editor',
     footer_made:'Made with \u2665 in Barcelona.',
     page_title:'404 \u2014 Page not found | Ma\u00f1a Maps',
-    lang_btn:'ES'
+    lang_btn:'ES', lang_aria_label:'Change language. Current language: English. Switch to Spanish'
   }
 };
 var MANA_LANG_KEY = 'mana-lang';
@@ -324,7 +324,10 @@ function applyLang(lang) {
   });
   document.title = strings.page_title;
   var btn = document.getElementById('lang-btn');
-  if (btn) btn.textContent = strings.lang_btn;
+  if (btn) {
+    btn.textContent = strings.lang_btn;
+    btn.setAttribute('aria-label', strings.lang_aria_label);
+  }
 }
 function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
 applyLang(currentLang);
