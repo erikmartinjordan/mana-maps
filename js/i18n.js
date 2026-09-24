@@ -509,6 +509,7 @@ const I18N = {
     pricing_cta_label: "Llamada a la acción",
     // ── Nav (shared) ──
     nav_open_map: "Abrir mapa",
+    lang_toggle_aria: "Cambiar idioma. Idioma actual: español. Cambiar a inglés",
     // ── Categorize / Style by ──
     cat_field: "Campo",
     cat_reset: "Reset",
@@ -1040,6 +1041,7 @@ const I18N = {
     pricing_cta_label: "Call to action",
     // ── Nav (shared) ──
     nav_open_map: "Open map",
+    lang_toggle_aria: "Change language. Current language: English. Switch to Spanish",
     // ── Categorize / Style by ──
     cat_field: "Field",
     cat_reset: "Reset",
