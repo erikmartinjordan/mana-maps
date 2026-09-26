@@ -1,0 +1,1316 @@
+[
+  {
+    "country": "Afghanistan",
+    "co2_per_capita": 0.254,
+    "year": 2024,
+    "population": 42647502.0
+  },
+  {
+    "country": "Albania",
+    "co2_per_capita": 1.592,
+    "year": 2024,
+    "population": 2791756.0
+  },
+  {
+    "country": "Algeria",
+    "co2_per_capita": 4.234,
+    "year": 2024,
+    "population": 46814302.0
+  },
+  {
+    "country": "Andorra",
+    "co2_per_capita": 5.182,
+    "year": 2024,
+    "population": 81955.0
+  },
+  {
+    "country": "Angola",
+    "co2_per_capita": 0.589,
+    "year": 2024,
+    "population": 37885854.0
+  },
+  {
+    "country": "Anguilla",
+    "co2_per_capita": 10.127,
+    "year": 2024,
+    "population": 14623.0
+  },
+  {
+    "country": "Antigua and Barbuda",
+    "co2_per_capita": 7.092,
+    "year": 2024,
+    "population": 93782.0
+  },
+  {
+    "country": "Argentina",
+    "co2_per_capita": 3.743,
+    "year": 2024,
+    "population": 45696153.0
+  },
+  {
+    "country": "Armenia",
+    "co2_per_capita": 2.499,
+    "year": 2024,
+    "population": 2973843.0
+  },
+  {
+    "country": "Aruba",
+    "co2_per_capita": 8.518,
+    "year": 2024,
+    "population": 108076.0
+  },
+  {
+    "country": "Asia (excl. China and India)",
+    "co2_per_capita": 4.087,
+    "year": 2024,
+    "population": 0
+  },
+  {
+    "country": "Australia",
+    "co2_per_capita": 14.477,
+    "year": 2024,
+    "population": 26713206.0
+  },
+  {
+    "country": "Austria",
+    "co2_per_capita": 6.18,
+    "year": 2024,
+    "population": 9120815.0
+  },
+  {
+    "country": "Azerbaijan",
+    "co2_per_capita": 3.853,
+    "year": 2024,
+    "population": 10336577.0
+  },
+  {
+    "country": "Bahamas",
+    "co2_per_capita": 7.65,
+    "year": 2024,
+    "population": 401282.0
+  },
+  {
+    "country": "Bahrain",
+    "co2_per_capita": 24.27,
+    "year": 2024,
+    "population": 1607059.0
+  },
+  {
+    "country": "Bangladesh",
+    "co2_per_capita": 0.624,
+    "year": 2024,
+    "population": 173562366.0
+  },
+  {
+    "country": "Barbados",
+    "co2_per_capita": 4.833,
+    "year": 2024,
+    "population": 282476.0
+  },
+  {
+    "country": "Belarus",
+    "co2_per_capita": 6.163,
+    "year": 2024,
+    "population": 9056696.0
+  },
+  {
+    "country": "Belgium",
+    "co2_per_capita": 7.28,
+    "year": 2024,
+    "population": 11738761.0
+  },
+  {
+    "country": "Belize",
+    "co2_per_capita": 1.909,
+    "year": 2024,
+    "population": 417077.0
+  },
+  {
+    "country": "Benin",
+    "co2_per_capita": 0.419,
+    "year": 2024,
+    "population": 14462721.0
+  },
+  {
+    "country": "Bermuda",
+    "co2_per_capita": 8.506,
+    "year": 2024,
+    "population": 64660.0
+  },
+  {
+    "country": "Bhutan",
+    "co2_per_capita": 2.094,
+    "year": 2024,
+    "population": 791530.0
+  },
+  {
+    "country": "Bolivia",
+    "co2_per_capita": 2.313,
+    "year": 2024,
+    "population": 12413318.0
+  },
+  {
+    "country": "Bonaire Sint Eustatius and Saba",
+    "co2_per_capita": 4.947,
+    "year": 2024,
+    "population": 30699.0
+  },
+  {
+    "country": "Bosnia and Herzegovina",
+    "co2_per_capita": 6.139,
+    "year": 2024,
+    "population": 3164256.0
+  },
+  {
+    "country": "Botswana",
+    "co2_per_capita": 2.96,
+    "year": 2024,
+    "population": 2521145.0
+  },
+  {
+    "country": "Brazil",
+    "co2_per_capita": 2.278,
+    "year": 2024,
+    "population": 211998565.0
+  },
+  {
+    "country": "British Virgin Islands",
+    "co2_per_capita": 4.874,
+    "year": 2024,
+    "population": 39498.0
+  },
+  {
+    "country": "Brunei",
+    "co2_per_capita": 26.046,
+    "year": 2024,
+    "population": 462734.0
+  },
+  {
+    "country": "Bulgaria",
+    "co2_per_capita": 4.679,
+    "year": 2024,
+    "population": 6757686.0
+  },
+  {
+    "country": "Burkina Faso",
+    "co2_per_capita": 0.276,
+    "year": 2024,
+    "population": 23548782.0
+  },
+  {
+    "country": "Burundi",
+    "co2_per_capita": 0.065,
+    "year": 2024,
+    "population": 14047788.0
+  },
+  {
+    "country": "Cambodia",
+    "co2_per_capita": 1.241,
+    "year": 2024,
+    "population": 17638804.0
+  },
+  {
+    "country": "Cameroon",
+    "co2_per_capita": 0.331,
+    "year": 2024,
+    "population": 29123748.0
+  },
+  {
+    "country": "Canada",
+    "co2_per_capita": 13.42,
+    "year": 2024,
+    "population": 39742429.0
+  },
+  {
+    "country": "Cape Verde",
+    "co2_per_capita": 1.131,
+    "year": 2024,
+    "population": 524878.0
+  },
+  {
+    "country": "Central African Republic",
+    "co2_per_capita": 0.074,
+    "year": 2024,
+    "population": 5330691.0
+  },
+  {
+    "country": "Chad",
+    "co2_per_capita": 0.139,
+    "year": 2024,
+    "population": 20299131.0
+  },
+  {
+    "country": "Chile",
+    "co2_per_capita": 3.983,
+    "year": 2024,
+    "population": 19764774.0
+  },
+  {
+    "country": "China",
+    "co2_per_capita": 8.658,
+    "year": 2024,
+    "population": 1419321284.0
+  },
+  {
+    "country": "Colombia",
+    "co2_per_capita": 1.752,
+    "year": 2024,
+    "population": 52886360.0
+  },
+  {
+    "country": "Comoros",
+    "co2_per_capita": 0.637,
+    "year": 2024,
+    "population": 866632.0
+  },
+  {
+    "country": "Congo",
+    "co2_per_capita": 1.396,
+    "year": 2024,
+    "population": 6332969.0
+  },
+  {
+    "country": "Cook Islands",
+    "co2_per_capita": 5.824,
+    "year": 2024,
+    "population": 13750.0
+  },
+  {
+    "country": "Costa Rica",
+    "co2_per_capita": 1.708,
+    "year": 2024,
+    "population": 5129909.0
+  },
+  {
+    "country": "Cote d'Ivoire",
+    "co2_per_capita": 0.464,
+    "year": 2024,
+    "population": 31934229.0
+  },
+  {
+    "country": "Croatia",
+    "co2_per_capita": 4.765,
+    "year": 2024,
+    "population": 3875325.0
+  },
+  {
+    "country": "Cuba",
+    "co2_per_capita": 2.226,
+    "year": 2024,
+    "population": 10979781.0
+  },
+  {
+    "country": "Curacao",
+    "co2_per_capita": 12.344,
+    "year": 2024,
+    "population": 185482.0
+  },
+  {
+    "country": "Cyprus",
+    "co2_per_capita": 5.374,
+    "year": 2024,
+    "population": 1358287.0
+  },
+  {
+    "country": "Czechia",
+    "co2_per_capita": 7.044,
+    "year": 2024,
+    "population": 10735857.0
+  },
+  {
+    "country": "Democratic Republic of Congo",
+    "co2_per_capita": 0.054,
+    "year": 2024,
+    "population": 109276264.0
+  },
+  {
+    "country": "Denmark",
+    "co2_per_capita": 4.746,
+    "year": 2024,
+    "population": 5977417.0
+  },
+  {
+    "country": "Djibouti",
+    "co2_per_capita": 0.483,
+    "year": 2024,
+    "population": 1168726.0
+  },
+  {
+    "country": "Dominica",
+    "co2_per_capita": 2.58,
+    "year": 2024,
+    "population": 66226.0
+  },
+  {
+    "country": "Dominican Republic",
+    "co2_per_capita": 2.899,
+    "year": 2024,
+    "population": 11427558.0
+  },
+  {
+    "country": "East Timor",
+    "co2_per_capita": 0.477,
+    "year": 2024,
+    "population": 1400638.0
+  },
+  {
+    "country": "Ecuador",
+    "co2_per_capita": 2.535,
+    "year": 2024,
+    "population": 18135478.0
+  },
+  {
+    "country": "Egypt",
+    "co2_per_capita": 2.217,
+    "year": 2024,
+    "population": 116538256.0
+  },
+  {
+    "country": "El Salvador",
+    "co2_per_capita": 1.416,
+    "year": 2024,
+    "population": 6338197.0
+  },
+  {
+    "country": "Equatorial Guinea",
+    "co2_per_capita": 3.704,
+    "year": 2024,
+    "population": 1892523.0
+  },
+  {
+    "country": "Eritrea",
+    "co2_per_capita": 0.21,
+    "year": 2024,
+    "population": 3535610.0
+  },
+  {
+    "country": "Estonia",
+    "co2_per_capita": 6.105,
+    "year": 2024,
+    "population": 1360548.0
+  },
+  {
+    "country": "Eswatini",
+    "co2_per_capita": 0.841,
+    "year": 2024,
+    "population": 1242829.0
+  },
+  {
+    "country": "Ethiopia",
+    "co2_per_capita": 0.135,
+    "year": 2024,
+    "population": 132059770.0
+  },
+  {
+    "country": "Europe (excl. EU-27)",
+    "co2_per_capita": 8.297,
+    "year": 2024,
+    "population": 0
+  },
+  {
+    "country": "Europe (excl. EU-28)",
+    "co2_per_capita": 9.447,
+    "year": 2024,
+    "population": 0
+  },
+  {
+    "country": "European Union (28)",
+    "co2_per_capita": 5.274,
+    "year": 2024,
+    "population": 0
+  },
+  {
+    "country": "Faroe Islands",
+    "co2_per_capita": 13.089,
+    "year": 2024,
+    "population": 55419.0
+  },
+  {
+    "country": "Fiji",
+    "co2_per_capita": 1.556,
+    "year": 2024,
+    "population": 928800.0
+  },
+  {
+    "country": "Finland",
+    "co2_per_capita": 5.301,
+    "year": 2024,
+    "population": 5617311.0
+  },
+  {
+    "country": "France",
+    "co2_per_capita": 3.969,
+    "year": 2024,
+    "population": 66548532.0
+  },
+  {
+    "country": "French Polynesia",
+    "co2_per_capita": 3.275,
+    "year": 2024,
+    "population": 281816.0
+  },
+  {
+    "country": "Gabon",
+    "co2_per_capita": 2.126,
+    "year": 2024,
+    "population": 2538953.0
+  },
+  {
+    "country": "Gambia",
+    "co2_per_capita": 0.291,
+    "year": 2024,
+    "population": 2759999.0
+  },
+  {
+    "country": "Georgia",
+    "co2_per_capita": 3.095,
+    "year": 2024,
+    "population": 3807668.0
+  },
+  {
+    "country": "Germany",
+    "co2_per_capita": 6.769,
+    "year": 2024,
+    "population": 84552234.0
+  },
+  {
+    "country": "Ghana",
+    "co2_per_capita": 0.611,
+    "year": 2024,
+    "population": 34427417.0
+  },
+  {
+    "country": "Greece",
+    "co2_per_capita": 5.311,
+    "year": 2024,
+    "population": 10047813.0
+  },
+  {
+    "country": "Greenland",
+    "co2_per_capita": 11.08,
+    "year": 2024,
+    "population": 55864.0
+  },
+  {
+    "country": "Grenada",
+    "co2_per_capita": 3.216,
+    "year": 2024,
+    "population": 117218.0
+  },
+  {
+    "country": "Guatemala",
+    "co2_per_capita": 1.08,
+    "year": 2024,
+    "population": 18406366.0
+  },
+  {
+    "country": "Guinea",
+    "co2_per_capita": 0.273,
+    "year": 2024,
+    "population": 14754779.0
+  },
+  {
+    "country": "Guinea-Bissau",
+    "co2_per_capita": 0.155,
+    "year": 2024,
+    "population": 2201360.0
+  },
+  {
+    "country": "Guyana",
+    "co2_per_capita": 5.427,
+    "year": 2024,
+    "population": 831092.0
+  },
+  {
+    "country": "Haiti",
+    "co2_per_capita": 0.252,
+    "year": 2024,
+    "population": 11772562.0
+  },
+  {
+    "country": "Honduras",
+    "co2_per_capita": 1.187,
+    "year": 2024,
+    "population": 10825704.0
+  },
+  {
+    "country": "Hong Kong",
+    "co2_per_capita": 4.494,
+    "year": 2024,
+    "population": 7414914.0
+  },
+  {
+    "country": "Hungary",
+    "co2_per_capita": 4.136,
+    "year": 2024,
+    "population": 9676135.0
+  },
+  {
+    "country": "Iceland",
+    "co2_per_capita": 9.667,
+    "year": 2024,
+    "population": 393404.0
+  },
+  {
+    "country": "India",
+    "co2_per_capita": 2.201,
+    "year": 2024,
+    "population": 1450935785.0
+  },
+  {
+    "country": "Indonesia",
+    "co2_per_capita": 2.865,
+    "year": 2024,
+    "population": 283487933.0
+  },
+  {
+    "country": "Iran",
+    "co2_per_capita": 8.656,
+    "year": 2024,
+    "population": 91567737.0
+  },
+  {
+    "country": "Iraq",
+    "co2_per_capita": 5.074,
+    "year": 2024,
+    "population": 46042015.0
+  },
+  {
+    "country": "Ireland",
+    "co2_per_capita": 6.339,
+    "year": 2024,
+    "population": 5255016.0
+  },
+  {
+    "country": "Israel",
+    "co2_per_capita": 5.607,
+    "year": 2024,
+    "population": 9387015.0
+  },
+  {
+    "country": "Italy",
+    "co2_per_capita": 5.088,
+    "year": 2024,
+    "population": 59342870.0
+  },
+  {
+    "country": "Jamaica",
+    "co2_per_capita": 2.959,
+    "year": 2024,
+    "population": 2839182.0
+  },
+  {
+    "country": "Japan",
+    "co2_per_capita": 7.772,
+    "year": 2024,
+    "population": 123753041.0
+  },
+  {
+    "country": "Jordan",
+    "co2_per_capita": 2.01,
+    "year": 2024,
+    "population": 11552885.0
+  },
+  {
+    "country": "Kazakhstan",
+    "co2_per_capita": 13.937,
+    "year": 2024,
+    "population": 20592574.0
+  },
+  {
+    "country": "Kenya",
+    "co2_per_capita": 0.376,
+    "year": 2024,
+    "population": 56432946.0
+  },
+  {
+    "country": "Kiribati",
+    "co2_per_capita": 0.539,
+    "year": 2024,
+    "population": 134521.0
+  },
+  {
+    "country": "Kosovo",
+    "co2_per_capita": 4.778,
+    "year": 2024,
+    "population": 1684796.0
+  },
+  {
+    "country": "Kuwait",
+    "co2_per_capita": 26.248,
+    "year": 2024,
+    "population": 4934508.0
+  },
+  {
+    "country": "Kyrgyzstan",
+    "co2_per_capita": 1.638,
+    "year": 2024,
+    "population": 7186014.0
+  },
+  {
+    "country": "Laos",
+    "co2_per_capita": 3.14,
+    "year": 2024,
+    "population": 7769823.0
+  },
+  {
+    "country": "Latvia",
+    "co2_per_capita": 3.452,
+    "year": 2024,
+    "population": 1871874.0
+  },
+  {
+    "country": "Lebanon",
+    "co2_per_capita": 2.696,
+    "year": 2024,
+    "population": 5805962.0
+  },
+  {
+    "country": "Lesotho",
+    "co2_per_capita": 1.1,
+    "year": 2024,
+    "population": 2337428.0
+  },
+  {
+    "country": "Liberia",
+    "co2_per_capita": 0.153,
+    "year": 2024,
+    "population": 5612813.0
+  },
+  {
+    "country": "Libya",
+    "co2_per_capita": 8.842,
+    "year": 2024,
+    "population": 7381029.0
+  },
+  {
+    "country": "Liechtenstein",
+    "co2_per_capita": 3.299,
+    "year": 2024,
+    "population": 39895.0
+  },
+  {
+    "country": "Lithuania",
+    "co2_per_capita": 4.387,
+    "year": 2024,
+    "population": 2859112.0
+  },
+  {
+    "country": "Luxembourg",
+    "co2_per_capita": 10.46,
+    "year": 2024,
+    "population": 673042.0
+  },
+  {
+    "country": "Macao",
+    "co2_per_capita": 1.467,
+    "year": 2024,
+    "population": 720270.0
+  },
+  {
+    "country": "Madagascar",
+    "co2_per_capita": 0.142,
+    "year": 2024,
+    "population": 31964960.0
+  },
+  {
+    "country": "Malawi",
+    "co2_per_capita": 0.087,
+    "year": 2024,
+    "population": 21655288.0
+  },
+  {
+    "country": "Malaysia",
+    "co2_per_capita": 8.162,
+    "year": 2024,
+    "population": 35557670.0
+  },
+  {
+    "country": "Maldives",
+    "co2_per_capita": 4.369,
+    "year": 2024,
+    "population": 527801.0
+  },
+  {
+    "country": "Mali",
+    "co2_per_capita": 0.285,
+    "year": 2024,
+    "population": 24478597.0
+  },
+  {
+    "country": "Malta",
+    "co2_per_capita": 3.204,
+    "year": 2024,
+    "population": 539612.0
+  },
+  {
+    "country": "Marshall Islands",
+    "co2_per_capita": 4.112,
+    "year": 2024,
+    "population": 37572.0
+  },
+  {
+    "country": "Mauritania",
+    "co2_per_capita": 1.013,
+    "year": 2024,
+    "population": 5169403.0
+  },
+  {
+    "country": "Mauritius",
+    "co2_per_capita": 3.677,
+    "year": 2024,
+    "population": 1271171.0
+  },
+  {
+    "country": "Mexico",
+    "co2_per_capita": 3.523,
+    "year": 2024,
+    "population": 130861001.0
+  },
+  {
+    "country": "Micronesia (country)",
+    "co2_per_capita": 1.331,
+    "year": 2024,
+    "population": 113171.0
+  },
+  {
+    "country": "Moldova",
+    "co2_per_capita": 1.755,
+    "year": 2024,
+    "population": 3034967.0
+  },
+  {
+    "country": "Mongolia",
+    "co2_per_capita": 12.86,
+    "year": 2024,
+    "population": 3475541.0
+  },
+  {
+    "country": "Montenegro",
+    "co2_per_capita": 3.722,
+    "year": 2024,
+    "population": 638481.0
+  },
+  {
+    "country": "Montserrat",
+    "co2_per_capita": 6.022,
+    "year": 2024,
+    "population": 4414.0
+  },
+  {
+    "country": "Morocco",
+    "co2_per_capita": 1.814,
+    "year": 2024,
+    "population": 38081176.0
+  },
+  {
+    "country": "Mozambique",
+    "co2_per_capita": 0.249,
+    "year": 2024,
+    "population": 34631767.0
+  },
+  {
+    "country": "Myanmar",
+    "co2_per_capita": 0.58,
+    "year": 2024,
+    "population": 54500086.0
+  },
+  {
+    "country": "Namibia",
+    "co2_per_capita": 1.145,
+    "year": 2024,
+    "population": 3030127.0
+  },
+  {
+    "country": "Nauru",
+    "co2_per_capita": 5.13,
+    "year": 2024,
+    "population": 11968.0
+  },
+  {
+    "country": "Nepal",
+    "co2_per_capita": 0.633,
+    "year": 2024,
+    "population": 29651054.0
+  },
+  {
+    "country": "Netherlands",
+    "co2_per_capita": 6.297,
+    "year": 2024,
+    "population": 18228740.0
+  },
+  {
+    "country": "New Caledonia",
+    "co2_per_capita": 18.064,
+    "year": 2024,
+    "population": 292655.0
+  },
+  {
+    "country": "New Zealand",
+    "co2_per_capita": 6.229,
+    "year": 2024,
+    "population": 5213942.0
+  },
+  {
+    "country": "Nicaragua",
+    "co2_per_capita": 0.814,
+    "year": 2024,
+    "population": 6916136.0
+  },
+  {
+    "country": "Niger",
+    "co2_per_capita": 0.117,
+    "year": 2024,
+    "population": 27032417.0
+  },
+  {
+    "country": "Nigeria",
+    "co2_per_capita": 0.584,
+    "year": 2024,
+    "population": 232679482.0
+  },
+  {
+    "country": "Niue",
+    "co2_per_capita": 4.143,
+    "year": 2024,
+    "population": 1841.0
+  },
+  {
+    "country": "North America (excl. USA)",
+    "co2_per_capita": 4.478,
+    "year": 2024,
+    "population": 0
+  },
+  {
+    "country": "North Korea",
+    "co2_per_capita": 2.36,
+    "year": 2024,
+    "population": 26498832.0
+  },
+  {
+    "country": "North Macedonia",
+    "co2_per_capita": 3.631,
+    "year": 2024,
+    "population": 1823011.0
+  },
+  {
+    "country": "Norway",
+    "co2_per_capita": 6.668,
+    "year": 2024,
+    "population": 5576656.0
+  },
+  {
+    "country": "Oman",
+    "co2_per_capita": 15.651,
+    "year": 2024,
+    "population": 5281542.0
+  },
+  {
+    "country": "Pakistan",
+    "co2_per_capita": 0.716,
+    "year": 2024,
+    "population": 251269160.0
+  },
+  {
+    "country": "Palau",
+    "co2_per_capita": 12.76,
+    "year": 2024,
+    "population": 17719.0
+  },
+  {
+    "country": "Palestine",
+    "co2_per_capita": 0.87,
+    "year": 2024,
+    "population": 5495447.0
+  },
+  {
+    "country": "Panama",
+    "co2_per_capita": 2.805,
+    "year": 2024,
+    "population": 4515576.0
+  },
+  {
+    "country": "Papua New Guinea",
+    "co2_per_capita": 0.789,
+    "year": 2024,
+    "population": 10576509.0
+  },
+  {
+    "country": "Paraguay",
+    "co2_per_capita": 1.145,
+    "year": 2024,
+    "population": 6929152.0
+  },
+  {
+    "country": "Peru",
+    "co2_per_capita": 2.053,
+    "year": 2024,
+    "population": 34217850.0
+  },
+  {
+    "country": "Philippines",
+    "co2_per_capita": 1.51,
+    "year": 2024,
+    "population": 115843663.0
+  },
+  {
+    "country": "Poland",
+    "co2_per_capita": 7.08,
+    "year": 2024,
+    "population": 38539209.0
+  },
+  {
+    "country": "Portugal",
+    "co2_per_capita": 3.409,
+    "year": 2024,
+    "population": 10425291.0
+  },
+  {
+    "country": "Qatar",
+    "co2_per_capita": 41.271,
+    "year": 2024,
+    "population": 3048429.0
+  },
+  {
+    "country": "Romania",
+    "co2_per_capita": 3.605,
+    "year": 2024,
+    "population": 19015096.0
+  },
+  {
+    "country": "Russia",
+    "co2_per_capita": 12.295,
+    "year": 2024,
+    "population": 144820421.0
+  },
+  {
+    "country": "Rwanda",
+    "co2_per_capita": 0.143,
+    "year": 2024,
+    "population": 14256573.0
+  },
+  {
+    "country": "Saint Helena",
+    "co2_per_capita": 2.165,
+    "year": 2024,
+    "population": 5262.0
+  },
+  {
+    "country": "Saint Kitts and Nevis",
+    "co2_per_capita": 5.542,
+    "year": 2024,
+    "population": 46867.0
+  },
+  {
+    "country": "Saint Lucia",
+    "co2_per_capita": 2.987,
+    "year": 2024,
+    "population": 179751.0
+  },
+  {
+    "country": "Saint Pierre and Miquelon",
+    "co2_per_capita": 9.788,
+    "year": 2024,
+    "population": 5652.0
+  },
+  {
+    "country": "Saint Vincent and the Grenadines",
+    "co2_per_capita": 2.541,
+    "year": 2024,
+    "population": 100630.0
+  },
+  {
+    "country": "Samoa",
+    "co2_per_capita": 1.126,
+    "year": 2024,
+    "population": 218031.0
+  },
+  {
+    "country": "Sao Tome and Principe",
+    "co2_per_capita": 0.602,
+    "year": 2024,
+    "population": 235548.0
+  },
+  {
+    "country": "Saudi Arabia",
+    "co2_per_capita": 20.379,
+    "year": 2024,
+    "population": 33962751.0
+  },
+  {
+    "country": "Senegal",
+    "co2_per_capita": 0.762,
+    "year": 2024,
+    "population": 18501988.0
+  },
+  {
+    "country": "Serbia",
+    "co2_per_capita": 6.238,
+    "year": 2024,
+    "population": 6736217.0
+  },
+  {
+    "country": "Seychelles",
+    "co2_per_capita": 5.003,
+    "year": 2024,
+    "population": 130436.0
+  },
+  {
+    "country": "Sierra Leone",
+    "co2_per_capita": 0.166,
+    "year": 2024,
+    "population": 8642029.0
+  },
+  {
+    "country": "Singapore",
+    "co2_per_capita": 9.245,
+    "year": 2024,
+    "population": 5832387.0
+  },
+  {
+    "country": "Sint Maarten (Dutch part)",
+    "co2_per_capita": 16.546,
+    "year": 2024,
+    "population": 43372.0
+  },
+  {
+    "country": "Slovakia",
+    "co2_per_capita": 5.283,
+    "year": 2024,
+    "population": 5506759.0
+  },
+  {
+    "country": "Slovenia",
+    "co2_per_capita": 6.018,
+    "year": 2024,
+    "population": 2118692.0
+  },
+  {
+    "country": "Solomon Islands",
+    "co2_per_capita": 0.36,
+    "year": 2024,
+    "population": 819206.0
+  },
+  {
+    "country": "Somalia",
+    "co2_per_capita": 0.069,
+    "year": 2024,
+    "population": 19009155.0
+  },
+  {
+    "country": "South Africa",
+    "co2_per_capita": 6.872,
+    "year": 2024,
+    "population": 64007187.0
+  },
+  {
+    "country": "South Korea",
+    "co2_per_capita": 11.286,
+    "year": 2024,
+    "population": 51717587.0
+  },
+  {
+    "country": "South Sudan",
+    "co2_per_capita": 0.142,
+    "year": 2024,
+    "population": 11943410.0
+  },
+  {
+    "country": "Spain",
+    "co2_per_capita": 4.599,
+    "year": 2024,
+    "population": 47910533.0
+  },
+  {
+    "country": "Sri Lanka",
+    "co2_per_capita": 0.901,
+    "year": 2024,
+    "population": 23103561.0
+  },
+  {
+    "country": "Sudan",
+    "co2_per_capita": 0.353,
+    "year": 2024,
+    "population": 50448960.0
+  },
+  {
+    "country": "Suriname",
+    "co2_per_capita": 4.709,
+    "year": 2024,
+    "population": 634438.0
+  },
+  {
+    "country": "Sweden",
+    "co2_per_capita": 3.592,
+    "year": 2024,
+    "population": 10606993.0
+  },
+  {
+    "country": "Switzerland",
+    "co2_per_capita": 3.595,
+    "year": 2024,
+    "population": 8921979.0
+  },
+  {
+    "country": "Syria",
+    "co2_per_capita": 1.288,
+    "year": 2024,
+    "population": 24672758.0
+  },
+  {
+    "country": "Taiwan",
+    "co2_per_capita": 11.301,
+    "year": 2024,
+    "population": 23213964.0
+  },
+  {
+    "country": "Tajikistan",
+    "co2_per_capita": 1.014,
+    "year": 2024,
+    "population": 10590930.0
+  },
+  {
+    "country": "Tanzania",
+    "co2_per_capita": 0.292,
+    "year": 2024,
+    "population": 68560162.0
+  },
+  {
+    "country": "Thailand",
+    "co2_per_capita": 3.736,
+    "year": 2024,
+    "population": 71668010.0
+  },
+  {
+    "country": "Togo",
+    "co2_per_capita": 0.328,
+    "year": 2024,
+    "population": 8406554.0
+  },
+  {
+    "country": "Tonga",
+    "co2_per_capita": 1.464,
+    "year": 2024,
+    "population": 104192.0
+  },
+  {
+    "country": "Trinidad and Tobago",
+    "co2_per_capita": 22.932,
+    "year": 2024,
+    "population": 1507778.0
+  },
+  {
+    "country": "Tunisia",
+    "co2_per_capita": 2.661,
+    "year": 2024,
+    "population": 12277103.0
+  },
+  {
+    "country": "Turkey",
+    "co2_per_capita": 5.865,
+    "year": 2024,
+    "population": 87473800.0
+  },
+  {
+    "country": "Turkmenistan",
+    "co2_per_capita": 10.809,
+    "year": 2024,
+    "population": 7494494.0
+  },
+  {
+    "country": "Turks and Caicos Islands",
+    "co2_per_capita": 8.136,
+    "year": 2024,
+    "population": 46563.0
+  },
+  {
+    "country": "Tuvalu",
+    "co2_per_capita": 1.183,
+    "year": 2024,
+    "population": 9669.0
+  },
+  {
+    "country": "Uganda",
+    "co2_per_capita": 0.127,
+    "year": 2024,
+    "population": 50015091.0
+  },
+  {
+    "country": "Ukraine",
+    "co2_per_capita": 3.764,
+    "year": 2024,
+    "population": 37860221.0
+  },
+  {
+    "country": "United Arab Emirates",
+    "co2_per_capita": 20.131,
+    "year": 2024,
+    "population": 11027135.0
+  },
+  {
+    "country": "United Kingdom",
+    "co2_per_capita": 4.526,
+    "year": 2024,
+    "population": 69138185.0
+  },
+  {
+    "country": "United States",
+    "co2_per_capita": 14.197,
+    "year": 2024,
+    "population": 345426566.0
+  },
+  {
+    "country": "Uruguay",
+    "co2_per_capita": 2.354,
+    "year": 2024,
+    "population": 3386583.0
+  },
+  {
+    "country": "Uzbekistan",
+    "co2_per_capita": 3.829,
+    "year": 2024,
+    "population": 36361859.0
+  },
+  {
+    "country": "Vanuatu",
+    "co2_per_capita": 0.601,
+    "year": 2024,
+    "population": 327786.0
+  },
+  {
+    "country": "Venezuela",
+    "co2_per_capita": 4.085,
+    "year": 2024,
+    "population": 28405544.0
+  },
+  {
+    "country": "Vietnam",
+    "co2_per_capita": 3.673,
+    "year": 2024,
+    "population": 100987685.0
+  },
+  {
+    "country": "Wallis and Futuna",
+    "co2_per_capita": 2.699,
+    "year": 2024,
+    "population": 11303.0
+  },
+  {
+    "country": "Yemen",
+    "co2_per_capita": 0.249,
+    "year": 2024,
+    "population": 40583173.0
+  },
+  {
+    "country": "Zambia",
+    "co2_per_capita": 0.565,
+    "year": 2024,
+    "population": 21314962.0
+  },
+  {
+    "country": "Zimbabwe",
+    "co2_per_capita": 0.824,
+    "year": 2024,
+    "population": 16634366.0
+  }
+]
