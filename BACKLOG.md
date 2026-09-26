@@ -70,3 +70,6 @@
 - [x] Mejorar mapa worst-wildfires-world: añadir dataSource (Global Fire Emissions Database/GFED) y dataDate, que están vacíos (auditoría 12-09) (13-09)
 - [x] Añadir campo `enabled: true` a _manaLabelStyle de minimum-wage-by-country en Firestore para cumplir AGENTS.md (205 features sin enabled) (auditoría 12-09) (14-09)
 - [x] Crear mapa: "Índice de Felicidad Mundial por País" — coropleta mundial, World Happiness Report 2024/Gallup, tags [Bienestar,Geografía,Sociedad], hook: "¿Qué país es el más feliz del mundo?" (12-09) (15-09)
+- [ ] Re-habilitar descripciones y fuente de datos en tarjetas de la galería: eliminar `display:none !important` de `.meta-source` y `.card-desc` en gallery/index.html para que se vean las descripciones truncadas y la fuente/año de datos de cada mapa, mejorando SEO y credibilidad
+- [ ] Actualizar JSON-LD CollectionPage de /gallery/: sincronizar `numberOfItems` y añadir los 2 mapas faltantes al itemListElement (world-happiness-world y co2-per-capita-world)
+- [ ] Añadir al sitemap.xml las URLs de world-happiness-world y co2-per-capita-world con priority 0.6 y changefreq weekly
