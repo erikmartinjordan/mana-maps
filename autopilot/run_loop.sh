@@ -42,6 +42,10 @@ get_cfg() {
 DOCKER=/Applications/Docker.app/Contents/Resources/bin/docker
 AGENT_TIMEOUT=$(( $(get_cfg '.loop.agentTimeoutMinutes' 30) * 60 ))
 IDEA_TIMEOUT=$(( $(get_cfg '.loop.ideationTimeoutMinutes' 20) * 60 ))
+# Contenedores/agentes del loop que superen esta antiguedad se consideran colgados
+# y se matan automaticamente (autonomia del iMac). Los persistentes se conservan.
+STALE_MIN=$(get_cfg '.loop.staleContainerMinutes' 90)
+PERSISTENT_NAMES="amazing_carver"
 
 # Modelo a usar por todos los agentes (desde config.json). Definido aqui para
 # que este disponible en TODO el flujo (mapmaker, ideator, autopilot).
@@ -69,9 +73,14 @@ run_with_timeout() {
       # Matar cualquier hijo (docker run) para que el contenedor no quede huerfano
       pkill -9 -P "$pid" 2>/dev/null
       # El --rm del docker run deberia limpiar el contenedor; como refuerzo,
-      # matamos contenedores plan7-opencode SIN nombre (efimeros del loop).
-      "$DOCKER" ps --filter ancestor=plan7-opencode --format '{{.ID}} {{.Names}}' 2>/dev/null | while read -r cid name; do
-        [ -z "$name" ] && "$DOCKER" kill "$cid" >/dev/null 2>&1
+      # matamos TODOS los contenedores efimeros de plan7-opencode (Docker los
+      # auto-nombra, por eso no se puede mirar el nombre vacio), conservando los
+      # persistentes de PERSISTENT_NAMES.
+      "$DOCKER" ps --filter ancestor=plan7-opencode --format '{{.ID}}|{{.Names}}' 2>/dev/null | while IFS='|' read -r cid name; do
+        [ -z "$cid" ] && continue
+        _is_persistent_container "$name" && continue
+        "$DOCKER" kill "$cid" >/dev/null 2>&1
+        "$DOCKER" rm -f "$cid" >/dev/null 2>&1
       done
       wait "$pid" 2>/dev/null
       return 124
@@ -81,15 +90,63 @@ run_with_timeout() {
   return $?
 }
 
-# --- limpia contenedores plan7-opencode huerfanos (colgados mas de N minutos) ---
+# --- utilidades de limpieza (autonomia) ---
+
+# Antiguedad en segundos de un contenedor (via StartedAt). 0 si no se puede leer.
+_container_age_seconds() {
+  local cid="$1" started epoch
+  started=$("$DOCKER" inspect -f '{{.State.StartedAt}}' "$cid" 2>/dev/null)
+  [ -z "$started" ] && { echo 0; return; }
+  epoch=$(date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "${started%%.*}Z" +%s 2>/dev/null || echo "")
+  if [ -z "$epoch" ]; then echo 0; return; fi
+  echo $(( $(date +%s) - epoch ))
+}
+
+# Antiguedad en segundos de un PID (macOS/Linux). 0 si no se puede leer.
+_pid_age_seconds() {
+  local pid="$1" start epoch
+  start=$(ps -o lstart= -p "$pid" 2>/dev/null | xargs)
+  [ -z "$start" ] && { echo 0; return; }
+  epoch=$(date -j -f "%a %b %d %T %Y" "$start" +%s 2>/dev/null || echo "")
+  if [ -z "$epoch" ]; then echo 0; return; fi
+  echo $(( $(date +%s) - epoch ))
+}
+
+_is_persistent_container() {
+  local name="${1#/}"
+  local keep
+  for keep in $PERSISTENT_NAMES; do
+    [ "$name" = "$keep" ] && return 0
+  done
+  return 1
+}
+
+# --- limpia contenedores plan7-opencode colgados y clientes docker huerfanos ---
+# Docker auto-nombra los contenedores efimeros (p.ej. elastic_jang), por lo que
+# NO se puede depender del nombre vacio: se usa la antiguedad. Los persistentes
+# en PERSISTENT_NAMES se conservan siempre.
 cleanup_stale_containers() {
-  # Solo contenedores efimeros del loop (sin --name, creados por el wrapper docker run).
-  # NO toca los contenedores persistentes con nombre (p.ej. amazing_carver).
-  "$DOCKER" ps --filter ancestor=plan7-opencode --format '{{.ID}} {{.Names}}' 2>/dev/null | while read -r cid name; do
-    if [ -z "$name" ] || [ "$name" = "/" ]; then
-      log "Limpieza: matando contenedor huerfano $cid"
+  local cid name age pid page
+  "$DOCKER" ps --filter ancestor=plan7-opencode --format '{{.ID}}|{{.Names}}' 2>/dev/null | while IFS='|' read -r cid name; do
+    [ -z "$cid" ] && continue
+    if _is_persistent_container "$name"; then
+      log "Limpieza: conservo contenedor persistente $name ($cid)"
+      continue
+    fi
+    age=$(_container_age_seconds "$cid")
+    if [ "$age" -gt $(( STALE_MIN * 60 )) ]; then
+      log "Limpieza: matando contenedor plan7-opencode $cid ($name) de $(( age / 60 )) min"
       "$DOCKER" kill "$cid" >/dev/null 2>&1
       "$DOCKER" rm -f "$cid" >/dev/null 2>&1
+    fi
+  done
+  # Clientes `docker run ... opencode run` colgados que dejaron el contenedor
+  # huerfano (situacion que bloqueaba has_other_opencode_running).
+  for pid in $(pgrep -f "com.docker.cli run.*opencode run" 2>/dev/null); do
+    page=$(_pid_age_seconds "$pid")
+    if [ "$page" -gt $(( STALE_MIN * 60 )) ]; then
+      log "Limpieza: matando cliente docker huerfano $pid (${page}s)"
+      kill -9 "$pid" 2>/dev/null || true
     fi
   done
 }
@@ -148,6 +205,14 @@ has_other_opencode_running() {
     local ppid_of_pid
     ppid_of_pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
     if [ "$ppid_of_pid" = "$my_pid" ]; then continue; fi
+    # Ignorar procesos colgados (mas viejos que el umbral de limpieza); si no,
+    # un agente colgado bloquearia el loop para siempre.
+    local page
+    page=$(_pid_age_seconds "$pid")
+    if [ "$page" -gt $(( STALE_MIN * 60 )) ]; then
+      log "Guarda: ignoro proceso opencode colgado $pid (${page}s)"
+      continue
+    fi
     # Verificar que el proceso sigue vivo (no es zombie)
     if kill -0 "$pid" 2>/dev/null; then
       count=$((count + 1))
