@@ -167,6 +167,16 @@ async function main() {
   const geoPath = path.join(__dirname, '..', 'data', 'happiness-index-world.geojson');
   if (!fs.existsSync(geoPath)) { console.error('GeoJSON not found:', geoPath); process.exit(1); }
   const geo = JSON.parse(fs.readFileSync(geoPath, 'utf8'));
+  // El WHR/Gallup no incluye la Antártida; si aparece en el dataset se pinta
+  // como un manchurrón gris "sin datos". La descartamos de forma defensiva.
+  const beforeCount = geo.features.length;
+  geo.features = geo.features.filter(f => {
+    const n = ((f.properties && (f.properties._manaName || f.properties.name)) || '').trim().toLowerCase();
+    return n !== 'antártida' && n !== 'antartida' && n !== 'antarctica';
+  });
+  if (geo.features.length !== beforeCount) {
+    console.log(`Filtrada Antártida: ${beforeCount} -> ${geo.features.length} features`);
+  }
   const geojsonText = JSON.stringify(geo);
   console.log(`GeoJSON ${(geojsonText.length / 1024).toFixed(1)} KB, features ${geo.features.length}`);
   if (geojsonText.length > 1048576) { console.error('ERROR >1MiB'); process.exit(1); }
