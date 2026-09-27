@@ -56,6 +56,11 @@ Por cada mapa que falle, tarea CONCRETA:
 2. No repetir tareas [x] ni git log -20
 3. Si no hay oportunidades claras, no toques BACKLOG
 
+## PROHIBIDO proponer (decisión de producto)
+- Re-habilitar descripciones/fuente en las tarjetas de la galería
+  (`.card-desc`, `.meta-source`): están OCULTAS a propósito. No las propongas
+  aunque el CSS lo permita; hay un test que lo bloquea.
+
 ## Flujo (max 12 llamadas)
 1. git log --oneline -20 + BACKLOG.md
 2. curl Firestore REST pageSize=50 + python parse

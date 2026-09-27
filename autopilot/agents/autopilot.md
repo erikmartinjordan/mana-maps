@@ -50,6 +50,11 @@ REGLAS DE SEGURIDAD:
 - No preguntes al usuario: el contexto "question" esta deshabilitado.
 - Trabaja solo en lo que pide la tarea del BACKLOG; no refactorices mas alla.
 
+PROHIBIDO (decisión de producto):
+- NO re-habilitar las descripciones (`.card-desc`) ni la fuente de datos
+  (`.meta-source`) en las tarjetas de la galería: están OCULTAS a propósito.
+  Ignora cualquier tarea del BACKLOG que lo pida. Hay un test que lo bloquea.
+
 REGLAS DE PUBLICACION EN FIRESTORE (CRITICO):
 - Los mapas de la galeria se publican DESDE Firestore. Un mapa nuevo o
   modificado (data/gallery-*.js) SOLO es valido si se publica en Firestore.

@@ -42,6 +42,9 @@ get_cfg() {
 DOCKER=/Applications/Docker.app/Contents/Resources/bin/docker
 AGENT_TIMEOUT=$(( $(get_cfg '.loop.agentTimeoutMinutes' 30) * 60 ))
 IDEA_TIMEOUT=$(( $(get_cfg '.loop.ideationTimeoutMinutes' 20) * 60 ))
+# Espera maxima a que GitHub Actions complete los checks tras un push (subido
+# de 12 a 30 min por defecto; se puede ajustar con loop.ciTimeoutMinutes).
+CI_TIMEOUT_MIN=$(get_cfg '.loop.ciTimeoutMinutes' 30)
 # Contenedores/agentes del loop que superen esta antiguedad se consideran colgados
 # y se matan automaticamente (autonomia del iMac). Los persistentes se conservan.
 STALE_MIN=$(get_cfg '.loop.staleContainerMinutes' 90)
@@ -295,7 +298,8 @@ const m=(fs.readFileSync(p,'utf8')||'').match(/^- \[ \].*/gm);process.stdout.wri
 
 # --- espera el resultado de CI para un commit (max ~12 min) ---
 ci_wait() {
-  local sha="$1" ownerrepo="$2" tries=0 max=24
+  # Cada iteracion espera ~30s (mas 20s si la API no responde): max = minutos*2.
+  local sha="$1" ownerrepo="$2" tries=0 max=$(( CI_TIMEOUT_MIN * 2 ))
   while [ "$tries" -lt "$max" ]; do
     local out total done ok
     out=$(curl -s --max-time 20 "https://api.github.com/repos/$ownerrepo/commits/$sha/check-runs?per_page=100")

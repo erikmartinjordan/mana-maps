@@ -60,3 +60,12 @@ Todo mapa nuevo o actualización de la galería debe cumplir:
 - No commitear secretos ni credenciales.
 - No modificar `firestore.rules` sin necesidad explícita.
 - Tests y lint antes de cada push; commits concisos estilo `feat:`/`chore:`.
+
+## Decisiones de producto (NO tocar)
+
+- **Tarjetas de la galería**: las descripciones (`.card-desc`) y la fuente de
+  datos (`.meta-source`) permanecen **OCULTAS** por decisión de producto. Está
+  prohibido proponerlas o re-habilitarlas (ni en BACKLOG ni en código). Hay un
+  test que lo bloquea: `tests/predeploy/gallery-smoke.spec.js`
+  ("gallery cards keep descriptions and data source hidden").
+- Si una tarea del BACKLOG contradice esta sección, se descarta.
