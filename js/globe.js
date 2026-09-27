@@ -40,12 +40,17 @@ function initGlobe() {
     globeMap.on('touchstart', function() { if (spinActive) toggleSpin(); });
     globeMap.on('zoomend', function(){
       if (globeMap.getZoom() > 2.6 && typeof activeBase !== 'undefined' && activeBase === 'globe' && !window._autoGlobeLock) {
+        // No volver a 2D si a ese zoom el mundo seguiría duplicándose.
+        var targetZoom = 2.8;
+        if (typeof manaMinZoomWithoutDuplication === 'function') {
+          targetZoom = Math.max(targetZoom, Math.ceil(manaMinZoomWithoutDuplication()));
+        }
         window._autoGlobeLock = true;
         if (typeof setBaseLayer === 'function') {
           var c = globeMap.getCenter();
           setBaseLayer('map');
           setTimeout(function(){ 
-            if (typeof map !== 'undefined' && map.setView) map.setView([c.lat, c.lng], 2.8, {animate:false});
+            if (typeof map !== 'undefined' && map.setView) map.setView([c.lat, c.lng], targetZoom, {animate:false});
             window._autoGlobeLock = false;
           }, 550);
         }

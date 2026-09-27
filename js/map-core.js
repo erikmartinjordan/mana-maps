@@ -60,18 +60,49 @@ tileMap.addTo(map);
 let activeBase = 'map';
 window._autoGlobeLock = false;
 
+// ── World-copy duplication guard (2D → 3D) ──
+// La vista 2D repite el mundo horizontalmente cuando el ancho del mundo en
+// píxeles es menor que el del contenedor, mostrando regiones duplicadas. En
+// cuanto eso ocurre, Maña Maps pasa al globo 3D, que nunca duplica el planeta.
+function manaWorldWouldDuplicateAt(zoom) {
+  if (typeof map === 'undefined' || !map || !map.getSize) return false;
+  var size = map.getSize();
+  if (!size || !size.x) return false;
+  var worldWidth;
+  try {
+    worldWidth = map.getPixelWorldBounds(zoom).getSize().x;
+  } catch (e) {
+    worldWidth = 256 * Math.pow(2, zoom);
+  }
+  return worldWidth < size.x;
+}
+
+// Zoom mínimo de Leaflet en el que el mundo ya no se repite para el ancho
+// actual del contenedor.
+function manaMinZoomWithoutDuplication() {
+  if (typeof map === 'undefined' || !map || !map.getSize) return 0;
+  var size = map.getSize();
+  if (!size || !size.x) return 0;
+  return Math.max(0, Math.log(size.x / 256) / Math.LN2);
+}
+
+function mana2DWouldDuplicateWorld() {
+  if (activeBase === 'globe') return false;
+  return manaWorldWouldDuplicateAt(map.getZoom());
+}
+
 function maybeSwitchToGlobe() {
   if (window._autoGlobeLock || activeBase === 'globe') return;
-  if (map.getZoom() > 1.8) return;
+  if (!mana2DWouldDuplicateWorld()) return;
   window._autoGlobeLock = true;
   setBaseLayer('globe');
   setTimeout(function(){ window._autoGlobeLock = false; }, 750);
 }
 map.on('zoomend', maybeSwitchToGlobe);
+map.on('moveend', maybeSwitchToGlobe);
 map.getContainer().addEventListener('wheel', function(e){
   if (e.deltaY <= 0 || activeBase === 'globe' || window._autoGlobeLock) return;
-  if (map.getZoom() > 1.2) return;
-  if (e.deltaY < 4 && map.getZoom() > 0.8) return;
+  if (!mana2DWouldDuplicateWorld()) return;
   window._autoGlobeLock = true;
   setBaseLayer('globe');
   setTimeout(function(){ window._autoGlobeLock = false; }, 750);
@@ -1063,6 +1094,23 @@ map.addControl(new ManaLocateControl());
     try { localStorage.setItem(key, String(Math.round(val))); } catch (e) {}
   }
 
+  // MapLibre has no way to read the pixels missing after a container grows.
+  // Force a full repaint of the GL bridge so no grey gap is left behind.
+  function forceMapRepaint() {
+    if (typeof map === 'undefined' || !map) return;
+    map.invalidateSize();
+    var gl = typeof _getActiveGLMap === 'function' ? _getActiveGLMap() : null;
+    if (gl && typeof gl.resize === 'function') {
+      try { gl.resize(); } catch (e) {}
+      try {
+        var c = map.getCenter();
+        var z = map.getZoom();
+        gl.jumpTo({ center: [c.lng, c.lat], zoom: z });
+        gl.triggerRepaint();
+      } catch (e) {}
+    }
+  }
+
   function getSidebarWidth() {
     var sb = document.getElementById('sidebar');
     return sb ? sb.getBoundingClientRect().width : DEFAULT_LEFT;
@@ -1091,7 +1139,7 @@ map.addControl(new ManaLocateControl());
       handle.classList.add('handle-collapsed');
       handle.title = 'Doble clic para expandir';
       collapsed = true;
-      setTimeout(function () { sidebar.classList.remove('collapsing'); map.invalidateSize(); }, 220);
+      setTimeout(function () { sidebar.classList.remove('collapsing'); forceMapRepaint(); }, 220);
     }
 
     function expandSidebar() {
@@ -1106,7 +1154,7 @@ map.addControl(new ManaLocateControl());
       setTimeout(function () {
         sidebar.classList.remove('collapsing', 'sidebar-toolbar-only');
         sidebar.style.overflow = '';
-        map.invalidateSize();
+        forceMapRepaint();
       }, 220);
     }
 
@@ -1137,7 +1185,7 @@ map.addControl(new ManaLocateControl());
         var nw = Math.max(MIN_W, Math.min(MAX_W, startW + dx));
         sidebar.style.width = nw + 'px';
         sidebar.classList.toggle('sidebar-toolbar-only', nw <= TOOLBAR_W);
-        map.invalidateSize();
+        forceMapRepaint();
       }
       function onEnd() {
         handle.classList.remove('dragging');
@@ -1201,7 +1249,7 @@ map.addControl(new ManaLocateControl());
       handle.classList.add('handle-collapsed');
       handle.title = 'Doble clic para expandir';
       collapsed = true;
-      setTimeout(function () { chat.classList.remove('collapsing'); map.invalidateSize(); }, 220);
+      setTimeout(function () { chat.classList.remove('collapsing'); forceMapRepaint(); }, 220);
     }
 
     function expandChat() {
@@ -1218,7 +1266,7 @@ map.addControl(new ManaLocateControl());
       setTimeout(function () {
         chat.classList.remove('collapsing');
         chat.style.overflow = '';
-        map.invalidateSize();
+        forceMapRepaint();
       }, 220);
     }
 
@@ -1251,7 +1299,7 @@ map.addControl(new ManaLocateControl());
         var dx = getX(ev) - startX;
         var nw = Math.max(MIN_W, Math.min(MAX_W, startW - dx));
         app.style.setProperty('--right-w', nw + 'px');
-        map.invalidateSize();
+        forceMapRepaint();
       }
       function onEnd() {
         handle.classList.remove('dragging');
