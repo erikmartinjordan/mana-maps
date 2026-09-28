@@ -581,6 +581,127 @@
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // JSON-LD Dataset for individual map landing pages (?slug=<slug>)
+  // ═══════════════════════════════════════════════════════════════
+
+  function computeBBoxFromGeo(geo) {
+    if (!geo || !geo.features || !geo.features.length) return null;
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    geo.features.forEach(function(f) {
+      var geom = f && f.geometry;
+      if (!geom) return;
+      _collectAllCoords(geom.coordinates, function(x, y) {
+        if (x < minX) minX = x; if (x > maxX) maxX = x;
+        if (y < minY) minY = y; if (y > maxY) maxY = y;
+      });
+    });
+    return (isFinite(minX) && isFinite(maxX) && isFinite(minY) && isFinite(maxY))
+      ? [minX, minY, maxX, maxY]
+      : null;
+  }
+
+  function _collectAllCoords(coords, cb) {
+    if (!coords) return;
+    if (typeof coords[0] === 'number') { cb(coords[0], coords[1]); return; }
+    coords.forEach(function(c) { _collectAllCoords(c, cb); });
+  }
+
+  function injectDatasetJsonLd(item) {
+    if (!item) return;
+    var slug = item.slug || item.id;
+    var title = item.title || item.name || 'Mapa sin título';
+    var description = item.description || title;
+    var canonicalUrl = 'https://maña.com/gallery/?slug=' + encodeURIComponent(slug);
+
+    // spatialCoverage: derive bounding box from mapPreview or GeoJSON
+    var bbox = null;
+    if (item.mapPreview && item.mapPreview.bbox) {
+      bbox = item.mapPreview.bbox;
+    } else {
+      var geo = getPublishedGeo(item);
+      if (geo) bbox = computeBBoxFromGeo(geo);
+    }
+    var spatialCoverage;
+    if (bbox && bbox.length === 4) {
+      spatialCoverage = {
+        "@type": "Place",
+        "geo": {
+          "@type": "GeoShape",
+          "box": bbox[1] + " " + bbox[0] + " " + bbox[3] + " " + bbox[2]
+        }
+      };
+    } else {
+      spatialCoverage = { "@type": "Place", "name": "Mundo" };
+    }
+
+    // dateModified: prefer updatedAtMs, fallback to createdAtMs
+    var modMs = item.updatedAtMs || (item.updatedAt && item.updatedAt.toMillis ? item.updatedAt.toMillis() : 0)
+      || item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0)
+      || Date.now();
+    var dateModified = new Date(modMs).toISOString().split('T')[0];
+
+    var dataset = {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": title,
+      "description": description,
+      "url": canonicalUrl,
+      "spatialCoverage": spatialCoverage,
+      "creator": {
+        "@type": "Organization",
+        "name": "Maña Maps",
+        "url": "https://maña.com"
+      },
+      "dateModified": dateModified
+    };
+
+    if (item.dataSource) dataset.source = item.dataSource;
+    if (item.dataYear) dataset.temporalCoverage = String(item.dataYear);
+    if (Array.isArray(item.tags) && item.tags.length) dataset.keywords = item.tags;
+
+    // Inject <script type="application/ld+json"> with id="ld-dataset"
+    var existing = document.getElementById('ld-dataset');
+    if (existing) existing.remove();
+    var script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'ld-dataset';
+    script.textContent = JSON.stringify(dataset);
+    document.head.appendChild(script);
+
+    // Update <title>, canonical and meta tags for SEO
+    document.title = title + ' — Maña Maps';
+
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', description.length > 160 ? description.slice(0, 157) + '…' : description);
+
+    var canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', canonicalUrl);
+
+    var ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+
+    var ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', description.length > 200 ? description.slice(0, 197) + '…' : description);
+
+    var ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
+
+    var twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', title);
+
+    var twitterDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDesc) twitterDesc.setAttribute('content', description.length > 200 ? description.slice(0, 197) + '…' : description);
+  }
+
+  function handleSlugLanding(maps) {
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug');
+    if (!slug) return;
+    var item = maps.find(function(m) { return (m.slug || m.id) === slug; });
+    if (item) injectDatasetJsonLd(item);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // INIT + REALTIME
   // ═══════════════════════════════════════════════════════════════
 
@@ -596,6 +717,7 @@
     renderCatBar(merged);
     if (!_activeTags.length) renderCards(merged);
     syncJsonLdCount(merged.length);
+    handleSlugLanding(merged);
     subscribeToPublishedMaps(merged);
   }
 
@@ -630,6 +752,7 @@
         renderCatBar(mergedList);
         if (!_activeTags.length) renderCards(mergedList);
         syncJsonLdCount(mergedList.length);
+        handleSlugLanding(mergedList);
       }
 
       baseQuery
