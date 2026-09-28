@@ -25,7 +25,7 @@ function initGlobe() {
 
     globeMap.addControl(new maplibregl.NavigationControl({
       showCompass: true, showZoom: false
-    }), 'top-right');
+    }), 'top-left');
 
     globeMap.on('load', function() {
       globeMap.resize();
