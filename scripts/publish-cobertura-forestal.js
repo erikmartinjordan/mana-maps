@@ -220,6 +220,14 @@ async function main() {
   if (!fs.existsSync(geoPath)) { console.error('ERROR: GeoJSON not found at', geoPath); process.exit(1); }
   const geo = JSON.parse(fs.readFileSync(geoPath, 'utf8'));
   console.log(`Loaded ${geo.features.length} features from GeoJSON`);
+  // La Antártida no entra en el FRA/World Bank y se pinta como manchurrón gris
+  // "sin datos"; se descarta (defensivo, idempotente).
+  const beforeAntarctica = geo.features.length;
+  geo.features = geo.features.filter(f => {
+    const n = ((f.properties && (f.properties._manaName || f.properties.name)) || '').trim().toLowerCase();
+    return n !== 'antártida' && n !== 'antartida' && n !== 'antarctica';
+  });
+  if (geo.features.length !== beforeAntarctica) console.log(`Filtrada Antártida: ${beforeAntarctica} -> ${geo.features.length}`);
 
   // 2. Fetch World Bank data
   const wbData = await fetchForestData();
@@ -292,8 +300,8 @@ async function main() {
   const serverNow = { timestampValue: new Date().toISOString() };
   const docFields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
-    title: fsStr('Cobertura Forestal por País'),
-    name: fsStr('Cobertura Forestal por País'),
+    title: fsStr('Cobertura forestal por país'),
+    name: fsStr('Cobertura forestal por país'),
     description: fsStr('Mapa coroplético mundial de la cobertura forestal por país con datos de la FAO Global Forest Resources Assessment (vía Banco Mundial). Muestra el porcentaje de superficie terrestre cubierta por bosques en 180 países, desde Surinam (94,4%) hasta Egipto y Catar (0,0%).'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),

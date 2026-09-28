@@ -403,6 +403,17 @@
 
   function buildMapPreview(geo) {
     if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
+    // Flat-world: mapamundi equirectangular de borde a borde (globo desplegado a
+    // 2D). El fondo es la tierra (blanco) y las regiones de agua se pintan
+    // encima; así la tierra queda como hueco y no hace falta geometría de tierra.
+    if (geo.manaPreviewStyle === 'flat-world') {
+      var flatEntries = geo.features.map(function(feature) {
+        return { geometry: simplifyPreviewGeometry(feature && feature.geometry, 4000), color: featureColor(feature) };
+      }).filter(function(entry) { return !!entry.geometry; });
+      if (flatEntries.length) {
+        return { flatWorld: true, bbox: [-180, -90, 180, 90], kind: 'geometry', gridSize: null, cells: null, features: flatEntries };
+      }
+    }
     var bbox = geoBBox(geo);
     if (!bbox) return null;
     // Density grid only makes sense for point-heavy maps; for polygons/lines
@@ -491,8 +502,44 @@
     };
   }
 
+  // Flat-world (equirectangular): rectángulo completo, tierra de fondo y
+  // regiones de agua encima. Sin basemap estilizado ni márgenes.
+  function renderFlatWorldSVG(preview) {
+    var VW = 200, VH = 100;
+    var LAND = '#ffffff';
+    var body = '<rect x="0" y="0" width="' + VW + '" height="' + VH + '" fill="' + LAND + '"/>';
+    function px(lon) { return (lon + 180) / 360 * VW; }
+    function py(lat) { return (90 - lat) / 180 * VH; }
+    function ringPath(ring) {
+      var d = '';
+      for (var i = 0; i < ring.length; i++) {
+        var p = ring[i];
+        if (!p || p.length < 2) continue;
+        d += (d ? 'L' : 'M') + px(p[0]).toFixed(2) + ' ' + py(p[1]).toFixed(2);
+      }
+      return d ? d + 'Z' : '';
+    }
+    var fills = '';
+    (preview.features || []).forEach(function(entry) {
+      var raw = entry && entry.geometry; if (!raw) return;
+      var geom = Array.isArray(raw.coordinates) ? raw
+        : (typeof raw.coordinatesText === 'string' && raw.coordinatesText
+            ? { type: raw.type, coordinates: JSON.parse(raw.coordinatesText) } : null);
+      if (!geom) return;
+      var d = '';
+      if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(ring) { d += ringPath(ring); });
+      } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
+        geom.coordinates.forEach(function(poly) { (poly || []).forEach(function(ring) { d += ringPath(ring); }); });
+      }
+      if (d) fills += '<path d="' + d + '" fill="' + validColor(entry.color) + '" fill-rule="evenodd"/>';
+    });
+    return '<svg class="thumb-preview" viewBox="0 0 ' + VW + ' ' + VH + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + fills + '</svg>';
+  }
+
   function renderMapPreviewSVG(preview) {
     if (!preview || !Array.isArray(preview.bbox)) return '';
+    if (preview.flatWorld) return renderFlatWorldSVG(preview);
     var bbox = preview.bbox;
     var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
     var canvas = previewCanvas(bbox);
@@ -716,6 +763,7 @@
   // size their thumb box to match the map exactly and fill it edge to edge.
   function mapPreviewAspect(preview) {
     if (!preview || !Array.isArray(preview.bbox)) return 1.6;
+    if (preview.flatWorld) return 2;
     var canvas = previewCanvas(preview.bbox);
     if (!canvas) return 1.6;
     return canvas.viewW / canvas.viewH;
