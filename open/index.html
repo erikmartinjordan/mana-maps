@@ -329,15 +329,15 @@ loadData();
     var fdb = firebase.firestore();
     var since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     return fdb.collection('events')
-      .where('name', '==', 'sessionstart')
       .where('timestamp', '>=', since)
       .orderBy('timestamp', 'desc')
-      .limit(500)
+      .limit(1000)
       .get()
       .then(function(snap) {
         var users = [];
         snap.docs.forEach(function(d) {
           var data = d.data() || {};
+          if (data.name !== 'sessionstart') return;
           var loc = data.params && data.params.location;
           if (!loc || typeof loc.lat !== 'number' || typeof loc.lng !== 'number') return;
           var ts = data.timestamp && data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
