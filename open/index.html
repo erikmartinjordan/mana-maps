@@ -53,6 +53,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
@@ -125,6 +126,34 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .page-footer a:hover{color:var(--primary);}
 .footer-sub{margin-top:4px;font-size:11px;color:var(--third);}
 
+/* ── Live users 3D globe ── */
+.live-globe-section{margin-bottom:8px;}
+.live-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+.live-title{font-size:28px;font-weight:900;letter-spacing:-.5px;color:var(--primary);margin-bottom:6px;}
+.live-sub{font-size:15px;color:var(--third);line-height:1.6;max-width:560px;}
+.live-badge{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border);border-radius:50px;background:var(--bgBox);font-size:13px;color:var(--secondary);white-space:nowrap;flex-shrink:0;}
+.live-badge strong{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--primary);line-height:1;}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(22,163,74,.55);animation:livePulse 2s infinite;}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}70%{box-shadow:0 0 0 9px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+#globe{position:relative;width:100%;height:420px;min-height:420px;overflow:hidden;border:1px solid var(--border);border-radius:16px;background:radial-gradient(ellipse at 50% 50%,rgba(14,165,233,.07) 0%,transparent 60%),var(--bgBox);}
+#cobe-canvas{width:100%;height:100%;max-width:100%;display:block;touch-action:none;cursor:grab;}
+#cobe-canvas:active{cursor:grabbing;}
+.globe-emoji{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border-radius:50%;border:2px solid #fff;background:rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(15,23,42,.18);cursor:pointer;pointer-events:none;font-size:16px;line-height:1;will-change:left,top,opacity;opacity:var(--globe-vis,0);transition:opacity .12s linear,transform .12s ease;}
+.globe-emoji:hover{transform:translate(-50%,-50%) scale(1.18);}
+.globe-emoji:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+.globe-emoji-face{display:block;line-height:1;}
+.globe-popup{position:absolute;z-index:4;transform:translate(-50%,-100%);min-width:150px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.16);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;pointer-events:auto;}
+.globe-popup::after{content:'';position:absolute;left:50%;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:translateX(-50%) rotate(45deg);}
+.globe-popup-emoji{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--bgBox);}
+.globe-popup-country{font-size:11px;color:var(--third);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+.globe-popup-city{font-size:15px;font-weight:800;color:var(--primary);letter-spacing:-.01em;}
+.globe-popup-time{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:12px;color:var(--secondary);font-family:var(--mono);}
+.globe-popup-time svg{width:13px;height:13px;flex-shrink:0;color:var(--third);}
+.globe-fallback{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.globe-fallback.is-visible{position:absolute;z-index:3;inset:50% 24px auto;transform:translateY(-50%);width:auto;height:auto;margin:0;padding:16px;overflow:visible;clip:auto;white-space:normal;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.9);color:var(--third);text-align:center;font-size:14px;line-height:1.5;}
+.globe-noscript-fallback{position:absolute;z-index:3;inset:50% 24px auto;transform:translateY(-50%);margin:0;padding:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.9);color:var(--third);text-align:center;font-size:14px;line-height:1.5;}
+.globe-empty{position:absolute;z-index:3;inset:50% 24px auto;transform:translateY(-50%);margin:0;padding:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.9);color:var(--third);text-align:center;font-size:14px;line-height:1.5;}
+
 /* ── Mobile responsive (stats page) ── */
   @media (max-width: 640px) {
    #topbar { padding: 0 12px; gap: 8px; }
@@ -141,6 +170,11 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   .hero-text h1 { font-size: 22px; }
   .hero-text p { font-size: 13px; }
   .hero-hint { font-size: 12px; margin-bottom: 28px; }
+  .live-title { font-size: 22px; }
+  .live-sub { font-size: 13px; }
+  .live-badge { padding: 7px 12px; font-size: 12px; }
+  .live-badge strong { font-size: 16px; }
+  #globe { height: 320px; min-height: 320px; }
   .section h2 { font-size: 14px; }
   .hdivider { margin: 28px 0; }
   .kpi-card { padding: 14px 12px; }
@@ -182,17 +216,25 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   </div>
 </div>
 <div class="page">
-  <div class="hero">
-    <div class="hero-logo">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1" d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z" transform="translate(100 100)"/></svg>
-      <span>M&#771;</span>
+  <div class="section live-globe-section">
+    <div class="live-head">
+      <div>
+        <h1 class="live-title" data-i18n="open_live_title">Usuarios en vivo</h1>
+        <p class="live-sub" data-i18n="open_live_subtitle">Personas que han entrado en Ma&#241;a Maps en las &#250;ltimas 24 horas.</p>
+      </div>
+      <div class="live-badge">
+        <span class="live-dot" aria-hidden="true"></span>
+        <strong id="liveCount">0</strong>
+        <span data-i18n="open_live_users">usuarios en las &#250;ltimas 24 h</span>
+      </div>
     </div>
-    <div class="hero-text">
-      <h1 data-i18n="open_title">M&#233;tricas p&#250;blicas</h1>
-      <p data-i18n="open_subtitle">Datos reales de uso de Ma&#241;a Maps, actualizados en tiempo real.</p>
+    <div id="globe">
+      <canvas id="cobe-canvas" role="img" tabindex="0" aria-label="Mapa 3D de usuarios conectados en las últimas 24 horas" aria-describedby="globe-fallback" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown"></canvas>
+      <p id="globe-fallback" class="globe-fallback" role="status" aria-live="polite" data-i18n="open_live_fallback">Mapa 3D de usuarios conectados en las &#250;ltimas 24 horas. Arrastra o usa las flechas del teclado para girarlo.</p>
+      <noscript><p class="globe-noscript-fallback">Mapa 3D de usuarios conectados en las &#250;ltimas 24 horas. Activa JavaScript para verlo.</p></noscript>
+      <div id="globeEmpty" class="globe-empty" hidden data-i18n="open_live_empty">A&#250;n no hay conexiones registradas en las &#250;ltimas 24 horas.</div>
     </div>
   </div>
-  <p class="hero-hint" data-i18n="open_hint">Transparencia total. Sin m&#233;tricas inventadas, sin vanity metrics. Lo que ves es lo que hay.</p>
   <div class="hdivider"></div>
   <div class="section">
     <h2 data-i18n="open_summary">Resumen</h2>
@@ -251,6 +293,312 @@ async function loadData(){if(!db){document.getElementById('kpiGrid').innerHTML='
 var _chartCache=null;var _origBuild=buildBarChart;buildBarChart=function(data){_chartCache=data;_origBuild(data);};var _rTimer;window.addEventListener('resize',function(){clearTimeout(_rTimer);_rTimer=setTimeout(function(){if(_chartCache)_origBuild(_chartCache);},150);});
 renderSkeletonKPIs();renderSkeletonBreakdowns();
 loadData();
+</script>
+
+<script type="module">
+// ═══ Globo 3D de usuarios conectados (últimas 24 h) ═══
+// Lee los eventos `sessionstart` reales de Firestore. La ubicación aproximada
+// (país/ciudad/coords a nivel ciudad y hora local) la registra js/tracking.js.
+// Cada usuario: { lat, lng, city, country, time (hora de conexión) }.
+(function() {
+  var wrapper = document.getElementById('globe');
+  var canvas = document.getElementById('cobe-canvas');
+  var emptyEl = document.getElementById('globeEmpty');
+  var countEl = document.getElementById('liveCount');
+  if (!wrapper || !canvas) return;
+
+  var rect = wrapper.getBoundingClientRect();
+  var w = Math.max(Math.round(rect.width), 320);
+  var h = Math.max(Math.round(rect.height), 320);
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var liveUsers = [];
+
+  function buildMarkers() {
+    // Marcadores transparentes: solo sirven de ancla de posición para los
+    // emojis que superponemos (evita el punto azul de Cobe).
+    return liveUsers.map(function(u, i) {
+      return { location: [u.lat, u.lng], size: 0.05, color: [1, 1, 1], id: 'u' + i };
+    });
+  }
+
+  function readLiveUsers() {
+    var fbConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
+    if (typeof firebase === 'undefined' || !fbConfig) return Promise.resolve([]);
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(fbConfig);
+    var fdb = firebase.firestore();
+    var since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    return fdb.collection('events')
+      .where('name', '==', 'sessionstart')
+      .where('timestamp', '>=', since)
+      .orderBy('timestamp', 'desc')
+      .limit(500)
+      .get()
+      .then(function(snap) {
+        var users = [];
+        snap.docs.forEach(function(d) {
+          var data = d.data() || {};
+          var loc = data.params && data.params.location;
+          if (!loc || typeof loc.lat !== 'number' || typeof loc.lng !== 'number') return;
+          var ts = data.timestamp && data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+          var time = loc.time || (String(ts.getHours()).padStart(2, '0') + ':' + String(ts.getMinutes()).padStart(2, '0'));
+          users.push({ lat: loc.lat, lng: loc.lng, city: loc.city || '', country: loc.country || '', time: time });
+        });
+        return users;
+      })
+      .catch(function(err) {
+        console.warn('[open] live users load failed', err);
+        return [];
+      });
+  }
+
+  // Cobe solo pinta puntos/marcas, así que ponemos emojis de persona como
+  // etiquetas DOM ancladas a cada marcador (CSS Anchor Positioning soportado
+  // por la lib: --cobe-<id> / --cobe-visible-<id>).
+  var PERSON_EMOJIS = ['🧑', '👩', '👨', '👧', '👦', '🧔', '👩‍🦰', '👨‍🦱', '👩‍🦳', '👨‍🦰', '🧑‍🎤', '👳'];
+
+  function buildMarkerLabels() {
+    // Cobe dibuja un div ancla por marcador con su posición en pantalla
+    // (left/top en %) y una CSS var --cobe-visible-<id> en el host cuando es
+    // visible. Superponemos un emoji de persona (con círculo) que sigue esas
+    // coordenadas y, al clicarlo, muestra país / ciudad / hora.
+    var host = wrapper.querySelector('div') || wrapper;
+    var emojis = [];
+    var activePopup = null;
+
+    function closePopup() {
+      if (activePopup && activePopup.parentElement) activePopup.parentElement.removeChild(activePopup);
+      activePopup = null;
+      document.removeEventListener('click', onDocClick, true);
+    }
+
+    function onDocClick(e) {
+      if (activePopup && !activePopup.contains(e.target) && !e.target.closest('.globe-emoji')) closePopup();
+    }
+
+    function openPopup(el, user) {
+      closePopup();
+      var pop = document.createElement('div');
+      pop.className = 'globe-popup';
+      pop.setAttribute('role', 'dialog');
+      pop.innerHTML =
+        '<div class="globe-popup-emoji">' + (el.querySelector('.globe-emoji-face') || el).textContent + '</div>' +
+        '<div class="globe-popup-body">' +
+          '<div class="globe-popup-city">' + user.city + '</div>' +
+          '<div class="globe-popup-country">' + user.country + '</div>' +
+          '<div class="globe-popup-time">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' +
+            'Conexión: ' + user.time +
+          '</div>' +
+        '</div>';
+      wrapper.appendChild(pop);
+      activePopup = pop;
+
+      var wrapRect = wrapper.getBoundingClientRect();
+      var elRect = el.getBoundingClientRect();
+      var popRect = pop.getBoundingClientRect();
+      var left = elRect.left - wrapRect.left + elRect.width / 2;
+      var top = elRect.top - wrapRect.top;
+      left = Math.max(popRect.width / 2 + 8, Math.min(left, wrapRect.width - popRect.width / 2 - 8));
+      top = Math.max(popRect.height + 12, top);
+      pop.style.left = left + 'px';
+      pop.style.top = (top - 12) + 'px';
+
+      setTimeout(function() { document.addEventListener('click', onDocClick, true); }, 0);
+    }
+
+    function attach() {
+      var anchors = host.querySelectorAll('div[style*="anchor-name"]');
+      if (!anchors.length) {
+        requestAnimationFrame(attach);
+        return;
+      }
+      anchors.forEach(function(anchor, i) {
+        var user = liveUsers[i];
+        if (!user) return;
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'globe-emoji';
+        el.setAttribute('aria-label', (user.city ? user.city + ', ' : '') + user.country + '. Conexión: ' + user.time);
+        el.innerHTML = '<span class="globe-emoji-face">' + PERSON_EMOJIS[i % PERSON_EMOJIS.length] + '</span>';
+        el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openPopup(el, user);
+        });
+        host.appendChild(el);
+        emojis.push({ anchor: anchor, el: el, id: i });
+      });
+      wrapper.addEventListener('click', function() { /* keep clicks inside globe */ });
+      requestAnimationFrame(sync);
+    }
+
+    function sync() {
+      for (var i = 0; i < emojis.length; i++) {
+        var a = emojis[i].anchor;
+        var el = emojis[i].el;
+        var style = a.getAttribute('style') || '';
+        var mLeft = style.match(/left:\s*([\d.]+)%/);
+        var mTop = style.match(/top:\s*([\d.]+)%/);
+        if (mLeft) el.style.left = mLeft[1] + '%';
+        if (mTop) el.style.top = mTop[1] + '%';
+        var vis = getComputedStyle(host).getPropertyValue('--cobe-visible-u' + i);
+        el.style.setProperty('--globe-vis', vis ? '1' : '0');
+        el.style.pointerEvents = vis ? 'auto' : 'none';
+      }
+      if (activePopup) activePopup.style.setProperty('--globe-vis', '1');
+      requestAnimationFrame(sync);
+    }
+
+    requestAnimationFrame(attach);
+  }
+
+  var createGlobe = null;
+
+  function startGlobe() {
+    var globe = createGlobe(canvas, {
+      width: w * dpr,
+      height: h * dpr,
+      devicePixelRatio: dpr,
+      phi: 0,
+      theta: 0.25,
+      dark: 0,
+      diffuse: 1.2,
+      mapSamples: 20000,
+      mapBrightness: 5,
+      mapBaseBrightness: 0,
+      baseColor: [0.96, 0.96, 0.97],
+      glowColor: [0.04, 0.52, 1],
+      markerColor: [0.04, 0.52, 1],
+      markerElevation: 0.03,
+      markers: buildMarkers(),
+      opacity: 1,
+      scale: 1.05
+    });
+
+    var phi = 0;
+    var theta = 0.25;
+    var targetPhi = phi;
+    var targetTheta = theta;
+    var velocityPhi = 0;
+    var velocityTheta = 0;
+    var spinActive = true;
+    var spinRAF = null;
+    var idleTimer = null;
+    var userInteracted = false;
+    var isDragging = false;
+
+    function animate() {
+      if (spinActive) targetPhi += reduceMotion ? 0 : 0.003;
+      else if (!isDragging) {
+        targetPhi += velocityPhi;
+        targetTheta = Math.max(-1.1, Math.min(1.1, targetTheta + velocityTheta));
+        velocityPhi *= 0.94;
+        velocityTheta *= 0.94;
+      }
+      phi += (targetPhi - phi) * 0.22;
+      theta += (targetTheta - theta) * 0.22;
+      globe.update({ phi: phi, theta: theta });
+      spinRAF = requestAnimationFrame(animate);
+    }
+    animate();
+
+    var isDown = false;
+    var lastX = 0;
+    var lastY = 0;
+
+    function onDown(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      isDown = true;
+      isDragging = true;
+      userInteracted = true;
+      if (spinActive) spinActive = false;
+      clearTimeout(idleTimer);
+      velocityPhi = 0;
+      velocityTheta = 0;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!isDown) return;
+      var samples = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      samples.forEach(function(sample) {
+        var dx = sample.clientX - lastX;
+        var dy = sample.clientY - lastY;
+        velocityPhi = velocityPhi * 0.65 + (dx * 0.005) * 0.35;
+        velocityTheta = velocityTheta * 0.65 + (dy * 0.004) * 0.35;
+        targetPhi += dx * 0.005;
+        targetTheta = Math.max(-1.1, Math.min(1.1, targetTheta + dy * 0.004));
+        lastX = sample.clientX;
+        lastY = sample.clientY;
+      });
+      e.preventDefault();
+    }
+
+    function onUp(e) {
+      isDown = false;
+      isDragging = false;
+      if (e && canvas.releasePointerCapture && canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)) {
+        canvas.releasePointerCapture(e.pointerId);
+      }
+      idleTimer = setTimeout(function() { if (userInteracted) spinActive = true; }, 3000);
+    }
+
+    function onKeyDown(e) {
+      var stepPhi = 0.14;
+      var stepTheta = 0.1;
+      var handled = true;
+      if (e.key === 'ArrowLeft') targetPhi -= stepPhi;
+      else if (e.key === 'ArrowRight') targetPhi += stepPhi;
+      else if (e.key === 'ArrowUp') targetTheta = Math.max(-1.1, targetTheta - stepTheta);
+      else if (e.key === 'ArrowDown') targetTheta = Math.min(1.1, targetTheta + stepTheta);
+      else handled = false;
+      if (!handled) return;
+      e.preventDefault();
+      userInteracted = true;
+      isDragging = false;
+      spinActive = false;
+      velocityPhi = 0;
+      velocityTheta = 0;
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function() { spinActive = true; }, 3000);
+    }
+
+    canvas.addEventListener('pointerdown', onDown);
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerup', onUp);
+    canvas.addEventListener('pointercancel', onUp);
+    canvas.addEventListener('keydown', onKeyDown);
+    window.addEventListener('blur', onUp);
+
+    window.addEventListener('resize', function() {
+      var r = wrapper.getBoundingClientRect();
+      var nw = Math.max(Math.round(r.width), 320);
+      var nh = Math.max(Math.round(r.height), 320);
+      globe.update({ width: nw * dpr, height: nh * dpr });
+    });
+  }
+
+  import('https://esm.sh/cobe').then(function(mod) {
+    createGlobe = mod.default;
+    return readLiveUsers();
+  }).then(function(users) {
+    liveUsers = users || [];
+    if (countEl) countEl.textContent = String(liveUsers.length);
+    if (!liveUsers.length) {
+      if (emptyEl) emptyEl.hidden = false;
+      return;
+    }
+    startGlobe();
+    buildMarkerLabels();
+  }).catch(function(error) {
+    var fallback = document.getElementById('globe-fallback');
+    if (fallback) fallback.classList.add('is-visible');
+    console.warn('No se pudo cargar el globo 3D de usuarios; se muestra el fallback textual.', error);
+  });
+})();
 </script>
 </body>
 </html>

@@ -35,8 +35,51 @@
   // Expose globally
   window.trackEvent = track;
 
+  // ── 0. Approximate location (IP → country/city) ──
+  // Solo se guarda país, ciudad, coords redondeadas a nivel ciudad y la hora
+  // local de conexión. Nunca se almacena la IP. Si el servicio falla, el
+  // evento se registra sin ubicación.
+  function roundCoord(n) {
+    var v = Number(n);
+    if (!isFinite(v)) return null;
+    return Math.round(v * 100) / 100;
+  }
+
+  function localTime(date) {
+    return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+  }
+
+  function fetchApproxLocation() {
+    if (typeof fetch !== 'function') return Promise.resolve(null);
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = controller ? setTimeout(function() { controller.abort(); }, 4000) : null;
+    return fetch('https://ipwho.is/', controller ? { signal: controller.signal } : undefined)
+      .then(function(res) { return res.ok ? res.json() : null; })
+      .then(function(data) {
+        if (timer) clearTimeout(timer);
+        if (!data || data.success === false) return null;
+        if (typeof data.latitude !== 'number' || typeof data.longitude !== 'number') return null;
+        var city = (data.city || '').trim();
+        var country = (data.country || '').trim();
+        if (!city && !country) return null;
+        return {
+          country: country,
+          city: city,
+          lat: roundCoord(data.latitude),
+          lng: roundCoord(data.longitude),
+          time: localTime(new Date())
+        };
+      })
+      .catch(function() {
+        if (timer) clearTimeout(timer);
+        return null;
+      });
+  }
+
   // ── 1. Session start ──
-  track('sessionstart');
+  fetchApproxLocation().then(function(loc) {
+    track('sessionstart', loc ? { location: loc } : {});
+  });
 
   // ── 2. Export — wrap exportAs ──
   // exportAs is a function declaration → available both as global and window.*
