@@ -175,12 +175,12 @@ function syncToGlobe() {
   var _isDarkGlobe = (typeof isDarkMapTheme === 'function' && isDarkMapTheme());
   globeMap.addLayer({
     id: 'drawn-fills', type: 'fill', source: 'drawn',
-    filter: ['==', ['get', '_type'], 'Polygon'],
+    filter: ['in', ['get', '_type'], ['literal', ['Polygon', 'MultiPolygon']]],
     paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['coalesce', ['get', '_manaFillOpacity'], _isDarkGlobe ? 0.32 : 0.25] }
   });
   globeMap.addLayer({
     id: 'drawn-lines', type: 'line', source: 'drawn',
-    filter: ['any', ['==', ['get', '_type'], 'LineString'], ['==', ['get', '_type'], 'Polygon']],
+    filter: ['in', ['get', '_type'], ['literal', ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon']]],
     paint: { 'line-color': ['coalesce', ['get', '_manaBorderColor'], ['get', 'color']], 'line-width': 2.5 }
   });
   // Separate circle vs emoji points so fire/water stickers keep their shape in 3D
