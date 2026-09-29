@@ -447,13 +447,17 @@
       if (emoji) entry.emoji = emoji;
       return entry;
     }).filter(function(entry) { return !!entry.geometry; });
-    return (cells.length || entries.length) ? {
+    var result = (cells.length || entries.length) ? {
       bbox: bbox,
       kind: cells.length ? 'density-grid' : 'geometry',
       gridSize: cells.length ? PREVIEW_DENSITY_GRID_SIZE : null,
       cells: cells.length ? cells : null,
       features: entries
     } : null;
+    // Optional per-map preview theme (currently 'dark' for the Barcelona
+    // libraries map). Declared on the GeoJSON as `manaPreviewStyle`.
+    if (result && geo.manaPreviewStyle === 'dark') result.theme = 'dark';
+    return result;
   }
 
   // ── SVG rendering (Web Mercator, aspect-correct, styled) ─────────────────
@@ -505,12 +509,11 @@
     };
   }
 
-  // Flat-world (equirectangular): rectángulo completo, tierra de fondo y
-  // regiones de agua encima. Sin basemap estilizado ni márgenes.
+  // Flat-world (equirectangular): full rectangle, land as background and water
+  // regions on top. A single ocean gradient + a soft coastal halo + light tints
+  // per sea avoids the harsh straight seams of the raw Natural Earth polygons.
   function renderFlatWorldSVG(preview) {
     var VW = 200, VH = 100;
-    var LAND = '#ffffff';
-    var body = '<rect x="0" y="0" width="' + VW + '" height="' + VH + '" fill="' + LAND + '"/>';
     function px(lon) { return (lon + 180) / 360 * VW; }
     function py(lat) { return (90 - lat) / 180 * VH; }
     function ringPath(ring) {
@@ -522,7 +525,8 @@
       }
       return d ? d + 'Z' : '';
     }
-    var fills = '';
+    var allD = '';
+    var tints = '';
     (preview.features || []).forEach(function(entry) {
       var raw = entry && entry.geometry; if (!raw) return;
       var geom = Array.isArray(raw.coordinates) ? raw
@@ -535,9 +539,24 @@
       } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
         geom.coordinates.forEach(function(poly) { (poly || []).forEach(function(ring) { d += ringPath(ring); }); });
       }
-      if (d) fills += '<path d="' + d + '" fill="' + validColor(entry.color) + '" fill-rule="evenodd"/>';
+      if (!d) return;
+      allD += d;
+      tints += '<path d="' + d + '" fill="' + validColor(entry.color) + '" fill-rule="evenodd"/>';
     });
-    return '<svg class="thumb-preview" viewBox="0 0 ' + VW + ' ' + VH + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + fills + '</svg>';
+
+    var id = ++_bgClipId;
+    var defs = '<defs>' +
+      '<linearGradient id="mfw-ocean-' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#0a4a80"/><stop offset="0.5" stop-color="#1466a1"/><stop offset="1" stop-color="#1d74ad"/></linearGradient>' +
+      '<filter id="mfw-shelf-' + id + '" x="-12%" y="-24%" width="124%" height="148%"><feGaussianBlur stdDeviation="1.5"/></filter>' +
+      '</defs>';
+    var land = '<rect x="0" y="0" width="' + VW + '" height="' + VH + '" fill="#f7f4ec"/>';
+    var shelf = allD ? '<path d="' + allD + '" fill="#8fc4e5" filter="url(#mfw-shelf-' + id + ')" opacity="0.55"/>' : '';
+    var ocean = allD ? '<path d="' + allD + '" fill="url(#mfw-ocean-' + id + ')"/>' : '';
+    var tint = tints ? '<g opacity="0.38">' + tints + '</g>' : '';
+
+    return '<svg class="thumb-preview" viewBox="0 0 ' + VW + ' ' + VH + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+      defs + land + shelf + ocean + tint + '</svg>';
   }
 
   function renderMapPreviewSVG(preview) {
@@ -559,6 +578,23 @@
 
     // Stroke scale: relative to canvas so previews look consistent at any aspect.
     var unit = Math.min(viewW, viewH) / 100;
+
+    // ── Dark preview theme (per-map, declared as `manaPreviewStyle: 'dark'`) ──
+    var dark = preview.theme === 'dark';
+    var darkGlowId = null;
+    function renderDarkBackground() {
+      darkGlowId = 'mana-darkglow-' + (++_bgClipId);
+      var radius = Math.min(viewW, viewH) * 0.02;
+      return '<defs>' +
+        '<linearGradient id="' + darkGlowId + '-bg" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#0c1a31"/><stop offset="1" stop-color="#16294b"/></linearGradient>' +
+        '<filter id="' + darkGlowId + '" x="-60%" y="-60%" width="220%" height="220%">' +
+        '<feGaussianBlur stdDeviation="' + (1.1 * unit).toFixed(2) + '" result="b"/>' +
+        '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+        '</defs>' +
+        '<rect x="0" y="0" width="' + viewW.toFixed(2) + '" height="' + viewH.toFixed(2) +
+        '" rx="' + radius.toFixed(2) + '" fill="url(#' + darkGlowId + '-bg)"/>';
+    }
 
     // Shared simplified world-land silhouette, lazily injected once into the
     // document as a hidden <path id="mana-land-path"> referenced via <use>.
@@ -680,7 +716,7 @@
       return d ? d + (close ? ' Z' : '') : '';
     }
 
-    var body = renderVectorBackground() + renderDensityCells();
+    var body = (dark ? renderDarkBackground() : renderVectorBackground()) + renderDensityCells();
 
     if (Array.isArray(preview.features)) {
       // Two passes: fills first, then lines, then points (proper layering).
@@ -691,21 +727,30 @@
         var stroke = validColor(entry.color);
         // Honour per-feature fill opacity so choropleths keep their ramp and
         // outline-only boundaries (fillOpacity 0) are not painted over.
-        var polyFill = (typeof entry.fillOpacity === 'number')
-          ? Math.max(0, Math.min(0.4, entry.fillOpacity))
-          : 0.24;
+        var isOutline = entry.fillOpacity === 0;
+        var fillOpacity = (typeof entry.fillOpacity === 'number') ? entry.fillOpacity : 0.5;
+        var polyFill = dark
+          ? (isOutline ? 0 : Math.max(0, Math.min(0.7, fillOpacity)))
+          : (typeof entry.fillOpacity === 'number' ? Math.max(0, Math.min(0.4, entry.fillOpacity)) : 0.24);
+        // Preview polygons: districts are distinguished by fill only (no heavy
+        // borders); outline-only features (city limit) get a thin light stroke.
+        var polyStroke = dark ? (isOutline ? '#7dd3fc' : '#93c5fd') : (isOutline ? '#b6c2d1' : 'none');
+        var polyStrokeW = dark
+          ? (isOutline ? 1.1 * unit : 0.5 * unit)
+          : (isOutline ? 0.6 * unit : 0);
+        var polyStrokeOp = dark ? 0.95 : (isOutline ? 0.7 : 0);
+        var polyAttrs = ' fill="' + stroke + '" fill-opacity="' + polyFill.toFixed(2) + '" stroke="' + polyStroke +
+          '" stroke-opacity="' + polyStrokeOp.toFixed(2) + '" stroke-width="' + polyStrokeW.toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"';
         var i, p;
         if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
           var d = '';
           geom.coordinates.forEach(function(ring) { d += lineToPath(ring, true); });
-          if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="' + polyFill.toFixed(2) + '" stroke="' + stroke +
-            '" stroke-opacity="0.92" stroke-width="' + (1.4 * unit).toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>';
+          if (d) fills += '<path d="' + d + '"' + polyAttrs + '/>';
         } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
           geom.coordinates.forEach(function(poly) {
             var d = '';
             poly.forEach(function(ring) { d += lineToPath(ring, true); });
-            if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="' + polyFill.toFixed(2) + '" stroke="' + stroke +
-              '" stroke-opacity="0.92" stroke-width="' + (1.4 * unit).toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>';
+            if (d) fills += '<path d="' + d + '"' + polyAttrs + '/>';
           });
         } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {
           var dl = lineToPath(geom.coordinates, false);
@@ -727,11 +772,16 @@
             var emojiChar = entry.emoji || '';
             if (emojiChar) {
               var emojiSize = (7 * unit).toFixed(2);
-              points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.2 * unit).toFixed(2) +
-                '" fill="#ffffff" fill-opacity="0.85"/>' +
-                '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.2 * unit).toFixed(2) +
-                '" fill="' + stroke + '" fill-opacity="0.2"/>' +
-                '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '">' + emojiChar + '</text>';
+              var glow = (dark && darkGlowId) ? ' filter="url(#' + darkGlowId + ')"' : '';
+              if (!dark) {
+                // White "sticker" wrap around the icon, with a soft translucent
+                // halo. No delimiting ring.
+                points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.9 * unit).toFixed(2) +
+                  '" fill="#ffffff" fill-opacity="0.45"/>' +
+                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.1 * unit).toFixed(2) +
+                  '" fill="#ffffff"/>';
+              }
+              points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '"' + glow + '>' + emojiChar + '</text>';
             } else {
               points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.6 * unit).toFixed(2) +
                 '" fill="#ffffff" fill-opacity="0.9"/>' +

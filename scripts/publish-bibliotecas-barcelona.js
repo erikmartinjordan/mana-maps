@@ -479,7 +479,9 @@ function buildMapPreview(geo) {
     if (typeof props._manaFillOpacity === 'number') entry.fillOpacity = props._manaFillOpacity;
     return entry;
   });
-  return { bbox, kind: 'geometry', gridSize: null, cells: null, features: previewFeatures };
+  const preview = { bbox, kind: 'geometry', gridSize: null, cells: null, features: previewFeatures };
+  if (geo.manaPreviewStyle === 'dark') preview.theme = 'dark';
+  return preview;
 }
 
 async function main() {
@@ -528,6 +530,7 @@ async function main() {
     mapPreview: fsMap({
       bbox: { arrayValue: { values: preview.bbox.map(v => fsNum(v)) } },
       kind: fsStr(preview.kind),
+      theme: preview.theme ? fsStr(preview.theme) : fsNull(),
       gridSize: preview.gridSize == null ? fsNull() : fsInt(preview.gridSize),
       cells: preview.cells ? fsArr(preview.cells) : fsNull(),
       features: { arrayValue: { values: preview.features.map(pf => fsMap({
