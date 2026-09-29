@@ -801,6 +801,8 @@ function _renderLayerLabelPanel(gid) {
   const opacity = document.getElementById('lctx-label-opacity');
   const offsetX = document.getElementById('lctx-label-offset-x');
   const offsetY = document.getElementById('lctx-label-offset-y');
+  const placement = document.getElementById('lctx-label-placement');
+  if (placement) placement.value = style.placement || 'auto';
   if (size) size.value = style.fontSize;
   if (color) color.value = style.color;
   if (haloColor) haloColor.value = style.haloColor;
@@ -838,6 +840,7 @@ function _readLabelPanelStyle() {
     opacity: ((document.getElementById('lctx-label-opacity') && document.getElementById('lctx-label-opacity').value) || 100) / 100,
     offsetX: document.getElementById('lctx-label-offset-x') && document.getElementById('lctx-label-offset-x').value,
     offsetY: document.getElementById('lctx-label-offset-y') && document.getElementById('lctx-label-offset-y').value,
+    placement: (document.getElementById('lctx-label-placement') && document.getElementById('lctx-label-placement').value) || 'auto',
   };
 }
 

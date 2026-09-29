@@ -175,6 +175,7 @@ var MK = [
   { id:'emoji_school',      cat:'emoji', es:'Escuela 🏫',      en:'School 🏫',               e:'🏫',  emoji:true },
   { id:'emoji_church',      cat:'emoji', es:'Iglesia ⛪',       en:'Church ⛪',               e:'⛪',   emoji:true },
   { id:'emoji_museum',      cat:'emoji', es:'Museo 🏛️',        en:'Museum 🏛️',              e:'🏛️',  emoji:true },
+  { id:'emoji_library',     cat:'emoji', es:'Biblioteca 📚',    en:'Library 📚',              e:'📚',  emoji:true },
   { id:'emoji_hotel',       cat:'emoji', es:'Hotel 🏨',        en:'Hotel 🏨',                e:'🏨',  emoji:true },
   { id:'emoji_store',       cat:'emoji', es:'Tienda 🏪',       en:'Store 🏪',                e:'🏪',  emoji:true },
   { id:'emoji_bank',        cat:'emoji', es:'Banco 🏦',        en:'Bank 🏦',                 e:'🏦',  emoji:true },

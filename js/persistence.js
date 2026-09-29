@@ -147,12 +147,15 @@ async function _importRestoredGeoJSON(geo) {
       if (g.type === 'Point') {
         const ll = [g.coordinates[1], g.coordinates[0]];
         const restoredMarkerType = props._manaMarkerType || props.markerType || markerType;
-        const emojiSz = restoredMarkerType.indexOf('emoji_') === 0 ? _emojiSizeFromArea(_parseArea(props.Area)) : null;
+        const emojiSz = restoredMarkerType.indexOf('emoji_') === 0
+          ? (props._manaEmojiSize || _emojiSizeFromArea(_parseArea(props.Area)))
+          : null;
         const icon = makeMarkerIcon(color, restoredMarkerType, emojiSz);
         layer = L.marker(ll, { icon });
         layer._manaName = name;
         layer._manaColor = color;
         layer._manaMarkerType = restoredMarkerType;
+        if (emojiSz) layer._manaEmojiSize = emojiSz;
         const ptAttrs = _extractUserAttrs(props);
         if (ptAttrs) layer._manaProperties = ptAttrs;
         layer.bindPopup('<strong>' + name + '</strong>');

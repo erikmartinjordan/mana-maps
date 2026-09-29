@@ -112,7 +112,9 @@ function fsBool(v) { return { booleanValue: !!v }; }
 function fsNum(v) { return Number.isInteger(v) ? fsInt(v) : { doubleValue: v }; }
 function fsArr(arr) { return { arrayValue: { values: arr.map(v => (typeof v === 'string') ? fsStr(v) : v) } }; }
 function fsNull() { return { nullValue: null }; }
-function fsMap(obj) { const fields = {}; for (const [k, v] of Object.entries(obj)) { if (v === null || v === undefined) fields[k] = fsNull(); else if (typeof v === 'string') fields[k] = fsStr(v); else if (typeof v === 'number') fields[k] = fsNum(v); else if (typeof v === 'boolean') fields[k] = fsBool(v); else if (Array.isArray(v)) fields[k] = fsArr(v); else if (typeof v === 'object') fields[k] = fsMap(v); else fields[k] = fsStr(String(v)); } return { mapValue: { fields } }; }
+const FS_VALUE_KEYS = ['stringValue', 'integerValue', 'doubleValue', 'booleanValue', 'nullValue', 'mapValue', 'arrayValue', 'timestampValue'];
+function isFsValue(v) { return v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 1 && FS_VALUE_KEYS.indexOf(Object.keys(v)[0]) !== -1; }
+function fsMap(obj) { const fields = {}; for (const [k, v] of Object.entries(obj)) { if (isFsValue(v)) fields[k] = v; else if (v === null || v === undefined) fields[k] = fsNull(); else if (typeof v === 'string') fields[k] = fsStr(v); else if (typeof v === 'number') fields[k] = fsNum(v); else if (typeof v === 'boolean') fields[k] = fsBool(v); else if (Array.isArray(v)) fields[k] = fsArr(v); else if (typeof v === 'object') fields[k] = fsMap(v); else fields[k] = fsStr(String(v)); } return { mapValue: { fields } }; }
 
 // ── District color palette (warm sequential by district density) ──
 const DISTRICT_COLORS = {
@@ -175,24 +177,100 @@ function extractStreetAddress(r) {
   return '';
 }
 
+// Cleans the network's equipment name and fixes the known "J.V. Foix" entry.
+function normalizeLibraryName(name) {
+  const clean = String(name || 'Biblioteca')
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return clean.replace(/^Biblioteca Sarrià J\.?\s*V\.?\s*Foix$/i, 'Biblioteca Sarrià - J. V. Foix');
+}
+
+// Barcelona postal codes are 5 digits and start with 08. The inventory stores
+// some without the leading zero and a couple are truncated, so normalize and
+// drop the invalid ones.
+function normalizeZip(zip) {
+  const digits = String(zip == null ? '' : zip).replace(/\D/g, '');
+  let code = '';
+  if (digits.length === 4) code = '0' + digits;
+  else if (digits.length === 5) code = digits;
+  if (!/^08\d{3}$/.test(code) || code === '08000') return '';
+  return code;
+}
+
+// Barcelona city bounding box (with margin) used to reject broken coordinates.
+const BARCELONA_BBOX = { minLat: 41.2, maxLat: 41.6, minLon: 1.9, maxLon: 2.4 };
+
+function insideBarcelona(lat, lon) {
+  return !isNaN(lat) && !isNaN(lon)
+    && lat >= BARCELONA_BBOX.minLat && lat <= BARCELONA_BBOX.maxLat
+    && lon >= BARCELONA_BBOX.minLon && lon <= BARCELONA_BBOX.maxLon;
+}
+
+// Enriches a library with the closest address from the "biblioteques i museus"
+// inventory (the network dataset has no street address). Only used when the
+// nearest record is within 150 m so we never attach a wrong address.
+function nearestAddressRecord(lon, lat, records) {
+  let best = null, bestDist = Infinity;
+  for (const r of records) {
+    const rlon = parseFloat(r.geo_epgs_4326_lon);
+    const rlat = parseFloat(r.geo_epgs_4326_lat);
+    if (!insideBarcelona(rlat, rlon)) continue;
+    const dx = (lon - rlon) * Math.cos((lat * Math.PI) / 180) * 111000;
+    const dy = (lat - rlat) * 111000;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (d < bestDist) { bestDist = d; best = r; }
+  }
+  return bestDist <= 150 ? best : null;
+}
+
+// Sequential monochromatic ramp (light → dark) for the choropleth.
+const CHORO_RAMP = ['#eff6ff', '#bfdbfe', '#60a5fa', '#2563eb', '#1e3a8a'];
+function choroColor(value, min, max) {
+  if (max <= min) return CHORO_RAMP[CHORO_RAMP.length - 1];
+  const t = (value - min) / (max - min);
+  const idx = Math.max(0, Math.min(CHORO_RAMP.length - 1, Math.round(t * (CHORO_RAMP.length - 1))));
+  return CHORO_RAMP[idx];
+}
+
 // ── Build GeoJSON ────────────────────────────────────────────
 async function buildGeoJSON() {
-  // 1. Fetch all libraries from Barcelona open data
-  console.log('Fetching Barcelona libraries from Opèndata Ajuntament...');
   const resourceUrl = 'https://opendata-ajuntament.barcelona.cat/data/api/3/action/datastore_search';
-  const filterParam = encodeURIComponent(JSON.stringify({ secondary_filters_name: 'Biblioteques' }));
-  const fields = '_id,name,institution_name,addresses_road_name,addresses_start_street_number,addresses_district_name,addresses_neighborhood_name,addresses_zip_code,geo_epgs_4326_lat,geo_epgs_4326_lon';
-  const apiUrl = `${resourceUrl}?resource_id=d4803f9b-5f01-48d5-aeef-4ebbd76c5fd7&filters=${filterParam}&limit=300&fields=${fields}`;
 
-  const data = await fetchJson(apiUrl);
-  if (!data.success) throw new Error('API request failed');
-  const records = data.result.records;
-  console.log(`Fetched ${records.length} library records`);
+  // 1. Authoritative public-library network of Barcelona (Biblioteques de
+  // Barcelona). The generic "library or study room" inventory also contains
+  // museums, associations, churches and clubs, so we use the official network.
+  console.log('Fetching Biblioteques de Barcelona network from Opèndata...');
+  const xarxaFields = 'Latitud,Longitud,Nom_Equipament,Titularitat,Nom_Districte,Nom_Barri,Tipus_Us';
+  const xarxaUrl = `${resourceUrl}?resource_id=9dbd5010-970d-4308-89ec-4088a90ea9d8&limit=500&fields=${xarxaFields}`;
+  const xarxa = await fetchJson(xarxaUrl);
+  if (!xarxa.success) throw new Error('Libraries network API request failed');
 
-  // 2. Count libraries per district
+  const byName = new Map();
+  for (const r of xarxa.result.records) {
+    if (r.Tipus_Us !== 'Biblioteques de Barcelona' || !r.Nom_Equipament) continue;
+    if (!byName.has(r.Nom_Equipament)) byName.set(r.Nom_Equipament, r);
+  }
+  const records = [...byName.values()];
+  console.log(`Fetched ${xarxa.result.records.length} rows -> ${records.length} libraries`);
+
+  // 2. Address inventory (the network dataset has no street). Used only to
+  // enrich popups by matching the closest record.
+  const addrFields = 'addresses_road_name,addresses_start_street_number,addresses_district_name,addresses_neighborhood_name,addresses_zip_code,geo_epgs_4326_lat,geo_epgs_4326_lon,institution_name,name';
+  const addrFilter = encodeURIComponent(JSON.stringify({ secondary_filters_name: 'Biblioteques' }));
+  const addrUrl = `${resourceUrl}?resource_id=d4803f9b-5f01-48d5-aeef-4ebbd76c5fd7&filters=${addrFilter}&limit=300&fields=${addrFields}`;
+  let addressRecords = [];
+  try {
+    const addr = await fetchJson(addrUrl);
+    if (addr.success) addressRecords = addr.result.records;
+  } catch (e) {
+    console.warn('address inventory unavailable:', e.message);
+  }
+
+  // 3. Count libraries per district
   const districtCounts = {};
   for (const r of records) {
-    const d = (r.addresses_district_name || '').trim();
+    const d = (r.Nom_Districte || '').trim();
     districtCounts[d] = (districtCounts[d] || 0) + 1;
   }
   console.log('Libraries per district:');
@@ -200,33 +278,19 @@ async function buildGeoJSON() {
     console.log(`  ${d || '(sin distrito)'}: ${c}`);
   }
 
-  // 3. Build GeoJSON features
+  // 4. Build GeoJSON features
   const geo = { type: 'FeatureCollection', features: [] };
   const seenNames = new Set();
 
   for (const r of records) {
-    const lat = parseFloat(r.geo_epgs_4326_lat);
-    const lon = parseFloat(r.geo_epgs_4326_lon);
-    if (isNaN(lat) || isNaN(lon)) continue;
-    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) continue;
-
-    const district = (r.addresses_district_name || '').trim();
-    const neighborhood = (r.addresses_neighborhood_name || '').trim();
-    const institution = (r.institution_name || '').trim();
-    const street = extractStreetAddress(r);
-    const zip = r.addresses_zip_code || '';
-
-    // Build display name: prefer institution name over generic "Biblioteca"
-    let displayName = r.name || 'Biblioteca';
-    if (institution && institution !== displayName) {
-      displayName = `${institution}`;
-    } else if (displayName === 'Biblioteca' || displayName === 'CRAI - Biblioteca') {
-      // Try to use institution as name
-      if (institution) displayName = institution;
-      else if (neighborhood) displayName = `Biblioteca ${neighborhood}`;
+    const lat = parseFloat(r.Latitud);
+    const lon = parseFloat(r.Longitud);
+    if (!insideBarcelona(lat, lon)) {
+      console.warn(`  skipped library outside Barcelona: ${r.Nom_Equipament}`);
+      continue;
     }
 
-    // Ensure unique names
+    const displayName = normalizeLibraryName(r.Nom_Equipament);
     let uniqueName = displayName;
     let dup = 1;
     while (seenNames.has(uniqueName)) {
@@ -235,13 +299,21 @@ async function buildGeoJSON() {
     }
     seenNames.add(uniqueName);
 
+    const district = (r.Nom_Districte || '').trim();
+    const neighborhood = (r.Nom_Barri || '').trim();
+    const holder = (r.Titularitat || '').trim();
+
+    const addr = nearestAddressRecord(lon, lat, addressRecords) || {};
+    const street = extractStreetAddress(addr);
+    const zip = normalizeZip(addr.addresses_zip_code);
+
     const districtCount = districtCounts[district] || 0;
     const districtPop = DISTRICT_POP[district] || 150000;
     const density = districtCount > 0 ? (districtCount / (districtPop / 100000)).toFixed(1) : '0';
     const color = DISTRICT_COLORS[district] || '#94a3b8';
 
     const addressParts = [street, district ? `Dist. ${district}` : '', neighborhood].filter(Boolean).join(', ');
-    const description = `Biblioteca${institution ? ' — ' + institution : ''}${addressParts ? '. ' + addressParts : ''}${zip ? ' (' + zip + ')' : ''}. ${districtCount} bibliotecas en ${district || 'Barcelona'}.`;
+    const description = `Biblioteca pública ${displayName}${addressParts ? '. ' + addressParts : ''}${zip ? ' (' + zip + ')' : ''}. ${districtCount} bibliotecas de la red en ${district || 'Barcelona'}.`;
 
     const feature = {
       type: 'Feature',
@@ -255,10 +327,12 @@ async function buildGeoJSON() {
         _manaGroupName: 'Bibliotecas de Barcelona',
         _manaGroupId: 1,
         _manaGeometryType: 'point',
+        _manaMarkerType: 'emoji_library',
+        _manaEmojiSize: 24,
         _manaLabelStyle: {
           enabled: true,
           field: '_manaName',
-          fontFamily: 'DM Sans, sans-serif',
+          fontFamily: 'monospace',
           fontSize: 10,
           fontWeight: '600',
           color: '#0f172a',
@@ -272,8 +346,8 @@ async function buildGeoJSON() {
         'Distrito': district || '—',
         'Barrio': neighborhood || '—',
         'Código Postal': zip || '—',
-        'Centro': institution || '—',
-        'Bibliotecas en distrito': districtCount,
+        'Titularidad': holder || '—',
+        'Bibliotecas en su distrito': districtCount,
         'Bibliotecas por 100k hab.': parseFloat(density),
         'Description': description,
         'Superficie': district || 'Barcelona',
@@ -287,18 +361,59 @@ async function buildGeoJSON() {
     geo.features.push(feature);
   }
 
-  console.log(`Features: ${geo.features.length}`);
+  const libraryCount = geo.features.length;
+  console.log(`Libraries: ${libraryCount}`);
 
-  // Calculate bbox
-  let bbox = [180, 90, -180, -90];
-  for (const f of geo.features) {
-    const [x, y] = f.geometry.coordinates;
-    if (x < bbox[0]) bbox[0] = x;
-    if (y < bbox[1]) bbox[1] = y;
-    if (x > bbox[2]) bbox[2] = x;
-    if (y > bbox[3]) bbox[3] = y;
+  // 5. Merge the official city and neighbourhood boundaries. The geometry is
+  // pre-simplified/dissolved with shapely (scripts/build-barcelona-boundaries.py)
+  // to keep the Firestore document under 1 MiB.
+  const boundariesPath = path.join(__dirname, '..', 'data', 'barcelona-boundaries.geojson');
+  if (fs.existsSync(boundariesPath)) {
+    const boundaries = JSON.parse(fs.readFileSync(boundariesPath, 'utf8'));
+    if (boundaries && Array.isArray(boundaries.features) && boundaries.features.length) {
+      geo.features.push(...boundaries.features);
+      console.log(`Added ${boundaries.features.length} boundary features`);
+    }
+  } else {
+    console.warn('Boundaries not found. Run: python3 scripts/build-barcelona-boundaries.py');
   }
-  // Add small padding
+  geo._libraryCount = libraryCount;
+
+  // 6. Paint districts as a choropleth by number of public libraries.
+  const districtFeatures = geo.features.filter(f => f.properties._manaGroupName === 'Distritos de Barcelona');
+  if (districtFeatures.length) {
+    const countByDistrict = districtCounts;
+    const values = Object.values(countByDistrict);
+    const minCount = Math.min(...values);
+    const maxCount = Math.max(...values);
+    for (const d of districtFeatures) {
+      const count = countByDistrict[d.properties.name] || 0;
+      d.properties['Bibliotecas en distrito'] = count;
+      d.properties['Dato'] = `${count} en ${d.properties.name}`;
+      d.properties['Description'] = `Distrito de ${d.properties.name} (Barcelona). ${count} biblioteca${count === 1 ? '' : 's'} pública${count === 1 ? '' : 's'}.`;
+      d.properties._manaColor = choroColor(count, minCount, maxCount);
+      d.properties._manaBorderColor = '#334155';
+      d.properties._manaFillOpacity = 0.55;
+      d.properties._manaWeight = 1.4;
+    }
+    console.log(`District choropleth range: ${minCount}–${maxCount}`);
+  }
+
+  // Calculate bbox over every geometry type (points and polygons)
+  let bbox = [180, 90, -180, -90];
+  const visitCoords = (coords) => {
+    if (!Array.isArray(coords)) return;
+    if (typeof coords[0] === 'number') {
+      const [x, y] = coords;
+      if (x < bbox[0]) bbox[0] = x;
+      if (y < bbox[1]) bbox[1] = y;
+      if (x > bbox[2]) bbox[2] = x;
+      if (y > bbox[3]) bbox[3] = y;
+      return;
+    }
+    coords.forEach(visitCoords);
+  };
+  geo.features.forEach(f => visitCoords(f.geometry && f.geometry.coordinates));
   const pad = 0.01;
   bbox = [bbox[0] - pad, bbox[1] - pad, bbox[2] + pad, bbox[3] + pad];
   geo._bbox = bbox;
@@ -306,14 +421,65 @@ async function buildGeoJSON() {
   return geo;
 }
 
+const PREVIEW_EMOJI = { emoji_library: '\u{1F4DA}' };
+const PREVIEW_TOLERANCE = 0.0003; // ~33 m: suficiente para una miniatura
+
+// Douglas–Peucker simplification (shape preserving) for the stored thumbnail.
+function simplifyRingForPreview(ring, tol) {
+  if (!Array.isArray(ring) || ring.length <= 4) return ring;
+  const closed = ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1];
+  const pts = closed ? ring.slice(0, -1) : ring;
+  if (pts.length <= 3) return ring;
+  const keep = new Array(pts.length).fill(false);
+  keep[0] = keep[pts.length - 1] = true;
+  const stack = [[0, pts.length - 1]];
+  while (stack.length) {
+    const [first, last] = stack.pop();
+    const [x1, y1] = pts[first], [x2, y2] = pts[last];
+    const dx = x2 - x1, dy = y2 - y1;
+    const norm = Math.hypot(dx, dy) || 1e-12;
+    let maxD = -1, idx = -1;
+    for (let i = first + 1; i < last; i++) {
+      const [px, py] = pts[i];
+      const d = Math.abs(dy * px - dx * py + x2 * y1 - y2 * x1) / norm;
+      if (d > maxD) { maxD = d; idx = i; }
+    }
+    if (maxD > tol && idx > first) { keep[idx] = true; stack.push([first, idx], [idx, last]); }
+  }
+  const out = pts.filter((_, i) => keep[i]);
+  if (closed) out.push(out[0]);
+  return out;
+}
+
+function simplifyGeometryForPreview(geometry) {
+  if (!geometry) return geometry;
+  if (geometry.type === 'Polygon') {
+    return { type: 'Polygon', coordinates: geometry.coordinates.map(r => simplifyRingForPreview(r, PREVIEW_TOLERANCE)) };
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return { type: 'MultiPolygon', coordinates: geometry.coordinates.map(poly => poly.map(r => simplifyRingForPreview(r, PREVIEW_TOLERANCE))) };
+  }
+  return geometry;
+}
+
 function buildMapPreview(geo) {
   const bbox = geo._bbox || [-180, -90, 180, 90];
-  const previewFeatures = geo.features.map(f => ({
-    geometry: { type: 'Point', coordinatesText: JSON.stringify(f.geometry.coordinates) },
-    color: f.properties._manaColor,
-    emoji: null,
-  }));
-  return { bbox, kind: 'point', gridSize: 8, cells: null, features: previewFeatures };
+  // Mirror the shared preview renderer: keep polygons (districts/limits) and
+  // points (with their emoji + fill opacity) so the stored thumbnail matches
+  // the live gallery preview.
+  const previewFeatures = geo.features.map(f => {
+    const props = f.properties || {};
+    const simplified = simplifyGeometryForPreview(f.geometry);
+    const entry = {
+      geometry: { type: simplified.type, coordinatesText: JSON.stringify(simplified.coordinates) },
+      color: props._manaColor || '#0ea5e9',
+    };
+    const markerType = props._manaMarkerType || '';
+    if (markerType.indexOf('emoji_') === 0 && PREVIEW_EMOJI[markerType]) entry.emoji = PREVIEW_EMOJI[markerType];
+    if (typeof props._manaFillOpacity === 'number') entry.fillOpacity = props._manaFillOpacity;
+    return entry;
+  });
+  return { bbox, kind: 'geometry', gridSize: null, cells: null, features: previewFeatures };
 }
 
 async function main() {
@@ -327,10 +493,15 @@ async function main() {
   console.log('hex valid', hexOk);
   const haloOk = geo.features.every(f => f.properties._manaLabelStyle.haloWidth >= 2);
   console.log('haloWidth >=2', haloOk);
-  const coordsOk = geo.features.every(f => {
-    const [x, y] = f.geometry.coordinates;
-    return x >= -180 && x <= 180 && y >= -90 && y <= 90;
-  });
+  const validCoord = (coords) => {
+    if (!Array.isArray(coords)) return true;
+    if (typeof coords[0] === 'number') {
+      const [x, y] = coords;
+      return x >= -180 && x <= 180 && y >= -90 && y <= 90;
+    }
+    return coords.every(validCoord);
+  };
+  const coordsOk = geo.features.every(f => validCoord(f.geometry && f.geometry.coordinates));
   console.log('coords within ±180/±90', coordsOk);
   const uniqueNames = new Set(geo.features.map(f => f.properties._manaName));
   console.log('unique names', uniqueNames.size === geo.features.length);
@@ -345,24 +516,25 @@ async function main() {
   const now = Date.now();
   const serverNow = { timestampValue: new Date().toISOString() };
 
-  const dataSourceText = 'Ajuntament de Barcelona — Opèndata: Espais amb biblioteca o sala d\'estudi i museístics de la ciutat de Barcelona (culturailleure-bibliotequesimuseus). Recursos: CSV/JSON del portal de datos abiertos del Ayuntamiento de Barcelona.';
+  const dataSourceText = 'Ajuntament de Barcelona — Opèndata: Dades de la xarxa de biblioteques de la ciutat de Barcelona (dades-xarxa-biblioteques-catalunya, 2025). Direcciones cruzadas con el inventario «Espais amb biblioteca o sala d\'estudi i museístics» (culturailleure-bibliotequesimuseus).';
 
   const docFields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr('Bibliotecas públicas de Barcelona'),
     name: fsStr('Bibliotecas públicas de Barcelona'),
-    description: fsStr('Mapa de las bibliotecas públicas de la ciudad de Barcelona y su área metropolitana. Incluye 187 bibliotecas de la red municipal y universitaria, distribuidas por los 10 distritos de la ciudad, con datos de dirección, barrio y código postal.'),
+    description: fsStr('Mapa de las 41 bibliotecas públicas de la red municipal de Barcelona (Biblioteques de Barcelona) sobre los 10 distritos, pintados en coropletas según el número de bibliotecas. Incluye datos de dirección, distrito, barrio y titularidad. Fuente: Opèndata del Ayuntamiento de Barcelona.'),
     lang: fsStr('es'),
-    featureCount: fsInt(geo.features.length),
+    featureCount: fsInt(geo._libraryCount || geo.features.length),
     mapPreview: fsMap({
       bbox: { arrayValue: { values: preview.bbox.map(v => fsNum(v)) } },
-      kind: fsStr('point'),
-      gridSize: fsInt(8),
-      cells: fsNull(),
+      kind: fsStr(preview.kind),
+      gridSize: preview.gridSize == null ? fsNull() : fsInt(preview.gridSize),
+      cells: preview.cells ? fsArr(preview.cells) : fsNull(),
       features: { arrayValue: { values: preview.features.map(pf => fsMap({
-        geometry: fsMap({ type: fsStr('Point'), coordinatesText: fsStr(pf.geometry.coordinatesText) }),
+        geometry: fsMap({ type: fsStr(pf.geometry.type), coordinatesText: fsStr(pf.geometry.coordinatesText) }),
         color: fsStr(pf.color),
-        emoji: fsNull()
+        emoji: pf.emoji ? fsStr(pf.emoji) : fsNull(),
+        fillOpacity: typeof pf.fillOpacity === 'number' ? fsNum(pf.fillOpacity) : fsNull()
       })) } }
     }),
     visibility: fsStr('public'), shareMode: fsStr('view'), allowPublicEdit: fsBool(false), isPublished: fsBool(true),
@@ -402,6 +574,8 @@ async function main() {
   const existing = await firestoreRequest(token, 'GET', `/${COLLECTION}/${SLUG}`);
   if (existing.status === 200) {
     console.log('Updating document...');
+    // Keep the original creation metadata and engagement counters on updates.
+    ['views', 'likes', 'createdAt', 'createdAtMs'].forEach(f => { delete docFields[f]; });
     const fieldPaths = Object.keys(docFields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res = await firestoreRequest(token, 'PATCH', `/${COLLECTION}/${SLUG}?${fieldPaths}`, { fields: docFields });
     if (res.status >= 400) { console.error('Update failed', res.status, JSON.stringify(res.data).slice(0, 600)); process.exit(1); }

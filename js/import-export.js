@@ -153,14 +153,17 @@ function loadGeoJSON(geo, groupName, opts) {
       const p = (f && f.properties) || {};
       const c = (p._manaColor || p.color) ? String(p._manaColor || p.color) : importColor;
       const border = p._manaBorderColor ? String(p._manaBorderColor) : c;
+      const weight = (typeof p._manaWeight === 'number') ? p._manaWeight : 2;
       const fillOpacity = (typeof p._manaFillOpacity === 'number') ? p._manaFillOpacity : .18;
-      return { color: border, weight: 2, fillColor: c, fillOpacity: fillOpacity, bubblingMouseEvents: true };
+      return { color: border, weight: weight, fillColor: c, fillOpacity: fillOpacity, bubblingMouseEvents: true };
     },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');
       const importedColor = (f.properties && (f.properties._manaColor || f.properties.color)) ? String(f.properties._manaColor || f.properties.color) : importColor;
       const importedMarkerType = (f.properties && (f.properties._manaMarkerType || f.properties.markerType)) ? String(f.properties._manaMarkerType || f.properties.markerType) : markerType;
-      const emojiSize = importedMarkerType.indexOf('emoji_') === 0 && f.properties ? _emojiSizeFromArea(_parseArea(f.properties.Area)) : null;
+      const emojiSize = importedMarkerType.indexOf('emoji_') === 0 && f.properties
+        ? (f.properties._manaEmojiSize || _emojiSizeFromArea(_parseArea(f.properties.Area)))
+        : null;
       const icon = makeMarkerIcon(importedColor, importedMarkerType, emojiSize);
       const m = L.marker(ll, {
         icon,
@@ -170,6 +173,7 @@ function loadGeoJSON(geo, groupName, opts) {
       });
       m._manaName = n; m._manaColor = importedColor;
       m._manaMarkerType = importedMarkerType;
+      if (emojiSize) m._manaEmojiSize = emojiSize;
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
       m._manaProperties = cloneFeatureProperties(f.properties);

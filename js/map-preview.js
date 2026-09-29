@@ -100,6 +100,7 @@
 
   var EMOJI_MARKER_MAP = {
     emoji_home:'🏠', emoji_building:'🏢', emoji_hospital:'🏥', emoji_school:'🏫',
+    emoji_library:'📚',
     emoji_church:'⛪', emoji_museum:'🏛️', emoji_hotel:'🏨', emoji_store:'🏪',
     emoji_bank:'🏦', emoji_factory:'🏭', emoji_restaurant:'🍽️', emoji_burger:'🍔',
     emoji_pizza:'🍕', emoji_coffee:'☕', emoji_beer:'🍺', emoji_wine:'🍷',
@@ -436,10 +437,12 @@
 
     var entries = useDensityGrid ? [] : previewFeatureIndexes(geo.features, PREVIEW_MAX_FEATURES, bbox).map(function(index) {
       var feature = geo.features[index];
+      var props = (feature && feature.properties) || {};
       var entry = {
         geometry: simplifyPreviewGeometry(feature ? feature.geometry : null, coordBudget),
         color: featureColor(feature)
       };
+      if (typeof props._manaFillOpacity === 'number') entry.fillOpacity = props._manaFillOpacity;
       var emoji = featureEmoji(feature);
       if (emoji) entry.emoji = emoji;
       return entry;
@@ -686,17 +689,22 @@
         var geom = decodePreviewGeometry(entry && entry.geometry);
         if (!geom) return;
         var stroke = validColor(entry.color);
+        // Honour per-feature fill opacity so choropleths keep their ramp and
+        // outline-only boundaries (fillOpacity 0) are not painted over.
+        var polyFill = (typeof entry.fillOpacity === 'number')
+          ? Math.max(0, Math.min(0.4, entry.fillOpacity))
+          : 0.24;
         var i, p;
         if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
           var d = '';
           geom.coordinates.forEach(function(ring) { d += lineToPath(ring, true); });
-          if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="0.24" stroke="' + stroke +
+          if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="' + polyFill.toFixed(2) + '" stroke="' + stroke +
             '" stroke-opacity="0.92" stroke-width="' + (1.4 * unit).toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>';
         } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
           geom.coordinates.forEach(function(poly) {
             var d = '';
             poly.forEach(function(ring) { d += lineToPath(ring, true); });
-            if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="0.24" stroke="' + stroke +
+            if (d) fills += '<path d="' + d + '" fill="' + stroke + '" fill-opacity="' + polyFill.toFixed(2) + '" stroke="' + stroke +
               '" stroke-opacity="0.92" stroke-width="' + (1.4 * unit).toFixed(2) + '" stroke-linejoin="round" stroke-linecap="round"/>';
           });
         } else if (geom.type === 'LineString' && Array.isArray(geom.coordinates)) {

@@ -361,6 +361,7 @@ function _defaultLabelStyle() {
     opacity: 1,
     offsetX: 0,
     offsetY: -10,
+    placement: 'auto',
   };
 }
 
@@ -380,6 +381,7 @@ function _normalizeLabelStyle(style) {
   if (isNaN(next.opacity)) next.opacity = base.opacity;
   next.offsetX = Math.max(-80, Math.min(80, parseInt(next.offsetX, 10) || 0));
   next.offsetY = Math.max(-80, Math.min(80, parseInt(next.offsetY, 10) || 0));
+  next.placement = next.placement === 'always' ? 'always' : 'auto';
   return next;
 }
 
@@ -536,12 +538,130 @@ function addLabelsToLayer(layer, features, labelStyle) {
     });
     const marker = L.marker(anchor, { icon: icon, pane: _labelPaneName(), interactive: false, keyboard: false });
     marker._manaLabelFor = target;
+    marker._manaLabelText = text;
+    marker._manaLabelStyle = style;
     marker.addTo(map);
     labels.push(marker);
   });
   target.labelMarkers = labels;
   _updateLabelVisibility();
+  _declutterLabels();
+  _remeasureLabelsWhenFontsReady();
   return labels;
+}
+
+// Web fonts (e.g. DM Sans) can load after the first label layout, so cached
+// widths are dropped once and the declutter pass runs again.
+let _labelFontsReadyHooked = false;
+function _remeasureLabelsWhenFontsReady() {
+  if (_labelFontsReadyHooked || !document.fonts || !document.fonts.ready) return;
+  _labelFontsReadyHooked = true;
+  document.fonts.ready.then(function() {
+    for (const gid in _manaGroupMeta) {
+      const markers = _manaGroupMeta[gid].labelMarkers || [];
+      for (let i = 0; i < markers.length; i++) {
+        markers[i]._manaLabelWidth = 0;
+        markers[i]._manaLabelHeight = 0;
+      }
+    }
+    _declutterLabels();
+  }).catch(function() {});
+}
+
+// Screen-space collision avoidance for cartographic labels. Labels whose style
+// uses placement:"auto" are hidden when they would overlap another label; those
+// with placement:"always" are kept. This keeps dense point layers readable
+// instead of stacking all names on top of each other.
+function _labelScreenRect(marker) {
+  const style = marker._manaLabelStyle || {};
+  const point = map.latLngToContainerPoint(marker.getLatLng());
+  const text = marker._manaLabelText || '';
+  const fontSize = Number(style.fontSize) || 12;
+  const width = marker._manaLabelWidth || Math.max(10, text.length * fontSize * 0.55);
+  const height = marker._manaLabelHeight || fontSize * 1.3;
+  const cx = point.x + (Number(style.offsetX) || 0);
+  const cy = point.y + (Number(style.offsetY) || 0);
+  return { left: cx - width / 2, right: cx + width / 2, top: cy - height / 2, bottom: cy + height / 2 };
+}
+
+function _declutterLabels() {
+  if (typeof map === 'undefined' || !map) return;
+  const COLLISION_PAD = 2;
+  const CELL = 48;
+  const grid = new Map();
+
+  function collides(rect) {
+    const x0 = Math.floor((rect.left - COLLISION_PAD) / CELL);
+    const x1 = Math.floor((rect.right + COLLISION_PAD) / CELL);
+    const y0 = Math.floor((rect.top - COLLISION_PAD) / CELL);
+    const y1 = Math.floor((rect.bottom + COLLISION_PAD) / CELL);
+    for (let gx = x0; gx <= x1; gx++) {
+      for (let gy = y0; gy <= y1; gy++) {
+        const bucket = grid.get(gx + ',' + gy);
+        if (!bucket) continue;
+        for (let i = 0; i < bucket.length; i++) {
+          const o = bucket[i];
+          if (rect.left < o.right + COLLISION_PAD && rect.right > o.left - COLLISION_PAD &&
+              rect.top < o.bottom + COLLISION_PAD && rect.bottom > o.top - COLLISION_PAD) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function reserve(rect) {
+    const x0 = Math.floor(rect.left / CELL), x1 = Math.floor(rect.right / CELL);
+    const y0 = Math.floor(rect.top / CELL), y1 = Math.floor(rect.bottom / CELL);
+    for (let gx = x0; gx <= x1; gx++) {
+      for (let gy = y0; gy <= y1; gy++) {
+        const key = gx + ',' + gy;
+        let bucket = grid.get(key);
+        if (!bucket) { bucket = []; grid.set(key, bucket); }
+        bucket.push(rect);
+      }
+    }
+  }
+
+  const alwaysMarkers = [];
+  const autoMarkers = [];
+  for (const gid in _manaGroupMeta) {
+    const meta = _manaGroupMeta[gid];
+    if (!meta || meta.visible === false || !meta.labelMarkers || !meta.labelMarkers.length) continue;
+    const style = meta.labelStyle || {};
+    if (!style.enabled) continue;
+    const bucket = style.placement === 'always' ? alwaysMarkers : autoMarkers;
+    for (let i = 0; i < meta.labelMarkers.length; i++) bucket.push(meta.labelMarkers[i]);
+  }
+
+  function setVisible(marker, visible) {
+    const el = marker.getElement && marker.getElement();
+    if (el) el.style.display = visible ? '' : 'none';
+  }
+
+  // Show every label before measuring so hidden elements report real sizes,
+  // then cache the measured box on the marker.
+  const allMarkers = alwaysMarkers.concat(autoMarkers);
+  allMarkers.forEach(function(marker) { setVisible(marker, true); });
+  allMarkers.forEach(function(marker) {
+    if (marker._manaLabelWidth) return;
+    const el = marker.getElement && marker.getElement();
+    const span = el && el.querySelector('.mana-map-label-text');
+    if (!span) return;
+    const rect = span.getBoundingClientRect();
+    if (rect.width > 0) marker._manaLabelWidth = rect.width;
+    if (rect.height > 0) marker._manaLabelHeight = rect.height;
+  });
+
+  alwaysMarkers.forEach(function(marker) {
+    setVisible(marker, true);
+    reserve(_labelScreenRect(marker));
+  });
+  autoMarkers.forEach(function(marker) {
+    const rect = _labelScreenRect(marker);
+    if (collides(rect)) { setVisible(marker, false); return; }
+    setVisible(marker, true);
+    reserve(rect);
+  });
 }
 
 function removeLabelsFromLayer(layer) {
@@ -888,7 +1008,11 @@ function _updateLabelVisibility() {
   pane.style.display = map.getZoom() >= LABEL_MIN_ZOOM ? '' : 'none';
 }
 
-map.on('zoomend', _updateLabelVisibility);
+map.on('zoomend', function() {
+  _updateLabelVisibility();
+  _declutterLabels();
+});
+map.on('resize', _declutterLabels);
 _updateLabelVisibility();
 
 // ── Hide basemap tile labels when zoomed out ──
