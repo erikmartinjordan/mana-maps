@@ -85,6 +85,21 @@ function firestoreRequest(token, method, urlPath, body) {
 function fsStr(v) { return v != null ? { stringValue: String(v) } : { stringValue: '' }; }
 function fsInt(v) { return { integerValue: String(v) }; }
 function fsBool(v) { return { booleanValue: !!v }; }
-function fsArr(arr) { return { arrayValue: { values: (arr || []).map(v => (typeof v === 'string') ? fsStr(v) : v) } }; }
+function fsArr(arr) { return { arrayValue: { values: (arr || []).map(v => { if (typeof v === 'string') return fsStr(v); if (typeof v === 'number') return fsNum(v); if (typeof v === 'boolean') return fsBool(v); return v; }) } }; }
+function fsNum(v) { return Number.isInteger(v) ? fsInt(v) : { doubleValue: v }; }
+function fsNull() { return { nullValue: null }; }
+function fsMap(obj) {
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) fields[k] = fsNull();
+    else if (typeof v === 'string') fields[k] = fsStr(v);
+    else if (typeof v === 'number') fields[k] = fsNum(v);
+    else if (typeof v === 'boolean') fields[k] = fsBool(v);
+    else if (Array.isArray(v)) fields[k] = fsArr(v);
+    else if (typeof v === 'object') fields[k] = fsMap(v);
+    else fields[k] = fsStr(String(v));
+  }
+  return { mapValue: { fields } };
+}
 
-module.exports = { PROJECT_ID, DATABASE, COLLECTION, getAccessToken, firestoreRequest, httpsRequest, fsStr, fsInt, fsBool, fsArr };
+module.exports = { PROJECT_ID, DATABASE, COLLECTION, getAccessToken, firestoreRequest, httpsRequest, fsStr, fsInt, fsBool, fsArr, fsNum, fsNull, fsMap };

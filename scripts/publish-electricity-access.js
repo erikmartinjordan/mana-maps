@@ -5,7 +5,7 @@
 // Rampa secuencial monocromática azul claro→oscuro por % de acceso
 'use strict';
 const fs = require('fs'), path = require('path');
-const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr } = require('./lib/publisher');
+const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNum, fsNull, fsMap } = require('./lib/publisher');
 
 const SLUG = 'electricity-access-world';
 const TITLE = 'Acceso a Electricidad Mundial';
@@ -48,7 +48,6 @@ async function main() {
   if (!fs.existsSync(geoPath)) { console.error('ERROR: no existe', geoPath); process.exit(1); }
   const geo = JSON.parse(fs.readFileSync(geoPath, 'utf8'));
 
-  // Validations
   const hexOk = geo.features.every(f => /^#[0-9a-fA-F]{6}$/.test(f.properties._manaColor));
   const haloOk = geo.features.every(f => f.properties._manaLabelStyle && f.properties._manaLabelStyle.haloWidth >= 2);
   const coordsOk = geo.features.every(f => {
@@ -72,21 +71,21 @@ async function main() {
     description: fsStr('Mapa coroplético mundial del acceso a electricidad por país con datos del World Bank (EG.ELC.ACCS.ZS). Muestra el porcentaje de la población con acceso a electricidad en más de 200 países, revelando la profunda desigualdad energética global: mientras los países desarrollados alcanzan 100%, naciones como Chad, Burundi o Sudán del Sur superan apenas el 5%.'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
-    mapPreview: { mapValue: { fields: {
-      bbox: { arrayValue: { values: preview.bbox.map(v => ({ doubleValue: v })) } },
-      kind: fsStr('geometry'), gridSize: fsInt(8), cells: { nullValue: null },
-      features: { arrayValue: { values: preview.features.map(pf => ({ mapValue: { fields: {
-        geometry: { mapValue: { fields: {
-          type: fsStr(pf.geometry.type),
-          coordinatesText: fsStr(pf.geometry.coordinatesText)
-        } } },
-        color: fsStr(pf.color), emoji: { nullValue: null }
-      } })) }) } }
-    } } },
+    mapPreview: fsMap({
+      bbox: preview.bbox,
+      kind: 'geometry',
+      gridSize: 8,
+      cells: null,
+      features: preview.features.map(pf => fsMap({
+        geometry: fsMap({ type: pf.geometry.type, coordinatesText: pf.geometry.coordinatesText }),
+        color: pf.color,
+        emoji: null
+      }))
+    }),
     visibility: fsStr('public'), shareMode: fsStr('view'),
     allowPublicEdit: fsBool(false), isPublished: fsBool(true),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
-    geojsonText: fsStr(geojsonText), geojsonChunked: { nullValue: null },
+    geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
     dataSource: fsStr('World Bank — Access to electricity (% of population) (EG.ELC.ACCS.ZS). https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS'),
     dataDate: fsStr('2022-12-31'),
     dataYear: fsInt(2022),
@@ -99,7 +98,19 @@ async function main() {
     views: fsInt(0), likes: fsInt(0)
   };
 
-  if (DRY_RUN) { console.log('\n=== DRY RUN ==='); for (const fn of Object.keys(fields)) { const v = fields[fn]; if ('stringValue' in v) console.log(`  ${fn}: "${v.stringValue.substring(0, 100)}${v.stringValue.length > 100 ? '...' : ''}"`); else if ('integerValue' in v) console.log(`  ${fn}: ${v.integerValue}`); else if ('booleanValue' in v) console.log(`  ${fn}: ${v.booleanValue}`); else if ('nullValue' in v) console.log(`  ${fn}: null`); else if ('mapValue' in v) console.log(`  ${fn}: [map]`); else if ('arrayValue' in v) console.log(`  ${fn}: [array ${v.arrayValue.values.length} items]`); } return; }
+  if (DRY_RUN) {
+    console.log('\n=== DRY RUN ===');
+    for (const fn of Object.keys(fields)) {
+      const v = fields[fn];
+      if ('stringValue' in v) console.log(`  ${fn}: "${v.stringValue.substring(0, 100)}${v.stringValue.length > 100 ? '...' : ''}"`);
+      else if ('integerValue' in v) console.log(`  ${fn}: ${v.integerValue}`);
+      else if ('booleanValue' in v) console.log(`  ${fn}: ${v.booleanValue}`);
+      else if ('nullValue' in v) console.log(`  ${fn}: null`);
+      else if ('mapValue' in v) console.log(`  ${fn}: [map]`);
+      else if ('arrayValue' in v) console.log(`  ${fn}: [array ${v.arrayValue.values.length} items]`);
+    }
+    return;
+  }
 
   console.log('Authenticating...');
   const { token, uid } = await getAccessToken();
