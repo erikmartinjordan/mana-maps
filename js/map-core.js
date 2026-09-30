@@ -1478,15 +1478,23 @@ function stats() {
 // también por la rampa en la vista /map/. Prefijo _mana para evitar colisiones.
 function _manaParsePropNumber(raw) {
   if (raw == null) return NaN;
+  // Valores ya numéricos en GeoJSON (p. ej. 3.781 de felicidad, 0.972 de IDH):
+  // usarlos tal cual. Convertirlos a string y re-parsearlos los trataría como
+  // miles europeos («3.781» → 3781) y desordenaría la rampa de la leyenda.
+  if (typeof raw === 'number') return isFinite(raw) ? raw : NaN;
   var s = String(raw);
   var m = s.replace(/[^\d.,\-]/g, '');
   if (m === '') return NaN;
   var num;
   if (m.indexOf(',') !== -1) {
+    // formato europeo: puntos = miles, coma = decimal
     num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
-  } else if (/^\d{1,3}(\.\d{3})+$/.test(m)) {
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(m) && !/\.\d{1,2}$/.test(m)) {
+    // miles puros con punto («4.280 m», «55.000») -> quitar puntos.
+    // Un solo dígito o dos tras el punto se tratan como decimal (6.26, 3.781).
     num = parseFloat(m.replace(/\./g, ''));
   } else {
+    // decimal con punto (6.26, 2.31, 3.781) o entero
     num = parseFloat(m);
   }
   return isFinite(num) ? num : NaN;

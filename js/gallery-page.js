@@ -702,6 +702,265 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // LANDING /gallery/?slug=<id> — mapa MapLibre + leyenda legendKey
+  // ═══════════════════════════════════════════════════════════════
+  // Solo se renderiza cuando la URL trae ?slug=. Sin slug no hay mapa
+  // destacado en la galería (decisión de producto: grid sin destacado).
+
+  var _slugMap = null;
+
+  function parseLegendNumber(raw) {
+    if (raw == null) return NaN;
+    // Números ya tipados en GeoJSON (3.781 felicidad, 0.972 IDH…): usarlos
+    // tal cual. Pasarlos por string los trataría como miles («3.781»→3781).
+    if (typeof raw === 'number') return isFinite(raw) ? raw : NaN;
+    var s = String(raw);
+    var m = s.replace(/[^\d.,\-]/g, '');
+    if (m === '') return NaN;
+    var num;
+    if (m.indexOf(',') !== -1) {
+      num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
+    } else if (/^\d{1,3}(\.\d{3})+$/.test(m) && !/\.\d{1,2}$/.test(m)) {
+      // Miles con punto («4.280 m», «55.000»); 1–2 decimales = decimal.
+      num = parseFloat(m.replace(/\./g, ''));
+    } else {
+      num = parseFloat(m);
+    }
+    return isFinite(num) ? num : NaN;
+  }
+
+  function formatLegendValue(v, fmt) {
+    if (fmt === 'year') return String(Math.round(v));
+    if (fmt === 'meters') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
+    if (fmt === 'usd') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $';
+    if (fmt === 'percent') {
+      var p = Math.round(v * 10) / 10;
+      var parts = String(p).split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return parts.join(',') + '%';
+    }
+    var rounded = Math.round(v * 100) / 100;
+    var parts2 = String(rounded).split('.');
+    parts2[0] = parts2[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parts2.join(',');
+  }
+
+  // Leyenda numérica declarada en el documento Firestore (legendKey).
+  // Agrupa por _manaGroupName y pinta rampa claro→oscuro ordenada por el dato.
+  function buildLegendForKey(geo, item) {
+    var key = item && item.legendKey;
+    if (!key) return '';
+    var title = (item && item.legendTitle) || key;
+    var fmt = (item && item.legendFormat) || 'number';
+    var groups = {};
+    (geo.features || []).forEach(function(f) {
+      var p = f && f.properties;
+      if (!p) return;
+      var gname = p._manaGroupName || 'Datos';
+      if (!p._manaColor) return;
+      var v = parseLegendNumber(p[key]);
+      if (!isFinite(v)) return;
+      if (!groups[gname]) groups[gname] = { colors: {}, vals: [] };
+      var b = groups[gname];
+      if (!b.colors[p._manaColor]) {
+        b.colors[p._manaColor] = true;
+        b.vals.push({ v: v, c: p._manaColor });
+      }
+    });
+    var ramp = null;
+    Object.keys(groups).forEach(function(gname) {
+      var u = {};
+      groups[gname].vals.forEach(function(d) { u[d.c] = d; });
+      var steps = Object.keys(u).map(function(k) { return u[k]; }).sort(function(a, b) { return a.v - b.v; });
+      if (steps.length >= 3 && !ramp) ramp = { name: gname, steps: steps };
+    });
+    if (!ramp) return '';
+    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
+      '<div class="featured-legend-title">' + escHtml(title) + '</div>' +
+      '<div class="featured-legend-steps">';
+    ramp.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
+    html += '</div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(formatLegendValue(ramp.steps[0].v, fmt)) + '</span>' +
+      '<span>' + escHtml(formatLegendValue(ramp.steps[ramp.steps.length - 1].v, fmt)) + '</span></div>' +
+      '</div>';
+    return html;
+  }
+
+  async function remoteMapById(id) {
+    if (!id || typeof firebase === 'undefined') return null;
+    try {
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
+      const db = firebase.firestore();
+      const doc = await db.collection(MAPS_COLLECTION).doc(id).get();
+      if (!doc.exists) return null;
+      const data = doc.data() || {};
+      if (!data.isPublished) return null;
+      return { id: doc.id, ...data };
+    } catch (e) {
+      console.warn('gallery remoteMapById failed:', e);
+      return null;
+    }
+  }
+
+  async function getPublishedGeoAsync(item) {
+    var immediate = getPublishedGeo(item);
+    if (immediate) return immediate;
+    if (!item || !item.geojsonChunked || !item.geojsonChunked.chunkCount) return null;
+    if (item._geojsonLoaded && item._geojsonLoaded.features) return item._geojsonLoaded;
+    if (typeof firebase === 'undefined') return null;
+    try {
+      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
+      var db = firebase.firestore();
+      var chunked = await readChunkedPublishedGeo(db, item);
+      if (chunked && chunked.features) {
+        item._geojsonLoaded = chunked;
+        return chunked;
+      }
+    } catch (e) {
+      console.warn('gallery getPublishedGeoAsync failed:', e);
+    }
+    return null;
+  }
+
+  function collectGeoBounds(geo) {
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    function walk(coords) {
+      if (!Array.isArray(coords)) return;
+      if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+        var x = coords[0], y = coords[1];
+        if (!isFinite(x) || !isFinite(y)) return;
+        if (x < -180) x += 360; else if (x > 180) x -= 360;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, Math.max(-86, y)); maxY = Math.max(maxY, Math.min(86, y));
+        return;
+      }
+      coords.forEach(walk);
+    }
+    (geo.features || []).forEach(function(f) {
+      if (f && f.geometry && Array.isArray(f.geometry.coordinates)) walk(f.geometry.coordinates);
+    });
+    if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
+    return [[minX, minY], [maxX, maxY]];
+  }
+
+  function addSlugMapLayers(map, geo) {
+    if (!map.getSource('slug-data')) {
+      map.addSource('slug-data', { type: 'geojson', data: geo });
+    } else {
+      map.getSource('slug-data').setData(geo);
+    }
+    var colorExpr = ['coalesce', ['get', '_manaColor'], ['get', 'color'], '#0ea5e9'];
+    var isPolygon = ['any', ['==', ['geometry-type'], 'Polygon'], ['==', ['geometry-type'], 'MultiPolygon']];
+    var isLine = ['any', ['==', ['geometry-type'], 'LineString'], ['==', ['geometry-type'], 'MultiLineString']];
+    var isPoint = ['any', ['==', ['geometry-type'], 'Point'], ['==', ['geometry-type'], 'MultiPoint']];
+
+    if (!map.getLayer('slug-fills')) {
+      map.addLayer({
+        id: 'slug-fills', type: 'fill', source: 'slug-data', filter: isPolygon,
+        paint: { 'fill-color': colorExpr, 'fill-opacity': ['coalesce', ['get', '_manaFillOpacity'], 0.16] }
+      });
+    }
+    if (!map.getLayer('slug-fill-outlines')) {
+      map.addLayer({
+        id: 'slug-fill-outlines', type: 'line', source: 'slug-data', filter: isPolygon,
+        layout: { 'line-join': 'round' },
+        paint: {
+          'line-color': ['coalesce', ['get', '_manaBorderColor'], colorExpr],
+          'line-width': ['coalesce', ['get', '_manaWeight'], 1],
+          'line-opacity': 0.9
+        }
+      });
+    }
+    if (!map.getLayer('slug-lines')) {
+      map.addLayer({
+        id: 'slug-lines', type: 'line', source: 'slug-data', filter: isLine,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': colorExpr,
+          'line-width': ['coalesce', ['get', '_manaWeight'], 1.6],
+          'line-opacity': ['coalesce', ['get', '_manaOpacity'], 0.92]
+        }
+      });
+    }
+    if (!map.getLayer('slug-points')) {
+      map.addLayer({
+        id: 'slug-points', type: 'circle', source: 'slug-data', filter: isPoint,
+        paint: {
+          'circle-radius': 6,
+          'circle-color': colorExpr,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': ['coalesce', ['get', '_manaOpacity'], 0.95]
+        }
+      });
+    }
+  }
+
+  async function showSlugMap(item) {
+    if (!item) return;
+    var wrap = document.getElementById('slug-map-wrap');
+    var meta = document.getElementById('slug-map-meta');
+    var target = document.getElementById('slug-map');
+    var titleEl = document.getElementById('slug-map-title');
+    if (!wrap || !target) return;
+
+    var geo = await getPublishedGeoAsync(item);
+    if (titleEl) titleEl.textContent = item.title || item.name || 'Mapa';
+    wrap.hidden = false;
+
+    if (_slugMap) {
+      try { _slugMap.remove(); } catch (e) {}
+      _slugMap = null;
+    }
+    target.innerHTML = '';
+
+    if (!geo || !geo.features || !geo.features.length || !window.maplibregl) {
+      var fallbackSvg = (window.ManaMapPreview && renderThumb) ? renderThumb(item) : '';
+      target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';
+      if (meta) meta.textContent = 'Vista previa estática del mapa.';
+      return;
+    }
+
+    var legendHtml = buildLegendForKey(geo, item);
+    if (legendHtml) target.insertAdjacentHTML('beforeend', legendHtml);
+
+    var styleUrl = window.MANA_BASEMAPS
+      ? window.MANA_BASEMAPS.getStyleUrl(false)
+      : 'https://tiles.openfreemap.org/styles/positron';
+
+    var map = new maplibregl.Map({
+      container: target,
+      style: styleUrl,
+      center: [0, 25],
+      zoom: 1.4,
+      minZoom: 1,
+      maxZoom: 18,
+      maxBounds: [[-179.9, -86], [179.9, 86]],
+      renderWorldCopies: false,
+      attributionControl: { compact: true }
+    });
+    _slugMap = map;
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+    var bounds = collectGeoBounds(geo);
+    if (bounds) {
+      map.fitBounds(bounds, { padding: { top: 40, bottom: 40, left: 48, right: 48 }, duration: 0, maxZoom: 11 });
+    }
+
+    map.on('load', function() { addSlugMapLayers(map, geo); });
+    map.on('error', function(e) {
+      if (e && e.error && e.error.status === 404) return;
+      console.warn('slug map error:', e && e.error ? e.error.message : e);
+    });
+
+    if (meta) {
+      var created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
+      var author = item.authorHandle ? '@' + item.authorHandle + ' · ' : '';
+      meta.textContent = author + (item.featureCount || 0) + ' elementos · ' + safeDate(created);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // INIT + REALTIME
   // ═══════════════════════════════════════════════════════════════
 
@@ -718,7 +977,27 @@
     if (!_activeTags.length) renderCards(merged);
     syncJsonLdCount(merged.length);
     handleSlugLanding(merged);
+    await renderSlugLandingMap(merged);
     subscribeToPublishedMaps(merged);
+  }
+
+  async function renderSlugLandingMap(maps) {
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug');
+    if (!slug) return;
+    var item = (maps || _allMaps || []).find(function(m) { return (m.slug || m.id) === slug; });
+    if (!item) {
+      item = await remoteMapById(slug);
+      if (item) {
+        var list = maps || _allMaps;
+        if (list) {
+          list.unshift(item);
+          renderCatBar(list);
+          if (!_activeTags.length) renderCards(list);
+        }
+      }
+    }
+    if (item) await showSlugMap(item);
   }
 
   init();
@@ -753,6 +1032,7 @@
         if (!_activeTags.length) renderCards(mergedList);
         syncJsonLdCount(mergedList.length);
         handleSlugLanding(mergedList);
+        renderSlugLandingMap(mergedList);
       }
 
       baseQuery

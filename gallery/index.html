@@ -30,6 +30,7 @@
   <meta name="twitter:image:alt" content="Maña Maps — Galería de mapas">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#ffffff">
+  <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -362,6 +363,35 @@
     .cat-clear-inline:hover{color:var(--text)}
     .filter-result-text{font-size:13px;color:var(--muted);padding:0 48px 4px;margin-top:-8px}
 
+    /* ── Mapa + leyenda de la landing /gallery/?slug= ── */
+    #slug-map-wrap{margin:0 48px 24px;border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:20px;padding:16px}
+    #slug-map-wrap[hidden]{display:none}
+    .featured-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    #slug-map-title{font-size:17px;font-weight:800;letter-spacing:-.02em}
+    #slug-map{height:380px;border-radius:14px;border:1px solid var(--line);overflow:hidden;position:relative;background:#eef1f5}
+    #slug-map .maplibregl-canvas{outline:none}
+    #slug-map .featured-static{position:absolute;inset:0}
+    #slug-map .featured-static .thumb-preview{width:100%;height:100%}
+    #slug-map-meta{margin-top:12px;font-size:13px;color:var(--muted)}
+    #slug-map .maplibregl-ctrl-group{opacity:.55;transition:opacity .2s;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,.1)}
+    #slug-map:hover .maplibregl-ctrl-group,
+    #slug-map .maplibregl-ctrl-group:focus-within{opacity:1}
+    #slug-map .maplibregl-ctrl-group button{width:32px;height:32px}
+    .featured-legend{position:absolute;left:12px;bottom:34px;z-index:6;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border:1px solid rgba(16,24,40,.14);border-radius:12px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:11px;color:#334155;box-shadow:0 6px 20px rgba(15,23,42,.14);line-height:1.35}
+    .featured-legend-title{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#64748b;margin-bottom:7px}
+    .featured-legend-steps{display:flex;border-radius:4px;overflow:hidden;border:1px solid rgba(16,24,40,.18)}
+    .featured-legend-steps span{width:26px;height:11px;display:block}
+    .featured-legend-scale{display:flex;justify-content:space-between;margin-top:4px;font-weight:600;color:#475569}
+    @media (max-width:920px){
+      #slug-map-wrap{margin:0 24px 20px;padding:14px}
+      #slug-map{height:260px}
+    }
+    @media (max-width:560px){
+      #slug-map-wrap{margin-left:18px;margin-right:18px}
+      .featured-legend{left:8px;bottom:52px;padding:8px 10px;font-size:10px}
+      .featured-legend-steps span{width:20px}
+    }
+
     /* ── Empty state ── */
     .empty{
       break-inside:avoid;border:1px dashed var(--line);border-radius:20px;
@@ -507,6 +537,15 @@
     </div>
     <div id="filter-status" class="filter-result-text" aria-live="polite" role="status"></div>
 
+    <!-- Mapa + leyenda de la landing /gallery/?slug=<id> (SEO). Oculto sin slug. -->
+    <section id="slug-map-wrap" aria-label="Mapa publicado" hidden>
+      <div class="featured-head">
+        <h2 id="slug-map-title">Mapa</h2>
+      </div>
+      <div id="slug-map"></div>
+      <div id="slug-map-meta"></div>
+    </section>
+
     <section id="gallery-list" class="grid" aria-live="polite">
       <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
       <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
@@ -575,7 +614,8 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script defer src="/js/auth.js"></script>
   <script defer src="/js/user-maps.js"></script>
-
+  <script defer src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+  <script defer src="/js/basemap-config.js"></script>
   <script defer src="/js/gallery-page.js"></script>
   <script>
     document.querySelectorAll('img').forEach(function (image) {
