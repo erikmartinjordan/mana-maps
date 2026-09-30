@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v10';
+const CACHE_NAME = 'mana-maps-pwa-v11';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -21,34 +21,35 @@ const PRECACHE_URLS = [
   'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js',
   '/js/firebase-config.local.js',
   '/js/firebase.js',
-  '/js/i18n.js?v=1777000021',
+  '/js/i18n.js?v=1790749821',
   '/js/basemap-config.js?v=1776927833',
-  '/js/markers.js?v=1776927828',
+  '/js/markers.js?v=1790749821',
   '/js/modal.js?v=1776927826',
-  '/js/map-core.js?v=1777000022',
+  '/js/map-core.js?v=1790749821',
+  '/js/map-preview.js?v=1790749821',
   '/js/vector-renderer.js',
   '/js/stats.js?v=1776927826',
-  '/js/globe.js?v=1776927833',
+  '/js/globe.js?v=1790749821',
   '/js/tools.js?v=1776927827',
-  '/js/context-menu.js?v=1776927828',
-  '/js/import-export.js?v=1776927829',
+  '/js/context-menu.js?v=1790749821',
+  '/js/import-export.js?v=1790749821',
   '/js/chat.js?v=1776927827',
   '/js/undo-redo.js?v=1776927827',
-  '/js/persistence.js?v=1776927829',
+  '/js/persistence.js?v=1790749821',
   '/js/gallery.js?v=1776927826',
   '/js/ogc-loader.js?v=1776927826',
   '/js/responsive.js?v=1776927826',
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js',
-  '/js/auth.js?v=1776927827',
-  '/js/user-maps.js?v=1776927827',
-  '/js/tracking.js?v=1776927827',
-  '/js/collab.js?v=1776927827',
-  '/js/plans.js?v=1776927827',
-  '/js/upsell.js?v=1776927827',
-  '/js/categorize.js?v=1776927827',
-  '/js/shortcuts.js?v=1776927827'
+  '/js/auth.js?v=1776927826',
+  '/js/user-maps.js?v=1776927826',
+  '/js/tracking.js?v=1776927826',
+  '/js/collab.js?v=1776927826',
+  '/js/plans.js?v=1776927826',
+  '/js/upsell.js?v=1776927826',
+  '/js/categorize.js?v=1776927826',
+  '/js/shortcuts.js?v=1776927826'
 ];
 
 const PRECACHE_KEYS = new Set(PRECACHE_URLS.map((url) => new URL(url, self.location.origin).href));
@@ -94,6 +95,15 @@ self.addEventListener('fetch', (event) => {
   const isNavigation = event.request.mode === 'navigate';
   const isPrecached = PRECACHE_KEYS.has(requestUrl.href);
 
+  // Same-origin scripts/styles are never served cache-first: a stale copy (e.g.
+  // when an asset changes but its ?v= cache-buster is not bumped) would strand
+  // users on old code forever. Stale-while-revalidate serves the cached file but
+  // refreshes it in the background so the next load always gets the update.
+  if (isScriptOrStyle(requestUrl)) {
+    event.respondWith(staleWhileRevalidate(event.request));
+    return;
+  }
+
   if (isPrecached) {
     event.respondWith(cacheFirst(event.request));
     return;
@@ -101,6 +111,25 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(networkFirst(event.request, isNavigation));
 });
+
+function isScriptOrStyle(url) {
+  return url.origin === self.location.origin && /\.(?:js|css)$/.test(url.pathname);
+}
+
+function staleWhileRevalidate(request) {
+  return caches.open(CACHE_NAME).then((cache) =>
+    cache.match(request).then((cachedResponse) => {
+      const networkResponse = fetch(request)
+        .then((response) => {
+          if (response && (response.ok || response.type === 'opaque')) {
+            cache.put(request, response.clone());
+          }
+          return response;
+        })
+        .catch(() => cachedResponse);
+      return cachedResponse || networkResponse;
+    }));
+}
 
 function cacheFirst(request) {
   return caches.match(request.url)
