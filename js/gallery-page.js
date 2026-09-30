@@ -693,12 +693,160 @@
     if (twitterDesc) twitterDesc.setAttribute('content', description.length > 200 ? description.slice(0, 197) + '…' : description);
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // LANDING ?slug= — preview + leyenda declarada (legendKey)
+  // ═══════════════════════════════════════════════════════════════
+
+  // Mismos helpers de rampa que js/map-core.js (renderLegend).
+  function parseLegendNumber(raw) {
+    if (raw == null) return NaN;
+    // Los números crudos de JS SIEMPRE usan punto decimal (41.271, 0.970).
+    if (typeof raw === 'number') return isFinite(raw) ? raw : NaN;
+    var s = String(raw);
+    var m = s.replace(/[^\d.,\-]/g, '');
+    if (m === '') return NaN;
+    var num;
+    // 0.xxx es decimal (p. ej. IDH 0.970), no miles con separador de punto.
+    if (/^0[.,]\d+$/.test(m)) {
+      num = parseFloat(m.replace(',', '.'));
+    } else if (m.indexOf(',') !== -1) {
+      num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
+    } else if (/^\d{1,3}(\.\d{3})+$/.test(m)) {
+      num = parseFloat(m.replace(/\./g, ''));
+    } else {
+      num = parseFloat(m);
+    }
+    return isFinite(num) ? num : NaN;
+  }
+
+  function formatLegendValue(v, fmt) {
+    if (fmt === 'year') return String(Math.round(v));
+    if (fmt === 'meters') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
+    if (fmt === 'usd') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $';
+    var rounded = Math.round(v * 100) / 100;
+    var parts = String(rounded).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parts.join(',');
+  }
+
+  function buildDeclaredLegend(geo, item) {
+    if (!item || !item.legendKey || !geo || !geo.features) return null;
+    var colors = {};
+    geo.features.forEach(function(f) {
+      var p = f.properties || {};
+      var c = p._manaColor || p.color;
+      var v = parseLegendNumber(p[item.legendKey]);
+      if (!c || !isFinite(v)) return;
+      if (!colors[c]) colors[c] = { v: v, c: c };
+    });
+    var steps = Object.keys(colors).map(function(k) { return colors[k]; })
+      .sort(function(a, b) { return a.v - b.v; });
+    if (steps.length < 3) return null;
+    return {
+      title: item.legendTitle || item.legendKey,
+      steps: steps,
+      fmt: item.legendFormat || 'number'
+    };
+  }
+
+  function renderSlugLegendHtml(legend) {
+    if (!legend) return '';
+    var stepsHtml = legend.steps.map(function(s) {
+      return '<span style="background:' + s.c + '"></span>';
+    }).join('');
+    return '<div class="slug-legend" id="slug-legend" role="img" aria-label="Leyenda: ' + escHtml(legend.title) + '">' +
+      '<div class="slug-legend-title">' + escHtml(legend.title) + '</div>' +
+      '<div class="slug-legend-steps">' + stepsHtml + '</div>' +
+      '<div class="slug-legend-scale"><span>' +
+        escHtml(formatLegendValue(legend.steps[0].v, legend.fmt)) +
+        '</span><span>' +
+        escHtml(formatLegendValue(legend.steps[legend.steps.length - 1].v, legend.fmt)) +
+        '</span></div>' +
+      '</div>';
+  }
+
+  function ensureSlugLandingHost() {
+    var host = document.getElementById('slug-landing');
+    if (host) return host;
+    host = document.createElement('section');
+    host.id = 'slug-landing';
+    host.className = 'slug-landing';
+    host.setAttribute('aria-label', 'Mapa destacado de la galería');
+    var hero = document.querySelector('.hero');
+    if (hero && hero.parentNode) {
+      hero.parentNode.insertBefore(host, hero.nextSibling);
+    } else {
+      var frame = document.querySelector('.frame');
+      if (frame) frame.insertBefore(host, frame.firstChild);
+      else document.body.insertBefore(host, document.body.firstChild);
+    }
+    return host;
+  }
+
+  function renderSlugLanding(item) {
+    if (!item) return;
+    var host = ensureSlugLandingHost();
+    var title = item.title || item.name || 'Mapa sin título';
+    var mapSlug = item.slug || item.id;
+    var mode = item.shareMode || 'view';
+    var openUrl = '/map/index.html?gallery=' + encodeURIComponent(mapSlug) +
+      '&map=' + encodeURIComponent(mapSlug) +
+      '&room=' + encodeURIComponent(mapSlug) +
+      '&mode=' + encodeURIComponent(mode);
+    var thumb = renderThumb(item);
+    var legend = buildDeclaredLegend(getPublishedGeo(item), item);
+    var tags = Array.isArray(item.tags) ? item.tags : [];
+    var tagsHtml = tags.length
+      ? '<div class="card-tags slug-tags">' + tags.map(function(t) {
+          return '<span class="card-tag">' + escHtml(t) + '</span>';
+        }).join('') + '</div>'
+      : '';
+    host.innerHTML =
+      '<div class="slug-landing-map">' + (thumb || '') + '</div>' +
+      '<div class="slug-landing-side">' +
+        '<span class="eyebrow">Mapa de la galería</span>' +
+        '<h2 class="slug-landing-title">' + escHtml(title) + '</h2>' +
+        tagsHtml +
+        renderSlugLegendHtml(legend) +
+        '<a class="btn btn-primary slug-open-btn" href="' + openUrl + '">Abrir mapa interactivo</a>' +
+      '</div>';
+  }
+
+  async function fetchMapBySlug(slug) {
+    if (typeof firebase === 'undefined') return null;
+    try {
+      if (!firebase.apps || !firebase.apps.length) {
+        if (!firebaseConfig) return null;
+        firebase.initializeApp(firebaseConfig);
+      }
+      var db = firebase.firestore();
+      var doc = await db.collection(MAPS_COLLECTION).doc(slug).get();
+      if (!doc || !doc.exists) return null;
+      var data = doc.data() || {};
+      if (data.isPublished === false) return null;
+      return { id: doc.id, ...data };
+    } catch (e) {
+      console.warn('gallery fetchMapBySlug failed:', e);
+      return null;
+    }
+  }
+
   function handleSlugLanding(maps) {
     var params = new URLSearchParams(window.location.search);
     var slug = params.get('slug');
     if (!slug) return;
-    var item = maps.find(function(m) { return (m.slug || m.id) === slug; });
-    if (item) injectDatasetJsonLd(item);
+    var item = (maps || []).find(function(m) { return (m.slug || m.id) === slug; });
+    if (item) {
+      injectDatasetJsonLd(item);
+      renderSlugLanding(item);
+      return;
+    }
+    // El mapa puede no estar en la primera página del listado: traerlo por slug.
+    fetchMapBySlug(slug).then(function(fresh) {
+      if (!fresh) return;
+      injectDatasetJsonLd(fresh);
+      renderSlugLanding(fresh);
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════

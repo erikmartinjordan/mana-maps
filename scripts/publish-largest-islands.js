@@ -186,6 +186,9 @@ async function main(){
     dataSource:fsStr('Natural Earth 50m (geometría de islas) + Wikipedia (superficie y población)'),
     dataDate:fsStr('2026-09'),
     tags:fsArr(['Geografía','Naturaleza','Islas','Océanos']),
+    legendKey:fsStr('superficie_km2'),
+    legendTitle:fsStr('Superficie (km²)'),
+    legendFormat:fsStr('number'),
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,
     views:fsInt(0), likes:fsInt(0)

@@ -1478,11 +1478,16 @@ function stats() {
 // también por la rampa en la vista /map/. Prefijo _mana para evitar colisiones.
 function _manaParsePropNumber(raw) {
   if (raw == null) return NaN;
+  // Los números crudos de JS SIEMPRE usan punto decimal (41.271, 0.970).
+  if (typeof raw === 'number') return isFinite(raw) ? raw : NaN;
   var s = String(raw);
   var m = s.replace(/[^\d.,\-]/g, '');
   if (m === '') return NaN;
   var num;
-  if (m.indexOf(',') !== -1) {
+  // 0.xxx es decimal (p. ej. IDH 0.970), no miles con separador de punto.
+  if (/^0[.,]\d+$/.test(m)) {
+    num = parseFloat(m.replace(',', '.'));
+  } else if (m.indexOf(',') !== -1) {
     num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
   } else if (/^\d{1,3}(\.\d{3})+$/.test(m)) {
     num = parseFloat(m.replace(/\./g, ''));
