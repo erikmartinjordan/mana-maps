@@ -904,6 +904,10 @@
     var titleEl = document.getElementById('slug-map-title');
     if (!wrap || !target) return;
 
+    // Bloque «Mapas relacionados»: enlaces HTML rastreables al inicio de la
+    // landing para interconectar el SEO de la galería.
+    renderRelatedMaps(item, _allMaps);
+
     var geo = await getPublishedGeoAsync(item);
     if (titleEl) titleEl.textContent = item.title || item.name || 'Mapa';
     wrap.hidden = false;
@@ -961,6 +965,174 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // MAPAS RELACIONADOS — bloque SEO en landings /gallery/?slug=
+  // ═══════════════════════════════════════════════════════════════
+  // Enlaces HTML rastreables a 3-4 mapas temáticamente afines.
+  // Afinidad: tags compartidos con peso IDF + clústeres temáticos
+  // + tokens de título/slug. Fallback: mapas más recientes.
+
+  var RELATED_LIMIT = 4;
+
+  // Clústeres temáticos (tokens en minúscula, sin acentos) para emparejar
+  // mapas aunque sus tags sean distintos (p. ej. «Océanos» ↔ «Arrecifes»).
+  var RELATED_THEME_CLUSTERS = [
+    ['volcan', 'geolog', 'pico', 'peak', 'montan', 'desiert', 'desert', 'rio', 'river', 'isla', 'island', 'ocean', 'mare', 'sea', 'arrecife', 'coral', 'incendi', 'wildfire', 'forest', 'hidrograf', 'glaciar', 'volcano'],
+    ['co2', 'emision', 'nuclear', 'energia', 'energy', 'electric', 'clima', 'climate', 'forest', 'incendi', 'wildfire', 'medio', 'ambiente', 'environment', 'contamina', 'solar', 'eolica', 'eolico'],
+    ['poblacion', 'population', 'fertil', 'esperanza', 'life', 'alfabetiz', 'literacy', 'educacion', 'education', 'felicidad', 'happiness', 'bienestar', 'internet', 'conectiv', 'desarrollo', 'development', 'idh', 'humano', 'salario', 'wage', 'econom', 'salud', 'health', 'empleo', 'pobreza'],
+    ['patrimonio', 'unesco', 'biblioteca', 'library', 'cultura', 'culture', 'ciudad', 'city', 'perdid', 'lost', 'ruina', 'ruin', 'arqueolog', 'historia', 'history', 'civiliz', 'museo', 'monumento', 'heritage'],
+    ['fibra', 'fiber', 'internet', 'tecnolog', 'technology', 'conectiv', 'infrastructure', 'infraestructura', 'nuclear', 'electric', 'dato', 'data', 'banda', 'red'],
+  ];
+
+  var RELATED_GENERIC_TOKENS = /^(mundo|mundial|paises|pais|por|del|de|la|el|los|las|y|en|con|world|country|countries|the|of|and|in|mapa|maps|indice|index|total|principales|mayores|largos|largas|largest|biggest|famosos|activos|peores|worst|publicas|public|per|capita|mundial)$/;
+
+  function normalizeRelToken(str) {
+    return String(str || '').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  function normRelTag(tag) {
+    return normalizeRelToken(tag);
+  }
+
+  function relatedTokensOf(map) {
+    var raw = ((map && (map.title || map.name)) || '') + ' ' +
+      ((map && (map.slug || map.id)) || '') + ' ' +
+      (map && Array.isArray(map.tags) ? map.tags.join(' ') : '');
+    return normalizeRelToken(raw).split(/\s+/).filter(function(w) {
+      return w.length >= 3 && !RELATED_GENERIC_TOKENS.test(w);
+    });
+  }
+
+  function mapThemeIndexes(map) {
+    var tokens = relatedTokensOf(map);
+    var themes = [];
+    RELATED_THEME_CLUSTERS.forEach(function(cluster, idx) {
+      for (var i = 0; i < cluster.length; i++) {
+        var needle = cluster[i];
+        for (var j = 0; j < tokens.length; j++) {
+          if (tokens[j].indexOf(needle) >= 0) { themes.push(idx); return; }
+        }
+      }
+    });
+    return themes;
+  }
+
+  function buildRelTagStats(maps) {
+    var freq = {};
+    var total = (maps || []).length;
+    (maps || []).forEach(function(m) {
+      (Array.isArray(m.tags) ? m.tags : []).forEach(function(t) {
+        var nt = normRelTag(t);
+        if (!nt) return;
+        freq[nt] = (freq[nt] || 0) + 1;
+      });
+    });
+    return { freq: freq, total: total || 1 };
+  }
+
+  function relTagWeight(stats, tag) {
+    var f = stats.freq[tag] || 0;
+    if (!f) return 0;
+    // IDF: una tag compartida y rara aporta más afinidad que una genérica.
+    return Math.log(1 + stats.total / f);
+  }
+
+  function mapCreatedMs(m) {
+    return (m && m.createdAtMs) || (m && m.createdAt && m.createdAt.toMillis ? m.createdAt.toMillis() : 0);
+  }
+
+  // Devuelve 3-4 mapas afines al actual (excluido él mismo).
+  function pickRelatedMaps(current, allMaps, limit) {
+    limit = limit || RELATED_LIMIT;
+    var currentSlug = current && (current.slug || current.id);
+    var others = (allMaps || []).filter(function(m) {
+      var s = m && (m.slug || m.id);
+      return s && s !== currentSlug;
+    });
+    if (!others.length) return [];
+
+    var stats = buildRelTagStats((allMaps || []).concat(current ? [current] : []));
+    var currentTags = (current && Array.isArray(current.tags) ? current.tags : [])
+      .map(normRelTag).filter(Boolean);
+    var currentThemes = mapThemeIndexes(current || {});
+    var currentTokenSet = {};
+    relatedTokensOf(current || {}).forEach(function(t) { currentTokenSet[t] = true; });
+
+    var scored = others.map(function(m) {
+      var score = 0;
+      (Array.isArray(m.tags) ? m.tags : []).forEach(function(t) {
+        var nt = normRelTag(t);
+        if (nt && currentTags.indexOf(nt) >= 0) score += relTagWeight(stats, nt);
+      });
+      mapThemeIndexes(m).forEach(function(th) {
+        if (currentThemes.indexOf(th) >= 0) score += 1.5;
+      });
+      relatedTokensOf(m).forEach(function(t) {
+        if (currentTokenSet[t]) score += 0.3;
+      });
+      return { map: m, score: score, created: mapCreatedMs(m) };
+    }).filter(function(x) { return x.score > 0; });
+
+    scored.sort(function(a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.created - a.created;
+    });
+
+    var picked = scored.slice(0, limit).map(function(x) { return x.map; });
+
+    // Fallback: completar con los mapas más recientes aún no elegidos.
+    if (picked.length < limit) {
+      var seen = {};
+      picked.forEach(function(m) { seen[m.slug || m.id] = true; });
+      var byRecency = others.slice().sort(function(a, b) { return mapCreatedMs(b) - mapCreatedMs(a); });
+      for (var i = 0; i < byRecency.length && picked.length < limit; i++) {
+        var key = byRecency[i].slug || byRecency[i].id;
+        if (!seen[key]) {
+          picked.push(byRecency[i]);
+          seen[key] = true;
+        }
+      }
+    }
+    return picked;
+  }
+
+  // Renderiza el bloque «Mapas relacionados» con enlaces HTML rastreables.
+  function renderRelatedMaps(current, allMaps) {
+    var section = document.getElementById('related-maps');
+    var list = document.getElementById('related-maps-list');
+    if (!section || !list) return;
+    if (!current) {
+      section.hidden = true;
+      list.innerHTML = '';
+      return;
+    }
+    var related = pickRelatedMaps(current, allMaps || _allMaps, RELATED_LIMIT);
+    if (!related.length) {
+      section.hidden = true;
+      list.innerHTML = '';
+      return;
+    }
+    list.innerHTML = related.map(function(m) {
+      var slug = m.slug || m.id;
+      var title = m.title || m.name || 'Mapa sin título';
+      var href = '/gallery/?slug=' + encodeURIComponent(slug);
+      return '<li class="related-map-item">' +
+        '<a class="related-map-link" href="' + href + '">' + escHtml(title) + '</a>' +
+        '</li>';
+    }).join('');
+    section.hidden = false;
+  }
+
+  // Hook de test/auditoría (no usado por la UI).
+  window.ManaGalleryRelated = {
+    pickRelatedMaps: pickRelatedMaps,
+    renderRelatedMaps: renderRelatedMaps,
+    RELATED_LIMIT: RELATED_LIMIT
+  };
+
+  // ═══════════════════════════════════════════════════════════════
   // INIT + REALTIME
   // ═══════════════════════════════════════════════════════════════
 
@@ -998,6 +1170,7 @@
       }
     }
     if (item) await showSlugMap(item);
+    else renderRelatedMaps(null, maps || _allMaps);
   }
 
   init();

@@ -410,6 +410,28 @@
       .featured-legend-steps span{width:20px}
     }
 
+    /* ── Mapas relacionados de la landing /gallery/?slug= ── */
+    #related-maps{margin:0 48px 24px;border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:20px;padding:16px}
+    #related-maps[hidden]{display:none}
+    #related-maps-title{font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+    .related-maps-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+    .related-map-item{min-width:0}
+    .related-map-link{
+      display:block;height:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;
+      background:#fff;text-decoration:none;color:var(--text);
+      font-size:13.5px;font-weight:600;line-height:1.35;
+      transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+    }
+    .related-map-link:hover{transform:translateY(-2px);border-color:rgba(16,24,40,.22);box-shadow:0 8px 20px rgba(15,23,42,.08)}
+    .related-map-link:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    @media (max-width:920px){
+      #related-maps{margin:0 24px 20px;padding:14px}
+    }
+    @media (max-width:560px){
+      #related-maps{margin-left:18px;margin-right:18px}
+      .related-maps-list{grid-template-columns:1fr}
+    }
+
     /* ── Empty state ── */
     .empty{
       break-inside:avoid;border:1px dashed var(--line);border-radius:20px;
@@ -562,6 +584,12 @@
       </div>
       <div id="slug-map"></div>
       <div id="slug-map-meta"></div>
+    </section>
+
+    <!-- Mapas relacionados de la landing /gallery/?slug=<id> (SEO). Oculto sin slug. -->
+    <section id="related-maps" aria-label="Mapas relacionados" hidden>
+      <h2 id="related-maps-title">Mapas relacionados</h2>
+      <ul id="related-maps-list" class="related-maps-list"></ul>
     </section>
 
     <section id="gallery-list" class="grid" aria-live="polite">

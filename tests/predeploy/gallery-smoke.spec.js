@@ -75,3 +75,95 @@ test('gallery auth modal opens on like/fork click', async ({ page }) => {
 
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
+
+test('slug landing renders related maps block with crawlable HTML links', async ({ page }) => {
+  const pageErrors = [];
+  page.on('pageerror', (err) => pageErrors.push(err.message));
+
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
+
+  // Firestore simulado: mapa actual + afines por tags/temática.
+  const MOCK_MAPS = [
+    { slug: 'oceany-mares-world', title: 'Océanos y mares del mundo', tags: ['Geografía', 'Naturaleza'], isPublished: true, createdAtMs: 1000, featureCount: 5, shareMode: 'view' },
+    { slug: 'arrecifes-coral', title: 'Arrecifes de coral', tags: ['Naturaleza', 'Océanos'], isPublished: true, createdAtMs: 2000, featureCount: 5, shareMode: 'view' },
+    { slug: 'islas-grandes', title: 'Islas más grandes del mundo', tags: ['Geografía', 'Naturaleza'], isPublished: true, createdAtMs: 3000, featureCount: 5, shareMode: 'view' },
+    { slug: 'rios-largos', title: 'Ríos más largos del mundo', tags: ['Geografía', 'Hidrografía'], isPublished: true, createdAtMs: 4000, featureCount: 5, shareMode: 'view' },
+    { slug: 'desiertos-mundo', title: 'Desiertos del mundo', tags: ['Geografía', 'Naturaleza', 'Clima'], isPublished: true, createdAtMs: 5000, featureCount: 5, shareMode: 'view' },
+    { slug: 'salario-minimo', title: 'Salario mínimo por país', tags: ['Economía', 'Geografía'], isPublished: true, createdAtMs: 6000, featureCount: 5, shareMode: 'view' },
+  ];
+
+  await page.addInitScript((maps) => {
+    delete window.MANA_FIREBASE_CONFIGS;
+    const docSnap = (data) => ({
+      id: data.slug,
+      exists: true,
+      data: () => data,
+    });
+    const listSnap = {
+      docs: maps.map((m) => docSnap(m)),
+      empty: maps.length === 0,
+      forEach: (fn) => maps.forEach((m) => fn(docSnap(m))),
+    };
+    const query = {
+      where: () => query,
+      orderBy: () => query,
+      limit: () => query,
+      get: async () => listSnap,
+      onSnapshot: (cb) => {
+        if (typeof cb === 'function') cb(listSnap);
+        return () => {};
+      },
+    };
+    const mockAuth = () => ({
+      currentUser: null,
+      onAuthStateChanged: (cb) => {
+        if (typeof cb === 'function') cb(null);
+        return () => {};
+      },
+      signInWithEmailAndPassword: async () => { throw new Error('mock-auth'); },
+      createUserWithEmailAndPassword: async () => { throw new Error('mock-auth'); },
+      signInAnonymously: async () => { throw new Error('mock-auth'); },
+      signInWithPopup: async () => { throw new Error('mock-auth'); },
+      signOut: async () => {},
+    });
+    mockAuth.GoogleAuthProvider = function GoogleAuthProvider() {};
+    window.firebase = {
+      apps: [{}],
+      initializeApp: () => ({}),
+      auth: mockAuth,
+      firestore: () => ({
+        collection: () => ({
+          where: () => query,
+          doc: (id) => ({
+            get: async () => {
+              const m = maps.find((x) => x.slug === id || x.id === id);
+              return m ? docSnap(m) : { exists: false, data: () => null };
+            },
+          }),
+        }),
+      }),
+    };
+  }, MOCK_MAPS);
+
+  await page.goto('/gallery/?slug=oceany-mares-world', { waitUntil: 'domcontentloaded' });
+
+  const section = page.locator('#related-maps');
+  await expect(section).toBeVisible({ timeout: 20_000 });
+
+  const links = section.locator('.related-map-link');
+  const count = await links.count();
+  expect(count, 'Debe mostrar 3-4 mapas relacionados').toBeGreaterThanOrEqual(3);
+  expect(count, 'No más de 4 mapas relacionados').toBeLessThanOrEqual(4);
+
+  const hrefs = await links.evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  hrefs.forEach((href) => {
+    expect(href, 'Cada relación debe ser un enlace HTML rastreable /gallery/?slug=').toMatch(/^\/gallery\/\?slug=.+$/);
+    expect(href, 'No debe auto-relacionarse consigo mismo').not.toContain('oceany-mares-world');
+  });
+
+  // Sin slug no debe mostrarse el bloque.
+  await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#related-maps')).toBeHidden();
+
+  expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
+});
