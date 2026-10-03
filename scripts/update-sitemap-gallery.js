@@ -186,23 +186,29 @@ const MAP_URL_REGEX = /  <url>\n    <loc>https:\/\/xn--maa-8ma\.com\/gallery\/\?
 async function main() {
   console.log(`\n=== update-sitemap-gallery.js ${DRY_RUN ? '(DRY RUN)' : ''} ===\n`);
 
-  // 1. Get access token and list published maps
+  // 1. Get access token and list published maps (paginado)
   const token = await getAccessToken();
   console.log('Access token obtained.');
 
-  const res = await firestoreRequest(token, 'GET', `/${COLLECTION}?pageSize=100`);
-  if (res.status !== 200) throw new Error(`List maps failed (${res.status}): ${JSON.stringify(res.data)}`);
-
-  const docs = res.data.documents || [];
   const publishedSlugs = [];
-
-  for (const doc of docs) {
-    const id = doc.name.split('/').pop();
-    const isPublished = extractField(doc, 'isPublished');
-    if (isPublished === true) {
-      publishedSlugs.push(id);
+  let pageToken = null;
+  let pageNum = 0;
+  do {
+    const listPath = `/${COLLECTION}?pageSize=100${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+    const res = await firestoreRequest(token, 'GET', listPath);
+    if (res.status !== 200) throw new Error(`List maps failed (${res.status}): ${JSON.stringify(res.data)}`);
+    const docs = res.data.documents || [];
+    pageNum++;
+    for (const doc of docs) {
+      const id = doc.name.split('/').pop();
+      const isPublished = extractField(doc, 'isPublished');
+      if (isPublished === true && !publishedSlugs.includes(id)) {
+        publishedSlugs.push(id);
+      }
     }
-  }
+    pageToken = res.data.nextPageToken || null;
+    console.log(`  page ${pageNum}: +${docs.length} docs (published so far: ${publishedSlugs.length})`);
+  } while (pageToken);
 
   publishedSlugs.sort();
   console.log(`Found ${publishedSlugs.length} published maps in Firestore:\n`);

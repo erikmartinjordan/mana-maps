@@ -47,6 +47,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
     <loc>https://xn--maa-8ma.com/gallery/?slug=active-volcanoes-world</loc>
     <changefreq>weekly</changefreq>
@@ -58,7 +59,32 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=bibliotecas-barcelona</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/?slug=ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=co2-per-capita-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=co2-total-emissions-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=cobertura-forestal-por-pais</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=electricity-access-world</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -68,12 +94,37 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=happiness-index-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/?slug=highest-peaks-per-continent</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=indice-desarrollo-humano-por-pais</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=internet-users-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/?slug=largest-islands-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=life-expectancy-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=literacy-rate-world</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -93,6 +144,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=nuclear-energy-world</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/?slug=oceans-and-seas-world</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -103,17 +159,17 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=population-by-country</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/?slug=submarine-fiber-cables</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=worst-wildfires-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=indice-desarrollo-humano-por-pais</loc>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=women-in-parliament-world</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -123,54 +179,8 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=co2-per-capita-world</loc>
+    <loc>https://xn--maa-8ma.com/gallery/?slug=worst-wildfires-world</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=nuclear-energy-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=cobertura-forestal-por-pais</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=life-expectancy-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=population-by-country</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=bibliotecas-barcelona</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=electricity-access-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=literacy-rate-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=internet-users-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://xn--maa-8ma.com/gallery/?slug=co2-total-emissions-world</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
 </urlset>

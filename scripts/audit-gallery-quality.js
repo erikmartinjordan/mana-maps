@@ -154,6 +154,11 @@ const KNOWN_META = {
     dataDate: '2024-12-31',
     tags: ['Tecnología', 'Conectividad', 'Desarrollo', 'Geografía'],
   },
+  'women-in-parliament-world': {
+    dataSource: 'World Bank — Proportion of seats held by women in national parliaments (%). Indicator SG.GEN.PARL.ZS. https://data.worldbank.org/indicator/SG.GEN.PARL.ZS',
+    dataDate: '2025-12-31',
+    tags: ['Política', 'Género', 'Sociedad', 'Geografía'],
+  },
 };
 
 // ── Helpers ──────────────────────────────────────────────────────
