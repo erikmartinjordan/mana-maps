@@ -18,7 +18,7 @@ function initGlobe() {
       container: 'globe',
       style: getManaBasemapStyleUrl(isDarkMapTheme()),
       center: [map.getCenter().lng, map.getCenter().lat],
-      zoom: Math.max(1.5, map.getZoom() - 1),
+      zoom: Math.max(1.5, Math.min(map.getZoom() - 1, 2.2)),
       maxPitch: 85,
       attributionControl: false
     });
@@ -39,6 +39,7 @@ function initGlobe() {
     globeMap.on('mousedown', function() { if (spinActive) toggleSpin(); });
     globeMap.on('touchstart', function() { if (spinActive) toggleSpin(); });
     globeMap.on('zoomend', function(){
+      if (typeof _updateTileLabelVisibility === 'function') _updateTileLabelVisibility();
       if (globeMap.getZoom() > 2.6 && typeof activeBase !== 'undefined' && activeBase === 'globe' && !window._autoGlobeLock) {
         // No volver a 2D si a ese zoom el mundo seguiría duplicándose.
         var targetZoom = 2.8;
@@ -86,8 +87,38 @@ function updateGlobeBaseStyle(isDark) {
   });
 }
 
+// Anchors for globe-native labels. Areas use the centre of their bounding box
+// (matching the 2D MultiPolygon anchor) instead of one label per polygon part,
+// which duplicated names like «Canadá» on every island. Lines take their midpoint.
+function _manaGlobeLabelAnchor(geom) {
+  if (!geom || !geom.coordinates) return null;
+  if (geom.type === 'LineString') {
+    var c = geom.coordinates;
+    return c.length ? c[Math.floor(c.length / 2)] : null;
+  }
+  if (geom.type === 'MultiLineString') {
+    var l = geom.coordinates[0];
+    return l && l.length ? l[Math.floor(l.length / 2)] : null;
+  }
+  var pts = [];
+  (function walk(a) {
+    if (!Array.isArray(a)) return;
+    if (typeof a[0] === 'number') { pts.push(a); return; }
+    for (var i = 0; i < a.length; i++) walk(a[i]);
+  })(geom.coordinates);
+  if (!pts.length) return null;
+  var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (var j = 0; j < pts.length; j++) {
+    x0 = Math.min(x0, pts[j][0]); y0 = Math.min(y0, pts[j][1]);
+    x1 = Math.max(x1, pts[j][0]); y1 = Math.max(y1, pts[j][1]);
+  }
+  return [(x0 + x1) / 2, (y0 + y1) / 2];
+}
+
 function syncToGlobe() {
   if (!globeMap) return;
+  if (globeMap.getLayer('drawn-feature-labels')) globeMap.removeLayer('drawn-feature-labels');
+  if (globeMap.getSource('drawn-labels')) globeMap.removeSource('drawn-labels');
   if (globeMap.getLayer('drawn-point-labels')) globeMap.removeLayer('drawn-point-labels');
   if (globeMap.getLayer('drawn-emoji-points')) globeMap.removeLayer('drawn-emoji-points');
   if (globeMap.getLayer('drawn-points')) globeMap.removeLayer('drawn-points');
@@ -210,6 +241,52 @@ function syncToGlobe() {
     },
     paint: { 'text-color': _isDarkGlobe ? '#e8e6e3' : '#30363b', 'text-halo-color': _isDarkGlobe ? '#1a1a1a' : '#ffffff', 'text-halo-width': 1.5 }
   });
+
+  // Cartographic labels for areas and lines, drawn by MapLibre so they follow
+  // the globe projection instead of warping at the sphere's edge.
+  var labelFeatures = [];
+  geo.features.forEach(function(f) {
+    var g = f && f.geometry;
+    if (!g || g.type === 'Point' || g.type === 'MultiPoint') return;
+    var props = f.properties || {};
+    var ls = props._manaLabelStyle || {};
+    if (ls.enabled === false) return;
+    var text = props[ls.field] || props.name || '';
+    if (!text) return;
+    var anchor = _manaGlobeLabelAnchor(g);
+    if (!anchor) return;
+    labelFeatures.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: anchor },
+      properties: {
+        text: String(text),
+        _labelSize: Number(ls.fontSize) || 11,
+        _labelColor: ls.color || (_isDarkGlobe ? '#e8e6e3' : '#30363b'),
+        _labelHalo: ls.haloColor || (_isDarkGlobe ? '#1a1a1a' : '#ffffff')
+      }
+    });
+  });
+  if (labelFeatures.length) {
+    globeMap.addSource('drawn-labels', { type: 'geojson', data: { type: 'FeatureCollection', features: labelFeatures } });
+    globeMap.addLayer({
+      id: 'drawn-feature-labels', type: 'symbol', source: 'drawn-labels',
+      layout: {
+        'text-field': ['get', 'text'],
+        'text-size': ['get', '_labelSize'],
+        'text-font': ['Open Sans Regular'],
+        'text-allow-overlap': false,
+        'text-ignore-placement': false,
+        'text-padding': 3
+      },
+      paint: {
+        'text-color': ['get', '_labelColor'],
+        'text-halo-color': ['get', '_labelHalo'],
+        'text-halo-width': 1.6
+      }
+    });
+  }
+
+  if (typeof _updateTileLabelVisibility === 'function') _updateTileLabelVisibility();
 }
 
 function globeZoomIn() { if (globeMap) globeMap.zoomIn(); }

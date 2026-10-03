@@ -1,14 +1,14 @@
-const CACHE_NAME = 'mana-maps-pwa-v11';
+const CACHE_NAME = 'mana-maps-pwa-v18';
 const PRECACHE_URLS = [
   '/',
   '/map/',
   '/map/index.html',
-  '/js/pwa.js',
+  '/js/pwa.js?v=1790832006',
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
   'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
-  '/styles.css?v=1777000043',
+  '/styles.css?v=1777000046',
   '/styles/mana-positron.json?v=1776927833',
   '/styles/mana-dark.json?v=1776927833',
   '/styles/mana-openfreemap-alt.json?v=1776927833',
@@ -25,11 +25,11 @@ const PRECACHE_URLS = [
   '/js/basemap-config.js?v=1776927833',
   '/js/markers.js?v=1790749821',
   '/js/modal.js?v=1776927826',
-  '/js/map-core.js?v=1790749821',
+  '/js/map-core.js?v=1790832005',
   '/js/map-preview.js?v=1790749821',
   '/js/vector-renderer.js',
   '/js/stats.js?v=1776927826',
-  '/js/globe.js?v=1790749821',
+  '/js/globe.js?v=1790832001',
   '/js/tools.js?v=1776927827',
   '/js/context-menu.js?v=1790749821',
   '/js/import-export.js?v=1790749821',
@@ -101,6 +101,14 @@ self.addEventListener('fetch', (event) => {
   // refreshes it in the background so the next load always gets the update.
   if (isScriptOrStyle(requestUrl)) {
     event.respondWith(staleWhileRevalidate(event.request));
+    return;
+  }
+
+  // Navigations are network-first so a fresh build is picked up on the next
+  // load (falling back to cache offline). Serving precached HTML cache-first
+  // would otherwise pin an old document that references old ?v= assets.
+  if (isNavigation) {
+    event.respondWith(networkFirst(event.request, true));
     return;
   }
 

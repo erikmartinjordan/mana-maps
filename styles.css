@@ -22,7 +22,7 @@
   --color-border-subtle:var(--border-light);
 }
 html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;}
-:root[data-chat-collapsed="true"]{--right-w:0px;}
+:root[data-chat-collapsed="true"]{--right-w:0px;--hr-w:0px;}
 
 /* ── TOPBAR ──────────────────────────────────── */
 #topbar{height:48px;border-bottom:0.5px solid var(--border);background:var(--surface);
@@ -84,11 +84,14 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .drop-divider{height:1px;background:var(--border);}
 
 /* ── LAYOUT ──────────────────────────────────── */
-#app{display:grid;grid-template-columns:auto 4px 1fr 4px var(--right-w);height:calc(100vh - 48px);height:calc(100dvh - 48px);overflow:hidden;}
+#app{display:grid;grid-template-columns:auto 4px 1fr var(--hr-w,4px) var(--right-w);height:calc(100vh - 48px);height:calc(100dvh - 48px);overflow:hidden;}
 .resize-handle{background:transparent;cursor:col-resize;z-index:100;
   display:flex;align-items:center;justify-content:center;transition:background .15s;user-select:none;}
 .resize-handle:hover,.resize-handle.dragging{background:var(--blue);opacity:.4;border-radius:2px;}
-.resize-handle::after{content:'';display:block;width:2px;height:32px;border-radius:2px;background:var(--border);}
+.resize-handle::after{content:'';display:block;width:2px;height:32px;border-radius:2px;background:var(--border);opacity:0;transition:opacity .15s;}
+.resize-handle:hover::after,.resize-handle.dragging::after{opacity:1;}
+/* Collapsed chat: remove the divider entirely so no grey bar is left behind. */
+:root[data-chat-collapsed="true"] #handle-right{display:none;}
 
 /* ── SIDEBAR (toolbar + float panel) ──────────── */
 #sidebar{display:flex;flex-direction:row;overflow:hidden;flex-shrink:0;}
@@ -176,26 +179,60 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .marker-opt svg{width:14px;height:14px;}
 .marker-opt .mk-emoji-preview{font-size:14px;line-height:1;pointer-events:none;}
 
-/* ── BASEMAP CARDS ───────────────────────────── */
-.basemap-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;transition:grid-template-columns .15s;}
-.basemap-card{border-radius:10px;border:0.5px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;background:var(--surface);}
-.basemap-card:hover{border-color:var(--border-hover);}
-.basemap-card.active{border-color:#1a1a1a;box-shadow:none;}
-.basemap-thumb{width:100%;height:56px;display:block;background-size:cover;background-position:center;transition:height .15s;}
-.basemap-thumb-map{
-  background-image:url(https://a.basemaps.cartocdn.com/light_all/2/1/1.png);
-  background-size:cover;
-  background-position:center;
+/* ── BASEMAP SELECTOR (card stack over the map) ─ */
+/* Sits just above the locate button + Leaflet attribution row. */
+#basemap-stack{
+  position:absolute;right:12px;bottom:calc(102px + env(safe-area-inset-bottom));
+  width:48px;height:48px;z-index:820;
 }
-.basemap-thumb-sat{
-  background-image:url(https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=2);
-  background-size:cover;
-  background-position:center;
+.bm-card{
+  position:absolute;top:0;right:0;width:48px;height:48px;padding:0;border:0;
+  border-radius:13px;overflow:hidden;cursor:pointer;background:var(--surface);
+  box-shadow:0 0 0 1px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.12),0 8px 20px rgba(0,0,0,.10);
+  transform-origin:50% 50%;-webkit-tap-highlight-color:transparent;
+  transition:transform 360ms cubic-bezier(.34,1.5,.64,1),opacity 360ms cubic-bezier(.34,1.5,.64,1),box-shadow .15s;
+  will-change:transform,opacity;
 }
-.basemap-label{font-size:11px;font-weight:700;text-align:center;padding:5px 4px 6px;
-  color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  transition:opacity .15s,max-height .15s,padding .15s;max-height:28px;opacity:1;}
-.basemap-card.active .basemap-label{color:var(--primary);}
+.bm-thumb{position:absolute;inset:0;display:block;}
+.bm-thumb svg{width:100%;height:100%;display:block;}
+.bm-card.front{transform:translate(0,0) rotate(0deg);z-index:3;opacity:1;}
+.bm-card.front::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px var(--blue);}
+.bm-card.back1{transform:translate(-5px,-5px) rotate(-7deg);z-index:2;opacity:.92;}
+.bm-card.back2{transform:translate(-10px,-9px) rotate(-14deg);z-index:1;opacity:.8;}
+#basemap-stack:hover .bm-card.front,
+#basemap-stack.is-open .bm-card.front{transform:translate(0,-8px) rotate(3deg);opacity:1;z-index:6;
+  transition:transform 410ms cubic-bezier(.31,1.84,.64,1),opacity 410ms cubic-bezier(.31,1.84,.64,1),box-shadow .15s;}
+#basemap-stack:hover .bm-card.back1,
+#basemap-stack.is-open .bm-card.back1{transform:translate(-46px,-6px) rotate(-1deg);opacity:1;z-index:5;
+  transition:transform 410ms cubic-bezier(.31,1.84,.64,1),opacity 410ms cubic-bezier(.31,1.84,.64,1),box-shadow .15s;}
+#basemap-stack:hover .bm-card.back2,
+#basemap-stack.is-open .bm-card.back2{transform:translate(-90px,-3px) rotate(-5deg);opacity:1;z-index:4;
+  transition:transform 410ms cubic-bezier(.31,1.84,.64,1),opacity 410ms cubic-bezier(.31,1.84,.64,1),box-shadow .15s;}
+.bm-card:hover{box-shadow:0 0 0 2px var(--blue),0 8px 22px rgba(0,0,0,.22);}
+.bm-card:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+/* Hover label for the basemap cards — "tooltip open/close" motion
+   (delayed in 150ms/80ms · travels 160ms · instant out 50ms). */
+#basemap-stack .bm-tip{
+  position:absolute;left:0;bottom:calc(100% + 10px);z-index:20;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:6px 10px;border-radius:9px;white-space:nowrap;pointer-events:none;
+  background:var(--surface);color:var(--text);border:0.5px solid var(--border);
+  font-size:12px;font-weight:600;line-height:1;
+  box-shadow:0 0 0 1px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.12),0 8px 24px rgba(0,0,0,.10);
+  translate:var(--bm-tip-x,0px) 0;
+  scale:.98;transform-origin:50% 100%;opacity:0;
+  transition:opacity 50ms ease-out,scale 50ms ease-out,translate 160ms cubic-bezier(.22,1,.36,1);
+}
+#basemap-stack .bm-tip[data-show="true"]{
+  opacity:1;scale:1;
+  transition:opacity 150ms ease-out 80ms,scale 150ms ease-out 80ms,translate 160ms cubic-bezier(.22,1,.36,1);
+}
+@media (prefers-reduced-motion: reduce){
+  #basemap-stack .bm-tip{transition:none !important;}
+}
+@media (prefers-reduced-motion: reduce){
+  .bm-card,#basemap-stack:hover .bm-card,#basemap-stack.is-open .bm-card{transition:none !important;}
+}
 
 /* ── LAYER LIST ──────────────────────────────── */
 #layer-list{display:flex;flex-direction:column;gap:4px;}
@@ -223,15 +260,11 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 #map{flex:1;width:100%;}
 #globe{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:1;background:#0a1628;}
 .maplibregl-canvas{outline:none;}
-.basemap-thumb-globe{
-  background-image:url(globe-thumb.png);
-  background-size:cover;
-  background-position:center;
-}
 .globe-atmosphere{pointer-events:none;position:absolute;inset:0;z-index:2;
   background:radial-gradient(ellipse at center,transparent 55%,rgba(10,22,40,0.5) 100%);
   display:none;}
-#globe-controls{display:none;position:absolute;bottom:70px;right:12px;z-index:10;
+/* Kept above the basemap stack so they never overlap. */
+#globe-controls{display:none;position:absolute;bottom:calc(160px + env(safe-area-inset-bottom));right:12px;z-index:10;
   flex-direction:column;gap:6px;}
 #globe-controls button{width:34px;height:34px;border-radius:8px;border:0.5px solid var(--border);
   background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(6px);cursor:pointer;
@@ -684,7 +717,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .drop-menu{min-width:150px;}
 
   /* ── Globe controls ── */
-  #globe-controls{bottom:60px;right:8px;}
+  #globe-controls{bottom:calc(172px + env(safe-area-inset-bottom));right:8px;}
+
+  /* ── Basemap selector ── */
+  #basemap-stack{right:8px;bottom:calc(114px + env(safe-area-inset-bottom));}
 
   /* ── Draw hint ── */
   #draw-hint{font-size:11px;padding:6px 12px;}
@@ -756,7 +792,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .marker-opt{width:44px;height:44px;}
   .ctx-marker-grid .marker-opt{width:36px;height:36px;}
   .ctx-swatch{width:28px;height:28px;padding:8px;box-sizing:content-box;}
-  .basemap-thumb{height:64px;}
 
   /* ── P3: Prevent iOS Safari auto-zoom on inputs (font ≥ 16px) ── */
   #chat-input,
@@ -776,7 +811,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .draw-btn:active,
 .tool-icon:active,
 .mobile-toggle:active,
-.basemap-card:active,
 .drop-item:active,
 .ctx-item:active,
 .layer-item:active,
@@ -1939,7 +1973,7 @@ select.ai-input{cursor:pointer;appearance:auto;}
 #map,#globe{transition:opacity 0.2s ease;}
 
 /* ── P3.10: Accessibility focus styles ── */
-.tool-btn:focus-visible,.basemap-card:focus-visible,.color-swatch:focus-visible,.marker-opt:focus-visible,
+.tool-btn:focus-visible,.color-swatch:focus-visible,.marker-opt:focus-visible,
 .btn:focus-visible,.chat-suggestion:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px;}
 
 /* ── P3.11: Project name in sidebar header ── */
@@ -2467,8 +2501,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   :root:not([data-theme="light"]) .auth-submit-btn{background:var(--blue);color:#111;}
   :root:not([data-theme="light"]) #map-bottom-bar{background:var(--surface);border-color:var(--border);}
   :root:not([data-theme="light"]) #chat-send{background:var(--blue);color:#111;}
-  :root:not([data-theme="light"]) .basemap-card{background:var(--surface);}
-  :root:not([data-theme="light"]) .basemap-card.active{border-color:var(--blue);}
   :root:not([data-theme="light"]) .search-dropdown{background:var(--surface);border-color:var(--border);}
   :root:not([data-theme="light"]) #drop-overlay{background:rgba(0,0,0,.7);}
 }
@@ -2497,8 +2529,6 @@ select.ai-input{cursor:pointer;appearance:auto;}
   .auth-submit-btn{background:var(--blue);color:#111;}
   #map-bottom-bar{background:var(--surface);border-color:var(--border);}
   #chat-send{background:var(--blue);color:#111;}
-  .basemap-card{background:var(--surface);}
-  .basemap-card.active{border-color:var(--blue);}
   .search-dropdown{background:var(--surface);border-color:var(--border);}
   #drop-overlay{background:rgba(0,0,0,.7);}
   /* Attribute table */

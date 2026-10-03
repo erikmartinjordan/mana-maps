@@ -106,12 +106,13 @@
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
 <script>
 try {
-  if (localStorage.getItem('mana_chat_width') === '0') {
+  var _manaChatW = parseInt(localStorage.getItem('mana_chat_width'), 10);
+  if (_manaChatW === 0 || (_manaChatW > 0 && _manaChatW <= 52)) {
     document.documentElement.setAttribute('data-chat-collapsed', 'true');
   }
 } catch (e) {}
 </script>
-<link rel="stylesheet" href="/styles.css?v=1777000043"/>
+<link rel="stylesheet" href="/styles.css?v=1777000046"/>
 <link rel="stylesheet" href="/auth-gallery.css"/>
 
 </head>
@@ -307,10 +308,6 @@ try {
       <div class="tool-icon active" data-panel="draw" onclick="togglePanel('draw')" title="Dibujar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       </div>
-      <div class="tool-icon" data-panel="basemap" onclick="togglePanel('basemap')" title="Mapa base">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-      </div>
-      <div class="tool-sep"></div>
       <div class="tool-icon" data-panel="layers" onclick="togglePanel('layers')" title="Capas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
       </div>
@@ -366,30 +363,6 @@ try {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
             <span data-i18n="tool_edit">Editar geometria</span>
           </button>
-        </div>
-      </div>
-
-      <!-- ═══ Panel de mapa base ═══ -->
-      <div class="panel-state" id="panel-basemap">
-        <div class="panel-header">
-          <div class="panel-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div>
-          <div><div class="panel-header-title" data-i18n="panel_basemap_title">Mapa base</div><div class="panel-header-sub" data-i18n="panel_basemap_sub">Tipo de vista</div></div>
-        </div>
-        <div class="panel-body">
-          <div class="basemap-grid">
-            <button class="basemap-card active" id="bmc-map" onclick="setBaseLayer('map')">
-              <div class="basemap-thumb basemap-thumb-map"></div>
-              <div class="basemap-label" data-i18n="basemap_map">Mapa</div>
-            </button>
-            <button class="basemap-card" id="bmc-sat" onclick="setBaseLayer('satellite')">
-              <div class="basemap-thumb basemap-thumb-sat"></div>
-              <div class="basemap-label">Sat&#233;lite</div>
-            </button>
-            <button class="basemap-card" id="bmc-globe" onclick="setBaseLayer('globe')">
-              <div class="basemap-thumb basemap-thumb-globe"></div>
-              <div class="basemap-label" data-i18n="basemap_globe">Globo 3D</div>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -457,6 +430,7 @@ try {
     <div id="globe-spin-indicator">&#8635; Auto-rotaci&#243;n activa</div>
     <div id="draw-hint" data-i18n="hint_draw_generic">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
+    <div id="basemap-stack" role="group" aria-label="Mapa base" data-i18n-aria-label="panel_basemap_title"></div>
     <div id="drop-overlay">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -802,7 +776,7 @@ try {
 </div>
 
 <!-- ═══ Librerías externas ═══ -->
-<script defer src="/js/pwa.js"></script>
+<script defer src="/js/pwa.js?v=1790832006"></script>
 <script src="https://unpkg.com/shpjs@4.0.4/dist/shp.js"></script>
 <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -821,10 +795,10 @@ try {
 <script defer src="/js/map-preview.js?v=1790749821"></script>          <!-- previews compartidos (galería, perfiles) -->
 <script defer src="/js/markers.js?v=1790749821"></script>      <!-- color y marcadores -->
 <script defer src="/js/modal.js?v=1776927826"></script>        <!-- diálogo de nombre -->
-<script defer src="/js/map-core.js?v=1790749821"></script>     <!-- mapa, capas, stats -->
+<script defer src="/js/map-core.js?v=1790832005"></script>     <!-- mapa, capas, stats -->
 <script defer src="/js/vector-renderer.js"></script>          <!-- render vectorial sin drift -->
 <script defer src="/js/stats.js?v=1776927826"></script>      <!-- panel de estadísticas -->
-<script defer src="/js/globe.js?v=1790749821"></script>        <!-- globo 3D -->
+<script defer src="/js/globe.js?v=1790832001"></script>        <!-- globo 3D -->
 <script defer src="/js/tools.js?v=1776927827"></script>        <!-- herramientas de dibujo -->
 <script defer src="/js/context-menu.js?v=1790749821"></script> <!-- menú contextual -->
 <script defer src="/js/import-export.js?v=1790749821"></script><!-- importar y exportar -->

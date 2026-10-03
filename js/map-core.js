@@ -171,6 +171,7 @@ function setMapThemeTiles() {
     }
   }
   if (typeof refreshAllLabels === 'function') refreshAllLabels();
+  if (typeof applyBasemapTheme === 'function') applyBasemapTheme();
 }
 
 const drawnItems = new L.FeatureGroup().addTo(map);
@@ -819,6 +820,160 @@ function execFilter(gid) {
   applyGroupFilter(gid);
 }
 
+// ── BASEMAP SELECTOR (card stack over the map) ──
+// Schematic SVG thumbnails (no external tiles/APIs). The 3D globe thumbnail
+// follows the editor theme (light/dark).
+function _bmThumbMap() {
+  return '<svg viewBox="0 0 64 64" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="64" height="64" fill="#f3efe4"/>' +
+    '<path d="M0 0h64v16c-10 2-18 8-22 16-4 9-10 14-22 16H0Z" fill="#cfe0bf"/>' +
+    '<path d="M64 0v30c-9 1-15 6-19 13-3 6-7 11-15 13h34Z" fill="#b7d7ee"/>' +
+    '<path d="M64 0v30c-9 1-15 6-19 13" fill="none" stroke="#9fc9e6" stroke-width="1"/>' +
+    '<g stroke="#e6e0d1" stroke-width="1.4" fill="none" stroke-linecap="round"><path d="M0 22h64"/><path d="M0 42h64"/><path d="M20 0v64"/><path d="M42 0v64"/></g>' +
+    '<g stroke="#ffffff" stroke-width="3.2" fill="none" stroke-linecap="round"><path d="M-2 30c13 0 18-11 31-11s20 9 37 6"/><path d="M30-2c3 14 1 27-6 39"/></g>' +
+    '<path d="M-2 52c16-3 26-11 42-11" stroke="#efb526" stroke-width="2.1" fill="none" stroke-linecap="round"/>' +
+  '</svg>';
+}
+function _bmThumbSat() {
+  return '<svg viewBox="0 0 64 64" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="bm-sat-base" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b8a4f"/><stop offset="1" stop-color="#3a5533"/></linearGradient></defs>' +
+    '<rect width="64" height="64" fill="url(#bm-sat-base)"/>' +
+    '<path d="M2 6c12-5 22 3 22 14S14 42 4 36-2 11 2 6Z" fill="#496536" opacity=".85"/>' +
+    '<path d="M40 0c8 6 16 4 24-2v22c-8 4-20 6-28-2-6-6-4-14 4-18Z" fill="#86994f" opacity=".9"/>' +
+    '<path d="M26 46c10-7 24-4 32 5v13H30c-8-5-10-13-4-18Z" fill="#7c8f4a" opacity=".9"/>' +
+    '<path d="M8 52c6-4 14-3 18 4v8H6c-4-5-3-9 2-12Z" fill="#5b7842" opacity=".8"/>' +
+    '<path d="M-2 18c12 5 16 15 29 19s22-2 39 7" fill="none" stroke="#3d7ba1" stroke-width="4.2" stroke-linecap="round"/>' +
+    '<path d="M-2 18c12 5 16 15 29 19s22-2 39 7" fill="none" stroke="#69abd2" stroke-width="1.4" stroke-linecap="round"/>' +
+    '<circle cx="46" cy="24" r="6" fill="#caa96b" opacity=".55"/><circle cx="18" cy="30" r="5" fill="#caa96b" opacity=".4"/>' +
+  '</svg>';
+}
+function _bmGlobeContinents() {
+  return '<path d="M24 18C24 13 30 10 37 11c6 1 9 5 7 10-1 3 0 6-2 8-2 2-4 1-4-1 0-2-3-1-5 2-2 3-3 6-5 4-2-2-1-6-2-9-1-2-2-4-2-7z"/>' +
+    '<path d="M30 34c2 1 3 2 4 3 1 1 1 2-1 2s-3-2-4-3z"/>' +
+    '<path d="M37 37c4-2 9 1 8 7-1 6-4 11-7 13-3 2-4-2-2-7 2-4 0-8 1-10 .5-1 0-2 0-3z"/>' +
+    '<path d="M29 11c3-2 7-1 7 1s-4 3-6 2z"/>' +
+    '<path d="M44 46c2-1 4 0 4 2s-3 3-4 1z"/>';
+}
+function _bmThumbGlobe(isDark) {
+  var defs, shadow, spot, dot;
+  if (isDark) {
+    defs = '<radialGradient id="bm-glo-o" cx=".36" cy=".28" r=".9"><stop offset="0" stop-color="#1d2c44"/><stop offset=".6" stop-color="#111a28"/><stop offset="1" stop-color="#080d15"/></radialGradient>' +
+      '<radialGradient id="bm-glo-a" cx=".5" cy=".5" r=".5"><stop offset=".66" stop-color="#2f9bff" stop-opacity="0"/><stop offset=".83" stop-color="#2f9bff" stop-opacity=".4"/><stop offset=".95" stop-color="#5ab4ff" stop-opacity=".95"/><stop offset="1" stop-color="#7cc4ff" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="bm-glo-sp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff" stop-opacity=".22"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>';
+    shadow = '<ellipse cx="32" cy="53" rx="13.5" ry="3.6" fill="#000" opacity=".5"/>';
+    spot = '<circle cx="22" cy="17" r="12" fill="url(#bm-glo-sp)"/>';
+    dot = '#7cc4ff';
+  } else {
+    defs = '<radialGradient id="bm-glo-o" cx=".36" cy=".28" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#eef2f6"/><stop offset="1" stop-color="#cbd5e1"/></radialGradient>' +
+      '<radialGradient id="bm-glo-a" cx=".5" cy=".5" r=".5"><stop offset=".68" stop-color="#2f9bff" stop-opacity="0"/><stop offset=".84" stop-color="#2f9bff" stop-opacity=".32"/><stop offset=".95" stop-color="#5ab4ff" stop-opacity=".85"/><stop offset="1" stop-color="#7cc4ff" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="bm-glo-sp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff" stop-opacity=".6"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>';
+    shadow = '<ellipse cx="32" cy="53" rx="13.5" ry="3.6" fill="#0b2740" opacity=".34"/>';
+    spot = '<circle cx="22" cy="17" r="12" fill="url(#bm-glo-sp)"/>';
+    dot = '#2b2f36';
+  }
+  return '<svg viewBox="0 0 64 64" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs>' + defs +
+      '<pattern id="bm-glo-d" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><circle cx="1.2" cy="1.2" r="0.57" fill="' + dot + '"/></pattern>' +
+      '<clipPath id="bm-glo-c"><circle cx="32" cy="30" r="17"/></clipPath>' +
+    '</defs>' +
+    shadow +
+    '<circle cx="32" cy="30" r="23" fill="url(#bm-glo-a)"/>' +
+    '<circle cx="32" cy="30" r="17" fill="url(#bm-glo-o)"/>' +
+    '<g clip-path="url(#bm-glo-c)">' + spot + '</g>' +
+    '<g clip-path="url(#bm-glo-c)" transform="translate(32 30) scale(.829) translate(-32 -32)" fill="url(#bm-glo-d)">' + _bmGlobeContinents() + '</g>' +
+    (isDark ? '' : '<g clip-path="url(#bm-glo-c)"><circle cx="32" cy="30" r="17" fill="none" stroke="#ffffff" stroke-opacity=".9" stroke-width="1.1"/></g>') +
+  '</svg>';
+}
+function _bmCard(type, svg, key) {
+  var label = (typeof t === 'function') ? (t(key) || key) : key;
+  return '<button type="button" class="bm-card" data-basemap="' + type + '" aria-pressed="false"' +
+    ' aria-label="' + label + '" data-i18n-aria-label="' + key + '">' +
+    '<span class="bm-thumb">' + svg + '</span></button>';
+}
+var _bmThemeIsDark = null;
+function applyBasemapTheme() {
+  var isDark = (typeof isDarkMapTheme === 'function') ? isDarkMapTheme() : false;
+  if (isDark === _bmThemeIsDark) return;
+  _bmThemeIsDark = isDark;
+  var thumb = document.querySelector('#basemap-stack .bm-card[data-basemap="globe"] .bm-thumb');
+  if (thumb) thumb.innerHTML = _bmThumbGlobe(isDark);
+}
+function updateBasemapStack(type) {
+  var stack = document.getElementById('basemap-stack');
+  if (!stack) return;
+  var order = ['map', 'satellite', 'globe'];
+  var rest = order.filter(function (b) { return b !== type; });
+  stack.querySelectorAll('.bm-card').forEach(function (c) {
+    var b = c.getAttribute('data-basemap');
+    c.classList.remove('front', 'back1', 'back2');
+    if (b === type) c.classList.add('front');
+    else if (b === rest[0]) c.classList.add('back1');
+    else c.classList.add('back2');
+    c.setAttribute('aria-pressed', b === type ? 'true' : 'false');
+  });
+  stack.setAttribute('data-active', type);
+}
+function buildBasemapStack() {
+  var stack = document.getElementById('basemap-stack');
+  if (!stack || stack.dataset.built === '1') return;
+  stack.dataset.built = '1';
+  stack.innerHTML =
+    _bmCard('map', _bmThumbMap(), 'basemap_map') +
+    _bmCard('satellite', _bmThumbSat(), 'basemap_satellite') +
+    _bmCard('globe', _bmThumbGlobe((typeof isDarkMapTheme === 'function') && isDarkMapTheme()), 'basemap_globe');
+  stack.querySelectorAll('.bm-card').forEach(function (c) {
+    c.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setBaseLayer(c.getAttribute('data-basemap'));
+      stack.classList.remove('is-open');
+    });
+  });
+
+  // Shared tooltip with the "tooltip open/close" motion: delayed in, travels
+  // between cards, instant out.
+  var tip = document.createElement('span');
+  tip.className = 'bm-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.setAttribute('aria-hidden', 'true');
+  stack.appendChild(tip);
+
+  var hoverCapable = !(window.matchMedia && window.matchMedia('(hover: none)').matches);
+  if (hoverCapable) {
+    var hideTip = function () {
+      tip.setAttribute('data-show', 'false');
+      tip.setAttribute('aria-hidden', 'true');
+    };
+    var mapWrap = document.getElementById('map-wrap');
+    var placeTip = function (card) {
+      var label = card.getAttribute('aria-label') || card.getAttribute('data-basemap');
+      tip.textContent = label;
+      var sr = stack.getBoundingClientRect();
+      var cr = card.getBoundingClientRect();
+      var x = (cr.left - sr.left) + cr.width / 2 - tip.offsetWidth / 2;
+      if (mapWrap) {
+        var wr = mapWrap.getBoundingClientRect();
+        var absLeft = sr.left + x;
+        absLeft = Math.max(wr.left + 6, Math.min(wr.right - 6 - tip.offsetWidth, absLeft));
+        x = absLeft - sr.left;
+      }
+      tip.style.setProperty('--bm-tip-x', x + 'px');
+      tip.setAttribute('data-show', 'true');
+      tip.setAttribute('aria-hidden', 'false');
+    };
+    stack.querySelectorAll('.bm-card').forEach(function (c) {
+      c.addEventListener('pointerenter', function () { placeTip(c); });
+    });
+    stack.addEventListener('pointerleave', hideTip);
+  }
+
+  if (window.matchMedia && window.matchMedia('(hover: none)').matches) {
+    stack.addEventListener('click', function () { stack.classList.toggle('is-open'); });
+  }
+  updateBasemapStack(typeof activeBase !== 'undefined' ? activeBase : 'map');
+}
+buildBasemapStack();
+applyBasemapTheme();
+
 // ── SET BASE LAYER ──
 function setBaseLayer(type) {
   var mapEl = document.getElementById('map');
@@ -847,7 +1002,7 @@ function setBaseLayer(type) {
       if (!globeMap) { requestAnimationFrame(function(){ initGlobe(); }); }
       else { requestAnimationFrame(function(){ 
         var c = map.getCenter();
-        try{ globeMap.setCenter([c.lng, c.lat]); globeMap.setZoom(Math.max(1.2, map.getZoom())); }catch(e){}
+        try{ globeMap.setCenter([c.lng, c.lat]); globeMap.setZoom(Math.max(1.2, Math.min(map.getZoom(), 2.2))); }catch(e){}
         globeMap.resize(); syncToGlobe(); 
       }); }
       requestAnimationFrame(function() { globeEl.style.opacity = '1'; });
@@ -884,9 +1039,7 @@ function setBaseLayer(type) {
     setTimeout(function(){ map.invalidateSize(); }, 50);
   }
   setMapThemeTiles();
-  document.getElementById('bmc-map').classList.toggle('active', type === 'map');
-  document.getElementById('bmc-sat').classList.toggle('active', type === 'satellite');
-  document.getElementById('bmc-globe').classList.toggle('active', type === 'globe');
+  updateBasemapStack(type);
   _tileLabelRetries = 0;
   _retryTileLabelHide();
 }
@@ -1034,11 +1187,9 @@ function _getActiveGLMap() {
   return baseLayer.getMaplibreMap();
 }
 
-function _updateTileLabelVisibility() {
-  if (!map) return;
-  var glMap = _getActiveGLMap();
+function _applyTileLabelVisibilityOn(glMap) {
   if (!glMap || !glMap.isStyleLoaded || !glMap.isStyleLoaded()) return;
-  var hide = map.getZoom() < TILE_LABEL_MIN_ZOOM;
+  var hide = glMap.getZoom() < TILE_LABEL_MIN_ZOOM;
   var vis = hide ? 'none' : 'visible';
   for (var i = 0; i < _tileLabelLayerIds.length; i++) {
     try {
@@ -1046,6 +1197,19 @@ function _updateTileLabelVisibility() {
       if (glMap.getLayer(id)) glMap.setLayoutProperty(id, 'visibility', vis);
     } catch(e) {}
   }
+}
+
+function _updateTileLabelVisibility() {
+  if (!map) return;
+  // En el globo 3D MapLibre deforma/recorta las etiquetas del basemap cerca del
+  // limbo de la esfera (p. ej. «Canadá» aparece mutilado). Se aplica la misma
+  // regla que en 2D (etiquetas del basemap solo a partir de zoom 8) para dejar
+  // la vista de conjunto limpia; el globo dibuja las etiquetas del propio mapa.
+  if (activeBase === 'globe') {
+    if (typeof globeMap !== 'undefined' && globeMap) _applyTileLabelVisibilityOn(globeMap);
+    return;
+  }
+  _applyTileLabelVisibilityOn(_getActiveGLMap());
 }
 
 // Retry until style is loaded (handles race conditions)
@@ -1396,17 +1560,21 @@ map.addControl(new ManaLocateControl());
 
     window.expandChatPanel = expandChat;
 
-    // Restore persisted width
+    // Restore persisted width. Values at or below the minimum are treated as
+    // collapsed: legacy drags used to persist the 52px clamp, which came back
+    // as a stray grey sliver after reload.
     var saved = parseInt(localStorage.getItem('mana_chat_width'));
-    if (saved === 0) {
+    if (saved === 0 || (saved > 0 && saved <= MIN_W)) {
       collapsed = true;
+      _prevRight = DEFAULT_RIGHT;
       app.style.setProperty('--right-w', '0px');
       chat.style.overflow = 'hidden';
       document.documentElement.setAttribute('data-chat-collapsed', 'true');
       chat.classList.add('is-collapsed');
       handle.classList.add('handle-collapsed');
       handle.title = 'Doble clic para expandir';
-    } else if (saved > 0) {
+      persist('mana_chat_width', 0);
+    } else if (saved > MIN_W) {
       app.style.setProperty('--right-w', saved + 'px');
       _prevRight = saved;
     }
@@ -1428,13 +1596,33 @@ map.addControl(new ManaLocateControl());
       function onEnd() {
         handle.classList.remove('dragging');
         var w = getChatWidth();
-        _prevRight = w;
-        persist('mana_chat_width', w);
+        if (w <= MIN_W) {
+          // Snap fully closed instead of leaving a 52px sliver (which showed as
+          // a stray grey divider bar and hid the topbar reopen button).
+          _prevRight = startW > MIN_W ? startW : (_prevRight || DEFAULT_RIGHT);
+          app.style.setProperty('--right-w', '0px');
+          chat.style.overflow = 'hidden';
+          document.documentElement.setAttribute('data-chat-collapsed', 'true');
+          chat.classList.add('is-collapsed');
+          handle.classList.add('handle-collapsed');
+          handle.title = 'Doble clic para expandir';
+          collapsed = true;
+          persist('mana_chat_width', 0);
+        } else {
+          _prevRight = w;
+          chat.style.overflow = '';
+          chat.classList.remove('is-collapsed');
+          document.documentElement.removeAttribute('data-chat-collapsed');
+          handle.classList.remove('handle-collapsed');
+          handle.title = '';
+          collapsed = false;
+          persist('mana_chat_width', w);
+        }
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onEnd);
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('touchend', onEnd);
-        map.invalidateSize();
+        forceMapRepaint();
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
