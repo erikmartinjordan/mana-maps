@@ -15,7 +15,7 @@ Esta carpeta es una **réplica exacta** de `~/autopilot` del iMac `iMac de Erik`
 
 ## Flujo
 
-1. `run_loop.sh` hace `git pull`, cuenta `pending=$(grep "^- \[ \]")`, y si >0 lanza `opencode`.
+1. `run_loop.sh` hace `git pull`, sincroniza los prompts de `autopilot/agents/*.md` (del clone del repo) a `~/autopilot/agents/` vía `sync_repo_agents()`, cuenta `pending=$(grep "^- \[ \]")`, y si >0 lanza `opencode`.
 2. `opencode` crea rama, implementa, pasa `npx playwright test`, commitea `BACKLOG.md` y `changelog`, hace `push` y (si hay `GITHUB_TOKEN`) `PR`.
 3. Si `rc==0` hace `merge` a `main` en una sola subida y espera `ci_wait` (GitHub Checks). Si `rc!=0` o `Killed:9`/`124`, lo registra en `logs/tasks.json` y `tasks.html`.
 

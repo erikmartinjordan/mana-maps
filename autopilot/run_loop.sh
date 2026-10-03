@@ -178,6 +178,22 @@ ensure_port_free() {
   sleep 2
 }
 
+# --- sincronizar prompts de agentes desde el repo a ~/autopilot/agents ---
+# El loop lee los prompts de $ROOT/agents (config viva del iMac). Tras hacer
+# pull del repo copiamos autopilot/agents/*.md para que las ediciones de los
+# prompts en main (mapmaker, autopilot, reviewer, ideator...) lleguen solas,
+# sin tener que tocar el iMac a mano.
+sync_repo_agents() {
+  local repo_dir="$1"
+  local src="$repo_dir/autopilot/agents"
+  local dst="$ROOT/agents"
+  [ -d "$src" ] || return 0
+  mkdir -p "$dst"
+  if ! diff -rq "$src" "$dst" >/dev/null 2>&1; then
+    cp -f "$src"/*.md "$dst"/ 2>/dev/null && log "Agentes sincronizados: $src -> $dst"
+  fi
+}
+
 check_memory_pressure() {
   # Linux: usar /proc/meminfo; macOS: vm_stat como fallback
   local free_mb=0
@@ -348,6 +364,7 @@ for repo in $(echo "$REPOS_JSON" | node -e "const a=JSON.parse(require('fs').rea
   git fetch origin >>"$LOG_FILE" 2>&1
   git checkout main >>"$LOG_FILE" 2>&1
   git pull --ff-only origin main >>"$LOG_FILE" 2>&1
+  sync_repo_agents "$REPO_DIR"
 
   PENDING=$(pending_count "$REPO_DIR/BACKLOG.md")
   log "Repo $repo: $PENDING tareas pendientes"
