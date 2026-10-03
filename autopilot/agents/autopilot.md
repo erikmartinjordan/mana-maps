@@ -55,6 +55,13 @@ PROHIBIDO (decisión de producto):
   (`.meta-source`) en las tarjetas de la galería: están OCULTAS a propósito.
   Ignora cualquier tarea del BACKLOG que lo pida. Hay un test que lo bloquea.
 
+ESTILO DE CONTENIDO (galeria):
+- Los titulos de los mapas van en minuscula tipo oracion: solo la primera
+  palabra y los nombres propios en mayuscula. NUNCA Title Case.
+  Ej.: "Usuarios de internet mundial por pais", no "Usuarios de Internet
+  Mundial por País"; "Alfabetizacion mundial por pais", no "Alfabetizacion
+  Mundial por País".
+
 REGLAS DE PUBLICACION EN FIRESTORE (CRITICO):
 - Los mapas de la galeria se publican DESDE Firestore. Un mapa nuevo o
   modificado (data/gallery-*.js) SOLO es valido si se publica en Firestore.

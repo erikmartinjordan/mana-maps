@@ -55,6 +55,10 @@ proyecto y prevalece sobre este prompt en caso de duda. Resumen operativo:
    concretos en el popup, no solo el nombre.
 5. CONTENIDO EN ESPANOL: titulos, nombres, popups y descripcion. Todo lo
    visible por usuarios, en espanol.
+   TITULOS EN MINUSCULA TIPO ORACION: solo la primera palabra y los nombres
+   propios en mayuscula; NADA de Title Case. Ej.: "Usuarios de internet
+   mundial por pais", "Alfabetizacion mundial por pais". Nunca "Usuarios de
+   Internet Mundial por País" ni "Alfabetizacion Mundial por País".
 
 ## PIPELINE
 
