@@ -3,13 +3,16 @@
 // Valida los mapas isPublished de Firestore contra AGENTS.md §Estándar de
 // publicación y corrige en Firestore lo que se pueda de forma segura.
 //
-// Comprobaciones (BACKLOG 03-10):
+// Comprobaciones (BACKLOG 03-10 / 03-10 popups):
 //   1. dataSource y dataDate no vacíos
 //   2. featureCount coherente con la longitud real de geojsonText.features
 //   3. coordenadas dentro de ±180 (lon) / ±90 (lat)
 //   4. colores hex válidos (_manaColor de cada feature)
 //   5. tags presentes (array no vacío)
 //   6. lang = 'es'
+//   7. popups con información real (AGENTS.md §5): cada feature debe mostrar
+//      datos concretos, no solo el nombre. Claves de estilo/internas
+//      (_mana*, color, markerType, fillOpacity…) no cuentan como datos.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -17,8 +20,9 @@
 //   - dataSource/dataDate/tags vacíos → tabla KNOWN_META (fuentes autoritativas)
 //   - hex corto #RGB / #RGBA → #RRGGBB; rgb()/rgba() → #RRGGBB
 //   - longitud fuera de ±180 → envuelta al rango (x±360)
+//   - features sin datos de popup → completadas con POPUP_FIX_DATA (§5)
 // Lo demás (latitud fuera de ±90, colores no convertibles, metadatos
-// desconocidos) se reporta como MANUAL y NO se toca.
+// desconocidos, popups sin fix conocido) se reporta como MANUAL y NO se toca.
 //
 // Uso:
 //   node scripts/audit-gallery-quality.js [--dry-run] [--verbose]
@@ -158,6 +162,176 @@ const KNOWN_META = {
     dataSource: 'World Bank — Proportion of seats held by women in national parliaments (%). Indicator SG.GEN.PARL.ZS. https://data.worldbank.org/indicator/SG.GEN.PARL.ZS',
     dataDate: '2025-12-31',
     tags: ['Política', 'Género', 'Sociedad', 'Geografía'],
+  },
+};
+
+// ── Popups con información real (AGENTS.md §5) ────────────────────
+// Cada feature debe mostrar datos concretos, no solo el nombre. Las claves
+// de estilo/internas NO cuentan como datos de popup. POPUP_FIX_DATA contiene
+// los datos autoritativos por feature (clave = _manaName/name exacto) para
+// completar automáticamente los mapas que fallan el check §5.
+
+const POPUP_NAME_KEYS = new Set(['name', 'Name', 'NAME', '_manaName']);
+const POPUP_STYLE_KEYS = new Set([
+  'color', 'markerType', 'fillOpacity', 'opacity', 'weight',
+  'emoji', 'emojiSize', 'strokeColor', 'strokeWidth', 'dashArray',
+]);
+
+function isDenyPopupKey(k) {
+  if (POPUP_NAME_KEYS.has(k)) return true;
+  if (POPUP_STYLE_KEYS.has(k)) return true;
+  // Internas Maña (_manaColor, _manaLabelStyle, _manaGroupId…): no son datos
+  if (k.startsWith('_mana')) return true;
+  return false;
+}
+
+function hasConcreteValue(v) {
+  if (v == null) return false;
+  if (typeof v === 'string') return v.trim() !== '';
+  if (typeof v === 'number') return Number.isFinite(v);
+  if (typeof v === 'boolean') return true;
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === 'object') return Object.keys(v).some(k => hasConcreteValue(v[k]));
+  return false;
+}
+
+// Devuelve las claves de properties que cuentan como "datos concretos" de popup.
+function concreteDataKeys(props) {
+  if (!props || typeof props !== 'object') return [];
+  const keys = [];
+  for (const [k, v] of Object.entries(props)) {
+    // Atributos de tabla del editor: sí cuentan como datos del popup
+    if (k === '_manaProperties' && v && typeof v === 'object') {
+      for (const [k2, v2] of Object.entries(v)) {
+        if (!isDenyPopupKey(k2) && hasConcreteValue(v2)) keys.push(`_manaProperties.${k2}`);
+      }
+      continue;
+    }
+    if (isDenyPopupKey(k)) continue;
+    if (hasConcreteValue(v)) keys.push(k);
+  }
+  return keys;
+}
+
+// Datos concretos por feature para los mapas que fallan el check §5.
+// Fuentes: GEBCO/IHO (arrecifes/fosas/pecios) y UNESCO/fuentes públicas
+// (ciudades perdidas). Contenido en español según AGENTS.md.
+const POPUP_FIX_DATA = {
+  'arrecifes-de-coral-fosas-oceanicas-y-naufragios-famosos-3172026-1785478772912': {
+    'Fosa de las Marianas (Challenger Deep)': {
+      Tipo: 'Fosa oceánica',
+      País: 'Guam (Estados Unidos)',
+      'Profundidad (m)': 10935,
+      Dato: '≈10.935 m de profundidad',
+      Description: 'La fosa más profunda de los océanos, en la fosa de las Marianas, al sureste de Guam (océano Pacífico occidental).',
+    },
+    'Pecio del Titanic (3.800 m)': {
+      Tipo: 'Pecio / naufragio',
+      País: 'Atlántico Norte (Estados Unidos)',
+      'Profundidad (m)': 3800,
+      Año: 1912,
+      Dato: '≈3.800 m de profundidad',
+      Description: 'Transatlántico RMS Titanic, hundido el 15 de abril de 1912 tras chocar con un iceberg; el pecio yace a unos 3.800 m de profundidad en el Atlántico Norte.',
+    },
+    'Pecio del Bismarck (4.790 m)': {
+      Tipo: 'Pecio / naufragio',
+      País: 'Atlántico Norte',
+      'Profundidad (m)': 4790,
+      Año: 1941,
+      Dato: '≈4.790 m de profundidad',
+      Description: 'Acorazado alemán Bismarck, hundido en mayo de 1941 tras la Batalla del Atlántico Norte; el pecio yace a unos 4.790 m de profundidad.',
+    },
+    'Pecio del SS Thistlegorm (30 m)': {
+      Tipo: 'Pecio / naufragio',
+      País: 'Egipto (Mar Rojo)',
+      'Profundidad (m)': 30,
+      Año: 1941,
+      Dato: '≈30 m de profundidad',
+      Description: 'Buque mercante británico SS Thistlegorm, hundido en 1941 en el Mar Rojo durante la Segunda Guerra Mundial; uno de los pecios de buceo más famosos del mundo.',
+    },
+    'Deriva del Titanic': {
+      Tipo: 'Línea (deriva)',
+      Dato: 'Deriva en el Atlántico Norte',
+      Description: 'Trayectoria de deriva asociada al pecio del Titanic en el Atlántico Norte.',
+    },
+    'Arco de fosas del Pacífico': {
+      Tipo: 'Arco de fosas',
+      Dato: 'Cadena de fosas abisales del Pacífico',
+      Description: 'Arco de fosas abisales del Pacífico (Marianas, Tonga, Kermadec, Japón…), con las mayores profundidades del planeta.',
+    },
+    'Gran Barrera de Coral': {
+      País: 'Australia',
+      Tipo: 'Arrecife de coral',
+      'Superficie (km²)': 344400,
+      Superficie: '≈344.400 km²',
+      Dato: 'Mayor sistema de arrecifes de coral del mundo',
+      Description: 'El mayor sistema de arrecifes de coral del mundo, frente a la costa de Queensland (Australia).',
+    },
+    'Triángulo de Coral': {
+      País: 'Indonesia, Malasia, Filipinas, Papúa Nueva Guinea, Timor Oriental, Islas Salomón',
+      Tipo: 'Arrecife de coral',
+      Dato: 'Máxima biodiversidad marina del planeta',
+      Description: 'Región del sudeste asiático con la mayor biodiversidad marina del mundo, conocida como el Triángulo de Coral.',
+    },
+  },
+  'ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436': {
+    'Machu Picchu (Perú)': {
+      País: 'Perú',
+      Época: 'Imperio inca (siglo XV)',
+      UNESCO: 'Sí (1983)',
+      Dato: 'Ciudadela inca a ~2.430 m de altitud',
+      Description: 'Ciudadela inca en los Andes peruanos, construida en el siglo XV; Patrimonio de la Humanidad desde 1983.',
+    },
+    'Petra (Jordania)': {
+      País: 'Jordania',
+      Época: 'Nabateos (siglos IV a.C.–II)',
+      UNESCO: 'Sí (1985)',
+      Dato: 'Capital nabatea excavada en roca',
+      Description: 'Antigua ciudad nabatea excavada en roca arenisca, capital del reino de Nabatea; Patrimonio de la Humanidad desde 1985.',
+    },
+    'Angkor Wat (Camboya)': {
+      País: 'Camboya',
+      Época: 'Imperio jemer (siglo XII)',
+      UNESCO: 'Sí (1992)',
+      Dato: 'Mayor complejo religioso del mundo',
+      Description: 'Templo jemer del siglo XII, núcleo del complejo de Angkor y mayor complejo religioso del mundo; Patrimonio de la Humanidad desde 1992.',
+    },
+    'Tikal (Guatemala)': {
+      País: 'Guatemala',
+      Época: 'Civilización maya (siglos II–IX)',
+      UNESCO: 'Sí (1979)',
+      Dato: 'Una de las grandes ciudades mayas',
+      Description: 'Una de las grandes ciudades mayas de la selva petenera; Patrimonio de la Humanidad desde 1979.',
+    },
+    'Palacio de Dar al-Hajar (Yemen)': {
+      País: 'Yemen',
+      Época: 'Siglo XX (sobre estructuras más antiguas)',
+      UNESCO: 'No',
+      Dato: 'Palacio de roca en la meseta de Sanaa',
+      Description: 'Palacio construido sobre un promontorio de roca en la meseta de Sanaa (Yemen), residencia del imam Yahya a inicios del siglo XX.',
+    },
+    'Kilwa Kisiwani (Tanzania)': {
+      País: 'Tanzania',
+      Época: 'Sultanes de Kilwa (siglos IX–XV)',
+      UNESCO: 'Sí (1981)',
+      Dato: 'Ciudad-estado swahili del Índico',
+      Description: 'Antigua ciudad-estado swahili que dominó el comercio del océano Índico; Patrimonio de la Humanidad desde 1981.',
+    },
+    'Camino Inca': {
+      País: 'Perú',
+      Tipo: 'Red viaria',
+      Época: 'Imperio inca',
+      Dato: 'Red de caminos del Imperio inca',
+      Description: 'Red de caminos del Imperio inca que conectaba Machu Picchu y otras ciudades andinas.',
+    },
+    'Angkor (complejo)': {
+      País: 'Camboya',
+      UNESCO: 'Sí (1992)',
+      'Superficie (km²)': 400,
+      Superficie: '≈400 km²',
+      Dato: 'Zona arqueológica de ~400 km²',
+      Description: 'Zona arqueológica de Angkor, con más de mil templos repartidos en unos 400 km²; Patrimonio de la Humanidad desde 1992.',
+    },
   },
 };
 
@@ -317,6 +491,12 @@ function auditMap(map) {
   const colorSamples = [];
   let featuresTouched = 0;
 
+  // 7. popups con información real (AGENTS.md §5)
+  const popupFixTable = POPUP_FIX_DATA[map.id] || {};
+  let popupMissing = 0, popupFixed = 0;
+  const popupMissingNames = [];
+  const popupFixedNames = [];
+
   for (const feature of geo.features) {
     const props = feature.properties || (feature.properties = {});
 
@@ -342,6 +522,30 @@ function auditMap(map) {
         }
       }
     }
+
+    // §5 popups: cada feature debe mostrar datos concretos, no solo el nombre.
+    // Si falta, se completan los datos desde POPUP_FIX_DATA (solo añade claves
+    // ausentes/vacías; no sobreescribe datos ya presentes).
+    if (concreteDataKeys(props).length === 0) {
+      const fname = props._manaName || props.name || props.Name || props.NAME || '';
+      const addProps = popupFixTable[fname];
+      if (addProps && Object.keys(addProps).length) {
+        for (const [k, v] of Object.entries(addProps)) {
+          if (!hasConcreteValue(props[k])) props[k] = v;
+        }
+        if (concreteDataKeys(props).length > 0) {
+          popupFixed++;
+          popupFixedNames.push(fname || '(sin nombre)');
+          featuresTouched++;
+        } else {
+          popupMissing++;
+          if (popupMissingNames.length < 5) popupMissingNames.push(fname || '(sin nombre)');
+        }
+      } else {
+        popupMissing++;
+        if (popupMissingNames.length < 5) popupMissingNames.push(fname || '(sin nombre)');
+      }
+    }
   }
 
   if (lonBad) {
@@ -361,9 +565,16 @@ function auditMap(map) {
     issues.push('ninguna feature tiene _manaColor');
     manual.push('_manaColor ausente en todas las features');
   }
+  if (popupFixed) {
+    issues.push(`${popupFixed} features sin datos de popup completadas (§5)`);
+  }
+  if (popupMissing) {
+    issues.push(`${popupMissing} features sin datos concretos en el popup (solo nombre/estilo)${popupMissingNames.length ? ` — ej: ${popupMissingNames.join(' | ')}` : ''}`);
+    manual.push('popups sin datos concretos (§5, sin fix en POPUP_FIX_DATA)');
+  }
 
-  // geojsonText necesita re-serializarse si se tocó coords/colores
-  const geoDirty = coordFixed > 0 || colorFixed > 0;
+  // geojsonText necesita re-serializarse si se tocó coords/colores/popups
+  const geoDirty = coordFixed > 0 || colorFixed > 0 || popupFixed > 0;
   if (geoDirty) {
     const newGeoText = JSON.stringify(geo);
     const newSize = Buffer.byteLength(newGeoText, 'utf8');
@@ -375,7 +586,7 @@ function auditMap(map) {
     }
   }
 
-  return { issues, fixes, manual, geo, dirty: geoDirty };
+  return { issues, fixes, manual, geo, dirty: geoDirty, popupFixed, popupMissing };
 }
 
 // ── Main ──────────────────────────────────────────────────────────
@@ -445,11 +656,14 @@ async function main() {
   console.log('-----|-------');
 
   let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = 0;
+  let popupFixedTotal = 0, popupMissingTotal = 0;
   const manualList = [];
 
   for (const map of published) {
     mapsAudited++;
-    const { issues, fixes, manual } = auditMap(map);
+    const { issues, fixes, manual, popupFixed = 0, popupMissing = 0 } = auditMap(map);
+    popupFixedTotal += popupFixed;
+    popupMissingTotal += popupMissing;
 
     if (issues.length === 0) {
       console.log(`${map.id} | OK`);
@@ -514,13 +728,22 @@ async function main() {
           try {
             const g = JSON.parse(vGeo);
             let bad = 0;
+            let popupBad = 0;
+            const popupFixTable = POPUP_FIX_DATA[map.id] || {};
             for (const f of g.features || []) {
               const p = f.properties || {};
               if (p._manaColor && !HEX_RE.test(String(p._manaColor))) bad++;
               const c = auditCoordinates(f.geometry, false);
               if (c.lonOut || c.latOut) bad++;
+              // §5: tras el fix, toda feature debe tener datos concretos de popup
+              // (las que tenían fix conocido) o al menos las que no fallaban.
+              if (concreteDataKeys(p).length === 0) {
+                const fname = p._manaName || p.name || '';
+                if (popupFixTable[fname]) popupBad++;
+              }
             }
             if (bad) verifyIssues.push(`${bad} features aún con coords/colores inválidos`);
+            if (popupBad) verifyIssues.push(`${popupBad} features aún sin datos de popup tras fix (§5)`);
           } catch (_) { verifyIssues.push('geojson parse error'); }
         }
         if (verifyIssues.length) {
@@ -538,6 +761,7 @@ async function main() {
   console.log(`Maps OK: ${mapsOk}`);
   console.log(`Maps fixed (or would fix in dry-run): ${mapsFixed}`);
   console.log(`Maps with manual issues: ${mapsManual}`);
+  console.log(`Popups (AGENTS.md §5): ${popupFixedTotal} features completadas, ${popupMissingTotal} aún sin datos concretos`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -558,4 +782,15 @@ if (require.main === module) {
 }
 
 // Exportación de funciones puras para tests/verificación (no ejecuta main).
-module.exports = { KNOWN_META, extractField, normalizeHexColor, auditCoordinates, auditMap, HEX_RE };
+module.exports = {
+  KNOWN_META,
+  POPUP_FIX_DATA,
+  extractField,
+  normalizeHexColor,
+  auditCoordinates,
+  concreteDataKeys,
+  hasConcreteValue,
+  isDenyPopupKey,
+  auditMap,
+  HEX_RE,
+};
