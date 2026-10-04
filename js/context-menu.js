@@ -459,8 +459,8 @@ function ctxMeasurePolygon() {
     var segLine = L.polyline([a, b], {
       color: '#0ea5e9', weight: 2.5, dashArray: '6 5', opacity: 0.65
     }).addTo(map);
-    var segDist = Math.round(a.distanceTo(b));
-    segLine.bindTooltip(segDist + ' m', {
+    var segDist = a.distanceTo(b);
+    segLine.bindTooltip(formatDist(segDist), {
       permanent: true, direction: 'center', className: 'ruler-label'
     });
     segs.push(segDist);
@@ -476,7 +476,9 @@ function ctxMeasurePolygon() {
     }
     area = Math.abs(area / 2) * 111319.9 * 111319.9;
   }
-  var areaStr = area >= 1000000 ? (area / 1000000).toFixed(2) + ' km²' : Math.round(area) + ' m²';
+  var areaStr = area >= 1000000
+    ? formatNum(area / 1000000, 2) + ' km²'
+    : formatNum(area, 2) + ' m²';
   var center = ctxTargetLayer.getBounds().getCenter();
   var areaLayer = L.circleMarker(center, { radius: 1, opacity: 0, fillOpacity: 0, interactive: false }).addTo(map);
   areaLayer.bindTooltip(areaStr, {

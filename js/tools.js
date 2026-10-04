@@ -348,8 +348,7 @@ function rulerClick(e) {
   if (rulerPoints.length >= 2) {
     if (rulerLine) map.removeLayer(rulerLine);
     rulerLine = L.polyline(rulerPoints, { color: '#0ea5e9', weight: 2.5 }).addTo(map);
-    var d = Math.round(getTotalDist(rulerPoints));
-    rulerLine.bindTooltip(d + ' m', {
+    rulerLine.bindTooltip(formatDist(getTotalDist(rulerPoints)), {
       permanent: true, direction: 'center', className: 'ruler-label'
     });
   }
@@ -363,8 +362,7 @@ function rulerMove(e) {
   rulerPreview = L.polyline(previewPts, {
     color: '#0ea5e9', weight: 2.5, dashArray: '6 5', opacity: 0.65
   }).addTo(map);
-  var segDist = Math.round(e.latlng.distanceTo(last));
-  rulerPreview.bindTooltip(segDist + ' m', {
+  rulerPreview.bindTooltip(formatDist(e.latlng.distanceTo(last)), {
     permanent: true, direction: 'center', className: 'ruler-label'
   });
 }
@@ -374,10 +372,9 @@ function rulerFinish(e) {
   if (rulerPoints.length < 2) return;
   if (rulerPreview) { map.removeLayer(rulerPreview); rulerPreview = null; }
   if (rulerLine) rulerLine.setLatLngs(rulerPoints);
-  var totalDist = Math.round(getTotalDist(rulerPoints));
   if (rulerLine) {
     rulerLine.unbindTooltip();
-    rulerLine.bindTooltip(totalDist + ' m', {
+    rulerLine.bindTooltip(formatDist(getTotalDist(rulerPoints)), {
       permanent: true, direction: 'center', className: 'ruler-label total'
     });
   }
@@ -393,8 +390,27 @@ function getTotalDist(pts) {
   return d;
 }
 
+// Formatea un número con separador de miles (,) y separador decimal (.)
+// p. ej. 1234.567 → "1,234.57"; 1234567 → "1,234,567"
+function formatNum(n, maxDecimals) {
+  var d = typeof maxDecimals === 'number' ? maxDecimals : 2;
+  var v = Number(n);
+  if (!isFinite(v)) return '0';
+  try {
+    return v.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: d
+    });
+  } catch (e) {
+    var parts = v.toFixed(d).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  }
+}
+
+// Distancia en metros con formato legible: "850.25 m", "1,234.57 m"
 function formatDist(m) {
-  return Math.round(m) + ' m';
+  return formatNum(m, 2) + ' m';
 }
 
 // ═══════════════════════════════════════════════════════════════
