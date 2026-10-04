@@ -258,10 +258,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 /* ── MAP ─────────────────────────────────────── */
 #map-wrap{position:relative;background:var(--map-bg);overflow:hidden;display:flex;flex-direction:column;}
 #map{flex:1;width:100%;}
-#globe{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:1;background:#0a1628;}
+#globe{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:1;background:var(--map-bg);}
 .maplibregl-canvas{outline:none;}
 .globe-atmosphere{pointer-events:none;position:absolute;inset:0;z-index:2;
-  background:radial-gradient(ellipse at center,transparent 55%,rgba(10,22,40,0.5) 100%);
+  background:radial-gradient(ellipse at center,transparent 55%,color-mix(in srgb,var(--map-bg) 55%,transparent) 100%);
   display:none;}
 /* Kept above the basemap stack so they never overlap. */
 #globe-controls{display:none;position:absolute;bottom:calc(160px + env(safe-area-inset-bottom));right:12px;z-index:10;

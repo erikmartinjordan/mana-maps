@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v18';
+const CACHE_NAME = 'mana-maps-pwa-v19';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -8,7 +8,7 @@ const PRECACHE_URLS = [
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
   'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
-  '/styles.css?v=1777000046',
+  '/styles.css?v=1791103747',
   '/styles/mana-positron.json?v=1776927833',
   '/styles/mana-dark.json?v=1776927833',
   '/styles/mana-openfreemap-alt.json?v=1776927833',
@@ -29,7 +29,7 @@ const PRECACHE_URLS = [
   '/js/map-preview.js?v=1790749821',
   '/js/vector-renderer.js',
   '/js/stats.js?v=1776927826',
-  '/js/globe.js?v=1790832001',
+  '/js/globe.js?v=1791103747',
   '/js/tools.js?v=1776927827',
   '/js/context-menu.js?v=1790749821',
   '/js/import-export.js?v=1790749821',

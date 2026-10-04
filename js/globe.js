@@ -4,6 +4,35 @@ var globeMap = null;
 var spinActive = false;
 var spinRAF = null;
 
+// El «espacio» exterior del globo lo dibuja MapLibre con la propiedad `sky`.
+// Sin definirla usa un azul oscuro que desentona en modo claro; la fijamos por
+// tema para que el fondo del contenedor (--map-bg) y la atmósfera sean coherentes.
+function getManaGlobeSky(isDark) {
+  return isDark ? {
+    'sky-color': '#0b1220',
+    'horizon-color': '#1e293b',
+    'fog-color': '#1a1a1a',
+    'fog-ground-blend': 0.5,
+    'horizon-fog-blend': 0.5,
+    'sky-horizon-blend': 0.5,
+    'atmosphere-blend': 0.5
+  } : {
+    'sky-color': '#bfe3ff',
+    'horizon-color': '#eef7ff',
+    'fog-color': '#ffffff',
+    'fog-ground-blend': 0.5,
+    'horizon-fog-blend': 0.5,
+    'sky-horizon-blend': 0.5,
+    'atmosphere-blend': 0.5
+  };
+}
+
+function applyGlobeSky() {
+  if (!globeMap || typeof globeMap.setSky !== 'function') return;
+  var isDark = (typeof isDarkMapTheme === 'function') && isDarkMapTheme();
+  try { globeMap.setSky(getManaGlobeSky(isDark)); } catch (e) {}
+}
+
 function initGlobe() {
   try {
     var container = document.getElementById('globe');
@@ -30,6 +59,7 @@ function initGlobe() {
     globeMap.on('load', function() {
       globeMap.resize();
       try { globeMap.setProjection({type: 'globe'}); } catch(e) { console.warn('setProjection:', e); }
+      applyGlobeSky();
       syncToGlobe();
     });
 
@@ -83,6 +113,7 @@ function updateGlobeBaseStyle(isDark) {
   globeMap.setStyle(nextStyle);
   globeMap.once('style.load', function() {
     try { globeMap.setProjection({type: 'globe'}); } catch(e) { console.warn('setProjection:', e); }
+    applyGlobeSky();
     syncToGlobe();
   });
 }
