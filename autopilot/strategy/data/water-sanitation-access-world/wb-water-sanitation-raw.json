@@ -1,0 +1,1722 @@
+{
+  "_source": "World Bank — SH.H2O.BASW.ZS (agua potable básica) + SH.STA.BASS.ZS (saneamiento básico)",
+  "_date": "2026-10-04",
+  "_urls": [
+    "https://api.worldbank.org/v2/country/all/indicator/SH.H2O.BASW.ZS?format=json&per_page=20000",
+    "https://api.worldbank.org/v2/country/all/indicator/SH.STA.BASS.ZS?format=json&per_page=20000"
+  ],
+  "countries": [
+    {
+      "entidad": "Aruba",
+      "iso3": "ABW",
+      "agua": 96.7,
+      "aguaAnio": 2016,
+      "saneamiento": 98.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Afghanistan",
+      "iso3": "AFG",
+      "agua": 80.8,
+      "aguaAnio": 2024,
+      "saneamiento": 54.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Angola",
+      "iso3": "AGO",
+      "agua": 68,
+      "aguaAnio": 2024,
+      "saneamiento": 50.3,
+      "saneamientoAnio": 2022
+    },
+    {
+      "entidad": "Albania",
+      "iso3": "ALB",
+      "agua": 95.1,
+      "aguaAnio": 2024,
+      "saneamiento": 99.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Andorra",
+      "iso3": "AND",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "United Arab Emirates",
+      "iso3": "ARE",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Argentina",
+      "iso3": "ARG",
+      "agua": 99,
+      "aguaAnio": 2016,
+      "saneamiento": 94.8,
+      "saneamientoAnio": 2016
+    },
+    {
+      "entidad": "Armenia",
+      "iso3": "ARM",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 93.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "American Samoa",
+      "iso3": "ASM",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 62.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Antigua and Barbuda",
+      "iso3": "ATG",
+      "agua": 98.9,
+      "aguaAnio": 2024,
+      "saneamiento": 99.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Australia",
+      "iso3": "AUS",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Austria",
+      "iso3": "AUT",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Azerbaijan",
+      "iso3": "AZE",
+      "agua": 97.7,
+      "aguaAnio": 2024,
+      "saneamiento": 99,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Burundi",
+      "iso3": "BDI",
+      "agua": 65.9,
+      "aguaAnio": 2024,
+      "saneamiento": 44.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Belgium",
+      "iso3": "BEL",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Benin",
+      "iso3": "BEN",
+      "agua": 69.6,
+      "aguaAnio": 2024,
+      "saneamiento": 22.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Burkina Faso",
+      "iso3": "BFA",
+      "agua": 50,
+      "aguaAnio": 2024,
+      "saneamiento": 31.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bangladesh",
+      "iso3": "BGD",
+      "agua": 98.8,
+      "aguaAnio": 2024,
+      "saneamiento": 67.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bulgaria",
+      "iso3": "BGR",
+      "agua": 99.2,
+      "aguaAnio": 2024,
+      "saneamiento": 86.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bahrain",
+      "iso3": "BHR",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bahamas, The",
+      "iso3": "BHS",
+      "agua": 98.9,
+      "aguaAnio": 2019,
+      "saneamiento": 93.7,
+      "saneamientoAnio": 2019
+    },
+    {
+      "entidad": "Bosnia and Herzegovina",
+      "iso3": "BIH",
+      "agua": 96.1,
+      "aguaAnio": 2024,
+      "saneamiento": 95.4,
+      "saneamientoAnio": 2018
+    },
+    {
+      "entidad": "Belarus",
+      "iso3": "BLR",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 99.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Belize",
+      "iso3": "BLZ",
+      "agua": 94.8,
+      "aguaAnio": 2024,
+      "saneamiento": 84.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bermuda",
+      "iso3": "BMU",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bolivia",
+      "iso3": "BOL",
+      "agua": 93.4,
+      "aguaAnio": 2024,
+      "saneamiento": 71.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Brazil",
+      "iso3": "BRA",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 92.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Barbados",
+      "iso3": "BRB",
+      "agua": 99.2,
+      "aguaAnio": 2024,
+      "saneamiento": 98.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Brunei Darussalam",
+      "iso3": "BRN",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Bhutan",
+      "iso3": "BTN",
+      "agua": 99.5,
+      "aguaAnio": 2024,
+      "saneamiento": 86.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Botswana",
+      "iso3": "BWA",
+      "agua": 91.8,
+      "aguaAnio": 2024,
+      "saneamiento": 72.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Central African Republic",
+      "iso3": "CAF",
+      "agua": 36.5,
+      "aguaAnio": 2024,
+      "saneamiento": 14,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Canada",
+      "iso3": "CAN",
+      "agua": 98.3,
+      "aguaAnio": 2024,
+      "saneamiento": 98.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Switzerland",
+      "iso3": "CHE",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Chile",
+      "iso3": "CHL",
+      "agua": 99.1,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "China",
+      "iso3": "CHN",
+      "agua": 96.1,
+      "aguaAnio": 2024,
+      "saneamiento": 97.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Cote d'Ivoire",
+      "iso3": "CIV",
+      "agua": 77.2,
+      "aguaAnio": 2024,
+      "saneamiento": 40.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Cameroon",
+      "iso3": "CMR",
+      "agua": 71.4,
+      "aguaAnio": 2024,
+      "saneamiento": 47.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Congo, Dem. Rep.",
+      "iso3": "COD",
+      "agua": 35.7,
+      "aguaAnio": 2024,
+      "saneamiento": 16.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Congo, Rep.",
+      "iso3": "COG",
+      "agua": 73.5,
+      "aguaAnio": 2021,
+      "saneamiento": 20.6,
+      "saneamientoAnio": 2021
+    },
+    {
+      "entidad": "Colombia",
+      "iso3": "COL",
+      "agua": 97.1,
+      "aguaAnio": 2024,
+      "saneamiento": 96.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Comoros",
+      "iso3": "COM",
+      "agua": 85.1,
+      "aguaAnio": 2024,
+      "saneamiento": 57.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Cabo Verde",
+      "iso3": "CPV",
+      "agua": 92.3,
+      "aguaAnio": 2024,
+      "saneamiento": 83.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Costa Rica",
+      "iso3": "CRI",
+      "agua": 99.8,
+      "aguaAnio": 2024,
+      "saneamiento": 98.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Cuba",
+      "iso3": "CUB",
+      "agua": 95.1,
+      "aguaAnio": 2024,
+      "saneamiento": 94.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Curacao",
+      "iso3": "CUW",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.2,
+      "saneamientoAnio": 2017
+    },
+    {
+      "entidad": "Cayman Islands",
+      "iso3": "CYM",
+      "agua": 95.5,
+      "aguaAnio": 2024,
+      "saneamiento": 83.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Cyprus",
+      "iso3": "CYP",
+      "agua": 99.7,
+      "aguaAnio": 2024,
+      "saneamiento": 99.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Czechia",
+      "iso3": "CZE",
+      "agua": 98.7,
+      "aguaAnio": 2024,
+      "saneamiento": 99.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Germany",
+      "iso3": "DEU",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Djibouti",
+      "iso3": "DJI",
+      "agua": 79.7,
+      "aguaAnio": 2024,
+      "saneamiento": 67,
+      "saneamientoAnio": 2023
+    },
+    {
+      "entidad": "Dominica",
+      "iso3": "DMA",
+      "agua": 97,
+      "aguaAnio": 2024,
+      "saneamiento": 80.4,
+      "saneamientoAnio": 2017
+    },
+    {
+      "entidad": "Denmark",
+      "iso3": "DNK",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Dominican Republic",
+      "iso3": "DOM",
+      "agua": 97.5,
+      "aguaAnio": 2024,
+      "saneamiento": 90.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Algeria",
+      "iso3": "DZA",
+      "agua": 92.4,
+      "aguaAnio": 2024,
+      "saneamiento": 85.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Ecuador",
+      "iso3": "ECU",
+      "agua": 92.1,
+      "aguaAnio": 2024,
+      "saneamiento": 91.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Egypt, Arab Rep.",
+      "iso3": "EGY",
+      "agua": 97.3,
+      "aguaAnio": 2024,
+      "saneamiento": 97.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Eritrea",
+      "iso3": "ERI",
+      "agua": 51.8,
+      "aguaAnio": 2016,
+      "saneamiento": 11.9,
+      "saneamientoAnio": 2016
+    },
+    {
+      "entidad": "Spain",
+      "iso3": "ESP",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Estonia",
+      "iso3": "EST",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Ethiopia",
+      "iso3": "ETH",
+      "agua": 55.6,
+      "aguaAnio": 2024,
+      "saneamiento": 10.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Finland",
+      "iso3": "FIN",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Fiji",
+      "iso3": "FJI",
+      "agua": 95.6,
+      "aguaAnio": 2024,
+      "saneamiento": 92.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "France",
+      "iso3": "FRA",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 98.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Faroe Islands",
+      "iso3": "FRO",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 90.9,
+      "saneamientoAnio": 2015
+    },
+    {
+      "entidad": "Micronesia, Fed. Sts.",
+      "iso3": "FSM",
+      "agua": 89.9,
+      "aguaAnio": 2020,
+      "saneamiento": 90.5,
+      "saneamientoAnio": 2020
+    },
+    {
+      "entidad": "Gabon",
+      "iso3": "GAB",
+      "agua": 88.6,
+      "aguaAnio": 2024,
+      "saneamiento": 57.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "United Kingdom",
+      "iso3": "GBR",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Georgia",
+      "iso3": "GEO",
+      "agua": 97.3,
+      "aguaAnio": 2024,
+      "saneamiento": 90.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Ghana",
+      "iso3": "GHA",
+      "agua": 89.9,
+      "aguaAnio": 2024,
+      "saneamiento": 31.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Gibraltar",
+      "iso3": "GIB",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Guinea",
+      "iso3": "GIN",
+      "agua": 74.2,
+      "aguaAnio": 2024,
+      "saneamiento": 32.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Gambia, The",
+      "iso3": "GMB",
+      "agua": 87.1,
+      "aguaAnio": 2024,
+      "saneamiento": 48.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Guinea-Bissau",
+      "iso3": "GNB",
+      "agua": 61.8,
+      "aguaAnio": 2024,
+      "saneamiento": 28.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Equatorial Guinea",
+      "iso3": "GNQ",
+      "agua": 64.7,
+      "aguaAnio": 2017,
+      "saneamiento": 66.3,
+      "saneamientoAnio": 2017
+    },
+    {
+      "entidad": "Greece",
+      "iso3": "GRC",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Grenada",
+      "iso3": "GRD",
+      "agua": 95.6,
+      "aguaAnio": 2017,
+      "saneamiento": 92.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Greenland",
+      "iso3": "GRL",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 62.5,
+      "saneamientoAnio": 2022
+    },
+    {
+      "entidad": "Guatemala",
+      "iso3": "GTM",
+      "agua": 93.2,
+      "aguaAnio": 2024,
+      "saneamiento": 71.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Guam",
+      "iso3": "GUM",
+      "agua": 99.5,
+      "aguaAnio": 2024,
+      "saneamiento": 90.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Guyana",
+      "iso3": "GUY",
+      "agua": 95.6,
+      "aguaAnio": 2024,
+      "saneamiento": 91.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Hong Kong SAR, China",
+      "iso3": "HKG",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 94.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Honduras",
+      "iso3": "HND",
+      "agua": 95.7,
+      "aguaAnio": 2024,
+      "saneamiento": 87.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Croatia",
+      "iso3": "HRV",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 95.8,
+      "saneamientoAnio": 2021
+    },
+    {
+      "entidad": "Haiti",
+      "iso3": "HTI",
+      "agua": 73.3,
+      "aguaAnio": 2024,
+      "saneamiento": 29.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Hungary",
+      "iso3": "HUN",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 98,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Indonesia",
+      "iso3": "IDN",
+      "agua": 89,
+      "aguaAnio": 2024,
+      "saneamiento": 88.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Isle of Man",
+      "iso3": "IMN",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "India",
+      "iso3": "IND",
+      "agua": 95.7,
+      "aguaAnio": 2024,
+      "saneamiento": 83.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Ireland",
+      "iso3": "IRL",
+      "agua": 97.1,
+      "aguaAnio": 2024,
+      "saneamiento": 89.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Iran, Islamic Rep.",
+      "iso3": "IRN",
+      "agua": 97.9,
+      "aguaAnio": 2024,
+      "saneamiento": 90.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Iraq",
+      "iso3": "IRQ",
+      "agua": 98.4,
+      "aguaAnio": 2024,
+      "saneamiento": 98.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Iceland",
+      "iso3": "ISL",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 98.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Israel",
+      "iso3": "ISR",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Italy",
+      "iso3": "ITA",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Jamaica",
+      "iso3": "JAM",
+      "agua": 87.6,
+      "aguaAnio": 2024,
+      "saneamiento": 91.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Jordan",
+      "iso3": "JOR",
+      "agua": 99.3,
+      "aguaAnio": 2024,
+      "saneamiento": 96.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Japan",
+      "iso3": "JPN",
+      "agua": 99.2,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Kazakhstan",
+      "iso3": "KAZ",
+      "agua": 97.8,
+      "aguaAnio": 2024,
+      "saneamiento": 97.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Kenya",
+      "iso3": "KEN",
+      "agua": 65.6,
+      "aguaAnio": 2024,
+      "saneamiento": 40.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Kyrgyz Republic",
+      "iso3": "KGZ",
+      "agua": 94.9,
+      "aguaAnio": 2024,
+      "saneamiento": 98.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Cambodia",
+      "iso3": "KHM",
+      "agua": 82.8,
+      "aguaAnio": 2024,
+      "saneamiento": 83.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Kiribati",
+      "iso3": "KIR",
+      "agua": 79.1,
+      "aguaAnio": 2024,
+      "saneamiento": 45.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "St. Kitts and Nevis",
+      "iso3": "KNA",
+      "agua": 98.6,
+      "aguaAnio": 2017,
+      "saneamiento": 95,
+      "saneamientoAnio": 2017
+    },
+    {
+      "entidad": "Korea, Rep.",
+      "iso3": "KOR",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Kuwait",
+      "iso3": "KWT",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Lao PDR",
+      "iso3": "LAO",
+      "agua": 95.9,
+      "aguaAnio": 2024,
+      "saneamiento": 88.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Lebanon",
+      "iso3": "LBN",
+      "agua": 92.6,
+      "aguaAnio": 2024,
+      "saneamiento": 99.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Liberia",
+      "iso3": "LBR",
+      "agua": 78.8,
+      "aguaAnio": 2024,
+      "saneamiento": 23.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Libya",
+      "iso3": "LBY",
+      "agua": 96.4,
+      "aguaAnio": 2024,
+      "saneamiento": 88.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "St. Lucia",
+      "iso3": "LCA",
+      "agua": 98.1,
+      "aguaAnio": 2024,
+      "saneamiento": 83.4,
+      "saneamientoAnio": 2022
+    },
+    {
+      "entidad": "Liechtenstein",
+      "iso3": "LIE",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Sri Lanka",
+      "iso3": "LKA",
+      "agua": 90.2,
+      "aguaAnio": 2024,
+      "saneamiento": 95.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Lesotho",
+      "iso3": "LSO",
+      "agua": 78.1,
+      "aguaAnio": 2024,
+      "saneamiento": 47.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Lithuania",
+      "iso3": "LTU",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 96.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Luxembourg",
+      "iso3": "LUX",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 97.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Latvia",
+      "iso3": "LVA",
+      "agua": 98.8,
+      "aguaAnio": 2024,
+      "saneamiento": 92.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Macao SAR, China",
+      "iso3": "MAC",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "St. Martin (French part)",
+      "iso3": "MAF",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Morocco",
+      "iso3": "MAR",
+      "agua": 92.2,
+      "aguaAnio": 2024,
+      "saneamiento": 87.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Monaco",
+      "iso3": "MCO",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Moldova",
+      "iso3": "MDA",
+      "agua": 92.7,
+      "aguaAnio": 2024,
+      "saneamiento": 86.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Madagascar",
+      "iso3": "MDG",
+      "agua": 55.3,
+      "aguaAnio": 2024,
+      "saneamiento": 15.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Maldives",
+      "iso3": "MDV",
+      "agua": 99.8,
+      "aguaAnio": 2024,
+      "saneamiento": 99.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Mexico",
+      "iso3": "MEX",
+      "agua": 99.5,
+      "aguaAnio": 2024,
+      "saneamiento": 93,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Marshall Islands",
+      "iso3": "MHL",
+      "agua": 87.4,
+      "aguaAnio": 2024,
+      "saneamiento": 79,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "North Macedonia",
+      "iso3": "MKD",
+      "agua": 98.2,
+      "aguaAnio": 2024,
+      "saneamiento": 99,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Mali",
+      "iso3": "MLI",
+      "agua": 86.4,
+      "aguaAnio": 2024,
+      "saneamiento": 47.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Malta",
+      "iso3": "MLT",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Myanmar",
+      "iso3": "MMR",
+      "agua": 85.7,
+      "aguaAnio": 2024,
+      "saneamiento": 74.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Montenegro",
+      "iso3": "MNE",
+      "agua": 99.3,
+      "aguaAnio": 2024,
+      "saneamiento": 97.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Mongolia",
+      "iso3": "MNG",
+      "agua": 86.1,
+      "aguaAnio": 2024,
+      "saneamiento": 74.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Northern Mariana Islands",
+      "iso3": "MNP",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Mozambique",
+      "iso3": "MOZ",
+      "agua": 66.6,
+      "aguaAnio": 2024,
+      "saneamiento": 38.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Mauritania",
+      "iso3": "MRT",
+      "agua": 77.3,
+      "aguaAnio": 2024,
+      "saneamiento": 58.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Mauritius",
+      "iso3": "MUS",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 97.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Malawi",
+      "iso3": "MWI",
+      "agua": 73.1,
+      "aguaAnio": 2024,
+      "saneamiento": 49.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Malaysia",
+      "iso3": "MYS",
+      "agua": 97.9,
+      "aguaAnio": 2024,
+      "saneamiento": 96,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Namibia",
+      "iso3": "NAM",
+      "agua": 86.5,
+      "aguaAnio": 2024,
+      "saneamiento": 38.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "New Caledonia",
+      "iso3": "NCL",
+      "agua": 99.5,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Niger",
+      "iso3": "NER",
+      "agua": 53.4,
+      "aguaAnio": 2024,
+      "saneamiento": 16.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Nigeria",
+      "iso3": "NGA",
+      "agua": 82.2,
+      "aguaAnio": 2024,
+      "saneamiento": 47.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Netherlands",
+      "iso3": "NLD",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 97.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Norway",
+      "iso3": "NOR",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 98,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Nepal",
+      "iso3": "NPL",
+      "agua": 93.6,
+      "aguaAnio": 2024,
+      "saneamiento": 86,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Naoero",
+      "iso3": "NRU",
+      "agua": 97.8,
+      "aguaAnio": 2024,
+      "saneamiento": 71.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "New Zealand",
+      "iso3": "NZL",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Oman",
+      "iso3": "OMN",
+      "agua": 92.7,
+      "aguaAnio": 2024,
+      "saneamiento": 99.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Pakistan",
+      "iso3": "PAK",
+      "agua": 90.7,
+      "aguaAnio": 2024,
+      "saneamiento": 71.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Panama",
+      "iso3": "PAN",
+      "agua": 95.3,
+      "aguaAnio": 2024,
+      "saneamiento": 89.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Peru",
+      "iso3": "PER",
+      "agua": 95.6,
+      "aguaAnio": 2024,
+      "saneamiento": 78.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Philippines",
+      "iso3": "PHL",
+      "agua": 95.9,
+      "aguaAnio": 2024,
+      "saneamiento": 87.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Palau",
+      "iso3": "PLW",
+      "agua": 99.5,
+      "aguaAnio": 2024,
+      "saneamiento": 99,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Papua New Guinea",
+      "iso3": "PNG",
+      "agua": 53.3,
+      "aguaAnio": 2024,
+      "saneamiento": 23.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Poland",
+      "iso3": "POL",
+      "agua": 90.1,
+      "aguaAnio": 2024,
+      "saneamiento": 99,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Puerto Rico (US)",
+      "iso3": "PRI",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Korea, Dem. People's Rep.",
+      "iso3": "PRK",
+      "agua": 93.9,
+      "aguaAnio": 2023,
+      "saneamiento": 84.8,
+      "saneamientoAnio": 2023
+    },
+    {
+      "entidad": "Portugal",
+      "iso3": "PRT",
+      "agua": 99.3,
+      "aguaAnio": 2024,
+      "saneamiento": 99.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Paraguay",
+      "iso3": "PRY",
+      "agua": 99.6,
+      "aguaAnio": 2024,
+      "saneamiento": 95.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "West Bank and Gaza",
+      "iso3": "PSE",
+      "agua": 98.8,
+      "aguaAnio": 2024,
+      "saneamiento": 99.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "French Polynesia",
+      "iso3": "PYF",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 97.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Qatar",
+      "iso3": "QAT",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Romania",
+      "iso3": "ROU",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 90.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Russian Federation",
+      "iso3": "RUS",
+      "agua": 96.9,
+      "aguaAnio": 2024,
+      "saneamiento": 92.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Rwanda",
+      "iso3": "RWA",
+      "agua": 61.4,
+      "aguaAnio": 2024,
+      "saneamiento": 81.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Saudi Arabia",
+      "iso3": "SAU",
+      "agua": 99,
+      "aguaAnio": 2024,
+      "saneamiento": 97.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Sudan",
+      "iso3": "SDN",
+      "agua": 64.9,
+      "aguaAnio": 2024,
+      "saneamiento": 65.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Senegal",
+      "iso3": "SEN",
+      "agua": 88,
+      "aguaAnio": 2024,
+      "saneamiento": 62.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Singapore",
+      "iso3": "SGP",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Solomon Islands",
+      "iso3": "SLB",
+      "agua": 71.6,
+      "aguaAnio": 2024,
+      "saneamiento": 34.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Sierra Leone",
+      "iso3": "SLE",
+      "agua": 68.1,
+      "aguaAnio": 2024,
+      "saneamiento": 24.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "El Salvador",
+      "iso3": "SLV",
+      "agua": 91.6,
+      "aguaAnio": 2024,
+      "saneamiento": 88,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "San Marino",
+      "iso3": "SMR",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 100,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Somalia, Fed. Rep.",
+      "iso3": "SOM",
+      "agua": 75.3,
+      "aguaAnio": 2024,
+      "saneamiento": 44.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Serbia",
+      "iso3": "SRB",
+      "agua": 95.4,
+      "aguaAnio": 2024,
+      "saneamiento": 97.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "South Sudan",
+      "iso3": "SSD",
+      "agua": 39.7,
+      "aguaAnio": 2024,
+      "saneamiento": 14.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Sao Tome and Principe",
+      "iso3": "STP",
+      "agua": 78,
+      "aguaAnio": 2024,
+      "saneamiento": 48.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Suriname",
+      "iso3": "SUR",
+      "agua": 98,
+      "aguaAnio": 2024,
+      "saneamiento": 90,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Slovak Republic",
+      "iso3": "SVK",
+      "agua": 99.8,
+      "aguaAnio": 2024,
+      "saneamiento": 97.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Slovenia",
+      "iso3": "SVN",
+      "agua": 99.6,
+      "aguaAnio": 2024,
+      "saneamiento": 98.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Sweden",
+      "iso3": "SWE",
+      "agua": 99.8,
+      "aguaAnio": 2024,
+      "saneamiento": 98.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Eswatini",
+      "iso3": "SWZ",
+      "agua": 80.4,
+      "aguaAnio": 2024,
+      "saneamiento": 64.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Sint Maarten (Dutch part)",
+      "iso3": "SXM",
+      "agua": 99.3,
+      "aguaAnio": 2017,
+      "saneamiento": 98.8,
+      "saneamientoAnio": 2017
+    },
+    {
+      "entidad": "Seychelles",
+      "iso3": "SYC",
+      "agua": 97.7,
+      "aguaAnio": 2024,
+      "saneamiento": 99.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Syrian Arab Republic",
+      "iso3": "SYR",
+      "agua": 94.1,
+      "aguaAnio": 2024,
+      "saneamiento": 95.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Turks and Caicos Islands",
+      "iso3": "TCA",
+      "agua": 98.8,
+      "aguaAnio": 2024,
+      "saneamiento": 93.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Chad",
+      "iso3": "TCD",
+      "agua": 52.2,
+      "aguaAnio": 2024,
+      "saneamiento": 13.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Togo",
+      "iso3": "TGO",
+      "agua": 64.8,
+      "aguaAnio": 2024,
+      "saneamiento": 25.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Thailand",
+      "iso3": "THA",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Tajikistan",
+      "iso3": "TJK",
+      "agua": 89.2,
+      "aguaAnio": 2024,
+      "saneamiento": 96,
+      "saneamientoAnio": 2023
+    },
+    {
+      "entidad": "Turkmenistan",
+      "iso3": "TKM",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 99.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Timor-Leste",
+      "iso3": "TLS",
+      "agua": 87.3,
+      "aguaAnio": 2024,
+      "saneamiento": 72.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Tonga",
+      "iso3": "TON",
+      "agua": 98.9,
+      "aguaAnio": 2024,
+      "saneamiento": 93.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Trinidad and Tobago",
+      "iso3": "TTO",
+      "agua": 99.3,
+      "aguaAnio": 2024,
+      "saneamiento": 94.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Tunisia",
+      "iso3": "TUN",
+      "agua": 96.7,
+      "aguaAnio": 2024,
+      "saneamiento": 98.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Turkiye",
+      "iso3": "TUR",
+      "agua": 96,
+      "aguaAnio": 2024,
+      "saneamiento": 99.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Tuvalu",
+      "iso3": "TUV",
+      "agua": 98.7,
+      "aguaAnio": 2024,
+      "saneamiento": 89.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Tanzania",
+      "iso3": "TZA",
+      "agua": 64.6,
+      "aguaAnio": 2024,
+      "saneamiento": 37.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Uganda",
+      "iso3": "UGA",
+      "agua": 63,
+      "aguaAnio": 2024,
+      "saneamiento": 23.9,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Ukraine",
+      "iso3": "UKR",
+      "agua": 93.5,
+      "aguaAnio": 2024,
+      "saneamiento": 97.7,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Uruguay",
+      "iso3": "URY",
+      "agua": 99.6,
+      "aguaAnio": 2024,
+      "saneamiento": 99.2,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "United States",
+      "iso3": "USA",
+      "agua": 100,
+      "aguaAnio": 2024,
+      "saneamiento": 99.6,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Uzbekistan",
+      "iso3": "UZB",
+      "agua": 97.3,
+      "aguaAnio": 2024,
+      "saneamiento": 96.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "St. Vincent and the Grenadines",
+      "iso3": "VCT",
+      "agua": 97.7,
+      "aguaAnio": 2018,
+      "saneamiento": 89.7,
+      "saneamientoAnio": 2018
+    },
+    {
+      "entidad": "Venezuela, RB",
+      "iso3": "VEN",
+      "agua": 93.3,
+      "aguaAnio": 2024,
+      "saneamiento": 98.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "British Virgin Islands",
+      "iso3": "VGB",
+      "agua": 99.9,
+      "aguaAnio": 2024,
+      "saneamiento": 96.9,
+      "saneamientoAnio": 2016
+    },
+    {
+      "entidad": "Virgin Islands (U.S.)",
+      "iso3": "VIR",
+      "agua": 99.5,
+      "aguaAnio": 2024,
+      "saneamiento": 99.3,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Viet Nam",
+      "iso3": "VNM",
+      "agua": 98.8,
+      "aguaAnio": 2024,
+      "saneamiento": 95.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Vanuatu",
+      "iso3": "VUT",
+      "agua": 87.1,
+      "aguaAnio": 2024,
+      "saneamiento": 47.8,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Samoa",
+      "iso3": "WSM",
+      "agua": 99.4,
+      "aguaAnio": 2024,
+      "saneamiento": 97.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Yemen, Rep.",
+      "iso3": "YEM",
+      "agua": 75,
+      "aguaAnio": 2024,
+      "saneamiento": 63.1,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "South Africa",
+      "iso3": "ZAF",
+      "agua": 90.2,
+      "aguaAnio": 2024,
+      "saneamiento": 77.4,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Zambia",
+      "iso3": "ZMB",
+      "agua": 73.4,
+      "aguaAnio": 2024,
+      "saneamiento": 37.5,
+      "saneamientoAnio": 2024
+    },
+    {
+      "entidad": "Zimbabwe",
+      "iso3": "ZWE",
+      "agua": 67.2,
+      "aguaAnio": 2024,
+      "saneamiento": 34.6,
+      "saneamientoAnio": 2024
+    }
+  ]
+}
