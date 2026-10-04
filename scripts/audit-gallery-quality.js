@@ -109,7 +109,7 @@ const KNOWN_META = {
     dataDate: '2024-01-01',
     tags: ['Naturaleza', 'Medio Ambiente'],
   },
-  'world-happiness-world': {
+  'happiness-index-world': {
     dataSource: 'World Happiness Report 2024 — Gallup World Poll (Ladder score, escala 0-10). https://worldhappiness.report/data',
     dataDate: '2024-03-20',
     tags: ['Bienestar', 'Geografía', 'Sociedad'],
