@@ -2965,6 +2965,13 @@ select.ai-input{cursor:pointer;appearance:auto;}
   background:rgba(15,23,42,.88);
   color:#bae6fd;
 }
+/* Keep the online-users pill clear of the basemap stack + globe controls:
+   move it to the top-right, just below the coordinates overlay. */
+#map-wrap .presence-avatars{
+  top:calc(46px + env(safe-area-inset-top));
+  right:10px;
+  bottom:auto;
+}
 
 /* ── Live collaborative cursor markers ── */
 .collab-live-cursor-marker{
