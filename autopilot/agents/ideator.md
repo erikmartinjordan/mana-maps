@@ -31,7 +31,7 @@ curl -s "https://firestore.googleapis.com/v1/projects/mana-maps-pro-f2177/databa
 Luego para cada isPublished==true, fetch geojsonText y valida contra AGENTS.md:
 
 1. **Datos autoritativos**: dataSource + dataDate presentes (Natural Earth, IHO, GEBCO/NOAA, USGS, ONU, Smithsonian...). Si vacío → MAJOR.
-2. **Geometría real**: prohibidos polígonos a mano. Debe ser recorte oficial + simplify(preserve_topology), partes >= max(25°²,40% mayor) para evitar etiquetas duplicadas. Points para desiertos = HORROR (deben ser Polygons). Valida coords ±180/90, featureCount coherente.
+2. **Geometría real**: prohibidos polígonos a mano. Debe ser recorte oficial + simplify(preserve_topology), partes >= max(25°²,40% mayor) para evitar etiquetas duplicadas. Points para desiertos = HORROR (deben ser Polygons): un área nunca se representa con un punto. En cambio, los Points SÍ son correctos para entidades puntuales reales (picos, volcanes, incendios, cráteres, lugares extremos); en esos exige `_manaMarkerType`/`markerType` de un emoji válido de `js/markers.js` (presente también en `js/vector-renderer.js` y `js/globe.js`), `_manaEmojiSize` o `Area` para escalar el icono, y `_manaLabelStyle` completo. Valida coords ±180/90, featureCount coherente.
 3. **Paleta semántica**: variable numérica → rampa monocromática ordenada claro→oscuro. Borde blanco fino en coropletas (_manaBorderColor #ffffff). Arcoíris = fail.
 4. **Props por feature (ES)**: _manaName, name, _manaColor (hex), _manaFillOpacity, _manaGroupName/_manaGroupId, _manaLabelStyle completo haloWidth>=2, y claves legibles Superficie/Dato/Description + clave numérica para leyenda (ej Profundidad media). Sin duplicados _manaName.
 5. **Popups**: cada feature muestra datos concretos, no solo nombre.
@@ -49,7 +49,11 @@ Por cada mapa que falle, tarea CONCRETA:
 `- [ ] Despublicar mapas user no editoriales <slug> (isPublished:false) o recurar con geometría real`
 
 ## Misión 2: Nuevos mapas (solo si Misión 1 cubierta)
-Ángulo sorprendente, datos reales, fuente citada. Formato: `- [ ] Crear mapa: <slug> - <título hook> - <fuente>`
+Ángulo sorprendente, datos reales, fuente citada. Alterna coropletas con mapas
+**puntuales + emoji** (Point con `_manaMarkerType` válido): son muy visibles y
+compartibles. Propón AL MENOS una idea puntual/emoji con tema creativo y dato
+real no repetido (picos más altos, volcanes activos, cráteres, incendios,
+lugares extremos, etc.). Formato: `- [ ] Crear mapa: <slug> - <título hook> - <fuente>`
 
 ## Reglas
 1. Solo editar final de BACKLOG.md, max 3 líneas, formato `- [ ] ...`

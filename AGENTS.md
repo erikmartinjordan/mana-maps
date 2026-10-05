@@ -49,6 +49,17 @@ Todo mapa nuevo o actualización de la galería debe cumplir:
    y revisión visual escritorio + móvil de `/gallery/?slug=<id>`
    (leyenda, etiquetas únicas, popup funcional).
 
+### Mapas puntuales con iconos (emojis)
+
+Cuando el tema sea una **entidad puntual real** (picos, volcanes, incendios,
+cráteres, lugares extremos), es válido y recomendable usar features `Point`
+con icono. Requisitos por feature: `name`/`_manaName`, `markerType` y
+`_manaMarkerType` con un id de emoji válido del catálogo (`js/markers.js`,
+replicado en `js/vector-renderer.js` y `js/globe.js`), `_manaColor`,
+`_manaEmojiSize` (o clave `Area`) para escalar el icono, `_manaGroupName`,
+`_manaGroupId` y `_manaLabelStyle` completo. **Nunca** representes un área
+(país, desierto, región) con un punto: eso exige polígono real (punto 2).
+
 ## Contenido
 
 - Español para todo lo visible por usuarios (títulos, popups, descripciones).

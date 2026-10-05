@@ -31,6 +31,41 @@ Un mapa excelente no es "mapa de X". Es un mapa que REVELA algo inesperado.
 Antes de crear, define en 1 frase que revela tu mapa y por que alguien lo
 compartiria.
 
+## MAPAS DE PUNTOS CON EMOJIS (potencialos)
+Los temas inherentemente puntuales (records, extremos, eventos localizados)
+funcionan mejor como Point + emoji: se ven en el thumbnail, en 2D y en el
+globo, y son muy compartibles. Alterna con las coropletas: al menos 1 de cada
+3 mapas nuevos debe ser de puntos con emoji. Se CREATIVO con el tema y el
+angulo: inventa temas nuevos, no copies los de ejemplo.
+
+Temas de inspiracion (no los copies, busca otros):
+- Puntos mas altos de cada continente (emoji_mountain).
+- Volcanes activos del mundo (emoji_fire o emoji_warning).
+- Peores incendios forestales del mundo (emoji_fire, tamano por superficie).
+- Crateres de impacto mas grandes, fosas oceanicas, ciudades mas remotas,
+  capitales a mayor altitud, auroras...
+
+Esquema OBLIGATORIO de cada feature Point (ya soportado por el render):
+- geometry {"type":"Point","coordinates":[lng,lat]}; una feature por lugar real.
+- name y _manaName: nombre visible del lugar.
+- markerType y _manaMarkerType: id de emoji VALIDO del catalogo js/markers.js
+  (p. ej. emoji_mountain, emoji_fire, emoji_warning, emoji_water, emoji_star).
+  Debe existir en _emojiMap de js/vector-renderer.js y en la lista de
+  js/globe.js; si no, el icono NO se pinta.
+- _manaColor: hex de acento coherente con el tema.
+- Tamano del icono: define _manaEmojiSize (22-66) o una clave Area
+  ("1.5M ha", "424,000 ha") para escalarlo por el dato (p. ej. ha quemadas).
+- _manaGroupName, _manaGroupId y _manaLabelStyle COMPLETO
+  (enabled, field:_manaName, haloWidth>=2).
+- Popup con datos concretos en claves legibles (Dato/Description + la clave
+  numerica: altura, magnitud, ano, hectareas...). No solo el nombre.
+- Si hay categorias (p. ej. tipo de volcan), usa un emoji por categoria con
+  una entrada de leyenda; respeta el orden por el dato.
+
+LIMITE: los Points solo valen para entidades puntuales REALES. Nunca
+representes un area (pais, desierto, region) con un punto: eso exige poligono
+oficial segun AGENTS.md.
+
 ## ESTANDAR OBLIGATORIO
 Lee primero AGENTS.md en la raiz del repo: es el contrato de calidad del
 proyecto y prevalece sobre este prompt en caso de duda. Resumen operativo:
