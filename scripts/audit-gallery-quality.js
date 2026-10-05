@@ -3,7 +3,7 @@
 // Valida los mapas isPublished de Firestore contra AGENTS.md §Estándar de
 // publicación y corrige en Firestore lo que se pueda de forma segura.
 //
-// Comprobaciones (BACKLOG 03-10 / 03-10 popups):
+// Comprobaciones (BACKLOG 03-10 / 03-10 popups / 05-10 paleta §3):
 //   1. dataSource y dataDate no vacíos
 //   2. featureCount coherente con la longitud real de geojsonText.features
 //   3. coordenadas dentro de ±180 (lon) / ±90 (lat)
@@ -13,6 +13,14 @@
 //   7. popups con información real (AGENTS.md §5): cada feature debe mostrar
 //      datos concretos, no solo el nombre. Claves de estilo/internas
 //      (_mana*, color, markerType, fillOpacity…) no cuentan como datos.
+//   8. paleta semántica (AGENTS.md §3):
+//      - Coropletas (legendKey + ≥5 pares numéricos no grises): rampa
+//        secuencial monocromática (span de tono ≤ 60°), ordenada por el dato
+//        de claro→oscuro (Spearman rho ≤ -0.65 entre valor y luminancia) y
+//        borde blanco fino en los polígonos de datos.
+//      - Resto de mapas: prohibida la paleta arcoíris (≥4 tonos saturados con
+//        span > 150°). Fix automático con color semántico único por slug
+//        (SEMANTIC_COLOR_BY_SLUG), patrón de la galería para colecciones.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -21,8 +29,13 @@
 //   - hex corto #RGB / #RGBA → #RRGGBB; rgb()/rgba() → #RRGGBB
 //   - longitud fuera de ±180 → envuelta al rango (x±360)
 //   - features sin datos de popup → completadas con POPUP_FIX_DATA (§5)
+//   - coropleta fuera de norma §3 → rampa mono recomputada por cuantiles del
+//     dato (se preserva el gris «sin datos» y el tono dominante existente) +
+//     borde blanco fino
+//   - colección con paleta arcoíris → color semántico único del slug
 // Lo demás (latitud fuera de ±90, colores no convertibles, metadatos
-// desconocidos, popups sin fix conocido) se reporta como MANUAL y NO se toca.
+// desconocidos, popups sin fix conocido, arcoíris sin slug en la tabla) se
+// reporta como MANUAL y NO se toca.
 //
 // Uso:
 //   node scripts/audit-gallery-quality.js [--dry-run] [--verbose]
@@ -335,6 +348,326 @@ const POPUP_FIX_DATA = {
   },
 };
 
+// ── Paleta semántica (AGENTS.md §3) ────────────────────────────────
+// Si hay variable numérica: rampa secuencial monocromática ordenada por el
+// dato (claro→oscuro). Nada de colores arbitrarios tipo arcoíris. En
+// coropletas, borde blanco fino.
+//
+// Color semántico único por slug para colecciones que hoy usan paleta
+// arcoíris (patrón de la galería: volcanes #d90429, incendios #ff4500,
+// picos #1d4ed8…). Clave = slug Firestore.
+
+const SEMANTIC_COLOR_BY_SLUG = {
+  'arrecifes-de-coral-fosas-oceanicas-y-naufragios-famosos-3172026-1785478772912': '#0369a1',
+  'ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436': '#b45309',
+};
+
+// Umbrales §3
+const PALETTE = {
+  MIN_PAIRS: 5,            // pares (valor, color) no grises para evaluar coropleta
+  HUE_SPAN_MAX: 60,        // grados: span de tono aceptado como monocromática
+  RHO_ORDERED_MAX: -0.65,  // Spearman(value, luminancia): ≤ esto = claro→oscuro
+  RAINBOW_MIN_HUES: 4,     // tonos saturados mínimos para considerar arcoíris
+  RAINBOW_MIN_SPAN: 150,   // grados de span para considerar arcoíris
+  NEAR_GRAY_SAT: 0.12,     // saturación máxima para tratar un color como «sin datos»
+  RAMP_STEPS: 9,
+};
+
+// Parseo numérico al estilo de js/gallery-page.js (legado europeo y US).
+function parseLegendNumber(raw) {
+  if (raw == null) return NaN;
+  if (typeof raw === 'number') return isFinite(raw) ? raw : NaN;
+  const s = String(raw);
+  const m = s.replace(/[^\d.,\-]/g, '');
+  if (m === '') return NaN;
+  let num;
+  if (m.indexOf(',') !== -1) {
+    num = parseFloat(m.replace(/\./g, '').replace(',', '.'));
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(m) && !/\.\d{1,2}$/.test(m)) {
+    num = parseFloat(m.replace(/\./g, ''));
+  } else {
+    num = parseFloat(m);
+  }
+  return isFinite(num) ? num : NaN;
+}
+
+// Hex #RRGGBB → { h (0-360), s (0-1), l (0-1) }
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  let h = 0, s = 0;
+  if (d !== 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+  return { h: h * 360, s, l };
+}
+
+// HSL (h 0-360, s/l 0-100) → #RRGGBB
+function hslToHex(h, s, l) {
+  const hh = ((h % 360) + 360) % 360;
+  const ss = Math.max(0, Math.min(100, s)) / 100;
+  const ll = Math.max(0, Math.min(100, l)) / 100;
+  const c = (1 - Math.abs(2 * ll - 1)) * ss;
+  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
+  const m = ll - c / 2;
+  let r = 0, g = 0, b = 0;
+  if (hh < 60) { r = c; g = x; }
+  else if (hh < 120) { r = x; g = c; }
+  else if (hh < 180) { g = c; b = x; }
+  else if (hh < 240) { g = x; b = c; }
+  else if (hh < 300) { r = x; b = c; }
+  else { r = c; b = x; }
+  const hx = n => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+  return `#${hx(r)}${hx(g)}${hx(b)}`;
+}
+
+// ¿Color casi gris («sin datos» / neutro)? No entra en rampa ni en arcoíris.
+function isNearGray(hex, satMax = PALETTE.NEAR_GRAY_SAT) {
+  const { s } = hexToHsl(hex);
+  return s <= satMax;
+}
+
+// Span circular de tonos (grados, 0-360). hues = array de grados.
+// Todos los tonos iguales → 0 (no 360).
+function hueSpanDegrees(hues) {
+  if (!hues || hues.length < 2) return 0;
+  const hs = hues.slice().sort((a, b) => a - b);
+  if (hs[hs.length - 1] === hs[0]) return 0;
+  let maxGap = 0;
+  for (let i = 0; i < hs.length - 1; i++) {
+    maxGap = Math.max(maxGap, hs[i + 1] - hs[i]);
+  }
+  maxGap = Math.max(maxGap, (hs[0] + 360) - hs[hs.length - 1]);
+  return 360 - maxGap;
+}
+
+// Spearman con media de rangos para empates.
+function spearmanRho(xs, ys) {
+  const n = xs.length;
+  if (n < 3) return 0;
+  const rank = arr => {
+    const s = arr.map((x, i) => ({ x, i })).sort((a, b) => a.x - b.x);
+    const r = new Array(arr.length);
+    let i = 0;
+    while (i < s.length) {
+      let j = i;
+      while (j + 1 < s.length && s[j + 1].x === s[i].x) j++;
+      const avg = (i + j) / 2 + 1;
+      for (let k = i; k <= j; k++) r[s[k].i] = avg;
+      i = j + 1;
+    }
+    return r;
+  };
+  const rv = rank(xs), rl = rank(ys);
+  const mean = a => a.reduce((x, y) => x + y, 0) / n;
+  const mv = mean(rv), ml = mean(rl);
+  let num = 0, dv = 0, dl = 0;
+  for (let i = 0; i < n; i++) {
+    num += (rv[i] - mv) * (rl[i] - ml);
+    dv += (rv[i] - mv) ** 2;
+    dl += (rl[i] - ml) ** 2;
+  }
+  return (dv && dl) ? num / Math.sqrt(dv * dl) : 0;
+}
+
+// Tono dominante (mediana circular) de los colores saturados.
+function dominantHue(hexList) {
+  const hues = hexList
+    .filter(c => { const { s, l } = hexToHsl(c); return s > 0.15 && l > 0.05 && l < 0.95; })
+    .map(c => hexToHsl(c).h);
+  if (!hues.length) return 210; // azul por defecto
+  const hs = hues.slice().sort((a, b) => a - b);
+  // Mediana circular aproximada: alinear alrededor del primer elemento
+  const base = hs[0];
+  const shifted = hs.map(h => (h - base + 360) % 360).sort((a, b) => a - b);
+  const med = shifted[Math.floor(shifted.length / 2)];
+  return (base + med) % 360;
+}
+
+// Rampa secuencial monocromática claro→oscuro en un tono.
+function buildMonoRamp(hue, steps = PALETTE.RAMP_STEPS) {
+  const ramp = [];
+  for (let i = 0; i < steps; i++) {
+    const t = steps === 1 ? 0 : i / (steps - 1);
+    const l = 92 - t * 72;   // 92% → 20%
+    const s = 48 + t * 28;   // 48% → 76%
+    ramp.push(hslToHex(hue, s, l));
+  }
+  return ramp;
+}
+
+// ¿Geometría de polígono (coropleta candidata a borde blanco)?
+function isPolygonGeom(geom) {
+  return !!geom && (geom.type === 'Polygon' || geom.type === 'MultiPolygon');
+}
+
+// Borde blanco fino presente y claro en una feature de coropleta.
+function hasWhiteThinBorder(props) {
+  const border = props._manaBorderColor;
+  if (border == null || border === '') return false;
+  const { hex, ok } = normalizeHexColor(border);
+  if (!ok || !hex) return false;
+  const { l, s } = hexToHsl(hex);
+  if (s > 0.25 || l < 0.7) return false; // debe ser claro y poco saturado
+  const w = Number(props._manaWeight);
+  return !Number.isFinite(w) || w <= 2;
+}
+
+// Análisis §3 de un mapa. Devuelve:
+//   { issues, manual, recolor }  recolor = [{ feature, color?, borderColor?, weight? }]
+// a aplicar sobre las features. No muta el GeoJSON: el caller aplica.
+function auditSemanticPalette(map, geo) {
+  const issues = [];
+  const manual = [];
+  const recolor = []; // { feature, color, border?, weight? }
+  const features = (geo && geo.features) || [];
+  if (!features.length) return { issues, manual, recolor, kind: 'empty' };
+
+  // ── Recolección de colores válidos por feature ──
+  const colored = []; // { feature, props, hex, hsl, value? }
+  for (const feature of features) {
+    const props = feature.properties || {};
+    const raw = props._manaColor;
+    if (raw == null || raw === '') continue;
+    const { hex, ok } = normalizeHexColor(raw);
+    if (!ok || !hex) continue; // ya reportado por check 4
+    colored.push({ feature, props, hex, hsl: hexToHsl(hex) });
+  }
+  if (colored.length < 2) return { issues, manual, recolor, kind: 'sparse' };
+
+  const dataColors = colored.filter(c => !isNearGray(c.hex));
+
+  // ── ¿Coropleta? legendKey + pares numéricos no grises ──
+  const legendKey = map.legendKey || null;
+  const pairs = []; // { feature, props, value, hex, hsl }
+  if (legendKey) {
+    for (const c of dataColors) {
+      const v = parseLegendNumber(c.props[legendKey]);
+      if (isFinite(v)) pairs.push({ ...c, value: v });
+    }
+  }
+
+  // Clave numérica inferida para rampas mono sin legendKey (p. ej. ríos/islas)
+  let inferredKey = null;
+  const spanAll = hueSpanDegrees(dataColors.map(c => c.hsl.h));
+  if (!legendKey && dataColors.length >= PALETTE.MIN_PAIRS && spanAll <= PALETTE.HUE_SPAN_MAX) {
+    const candidates = new Map();
+    for (const c of dataColors) {
+      for (const [k, v] of Object.entries(c.props)) {
+        if (k.startsWith('_mana') || k === 'color') continue;
+        const nv = parseLegendNumber(v);
+        if (!isFinite(nv)) continue;
+        candidates.set(k, (candidates.get(k) || 0) + 1);
+      }
+    }
+    const minCount = Math.ceil(dataColors.length * 0.8);
+    let best = null;
+    for (const [k, count] of candidates) {
+      if (count < minCount) continue;
+      const xs = [], ys = [];
+      for (const c of dataColors) {
+        const v = parseLegendNumber(c.props[k]);
+        if (!isFinite(v)) continue;
+        xs.push(v); ys.push(c.hsl.l);
+      }
+      if (xs.length < PALETTE.MIN_PAIRS) continue;
+      const rho = spearmanRho(xs, ys);
+      if (!best || Math.abs(rho) > Math.abs(best.rho)) best = { key: k, rho, xs, ys };
+    }
+    if (best && Math.abs(best.rho) >= Math.abs(PALETTE.RHO_ORDERED_MAX)) {
+      inferredKey = best.key;
+      for (const c of dataColors) {
+        const v = parseLegendNumber(c.props[inferredKey]);
+        if (isFinite(v)) pairs.push({ ...c, value: v });
+      }
+    }
+  }
+
+  const isChoropleth = pairs.length >= PALETTE.MIN_PAIRS;
+  const keyName = legendKey || inferredKey;
+
+  // Span de tonos SOLO sobre las features evaluadas: en coropletas, los pares
+  // del dato (no los marcadores categóricos que pueda haber en el mismo mapa);
+  // en el resto, todas las features de datos.
+  const evalColors = isChoropleth ? pairs : dataColors;
+  const span = hueSpanDegrees(evalColors.map(c => c.hsl.h));
+  const saturated = evalColors.filter(c => c.hsl.s > 0.25 && c.hsl.l > 0.05 && c.hsl.l < 0.95);
+  const satHueCount = new Set(saturated.map(c => Math.round(c.hsl.h / 15))).size; // bins de 15°
+
+  if (isChoropleth) {
+    // 1) Monocromática (sobre los pares del dato)
+    if (span > PALETTE.HUE_SPAN_MAX) {
+      issues.push(`§3 coropleta no monocromática (span tono ${span.toFixed(1)}° > ${PALETTE.HUE_SPAN_MAX}°)`);
+    }
+    // 2) Ordenada por el dato de claro→oscuro
+    const xs = pairs.map(p => p.value), ys = pairs.map(p => p.hsl.l);
+    const rho = spearmanRho(xs, ys);
+    if (!(rho <= PALETTE.RHO_ORDERED_MAX)) {
+      const dir = rho > 0.3 ? 'inversa (oscuro→claro)' : 'no monótona';
+      issues.push(`§3 rampa ${dir} por «${keyName}» (rho=${rho.toFixed(3)})`);
+    }
+    // 3) Borde blanco fino en polígonos de datos
+    let borderBad = 0;
+    for (const p of pairs) {
+      if (!isPolygonGeom(p.feature.geometry)) continue;
+      if (!hasWhiteThinBorder(p.props)) borderBad++;
+    }
+    if (borderBad) issues.push(`§3 ${borderBad} polígonos de coropleta sin borde blanco fino`);
+
+    // Fix: recomputar rampa mono por cuantiles del dato
+    const needRamp = span > PALETTE.HUE_SPAN_MAX || !(rho <= PALETTE.RHO_ORDERED_MAX);
+    if (needRamp) {
+      const hue = span <= PALETTE.HUE_SPAN_MAX ? dominantHue(pairs.map(p => p.hex)) : 210;
+      const ramp = buildMonoRamp(hue);
+      const sorted = pairs.slice().sort((a, b) => a.value - b.value);
+      const n = sorted.length;
+      sorted.forEach((p, idx) => {
+        // Cuantiles: posición relativa en la distribución del dato
+        const t = n === 1 ? 1 : idx / (n - 1);
+        const step = Math.max(0, Math.min(ramp.length - 1, Math.round(t * (ramp.length - 1))));
+        recolor.push({ feature: p.feature, color: ramp[step] });
+      });
+      // Grises se preservan (sin datos); el resto de features no evaluadas se
+      // dejan tal cual salvo que también caigan en el fix de arcoíris.
+    }
+    if (borderBad) {
+      for (const p of pairs) {
+        if (!isPolygonGeom(p.feature.geometry)) continue;
+        if (hasWhiteThinBorder(p.props)) continue;
+        recolor.push({ feature: p.feature, color: null, borderColor: '#ffffff', weight: 1 });
+      }
+    }
+    return { issues, manual, recolor, kind: 'choropleth', rho, span, pairs: pairs.length, keyName };
+  }
+
+  // ── Sin variable numérica: prohibido arcoíris ──
+  // Arcoíris = varios tonos saturados distintos (bins de 15°) con span amplio.
+  // Un solo tono (o dos categóricos) no es arcoíris.
+  const isRainbow = satHueCount >= PALETTE.RAINBOW_MIN_HUES && span > PALETTE.RAINBOW_MIN_SPAN;
+  if (isRainbow) {
+    const fixColor = SEMANTIC_COLOR_BY_SLUG[map.id];
+    issues.push(`§3 paleta arcoíris (${satHueCount} tonos saturados, span ${span.toFixed(1)}°)`);
+    if (fixColor) {
+      for (const c of colored) {
+        if (c.hex.toLowerCase() === fixColor.toLowerCase()) continue;
+        recolor.push({ feature: c.feature, color: fixColor });
+      }
+    } else {
+      manual.push('paleta arcoíris sin color semántico en SEMANTIC_COLOR_BY_SLUG');
+    }
+    return { issues, manual, recolor, kind: 'rainbow', span, fixColor: fixColor || null };
+  }
+
+  return { issues, manual, recolor, kind: 'ok', span };
+}
+
 // ── Helpers ──────────────────────────────────────────────────────
 
 function extractField(doc, fieldName) {
@@ -573,8 +906,44 @@ function auditMap(map) {
     manual.push('popups sin datos concretos (§5, sin fix en POPUP_FIX_DATA)');
   }
 
-  // geojsonText necesita re-serializarse si se tocó coords/colores/popups
-  const geoDirty = coordFixed > 0 || colorFixed > 0 || popupFixed > 0;
+  // 8. Paleta semántica (AGENTS.md §3): rampa mono ordenada por el dato en
+  // coropletas; sin arcoíris en el resto. Se ejecuta tras normalizar hex.
+  const palette = auditSemanticPalette(map, geo);
+  let paletteFixed = 0;
+  if (palette.issues.length) issues.push(...palette.issues);
+  if (palette.manual.length) manual.push(...palette.manual);
+  for (const fix of palette.recolor) {
+    const props = fix.feature.properties || (fix.feature.properties = {});
+    if (fix.color) {
+      const prev = props._manaColor;
+      if (String(prev).toLowerCase() !== fix.color.toLowerCase()) {
+        props._manaColor = fix.color;
+        // Sincronizar la clave legada `color` si existía (renderer usa _manaColor
+        // con coalesce sobre `color`).
+        if (typeof props.color === 'string') props.color = fix.color;
+        paletteFixed++;
+        featuresTouched++;
+      }
+    }
+    if (fix.borderColor) {
+      if (String(props._manaBorderColor || '').toLowerCase() !== fix.borderColor.toLowerCase()) {
+        props._manaBorderColor = fix.borderColor;
+        paletteFixed++;
+        featuresTouched++;
+      }
+    }
+    if (fix.weight != null && Number(props._manaWeight) !== fix.weight) {
+      props._manaWeight = fix.weight;
+      paletteFixed++;
+      featuresTouched++;
+    }
+  }
+  if (paletteFixed) {
+    issues.push(`§3 paleta corregida en ${paletteFixed} props (rampa/borde/color semántico)`);
+  }
+
+  // geojsonText necesita re-serializarse si se tocó coords/colores/popups/paleta
+  const geoDirty = coordFixed > 0 || colorFixed > 0 || popupFixed > 0 || paletteFixed > 0;
   if (geoDirty) {
     const newGeoText = JSON.stringify(geo);
     const newSize = Buffer.byteLength(newGeoText, 'utf8');
@@ -586,7 +955,7 @@ function auditMap(map) {
     }
   }
 
-  return { issues, fixes, manual, geo, dirty: geoDirty, popupFixed, popupMissing };
+  return { issues, fixes, manual, geo, dirty: geoDirty, popupFixed, popupMissing, paletteFixed, paletteKind: palette.kind };
 }
 
 // ── Main ──────────────────────────────────────────────────────────
@@ -642,6 +1011,7 @@ async function main() {
         dataDate: extractField(doc, 'dataDate'),
         tags: extractField(doc, 'tags'),
         featureCount: extractField(doc, 'featureCount'),
+        legendKey: extractField(doc, 'legendKey'),
         geojsonText: extractField(doc, 'geojsonText') || '',
         rawDoc: doc,
       };
@@ -656,14 +1026,15 @@ async function main() {
   console.log('-----|-------');
 
   let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = 0;
-  let popupFixedTotal = 0, popupMissingTotal = 0;
+  let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   const manualList = [];
 
   for (const map of published) {
     mapsAudited++;
-    const { issues, fixes, manual, popupFixed = 0, popupMissing = 0 } = auditMap(map);
+    const { issues, fixes, manual, popupFixed = 0, popupMissing = 0, paletteFixed = 0 } = auditMap(map);
     popupFixedTotal += popupFixed;
     popupMissingTotal += popupMissing;
+    paletteFixedTotal += paletteFixed;
 
     if (issues.length === 0) {
       console.log(`${map.id} | OK`);
@@ -744,6 +1115,13 @@ async function main() {
             }
             if (bad) verifyIssues.push(`${bad} features aún con coords/colores inválidos`);
             if (popupBad) verifyIssues.push(`${popupBad} features aún sin datos de popup tras fix (§5)`);
+            // §3: re-evaluar la paleta semántica tras el fix
+            if (fixes.geojsonText && map.id) {
+              const paletteAfter = auditSemanticPalette({ id: map.id, legendKey: extractField(verify.data, 'legendKey') }, g);
+              if (paletteAfter.issues.length) {
+                verifyIssues.push(`§3 aún incumple: ${paletteAfter.issues.join('; ')}`);
+              }
+            }
           } catch (_) { verifyIssues.push('geojson parse error'); }
         }
         if (verifyIssues.length) {
@@ -762,6 +1140,7 @@ async function main() {
   console.log(`Maps fixed (or would fix in dry-run): ${mapsFixed}`);
   console.log(`Maps with manual issues: ${mapsManual}`);
   console.log(`Popups (AGENTS.md §5): ${popupFixedTotal} features completadas, ${popupMissingTotal} aún sin datos concretos`);
+  console.log(`Paleta (AGENTS.md §3): ${paletteFixedTotal} props corregidas (rampa/borde/color semántico)`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -785,6 +1164,8 @@ if (require.main === module) {
 module.exports = {
   KNOWN_META,
   POPUP_FIX_DATA,
+  SEMANTIC_COLOR_BY_SLUG,
+  PALETTE,
   extractField,
   normalizeHexColor,
   auditCoordinates,
@@ -792,5 +1173,15 @@ module.exports = {
   hasConcreteValue,
   isDenyPopupKey,
   auditMap,
+  auditSemanticPalette,
+  parseLegendNumber,
+  hexToHsl,
+  hslToHex,
+  isNearGray,
+  hueSpanDegrees,
+  spearmanRho,
+  dominantHue,
+  buildMonoRamp,
+  hasWhiteThinBorder,
   HEX_RE,
 };
