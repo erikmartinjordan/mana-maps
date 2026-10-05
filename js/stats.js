@@ -132,9 +132,9 @@ function refreshStatsPanel() {
 
   var s = computeMapStats();
 
-  var lengthKm = (s.totalLengthM / 1000).toFixed(2);
-  var areaKm2  = (s.totalAreaM2 / 1000000).toFixed(4);
-  var areaHa   = (s.totalAreaM2 / 10000).toFixed(2);
+  var lengthKm = formatMeasureNumber(s.totalLengthM / 1000, 2);
+  var areaKm2  = formatMeasureNumber(s.totalAreaM2 / 1000000, 4);
+  var areaHa   = formatMeasureNumber(s.totalAreaM2 / 10000, 2);
 
   var boundsStr = '\u2014';
   if (s.bounds) {

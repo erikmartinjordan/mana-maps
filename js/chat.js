@@ -336,7 +336,7 @@ const toolActions = {
         const line = L.polyline(coords, { color: clr, weight: 4, opacity: .8 });
         line._manaName = from + ' → ' + to + ' (ruta)';
         addDrawnLayerToGroup(line);
-        const dist = (data.routes[0].distance / 1000).toFixed(1);
+        const dist = formatMeasureNumber(data.routes[0].distance / 1000, 1);
         const dur = Math.round(data.routes[0].duration / 60);
         map.fitBounds(line.getBounds(), { padding: [40, 40] }); stats();
         return { ok: true, msg: window.t('ai_route_drawn', {from: from, to: to}) + '\n📏 ' + dist + ' km · ⏱ ' + dur + ' min ✓' };

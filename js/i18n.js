@@ -1147,6 +1147,29 @@ function t(key, params) {
   return str;
 }
 
+// ── Locale-aware number formatting for map measurements ──
+// ES: thousands "." / decimal ","   EN: thousands "," / decimal "."
+// maxDecimals recorta ceros finales (1234 -> "1,234"; 1234.5 -> "1,234.5").
+function formatMeasureNumber(value, maxDecimals) {
+  var v = Number(value);
+  if (!isFinite(v)) return '0';
+  var d = (typeof maxDecimals === 'number') ? maxDecimals : 2;
+  var locale = LANG === 'en' ? 'en-US' : 'es-ES';
+  var decSep = LANG === 'en' ? '.' : ',';
+  var grpSep = LANG === 'en' ? ',' : '.';
+  try {
+    return v.toLocaleString(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: d
+    });
+  } catch (e) {
+    var parts = v.toFixed(d).split('.');
+    var intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, grpSep);
+    var decPart = (parts[1] || '').replace(/0+$/, '');
+    return intPart + (decPart ? decSep + decPart : '');
+  }
+}
+
 // ── Apply translations to DOM elements with data-i18n / data-i18n-placeholder ──
 function applyTranslations(lang) {
   if (lang && I18N[lang]) LANG = lang;

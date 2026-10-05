@@ -390,25 +390,13 @@ function getTotalDist(pts) {
   return d;
 }
 
-// Formatea un número con separador de miles (,) y separador decimal (.)
-// p. ej. 1234.567 → "1,234.57"; 1234567 → "1,234,567"
+// Formatea un número según el idioma activo (separador de miles y decimal).
+// ES: 1234.567 -> "1.234,57"   EN: 1234.567 -> "1,234.57"
 function formatNum(n, maxDecimals) {
-  var d = typeof maxDecimals === 'number' ? maxDecimals : 2;
-  var v = Number(n);
-  if (!isFinite(v)) return '0';
-  try {
-    return v.toLocaleString('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: d
-    });
-  } catch (e) {
-    var parts = v.toFixed(d).split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
-  }
+  return formatMeasureNumber(n, maxDecimals);
 }
 
-// Distancia en metros con formato legible: "850.25 m", "1,234.57 m"
+// Distancia en metros con formato legible: "850,25 m" (ES) / "850.25 m" (EN)
 function formatDist(m) {
   return formatNum(m, 2) + ' m';
 }
