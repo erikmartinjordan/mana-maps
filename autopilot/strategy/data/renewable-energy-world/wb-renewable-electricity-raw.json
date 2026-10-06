@@ -1,0 +1,1261 @@
+{
+  "_source": "World Bank — Renewable electricity output (% of total electricity output). Indicator EG.ELC.RNEW.ZS. https://data.worldbank.org/indicator/EG.ELC.RNEW.ZS",
+  "_date": "2026-10-06",
+  "_url": "https://api.worldbank.org/v2/country/all/indicator/EG.ELC.RNEW.ZS?format=json&per_page=20000",
+  "countries": [
+    {
+      "entidad": "Aruba",
+      "iso3": "ABW",
+      "renovable": 14.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Afghanistan",
+      "iso3": "AFG",
+      "renovable": 78.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Angola",
+      "iso3": "AGO",
+      "renovable": 91.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Albania",
+      "iso3": "ALB",
+      "renovable": 98.6,
+      "anio": 2011
+    },
+    {
+      "entidad": "Andorra",
+      "iso3": "AND",
+      "renovable": 93.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "United Arab Emirates",
+      "iso3": "ARE",
+      "renovable": 4.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Argentina",
+      "iso3": "ARG",
+      "renovable": 25.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Armenia",
+      "iso3": "ARM",
+      "renovable": 30,
+      "anio": 2021
+    },
+    {
+      "entidad": "American Samoa",
+      "iso3": "ASM",
+      "renovable": 3.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Antigua and Barbuda",
+      "iso3": "ATG",
+      "renovable": 5.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "Australia",
+      "iso3": "AUS",
+      "renovable": 26.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "Austria",
+      "iso3": "AUT",
+      "renovable": 79.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Azerbaijan",
+      "iso3": "AZE",
+      "renovable": 5.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Burundi",
+      "iso3": "BDI",
+      "renovable": 61.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Belgium",
+      "iso3": "BEL",
+      "renovable": 23.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Benin",
+      "iso3": "BEN",
+      "renovable": 0.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Burkina Faso",
+      "iso3": "BFA",
+      "renovable": 13.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bangladesh",
+      "iso3": "BGD",
+      "renovable": 1.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bulgaria",
+      "iso3": "BGR",
+      "renovable": 22.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bahrain",
+      "iso3": "BHR",
+      "renovable": 0,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bahamas, The",
+      "iso3": "BHS",
+      "renovable": 0.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bosnia and Herzegovina",
+      "iso3": "BIH",
+      "renovable": 39.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Belarus",
+      "iso3": "BLR",
+      "renovable": 3.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Belize",
+      "iso3": "BLZ",
+      "renovable": 92.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bolivia",
+      "iso3": "BOL",
+      "renovable": 38.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Brazil",
+      "iso3": "BRA",
+      "renovable": 77.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Barbados",
+      "iso3": "BRB",
+      "renovable": 7.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Brunei Darussalam",
+      "iso3": "BRN",
+      "renovable": 0,
+      "anio": 2021
+    },
+    {
+      "entidad": "Bhutan",
+      "iso3": "BTN",
+      "renovable": 100,
+      "anio": 2021
+    },
+    {
+      "entidad": "Botswana",
+      "iso3": "BWA",
+      "renovable": 0.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Central African Republic",
+      "iso3": "CAF",
+      "renovable": 96.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Canada",
+      "iso3": "CAN",
+      "renovable": 67,
+      "anio": 2021
+    },
+    {
+      "entidad": "Switzerland",
+      "iso3": "CHE",
+      "renovable": 67.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Chile",
+      "iso3": "CHL",
+      "renovable": 48.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "China",
+      "iso3": "CHN",
+      "renovable": 28.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cote d'Ivoire",
+      "iso3": "CIV",
+      "renovable": 22.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cameroon",
+      "iso3": "CMR",
+      "renovable": 61.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Congo, Dem. Rep.",
+      "iso3": "COD",
+      "renovable": 90.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Congo, Rep.",
+      "iso3": "COG",
+      "renovable": 31.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "Colombia",
+      "iso3": "COL",
+      "renovable": 75.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Comoros",
+      "iso3": "COM",
+      "renovable": 0,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cabo Verde",
+      "iso3": "CPV",
+      "renovable": 18.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Costa Rica",
+      "iso3": "CRI",
+      "renovable": 99.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cuba",
+      "iso3": "CUB",
+      "renovable": 4.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Curacao",
+      "iso3": "CUW",
+      "renovable": 18.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cayman Islands",
+      "iso3": "CYM",
+      "renovable": 2.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cyprus",
+      "iso3": "CYP",
+      "renovable": 15.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Czechia",
+      "iso3": "CZE",
+      "renovable": 14,
+      "anio": 2021
+    },
+    {
+      "entidad": "Germany",
+      "iso3": "DEU",
+      "renovable": 39.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Djibouti",
+      "iso3": "DJI",
+      "renovable": 35.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Dominica",
+      "iso3": "DMA",
+      "renovable": 20.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Denmark",
+      "iso3": "DNK",
+      "renovable": 79,
+      "anio": 2021
+    },
+    {
+      "entidad": "Dominican Republic",
+      "iso3": "DOM",
+      "renovable": 17.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Algeria",
+      "iso3": "DZA",
+      "renovable": 0.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Ecuador",
+      "iso3": "ECU",
+      "renovable": 80.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Egypt, Arab Rep.",
+      "iso3": "EGY",
+      "renovable": 12.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Eritrea",
+      "iso3": "ERI",
+      "renovable": 5.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Spain",
+      "iso3": "ESP",
+      "renovable": 47,
+      "anio": 2021
+    },
+    {
+      "entidad": "Estonia",
+      "iso3": "EST",
+      "renovable": 40,
+      "anio": 2021
+    },
+    {
+      "entidad": "Ethiopia",
+      "iso3": "ETH",
+      "renovable": 95.4,
+      "anio": 2020
+    },
+    {
+      "entidad": "Finland",
+      "iso3": "FIN",
+      "renovable": 52.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Fiji",
+      "iso3": "FJI",
+      "renovable": 60.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "France",
+      "iso3": "FRA",
+      "renovable": 22.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Faroe Islands",
+      "iso3": "FRO",
+      "renovable": 38.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Micronesia, Fed. Sts.",
+      "iso3": "FSM",
+      "renovable": 4.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Gabon",
+      "iso3": "GAB",
+      "renovable": 31.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "United Kingdom",
+      "iso3": "GBR",
+      "renovable": 40.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Georgia",
+      "iso3": "GEO",
+      "renovable": 81.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Ghana",
+      "iso3": "GHA",
+      "renovable": 34.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Gibraltar",
+      "iso3": "GIB",
+      "renovable": 0,
+      "anio": 2015
+    },
+    {
+      "entidad": "Guinea",
+      "iso3": "GIN",
+      "renovable": 88.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Gambia, The",
+      "iso3": "GMB",
+      "renovable": 1.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Guinea-Bissau",
+      "iso3": "GNB",
+      "renovable": 7.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Equatorial Guinea",
+      "iso3": "GNQ",
+      "renovable": 8.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Greece",
+      "iso3": "GRC",
+      "renovable": 40.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Grenada",
+      "iso3": "GRD",
+      "renovable": 2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Greenland",
+      "iso3": "GRL",
+      "renovable": 77,
+      "anio": 2021
+    },
+    {
+      "entidad": "Guatemala",
+      "iso3": "GTM",
+      "renovable": 60.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Guam",
+      "iso3": "GUM",
+      "renovable": 4.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Guyana",
+      "iso3": "GUY",
+      "renovable": 7.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Hong Kong SAR, China",
+      "iso3": "HKG",
+      "renovable": 0.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Honduras",
+      "iso3": "HND",
+      "renovable": 64.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Croatia",
+      "iso3": "HRV",
+      "renovable": 69.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Haiti",
+      "iso3": "HTI",
+      "renovable": 20.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Hungary",
+      "iso3": "HUN",
+      "renovable": 19.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Indonesia",
+      "iso3": "IDN",
+      "renovable": 15.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "India",
+      "iso3": "IND",
+      "renovable": 19.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Ireland",
+      "iso3": "IRL",
+      "renovable": 37.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Iran, Islamic Rep.",
+      "iso3": "IRN",
+      "renovable": 4.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Iraq",
+      "iso3": "IRQ",
+      "renovable": 3.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Iceland",
+      "iso3": "ISL",
+      "renovable": 100,
+      "anio": 2016
+    },
+    {
+      "entidad": "Israel",
+      "iso3": "ISR",
+      "renovable": 7.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Italy",
+      "iso3": "ITA",
+      "renovable": 41,
+      "anio": 2021
+    },
+    {
+      "entidad": "Jamaica",
+      "iso3": "JAM",
+      "renovable": 12.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Jordan",
+      "iso3": "JOR",
+      "renovable": 24.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Japan",
+      "iso3": "JPN",
+      "renovable": 21.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Kazakhstan",
+      "iso3": "KAZ",
+      "renovable": 11,
+      "anio": 2021
+    },
+    {
+      "entidad": "Kenya",
+      "iso3": "KEN",
+      "renovable": 78.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Kyrgyz Republic",
+      "iso3": "KGZ",
+      "renovable": 85.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Cambodia",
+      "iso3": "KHM",
+      "renovable": 56.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Kiribati",
+      "iso3": "KIR",
+      "renovable": 16.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "St. Kitts and Nevis",
+      "iso3": "KNA",
+      "renovable": 4.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Korea, Rep.",
+      "iso3": "KOR",
+      "renovable": 6.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Kuwait",
+      "iso3": "KWT",
+      "renovable": 0.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Lao PDR",
+      "iso3": "LAO",
+      "renovable": 63.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Lebanon",
+      "iso3": "LBN",
+      "renovable": 5.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Liberia",
+      "iso3": "LBR",
+      "renovable": 57.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Libya",
+      "iso3": "LBY",
+      "renovable": 0,
+      "anio": 2021
+    },
+    {
+      "entidad": "St. Lucia",
+      "iso3": "LCA",
+      "renovable": 2.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Sri Lanka",
+      "iso3": "LKA",
+      "renovable": 49.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Lesotho",
+      "iso3": "LSO",
+      "renovable": 99.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Lithuania",
+      "iso3": "LTU",
+      "renovable": 65.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Luxembourg",
+      "iso3": "LUX",
+      "renovable": 89,
+      "anio": 2021
+    },
+    {
+      "entidad": "Latvia",
+      "iso3": "LVA",
+      "renovable": 63.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "St. Martin (French part)",
+      "iso3": "MAF",
+      "renovable": 0.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Morocco",
+      "iso3": "MAR",
+      "renovable": 19.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Moldova",
+      "iso3": "MDA",
+      "renovable": 6.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Madagascar",
+      "iso3": "MDG",
+      "renovable": 34.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Maldives",
+      "iso3": "MDV",
+      "renovable": 5.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Mexico",
+      "iso3": "MEX",
+      "renovable": 23.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Marshall Islands",
+      "iso3": "MHL",
+      "renovable": 2.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "North Macedonia",
+      "iso3": "MKD",
+      "renovable": 31,
+      "anio": 2021
+    },
+    {
+      "entidad": "Mali",
+      "iso3": "MLI",
+      "renovable": 62.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Malta",
+      "iso3": "MLT",
+      "renovable": 11.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Myanmar",
+      "iso3": "MMR",
+      "renovable": 50.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Montenegro",
+      "iso3": "MNE",
+      "renovable": 61.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Mongolia",
+      "iso3": "MNG",
+      "renovable": 10.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Mozambique",
+      "iso3": "MOZ",
+      "renovable": 82.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "Mauritania",
+      "iso3": "MRT",
+      "renovable": 19.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Mauritius",
+      "iso3": "MUS",
+      "renovable": 21.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "Malawi",
+      "iso3": "MWI",
+      "renovable": 80.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Malaysia",
+      "iso3": "MYS",
+      "renovable": 17,
+      "anio": 2021
+    },
+    {
+      "entidad": "Namibia",
+      "iso3": "NAM",
+      "renovable": 93.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "New Caledonia",
+      "iso3": "NCL",
+      "renovable": 22.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Niger",
+      "iso3": "NER",
+      "renovable": 7.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Nigeria",
+      "iso3": "NGA",
+      "renovable": 22.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Nicaragua",
+      "iso3": "NIC",
+      "renovable": 69.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Netherlands",
+      "iso3": "NLD",
+      "renovable": 33.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Norway",
+      "iso3": "NOR",
+      "renovable": 99.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Nepal",
+      "iso3": "NPL",
+      "renovable": 84,
+      "anio": 2021
+    },
+    {
+      "entidad": "Naoero",
+      "iso3": "NRU",
+      "renovable": 9.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "New Zealand",
+      "iso3": "NZL",
+      "renovable": 81.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Oman",
+      "iso3": "OMN",
+      "renovable": 1.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Pakistan",
+      "iso3": "PAK",
+      "renovable": 28.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Panama",
+      "iso3": "PAN",
+      "renovable": 79.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Peru",
+      "iso3": "PER",
+      "renovable": 61.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Philippines",
+      "iso3": "PHL",
+      "renovable": 22.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Palau",
+      "iso3": "PLW",
+      "renovable": 4.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Papua New Guinea",
+      "iso3": "PNG",
+      "renovable": 40,
+      "anio": 2021
+    },
+    {
+      "entidad": "Poland",
+      "iso3": "POL",
+      "renovable": 17.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Puerto Rico (US)",
+      "iso3": "PRI",
+      "renovable": 4.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Korea, Dem. People's Rep.",
+      "iso3": "PRK",
+      "renovable": 63.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Portugal",
+      "iso3": "PRT",
+      "renovable": 64.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Paraguay",
+      "iso3": "PRY",
+      "renovable": 100,
+      "anio": 2012
+    },
+    {
+      "entidad": "West Bank and Gaza",
+      "iso3": "PSE",
+      "renovable": 24.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "French Polynesia",
+      "iso3": "PYF",
+      "renovable": 23.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "Qatar",
+      "iso3": "QAT",
+      "renovable": 0.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Romania",
+      "iso3": "ROU",
+      "renovable": 44.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Russian Federation",
+      "iso3": "RUS",
+      "renovable": 19.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Rwanda",
+      "iso3": "RWA",
+      "renovable": 59.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Saudi Arabia",
+      "iso3": "SAU",
+      "renovable": 0.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Sudan",
+      "iso3": "SDN",
+      "renovable": 58,
+      "anio": 2021
+    },
+    {
+      "entidad": "Senegal",
+      "iso3": "SEN",
+      "renovable": 13.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Singapore",
+      "iso3": "SGP",
+      "renovable": 4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Solomon Islands",
+      "iso3": "SLB",
+      "renovable": 6.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Sierra Leone",
+      "iso3": "SLE",
+      "renovable": 75.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "El Salvador",
+      "iso3": "SLV",
+      "renovable": 95.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Somalia, Fed. Rep.",
+      "iso3": "SOM",
+      "renovable": 11.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Serbia",
+      "iso3": "SRB",
+      "renovable": 35,
+      "anio": 2021
+    },
+    {
+      "entidad": "South Sudan",
+      "iso3": "SSD",
+      "renovable": 0.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Sao Tome and Principe",
+      "iso3": "STP",
+      "renovable": 6.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Suriname",
+      "iso3": "SUR",
+      "renovable": 41.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Slovak Republic",
+      "iso3": "SVK",
+      "renovable": 23.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Slovenia",
+      "iso3": "SVN",
+      "renovable": 36.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Sweden",
+      "iso3": "SWE",
+      "renovable": 67.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Eswatini",
+      "iso3": "SWZ",
+      "renovable": 83.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Sint Maarten (Dutch part)",
+      "iso3": "SXM",
+      "renovable": 0,
+      "anio": 2021
+    },
+    {
+      "entidad": "Seychelles",
+      "iso3": "SYC",
+      "renovable": 4.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Syrian Arab Republic",
+      "iso3": "SYR",
+      "renovable": 3.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Turks and Caicos Islands",
+      "iso3": "TCA",
+      "renovable": 1.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Chad",
+      "iso3": "TCD",
+      "renovable": 4.6,
+      "anio": 2021
+    },
+    {
+      "entidad": "Togo",
+      "iso3": "TGO",
+      "renovable": 25.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Thailand",
+      "iso3": "THA",
+      "renovable": 19.9,
+      "anio": 2021
+    },
+    {
+      "entidad": "Tajikistan",
+      "iso3": "TJK",
+      "renovable": 93.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Turkmenistan",
+      "iso3": "TKM",
+      "renovable": 0,
+      "anio": 2021
+    },
+    {
+      "entidad": "Timor-Leste",
+      "iso3": "TLS",
+      "renovable": 0.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Tonga",
+      "iso3": "TON",
+      "renovable": 14.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Trinidad and Tobago",
+      "iso3": "TTO",
+      "renovable": 0.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Tunisia",
+      "iso3": "TUN",
+      "renovable": 2.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Turkiye",
+      "iso3": "TUR",
+      "renovable": 35.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Tuvalu",
+      "iso3": "TUV",
+      "renovable": 15.8,
+      "anio": 2021
+    },
+    {
+      "entidad": "Tanzania",
+      "iso3": "TZA",
+      "renovable": 37.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Uganda",
+      "iso3": "UGA",
+      "renovable": 90,
+      "anio": 2021
+    },
+    {
+      "entidad": "Ukraine",
+      "iso3": "UKR",
+      "renovable": 12,
+      "anio": 2021
+    },
+    {
+      "entidad": "Uruguay",
+      "iso3": "URY",
+      "renovable": 84.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "United States",
+      "iso3": "USA",
+      "renovable": 20.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Uzbekistan",
+      "iso3": "UZB",
+      "renovable": 7.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "St. Vincent and the Grenadines",
+      "iso3": "VCT",
+      "renovable": 15,
+      "anio": 2021
+    },
+    {
+      "entidad": "Venezuela, RB",
+      "iso3": "VEN",
+      "renovable": 81.7,
+      "anio": 2021
+    },
+    {
+      "entidad": "British Virgin Islands",
+      "iso3": "VGB",
+      "renovable": 2.3,
+      "anio": 2021
+    },
+    {
+      "entidad": "Virgin Islands (U.S.)",
+      "iso3": "VIR",
+      "renovable": 2.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "Viet Nam",
+      "iso3": "VNM",
+      "renovable": 41.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Vanuatu",
+      "iso3": "VUT",
+      "renovable": 25.2,
+      "anio": 2021
+    },
+    {
+      "entidad": "Samoa",
+      "iso3": "WSM",
+      "renovable": 49.1,
+      "anio": 2021
+    },
+    {
+      "entidad": "Kosovo",
+      "iso3": "XKX",
+      "renovable": 6.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Yemen, Rep.",
+      "iso3": "YEM",
+      "renovable": 10.5,
+      "anio": 2021
+    },
+    {
+      "entidad": "South Africa",
+      "iso3": "ZAF",
+      "renovable": 6.4,
+      "anio": 2021
+    },
+    {
+      "entidad": "Zambia",
+      "iso3": "ZMB",
+      "renovable": 92,
+      "anio": 2021
+    },
+    {
+      "entidad": "Zimbabwe",
+      "iso3": "ZWE",
+      "renovable": 88.3,
+      "anio": 2021
+    }
+  ]
+}

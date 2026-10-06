@@ -181,6 +181,11 @@ const KNOWN_META = {
     dataDate: '2025-12-31',
     tags: ['Economía', 'Desarrollo', 'Geografía'],
   },
+  'renewable-energy-world': {
+    dataSource: 'World Bank — Renewable electricity output (% of total electricity output). Indicator EG.ELC.RNEW.ZS. https://data.worldbank.org/indicator/EG.ELC.RNEW.ZS',
+    dataDate: '2021-12-31',
+    tags: ['Energía', 'Medio Ambiente', 'Tecnología'],
+  },
 };
 
 // ── Popups con información real (AGENTS.md §5) ────────────────────
