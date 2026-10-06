@@ -3,7 +3,7 @@
 // Valida los mapas isPublished de Firestore contra AGENTS.md §Estándar de
 // publicación y corrige en Firestore lo que se pueda de forma segura.
 //
-// Comprobaciones (BACKLOG 03-10 / 03-10 popups / 05-10 paleta §3):
+// Comprobaciones (BACKLOG 03-10 / 03-10 popups / 05-10 paleta §3 / 06-10 puntos):
 //   1. dataSource y dataDate no vacíos
 //   2. featureCount coherente con la longitud real de geojsonText.features
 //   3. coordenadas dentro de ±180 (lon) / ±90 (lat)
@@ -21,6 +21,11 @@
 //      - Resto de mapas: prohibida la paleta arcoíris (≥4 tonos saturados con
 //        span > 150°). Fix automático con color semántico único por slug
 //        (SEMANTIC_COLOR_BY_SLUG), patrón de la galería para colecciones.
+//   9. mapas de puntos (AGENTS.md §Mapas puntuales con iconos): cada feature
+//      Point debe tener name/_manaName, markerType y _manaMarkerType con id
+//      válido del catálogo js/markers.js, _manaEmojiSize o Area para escalar
+//      el icono, _manaGroupName y _manaGroupId. Nunca se representa un área
+//      (país, desierto, región…) con un punto: eso exige polígono real §2.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -33,8 +38,12 @@
 //     dato (se preserva el gris «sin datos» y el tono dominante existente) +
 //     borde blanco fino
 //   - colección con paleta arcoíris → color semántico único del slug
+//   - Point: sincronizar markerType/_manaMarkerType cuando uno es válido;
+//     añadir _manaEmojiSize por defecto si falta escala; completar
+//     _manaGroupName/_manaGroupId
 // Lo demás (latitud fuera de ±90, colores no convertibles, metadatos
-// desconocidos, popups sin fix conocido, arcoíris sin slug en la tabla) se
+// desconocidos, popups sin fix conocido, arcoíris sin slug en la tabla,
+// marker id inválido sin equivalente, área representada con punto) se
 // reporta como MANUAL y NO se toca.
 //
 // Uso:
@@ -678,6 +687,169 @@ function auditSemanticPalette(map, geo) {
   return { issues, manual, recolor, kind: 'ok', span };
 }
 
+// ── Mapas de puntos (AGENTS.md §Mapas puntuales con iconos) ────────
+// Check 9 (BACKLOG 06-10): features Point con icono deben cumplir el
+// estándar de entidades puntuales reales (picos, volcanes, incendios,
+// cráteres, lugares extremos…). Requisitos por feature:
+//   - name/_manaName
+//   - markerType y _manaMarkerType con id válido del catálogo js/markers.js
+//     (replicado en js/vector-renderer.js y js/globe.js)
+//   - _manaEmojiSize o clave Area para escalar el icono
+//   - _manaGroupName y _manaGroupId
+//   - Nunca representar un área (país, desierto, región…) con un punto:
+//     eso exige polígono real (AGENTS.md §2).
+
+// Ids válidos del catálogo js/markers.js. Se parsea en runtime para no
+// duplicar la lista (~190 ids); fallback mínimo si el fichero no existe.
+function loadMarkerCatalogIds() {
+  const fsMod = require('fs');
+  const pathMod = require('path');
+  const p = pathMod.join(__dirname, '..', 'js', 'markers.js');
+  try {
+    if (fsMod.existsSync(p)) {
+      const src = fsMod.readFileSync(p, 'utf8');
+      const ids = new Set();
+      for (const m of src.matchAll(/id:\s*'([^']+)'/g)) ids.add(m[1]);
+      if (ids.size >= 50) return ids;
+    }
+  } catch (_) { /* ignore */ }
+  // Fallback mínimo (shapes + emojis habituales del catálogo)
+  return new Set([
+    'pin', 'circle', 'square', 'diamond', 'triangle', 'star', 'hexagon', 'cross', 'drop', 'flag', 'bolt', 'heart',
+    'emoji_pin', 'emoji_star', 'emoji_heart', 'emoji_mountain', 'emoji_fire', 'emoji_water', 'emoji_library',
+    'emoji_sun', 'emoji_tree', 'emoji_beach', 'emoji_warning', 'emoji_info', 'emoji_home',
+  ]);
+}
+
+const MARKER_IDS = loadMarkerCatalogIds();
+const POINT_DEFAULT_EMOJI_SIZE = 40;
+
+// Nombre que denota entidad-área (país, desierto, región, isla, océano…).
+// Si una feature Point coincide, representa un área con un punto (prohibido §2).
+const AREA_ENTITY_NAME_RE = new RegExp(
+  '(?:^|\\s)(?:' +
+    'desiertos?|deserts?|sahara|gobi|kalahari|atacama|taklamakan|sahel|patagonia|namib|' +
+    'pa[ií]ses?|countries|regi[oó]ns?|regions?|' +
+    'islas?|islands?|oc[eé]anos?|oceans?|' +
+    'mar de|mares?|seas?|lagos?|lakes?|' +
+    'bosques?|forests?|glaciares?|glaciers?|' +
+    'cordilleras?|sierras?|mesetas?|sabanas?|tundras?|taigas?|praderas?|steppes?|' +
+    'pen[ií]nsulas?|peninsulas?|archipi[eé]lagos?|archipelagos?|deltas?|arrecifes?|reefs?' +
+  ')\\b', 'i');
+
+function isAreaEntityName(name) {
+  if (!name || typeof name !== 'string') return false;
+  return AREA_ENTITY_NAME_RE.test(name);
+}
+
+// ¿La feature Point tiene clave de escala del icono (_manaEmojiSize o Area)?
+function hasMarkerScale(props) {
+  if (!props) return false;
+  if (props._manaEmojiSize != null && props._manaEmojiSize !== '') return true;
+  if (props.Area != null && props.Area !== '') return true;
+  return false;
+}
+
+// Check de solo lectura (para verificación post-update). Devuelve los fallos
+// auto-fixables de una feature Point (no incluye «área con punto», que es
+// MANUAL y permanece tras un fix parcial).
+function pointFeatureVerifyFails(props, markerIds = MARKER_IDS) {
+  const fails = [];
+  const name = props._manaName || props.name || props.Name || props.NAME || '';
+  if (!name) fails.push('sin nombre');
+  const mt = props.markerType != null && props.markerType !== '' ? String(props.markerType) : null;
+  const mmt = props._manaMarkerType != null && props._manaMarkerType !== '' ? String(props._manaMarkerType) : null;
+  if (!((mt && markerIds.has(mt)) || (mmt && markerIds.has(mmt)))) fails.push('marker id');
+  if (!hasMarkerScale(props)) fails.push('escala');
+  if (props._manaGroupName == null || props._manaGroupName === '') fails.push('grupo');
+  const gid = props._manaGroupId;
+  if (gid == null || gid === '' || !Number.isFinite(Number(gid))) fails.push('groupId');
+  return fails;
+}
+
+// Auditoría de una feature Point. Aplica fixes seguros sobre `props`
+// (mutación) y devuelve { issues, manual, fixed }:
+//   - issues: problemas detectados (los auto-fixados van con «(fix aplicado)»)
+//   - manual: fallos sin fix seguro (id inválido, área con punto…)
+//   - fixed: nº de props corregidas
+function auditPointFeature(props, markerIds = MARKER_IDS) {
+  const issues = [];
+  const manual = [];
+  let fixed = 0;
+
+  const name = props._manaName || props.name || props.Name || props.NAME || '';
+
+  // name / _manaName (uno debe existir; se sincroniza el otro)
+  if (!name) {
+    issues.push('Point sin name/_manaName');
+    manual.push('point sin nombre');
+  } else {
+    if (props._manaName == null || props._manaName === '') {
+      if (props.name) { props._manaName = props.name; fixed++; }
+    }
+    if (props.name == null || props.name === '') {
+      if (props._manaName) { props.name = props._manaName; fixed++; }
+    }
+  }
+
+  // markerType / _manaMarkerType con id válido del catálogo js/markers.js
+  const rawMt = props.markerType;
+  const rawMmt = props._manaMarkerType;
+  const mt = rawMt != null && rawMt !== '' ? String(rawMt) : null;
+  const mmt = rawMmt != null && rawMmt !== '' ? String(rawMmt) : null;
+  const mtOk = mt != null && markerIds.has(mt);
+  const mmtOk = mmt != null && markerIds.has(mmt);
+
+  if (mtOk && mmtOk) {
+    if (mt !== mmt) { props.markerType = mmt; fixed++; }
+  } else if (mtOk && !mmtOk) {
+    props._manaMarkerType = mt;
+    fixed++;
+    issues.push(`_manaMarkerType ausente/inválido (fix: ← markerType=${mt})`);
+  } else if (!mtOk && mmtOk) {
+    props.markerType = mmt;
+    fixed++;
+    issues.push(`markerType ausente/inválido (fix: ← _manaMarkerType=${mmt})`);
+  } else if (mt != null || mmt != null) {
+    const bad = [];
+    if (!mtOk) bad.push(`markerType=${JSON.stringify(rawMt)}`);
+    if (!mmtOk) bad.push(`_manaMarkerType=${JSON.stringify(rawMmt)}`);
+    issues.push(`marker id no válido (${bad.join(', ')}; exige id del catálogo js/markers.js)`);
+    manual.push('marker id inválido');
+  } else {
+    issues.push('markerType/_manaMarkerType ausentes');
+    manual.push('marker ausente');
+  }
+
+  // _manaEmojiSize o Area para escalar el icono
+  if (!hasMarkerScale(props)) {
+    props._manaEmojiSize = POINT_DEFAULT_EMOJI_SIZE;
+    fixed++;
+    issues.push(`sin _manaEmojiSize/Area (fix: _manaEmojiSize=${POINT_DEFAULT_EMOJI_SIZE})`);
+  }
+
+  // _manaGroupName / _manaGroupId
+  if (props._manaGroupName == null || props._manaGroupName === '') {
+    props._manaGroupName = 'Puntos';
+    fixed++;
+    issues.push('_manaGroupName ausente (fix: «Puntos»)');
+  }
+  const gidRaw = props._manaGroupId;
+  if (gidRaw == null || gidRaw === '' || !Number.isFinite(Number(gidRaw))) {
+    props._manaGroupId = 1;
+    fixed++;
+    issues.push('_manaGroupId ausente/no numérico (fix: 1)');
+  }
+
+  // Área representada con punto (prohibido §2: exige polígono real)
+  if (name && isAreaEntityName(name)) {
+    issues.push(`área representada con punto: «${name}» (AGENTS.md §2 exige polígono real)`);
+    manual.push('área con punto (sin fix seguro)');
+  }
+
+  return { issues, manual, fixed };
+}
+
 // ── Helpers ──────────────────────────────────────────────────────
 
 function extractField(doc, fieldName) {
@@ -952,8 +1124,40 @@ function auditMap(map) {
     issues.push(`§3 paleta corregida en ${paletteFixed} props (rampa/borde/color semántico)`);
   }
 
-  // geojsonText necesita re-serializarse si se tocó coords/colores/popups/paleta
-  const geoDirty = coordFixed > 0 || colorFixed > 0 || popupFixed > 0 || paletteFixed > 0;
+  // 9. Mapas de puntos (AGENTS.md §Mapas puntuales con iconos): marker id
+  // válido del catálogo js/markers.js, _manaEmojiSize/Area para escala,
+  // _manaGroupName/_manaGroupId, name/_manaName, y nunca áreas con puntos.
+  let pointFixed = 0;
+  let pointManualCount = 0;
+  const pointManualSet = new Set();
+  const pointManualSamples = [];
+  for (const feature of geo.features) {
+    if (!feature.geometry || feature.geometry.type !== 'Point') continue;
+    const props = feature.properties || (feature.properties = {});
+    const r = auditPointFeature(props, MARKER_IDS);
+    if (r.fixed) {
+      pointFixed += r.fixed;
+      featuresTouched++;
+    }
+    if (r.manual.length) {
+      pointManualCount++;
+      const fname = props._manaName || props.name || props.Name || props.NAME || '(sin nombre)';
+      if (pointManualSamples.length < 3) {
+        pointManualSamples.push(`${fname}: ${r.manual[0]}`);
+      }
+      for (const m of r.manual) pointManualSet.add(m);
+    }
+  }
+  if (pointFixed) {
+    issues.push(`§9 ${pointFixed} props de puntos corregidas (marker/escala/grupo)`);
+  }
+  if (pointManualCount) {
+    issues.push(`§9 ${pointManualCount} features Point con fallos no auto-fixables (${[...pointManualSet].join(', ')})${pointManualSamples.length ? ` — ej: ${pointManualSamples.join(' | ')}` : ''}`);
+    manual.push(...pointManualSet);
+  }
+
+  // geojsonText necesita re-serializarse si se tocó coords/colores/popups/paleta/puntos
+  const geoDirty = coordFixed > 0 || colorFixed > 0 || popupFixed > 0 || paletteFixed > 0 || pointFixed > 0;
   if (geoDirty) {
     const newGeoText = JSON.stringify(geo);
     const newSize = Buffer.byteLength(newGeoText, 'utf8');
@@ -965,7 +1169,7 @@ function auditMap(map) {
     }
   }
 
-  return { issues, fixes, manual, geo, dirty: geoDirty, popupFixed, popupMissing, paletteFixed, paletteKind: palette.kind };
+  return { issues, fixes, manual, geo, dirty: geoDirty, popupFixed, popupMissing, paletteFixed, paletteKind: palette.kind, pointFixed, pointManualCount };
 }
 
 // ── Main ──────────────────────────────────────────────────────────
@@ -1037,14 +1241,17 @@ async function main() {
 
   let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = 0;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
+  let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
 
   for (const map of published) {
     mapsAudited++;
-    const { issues, fixes, manual, popupFixed = 0, popupMissing = 0, paletteFixed = 0 } = auditMap(map);
+    const { issues, fixes, manual, popupFixed = 0, popupMissing = 0, paletteFixed = 0, pointFixed = 0, pointManualCount = 0 } = auditMap(map);
     popupFixedTotal += popupFixed;
     popupMissingTotal += popupMissing;
     paletteFixedTotal += paletteFixed;
+    pointFixedTotal += pointFixed;
+    pointManualTotal += pointManualCount;
 
     if (issues.length === 0) {
       console.log(`${map.id} | OK`);
@@ -1110,6 +1317,7 @@ async function main() {
             const g = JSON.parse(vGeo);
             let bad = 0;
             let popupBad = 0;
+            let pointBad = 0;
             const popupFixTable = POPUP_FIX_DATA[map.id] || {};
             for (const f of g.features || []) {
               const p = f.properties || {};
@@ -1122,9 +1330,17 @@ async function main() {
                 const fname = p._manaName || p.name || '';
                 if (popupFixTable[fname]) popupBad++;
               }
+              // §9: tras el fix, toda feature Point debe cumplir lo auto-fixable
+              // (nombre, marker id válido, escala, grupo). «Área con punto» es
+              // MANUAL y no bloquea la verificación.
+              if (f.geometry && f.geometry.type === 'Point') {
+                const vf = pointFeatureVerifyFails(p, MARKER_IDS);
+                if (vf.length) pointBad++;
+              }
             }
             if (bad) verifyIssues.push(`${bad} features aún con coords/colores inválidos`);
             if (popupBad) verifyIssues.push(`${popupBad} features aún sin datos de popup tras fix (§5)`);
+            if (pointBad) verifyIssues.push(`${pointBad} features Point aún incumplen lo auto-fixable (§9)`);
             // §3: re-evaluar la paleta semántica tras el fix
             if (fixes.geojsonText && map.id) {
               const paletteAfter = auditSemanticPalette({ id: map.id, legendKey: extractField(verify.data, 'legendKey') }, g);
@@ -1151,6 +1367,7 @@ async function main() {
   console.log(`Maps with manual issues: ${mapsManual}`);
   console.log(`Popups (AGENTS.md §5): ${popupFixedTotal} features completadas, ${popupMissingTotal} aún sin datos concretos`);
   console.log(`Paleta (AGENTS.md §3): ${paletteFixedTotal} props corregidas (rampa/borde/color semántico)`);
+  console.log(`Puntos (AGENTS.md §9): ${pointFixedTotal} props corregidas (marker/escala/grupo), ${pointManualTotal} features con fallos no auto-fixables`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -1176,6 +1393,14 @@ module.exports = {
   POPUP_FIX_DATA,
   SEMANTIC_COLOR_BY_SLUG,
   PALETTE,
+  MARKER_IDS,
+  POINT_DEFAULT_EMOJI_SIZE,
+  AREA_ENTITY_NAME_RE,
+  loadMarkerCatalogIds,
+  isAreaEntityName,
+  hasMarkerScale,
+  pointFeatureVerifyFails,
+  auditPointFeature,
   extractField,
   normalizeHexColor,
   auditCoordinates,
