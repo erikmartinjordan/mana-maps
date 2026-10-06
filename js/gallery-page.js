@@ -5,11 +5,32 @@
   const LIKES_STORAGE_KEY = 'mana-gallery-likes';
   const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
+  // The grid only needs lightweight card data; `mapPreview` is fetched lazily
+  // per visible card (see schedulePreviews) and the featured ?slug= map fetches
+  // its own full document on demand. `geojsonText` is never listed.
+  const GALLERY_LIST_FIELDS = [
+    'title', 'name', 'slug', 'description', 'tags', 'likes', 'views',
+    'authorHandle', 'shareMode', 'featureCount', 'createdAt', 'createdAtMs',
+    'updatedAtMs', 'legendKey', 'legendTitle', 'legendFormat',
+    'dataSource', 'dataYear', 'dataDate', 'isPublished'
+  ];
+
+  function withListFields(query) {
+    if (!query || typeof query.select !== 'function') return query;
+    try { return query.select(GALLERY_LIST_FIELDS); } catch (e) { return query; }
+  }
+
 
   function escHtml(str) {
     var div = document.createElement('div');
     div.textContent = str == null ? '' : String(str);
     return div.innerHTML;
+  }
+
+  function escAttr(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function safeDate(tsMs) {
@@ -19,12 +40,6 @@
     } catch (_) {
       return 'Sin fecha';
     }
-  }
-
-  function isFirestoreIndexError(err) {
-    if (!err) return false;
-    var msg = String(err && err.message ? err.message : err).toLowerCase();
-    return msg.indexOf('requires an index') >= 0;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -59,53 +74,104 @@
   // REMOTE DATA
   // ═══════════════════════════════════════════════════════════════
 
+  function dedupeSortMaps(items) {
+    items.sort(function(a, b) {
+      const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
+      const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
+      return bTs - aTs;
+    });
+    const seen = {};
+    return items.filter(function(item) {
+      var key = item.slug || item.id;
+      if (!key || seen[key]) return false;
+      seen[key] = true;
+      return true;
+    }).slice(0, 40);
+  }
+
   async function remoteMaps() {
     if (typeof firebase === 'undefined') return [];
     try {
       if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return []; firebase.initializeApp(firebaseConfig); }
       const db = firebase.firestore();
-      // Firestore read: initial published maps list for gallery bootstrap.
-      let snap = null;
-      try {
-        snap = await db.collection(MAPS_COLLECTION)
-          .where('isPublished', '==', true)
-          .orderBy('createdAt', 'desc')
-          .limit(36)
-          .get();
-      } catch (createdAtErr) {
-        if (!isFirestoreIndexError(createdAtErr)) console.warn('gallery remoteMaps createdAt query failed, retrying with createdAtMs:', createdAtErr);
-        try {
-          snap = await db.collection(MAPS_COLLECTION)
-            .where('isPublished', '==', true)
-            .orderBy('createdAtMs', 'desc')
-            .limit(36)
-            .get();
-        } catch (createdAtMsErr) {
-          if (!isFirestoreIndexError(createdAtMsErr)) console.warn('gallery remoteMaps createdAtMs query failed, retrying without orderBy:', createdAtMsErr);
-          snap = await db.collection(MAPS_COLLECTION)
-            .where('isPublished', '==', true)
-            .limit(100)
-            .get();
-        }
-      }
+      // Firestore read: published maps list for the gallery bootstrap. No
+      // orderBy so the query works with the single-field index only (the
+      // composite indexes were never provisioned); we sort client-side.
+      const snap = await withListFields(
+        db.collection(MAPS_COLLECTION).where('isPublished', '==', true).limit(100)
+      ).get();
       if (!snap || !snap.docs) return [];
-      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      items.sort(function(a, b) {
-        const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
-        const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
-        return bTs - aTs;
-      });
-      const seen = {};
-      return items.filter(function(item) {
-        var key = item.slug || item.id;
-        if (!key || seen[key]) return false;
-        seen[key] = true;
-        return true;
-      }).slice(0, 40);
+      return dedupeSortMaps(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) {
       console.warn('gallery remoteMaps error:', e);
       return [];
     }
+  }
+
+  // The Firebase web SDK cannot project fields, so listing the collection
+  // downloads every full document including geojsonText. The public Firestore
+  // REST API does support field masks, so the gallery bootstraps from a
+  // projected runQuery (~9 KB gzip for the whole gallery instead of ~2.7 MB gzip)
+  // and pulls each card's mapPreview lazily.
+  function restConfig() {
+    if (!firebaseConfig || !firebaseConfig.projectId || !firebaseConfig.apiKey) return null;
+    return {
+      key: firebaseConfig.apiKey,
+      db: 'https://firestore.googleapis.com/v1/projects/' + firebaseConfig.projectId +
+        '/databases/(default)/documents'
+    };
+  }
+
+  function canUseRest() {
+    return !!(restConfig() && typeof fetch === 'function');
+  }
+
+  async function fetchPublishedListRest() {
+    const cfg = restConfig();
+    if (!cfg) throw new Error('rest-unavailable');
+    const res = await fetch(cfg.db + ':runQuery?key=' + encodeURIComponent(cfg.key), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: MAPS_COLLECTION }],
+          where: {
+            fieldFilter: {
+              field: { fieldPath: 'isPublished' },
+              op: 'EQUAL',
+              value: { booleanValue: true }
+            }
+          },
+          limit: 100,
+          select: { fields: GALLERY_LIST_FIELDS.map(function(f) { return { fieldPath: f }; }) }
+        }
+      })
+    });
+    if (!res.ok) throw new Error('firestore-runQuery ' + res.status);
+    const rows = await res.json();
+    const items = [];
+    (rows || []).forEach(function(row) {
+      var doc = row && row.document;
+      if (!doc) return;
+      var item = {};
+      var fields = doc.fields || {};
+      Object.keys(fields).forEach(function(k) { item[k] = decodeFirestoreValue(fields[k]); });
+      item.id = (doc.name || '').split('/').pop();
+      items.push(item);
+    });
+    return dedupeSortMaps(items);
+  }
+
+  async function fetchMapPreviewRest(id) {
+    const cfg = restConfig();
+    if (!cfg || !id) return null;
+    const res = await fetch(cfg.db + '/maps/' + encodeURIComponent(id) +
+      '?key=' + encodeURIComponent(cfg.key) + '&mask.fieldPaths=mapPreview');
+    if (!res.ok) return null;
+    const doc = await res.json();
+    var raw = doc && doc.fields && doc.fields.mapPreview;
+    if (!raw) return null;
+    return normalizePreview(decodeFirestoreValue(raw));
   }
 
   async function readChunkedPublishedGeo(db, item) {
@@ -149,6 +215,73 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // PREVIEW NORMALIZATION
+  // ═══════════════════════════════════════════════════════════════
+  // Some published docs stored `mapPreview` using the Firestore REST value
+  // wrappers ({ stringValue }, { arrayValue }, { mapValue }…) instead of a
+  // plain object, and at inconsistent nesting depths. decodeFirestoreValue
+  // unwraps any such wrappers; normalizePreview runs it a couple of passes and
+  // returns a clean preview (or null) so it is safe to feed renderSVG directly.
+
+  var FIRESTORE_VALUE_KEYS = {
+    nullValue: 1, stringValue: 1, integerValue: 1, doubleValue: 1,
+    booleanValue: 1, arrayValue: 1, mapValue: 1, timestampValue: 1
+  };
+
+  function decodeFirestoreValue(value) {
+    if (Array.isArray(value)) return value.map(decodeFirestoreValue);
+    if (value && typeof value === 'object') {
+      var keys = Object.keys(value);
+      if (keys.length === 1 && FIRESTORE_VALUE_KEYS[keys[0]]) {
+        var type = keys[0];
+        var raw = value[type];
+        if (type === 'nullValue') return null;
+        if (type === 'stringValue') return raw;
+        if (type === 'timestampValue') return raw;
+        if (type === 'integerValue') return parseInt(raw, 10);
+        if (type === 'doubleValue') return Number(raw);
+        if (type === 'booleanValue') return raw;
+        if (type === 'arrayValue') return ((raw && raw.values) || []).map(decodeFirestoreValue);
+        if (type === 'mapValue') {
+          var fields = (raw && raw.fields) || {};
+          var out = {};
+          Object.keys(fields).forEach(function(k) { out[k] = decodeFirestoreValue(fields[k]); });
+          return out;
+        }
+      }
+      var plain = {};
+      keys.forEach(function(k) { plain[k] = decodeFirestoreValue(value[k]); });
+      return plain;
+    }
+    return value;
+  }
+
+  function normalizePreview(preview) {
+    if (!preview || typeof preview !== 'object') return null;
+    var clean = decodeFirestoreValue(decodeFirestoreValue(preview));
+    return (clean && Array.isArray(clean.bbox)) ? clean : null;
+  }
+
+  // Returns the renderable preview for an item, cached on the item so the SVG
+  // is never rebuilt twice per card (renderThumb + thumbAspectStyle both call
+  // this). Prefers the stored mapPreview; only falls back to parsing the full
+  // GeoJSON when the item happens to carry it (e.g. the ?slug= featured map).
+  function previewOf(item) {
+    if (!item) return null;
+    if (item._manaPreview) return item._manaPreview;
+    if (item.mapPreview) {
+      var normalized = normalizePreview(item.mapPreview);
+      if (normalized) { item._manaPreview = normalized; return normalized; }
+    }
+    var geo = getPublishedGeo(item);
+    if (geo && window.ManaMapPreview) {
+      var built = window.ManaMapPreview.build(geo);
+      if (built) { item._manaPreview = built; return built; }
+    }
+    return null;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // THUMBNAILS (shared preview library)
   // ═══════════════════════════════════════════════════════════════
 
@@ -162,8 +295,7 @@
 
   function renderThumb(item) {
     if (!window.ManaMapPreview) return '';
-    var built = window.ManaMapPreview.build(getPublishedGeo(item));
-    var svg = window.ManaMapPreview.renderSVG(built || item.mapPreview);
+    var svg = window.ManaMapPreview.renderSVG(previewOf(item));
     if (!svg) return '';
     return svg.replace(
       '<svg class="thumb-preview"',
@@ -177,7 +309,8 @@
   // apply to the area inside the 1px border so the match is exact.
   function thumbAspectStyle(item) {
     if (!window.ManaMapPreview || !window.ManaMapPreview.aspectOf) return '';
-    var preview = window.ManaMapPreview.build(getPublishedGeo(item)) || item.mapPreview;
+    var preview = previewOf(item);
+    if (!preview) return '';
     var aspect = window.ManaMapPreview.aspectOf(preview);
     if (!isFinite(aspect) || aspect <= 0) return '';
     return ' style="aspect-ratio:' + aspect + ';height:auto;box-sizing:content-box"';
@@ -266,7 +399,7 @@
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
-            '<div class="thumb"' + thumbAspectStyle(item) + '>' + thumb + '</div>' +
+            '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '"' + thumbAspectStyle(item) + '>' + thumb + '</div>' +
             '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +
           '<div class="meta">' +
@@ -288,6 +421,107 @@
           '</div>' +
         '</div>';
     }).join('');
+
+    schedulePreviews(items);
+  }
+
+  // Lazily fill in thumbnails. The list query is deliberately lightweight (no
+  // mapPreview, ~9 KB for the whole gallery), so previews are fetched per card
+  // only when it is about to scroll into view.
+  var _previewObserver = null;
+
+  function ensurePreviewObserver() {
+    if (_previewObserver || typeof IntersectionObserver === 'undefined') return _previewObserver;
+    _previewObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        _previewObserver.unobserve(entry.target);
+        var item = findMapByKey(entry.target.getAttribute('data-map-id'));
+        if (item) loadPreviewForItem(item);
+      });
+    }, { rootMargin: '400px 0px' });
+    return _previewObserver;
+  }
+
+  function findMapByKey(key) {
+    if (!key) return null;
+    for (var i = 0; i < _allMaps.length; i++) {
+      var m = _allMaps[i];
+      if (m && (m.slug || m.id) === key) return m;
+    }
+    return null;
+  }
+
+  function schedulePreviews(items) {
+    if (!window.ManaMapPreview || typeof document === 'undefined') return;
+    var observer = ensurePreviewObserver();
+    var thumbs = document.querySelectorAll('#gallery-list .thumb[data-map-id]');
+    Array.prototype.forEach.call(thumbs, function(thumb) {
+      if (thumb.getAttribute('data-preview-observed')) return;
+      var item = findMapByKey(thumb.getAttribute('data-map-id'));
+      if (!item || previewOf(item)) return;
+      thumb.setAttribute('data-preview-observed', '1');
+      if (observer) observer.observe(thumb);
+      else loadPreviewForItem(item);
+    });
+  }
+
+  function loadPreviewForItem(item) {
+    if (!item || !window.ManaMapPreview) return;
+    if (previewOf(item)) { patchCardPreview(item); return; }
+    if (item._previewLoading) return;
+    item._previewLoading = true;
+    var restore = function() { item._previewLoading = false; };
+    var apply = function(preview) {
+      restore();
+      if (!preview) return;
+      item._manaPreview = preview;
+      patchCardPreview(item);
+    };
+
+    // SDK path (or items that already carry the preview): stored preview.
+    if (item.mapPreview) {
+      var normalized = normalizePreview(item.mapPreview);
+      if (normalized) { apply(normalized); return; }
+    }
+
+    // REST: fetch just the mapPreview field for this document (~tens of KB),
+    // far cheaper than the whole document.
+    if (canUseRest()) {
+      fetchMapPreviewRest(item.slug || item.id).then(function(preview) {
+        if (preview) { apply(preview); return; }
+        hydratePreviewFromFullDoc(item).then(apply).catch(restore);
+      }).catch(function() { restore(); });
+      return;
+    }
+
+    hydratePreviewFromFullDoc(item).then(apply).catch(restore);
+  }
+
+  function hydratePreviewFromFullDoc(item) {
+    return getPublishedGeoAsync(item).then(function(geo) {
+      return geo ? window.ManaMapPreview.build(geo) : null;
+    });
+  }
+
+  function patchCardPreview(item) {
+    if (!window.ManaMapPreview) return;
+    var key = item && (item.slug || item.id);
+    if (!key) return;
+    var thumbs = document.querySelectorAll('#gallery-list .thumb[data-map-id]');
+    var thumb = null;
+    Array.prototype.forEach.call(thumbs, function(el) {
+      if (!thumb && el.getAttribute('data-map-id') === key) thumb = el;
+    });
+    if (!thumb) return;
+    thumb.innerHTML = renderThumb(item);
+    var preview = previewOf(item);
+    var aspect = preview ? window.ManaMapPreview.aspectOf(preview) : NaN;
+    if (isFinite(aspect) && aspect > 0) {
+      thumb.style.aspectRatio = aspect;
+      thumb.style.height = 'auto';
+      thumb.style.boxSizing = 'content-box';
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -803,18 +1037,33 @@
   }
 
   async function getPublishedGeoAsync(item) {
+    if (!item) return null;
     var immediate = getPublishedGeo(item);
     if (immediate) return immediate;
-    if (!item || !item.geojsonChunked || !item.geojsonChunked.chunkCount) return null;
     if (item._geojsonLoaded && item._geojsonLoaded.features) return item._geojsonLoaded;
     if (typeof firebase === 'undefined') return null;
     try {
       if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
       var db = firebase.firestore();
-      var chunked = await readChunkedPublishedGeo(db, item);
-      if (chunked && chunked.features) {
-        item._geojsonLoaded = chunked;
-        return chunked;
+      // Gallery list items come from a field-masked query without the heavy geo
+      // payloads, so fetch the full document on demand (only the featured
+      // ?slug= map and the handful of items missing a stored preview need it).
+      var fullItem = item;
+      if (!fullItem.geojsonChunked || !getPublishedGeo(fullItem)) {
+        var fetched = await remoteMapById(item.slug || item.id);
+        if (fetched) fullItem = fetched;
+      }
+      if (fullItem.geojsonChunked && fullItem.geojsonChunked.chunkCount) {
+        var chunked = await readChunkedPublishedGeo(db, fullItem);
+        if (chunked && chunked.features) {
+          item._geojsonLoaded = chunked;
+          return chunked;
+        }
+      }
+      var geo = getPublishedGeo(fullItem);
+      if (geo) {
+        item._geojsonLoaded = geo;
+        return geo;
       }
     } catch (e) {
       console.warn('gallery getPublishedGeoAsync failed:', e);
@@ -1136,21 +1385,26 @@
   // INIT + REALTIME
   // ═══════════════════════════════════════════════════════════════
 
-  async function init() {
-    const merged = await remoteMaps();
-    merged.sort(function(a, b) {
-      const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
-      const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
-      return bTs - aTs;
-    });
+  function applyMaps(items) {
+    _allMaps = items || [];
+    renderCatBar(_allMaps);
+    if (!_activeTags.length) renderCards(_allMaps);
+    syncJsonLdCount(_allMaps.length);
+    handleSlugLanding(_allMaps);
+    renderSlugLandingMap(_allMaps);
+  }
 
-    _allMaps = merged;
-    renderCatBar(merged);
-    if (!_activeTags.length) renderCards(merged);
-    syncJsonLdCount(merged.length);
-    handleSlugLanding(merged);
-    await renderSlugLandingMap(merged);
-    subscribeToPublishedMaps(merged);
+  async function init() {
+    if (canUseRest()) {
+      try {
+        applyMaps(await fetchPublishedListRest());
+        return;
+      } catch (e) {
+        console.warn('gallery REST list failed, falling back to Firebase SDK:', e);
+      }
+    }
+    if (typeof firebase === 'undefined') { applyMaps([]); return; }
+    subscribeToPublishedMaps();
   }
 
   async function renderSlugLandingMap(maps) {
@@ -1175,52 +1429,28 @@
 
   init();
 
-  function subscribeToPublishedMaps(mergedList) {
-    if (typeof firebase === 'undefined') return;
+  function subscribeToPublishedMaps() {
+    if (typeof firebase === 'undefined') { return; }
     try {
-      if (!firebase.apps || !firebase.apps.length) { if (!firebaseConfig) return null; firebase.initializeApp(firebaseConfig); }
-      const db = firebase.firestore();
-      // Firestore read: real-time gallery listener for published maps only.
-      var baseQuery = db.collection(MAPS_COLLECTION)
-        .where('isPublished', '==', true);
-
-      function applySnapshot(snap) {
-        const remote = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
-        remote.sort(function(a, b) {
-          const aTs = a.createdAtMs || (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0);
-          const bTs = b.createdAtMs || (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0);
-          return bTs - aTs;
-        });
-        const seen = {};
-        const unique = remote.filter(function(item) {
-          const key = item.slug || item.id;
-          if (!key || seen[key]) return false;
-          seen[key] = true;
-          return true;
-        });
-        mergedList.length = 0;
-        mergedList.push.apply(mergedList, unique.slice(0, 40));
-        _allMaps = mergedList;
-        renderCatBar(mergedList);
-        if (!_activeTags.length) renderCards(mergedList);
-        syncJsonLdCount(mergedList.length);
-        handleSlugLanding(mergedList);
-        renderSlugLandingMap(mergedList);
+      if (!firebase.apps || !firebase.apps.length) {
+        if (!firebaseConfig) { applyMaps([]); return; }
+        firebase.initializeApp(firebaseConfig);
       }
-
-      baseQuery
-        .orderBy('createdAt', 'desc')
-        .limit(36)
-        .onSnapshot(applySnapshot, function(e) {
-          if (!isFirestoreIndexError(e)) {
-            console.warn('gallery realtime subscribe failed:', e);
-          }
-          baseQuery.limit(100).onSnapshot(applySnapshot, function(fallbackErr) {
-            console.warn('gallery realtime fallback subscribe failed:', fallbackErr);
-          });
-        });
+      const db = firebase.firestore();
+      // Single realtime source for the grid: the initial snapshot paints the
+      // cards (no separate .get() download) and later snapshots keep it live.
+      var query = withListFields(
+        db.collection(MAPS_COLLECTION).where('isPublished', '==', true).limit(100)
+      );
+      query.onSnapshot(function(snap) {
+        applyMaps(dedupeSortMaps(snap.docs.map(function(d) { return { id: d.id, ...d.data() }; })));
+      }, function(err) {
+        console.warn('gallery realtime subscribe failed, falling back to one-shot read:', err);
+        remoteMaps().then(applyMaps).catch(function() { applyMaps([]); });
+      });
     } catch (e) {
       console.warn('gallery realtime unavailable:', e);
+      remoteMaps().then(applyMaps).catch(function() { applyMaps([]); });
     }
   }
 })();

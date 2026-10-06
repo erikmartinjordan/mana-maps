@@ -1,6 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
-const EXTERNAL_CDN = /^https?:\/\/(unpkg\.com|www\.gstatic\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)/;
+// Blocks every Firebase/backend host. The gallery bootstraps from the Firestore
+// REST API (field-masked, no web SDK), so "Firebase unavailable" must include
+// firestore.googleapis.com/www.googleapis.com to exercise the empty state.
+const EXTERNAL_CDN = /^https?:\/\/(unpkg\.com|www\.gstatic\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|firestore\.googleapis\.com|www\.googleapis\.com)/;
 
 test('gallery loads without errors and shows empty state when Firebase is unavailable', async ({ page }) => {
   const pageErrors = [];
