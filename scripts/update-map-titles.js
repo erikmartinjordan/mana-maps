@@ -22,6 +22,7 @@ const TITLES = {
   'cobertura-forestal-por-pais': 'Cobertura forestal por país',
   'electricity-access-world': 'Acceso a electricidad mundial',
   'fertility-rate-world': 'Tasa de fertilidad mundial',
+  'gdp-per-capita-world': 'PIB per cápita mundial por país',
   'happiness-index-world': 'Índice de felicidad mundial por país',
   'highest-peaks-per-continent': 'Punto más alto de cada continente',
   'indice-desarrollo-humano-por-pais': 'Índice de desarrollo humano (IDH) por país',

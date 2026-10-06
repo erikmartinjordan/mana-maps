@@ -176,6 +176,11 @@ const KNOWN_META = {
     dataDate: '2025-12-31',
     tags: ['Política', 'Género', 'Sociedad', 'Geografía'],
   },
+  'gdp-per-capita-world': {
+    dataSource: 'World Bank (vía Our World in Data) — GDP per capita (current US$). Indicator NY.GDP.PCAP.CD. https://data.worldbank.org/indicator/NY.GDP.PCAP.CD',
+    dataDate: '2025-12-31',
+    tags: ['Economía', 'Desarrollo', 'Geografía'],
+  },
 };
 
 // ── Popups con información real (AGENTS.md §5) ────────────────────
