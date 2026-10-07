@@ -168,5 +168,12 @@ test('slug landing renders related maps block with crawlable HTML links', async 
   await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#related-maps')).toBeHidden();
 
+  // El mapa público debe ofrecer un CTA hacia el editor (bucle viral).
+  await page.goto('/gallery/?slug=oceany-mares-world', { waitUntil: 'domcontentloaded' });
+  const slugCta = page.locator('#slug-map-meta .slug-cta-btn');
+  await expect(slugCta).toBeVisible({ timeout: 20_000 });
+  await expect(slugCta).toHaveAttribute('href', '/map/');
+  await expect(page.locator('#slug-map-meta .slug-share-btn').first()).toBeVisible();
+
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });

@@ -1,39 +1,132 @@
 // ── tracking.js — Firebase event tracking for Maña Maps ──
-// Loaded AFTER all app modules so it can safely wrap existing globals.
-// Zero changes required to other JS files.
+// Loaded after app modules so it can safely wrap existing globals.
+// Works with the Firebase web SDK when present, and falls back to the public
+// Firestore REST endpoint on pages that do not load the SDK (gallery, landing).
 
 (function() {
-  var firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
-  if (typeof firebase === 'undefined' || !firebaseConfig) {
-    window.trackEvent = function() {};
-    return;
-  }
-  if (!firebase.apps || !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+  if (window.__manaTrackingLoaded) return;
+  window.__manaTrackingLoaded = true;
+
+  // ── Config resolution ──
+  function resolveConfig() {
+    if (window.ManaFirebase && typeof window.ManaFirebase.getConfig === 'function') {
+      try {
+        var c = window.ManaFirebase.getConfig();
+        if (c && c.projectId) return c;
+      } catch (e) {}
+    }
+    var cfgs = window.MANA_FIREBASE_CONFIGS;
+    if (cfgs) {
+      var host = (typeof location !== 'undefined' && location.hostname) || '';
+      var env = window.MANA_FIREBASE_ENV || (/pre|localhost|127\.0\.0\.1/.test(host) ? 'pre' : 'pro');
+      return cfgs[env] || cfgs.pro || cfgs.pre || null;
+    }
+    return null;
   }
 
-  var db = firebase.firestore();
-  var trackingDisabled = false;
+  var config = resolveConfig();
+
+  // ── Internal traffic opt-out ──
+  // Visit any page with ?notrack=1 once (or set localStorage 'mana-notrack')
+  // to keep the owner's own sessions out of the metrics.
+  try {
+    if (new URLSearchParams(location.search).get('notrack') === '1') {
+      localStorage.setItem('mana-notrack', '1');
+    }
+  } catch (e) {}
+
+  var INTERNAL_UIDS = ['VQaLSYq64cQ8GGtCe0JbHkYFKUT2'];
+  var disabled = false;
+  try { disabled = localStorage.getItem('mana-notrack') === '1'; } catch (e) { disabled = false; }
+
+  function handleErr(err) {
+    var code = err && (err.code || err.message || '');
+    if (code === 'permission-denied' || String(code).indexOf('Missing or insufficient permissions') !== -1) {
+      disabled = true;
+      return;
+    }
+    console.warn('[MañaTrack]', err);
+  }
+
+  // ── REST fallback (no web SDK on landing/gallery) ──
+  function toFirestoreValue(v) {
+    if (v === null || v === undefined) return { nullValue: null };
+    if (typeof v === 'boolean') return { booleanValue: v };
+    if (typeof v === 'number') {
+      return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    }
+    if (typeof v === 'object') {
+      var fields = {};
+      Object.keys(v).forEach(function(k) { fields[k] = toFirestoreValue(v[k]); });
+      return { mapValue: { fields: fields } };
+    }
+    return { stringValue: String(v) };
+  }
+
+  function restWrite(cfg, fields) {
+    if (!cfg || !cfg.projectId || !cfg.apiKey || typeof fetch !== 'function') return;
+    var url = 'https://firestore.googleapis.com/v1/projects/' + encodeURIComponent(cfg.projectId) +
+      '/databases/(default)/documents/events?key=' + encodeURIComponent(cfg.apiKey);
+    try {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: fields }),
+        keepalive: true
+      }).catch(function() {});
+    } catch (e) {}
+  }
+
+  var hasSdk = (typeof firebase !== 'undefined') && !!config;
+  var db = null;
+  if (hasSdk) {
+    try {
+      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(config);
+      db = firebase.firestore();
+    } catch (e) { db = null; }
+  }
 
   function track(name, params) {
-    if (trackingDisabled) return;
+    if (disabled) return;
     params = params || {};
-    db.collection('events').add({
-      name: name,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      params: params
-    }).catch(function(err) {
-      var code = err && (err.code || err.message || '');
-      if (code === 'permission-denied' || code.indexOf('Missing or insufficient permissions') !== -1) {
-        trackingDisabled = true;
-        return;
-      }
-      console.warn('[MañaTrack]', name, err);
-    });
+
+    if (db) {
+      try {
+        var ref = db.collection('events');
+        if (ref && typeof ref.add === 'function') {
+          ref.add({
+            name: name,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            params: params
+          }).catch(handleErr);
+          return;
+        }
+      } catch (e) { /* fall through to REST */ }
+    }
+
+    if (config) {
+      restWrite(config, {
+        name: { stringValue: name },
+        timestamp: { timestampValue: new Date().toISOString() },
+        params: toFirestoreValue(params)
+      });
+    }
   }
 
   // Expose globally
   window.trackEvent = track;
+
+  // ── Internal traffic detection via signed-in uid ──
+  if (hasSdk && firebase.auth) {
+    try {
+      firebase.auth().onAuthStateChanged(function(u) {
+        if (u && u.uid && INTERNAL_UIDS.indexOf(u.uid) !== -1) {
+          disabled = true;
+          try { localStorage.setItem('mana-notrack', '1'); } catch (e) {}
+        }
+      });
+    } catch (e) {}
+  }
 
   // ── 0. Approximate location (IP → country/city) ──
   // Solo se guarda país, ciudad, coords redondeadas a nivel ciudad y la hora
@@ -76,13 +169,19 @@
       });
   }
 
-  // ── 1. Session start ──
+  // ── 1. Session start (now with page + referrer) ──
   fetchApproxLocation().then(function(loc) {
-    track('sessionstart', loc ? { location: loc } : {});
+    var params = {
+      path: location.pathname + location.search,
+      referrer: document.referrer || '',
+      lang: (document.documentElement && document.documentElement.lang) || '',
+      title: document.title || ''
+    };
+    if (loc) params.location = loc;
+    track('sessionstart', params);
   });
 
   // ── 2. Export — wrap exportAs ──
-  // exportAs is a function declaration → available both as global and window.*
   if (typeof exportAs === 'function') {
     var _exp = exportAs;
     window.exportAs = function(fmt) {
@@ -92,15 +191,12 @@
   }
 
   // ── 3. Features drawn ──
-  // map & drawnItems are declared with const → NOT on window, but accessible
-  // as global lexical variables via typeof check
   if (typeof map !== 'undefined') {
     map.on('draw:created', function(e) {
       track('featuredrawn', { tool: e.layerType || 'unknown' });
     });
   }
 
-  // Points via manual tool — wrap setTool + watch layeradd
   var _ptActive = false;
   if (typeof setTool === 'function') {
     var _st = setTool;

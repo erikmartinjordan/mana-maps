@@ -418,6 +418,9 @@
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
               '<span>Fork</span>' +
             '</button>' +
+            '<button class="card-action-btn card-share-btn" data-map-id="' + escAttr(mapSlug) + '" data-title="' + escAttr(item.title || item.name || 'Mapa de Maña Maps') + '" onclick="galleryShareCard(this)" aria-label="Compartir">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
+            '</button>' +
           '</div>' +
         '</div>';
     }).join('');
@@ -815,6 +818,134 @@
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // SHARE + VIEW COUNTER
+  // ═══════════════════════════════════════════════════════════════
+
+  function track(name, params) {
+    if (typeof window.trackEvent === 'function') {
+      try { window.trackEvent(name, params); } catch (e) {}
+    }
+  }
+
+  function shareUrlFor(slug) {
+    return 'https://maña.com/gallery/?slug=' + encodeURIComponent(slug);
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(resolve, reject) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        resolve();
+      } catch (e) { reject(e); }
+    });
+  }
+
+  function doShare(url, title, source) {
+    track('share', { source: source });
+    if (navigator.share) {
+      navigator.share({ title: title, url: url }).catch(function() {});
+      return;
+    }
+    copyToClipboard(url).then(function() {
+      galleryToast('Enlace copiado al portapapeles');
+    }).catch(function() {
+      galleryToast('No se pudo copiar el enlace.');
+    });
+  }
+
+  // Share a published map from the gallery grid.
+  window.galleryShareCard = function(btn) {
+    var slug = btn.getAttribute('data-map-id');
+    if (!slug) return;
+    var title = btn.getAttribute('data-title') || 'Mapa de Maña Maps';
+    doShare(shareUrlFor(slug), title, 'gallery_card');
+  };
+
+  // Share the featured ?slug= map.
+  window.galleryShareSlug = function(btn) {
+    var url = (btn && btn.getAttribute('data-url')) || window.location.href;
+    var title = (btn && btn.getAttribute('data-title')) || document.title;
+    doShare(url, title, 'gallery_slug');
+  };
+
+  // Count a public landing view. The editor flow already increments views
+  // (js/persistence.js); here we cover direct visits to /gallery/?slug=.
+  function countSlugView(slug, authorHandle) {
+    if (!slug) return;
+    try {
+      var key = 'mana-slug-viewed:' + slug;
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch (e) {}
+    if (window.manaMaps && typeof window.manaMaps.incrementMapView === 'function') {
+      try {
+        Promise.resolve(window.manaMaps.incrementMapView(slug, authorHandle)).catch(function() {});
+      } catch (e) {}
+    }
+    track('mapview', { slug: slug, source: 'gallery_slug' });
+  }
+
+  function slugCtaHtml(item) {
+    var slug = item.slug || item.id;
+    var title = item.title || item.name || 'Mapa de Maña Maps';
+    var url = shareUrlFor(slug);
+    var xHref = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — vía Maña Maps') + '&url=' + encodeURIComponent(url);
+    var author = item.authorHandle
+      ? '<a class="slug-author" href="/@' + encodeURIComponent(item.authorHandle) + '">@' + escHtml(item.authorHandle) + '</a> · '
+      : '';
+    var created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
+    return '<div class="slug-meta-line">' + author +
+        (item.featureCount || 0) + ' elementos · ' + safeDate(created) + '</div>' +
+      '<div class="slug-cta">' +
+        '<a class="slug-cta-btn" href="/map/" onclick="galleryTrackCta()">Crea tu mapa gratis</a>' +
+        '<button type="button" class="slug-share-btn" data-url="' + escAttr(url) + '" data-title="' + escAttr(title) + '" onclick="galleryShareSlug(this)">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
+          'Compartir</button>' +
+        '<a class="slug-share-btn" href="' + escAttr(xHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'x\')" aria-label="Compartir en X">' +
+          '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>' +
+          'X</a>' +
+      '</div>' +
+      '<div class="slug-watermark">Hecho con <strong>Maña Maps</strong> · <a href="/map/" onclick="galleryTrackCta()">Crea el tuyo gratis</a></div>';
+  }
+
+  window.galleryTrackCta = function() {
+    track('cta_click', { target: 'create_map', source: 'gallery_slug' });
+  };
+
+  window.galleryTrackShare = function(network) {
+    track('share', { network: network, source: 'gallery_slug' });
+  };
+
+  function ensureSlugStyles() {
+    if (document.getElementById('slug-cta-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'slug-cta-styles';
+    style.textContent =
+      '.slug-meta-line{font-size:13px;color:#6b7280;margin:10px 0 0}' +
+      '.slug-author{color:#0ea5e9;text-decoration:none;font-weight:600}' +
+      '.slug-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}' +
+      '.slug-cta-btn,.slug-share-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;border:1px solid transparent;font-family:inherit}' +
+      '.slug-cta-btn{background:#0ea5e9;color:#fff}' +
+      '.slug-cta-btn:hover{background:#0284c7}' +
+      '.slug-share-btn{background:transparent;color:#374151;border-color:#d1d5db}' +
+      '.slug-share-btn:hover{background:#f3f4f6}' +
+      '.slug-watermark{margin-top:10px;font-size:12px;color:#9ca3af}' +
+      '.slug-watermark a{color:#0ea5e9;text-decoration:none;font-weight:600}' +
+      '@media (prefers-color-scheme: dark){.slug-share-btn{color:#e5e7eb;border-color:#374151}.slug-share-btn:hover{background:#1f2937}.slug-meta-line{color:#9ca3af}}';
+    document.head.appendChild(style);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // JSON-LD Dataset for individual map landing pages (?slug=<slug>)
   // ═══════════════════════════════════════════════════════════════
 
@@ -845,7 +976,8 @@
     var slug = item.slug || item.id;
     var title = item.title || item.name || 'Mapa sin título';
     var description = item.description || title;
-    var canonicalUrl = 'https://maña.com/gallery/?slug=' + encodeURIComponent(slug);
+    var canonicalUrl = 'https://maña.com/gallery/' + encodeURIComponent(slug) + '/';
+    var ogImage = 'https://maña.com/og-cards/' + encodeURIComponent(slug) + '.png';
 
     // spatialCoverage: derive bounding box from mapPreview or GeoJSON
     var bbox = null;
@@ -925,6 +1057,11 @@
 
     var twitterDesc = document.querySelector('meta[name="twitter:description"]');
     if (twitterDesc) twitterDesc.setAttribute('content', description.length > 200 ? description.slice(0, 197) + '…' : description);
+
+    var ogImageEl = document.querySelector('meta[property="og:image"]');
+    if (ogImageEl) ogImageEl.setAttribute('content', ogImage);
+    var twImageEl = document.querySelector('meta[name="twitter:image"]');
+    if (twImageEl) twImageEl.setAttribute('content', ogImage);
   }
 
   function handleSlugLanding(maps) {
@@ -1153,6 +1290,9 @@
     var titleEl = document.getElementById('slug-map-title');
     if (!wrap || !target) return;
 
+    ensureSlugStyles();
+    countSlugView(item.slug || item.id, item.authorHandle);
+
     // Bloque «Mapas relacionados»: enlaces HTML rastreables al inicio de la
     // landing para interconectar el SEO de la galería.
     renderRelatedMaps(item, _allMaps);
@@ -1170,7 +1310,7 @@
     if (!geo || !geo.features || !geo.features.length || !window.maplibregl) {
       var fallbackSvg = (window.ManaMapPreview && renderThumb) ? renderThumb(item) : '';
       target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';
-      if (meta) meta.textContent = 'Vista previa estática del mapa.';
+      if (meta) meta.innerHTML = '<div class="slug-meta-line">Vista previa estática del mapa.</div>' + slugCtaHtml(item);
       return;
     }
 
@@ -1206,11 +1346,7 @@
       console.warn('slug map error:', e && e.error ? e.error.message : e);
     });
 
-    if (meta) {
-      var created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
-      var author = item.authorHandle ? '@' + item.authorHandle + ' · ' : '';
-      meta.textContent = author + (item.featureCount || 0) + ' elementos · ' + safeDate(created);
-    }
+    if (meta) meta.innerHTML = slugCtaHtml(item);
   }
 
   // ═══════════════════════════════════════════════════════════════

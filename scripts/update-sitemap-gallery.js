@@ -172,15 +172,15 @@ function extractField(doc, fieldName) {
 function buildMapUrlEntry(slug) {
   return [
     '  <url>',
-    `    <loc>${SITE_BASE}/gallery/?slug=${slug}</loc>`,
+    `    <loc>${SITE_BASE}/gallery/${slug}/</loc>`,
     '    <changefreq>weekly</changefreq>',
     '    <priority>0.6</priority>',
     '  </url>'
   ].join('\n');
 }
 
-/** Regex to match a gallery map <url> block in the sitemap */
-const MAP_URL_REGEX = /  <url>\n    <loc>https:\/\/xn--maa-8ma\.com\/gallery\/\?slug=[^<]+<\/loc>\n    <changefreq>[^<]*<\/changefreq>\n    <priority>[^<]*<\/priority>\n  <\/url>\n?/g;
+/** Regex to match a gallery map <url> block in the sitemap (legacy ?slug= or static) */
+const MAP_URL_REGEX = /  <url>\n    <loc>https:\/\/xn--maa-8ma\.com\/gallery\/(?:\?slug=)?[^<]+<\/loc>\n    <changefreq>[^<]*<\/changefreq>\n    <priority>[^<]*<\/priority>\n  <\/url>\n?/g;
 
 // ─── Main ────────────────────────────────────────────────────────
 async function main() {

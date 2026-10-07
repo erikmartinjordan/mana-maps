@@ -284,6 +284,7 @@
             avatarUrl: user.photoURL || '',
             plan: FREE_PLAN
           };
+          if (typeof trackEvent === 'function') trackEvent('profile_created', {});
           _emitProfileChange();
           _setCachedHandle(user.uid, handle);
           overlay.classList.remove('open');
@@ -491,7 +492,9 @@
   async function signInWithGoogle() {
     try {
       var provider = new firebase.auth.GoogleAuthProvider();
-      await firebase.auth().signInWithPopup(provider);
+      var cred = await firebase.auth().signInWithPopup(provider);
+      var isNew = cred && cred.additionalUserInfo && cred.additionalUserInfo.isNewUser;
+      if (typeof trackEvent === 'function') trackEvent(isNew ? 'signup' : 'login', { method: 'google' });
       closeAuthModal({ keepPending: true });
     } catch (e) {
       console.warn('google sign-in failed:', e);
@@ -517,6 +520,7 @@
       } else {
         await firebase.auth().signInWithEmailAndPassword(email, password);
       }
+      if (typeof trackEvent === 'function') trackEvent(_authModeSignup ? 'signup' : 'login', { method: 'email' });
       closeAuthModal({ keepPending: true });
     } catch (err) {
       var msg = '';
@@ -540,6 +544,7 @@
   async function continueAsGuest() {
     try {
       await firebase.auth().signInAnonymously();
+      if (typeof trackEvent === 'function') trackEvent('login', { method: 'guest' });
       closeAuthModal({ keepPending: true });
     } catch (e) {
       console.warn('anonymous sign-in failed:', e);
