@@ -64,6 +64,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/biggest-earthquakes-world/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -184,12 +189,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/gallery/women-in-parliament-world/</loc>
+    <loc>https://xn--maa-8ma.com/gallery/water-sanitation-access-world/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/gallery/water-sanitation-access-world/</loc>
+    <loc>https://xn--maa-8ma.com/gallery/women-in-parliament-world/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
