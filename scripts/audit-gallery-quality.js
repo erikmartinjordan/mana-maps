@@ -195,6 +195,11 @@ const KNOWN_META = {
     dataDate: '2021-12-31',
     tags: ['Energía', 'Medio Ambiente', 'Tecnología'],
   },
+  'infant-mortality-world': {
+    dataSource: 'World Bank / UN IGME — Mortality rate, infant (per 1,000 live births). Indicator SP.DYN.IMRT.IN. https://data.worldbank.org/indicator/SP.DYN.IMRT.IN',
+    dataDate: '2024-12-31',
+    tags: ['Salud', 'Demografía', 'Geografía'],
+  },
 };
 
 // ── Popups con información real (AGENTS.md §5) ────────────────────

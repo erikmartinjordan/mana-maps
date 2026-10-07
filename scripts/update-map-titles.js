@@ -26,6 +26,7 @@ const TITLES = {
   'happiness-index-world': 'Índice de felicidad mundial por país',
   'highest-peaks-per-continent': 'Punto más alto de cada continente',
   'indice-desarrollo-humano-por-pais': 'Índice de desarrollo humano (IDH) por país',
+  'infant-mortality-world': 'Mortalidad infantil mundial por país',
   'internet-users-world': 'Usuarios de internet mundial por país',
   'largest-islands-world': 'Las islas más grandes del mundo',
   'life-expectancy-world': 'Esperanza de vida mundial por país',
