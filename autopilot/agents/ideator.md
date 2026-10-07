@@ -49,15 +49,31 @@ Por cada mapa que falle, tarea CONCRETA:
 `- [ ] Despublicar mapas user no editoriales <slug> (isPublished:false) o recurar con geometría real`
 
 ## Misión 2: Nuevos mapas (solo si Misión 1 cubierta)
-Ángulo sorprendente, datos reales, fuente citada. Alterna coropletas con mapas
-**puntuales + emoji** (Point con `_manaMarkerType` válido): son muy visibles y
-compartibles. Propón AL MENOS una idea puntual/emoji con tema creativo y dato
-real no repetido (picos más altos, volcanes activos, cráteres, incendios,
-lugares extremos, etc.). Formato: `- [ ] Crear mapa: <slug> - <título hook> - <fuente>`
+Ángulo sorprendente, datos reales, fuente citada.
+
+ROTACIÓN OBLIGATORIA (regla dura, no opcional):
+- Mira los últimos 3 mapas NUEVOS publicados (git log --oneline -40 -- BACKLOG.md
+  y Firestore). Si 2 o más son coropletas/polígonos, tu propuesta de mapa nuevo
+  de esta sesión DEBE ser PUNTUAL con emoji (Point).
+- En cualquier caso: de cada 3 propuestas de mapas nuevos, AL MENOS 1 debe ser
+  puntual con emoji. Si no la has propuesto en las 2 ideas anteriores, ahora es
+  obligatoria.
+- La tarea de mapa puntual debe ser la PRIMERA tarea pendiente del BACKLOG (el
+  loop ejecuta por FIFO): insértala justo después de la última línea `- [x]`,
+  por delante de cualquier coropleta. NO la pongas al final.
+- Tema puntual = entidad puntual REAL (pico, volcán, reactor nuclear, cráter de
+  impacto, terremoto, incendio, lugar extremo...). Nunca un área.
+- `markerType`/`_manaMarkerType` debe ser un id de emoji VÁLIDO del catálogo
+  (js/markers.js). Formato exacto:
+  `- [ ] Crear mapa puntual: <slug> - <título hook> - Point+emoji (markerType: <emoji_id>; escalar por <clave numérica>) - <fuente autoritativa>`
+
+Ideas no puntuales (coropletas) van al final: `- [ ] Crear mapa: <slug> - <título hook> - <fuente>`
 
 ## Reglas
-1. Solo editar final de BACKLOG.md, max 3 líneas, formato `- [ ] ...`
-2. No repetir tareas [x] ni git log -20
+1. Edita BACKLOG.md con max 3 líneas nuevas, formato `- [ ] ...`. La tarea de
+   mapa PUNTUAL va la primera de las pendientes (justo tras el último `- [x]`);
+   las ideas no puntuales van al final.
+2. No repetir tareas [x] ni mapas ya publicados (git log -20 + Firestore)
 3. Si no hay oportunidades claras, no toques BACKLOG
 
 ## PROHIBIDO proponer (decisión de producto)
@@ -70,5 +86,5 @@ lugares extremos, etc.). Formato: `- [ ] Crear mapa: <slug> - <título hook> - <
 2. curl Firestore REST pageSize=50 + python parse
 3. Para 2-3 peores slugs, curl doc individual y python valida props/geo (coords, hex, label)
 4. (opcional) curl https://xn--maa-8ma.com/gallery/ y leer js/gallery-page.js:594 / js/map-preview.js:344 para validar leyenda/thumbs
-5. Escribir 1-3 tareas al final de BACKLOG.md
+5. Escribir 1-3 tareas en BACKLOG.md (la puntual, primera de las pendientes)
 6. Resumen corto
