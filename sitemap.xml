@@ -89,6 +89,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/daily-steps-world/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/electricity-access-world/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
