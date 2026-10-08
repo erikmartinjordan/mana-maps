@@ -120,33 +120,9 @@
     });
 
     // Emoji points as colored symbols (keep fire etc. visible in 2D, no marker drift)
-    // Generate raster images for emoji so they keep color (SDF text is monochrome)
-    (function(){
-      Object.keys(_emojiMap).forEach(function(mt){
-        var id='emoji-'+mt;
-        if(gl.hasImage && gl.hasImage(id)) return;
-        var emoji=_emojiMap[mt];
-        var size=64;
-        var canvas=document.createElement('canvas');
-        canvas.width=size; canvas.height=size;
-        var ctx=canvas.getContext('2d');
-        ctx.clearRect(0,0,size,size);
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.font=(size*0.72)+'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
-        ctx.strokeStyle='white'; ctx.lineWidth=6; ctx.lineJoin='round'; ctx.miterLimit=2;
-        try{ctx.strokeText(emoji,size/2,size/2+2);}catch(e){}
-        try{ctx.fillText(emoji,size/2,size/2+2);}catch(e){}
-        if(gl.addImage){
-          try{gl.addImage(id,canvas,{pixelRatio:2,sdf:false});}catch(e){}
-          try{
-            if(!gl.hasImage(id)){
-              var data=ctx.getImageData(0,0,size,size);
-              gl.addImage(id,data,{pixelRatio:2});
-            }
-          }catch(e){}
-        }
-      });
-    })();
+    // Raster images keep the emoji color (SDF text is monochrome). The outline is
+    // tinted with the feature _manaColor so the legend ramp matches the map; the
+    // images are generated per (markerType, color) on each sync.
 
     gl.addLayer({
       id: LAYER_EMOJI,
@@ -154,7 +130,7 @@
       source: SRC,
       filter: ['in', ['get', 'markerType'], ['literal', _emojiKeys]],
       layout: {
-        'icon-image': ['concat', 'emoji-', ['get', 'markerType']],
+        'icon-image': ['get', 'emojiIcon'],
         'icon-size': ['interpolate', ['linear'], ['coalesce', ['get', 'emojiSize'], 34], 22, 0.38, 34, 0.52, 50, 0.72, 66, 0.92],
         'icon-allow-overlap': true,
         'icon-ignore-placement': true,
@@ -210,6 +186,44 @@
     });
   }
 
+  // ── Emoji images (outline tinted with the feature color so the legend matches) ──
+
+  function _emojiOutlineColor(l) {
+    var c = l && l._manaColor;
+    return (typeof c === 'string' && /^#[0-9a-f]{3,8}$/i.test(c)) ? c : '#ffffff';
+  }
+
+  function _emojiImageId(mt, color) {
+    return 'emoji-' + mt + '-' + String(color).replace('#', '').toLowerCase();
+  }
+
+  function _ensureEmojiImage(gl, mt, color) {
+    var id = _emojiImageId(mt, color);
+    if (gl.hasImage && gl.hasImage(id)) return id;
+    var emoji = _emojiMap[mt];
+    if (!emoji) return id;
+    var size = 64;
+    var canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, size, size);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = (size * 0.72) + 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
+    ctx.strokeStyle = color; ctx.lineWidth = 6; ctx.lineJoin = 'round'; ctx.miterLimit = 2;
+    try { ctx.strokeText(emoji, size / 2, size / 2 + 2); } catch (e) {}
+    try { ctx.fillText(emoji, size / 2, size / 2 + 2); } catch (e) {}
+    if (gl.addImage) {
+      try { gl.addImage(id, canvas, { pixelRatio: 2, sdf: false }); } catch (e) {}
+      try {
+        if (!gl.hasImage(id)) {
+          var data = ctx.getImageData(0, 0, size, size);
+          gl.addImage(id, data, { pixelRatio: 2 });
+        }
+      } catch (e) {}
+    }
+    return id;
+  }
+
   // ── Sync point data to GL source ──
 
   function _sync() {
@@ -223,12 +237,14 @@
       var mt = l._manaMarkerType || 'circle';
       var emoji = _emojiMap[mt] || '';
       var emojiSize = 0;
+      var emojiIcon = '';
       if (emoji) {
         // reuse size from marker icon or compute from Area
         if (l._manaEmojiSize) emojiSize = l._manaEmojiSize;
         else if (typeof _emojiSizeFromArea === 'function' && l._manaProperties && l._manaProperties.Area) {
           emojiSize = _emojiSizeFromArea(_parseArea(l._manaProperties.Area));
         } else emojiSize = 34;
+        emojiIcon = _ensureEmojiImage(_gl, mt, _emojiOutlineColor(l));
       }
       features.push({
         type: 'Feature',
@@ -238,6 +254,7 @@
           color: l._manaColor || '#0ea5e9',
           markerType: mt,
           emoji: emoji,
+          emojiIcon: emojiIcon,
           emojiSize: emojiSize,
         },
       });

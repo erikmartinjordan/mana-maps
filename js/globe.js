@@ -174,44 +174,45 @@ function syncToGlobe() {
     emoji_burger:'\uD83C\uDF54', emoji_pizza:'\uD83C\uDF55', emoji_coffee:'\u2615', emoji_beer:'\uD83C\uDF7A', emoji_wine:'\uD83C\uDF77', emoji_cocktail:'\uD83C\uDF79',
     emoji_sushi:'\uD83C\uDF63', emoji_icecream:'\uD83C\uDF66'
   };
-  // Generate raster images for emoji so they keep color in the globe (SDF text is monochrome)
-  (function(){
-    var present = {};
-    geo.features.forEach(function(f){ var mt=f.properties._manaMarkerType; if(mt && _emojiMap[mt]) present[mt]=true; });
-    Object.keys(present).forEach(function(mt){
-      var id = 'emoji-' + mt;
-      if (globeMap.hasImage && globeMap.hasImage(id)) return;
-      var emoji = _emojiMap[mt];
-      var size = 64;
-      var canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      var ctx = canvas.getContext('2d');
-      ctx.clearRect(0,0,size,size);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = (size*0.72) + 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 6;
-      ctx.lineJoin = 'round';
-      ctx.miterLimit = 2;
-      try { ctx.strokeText(emoji, size/2, size/2+2); } catch(e){}
-      try { ctx.fillText(emoji, size/2, size/2+2); } catch(e){}
-      if (globeMap.addImage) {
-        try { globeMap.addImage(id, canvas, {pixelRatio: 2, sdf: false}); } catch(e){}
-        try {
-          if (!globeMap.hasImage(id)) {
-            var data = ctx.getImageData(0,0,size,size);
-            globeMap.addImage(id, data, {pixelRatio: 2});
-          }
-        } catch(e){}
-      }
-    });
-  })();
+  // Generate raster emoji images tinted with the feature color (outline) so the
+  // legend ramp matches the globe; cached per (markerType, color).
+  function _globeEnsureEmojiImage(mt, color) {
+    var id = 'emoji-' + mt + '-' + String(color).replace('#', '').toLowerCase();
+    if (globeMap.hasImage && globeMap.hasImage(id)) return id;
+    var emoji = _emojiMap[mt];
+    if (!emoji) return id;
+    var size = 64;
+    var canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,size,size);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = (size*0.72) + 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 6;
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
+    try { ctx.strokeText(emoji, size/2, size/2+2); } catch(e){}
+    try { ctx.fillText(emoji, size/2, size/2+2); } catch(e){}
+    if (globeMap.addImage) {
+      try { globeMap.addImage(id, canvas, {pixelRatio: 2, sdf: false}); } catch(e){}
+      try {
+        if (!globeMap.hasImage(id)) {
+          var data = ctx.getImageData(0,0,size,size);
+          globeMap.addImage(id, data, {pixelRatio: 2});
+        }
+      } catch(e){}
+    }
+    return id;
+  }
   geo.features.forEach(function(f) {
     f.properties._type = f.geometry.type;
     var mt = f.properties._manaMarkerType;
     if (mt && _emojiMap[mt]) {
-      f.properties._manaIcon = 'emoji-' + mt;
+      var mc = f.properties._manaColor;
+      var outline = (typeof mc === 'string' && /^#[0-9a-f]{3,8}$/i.test(mc)) ? mc : '#ffffff';
+      f.properties._manaIcon = _globeEnsureEmojiImage(mt, outline);
       f.properties._manaEmoji = _emojiMap[mt];
       var sz = f.properties._manaEmojiSize;
       if (!sz) {

@@ -774,11 +774,11 @@
               var emojiSize = (7 * unit).toFixed(2);
               var glow = (dark && darkGlowId) ? ' filter="url(#' + darkGlowId + ')"' : '';
               if (!dark) {
-                // White "sticker" wrap around the icon, with a soft translucent
-                // halo. No delimiting ring.
+                // Colored ring matches the legend ramp (feature color); a white
+                // sticker keeps the emoji readable on top.
                 points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.9 * unit).toFixed(2) +
-                  '" fill="#ffffff" fill-opacity="0.45"/>' +
-                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.1 * unit).toFixed(2) +
+                  '" fill="' + stroke + '" fill-opacity="0.9"/>' +
+                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.0 * unit).toFixed(2) +
                   '" fill="#ffffff"/>';
               }
               points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '"' + glow + '>' + emojiChar + '</text>';
