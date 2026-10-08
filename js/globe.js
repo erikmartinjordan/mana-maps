@@ -186,14 +186,19 @@ function syncToGlobe() {
     canvas.width = size; canvas.height = size;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,size,size);
+    // "Sticker" with a colored ring (legend ramp color) and a white inner disc so
+    // the emoji stays readable.
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size*0.47, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size*0.37, 0, Math.PI*2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = (size*0.72) + 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 6;
-    ctx.lineJoin = 'round';
-    ctx.miterLimit = 2;
-    try { ctx.strokeText(emoji, size/2, size/2+2); } catch(e){}
     try { ctx.fillText(emoji, size/2, size/2+2); } catch(e){}
     if (globeMap.addImage) {
       try { globeMap.addImage(id, canvas, {pixelRatio: 2, sdf: false}); } catch(e){}
