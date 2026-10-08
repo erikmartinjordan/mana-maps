@@ -202,19 +202,28 @@
     if (gl.hasImage && gl.hasImage(id)) return id;
     var emoji = _emojiMap[mt];
     if (!emoji) return id;
-    var size = 64;
+    var size = 72;
+    var cssFont = 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
+    var cx = size / 2, cy = size / 2 + 2;
+    // Die-cut sticker: the emoji silhouette (a bit larger) tinted with the legend
+    // color, with the emoji itself drawn on top.
+    var off = document.createElement('canvas');
+    off.width = size; off.height = size;
+    var octx = off.getContext('2d');
+    octx.textAlign = 'center'; octx.textBaseline = 'middle';
+    octx.font = (size * 0.78) + cssFont;
+    try { octx.fillText(emoji, cx, cy); } catch (e) {}
+    octx.globalCompositeOperation = 'source-in';
+    octx.fillStyle = color;
+    octx.fillRect(0, 0, size, size);
+
     var canvas = document.createElement('canvas');
     canvas.width = size; canvas.height = size;
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, size, size);
-    // Full "sticker" disc in the legend ramp color; the emoji sits on top.
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size * 0.47, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
+    ctx.drawImage(off, 0, 0);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = (size * 0.72) + 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
-    try { ctx.fillText(emoji, size / 2, size / 2 + 2); } catch (e) {}
+    ctx.font = (size * 0.64) + cssFont;
+    try { ctx.fillText(emoji, cx, cy); } catch (e) {}
     if (gl.addImage) {
       try { gl.addImage(id, canvas, { pixelRatio: 2, sdf: false }); } catch (e) {}
       try {
