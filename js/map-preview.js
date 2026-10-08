@@ -107,7 +107,7 @@
     emoji_cocktail:'🍹', emoji_sushi:'🍣', emoji_icecream:'🍦', emoji_tree:'🌲',
     emoji_mountain:'🏔️', emoji_beach:'🏖️', emoji_camping:'⛺', emoji_water:'🌊',
     emoji_flower:'🌸', emoji_sun:'☀️', emoji_moon:'🌙', emoji_star:'⭐',
-    emoji_fire:'🔥', emoji_heart:'❤️', emoji_diamond:'💎', emoji_car:'🚗',
+    emoji_fire:'🔥', emoji_collision:'💥', emoji_heart:'❤️', emoji_diamond:'💎', emoji_car:'🚗',
     emoji_bus:'🚌', emoji_train:'🚂', emoji_plane:'✈️', emoji_ship:'🚢',
     emoji_bike:'🚲', emoji_walk:'🚶', emoji_parking:'🅿️', emoji_fuel:'⛽',
     emoji_camera:'📷', emoji_music:'🎵', emoji_soccer:'⚽', emoji_trophy:'🏆',

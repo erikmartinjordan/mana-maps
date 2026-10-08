@@ -11,10 +11,9 @@
   var SRC = 'mana-dp';
   var LAYER_CIRCLE = 'mana-dp-circle';
   var LAYER_EMOJI = 'mana-dp-emoji';
-  var LAYER_LABEL = 'mana-dp-label';
 
   var _emojiMap = {
-    emoji_fire:'\uD83D\uDD25', emoji_water:'\uD83C\uDF0A', emoji_star:'\u2B50', emoji_heart:'\u2764\uFE0F', emoji_diamond:'\uD83D\uDC8E',
+    emoji_fire:'\uD83D\uDD25', emoji_collision:'\uD83D\uDCA5', emoji_water:'\uD83C\uDF0A', emoji_star:'\u2B50', emoji_heart:'\u2764\uFE0F', emoji_diamond:'\uD83D\uDC8E',
     emoji_home:'\uD83C\uDFE0', emoji_building:'\uD83C\uDFE2', emoji_tree:'\uD83C\uDF32', emoji_mountain:'\uD83C\uDFD4\uFE0F', emoji_beach:'\uD83C\uDFD6\uFE0F',
     emoji_camping:'\u26FA', emoji_flower:'\uD83C\uDF38', emoji_sun:'\u2600\uFE0F', emoji_moon:'\uD83C\uDF19', emoji_car:'\uD83D\uDE97', emoji_bus:'\uD83D\uDE8C',
     emoji_train:'\uD83D\uDE82', emoji_plane:'\u2708\uFE0F', emoji_ship:'\uD83D\uDEA2', emoji_bike:'\uD83D\uDEB2', emoji_walk:'\uD83D\uDEB6', emoji_parking:'\uD83C\uDD7F\uFE0F',
@@ -163,26 +162,6 @@
       },
     });
 
-    gl.addLayer({
-      id: LAYER_LABEL,
-      type: 'symbol',
-      source: SRC,
-      layout: {
-        'text-field': ['get', 'name'],
-        'text-size': 11,
-        'text-offset': [0, 1.8],
-        'text-anchor': 'top',
-        'text-font': ['Open Sans Regular', 'Noto Sans Regular', 'Arial Unicode MS Regular'],
-        'text-allow-overlap': true,
-        'text-ignore-placement': true,
-      },
-      paint: {
-        'text-color': '#30363b',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 1.5,
-      },
-    });
-
     _hideAll();
     _sync();
   }
@@ -196,7 +175,6 @@
 
   function _removeLayers(gl) {
     if (!gl) return;
-    try { if (gl.getLayer(LAYER_LABEL)) gl.removeLayer(LAYER_LABEL); } catch (e) {}
     try { if (gl.getLayer(LAYER_EMOJI)) gl.removeLayer(LAYER_EMOJI); } catch (e) {}
     try { if (gl.getLayer(LAYER_CIRCLE)) gl.removeLayer(LAYER_CIRCLE); } catch (e) {}
     try { if (gl.getSource(SRC)) gl.removeSource(SRC); } catch (e) {}

@@ -199,6 +199,7 @@ var MK = [
   { id:'emoji_moon',        cat:'emoji', es:'Luna 🌙',         en:'Moon 🌙',                 e:'🌙',  emoji:true },
   { id:'emoji_star',        cat:'emoji', es:'Estrella ⭐',      en:'Star ⭐',                 e:'⭐',   emoji:true },
   { id:'emoji_fire',        cat:'emoji', es:'Fuego 🔥',        en:'Fire 🔥',                 e:'🔥',  emoji:true },
+  { id:'emoji_collision',   cat:'emoji', es:'Impacto 💥',      en:'Impact 💥',               e:'💥',  emoji:true },
   { id:'emoji_heart',       cat:'emoji', es:'Corazón ❤️',       en:'Heart ❤️',               e:'❤️',   emoji:true },
   { id:'emoji_diamond',     cat:'emoji', es:'Diamante 💎',      en:'Diamond 💎',              e:'💎',  emoji:true },
   { id:'emoji_car',         cat:'emoji', es:'Coche 🚗',        en:'Car 🚗',                  e:'🚗',  emoji:true },

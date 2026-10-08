@@ -721,7 +721,7 @@ function loadMarkerCatalogIds() {
   // Fallback mínimo (shapes + emojis habituales del catálogo)
   return new Set([
     'pin', 'circle', 'square', 'diamond', 'triangle', 'star', 'hexagon', 'cross', 'drop', 'flag', 'bolt', 'heart',
-    'emoji_pin', 'emoji_star', 'emoji_heart', 'emoji_mountain', 'emoji_fire', 'emoji_water', 'emoji_library',
+    'emoji_pin', 'emoji_star', 'emoji_heart', 'emoji_mountain', 'emoji_fire', 'emoji_collision', 'emoji_water', 'emoji_library',
     'emoji_sun', 'emoji_tree', 'emoji_beach', 'emoji_warning', 'emoji_info', 'emoji_home',
   ]);
 }
