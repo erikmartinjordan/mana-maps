@@ -2,7 +2,7 @@
 // ── publish-biggest-earthquakes-world.js ─
 // Mapa puntual: Los terremotos más potentes de la historia
 // Fuente: USGS Earthquake Hazards Program — catálogo ComCat/FDSN (M≥8 desde 1700)
-// Point + emoji_warning escalado por magnitud; rampa mono roja por magnitud
+// Point + emoji_collision escalado por magnitud; rampa mono roja por magnitud
 // Publica el documento maps/<slug> en Firestore (mana-maps-pro-f2177).
 'use strict';
 const fs = require('fs'), path = require('path');
@@ -12,7 +12,7 @@ const SLUG = 'biggest-earthquakes-world';
 const TITLE = 'Los terremotos más potentes de la historia';
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const PREVIEW_EMOJI = { emoji_warning: '\u26A0\uFE0F' };
+const PREVIEW_EMOJI = { emoji_collision: '\uD83D\uDCA5' };
 
 function buildMapPreview(geo) {
   let bbox = [180, 90, -180, -90];
@@ -52,12 +52,12 @@ async function main() {
   });
   const names = new Set(geo.features.map(f => f.properties._manaName));
   const withData = geo.features.filter(f => f.properties['Magnitud'] != null && f.properties['Año'] != null).length;
-  const markerOk = geo.features.every(f => f.properties.markerType === 'emoji_warning' && f.properties._manaMarkerType === 'emoji_warning');
+  const markerOk = geo.features.every(f => f.properties.markerType === 'emoji_collision' && f.properties._manaMarkerType === 'emoji_collision');
   const scaleOk = geo.features.every(f => Number.isFinite(f.properties._manaEmojiSize));
   const geojsonText = JSON.stringify(geo);
   console.log(`features: ${geo.features.length} | with data: ${withData} | KB: ${(geojsonText.length / 1024).toFixed(1)}`);
   console.log(`hex: ${hexOk} | halo: ${haloOk} | coords: ${coordsOk} | uniqueNames: ${names.size === geo.features.length}`);
-  console.log(`marker emoji_warning: ${markerOk} | escala por magnitud: ${scaleOk}`);
+  console.log(`marker emoji_collision: ${markerOk} | escala por magnitud: ${scaleOk}`);
   if (!hexOk || !haloOk || !coordsOk || names.size !== geo.features.length || !markerOk || !scaleOk) {
     console.error('VALIDATION FAILED'); process.exit(1);
   }

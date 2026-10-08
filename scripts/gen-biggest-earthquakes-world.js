@@ -2,7 +2,7 @@
 // ── gen-biggest-earthquakes-world.js ─
 // Genera data/biggest-earthquakes-world.geojson a partir del catálogo FDSN
 // del USGS Earthquake Hazards Program (ComCat): todos los eventos M≥8 desde
-// 1700. Una feature Point por epicentro real, markerType emoji_warning,
+// 1700. Una feature Point por epicentro real, markerType emoji_collision,
 // icono escalado por magnitud (_manaEmojiSize) y rampa monocromática roja
 // ordenada por la magnitud (AGENTS.md §3).
 //
@@ -177,7 +177,7 @@ const NOTE_BY_EID = {
 
 const GROUP_NAME = 'Terremotos de magnitud ≥ 8';
 const GROUP_ID = 1;
-const MARKER_TYPE = 'emoji_warning';
+const MARKER_TYPE = 'emoji_collision';
 const DATA_SOURCE =
   'USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700.';
 const DATA_DATE = '2026-10-06';
