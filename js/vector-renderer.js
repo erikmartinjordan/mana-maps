@@ -207,15 +207,10 @@
     canvas.width = size; canvas.height = size;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, size, size);
-    // "Sticker" with a colored ring (legend ramp color) and a white inner disc so
-    // the emoji stays readable.
+    // Full "sticker" disc in the legend ramp color; the emoji sits on top.
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, size * 0.47, 0, Math.PI * 2);
     ctx.fillStyle = color;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size * 0.37, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
     ctx.fill();
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.font = (size * 0.72) + 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
