@@ -21,7 +21,7 @@
     "agentTimeoutMinutes": 30,
     "ideationTimeoutMinutes": 20
   },
-  "model": "opencode-go/mimo-v2.5",
+  "model": "opencode-go/mimo-v2.6",
   "maps": {
     "minIntervalHours": 3
   },

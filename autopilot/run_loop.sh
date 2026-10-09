@@ -256,8 +256,8 @@ get_free_mb() {
 validate_config() {
   local model=$(get_cfg '.model' '')
   if [ -z "$model" ] || [ "$model" = "undefined" ] || [ "$model" = "null" ]; then
-    log "WARN: config.json model vacío, se usará fallback opencode-go/mimo-v2.5"
-    MODEL_OPT="--model opencode-go/mimo-v2.5"
+    log "WARN: config.json model vacío, se usará fallback opencode-go/mimo-v2.6"
+    MODEL_OPT="--model opencode-go/mimo-v2.6"
   fi
 }
 

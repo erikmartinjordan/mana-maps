@@ -46,7 +46,7 @@ OUT=$("$DOCKER" run --rm \
   -e HOME=/home/erik \
   -e GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /home/erik/.ssh/id_ed25519" \
   plan7-opencode \
-  opencode run --agent chat --auto --model opencode-go/mimo-v2.5 --print-logs=false "$PROMPT" 2>/dev/null)
+  opencode run --agent chat --auto --model opencode-go/mimo-v2.6 --print-logs=false "$PROMPT" 2>/dev/null)
 
 RC=$?
 CLEAN=$(printf '%s' "$OUT" | sed -E 's/\x1b\[[0-9;]*m//g' | sed -E 's/^\s+|\s+$//g')

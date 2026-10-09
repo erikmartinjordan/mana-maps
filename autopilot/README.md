@@ -5,7 +5,7 @@ Esta carpeta es una **réplica exacta** de `~/autopilot` del iMac `iMac de Erik`
 ## Arquitectura
 
 - **Trigger:** `launchd` cada 6h (`launcher/com.erik.autopilot.loop.plist` → `StartInterval 21600`) + `run_loop.sh` que lee `BACKLOG.md` del repo `mana-maps`.
-- **Ejecución:** `run_loop.sh` lanza `opencode run --agent autopilot --auto --model opencode-go/mimo-v2.5 "Procesa la siguiente tarea del BACKLOG.md"` vía Docker `plan7-opencode` (`docker/Dockerfile`).
+- **Ejecución:** `run_loop.sh` lanza `opencode run --agent autopilot --auto --model opencode-go/mimo-v2.6 "Procesa la siguiente tarea del BACKLOG.md"` vía Docker `plan7-opencode` (`docker/Dockerfile`).
 - **Agentes:**
   - `agents/autopilot.md` — implementa la primera tarea `- [ ]` del BACKLOG, crea rama `autopilot/AAAAMMDD-slug`, ejecuta tests, commitea y pushea.
   - `agents/reviewer.md` — subagente que revisa `git diff` sin modificar.
