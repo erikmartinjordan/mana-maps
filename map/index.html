@@ -423,12 +423,21 @@ try {
     <div id="globe"></div>
     <div class="globe-atmosphere" id="globe-atmo"></div>
     <div id="globe-hand" aria-hidden="true"></div>
-    <div id="globe-controls">
-      <button onclick="globeZoomIn()" title="Acercar">+</button>
-      <button onclick="globeZoomOut()" title="Alejar">&#8722;</button>
-      <button onclick="toggleSpin()" id="btn-spin" title="Auto-rotaci&#243;n">&#8635;</button>
+    <div id="globe-controls" role="group" data-i18n-aria-label="ctl_group">
+      <button type="button" class="gc-btn" id="btn-north" onclick="resetGlobeNorth()" title="Reset north" data-i18n-title="ctl_north">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 15.9 12 12 10.1 8.1 12 12 2.6Z"/><line x1="12" y1="10.1" x2="12" y2="21.4"/></svg>
+      </button>
+      <button type="button" class="gc-btn" id="btn-zoom-in" onclick="globeZoomIn()" title="Zoom in" data-i18n-title="ctl_zoom_in">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5.5" x2="12" y2="18.5"/><line x1="5.5" y1="12" x2="18.5" y2="12"/></svg>
+      </button>
+      <button type="button" class="gc-btn" id="btn-zoom-out" onclick="globeZoomOut()" title="Zoom out" data-i18n-title="ctl_zoom_out">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5.5" y1="12" x2="18.5" y2="12"/></svg>
+      </button>
+      <button type="button" class="gc-btn" id="btn-spin" onclick="toggleSpin()" title="Auto-rotate" data-i18n-title="ctl_autorotate">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 12a8.4 8.4 0 1 1-2.46-5.94"/><polyline points="20.4 3.6 20.4 8.4 15.6 8.4"/></svg>
+      </button>
     </div>
-    <div id="globe-spin-indicator">&#8635; Auto-rotaci&#243;n activa</div>
+    <div id="globe-spin-indicator">&#8635; <span data-i18n="ctl_autorotate_on">Auto-rotation on</span></div>
     <div id="draw-hint" data-i18n="hint_draw_generic">Haz clic en el mapa para dibujar</div>
     <div id="ruler-tooltip"></div>
     <div id="basemap-stack" role="group" aria-label="Mapa base" data-i18n-aria-label="panel_basemap_title"></div>

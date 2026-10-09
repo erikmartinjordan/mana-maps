@@ -263,21 +263,25 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .globe-atmosphere{pointer-events:none;position:absolute;inset:0;z-index:2;
   background:radial-gradient(ellipse at center,transparent 55%,color-mix(in srgb,var(--map-bg) 55%,transparent) 100%);
   display:none;}
-/* Kept above the basemap stack so they never overlap. */
-#globe-controls{display:none;position:absolute;bottom:calc(160px + env(safe-area-inset-bottom));right:12px;z-index:10;
-  flex-direction:column;gap:6px;}
-#globe-controls button{width:34px;height:34px;border-radius:8px;border:0.5px solid var(--border);
-  background:color-mix(in srgb, var(--surface) 92%, transparent);backdrop-filter:blur(6px);cursor:pointer;
-  display:grid;place-items:center;box-shadow:var(--shadow);transition:background .15s,color .15s;
-  color:var(--primary);font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;}
-#globe-controls button:hover{background:var(--surface);color:var(--blue);border-color:var(--border-hover);}
-#globe-controls button:active{transform:scale(.98);}
-#globe-controls button:focus-visible{
-  outline:2px solid color-mix(in srgb, var(--blue) 45%, transparent);
-  outline-offset:1px;
-}
+/* ── MAP CONTROLS (globe): top-left, clear of the basemap selector ── */
+#globe-controls{display:none;position:absolute;top:12px;left:12px;z-index:10;
+  flex-direction:column;gap:8px;}
+#globe-controls button.gc-btn{width:38px;height:38px;padding:0;border-radius:11px;border:0.5px solid var(--border);
+  background:color-mix(in srgb, var(--surface) 84%, transparent);backdrop-filter:blur(10px);cursor:pointer;
+  display:grid;place-items:center;box-shadow:var(--shadow);
+  transition:background .15s,color .15s,border-color .15s,transform .1s;
+  color:var(--primary);}
+#globe-controls button.gc-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;}
+#globe-controls button.gc-btn:hover{background:var(--surface);color:var(--blue);border-color:var(--border-hover);}
+#globe-controls button.gc-btn:active{transform:scale(.95);}
+#globe-controls button.gc-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+#globe-controls button.gc-btn.active:hover{background:var(--blue);color:#fff;}
+#globe-controls button.gc-btn:focus-visible{
+  outline:2px solid color-mix(in srgb, var(--blue) 45%, transparent);outline-offset:1px;}
+#globe-controls #btn-north svg{transition:transform .25s ease;}
 #globe-spin-indicator{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);
-  z-index:10;background:var(--blue);color:#fff;padding:7px 18px;
+  z-index:10;background:var(--blue);color:#fff;padding:7px 16px;
   border-radius:50px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
   box-shadow:var(--shadow);backdrop-filter:blur(6px);}
 
@@ -769,7 +773,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .drop-menu{min-width:150px;}
 
   /* ── Globe controls ── */
-  #globe-controls{bottom:calc(172px + env(safe-area-inset-bottom));right:8px;}
+  #globe-controls{top:8px;left:8px;}
 
   /* ── Basemap selector ── */
   #basemap-stack{right:8px;bottom:calc(114px + env(safe-area-inset-bottom));}

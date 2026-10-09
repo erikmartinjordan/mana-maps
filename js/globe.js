@@ -52,17 +52,16 @@ function initGlobe() {
       attributionControl: false
     });
 
-    globeMap.addControl(new maplibregl.NavigationControl({
-      showCompass: true, showZoom: false
-    }), 'top-left');
-
     globeMap.on('load', function() {
       globeMap.resize();
       try { globeMap.setProjection({type: 'globe'}); } catch(e) { console.warn('setProjection:', e); }
       applyGlobeSky();
       syncToGlobe();
+      updateCompassIcon();
       if (typeof initGlobeHand === 'function') initGlobeHand();
     });
+
+    globeMap.on('rotate', updateCompassIcon);
 
     setTimeout(function() { if (globeMap) globeMap.resize(); }, 300);
     setGlobeAttributionSignature();
@@ -334,12 +333,23 @@ function syncToGlobe() {
 function globeZoomIn() { if (globeMap) globeMap.zoomIn(); }
 function globeZoomOut() { if (globeMap) globeMap.zoomOut(); }
 
+// Orientar al norte (compass del cluster de controles): rumbo y pitch a 0.
+function resetGlobeNorth() {
+  if (globeMap) globeMap.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+}
+
+// Gira el icono del compass para reflejar el rumbo actual.
+function updateCompassIcon() {
+  var svg = document.querySelector('#btn-north svg');
+  if (svg && globeMap) svg.style.transform = 'rotate(' + (-globeMap.getBearing()) + 'deg)';
+}
+
 function toggleSpin() {
   spinActive = !spinActive;
   var btn = document.getElementById('btn-spin');
-  btn.style.background = spinActive ? 'var(--blue)' : '';
-  btn.style.color = spinActive ? 'white' : '';
-  document.getElementById('globe-spin-indicator').style.display = spinActive ? 'block' : 'none';
+  if (btn) btn.classList.toggle('active', spinActive);
+  var ind = document.getElementById('globe-spin-indicator');
+  if (ind) ind.style.display = spinActive ? 'inline-flex' : 'none';
   if (spinActive) spinGlobe();
   else if (spinRAF) { cancelAnimationFrame(spinRAF); spinRAF = null; }
 }

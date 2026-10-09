@@ -86,6 +86,13 @@ const I18N = {
     basemap_map: "Mapa",
     basemap_satellite: "Satélite",
     basemap_globe: "Globo 3D",
+    // ── Controles del mapa ──
+    ctl_group: "Controles del mapa",
+    ctl_north: "Orientar al norte",
+    ctl_zoom_in: "Acercar",
+    ctl_zoom_out: "Alejar",
+    ctl_autorotate: "Auto-rotación",
+    ctl_autorotate_on: "Auto-rotación activa",
     // ── Chat ──
     chat_title: "Maña AI",
     chat_subtitle: "Escribe en lenguaje natural",
@@ -627,6 +634,13 @@ const I18N = {
     basemap_map: "Map",
     basemap_satellite: "Satellite",
     basemap_globe: "3D Globe",
+    // ── Map controls ──
+    ctl_group: "Map controls",
+    ctl_north: "Reset north",
+    ctl_zoom_in: "Zoom in",
+    ctl_zoom_out: "Zoom out",
+    ctl_autorotate: "Auto-rotate",
+    ctl_autorotate_on: "Auto-rotation on",
     // ── Chat ──
     chat_title: "Maña AI",
     chat_subtitle: "Type in natural language",
