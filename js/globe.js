@@ -61,6 +61,7 @@ function initGlobe() {
       try { globeMap.setProjection({type: 'globe'}); } catch(e) { console.warn('setProjection:', e); }
       applyGlobeSky();
       syncToGlobe();
+      if (typeof initGlobeHand === 'function') initGlobeHand();
     });
 
     setTimeout(function() { if (globeMap) globeMap.resize(); }, 300);

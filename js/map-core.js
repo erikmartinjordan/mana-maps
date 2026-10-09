@@ -1016,6 +1016,7 @@ function setBaseLayer(type) {
       globeAtmo.style.display = 'none';
       globeCtrl.style.display = 'none';
       if (spinActive) toggleSpin();
+      if (typeof hideGlobeHand === 'function') hideGlobeHand();
       document.getElementById('globe-spin-indicator').style.display = 'none';
       mapEl.style.display = 'block';
       document.getElementById('map-bottom-bar').style.display = 'flex';
