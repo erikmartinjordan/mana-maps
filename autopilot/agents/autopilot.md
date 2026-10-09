@@ -62,6 +62,22 @@ ESTILO DE CONTENIDO (galeria):
   Mundial por País"; "Alfabetizacion mundial por pais", no "Alfabetizacion
   Mundial por País".
 
+MAPAS DE PUNTOS CON EMOJIS (obligatorio cuando la tarea lo pida):
+- Lee AGENTS.md (seccion «Mapas puntuales con iconos (emojis)»): es el contrato.
+- Si la tarea del BACKLOG pide un mapa puntual, o si toca crear un mapa nuevo y
+  los ultimos 2-3 publicados son coropletas, construye SIEMPRE features `Point`
+  con emoji. Nunca un poligono para una entidad puntual, ni un punto para un area.
+- Esquema OBLIGATORIO por feature:
+  - geometry {"type":"Point","coordinates":[lng,lat]}; una feature por lugar real.
+  - `name` y `_manaName`; `_manaColor` (hex); `_manaGroupName`; `_manaGroupId`.
+  - `markerType` y `_manaMarkerType`: id de emoji VALIDO del catalogo
+    (js/markers.js, replicado en js/vector-renderer.js y js/globe.js). Si no
+    existe en los tres, el icono NO se pinta.
+  - `_manaEmojiSize` (22-66) o una clave `Area` para escalar por el dato.
+  - `_manaLabelStyle` completo (enabled:true, field:_manaName, haloWidth>=2).
+  - Popup con datos concretos (Dato/Description + la clave numerica real).
+- Valida coords ±180/±90, `featureCount` coherente y sin `_manaName` duplicados.
+
 REGLAS DE PUBLICACION EN FIRESTORE (CRITICO):
 - Los mapas de la galeria se publican DESDE Firestore. Un mapa nuevo o
   modificado (data/gallery-*.js) SOLO es valido si se publica en Firestore.
