@@ -1644,6 +1644,20 @@ map.addControl(new ManaLocateControl());
 
   initLeftHandle();
   initRightHandle();
+
+  // El grid cambia de ancho al abrir/cerrar/arrastrar el chat; si el mapa no se
+  // redimensiona al instante queda un hueco gris en el borde. ResizeObserver se
+  // encarga siempre, sin depender de los timeouts de las transiciones.
+  var wrapEl = document.getElementById('map-wrap');
+  if (wrapEl && window.ResizeObserver) {
+    var roPending = false;
+    var ro = new ResizeObserver(function () {
+      if (roPending) return;
+      roPending = true;
+      requestAnimationFrame(function () { roPending = false; forceMapRepaint(); });
+    });
+    ro.observe(wrapEl);
+  }
 })();
 
 // ── STATS & LAYER LIST ──
