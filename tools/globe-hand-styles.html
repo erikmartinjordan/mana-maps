@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Banco de estilos · Mano girando el balón · Maña Maps</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+  body{background:#f8f9fa;color:#1a1a1a}
+  body[data-theme="dark"]{background:#0d1117;color:#e6edf3}
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;
+    color:#0369a1;background:#f0f9ff;border:1px solid rgba(14,165,233,.25);border-radius:999px;padding:6px 12px}
+  body[data-theme="dark"] .eyebrow{background:rgba(14,165,233,.12);color:#7dd3fc}
+  h1{font-size:34px;letter-spacing:-.8px;margin:14px 0 8px}
+  .lede{max-width:760px;color:#374151;line-height:1.55}
+  body[data-theme="dark"] .lede{color:#9fb0c3}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 20px}
+  .toolbar a,.toolbar button,.toolbar label{font:inherit;font-size:13px;font-weight:700}
+  .toolbar a{color:#0369a1;text-decoration:none}
+  .toolbar a:hover{text-decoration:underline}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #e5e7eb;background:#fff;
+    border-radius:999px;padding:8px 14px;cursor:pointer;color:#1a1a1a}
+  body[data-theme="dark"] .pill{background:#161b22;border-color:#30363d;color:#e6edf3}
+  .pill input{accent-color:#0ea5e9}
+  .status{margin-left:auto;font-size:13px;color:#374151}
+  body[data-theme="dark"] .status{color:#9fb0c3}
+  .status strong{color:#0369a1}
+  body[data-theme="dark"] .status strong{color:#7dd3fc}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .card{border:1px solid #e5e7eb;border-radius:18px;background:#fff;overflow:hidden;cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+    padding:0;text-align:left;color:inherit;font:inherit;width:100%}
+  body[data-theme="dark"] .card{background:#161b22;border-color:#30363d}
+  .card:hover{transform:translateY(-3px)}
+  .card:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
+  .card[aria-pressed="true"]{border-color:#0ea5e9;box-shadow:0 10px 28px rgba(14,165,233,.22)}
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px 0}
+  .num{font-family:'DM Mono',ui-monospace,monospace;font-size:12px;font-weight:700;color:#0369a1;
+    background:#f0f9ff;border:1px solid rgba(14,165,233,.25);border-radius:999px;padding:4px 10px}
+  body[data-theme="dark"] .num{background:rgba(14,165,233,.12);color:#7dd3fc}
+  .tags{font-size:11px;color:#9ca3af;text-align:right}
+  .stage{display:block;position:relative;height:274px;margin:10px 12px 0;border-radius:14px;overflow:hidden;
+    --sf:#f4f8fd;
+    background:radial-gradient(circle at 50% 34%,#eef4fb,#dbe7f5 72%)}
+  body[data-theme="dark"] .stage{--sf:#0b1220;background:radial-gradient(circle at 50% 34%,#243b55,#0b1220 72%)}
+  .stage .scene{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+  .rig{transform-box:view-box;transform-origin:160px 400px}
+  .seams{transform-box:view-box;transform-origin:160px 92px}
+  .gallery[data-animate="true"] .seams{animation:ball-spin 1.7s linear infinite}
+  .gallery[data-animate="true"] .rig{animation:rig-bob 3s ease-in-out infinite}
+  @keyframes ball-spin{to{transform:rotate(360deg)}}
+  @keyframes rig-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .meta{display:block;padding:12px 14px 14px}
+  .name{display:block;font-size:15px;font-weight:700;margin:0 0 4px;letter-spacing:-.2px}
+  .desc{display:block;margin:0;font-size:12.5px;line-height:1.45;color:#6b7280}
+  body[data-theme="dark"] .desc{color:#9fb0c3}
+  .note{margin-top:22px;font-size:13px;color:#6b7280}
+  body[data-theme="dark"] .note{color:#9fb0c3}
+  @media (prefers-reduced-motion:reduce){.gallery[data-animate="true"] .seams,.gallery[data-animate="true"] .rig{animation:none}}
+</style>
+</head>
+<body data-theme="light">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="stSkin" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c47a4b"/><stop offset=".3" stop-color="#ffd9b8"/>
+      <stop offset=".58" stop-color="#f0ad7e"/><stop offset="1" stop-color="#a75f39"/>
+    </linearGradient>
+    <radialGradient id="stBallO" cx="35%" cy="28%" r="80%">
+      <stop offset="0" stop-color="#ffab5e"/><stop offset=".55" stop-color="#f2762b"/><stop offset="1" stop-color="#c14e12"/>
+    </radialGradient>
+    <linearGradient id="stMetal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5b6675"/><stop offset=".34" stop-color="#f2f6fb"/>
+      <stop offset=".55" stop-color="#aeb9c8"/><stop offset="1" stop-color="#30363b"/>
+    </linearGradient>
+    <linearGradient id="stWood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0b583"/><stop offset=".55" stop-color="#c98d54"/><stop offset="1" stop-color="#a56a37"/>
+    </linearGradient>
+    <linearGradient id="stHolo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity=".28"/><stop offset="1" stop-color="#0ea5e9" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="stWash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbcf9d" stop-opacity=".9"/><stop offset="1" stop-color="#eba36a" stop-opacity=".75"/>
+    </linearGradient>
+    <linearGradient id="stBlueSleeve" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#0369a1"/>
+    </linearGradient>
+    <pattern id="stDots" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.7" fill="#1a1a1a" opacity=".35"/>
+    </pattern>
+    <pattern id="stDotsW" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.7" fill="#ffffff" opacity=".4"/>
+    </pattern>
+    <pattern id="stScan" width="8" height="6" patternUnits="userSpaceOnUse">
+      <rect x="0" y="2" width="8" height="1.6" fill="#7dd3fc" opacity=".5"/>
+    </pattern>
+    <filter id="stSoft"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="stRough"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter>
+    <filter id="stGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <span class="eyebrow">Maña Maps · bocetos rápidos</span>
+  <h1>20 estilos: mano girando el balón sobre el dedo</h1>
+  <p class="lede">Cada boceto muestra la misma pose —índice arriba, balón de baloncesto girando sobre la yema— pintada en un estilo distinto. Elige hasta tres favoritas y dime sus números; después desarrollaré la ganadora con animación completa dentro de la app.</p>
+  <div class="toolbar">
+    <a href="/tools/globe-hand-lab.html?sim=5&amp;hand=1">Volver a la simulación</a>
+    <label class="pill"><input type="checkbox" id="animate" checked> Animar</label>
+    <button class="pill" id="theme" type="button">Fondo: claro</button>
+    <span class="status">Seleccionadas: <strong id="chosen">ninguna</strong></span>
+  </div>
+  <div class="grid gallery" id="gallery" data-animate="true"></div>
+  <p class="note">Consejo: pulsa una tarjeta para marcarla. Responde, por ejemplo, con “me quedo con la 5, la 13 y la 18”.</p>
+</div>
+
+<script>
+(function () {
+  // Geometría base compartida (viewBox 320×400): brazo, índice, puño, pulgar.
+  var ARM  = 'M128,406 V364 C128,350 139,340 153,340 H177 C191,340 194,350 194,364 V406 Z';
+  var FP   = 'M146,300 V198 C146,178 151,168 160,168 C169,168 174,178 174,198 V300 Z';
+  var FIST = 'M110,290 C110,264 126,250 148,248 C158,244 168,244 176,248 C184,236 198,236 206,247 C214,240 226,244 230,256 C238,262 240,274 238,288 L238,326 C236,346 222,358 200,358 H136 C120,358 110,348 110,332 Z';
+  var THUMB= 'M118,304 C104,310 100,326 108,340 C117,354 136,359 156,353 L184,344 C193,340 193,329 184,326 L154,332 C140,335 129,331 125,321 Z';
+  var CR1  = 'M198,252 C199,272 195,286 187,296';
+  var CR2  = 'M226,262 C229,282 225,298 216,308';
+  var SHADOW = '<ellipse cx="160" cy="166" rx="22" ry="7" fill="#000" opacity=".25"/>';
+
+  var STYLES = [
+    { name:'Clásico natural', tags:'Piel · balón real',
+      skin:'url(#stSkin)', stroke:'#8a5a33', sw:4,
+      ballFill:'url(#stBallO)', ballSW:4, seam:'#4a2109', seamW:5, hl:.35 },
+
+    { name:'Plano Maña', tags:'Corporativo · plano',
+      skin:'#ffffff', stroke:'#10222e', sw:3.5,
+      ballFill:'#f2762b', ballSW:3.5, seam:'#10222e', seamW:5, hl:.22,
+      extraHand:function(P){ return '<rect x="126" y="370" width="70" height="26" rx="7" fill="#0ea5e9"/>'+
+        '<rect x="126" y="379" width="70" height="7" fill="#ffffff" opacity=".9"/>'; } },
+
+    { name:'Icono de línea', tags:'UI · trazo fino',
+      skin:'var(--sf)', stroke:'#1f2937', sw:4, crease:'#1f2937',
+      ballFill:'var(--sf)', ballSW:4, seam:'#0ea5e9', seamW:4, hl:0 },
+
+    { name:'Píxel arcade', tags:'Retro · bloques',
+      skin:'#f0ad7e', stroke:'none', sw:0, crisp:true, seamCap:'square',
+      ballFill:'#f2762b', ballSW:5, seam:'#1a1a1a', seamW:6, hl:0,
+      extraFinger:function(){ return '<rect x="165" y="172" width="7" height="76" fill="#c47a4b"/>'; },
+      extraHand:function(){ return '<rect x="214" y="256" width="18" height="94" fill="#c47a4b"/>'+
+        '<rect x="118" y="256" width="10" height="94" fill="#ffd9b8"/>'+
+        '<rect x="130" y="346" width="56" height="52" fill="url(#stBlueSleeve)"/>'; },
+      extraBall:function(){ return '<rect x="112" y="42" width="22" height="16" fill="#ffd9a0"/>'+
+        '<rect x="106" y="60" width="12" height="10" fill="#ffd9a0"/>'; } },
+
+    { name:'Holograma', tags:'HUD · translúcido',
+      skin:'url(#stHolo)', stroke:'#38bdf8', sw:3, crease:'#7dd3fc', creaseW:3,
+      ballFill:'rgba(56,189,248,.1)', ballSW:3, seam:'#7dd3fc', seamW:3, hl:.15,
+      handFilter:'url(#stGlow)', seamFilter:'url(#stGlow)', bg:'radial-gradient(circle at 50% 34%,#12324f,#050d16 72%)', sf:'#071018',
+      extraFinger:function(P){ return '<path d="'+P.fp+'" fill="url(#stScan)"/>'; },
+      extraHand:function(P){ return '<path d="'+P.fist+'" fill="url(#stScan)"/>'; },
+      extraBall:function(){ return '<circle cx="160" cy="92" r="88" fill="none" stroke="#7dd3fc" stroke-width="1.5" stroke-dasharray="10 8" opacity=".7"/>'; } },
+
+    { name:'Low-poly', tags:'Facetas · 3D estilizado',
+      skin:'#f3c49e', stroke:'#24313d', sw:2.5,
+      ballFill:'#f2762b', ballSW:3, seam:'#5f2a08', seamW:4, hl:.2,
+      extraHand:function(){ return '<polygon points="134,302 212,268 224,324 140,346" fill="#ddA97c" stroke="#24313d" stroke-width="2.5" stroke-linejoin="round"/>'+
+        '<polygon points="140,346 224,324 222,354 146,356" fill="#c98f60" stroke="#24313d" stroke-width="2.5" stroke-linejoin="round"/>'; },
+      extraBall:function(){ return '<g stroke="#5f2a08" stroke-width="3" stroke-linejoin="round">'+
+        '<polygon points="160,20 232,92 160,92" fill="#ff9a4d"/>'+
+        '<polygon points="232,92 160,164 160,92" fill="#d15a17"/>'+
+        '<polygon points="88,92 160,164 160,92" fill="#e26a1e"/></g>'; } },
+
+    { name:'Mecha', tags:'Robótico · segmentos',
+      skin:'#2a3444', stroke:'#0b1220', sw:3.5, crease:'#7dd3fc', creaseW:2.5,
+      ballFill:'#f2762b', ballSW:4, seam:'#0b1220', seamW:5, hl:.3,
+      extraHand:function(){ return '<path d="M116,306 H234" stroke="#7dd3fc" stroke-width="2" fill="none"/>'+
+        '<circle cx="132" cy="326" r="4" fill="#38bdf8"/><circle cx="216" cy="326" r="4" fill="#38bdf8"/>'+
+        '<rect x="150" y="210" width="20" height="6" fill="#7dd3fc" opacity=".8"/>'; },
+      extraBall:function(){ return '<circle cx="160" cy="92" r="76" fill="none" stroke="#0b1220" stroke-width="10" opacity=".35"/>'; } },
+
+    { name:'Mascota', tags:'Amable · contorno grueso',
+      skin:'#ffffff', stroke:'#1e293b', sw:6, crease:'#1e293b', creaseW:5,
+      ballFill:'url(#stBallO)', ballSW:6, seam:'#1e293b', seamW:5, hl:.55 },
+
+    { name:'Pegatina', tags:'Sticker · borde blanco',
+      sticker:true, skin:'#0ea5e9', stroke:'#0f2c3f', sw:4, crease:'#0f2c3f',
+      ballFill:'#f2762b', ballSW:4, seam:'#0f2c3f', seamW:5, hl:.35 },
+
+    { name:'Tinta', tags:'Pincel · mancha',
+      skin:'#1c1917', stroke:'#1c1917', sw:5, rough:true, noCrease:true,
+      ballFill:'#1c1917', ballSW:0, seam:'#f8fafc', seamW:5, hl:.12 },
+
+    { name:'Cel anime', tags:'Sombras duras · brillo',
+      skin:'#f7c49a', stroke:'#7a4a28', sw:3,
+      ballFill:'#f97316', ballSW:3, seam:'#7c2d12', seamW:5, hl:.7,
+      extraFinger:function(){ return '<rect x="163" y="176" width="9" height="70" fill="#e09a6a"/>'; },
+      extraHand:function(){ return '<polygon points="196,254 230,268 232,324 204,354 188,336 190,282" fill="#e09a6a"/>'; } },
+
+    { name:'Semitono', tags:'Cómic · puntos',
+      skin:'#ffd9b8', stroke:'#1a1a1a', sw:4.5,
+      ballFill:'#ff9147', ballSW:4.5, seam:'#1a1a1a', seamW:5, hl:.4,
+      extraHand:function(P){ return '<path d="'+P.fist+'" fill="url(#stDots)" opacity=".5"/>'; },
+      extraBall:function(){ return '<circle cx="160" cy="92" r="74" fill="url(#stDots)" opacity=".45"/>'; } },
+
+    { name:'Neón', tags:'HUD nocturno',
+      skin:'#0d1726', stroke:'#22d3ee', sw:3.5, crease:'#f0abfc', creaseW:3,
+      ballFill:'#0d1726', ballSW:3.5, seam:'#f0abfc', seamW:4.5, hl:.3,
+      handFilter:'url(#stGlow)', seamFilter:'url(#stGlow)',
+      bg:'radial-gradient(circle at 50% 34%,#152036,#04070d 72%)', sf:'#060a12' },
+
+    { name:'Cromo', tags:'Metal · trofeo',
+      skin:'url(#stMetal)', stroke:'#30363b', sw:3,
+      ballFill:'url(#stBallO)', ballSW:4, seam:'#4a2109', seamW:5, hl:.45 },
+
+    { name:'Juguete de madera', tags:'Madera · grano',
+      skin:'url(#stWood)', stroke:'#7c4a1e', sw:4,
+      ballFill:'#e2762b', ballSW:4, seam:'#7c4a1e', seamW:5, hl:.2,
+      extraHand:function(){ return '<path d="M122,272 C150,266 200,266 228,272" fill="none" stroke="#7c4a1e" stroke-width="2" opacity=".6"/>'+
+        '<path d="M120,330 C150,324 200,324 230,330" fill="none" stroke="#7c4a1e" stroke-width="2" opacity=".6"/>'; } },
+
+    { name:'Origami', tags:'Papel · facetas',
+      skin:'#f8fafc', stroke:'#1e3a5f', sw:2.5,
+      ballFill:'#fff7ed', ballSW:3, seam:'#1e3a5f', seamW:3.5, hl:0,
+      extraHand:function(){ return '<polygon points="134,300 212,266 224,322 140,344" fill="#dbeafe" stroke="#1e3a5f" stroke-width="2.5" stroke-linejoin="round"/>'+
+        '<polygon points="140,344 224,322 222,354 146,356" fill="#bfdbfe" stroke="#1e3a5f" stroke-width="2.5" stroke-linejoin="round"/>'; },
+      extraBall:function(){ return '<g stroke="#1e3a5f" stroke-width="3" stroke-linejoin="round">'+
+        '<polygon points="160,20 232,92 160,92" fill="#fdba74"/>'+
+        '<polygon points="160,20 88,92 160,92" fill="#fed7aa"/>'+
+        '<polygon points="88,92 160,164 160,92" fill="#fdba74"/>'+
+        '<polygon points="232,92 160,164 160,92" fill="#fb923c"/></g>'; } },
+
+    { name:'Plano técnico', tags:'Blueprint · medidas',
+      skin:'var(--sf)', stroke:'#7dd3fc', sw:2.5, crease:'#7dd3fc', creaseW:2,
+      ballFill:'rgba(125,211,252,.06)', ballSW:2.5, seam:'#7dd3fc', seamW:2.5, hl:0,
+      bg:'radial-gradient(circle at 50% 34%,#123a63,#071a30 72%)', sf:'#0a2440',
+      extraHand:function(){ return '<g fill="none" stroke="#7dd3fc" stroke-width="1.4" opacity=".75">'+
+        '<path d="M110,368 H238" stroke-dasharray="6 5"/></g>'; },
+      extraBall:function(){ return '<g fill="none" stroke="#7dd3fc" stroke-width="1.4" opacity=".8">'+
+        '<circle cx="160" cy="92" r="88" stroke-dasharray="8 7"/>'+
+        '<path d="M160,150 V186 M142,168 H178"/></g>'; } },
+
+    { name:'Tiza', tags:'Pizarra · textura',
+      skin:'var(--sf)', stroke:'#f1f5f9', sw:6, rough:true, noCrease:true,
+      ballFill:'var(--sf)', ballSW:6, seam:'#f1f5f9', seamW:5, hl:0, shadowOp:.12,
+      bg:'radial-gradient(circle at 50% 34%,#3b4a5a,#1e2733 72%)', sf:'#28323e' },
+
+    { name:'Acuarela', tags:'Papel · mancha suave',
+      skin:'url(#stWash)', stroke:'#c2410c', sw:3, shadowOp:.15,
+      ballFill:'url(#stBallO)', ballSW:0, seam:'#a03d0c', seamW:4, hl:.5,
+      extraBall:function(){ return '<ellipse cx="204" cy="140" rx="26" ry="16" fill="#fbbf24" opacity=".4" filter="url(#stSoft)"/>'+
+        '<ellipse cx="120" cy="52" rx="22" ry="14" fill="#fde68a" opacity=".45" filter="url(#stSoft)"/>'; } },
+
+    { name:'Póster duotono', tags:'Retro · dos tintas',
+      skin:'#123a63', stroke:'#123a63', sw:3,
+      ballFill:'#f2762b', ballSW:0, seam:'#123a63', seamW:5, hl:0, shadowOp:.12,
+      extraHand:function(P){ return '<path d="'+P.fist+'" fill="url(#stDotsW)" opacity=".35"/>'; },
+      extraBall:function(){ return '<circle cx="160" cy="92" r="76" fill="url(#stDotsW)" opacity=".3"/>'; } }
+  ];
+
+  function scene(s, idx) {
+    var P = { arm:ARM, fp:FP, fist:FIST, thumb:THUMB };
+    var cap = s.seamCap || 'round';
+    var creaseCol = s.crease || s.stroke;
+    var creaseW = s.creaseW || s.sw;
+    var h = '';
+
+    if (s.sticker) {
+      h += '<g fill="#ffffff" stroke="#ffffff" stroke-width="17" stroke-linejoin="round" stroke-linecap="round">' +
+        P.arm + P.fp + P.fist + P.thumb + '</g>';
+    }
+    h += '<g fill="' + s.skin + '"' +
+      (s.stroke !== 'none' ? ' stroke="' + s.stroke + '" stroke-width="' + s.sw + '"' : '') +
+      ' stroke-linejoin="round" stroke-linecap="round"' +
+      (s.handFilter ? ' filter="' + s.handFilter + '"' : '') + '>';
+    h += '<path d="' + P.arm + '"/>';
+    h += '<path d="' + P.fp + '"/>';
+    if (s.extraFinger) h += s.extraFinger(P);
+    h += '<path d="' + P.fist + '"/>';
+    if (!s.noCrease) {
+      h += '<path d="' + CR1 + '" fill="none" stroke="' + creaseCol + '" stroke-width="' + creaseW + '" stroke-linecap="round"/>';
+      h += '<path d="' + CR2 + '" fill="none" stroke="' + creaseCol + '" stroke-width="' + creaseW + '" stroke-linecap="round"/>';
+    }
+    h += '<path d="' + P.thumb + '"/>';
+    if (s.extraHand) h += s.extraHand(P);
+    h += '</g>';
+
+    var b = '';
+    if (s.sticker) b += '<circle cx="160" cy="92" r="76" fill="#ffffff" stroke="#ffffff" stroke-width="17"/>';
+    b += '<circle cx="160" cy="92" r="76" fill="' + s.ballFill + '"' +
+      (s.ballSW ? ' stroke="' + (s.sticker ? '#0f2c3f' : (s.stroke === 'none' ? '#1a1a1a' : s.stroke)) + '" stroke-width="' + s.ballSW + '"' : '') + '/>';
+    if (s.extraBall) b += s.extraBall(P);
+    b += '<g class="seams" fill="none" stroke="' + s.seam + '" stroke-width="' + s.seamW + '" stroke-linecap="' + cap + '"' +
+      (s.seamFilter ? ' filter="' + s.seamFilter + '"' : '') + '>' +
+      '<path d="M160,23 V161"/><path d="M91,92 H229"/>' +
+      '<path d="M160,23 C104,45 104,139 160,161"/><path d="M160,23 C216,45 216,139 160,161"/></g>';
+    if (s.hl) b += '<ellipse cx="132" cy="56" rx="26" ry="16" fill="#ffffff" opacity="' + s.hl + '" transform="rotate(-24 132 56)"/>';
+
+    return '<svg class="scene" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg"' +
+      (s.crisp ? ' shape-rendering="crispEdges"' : '') + (s.rough ? ' filter="url(#stRough)"' : '') + '>' +
+      '<g class="rig">' + h +
+      (s.shadowOp !== 0 ? SHADOW.replace('.25', s.shadowOp || '.25') : '') +
+      b + '</g></svg>';
+  }
+
+  var gallery = document.getElementById('gallery');
+  var chosen = document.getElementById('chosen');
+  var animateToggle = document.getElementById('animate');
+  var themeButton = document.getElementById('theme');
+  var selected = [];
+
+  STYLES.forEach(function (item, index) {
+    var number = index + 1;
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'card';
+    card.style.setProperty('--i', index);
+    card.setAttribute('aria-pressed', 'false');
+    card.innerHTML = '<span class="card-top"><span class="num">' + String(number).padStart(2, '0') +
+      '</span><span class="tags">' + item.tags + '</span></span>' +
+      '<span class="stage"' + (item.bg ? ' style="background:' + item.bg + ';--sf:' + (item.sf || '#fff') + '"' : '') + '>' +
+      scene(item, index) + '</span>' +
+      '<span class="meta"><span class="name">' + item.name + '</span><span class="desc">Pulsa para marcar esta dirección.</span></span>';
+    card.addEventListener('click', function () {
+      var position = selected.indexOf(number);
+      if (position >= 0) {
+        selected.splice(position, 1);
+      } else {
+        selected.push(number);
+        if (selected.length > 3) selected.shift();
+      }
+      card.setAttribute('aria-pressed', String(position < 0));
+      chosen.textContent = selected.length ? selected.join(', ') : 'ninguna';
+    });
+    gallery.appendChild(card);
+  });
+
+  animateToggle.addEventListener('change', function () {
+    gallery.setAttribute('data-animate', String(animateToggle.checked));
+  });
+  themeButton.addEventListener('click', function () {
+    var dark = document.body.getAttribute('data-theme') !== 'dark';
+    document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    themeButton.textContent = dark ? 'Fondo: oscuro' : 'Fondo: claro';
+  });
+})();
+</script>
+</body>
+</html>

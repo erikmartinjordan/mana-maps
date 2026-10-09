@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulación mano 3D · Maña Maps</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,'DM Sans',system-ui,sans-serif}
+  body{background:#0d1117;overflow:hidden}
+  #app-frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
+  #sim-hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:10;
+    max-width:min(92vw,520px);padding:10px 16px;border-radius:999px;
+    background:rgba(13,17,23,.78);color:#e6edf3;border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(8px);font-size:13px;line-height:1.35;text-align:center;
+    pointer-events:none;transition:opacity .45s ease}
+  #sim-hint.hidden{opacity:0}
+  #variant-bar{position:fixed;right:12px;bottom:12px;z-index:20;display:flex;gap:6px;
+    padding:6px;border-radius:999px;background:rgba(13,17,23,.72);
+    border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(8px)}
+  #variant-bar button{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+    background:#21262d;color:#e6edf3;font:600 12px/1 inherit;cursor:pointer}
+  #variant-bar button[aria-pressed="true"]{background:#1f6feb;border-color:#1f6feb;color:#fff}
+</style>
+</head>
+<body>
+  <iframe id="app-frame" src="/map/" title="Simulación de Maña Maps"></iframe>
+  <div id="sim-hint" role="status">Cargando simulación…</div>
+  <div id="variant-bar" role="group" aria-label="Elegir mano">
+    <button type="button" data-hand="3d" aria-pressed="true" title="Mano 3D realista (Three.js)">3D</button>
+    <button type="button" data-hand="1" aria-pressed="false" title="Mano 1: holograma">1</button>
+    <button type="button" data-hand="2" aria-pressed="false" title="Mano 2: píxel">2</button>
+    <button type="button" data-hand="3" aria-pressed="false" title="Mano 3: mecha">3</button>
+    <button type="button" data-hand="4" aria-pressed="false" title="Mano 4: mascota">4</button>
+    <button type="button" data-hand="5" aria-pressed="false" title="Mano 5: neón HUD">5</button>
+  </div>
+
+<script>
+(function () {
+  var frame = document.getElementById('app-frame');
+  var hint = document.getElementById('sim-hint');
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('#variant-bar button'));
+  var selectedHand = '3d';
+  var bootAttempts = 0;
+  var bootTimer = null;
+  var watchTimer = null;
+
+  try {
+    var requested = new URLSearchParams(location.search).get('hand');
+    if (requested === '3d') selectedHand = '3d';
+    else if (parseInt(requested, 10) >= 1 && parseInt(requested, 10) <= 5) selectedHand = parseInt(requested, 10);
+  } catch (e) {}
+
+  function markSelected() {
+    buttons.forEach(function (button) {
+      button.setAttribute('aria-pressed', String(button.getAttribute('data-hand') === String(selectedHand)));
+    });
+  }
+
+  function appWindow() {
+    try {
+      return frame.contentWindow;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function previewSelected() {
+    var app = appWindow();
+    if (!app || typeof app.previewGlobeHand !== 'function') return;
+    try { app.GLOBE_HAND_VARIANT = selectedHand; } catch (e) {}
+    try { app.previewGlobeHand(1); } catch (e) {}
+  }
+
+  function watchForHand() {
+    if (watchTimer) return;
+    watchTimer = setInterval(function () {
+      var hand = null;
+      try {
+        var doc = frame.contentDocument;
+        hand = doc && doc.getElementById('globe-hand');
+      } catch (e) {
+        hand = null;
+      }
+      if (hand && hand.classList.contains('gh-in')) {
+        hint.classList.add('hidden');
+        clearInterval(watchTimer);
+        watchTimer = null;
+      }
+    }, 250);
+  }
+
+  function boot() {
+    bootAttempts++;
+    try {
+      var app = appWindow();
+      if (app && typeof app.setBaseLayer === 'function' && typeof app.manaSpinHand === 'function') {
+        clearInterval(bootTimer);
+        bootTimer = null;
+        try { app.GLOBE_HAND_VARIANT = selectedHand; } catch (e) {}
+        app.setBaseLayer('globe');
+        hint.textContent = 'Arrastra rápido el globo en 3D para que la mano lo haga girar.';
+        watchForHand();
+        return;
+      }
+    } catch (e) {}
+    if (bootAttempts > 100) {
+      clearInterval(bootTimer);
+      bootTimer = null;
+      hint.textContent = 'No se pudo iniciar la simulación. Recarga la página.';
+    }
+  }
+
+  buttons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var hand = button.getAttribute('data-hand');
+      selectedHand = hand === '3d' ? '3d' : Number(hand);
+      markSelected();
+      previewSelected();
+    });
+  });
+
+  markSelected();
+  bootTimer = setInterval(boot, 150);
+})();
+</script>
+</body>
+</html>
