@@ -234,7 +234,13 @@ async function fetchAntarctica() {
   // antártico: la cifra de 14,2 M km² las incluye).
   for (const f of shelves.features || []) pushParts(f.geometry);
   if (polys.length < 2) throw new Error('Natural Earth: sin geometría antártica');
-  return turf.union(turf.featureCollection(polys));
+  // Simplifica cada pieza ANTES de unir: son polígonos simples (sin
+  // autocontactos), simplify no introduce kinks y la unión pesa menos.
+  const simplified = polys.map(p => ({
+    type: 'Feature', properties: {},
+    geometry: simplifySafe(p.geometry, null),
+  }));
+  return turf.union(turf.featureCollection(simplified));
 }
 
 // ── Procesado de geometría (AGENTS.md §2) ───────────────────────────
@@ -286,7 +292,11 @@ function dropSmallParts(geom, log) {
   const areas = parts.map(partAreaDeg2);
   const max = Math.max(...areas);
   const threshold = Math.max(MIN_PART_DEG2, MIN_PART_SHARE * max);
-  const kept = parts.filter((_, i) => areas[i] >= threshold);
+  let kept = parts.filter((_, i) => areas[i] >= threshold);
+  if (!kept.length) {
+    // Nunca se descarta el desierto entero: conserva la parte mayor.
+    kept = [parts[areas.indexOf(max)]];
+  }
   const dropped = parts.length - kept.length;
   if (dropped && log) {
     const droppedArea = areas.filter(a => a < threshold).reduce((s, a) => s + a, 0);
@@ -298,16 +308,18 @@ function dropSmallParts(geom, log) {
 // Simplifica con tolerancia fija; si introduce kinks (autointersecciones
 // nuevas respecto de la geometría original —las ecorregiones de TEOW pueden
 // tocarse en vértices compartidos), reintenta con tolerancia menor y
-// finalmente devuelve la geometría original.
+// finalmente devuelve la geometría original. Siempre devuelve una
+// geometría (Polygon/MultiPolygon), nunca un Feature.
 function simplifySafe(geomIn, log) {
   const geom = geomIn.type === 'Feature' ? geomIn.geometry : geomIn;
   let baseKinks = 0;
   try { baseKinks = turf.kinks(geom).features.length; } catch (_) { /* ignore */ }
-  for (const tol of [SIMPLIFY_TOLERANCE, SIMPLIFY_TOLERANCE / 3]) {
+  for (const tol of [SIMPLIFY_TOLERANCE, SIMPLIFY_TOLERANCE / 3, SIMPLIFY_TOLERANCE / 10]) {
     try {
       const s = turf.simplify(geom, { tolerance: tol, highQuality: false, mutate: false });
-      const k = turf.kinks(s).features.length;
-      if (k <= baseKinks) return s;
+      const out = s.type === 'Feature' ? s.geometry : s;
+      const k = turf.kinks(out).features.length;
+      if (k <= baseKinks) return out;
       if (log) log(`    simplify ${tol}° introduce kinks (${k} > ${baseKinks}); se reintenta`);
     } catch (e) {
       if (log) log(`    simplify ${tol}° falla (${e.message.slice(0, 60)})`);
@@ -317,6 +329,9 @@ function simplifySafe(geomIn, log) {
 }
 
 // Une ecorregiones, simplifica, redondea y limpia partes pequeñas.
+// La simplificación se aplica a cada ecorregión ANTES de unir: cada una es
+// un polígono simple (sin autocontactos), simplify no introduce kinks y el
+// resultado unionado pesa mucho menos que simplificar la unión completa.
 async function buildDesertGeometry(sources, log) {
   let geom;
   if (sources[0] && sources[0].neAntarctica) {
@@ -330,15 +345,14 @@ async function buildDesertGeometry(sources, log) {
         throw new Error(`TEOW: parte ${src.part} inexistente en «${src.eco}» (${feats.length} partes)`);
       }
       for (const f of chosen) {
-        polys.push(f.geometry.type === 'Polygon' ? turf.polygon(f.geometry.coordinates) : f);
+        polys.push({ type: 'Feature', properties: {}, geometry: simplifySafe(f.geometry, log) });
       }
     }
     geom = polys.length === 1
-      ? { type: polys[0].geometry.type, coordinates: polys[0].geometry.coordinates }
+      ? polys[0].geometry
       : turf.union(turf.featureCollection(polys));
   }
   if (geom.type === 'Feature') geom = geom.geometry;
-  geom = simplifySafe(geom, log);
   geom = dropSmallParts(geom, log);
   geom = roundCoords(geom);
   return geom;
