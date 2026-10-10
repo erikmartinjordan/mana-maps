@@ -1209,6 +1209,15 @@
   }
 
   function collectGeoBounds(geo) {
+    // Límite sur del encuadre inicial: -60° SOLO cuando el dataset es
+    // asimétrico (no llega al Ártico, pero sí al polo Sur). La proyección
+    // Mercator estira exponencialmente las latitudes polares: en un contenedor
+    // bajo, incluir la Antártida completa (hasta -86°) desplaza el centro del
+    // fitBounds a ~-51° y deja todos los desiertos del hemisferio norte fuera
+    // del primer vistazo (p. ej. major-deserts-world). Mapas simétricos
+    // (±90°, como océanos) conservan el encuadre actual.
+    var FIT_SOUTH_LIMIT = -60;
+    var FIT_NORTH_FULL = 60; // datos que llegan al Ártico → sin límite sur
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     function walk(coords) {
       if (!Array.isArray(coords)) return;
@@ -1226,6 +1235,7 @@
       if (f && f.geometry && Array.isArray(f.geometry.coordinates)) walk(f.geometry.coordinates);
     });
     if (!isFinite(minX) || !isFinite(maxX) || !isFinite(minY) || !isFinite(maxY)) return null;
+    if (maxY < FIT_NORTH_FULL) minY = Math.max(minY, FIT_SOUTH_LIMIT);
     return [[minX, minY], [maxX, maxY]];
   }
 
