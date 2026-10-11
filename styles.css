@@ -3172,7 +3172,7 @@ body.profile-page{
 [data-theme="dark"] body.profile-page{
   background:var(--bg);
 }
-body.profile-page .mana-logo-icon path{
+body.profile-page .mana-logo-icon svg > path{
   fill:var(--primary);
   stroke:var(--border);
 }
