@@ -1130,20 +1130,22 @@
       var gname = p._manaGroupName || 'Datos';
       if (!p._manaColor) return;
       var v = parseLegendNumber(p[key]);
-      if (!isFinite(v)) return;
-      if (!groups[gname]) groups[gname] = { colors: {}, vals: [] };
+      // 0 / no numérico = «sin dato»: fuera de la rampa y del rango.
+      if (!isFinite(v) || v <= 0) return;
+      if (!groups[gname]) groups[gname] = { colors: {}, min: Infinity, max: -Infinity };
       var b = groups[gname];
-      if (!b.colors[p._manaColor]) {
-        b.colors[p._manaColor] = true;
-        b.vals.push({ v: v, c: p._manaColor });
-      }
+      if (!b.colors[p._manaColor]) b.colors[p._manaColor] = { sum: 0, n: 0 };
+      b.colors[p._manaColor].sum += v; b.colors[p._manaColor].n++;
+      if (v < b.min) b.min = v;
+      if (v > b.max) b.max = v;
     });
     var ramp = null;
     Object.keys(groups).forEach(function(gname) {
-      var u = {};
-      groups[gname].vals.forEach(function(d) { u[d.c] = d; });
-      var steps = Object.keys(u).map(function(k) { return u[k]; }).sort(function(a, b) { return a.v - b.v; });
-      if (steps.length >= 3 && !ramp) ramp = { name: gname, steps: steps };
+      var b = groups[gname];
+      var steps = Object.keys(b.colors).map(function(c) {
+        return { v: b.colors[c].sum / b.colors[c].n, c: c };
+      }).sort(function(a, b2) { return a.v - b2.v; });
+      if (steps.length >= 3 && !ramp) ramp = { name: gname, steps: steps, min: b.min, max: b.max };
     });
     if (!ramp) return '';
     var html = '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
@@ -1151,8 +1153,8 @@
       '<div class="featured-legend-steps">';
     ramp.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
     html += '</div>' +
-      '<div class="featured-legend-scale"><span>' + escHtml(formatLegendValue(ramp.steps[0].v, fmt)) + '</span>' +
-      '<span>' + escHtml(formatLegendValue(ramp.steps[ramp.steps.length - 1].v, fmt)) + '</span></div>' +
+      '<div class="featured-legend-scale"><span>' + escHtml(formatLegendValue(ramp.min, fmt)) + '</span>' +
+      '<span>' + escHtml(formatLegendValue(ramp.max, fmt)) + '</span></div>' +
       '</div>';
     return html;
   }
@@ -1290,6 +1292,17 @@
         }
       });
     }
+
+    // Las etiquetas del basemap (países/provincias/ciudades, a menudo
+    // bilingües) se pintan sobre el choropleta y "ensucian"/duplican el mapa.
+    // Se ocultan todas en la vista destacada; la leyenda aporta la lectura.
+    try {
+      (map.getStyle().layers || []).forEach(function(l) {
+        if (l.type === 'symbol' && l.layout && l.layout['text-field']) {
+          try { map.setLayoutProperty(l.id, 'visibility', 'none'); } catch (e) {}
+        }
+      });
+    } catch (e) {}
   }
 
   async function showSlugMap(item) {

@@ -1186,9 +1186,28 @@ function _getActiveGLMap() {
   return baseLayer.getMaplibreMap();
 }
 
+function _mapHasOwnLabels() {
+  var has = false;
+  try {
+    if (typeof drawnItems !== 'undefined' && drawnItems) {
+      drawnItems.eachLayer(function (l) {
+        if (has) return;
+        var f = l.feature;
+        if (!f && l.toGeoJSON) { try { f = l.toGeoJSON(); } catch (e) {} }
+        var p = f && f.properties;
+        if (p && (p._manaName != null || p._manaLabelStyle)) has = true;
+      });
+    }
+  } catch (e) {}
+  return has;
+}
+
 function _applyTileLabelVisibilityOn(glMap) {
   if (!glMap || !glMap.isStyleLoaded || !glMap.isStyleLoaded()) return;
-  var hide = glMap.getZoom() < TILE_LABEL_MIN_ZOOM;
+  // Con etiquetas propias del mapa (polígonos con `_manaName`) se ocultan
+  // SIEMPRE las del basemap, a cualquier zoom: si no, salen dos veces
+  // (double tagging). Sin etiquetas propias, solo se ocultan a zoom bajo.
+  var hide = _mapHasOwnLabels() || glMap.getZoom() < TILE_LABEL_MIN_ZOOM;
   var vis = hide ? 'none' : 'visible';
   for (var i = 0; i < _tileLabelLayerIds.length; i++) {
     try {
@@ -1750,33 +1769,36 @@ function renderLegend() {
       if (!meta.allLayers || !meta.allLayers.length) continue;
       var gname = meta.name;
       var colors = {};
-      var vals = [];
+      var allVals = [];
       meta.allLayers.forEach(function(l) {
         var c = _manaLayerColor(l);
         if (!c) return;
         var v = _manaParsePropNumber(_manaLayerProp(l, li.key));
-        if (!isFinite(v)) return;
-        if (!colors[c]) {
-          colors[c] = true;
-          vals.push({ v: v, c: c });
-        }
+        // 0 / no numérico = «sin dato»: fuera de la rampa y del rango.
+        if (!isFinite(v) || v <= 0) return;
+        allVals.push(v);
+        if (!colors[c]) colors[c] = { sum: 0, n: 0 };
+        colors[c].sum += v; colors[c].n++;
       });
-      var uniq = {};
-      vals.forEach(function(d) { uniq[d.c] = d; });
-      var steps = Object.keys(uniq).map(function(k) { return uniq[k]; }).sort(function(a, b) { return a.v - b.v; });
-      if (steps.length >= 3) ramps[gname] = { steps: steps };
+      var steps = Object.keys(colors).map(function(c) {
+        return { v: colors[c].sum / colors[c].n, c: c };
+      }).sort(function(a, b) { return a.v - b.v; });
+      if (steps.length >= 3 && allVals.length) {
+        ramps[gname] = { steps: steps, min: Math.min.apply(null, allVals), max: Math.max.apply(null, allVals) };
+      }
     }
     var rampName = Object.keys(ramps)[0];
     if (rampName) {
-      var rsteps = ramps[rampName].steps;
+      var ramp = ramps[rampName];
+      var rsteps = ramp.steps;
       var rtitle = li.title || rampName;
       var rformat = li.format || 'number';
       var rh = '<div class="map-legend-title">' + rtitle + '</div>' +
         '<div class="map-legend-ramp"><div class="map-legend-ramp-steps">';
       rsteps.forEach(function(s) { rh += '<span style="background:' + s.c + '"></span>'; });
       rh += '</div><div class="map-legend-ramp-scale"><span>' +
-        _manaFormatLegendValue(rsteps[0].v, rformat) + '</span><span>' +
-        _manaFormatLegendValue(rsteps[rsteps.length - 1].v, rformat) +
+        _manaFormatLegendValue(ramp.min, rformat) + '</span><span>' +
+        _manaFormatLegendValue(ramp.max, rformat) +
         '</span></div></div>';
       legend.classList.remove('empty');
       legend.innerHTML = rh;
