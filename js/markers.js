@@ -277,6 +277,53 @@ function _emojiSizeFromArea(ha) {
   return 34;                       // Small
 }
 
+// ── Die-cut emoji sticker (double contour: legend-color ring + white halo) ──
+// Renders once per (emoji, color, size) and caches the PNG data URL.
+var _emojiStickerCache = {};
+function _emojiStickerDataURL(ch, color, sz) {
+  if (typeof document === 'undefined') return '';
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var key = ch + '|' + color + '|' + sz + '|' + dpr;
+  if (_emojiStickerCache[key] !== undefined) return _emojiStickerCache[key];
+  var emojiPx = sz * 0.78;
+  var cssFont = 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
+  var canvas = document.createElement('canvas');
+  canvas.width = Math.round(sz * dpr);
+  canvas.height = Math.round(sz * dpr);
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var cx = sz / 2, cy = sz / 2;
+  function tint(col) {
+    var c = document.createElement('canvas');
+    c.width = sz; c.height = sz;
+    var g = c.getContext('2d');
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = emojiPx + cssFont;
+    g.fillStyle = '#000';
+    try { g.fillText(ch, cx, cy); } catch (e) {}
+    g.globalCompositeOperation = 'source-in';
+    g.fillStyle = col;
+    g.fillRect(0, 0, sz, sz);
+    return c;
+  }
+  function dilate(img, r) {
+    var n = Math.max(20, Math.round(r * 8));
+    for (var i = 0; i < n; i++) {
+      var a = (i / n) * Math.PI * 2;
+      ctx.drawImage(img, Math.cos(a) * r, Math.sin(a) * r);
+    }
+  }
+  dilate(tint('#ffffff'), emojiPx * 0.106);
+  dilate(tint(color || '#ffffff'), emojiPx * 0.0625);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = emojiPx + cssFont;
+  try { ctx.fillText(ch, cx, cy); } catch (e) {}
+  var url = '';
+  try { url = canvas.toDataURL('image/png'); } catch (e) {}
+  _emojiStickerCache[key] = url;
+  return url;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MAKE MARKER ICON — renders colored map marker
 // ═══════════════════════════════════════════════════════════════
@@ -284,13 +331,18 @@ function makeMarkerIcon(color, type, emojiSize) {
   var def = _mkFind(type);
   var svg, size = [24, 24], anchor = [12, 12], popup = [0, -14];
 
-  // Emoji markers: die-cut sticker style (white outline follows emoji shape — cobe style)
+  // Emoji markers: die-cut sticker (legend-color ring + white halo, AGENTS.md §9)
   if (def && def.emoji) {
     var sz = emojiSize || 50;
-    var fs = Math.max(10, Math.round(sz * 0.8));
-    svg = '<div style="display:flex;align-items:center;justify-content:center;width:' + sz
-      + 'px;height:' + sz + 'px;font-size:' + fs + 'px;line-height:1;'
-      + 'filter:url(#sticker-outline) drop-shadow(0 3px 6px rgba(0,0,0,0.2));">' + def.e + '</div>';
+    var stickerUrl = _emojiStickerDataURL(def.e, color, sz);
+    if (stickerUrl) {
+      svg = '<img src="' + stickerUrl + '" width="' + sz + '" height="' + sz
+        + '" alt="" draggable="false" style="display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.2));">';
+    } else {
+      var fs = Math.max(10, Math.round(sz * 0.8));
+      svg = '<div style="display:flex;align-items:center;justify-content:center;width:' + sz
+        + 'px;height:' + sz + 'px;font-size:' + fs + 'px;line-height:1;">' + def.e + '</div>';
+    }
     return L.divIcon({ html: svg, className: '', iconSize: [sz, sz], iconAnchor: [sz/2, sz/2], popupAnchor: [0, -sz/2 - 4] });
   }
 

@@ -1253,6 +1253,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let _locateWatchId = null;
 let _locateMarker = null;
 let _locateAccuracy = null;
+let _globeLocateMarker = null;
 
 function _setLocateButtonState(state) {
   const btn = document.getElementById('locate-btn');
@@ -1265,6 +1266,7 @@ function _setLocateButtonState(state) {
 function _clearLocateLayers() {
   if (_locateMarker) { map.removeLayer(_locateMarker); _locateMarker = null; }
   if (_locateAccuracy) { map.removeLayer(_locateAccuracy); _locateAccuracy = null; }
+  if (_globeLocateMarker) { try { _globeLocateMarker.remove(); } catch (e) {} _globeLocateMarker = null; }
 }
 
 function stopLiveLocation() {
@@ -1300,6 +1302,22 @@ function _onLocationUpdate(pos) {
     _locateAccuracy.setLatLng([lat, lng]);
     _locateAccuracy.setRadius(acc);
   }
+  // También en el globo 3D: marcador + giro del globo a la ubicación (sin
+  // forzar el cambio a 2D).
+  _updateGlobeLocate(lat, lng);
+}
+
+function _updateGlobeLocate(lat, lng) {
+  if (typeof globeMap === 'undefined' || !globeMap || typeof maplibregl === 'undefined') return;
+  try {
+    if (!_globeLocateMarker) {
+      _globeLocateMarker = new maplibregl.Marker({ color: '#0ea5e9' })
+        .setLngLat([lng, lat]).addTo(globeMap);
+    } else {
+      _globeLocateMarker.setLngLat([lng, lat]);
+    }
+    globeMap.easeTo({ center: [lng, lat], duration: 1000, essential: false });
+  } catch (e) {}
 }
 
 function _onLocationError(err, highAccuracy) {
@@ -1348,7 +1366,6 @@ function toggleLiveLocation() {
     if (typeof showToast === 'function') showToast(t('locate_insecure'));
     return;
   }
-  if (activeBase === 'globe') setBaseLayer('map');
   _setLocateButtonState('locating');
   if (typeof showToast === 'function') showToast(t('locate_locating'));
   _startLocateWatch(true);

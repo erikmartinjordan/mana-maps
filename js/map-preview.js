@@ -579,6 +579,29 @@
     // Stroke scale: relative to canvas so previews look consistent at any aspect.
     var unit = Math.min(viewW, viewH) / 100;
 
+    // Die-cut emoji sticker (AGENTS.md §9): white outer halo + a ring in the
+    // feature color hugging the emoji. One filter per color, reused across SVG.
+    var stickerFilters = {};
+    function stickerFilterId(color) {
+      var key = validColor(color).replace('#', '').toLowerCase();
+      if (!stickerFilters[key]) {
+        var id = 'mana-sticker-' + key;
+        stickerFilters[key] = {
+          id: id,
+          def: '<filter id="' + id + '" x="-60%" y="-60%" width="220%" height="220%">' +
+            '<feMorphology in="SourceAlpha" operator="dilate" radius="' + (0.74 * unit).toFixed(2) + '" result="sW"/>' +
+            '<feFlood flood-color="#ffffff" result="fW"/>' +
+            '<feComposite in="fW" in2="sW" operator="in" result="W"/>' +
+            '<feMorphology in="SourceAlpha" operator="dilate" radius="' + (0.44 * unit).toFixed(2) + '" result="sC"/>' +
+            '<feFlood flood-color="' + validColor(color) + '" result="fC"/>' +
+            '<feComposite in="fC" in2="sC" operator="in" result="C"/>' +
+            '<feMerge><feMergeNode in="W"/><feMergeNode in="C"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+            '</filter>'
+        };
+      }
+      return stickerFilters[key].id;
+    }
+
     // ── Dark preview theme (per-map, declared as `manaPreviewStyle: 'dark'`) ──
     var dark = preview.theme === 'dark';
     var darkGlowId = null;
@@ -772,16 +795,8 @@
             var emojiChar = entry.emoji || '';
             if (emojiChar) {
               var emojiSize = (7 * unit).toFixed(2);
-              var glow = (dark && darkGlowId) ? ' filter="url(#' + darkGlowId + ')"' : '';
-              if (!dark) {
-                // White "sticker" wrap around the icon, with a soft translucent
-                // halo. No delimiting ring.
-                points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.9 * unit).toFixed(2) +
-                  '" fill="#ffffff" fill-opacity="0.45"/>' +
-                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (5.1 * unit).toFixed(2) +
-                  '" fill="#ffffff"/>';
-              }
-              points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '"' + glow + '>' + emojiChar + '</text>';
+              var stickerId = stickerFilterId(stroke);
+              points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '" filter="url(#' + stickerId + ')">' + emojiChar + '</text>';
             } else {
               points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.6 * unit).toFixed(2) +
                 '" fill="#ffffff" fill-opacity="0.9"/>' +
@@ -795,11 +810,8 @@
               var emojiChar2 = entry.emoji || '';
               if (emojiChar2) {
                 var emojiSize2 = (6.5 * unit).toFixed(2);
-                points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (4.8 * unit).toFixed(2) +
-                  '" fill="#ffffff" fill-opacity="0.85"/>' +
-                  '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (4.8 * unit).toFixed(2) +
-                  '" fill="' + stroke + '" fill-opacity="0.2"/>' +
-                  '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize2 + '">' + emojiChar2 + '</text>';
+                var stickerId2 = stickerFilterId(stroke);
+                points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize2 + '" filter="url(#' + stickerId2 + ')">' + emojiChar2 + '</text>';
               } else {
                 points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.2 * unit).toFixed(2) +
                   '" fill="#ffffff" fill-opacity="0.9"/>' +
@@ -813,8 +825,10 @@
     }
 
     if (!body) return '';
+    var stickerDefs = Object.keys(stickerFilters).map(function (k) { return stickerFilters[k].def; }).join('');
     return '<svg class="thumb-preview" viewBox="0 0 ' + viewW.toFixed(2) + ' ' + viewH.toFixed(2) +
-      '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + body + '</svg>';
+      '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+      (stickerDefs ? '<defs>' + stickerDefs + '</defs>' : '') + body + '</svg>';
   }
 
   // Aspect ratio of the rendered viewBox (bbox + breathing room), so cards can

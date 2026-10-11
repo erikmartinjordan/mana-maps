@@ -183,26 +183,40 @@ function syncToGlobe() {
     if (!emoji) return id;
     var size = 72;
     var cssFont = 'px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif';
-    var cx = size/2, cy = size/2 + 2;
-    // Die-cut sticker: the emoji silhouette (a bit larger) tinted with the legend
-    // color, with the emoji itself drawn on top.
-    var off = document.createElement('canvas');
-    off.width = size; off.height = size;
-    var octx = off.getContext('2d');
-    octx.textAlign = 'center'; octx.textBaseline = 'middle';
-    octx.font = (size*0.78) + cssFont;
-    try { octx.fillText(emoji, cx, cy); } catch(e){}
-    octx.globalCompositeOperation = 'source-in';
-    octx.fillStyle = color;
-    octx.fillRect(0,0,size,size);
+    var cx = size/2, cy = size/2 + 1;
+    var emojiPx = size*0.62;
+    // Solid silhouette of the emoji (same footprint), tintable to any color.
+    function _globeEmojiTint(col) {
+      var c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      var g = c.getContext('2d');
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = emojiPx + cssFont;
+      g.fillStyle = '#000';
+      try { g.fillText(emoji, cx, cy); } catch(e){}
+      g.globalCompositeOperation = 'source-in';
+      g.fillStyle = col;
+      g.fillRect(0, 0, size, size);
+      return c;
+    }
 
     var canvas = document.createElement('canvas');
     canvas.width = size; canvas.height = size;
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(off, 0, 0);
+    // Die-cut double contour (AGENTS.md §9): white outer halo, then a ring in the
+    // legend color hugging the emoji, then the emoji itself on top.
+    function _globeEmojiDilate(img, r) {
+      var n = Math.max(20, Math.round(r * 8));
+      for (var i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2;
+        ctx.drawImage(img, Math.cos(a) * r, Math.sin(a) * r);
+      }
+    }
+    _globeEmojiDilate(_globeEmojiTint('#ffffff'), emojiPx * 0.106);
+    _globeEmojiDilate(_globeEmojiTint(color), emojiPx * 0.0625);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = (size*0.64) + cssFont;
+    ctx.font = emojiPx + cssFont;
     try { ctx.fillText(emoji, cx, cy); } catch(e){}
     if (globeMap.addImage) {
       try { globeMap.addImage(id, canvas, {pixelRatio: 2, sdf: false}); } catch(e){}
