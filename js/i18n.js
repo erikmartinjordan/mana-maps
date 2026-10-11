@@ -93,6 +93,7 @@ const I18N = {
     ctl_zoom_out: "Alejar",
     ctl_autorotate: "Auto-rotación",
     ctl_autorotate_on: "Auto-rotación activa",
+    ctl_2d3d: "Cambiar 2D/3D",
     // ── Chat ──
     chat_title: "Maña AI",
     chat_subtitle: "Escribe en lenguaje natural",
@@ -641,6 +642,7 @@ const I18N = {
     ctl_zoom_out: "Zoom out",
     ctl_autorotate: "Auto-rotate",
     ctl_autorotate_on: "Auto-rotation on",
+    ctl_2d3d: "Switch 2D/3D",
     // ── Chat ──
     chat_title: "Maña AI",
     chat_subtitle: "Type in natural language",

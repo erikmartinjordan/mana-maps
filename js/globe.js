@@ -330,8 +330,14 @@ function syncToGlobe() {
   if (typeof _updateTileLabelVisibility === 'function') _updateTileLabelVisibility();
 }
 
-function globeZoomIn() { if (globeMap) globeMap.zoomIn(); }
-function globeZoomOut() { if (globeMap) globeMap.zoomOut(); }
+function globeZoomIn() {
+  if (typeof activeBase !== 'undefined' && activeBase === 'globe' && globeMap) { globeMap.zoomIn(); return; }
+  if (typeof map !== 'undefined' && map) map.zoomIn();
+}
+function globeZoomOut() {
+  if (typeof activeBase !== 'undefined' && activeBase === 'globe' && globeMap) { globeMap.zoomOut(); return; }
+  if (typeof map !== 'undefined' && map) map.zoomOut();
+}
 
 // Orientar al norte (compass del cluster de controles): rumbo y pitch a 0.
 function resetGlobeNorth() {
@@ -340,13 +346,34 @@ function resetGlobeNorth() {
 
 // Gira el icono del compass para reflejar el rumbo actual.
 function updateCompassIcon() {
-  var svg = document.querySelector('#btn-north svg');
+  var svg = document.querySelector('#pb-north svg');
   if (svg && globeMap) svg.style.transform = 'rotate(' + (-globeMap.getBearing()) + 'deg)';
+}
+
+// Pillbar: alterna mapa 2D ↔ globo 3D.
+function toggle2D3D() {
+  if (typeof setBaseLayer !== 'function') return;
+  if (typeof activeBase !== 'undefined' && activeBase === 'globe') setBaseLayer('map');
+  else setBaseLayer('globe');
+}
+
+// Refleja el modo actual (2D/3D) en el pillbar inferior. El icono de
+// auto-rotación y el norte solo tienen sentido en 3D: en 2D se ocultan.
+function updateMapPillbar(base) {
+  var btn = document.getElementById('pb-mode');
+  var pb = document.getElementById('map-pillbar');
+  var is3d = base === 'globe';
+  if (btn) {
+    var label = btn.querySelector('.pb-mode-label');
+    if (label) label.textContent = is3d ? '3D' : '2D';
+    btn.classList.toggle('is-3d', is3d);
+  }
+  if (pb) pb.classList.toggle('is-2d', !is3d);
 }
 
 function toggleSpin() {
   spinActive = !spinActive;
-  var btn = document.getElementById('btn-spin');
+  var btn = document.getElementById('pb-spin');
   if (btn) btn.classList.toggle('active', spinActive);
   var ind = document.getElementById('globe-spin-indicator');
   if (ind) ind.style.display = spinActive ? 'inline-flex' : 'none';
@@ -361,3 +388,6 @@ function spinGlobe() {
   globeMap.setCenter(center);
   spinRAF = requestAnimationFrame(spinGlobe);
 }
+
+// Estado inicial del pillbar (map-core carga antes que globe.js).
+try { updateMapPillbar(typeof activeBase !== 'undefined' ? activeBase : 'map'); } catch (e) {}

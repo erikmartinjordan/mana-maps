@@ -55,7 +55,7 @@ let tileMap = createManaBaseLayer(isDarkMapTheme());
 let currentMapAttribution = null;
 let tileSat = createManaSatelliteLayer();
 
-const map = L.map('map', { zoomAnimation: false, zoomControl: true, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 0.4, minZoom: 0 }).setView([40.416, -3.703], 6);
+const map = L.map('map', { zoomAnimation: false, zoomControl: false, worldCopyJump: true, maxBounds: [[-86, -180], [86, 180]], maxBoundsViscosity: 0.4, minZoom: 0 }).setView([40.416, -3.703], 6);
 tileMap.addTo(map);
 let activeBase = 'map';
 window._autoGlobeLock = false;
@@ -979,7 +979,6 @@ function setBaseLayer(type) {
   var mapEl = document.getElementById('map');
   var globeEl = document.getElementById('globe');
   var globeAtmo = document.getElementById('globe-atmo');
-  var globeCtrl = document.getElementById('globe-controls');
 
   // P2.9: Animated transition between 2D and 3D
   var previousBase = activeBase;
@@ -995,7 +994,6 @@ function setBaseLayer(type) {
       mapEl.style.display = 'none';
       globeEl.style.display = 'block';
       globeAtmo.style.display = 'block';
-      globeCtrl.style.display = 'flex';
       document.getElementById('map-bottom-bar').style.display = 'none';
       globeEl.style.opacity = '0';
       globeEl.style.transition = 'opacity 0.2s ease';
@@ -1014,7 +1012,6 @@ function setBaseLayer(type) {
     setTimeout(function() {
       globeEl.style.display = 'none';
       globeAtmo.style.display = 'none';
-      globeCtrl.style.display = 'none';
       if (spinActive) toggleSpin();
       if (typeof hideGlobeHand === 'function') hideGlobeHand();
       document.getElementById('globe-spin-indicator').style.display = 'none';
@@ -1041,6 +1038,7 @@ function setBaseLayer(type) {
   }
   setMapThemeTiles();
   updateBasemapStack(type);
+  if (typeof updateMapPillbar === 'function') updateMapPillbar(type);
   _tileLabelRetries = 0;
   _retryTileLabelHide();
 }
@@ -1356,7 +1354,7 @@ const ManaLocateControl = L.Control.extend({
     return wrap;
   }
 });
-map.addControl(new ManaLocateControl());
+// El localizador vive en el pillbar (#locate-btn), que se crea en el HTML.
 
 // ── RESIZE HANDLES ──
 // Unified resize + collapse system for left (sidebar) and right (chat) panels.
@@ -1658,6 +1656,8 @@ map.addControl(new ManaLocateControl());
     });
     ro.observe(wrapEl);
   }
+
+  if (typeof updateMapPillbar === 'function') updateMapPillbar(activeBase);
 })();
 
 // ── STATS & LAYER LIST ──

@@ -263,23 +263,43 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 .globe-atmosphere{pointer-events:none;position:absolute;inset:0;z-index:2;
   background:radial-gradient(ellipse at center,transparent 55%,color-mix(in srgb,var(--map-bg) 55%,transparent) 100%);
   display:none;}
-/* ── MAP CONTROLS (globe): top-left, clear of the basemap selector ── */
-#globe-controls{display:none;position:absolute;top:12px;left:12px;z-index:10;
-  flex-direction:column;gap:8px;}
-#globe-controls button.gc-btn{width:38px;height:38px;padding:0;border-radius:11px;border:0.5px solid var(--border);
-  background:color-mix(in srgb, var(--surface) 84%, transparent);backdrop-filter:blur(10px);cursor:pointer;
-  display:grid;place-items:center;box-shadow:var(--shadow);
-  transition:background .15s,color .15s,border-color .15s,transform .1s;
-  color:var(--primary);}
-#globe-controls button.gc-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;
-  stroke-linecap:round;stroke-linejoin:round;}
-#globe-controls button.gc-btn:hover{background:var(--surface);color:var(--blue);border-color:var(--border-hover);}
-#globe-controls button.gc-btn:active{transform:scale(.95);}
-#globe-controls button.gc-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-#globe-controls button.gc-btn.active:hover{background:var(--blue);color:#fff;}
-#globe-controls button.gc-btn:focus-visible{
-  outline:2px solid color-mix(in srgb, var(--blue) 45%, transparent);outline-offset:1px;}
-#globe-controls #btn-north svg{transition:transform .25s ease;}
+/* ── MAP PILLBAR (bottom-center · liquid glass, ref lucasromerodb) ── */
+#map-pillbar{
+  position:absolute;left:50%;bottom:calc(102px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  z-index:900;border-radius:999px;overflow:hidden;isolation:isolate;}
+#map-pillbar .lg-effect{position:absolute;inset:0;z-index:0;border-radius:inherit;
+  backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
+  filter:url(#manaGlass);overflow:hidden;isolation:isolate;}
+#map-pillbar .lg-tint{position:absolute;inset:0;z-index:1;border-radius:inherit;
+  background:rgba(255,255,255,.22);}
+#map-pillbar .lg-shine{position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;overflow:hidden;
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.7), inset 0 0 6px rgba(255,255,255,.55);}
+#map-pillbar .pb-content{position:relative;z-index:3;display:flex;align-items:center;gap:2px;padding:5px;}
+#map-pillbar .pb-group{display:flex;align-items:center;gap:2px;}
+#map-pillbar #locate-btn{width:38px;height:38px;border:0;border-radius:999px;background:none;color:var(--primary);
+  display:grid;place-items:center;cursor:pointer;padding:0;transition:background .15s,color .15s,transform .1s;}
+#map-pillbar #locate-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;display:block;}
+#map-pillbar #locate-btn:hover{background:color-mix(in srgb, var(--primary) 12%, transparent);color:var(--blue);}
+#map-pillbar #locate-btn:active{transform:scale(.94);}
+#map-pillbar #locate-btn.active{background:var(--blue);color:#fff;box-shadow:none;}
+.lg-filter-defs{position:absolute;width:0;height:0;pointer-events:none;}
+#map-pillbar .pb-btn{width:38px;height:38px;padding:0;border:0;border-radius:999px;background:none;cursor:pointer;
+  display:grid;place-items:center;color:var(--primary);transition:background .15s,color .15s,transform .1s;}
+#map-pillbar .pb-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+#map-pillbar .pb-btn:hover{background:color-mix(in srgb, var(--primary) 12%, transparent);color:var(--blue);}
+#map-pillbar .pb-btn:active{transform:scale(.94);}
+#map-pillbar .pb-btn.active{background:var(--blue);color:#fff;}
+#map-pillbar .pb-btn:focus-visible{outline:2px solid color-mix(in srgb, var(--blue) 45%, transparent);outline-offset:1px;}
+#map-pillbar .pb-sep{width:1px;height:22px;background:color-mix(in srgb, var(--primary) 16%, transparent);margin:0 3px;}
+#map-pillbar #pb-north svg{transition:transform .25s ease;}
+#map-pillbar .pb-mode{width:auto;padding:0 13px;gap:7px;grid-auto-flow:column;grid-auto-columns:max-content;
+  font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:.02em;}
+#map-pillbar .pb-mode svg{width:17px;height:17px;transition:transform .25s ease;}
+#map-pillbar .pb-mode.is-3d{background:color-mix(in srgb, var(--blue) 20%, transparent);color:var(--blue);}
+#map-pillbar .pb-mode.is-3d svg{transform:rotate(180deg);}
+/* En 2D, norte y auto-rotación (solo globo) se ocultan. */
+#map-pillbar.is-2d #pb-3dgroup,#map-pillbar.is-2d #pb-sep1{display:none;}
 #globe-spin-indicator{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);
   z-index:10;background:var(--blue);color:#fff;padding:7px 16px;
   border-radius:50px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
@@ -388,6 +408,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 }
 #map-wrap .leaflet-bottom.leaflet-right .leaflet-control{float:none;clear:none;margin:0;}
 #map-wrap .leaflet-control-attribution{
+  display:none;
   margin:0;
   padding:4px 8px;
   border:0.5px solid var(--border);
@@ -455,6 +476,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   background:linear-gradient(135deg,#16a34a,#0ea5e9);
 }
 .mana-globe-attribution{
+  display:none;
   position:absolute;right:8px;bottom:8px;z-index:20;
   padding:4px 8px;border:0.5px solid var(--border);border-radius:999px;
   background:color-mix(in srgb, var(--surface) 92%, transparent);
@@ -774,7 +796,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .drop-menu{min-width:150px;}
 
   /* ── Globe controls ── */
-  #globe-controls{top:8px;left:8px;}
+  #map-pillbar{bottom:calc(114px + env(safe-area-inset-bottom));}
+  #map-pillbar .pb-content{padding:4px;}
+  #map-pillbar .pb-btn,#map-pillbar #locate-btn{width:36px;height:36px;}
 
   /* ── Basemap selector ── */
   #basemap-stack{right:8px;bottom:calc(114px + env(safe-area-inset-bottom));}
