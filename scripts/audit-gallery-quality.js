@@ -742,8 +742,17 @@ const AREA_ENTITY_NAME_RE = new RegExp(
     'pen[ií]nsulas?|peninsulas?|archipi[eé]lagos?|archipelagos?|deltas?|arrecifes?|reefs?' +
   ')\\b', 'i');
 
+// Topónimos reales que el regex anterior detectaría como área (falsos
+// positivos): «Lagos» (Nigeria) es una ciudad, no el plural de «lago».
+const AREA_ENTITY_NAME_EXCEPTIONS = new Set(['lagos']);
+
 function isAreaEntityName(name) {
   if (!name || typeof name !== 'string') return false;
+  // Excepciones: topónimos reales homónimos de un área (p. ej. «Lagos», la
+  // ciudad de Nigeria, que coincide con el plural de «lago»). Se compara el
+  // primer token para cubrir variantes como «Lagos (Nigeria)».
+  const first = name.trim().split(/[\s(,]/)[0].toLowerCase();
+  if (AREA_ENTITY_NAME_EXCEPTIONS.has(first)) return false;
   return AREA_ENTITY_NAME_RE.test(name);
 }
 
