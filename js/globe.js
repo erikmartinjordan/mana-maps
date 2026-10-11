@@ -389,5 +389,98 @@ function spinGlobe() {
   spinRAF = requestAnimationFrame(spinGlobe);
 }
 
+// Pillbar: lente de cristal que se desliza al botón señalado y que además se
+// puede AGARRAR y arrastrar; al soltar encaja en el botón más cercano y
+// ejecuta su acción. Etiqueta flotante con la acción (estilo del mapa).
+function initPillbarHover() {
+  var pb = document.getElementById('map-pillbar');
+  if (!pb) return;
+  var content = pb.querySelector('.pb-content');
+  if (!content || content.querySelector('.pb-knob')) return;
+  var knob = document.createElement('span');
+  knob.className = 'pb-knob';
+  knob.setAttribute('aria-hidden', 'true');
+  content.insertBefore(knob, content.firstChild);
+  var hint = document.createElement('div');
+  hint.className = 'pb-hint';
+  hint.setAttribute('aria-hidden', 'true');
+  var wrap = document.getElementById('map-wrap') || document.body;
+  wrap.appendChild(hint);
+
+  function btns() { return Array.prototype.slice.call(content.querySelectorAll('.pb-btn')).filter(function (b) { return b.offsetParent !== null; }); }
+  function toKnob(btn) { knob.style.left = btn.offsetLeft + 'px'; knob.style.width = btn.offsetWidth + 'px'; knob.classList.add('on'); }
+  function showHint(btn) {
+    var txt = btn.getAttribute('title') || btn.getAttribute('aria-label') || '';
+    if (!txt) { hint.classList.remove('on'); return; }
+    var wr = wrap.getBoundingClientRect(), pr = pb.getBoundingClientRect(), br = btn.getBoundingClientRect();
+    hint.textContent = txt;
+    hint.style.left = (br.left - wr.left + br.width / 2) + 'px';
+    hint.style.bottom = (wr.bottom - pr.top + 9) + 'px';
+    hint.classList.add('on');
+  }
+  function hide() { knob.classList.remove('on'); hint.classList.remove('on'); }
+  function btnAt(e) { var b = e.target && e.target.closest ? e.target.closest('.pb-btn') : null; return (b && content.contains(b)) ? b : null; }
+  function nearest(clientX) {
+    var bs = btns(), best = null, bd = 1e9;
+    bs.forEach(function (b) { var r = b.getBoundingClientRect(); var d = Math.abs((r.left + r.width / 2) - clientX); if (d < bd) { bd = d; best = b; } });
+    return best;
+  }
+
+  var down = false, moved = false, startX = 0, suppressClick = false;
+
+  // Hover: la lente se desliza al botón + etiqueta.
+  content.addEventListener('pointerover', function (e) { if (down) return; var b = btnAt(e); if (b) { toKnob(b); showHint(b); } });
+  pb.addEventListener('pointerleave', function () { if (!down) hide(); });
+
+  content.addEventListener('pointerdown', function (e) {
+    down = true; moved = false; startX = e.clientX;
+  });
+  content.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    if (!moved && Math.abs(e.clientX - startX) < 6) return;
+    if (!moved) {
+      moved = true;
+      // Capturar solo al iniciar el arrastre: en un toque NO se captura, así el
+      // click nativo llega al botón y su acción funciona.
+      try { content.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+    pb.classList.add('pb-grabbing');
+    hint.classList.remove('on');
+    var bs = btns(); if (!bs.length) return;
+    var cr = content.getBoundingClientRect();
+    var first = bs[0], last = bs[bs.length - 1];
+    var kw = parseFloat(knob.style.width) || first.offsetWidth;
+    var minL = first.offsetLeft, maxL = last.offsetLeft + last.offsetWidth - kw;
+    var l = Math.max(minL, Math.min(e.clientX - cr.left - kw / 2, maxL));
+    knob.style.left = l + 'px';
+    knob.classList.add('on');
+  });
+  function endDrag(e) {
+    if (!down) return;
+    down = false;
+    pb.classList.remove('pb-grabbing');
+    if (!moved) return; // tap: deja actuar al click nativo
+    var b = nearest(e.clientX);
+    if (!b) return;
+    toKnob(b);
+    // El pointerup se captura en .pb-content, así que no hay click nativo en el
+    // botón: ejecutamos su acción directamente y silenciamos el click sobrante.
+    suppressClick = true;
+    setTimeout(function () { suppressClick = false; }, 350);
+    var fn = b.onclick;
+    if (typeof fn === 'function') { try { fn.call(b, { type: 'click' }); } catch (err) {} }
+  }
+  content.addEventListener('pointerup', endDrag);
+  content.addEventListener('pointercancel', endDrag);
+  pb.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('.pb-btn') : null;
+    if (suppressClick && t) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+
+  pb.addEventListener('focusin', function (e) { var b = btnAt(e); if (b) { toKnob(b); showHint(b); } });
+  pb.addEventListener('focusout', hide);
+}
+
 // Estado inicial del pillbar (map-core carga antes que globe.js).
 try { updateMapPillbar(typeof activeBase !== 'undefined' ? activeBase : 'map'); } catch (e) {}
+try { initPillbarHover(); } catch (e) {}
