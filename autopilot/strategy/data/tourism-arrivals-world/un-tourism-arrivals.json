@@ -1,0 +1,1342 @@
+{
+ "_about": "Llegadas de turistas internacionales por país (último dato disponible 2019-2023). Fuente primaria: UN Tourism (OMT), base de datos de estadísticas de turismo, descarga masiva de diciembre de 2025, indicador INBD_TRIP_TOTL_TOTL_TOUR (inbound trips total, overnight visitors/tourists, partner World). Complemento: cifras 2023 del World Tourism Barometer de UN Tourism para destinos principales ausentes o incompletos en la base (via tablas regionales del barometer). Cada registro indica año, valor absoluto y procedencia.",
+ "_generated": "2026-10-13",
+ "records": [
+  {
+   "en": "France",
+   "es": "Francia",
+   "arrivals": 100000000,
+   "year": 2023,
+   "code": "250",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Spain",
+   "es": "España",
+   "arrivals": 85169050,
+   "year": 2023,
+   "code": "724",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "United States of America",
+   "es": "Estados Unidos",
+   "arrivals": 66349859,
+   "year": 2023,
+   "code": "840",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Italy",
+   "es": "Italia",
+   "arrivals": 57250000,
+   "year": 2023,
+   "code": "380",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Turkey",
+   "es": "Turquía",
+   "arrivals": 55200000,
+   "year": 2023,
+   "code": "792",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Mexico",
+   "es": "México",
+   "arrivals": 41949428,
+   "year": 2023,
+   "code": "484",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "United Kingdom",
+   "es": "Reino Unido",
+   "arrivals": 37214805,
+   "year": 2023,
+   "code": "826",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "China",
+   "es": "China",
+   "arrivals": 35500000,
+   "year": 2023,
+   "code": "156",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Germany",
+   "es": "Alemania",
+   "arrivals": 34712000,
+   "year": 2023,
+   "code": "276",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Hong Kong",
+   "es": "Hong Kong",
+   "arrivals": 34000000,
+   "year": 2023,
+   "code": "344",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Greece",
+   "es": "Grecia",
+   "arrivals": 32700000,
+   "year": 2023,
+   "code": "300",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Austria",
+   "es": "Austria",
+   "arrivals": 30900000,
+   "year": 2023,
+   "code": "40",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Macao",
+   "es": "Macao",
+   "arrivals": 28200000,
+   "year": 2023,
+   "code": "446",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Thailand",
+   "es": "Tailandia",
+   "arrivals": 28200000,
+   "year": 2023,
+   "code": "764",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Saudi Arabia",
+   "es": "Arabia Saudita",
+   "arrivals": 27423536,
+   "year": 2023,
+   "code": "682",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Portugal",
+   "es": "Portugal",
+   "arrivals": 26504000,
+   "year": 2023,
+   "code": "620",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Japan",
+   "es": "Japón",
+   "arrivals": 25066000,
+   "year": 2023,
+   "code": "392",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Netherlands",
+   "es": "Países Bajos",
+   "arrivals": 20300000,
+   "year": 2023,
+   "code": "528",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Malaysia",
+   "es": "Malasia",
+   "arrivals": 20100000,
+   "year": 2023,
+   "code": "458",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Poland",
+   "es": "Polonia",
+   "arrivals": 18987000,
+   "year": 2023,
+   "code": "616",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Canada",
+   "es": "Canadá",
+   "arrivals": 18344000,
+   "year": 2023,
+   "code": "124",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "United Arab Emirates",
+   "es": "Emiratos Árabes Unidos",
+   "arrivals": 17150000,
+   "year": 2023,
+   "code": "784",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Croatia",
+   "es": "Croacia",
+   "arrivals": 15324000,
+   "year": 2022,
+   "code": "191",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Egypt",
+   "es": "Egipto",
+   "arrivals": 14900000,
+   "year": 2023,
+   "code": "818",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Romania",
+   "es": "Rumania",
+   "arrivals": 14777000,
+   "year": 2023,
+   "code": "642",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Morocco",
+   "es": "Marruecos",
+   "arrivals": 14500000,
+   "year": 2023,
+   "code": "504",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Denmark",
+   "es": "Dinamarca",
+   "arrivals": 14190000,
+   "year": 2022,
+   "code": "208",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Hungary",
+   "es": "Hungría",
+   "arrivals": 12933000,
+   "year": 2023,
+   "code": "348",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Vietnam",
+   "es": "Vietnam",
+   "arrivals": 12600000,
+   "year": 2023,
+   "code": null,
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Indonesia",
+   "es": "Indonesia",
+   "arrivals": 11382000,
+   "year": 2023,
+   "code": "360",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "South Korea",
+   "es": "Corea del Sur",
+   "arrivals": 11032000,
+   "year": 2023,
+   "code": "410",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Ireland",
+   "es": "Irlanda",
+   "arrivals": 10951000,
+   "year": 2019,
+   "code": "372",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Singapore",
+   "es": "Singapur",
+   "arrivals": 10812000,
+   "year": 2023,
+   "code": "702",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Kazakhstan",
+   "es": "Kazajistán",
+   "arrivals": 9871166,
+   "year": 2023,
+   "code": "398",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Albania",
+   "es": "Albania",
+   "arrivals": 9741000,
+   "year": 2023,
+   "code": "8",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "India",
+   "es": "India",
+   "arrivals": 9405000,
+   "year": 2023,
+   "code": "356",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Tunisia",
+   "es": "Túnez",
+   "arrivals": 9400000,
+   "year": 2023,
+   "code": "788",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Belgium",
+   "es": "Bélgica",
+   "arrivals": 9280000,
+   "year": 2023,
+   "code": "56",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Switzerland",
+   "es": "Suiza",
+   "arrivals": 9159500,
+   "year": 2022,
+   "code": "756",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "South Africa",
+   "es": "Sudáfrica",
+   "arrivals": 8483000,
+   "year": 2023,
+   "code": "710",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Dominican Republic",
+   "es": "República Dominicana",
+   "arrivals": 8058671,
+   "year": 2023,
+   "code": "214",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Argentina",
+   "es": "Argentina",
+   "arrivals": 7285688,
+   "year": 2023,
+   "code": "32",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Sweden",
+   "es": "Suecia",
+   "arrivals": 6629000,
+   "year": 2022,
+   "code": "752",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Uzbekistan",
+   "es": "Uzbekistán",
+   "arrivals": 6626302,
+   "year": 2023,
+   "code": "860",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Taiwan",
+   "es": "República de China",
+   "arrivals": 6487000,
+   "year": 2023,
+   "code": "158",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Brazil",
+   "es": "Brasil",
+   "arrivals": 5908341,
+   "year": 2023,
+   "code": "76",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Colombia",
+   "es": "Colombia",
+   "arrivals": 5800000,
+   "year": 2023,
+   "code": "170",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Bulgaria",
+   "es": "Bulgaria",
+   "arrivals": 5557000,
+   "year": 2022,
+   "code": "100",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Bahrain",
+   "es": "Baréin",
+   "arrivals": 5484000,
+   "year": 2023,
+   "code": "48",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Jordan",
+   "es": "Jordania",
+   "arrivals": 5346000,
+   "year": 2023,
+   "code": "400",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Puerto Rico",
+   "es": "Puerto Rico",
+   "arrivals": 5046200,
+   "year": 2023,
+   "code": "630",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Norway",
+   "es": "Noruega",
+   "arrivals": 4979400,
+   "year": 2022,
+   "code": "578",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Georgia",
+   "es": "Georgia",
+   "arrivals": 4669000,
+   "year": 2023,
+   "code": "268",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Slovenia",
+   "es": "Eslovenia",
+   "arrivals": 4658000,
+   "year": 2023,
+   "code": "705",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Finland",
+   "es": "Finlandia",
+   "arrivals": 4248000,
+   "year": 2023,
+   "code": "246",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Andorra",
+   "es": "Andorra",
+   "arrivals": 4048100,
+   "year": 2023,
+   "code": "20",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Cyprus",
+   "es": "Chipre",
+   "arrivals": 3845652,
+   "year": 2023,
+   "code": "196",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Czechia",
+   "es": "República Checa",
+   "arrivals": 3768000,
+   "year": 2021,
+   "code": "203",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Chile",
+   "es": "Chile",
+   "arrivals": 3730507,
+   "year": 2023,
+   "code": "152",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Algeria",
+   "es": "Argelia",
+   "arrivals": 3300000,
+   "year": 2023,
+   "code": null,
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Uruguay",
+   "es": "Uruguay",
+   "arrivals": 3059000,
+   "year": 2019,
+   "code": "858",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Israel",
+   "es": "Israel",
+   "arrivals": 3010000,
+   "year": 2023,
+   "code": "376",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Malta",
+   "es": "Malta",
+   "arrivals": 2981500,
+   "year": 2023,
+   "code": "470",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Oman",
+   "es": "Omán",
+   "arrivals": 2849060,
+   "year": 2023,
+   "code": "512",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "New Zealand",
+   "es": "Nueva Zelanda",
+   "arrivals": 2827557,
+   "year": 2023,
+   "code": "554",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Costa Rica",
+   "es": "Costa Rica",
+   "arrivals": 2751134,
+   "year": 2023,
+   "code": "188",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Philippines",
+   "es": "Filipinas",
+   "arrivals": 2654000,
+   "year": 2022,
+   "code": "608",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Qatar",
+   "es": "Catar",
+   "arrivals": 2559800,
+   "year": 2022,
+   "code": "634",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Peru",
+   "es": "Perú",
+   "arrivals": 2500000,
+   "year": 2023,
+   "code": "604",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "El Salvador",
+   "es": "El Salvador",
+   "arrivals": 2479100,
+   "year": 2023,
+   "code": "222",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Jamaica",
+   "es": "Jamaica",
+   "arrivals": 2478400,
+   "year": 2022,
+   "code": "388",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Lithuania",
+   "es": "Lituania",
+   "arrivals": 2404700,
+   "year": 2023,
+   "code": "440",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Ukraine",
+   "es": "Ucrania",
+   "arrivals": 2346000,
+   "year": 2023,
+   "code": "804",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Armenia",
+   "es": "Armenia",
+   "arrivals": 2316000,
+   "year": 2023,
+   "code": "51",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Cambodia",
+   "es": "Camboya",
+   "arrivals": 2276600,
+   "year": 2022,
+   "code": "116",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Estonia",
+   "es": "Estonia",
+   "arrivals": 2166000,
+   "year": 2022,
+   "code": "233",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Republic of Serbia",
+   "es": "Serbia",
+   "arrivals": 2134305,
+   "year": 2023,
+   "code": "688",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Montenegro",
+   "es": "Montenegro",
+   "arrivals": 2036000,
+   "year": 2022,
+   "code": "499",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "The Bahamas",
+   "es": "Bahamas",
+   "arrivals": 1872059,
+   "year": 2023,
+   "code": "44",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "United Republic of Tanzania",
+   "es": "Tanzania",
+   "arrivals": 1800000,
+   "year": 2023,
+   "code": "834",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Maldives",
+   "es": "Maldivas",
+   "arrivals": 1675000,
+   "year": 2022,
+   "code": "462",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Cuba",
+   "es": "Cuba",
+   "arrivals": 1613400,
+   "year": 2022,
+   "code": "192",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Zimbabwe",
+   "es": "Zimbabue",
+   "arrivals": 1600000,
+   "year": 2023,
+   "code": null,
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Azerbaijan",
+   "es": "Azerbaiyán",
+   "arrivals": 1508000,
+   "year": 2022,
+   "code": "31",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Guatemala",
+   "es": "Guatemala",
+   "arrivals": 1494000,
+   "year": 2022,
+   "code": "320",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Belarus",
+   "es": "Bielorrusia",
+   "arrivals": 1492000,
+   "year": 2022,
+   "code": "112",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Panama",
+   "es": "Panamá",
+   "arrivals": 1488000,
+   "year": 2022,
+   "code": "591",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Lebanon",
+   "es": "Líbano",
+   "arrivals": 1466000,
+   "year": 2022,
+   "code": "422",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Zambia",
+   "es": "Zambia",
+   "arrivals": 1400000,
+   "year": 2023,
+   "code": "894",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Uganda",
+   "es": "Uganda",
+   "arrivals": 1300000,
+   "year": 2023,
+   "code": "800",
+   "source": "World Tourism Barometer 2023"
+  },
+  {
+   "en": "Mauritius",
+   "es": "Mauricio",
+   "arrivals": 1295000,
+   "year": 2023,
+   "code": "480",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Bosnia and Herzegovina",
+   "es": "Bosnia y Herzegovina",
+   "arrivals": 1198000,
+   "year": 2023,
+   "code": "70",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Myanmar",
+   "es": "Birmania",
+   "arrivals": 1067000,
+   "year": 2023,
+   "code": "104",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Luxembourg",
+   "es": "Luxemburgo",
+   "arrivals": 1013000,
+   "year": 2022,
+   "code": "442",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Fiji",
+   "es": "Fiyi",
+   "arrivals": 929740,
+   "year": 2023,
+   "code": "242",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Ghana",
+   "es": "Ghana",
+   "arrivals": 915000,
+   "year": 2022,
+   "code": "288",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Iran",
+   "es": "Irán",
+   "arrivals": 882000,
+   "year": 2021,
+   "code": "364",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Namibia",
+   "es": "Namibia",
+   "arrivals": 864000,
+   "year": 2023,
+   "code": "516",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Paraguay",
+   "es": "Paraguay",
+   "arrivals": 864000,
+   "year": 2023,
+   "code": "600",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Honduras",
+   "es": "Honduras",
+   "arrivals": 844000,
+   "year": 2022,
+   "code": "340",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Nicaragua",
+   "es": "Nicaragua",
+   "arrivals": 817900,
+   "year": 2022,
+   "code": "558",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Laos",
+   "es": "Laos",
+   "arrivals": 811600,
+   "year": 2020,
+   "code": "418",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Cabo Verde",
+   "es": "Cabo Verde",
+   "arrivals": 785000,
+   "year": 2022,
+   "code": "132",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "North Macedonia",
+   "es": "Macedonia del Norte",
+   "arrivals": 734139,
+   "year": 2023,
+   "code": "807",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Bolivia",
+   "es": "Bolivia",
+   "arrivals": 724000,
+   "year": 2022,
+   "code": "68",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Sri Lanka",
+   "es": "Sri Lanka",
+   "arrivals": 720000,
+   "year": 2022,
+   "code": "144",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Iceland",
+   "es": "Islandia",
+   "arrivals": 698000,
+   "year": 2021,
+   "code": "352",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Barbados",
+   "es": "Barbados",
+   "arrivals": 636046,
+   "year": 2023,
+   "code": "52",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Nepal",
+   "es": "Nepal",
+   "arrivals": 614800,
+   "year": 2022,
+   "code": "524",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Mongolia",
+   "es": "Mongolia",
+   "arrivals": 594000,
+   "year": 2023,
+   "code": "496",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Gambia",
+   "es": "Gambia",
+   "arrivals": 570000,
+   "year": 2022,
+   "code": "270",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Nigeria",
+   "es": "Nigeria",
+   "arrivals": 528360,
+   "year": 2023,
+   "code": "566",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Mozambique",
+   "es": "Mozambique",
+   "arrivals": 492000,
+   "year": 2021,
+   "code": "508",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Togo",
+   "es": "Togo",
+   "arrivals": 482000,
+   "year": 2020,
+   "code": "768",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Rwanda",
+   "es": "Ruanda",
+   "arrivals": 480000,
+   "year": 2021,
+   "code": "646",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Latvia",
+   "es": "Letonia",
+   "arrivals": 478000,
+   "year": 2021,
+   "code": "428",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Malawi",
+   "es": "Malaui",
+   "arrivals": 432000,
+   "year": 2021,
+   "code": "454",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "eSwatini",
+   "es": "Suazilandia",
+   "arrivals": 393000,
+   "year": 2022,
+   "code": "748",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Democratic Republic of the Congo",
+   "es": "República Democrática del Congo",
+   "arrivals": 382000,
+   "year": 2021,
+   "code": "180",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Belize",
+   "es": "Belice",
+   "arrivals": 372600,
+   "year": 2022,
+   "code": "84",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Saint Lucia",
+   "es": "Santa Lucía",
+   "arrivals": 356000,
+   "year": 2022,
+   "code": "662",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Kyrgyzstan",
+   "es": "Kirguistán",
+   "arrivals": 345700,
+   "year": 2022,
+   "code": "417",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Monaco",
+   "es": "Mónaco",
+   "arrivals": 341248,
+   "year": 2023,
+   "code": "492",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Seychelles",
+   "es": "Seychelles",
+   "arrivals": 332000,
+   "year": 2022,
+   "code": "690",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Benin",
+   "es": "Benín",
+   "arrivals": 325000,
+   "year": 2020,
+   "code": "204",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Botswana",
+   "es": "Botsuana",
+   "arrivals": 314000,
+   "year": 2021,
+   "code": "72",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Trinidad and Tobago",
+   "es": "Trinidad y Tobago",
+   "arrivals": 309000,
+   "year": 2023,
+   "code": "780",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Guyana",
+   "es": "Guyana",
+   "arrivals": 288000,
+   "year": 2022,
+   "code": "328",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Antigua and Barbuda",
+   "es": "Antigua y Barbuda",
+   "arrivals": 281800,
+   "year": 2023,
+   "code": "28",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Ethiopia",
+   "es": "Etiopía",
+   "arrivals": 247000,
+   "year": 2023,
+   "code": "231",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Moldova",
+   "es": "Moldavia",
+   "arrivals": 195447,
+   "year": 2023,
+   "code": "498",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Palestine",
+   "es": "Palestina",
+   "arrivals": 170000,
+   "year": 2020,
+   "code": "275",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Mali",
+   "es": "Malí",
+   "arrivals": 168000,
+   "year": 2021,
+   "code": "466",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Grenada",
+   "es": "Granada",
+   "arrivals": 149000,
+   "year": 2022,
+   "code": "308",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Haiti",
+   "es": "Haití",
+   "arrivals": 148000,
+   "year": 2021,
+   "code": "332",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Djibouti",
+   "es": "Yibuti",
+   "arrivals": 145000,
+   "year": 2022,
+   "code": "262",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Bangladesh",
+   "es": "Bangladés",
+   "arrivals": 135000,
+   "year": 2021,
+   "code": "50",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Angola",
+   "es": "Angola",
+   "arrivals": 130000,
+   "year": 2022,
+   "code": "24",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "New Caledonia",
+   "es": "Nueva Caledonia",
+   "arrivals": 125097,
+   "year": 2023,
+   "code": "540",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Kuwait",
+   "es": "Kuwait",
+   "arrivals": 122456,
+   "year": 2023,
+   "code": "414",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Burkina Faso",
+   "es": "Burkina Faso",
+   "arrivals": 121000,
+   "year": 2023,
+   "code": "854",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Liechtenstein",
+   "es": "Liechtenstein",
+   "arrivals": 114399,
+   "year": 2023,
+   "code": "438",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "San Marino",
+   "es": "San Marino",
+   "arrivals": 94000,
+   "year": 2021,
+   "code": "674",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Niger",
+   "es": "Níger",
+   "arrivals": 85000,
+   "year": 2020,
+   "code": "562",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Saint Kitts and Nevis",
+   "es": "San Cristóbal y Nieves",
+   "arrivals": 79800,
+   "year": 2022,
+   "code": "659",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Papua New Guinea",
+   "es": "Papúa Nueva Guinea",
+   "arrivals": 66800,
+   "year": 2022,
+   "code": "598",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Dominica",
+   "es": "Dominica",
+   "arrivals": 61000,
+   "year": 2022,
+   "code": "212",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Saint Vincent and the Grenadines",
+   "es": "San Vicente y las Granadinas",
+   "arrivals": 59000,
+   "year": 2022,
+   "code": "670",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Guinea-Bissau",
+   "es": "Guinea-Bisáu",
+   "arrivals": 52400,
+   "year": 2019,
+   "code": "624",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Samoa",
+   "es": "Samoa",
+   "arrivals": 49400,
+   "year": 2022,
+   "code": "882",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Chad",
+   "es": "Chad",
+   "arrivals": 40000,
+   "year": 2021,
+   "code": "148",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Sierra Leone",
+   "es": "Sierra Leona",
+   "arrivals": 40000,
+   "year": 2021,
+   "code": "694",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Central African Republic",
+   "es": "República Centroafricana",
+   "arrivals": 34600,
+   "year": 2020,
+   "code": "140",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Vanuatu",
+   "es": "Vanuatu",
+   "arrivals": 30000,
+   "year": 2022,
+   "code": "548",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Comoros",
+   "es": "Comoras",
+   "arrivals": 28800,
+   "year": 2021,
+   "code": "174",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Bhutan",
+   "es": "Bután",
+   "arrivals": 20900,
+   "year": 2022,
+   "code": "64",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Palau",
+   "es": "Palaos",
+   "arrivals": 18400,
+   "year": 2020,
+   "code": "585",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Tonga",
+   "es": "Tonga",
+   "arrivals": 18400,
+   "year": 2022,
+   "code": "776",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Federated States of Micronesia",
+   "es": "Estados Federados de Micronesia",
+   "arrivals": 18000,
+   "year": 2019,
+   "code": "583",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "São Tomé and Principe",
+   "es": "Santo Tomé y Príncipe",
+   "arrivals": 15100,
+   "year": 2021,
+   "code": "678",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Madagascar",
+   "es": "Madagascar",
+   "arrivals": 7800,
+   "year": 2021,
+   "code": "450",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "East Timor",
+   "es": "Timor Oriental",
+   "arrivals": 5500,
+   "year": 2021,
+   "code": "626",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Brunei",
+   "es": "Brunéi",
+   "arrivals": 3500,
+   "year": 2021,
+   "code": "96",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Kiribati",
+   "es": "Kiribati",
+   "arrivals": 1800,
+   "year": 2022,
+   "code": "296",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Solomon Islands",
+   "es": "Islas Salomón",
+   "arrivals": 700,
+   "year": 2021,
+   "code": "90",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Tuvalu",
+   "es": "Tuvalu",
+   "arrivals": 244,
+   "year": 2022,
+   "code": "798",
+   "source": "base UN Tourism"
+  },
+  {
+   "en": "Marshall Islands",
+   "es": "Islas Marshall",
+   "arrivals": 35,
+   "year": 2021,
+   "code": "584",
+   "source": "base UN Tourism"
+  }
+ ]
+}
