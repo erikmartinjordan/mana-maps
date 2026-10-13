@@ -35,7 +35,7 @@ Luego para cada isPublished==true, fetch geojsonText y valida contra AGENTS.md:
 3. **Paleta semántica**: variable numérica → rampa monocromática ordenada claro→oscuro. Borde blanco fino en coropletas (_manaBorderColor #ffffff). Arcoíris = fail.
 4. **Props por feature (ES)**: _manaName, name, _manaColor (hex), _manaFillOpacity, _manaGroupName/_manaGroupId, _manaLabelStyle completo haloWidth>=2, y claves legibles Superficie/Dato/Description + clave numérica para leyenda (ej Profundidad media). Sin duplicados _manaName.
 5. **Popups**: cada feature muestra datos concretos, no solo nombre.
-6. **Visual**: thumbnails vía js/map-preview.js (build+renderSVG) sin vacíos; featured map js/gallery-page.js (buildDepthLegend:594, featuredPopupHtml:664) con leyenda y labels únicos.
+6. **Visual**: thumbnails vía js/map-preview.js (build+renderSVG) sin vacíos; featured map js/gallery-page.js (buildLegendForKey + popups de feature) con leyenda y labels únicos.
 7. **Metadatos**: tags no vacío (visible en filter-bar:372), lang:es, slug SEO corto, título no truncado, geojsonText <1MiB.
 
 ## Qué es HORRIBLE hoy (2026-08-27, 9 publicados)

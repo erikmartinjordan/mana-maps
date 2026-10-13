@@ -11,9 +11,11 @@ obligatoria para cualquier agente que trabaje aquí.
   fueron eliminados: **no recrearlos** ni añadir `<script>` de datos.
 - El mapa destacado de `/gallery/?slug=<id>` se renderiza con MapLibre y
   respeta por feature: `_manaFillOpacity`, `_manaBorderColor`, `_manaWeight`
-  y etiqueta polígonos con `_manaName`. Genera leyenda automática cuando una
-  coropleta usa la clave «Profundidad media» (ver `buildDepthLegend` en
-  `js/gallery-page.js`).
+  y etiqueta polígonos con `_manaName`, con popups de datos reales al hacer
+  clic. Genera leyenda a partir de la clave numérica declarada en el doc
+  (`legendKey` + `legendTitle`/`legendFormat`) vía `buildLegendForKey` en
+  `js/gallery-page.js`; con rampas continuas (muchos colores) la leyenda se
+  colapsa en una barra de degradado.
 
 ## Estándar de publicación de mapas (obligatorio)
 

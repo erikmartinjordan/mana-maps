@@ -941,7 +941,16 @@
       '.slug-share-btn:hover{background:#f3f4f6}' +
       '.slug-watermark{margin-top:10px;font-size:12px;color:#9ca3af}' +
       '.slug-watermark a{color:#0ea5e9;text-decoration:none;font-weight:600}' +
-      '@media (prefers-color-scheme: dark){.slug-share-btn{color:#e5e7eb;border-color:#374151}.slug-share-btn:hover{background:#1f2937}.slug-meta-line{color:#9ca3af}}';
+      '.featured-legend-steps.featured-legend-gradient{width:100%;min-width:150px}' +
+      '.featured-legend-steps.featured-legend-gradient span{flex:1 1 auto;width:auto}' +
+      '.slug-popup{font-family:\'DM Sans\',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:12.5px;color:#111214;min-width:140px}' +
+      '.slug-popup-title{font-weight:800;font-size:13.5px;margin-bottom:4px}' +
+      '.slug-popup-desc{color:#6b7280;font-size:12px;margin-bottom:6px;line-height:1.35}' +
+      '.slug-popup-row{display:flex;justify-content:space-between;gap:14px;padding:2px 0}' +
+      '.slug-popup-row span{color:#6b7280}' +
+      '.slug-popup-row b{font-weight:700;text-align:right}' +
+      '.maplibregl-popup-content{border-radius:12px;box-shadow:0 8px 30px rgba(15,23,42,.18);padding:12px 14px}' +
+      '@media (prefers-color-scheme: dark){.slug-share-btn{color:#e5e7eb;border-color:#374151}.slug-share-btn:hover{background:#1f2937}.slug-meta-line{color:#9ca3af}.slug-popup{color:#e7edf0}.slug-popup-desc{color:#9ca3af}.maplibregl-popup-content{background:#111827;color:#e7edf0}}';
     document.head.appendChild(style);
   }
 
@@ -1118,6 +1127,10 @@
 
   // Leyenda numérica declarada en el documento Firestore (legendKey).
   // Agrupa por _manaGroupName y pinta rampa claro→oscuro ordenada por el dato.
+  // Con muchos colores (rampas continuas, p. ej. 130+ países) las muestras
+  // desbordaban el mapa: se colapsan en una única barra de degradado.
+  var LEGEND_MAX_SWATCHES = 10;
+
   function buildLegendForKey(geo, item) {
     var key = item && item.legendKey;
     if (!key) return '';
@@ -1148,11 +1161,19 @@
       if (steps.length >= 3 && !ramp) ramp = { name: gname, steps: steps, min: b.min, max: b.max };
     });
     if (!ramp) return '';
+    var steps = ramp.steps;
+    var stepsClass = 'featured-legend-steps';
+    var stepsHtml;
+    if (steps.length > LEGEND_MAX_SWATCHES) {
+      stepsClass += ' featured-legend-gradient';
+      var gradient = steps.map(function(s) { return s.c; }).join(',');
+      stepsHtml = '<span style="background:linear-gradient(90deg,' + gradient + ')"></span>';
+    } else {
+      stepsHtml = steps.map(function(s) { return '<span style="background:' + s.c + '"></span>'; }).join('');
+    }
     var html = '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
       '<div class="featured-legend-title">' + escHtml(title) + '</div>' +
-      '<div class="featured-legend-steps">';
-    ramp.steps.forEach(function(s) { html += '<span style="background:' + s.c + '"></span>'; });
-    html += '</div>' +
+      '<div class="' + stepsClass + '">' + stepsHtml + '</div>' +
       '<div class="featured-legend-scale"><span>' + escHtml(formatLegendValue(ramp.min, fmt)) + '</span>' +
       '<span>' + escHtml(formatLegendValue(ramp.max, fmt)) + '</span></div>' +
       '</div>';
@@ -1305,6 +1326,62 @@
     } catch (e) {}
   }
 
+  // ── Popups de la vista destacada ────────────────────────────────
+  var SLUG_FEATURE_LAYERS = ['slug-fills', 'slug-lines', 'slug-points'];
+
+  // MapLibre abre la atribución expandida; en móvil ocupa ~16 % del mapa y
+  // tapa la leyenda. Se colapsa al botón ⓘ en pantallas pequeñas.
+  function collapseSlugAttribution(map) {
+    try {
+      if (!window.matchMedia || !window.matchMedia('(max-width: 560px)').matches) return;
+      var el = map.getContainer().querySelector('.maplibregl-ctrl-attrib');
+      if (!el) return;
+      el.classList.remove('maplibregl-compact-show');
+      el.removeAttribute('open');
+    } catch (e) {}
+  }
+
+  var SLUG_POPUP_SKIP = { name: 1, Nombre: 1, Description: 1, _manaName: 1 };
+
+  function buildSlugPopupHtml(props, item) {
+    props = props || {};
+    var name = props._manaName || props.name || props.Nombre || props['País'] || props['Pais'] ||
+      (item && (item.title || item.name)) || 'Dato';
+    var html = '<div class="slug-popup"><div class="slug-popup-title">' + escHtml(name) + '</div>';
+    if (props.Description) html += '<div class="slug-popup-desc">' + escHtml(props.Description) + '</div>';
+    var shown = 0;
+    Object.keys(props).forEach(function(k) {
+      if (shown >= 8) return;
+      if (k.charAt(0) === '_' || SLUG_POPUP_SKIP[k]) return;
+      var v = props[k];
+      if (v == null || v === '') return;
+      html += '<div class="slug-popup-row"><span>' + escHtml(k) + '</span><b>' + escHtml(v) + '</b></div>';
+      shown++;
+    });
+    return html + '</div>';
+  }
+
+  function showSlugPopup(map, e, item) {
+    var layers = SLUG_FEATURE_LAYERS.filter(function(l) { return map.getLayer(l); });
+    if (!layers.length) return;
+    var feats = map.queryRenderedFeatures(e.point, { layers: layers });
+    if (!feats || !feats.length) return;
+    new maplibregl.Popup({ closeButton: true, maxWidth: '280px', offset: 12 })
+      .setLngLat(e.lngLat)
+      .setHTML(buildSlugPopupHtml(feats[0].properties, item))
+      .addTo(map);
+  }
+
+  function wireSlugPopups(map, item) {
+    map.on('click', function(e) { showSlugPopup(map, e, item); });
+    map.on('mousemove', function(e) {
+      var layers = SLUG_FEATURE_LAYERS.filter(function(l) { return map.getLayer(l); });
+      if (!layers.length) return;
+      var hit = map.queryRenderedFeatures(e.point, { layers: layers });
+      map.getCanvas().style.cursor = (hit && hit.length) ? 'pointer' : '';
+    });
+  }
+
   async function showSlugMap(item) {
     if (!item) return;
     var wrap = document.getElementById('slug-map-wrap');
@@ -1357,13 +1434,14 @@
     });
     _slugMap = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    wireSlugPopups(map, item);
 
     var bounds = collectGeoBounds(geo);
     if (bounds) {
       map.fitBounds(bounds, { padding: { top: 40, bottom: 40, left: 48, right: 48 }, duration: 0, maxZoom: 11 });
     }
 
-    map.on('load', function() { addSlugMapLayers(map, geo); });
+    map.on('load', function() { addSlugMapLayers(map, geo); collapseSlugAttribution(map); });
     map.on('error', function(e) {
       if (e && e.error && e.error.status === 404) return;
       console.warn('slug map error:', e && e.error ? e.error.message : e);

@@ -461,10 +461,11 @@
     #slug-map:hover .maplibregl-ctrl-group,
     #slug-map .maplibregl-ctrl-group:focus-within{opacity:1}
     #slug-map .maplibregl-ctrl-group button{width:32px;height:32px}
-    .featured-legend{position:absolute;left:12px;bottom:34px;z-index:6;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border:1px solid rgba(16,24,40,.14);border-radius:12px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:11px;color:#334155;box-shadow:0 6px 20px rgba(15,23,42,.14);line-height:1.35}
+    .featured-legend{position:absolute;left:12px;bottom:34px;z-index:6;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border:1px solid rgba(16,24,40,.14);border-radius:12px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:11px;color:#334155;box-shadow:0 6px 20px rgba(15,23,42,.14);line-height:1.35;max-width:calc(100% - 24px);box-sizing:border-box}
     .featured-legend-title{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#64748b;margin-bottom:7px}
     .featured-legend-steps{display:flex;border-radius:4px;overflow:hidden;border:1px solid rgba(16,24,40,.18)}
-    .featured-legend-steps span{width:26px;height:11px;display:block}
+    .featured-legend-steps span{width:26px;height:11px;display:block;flex:0 0 auto}
+    .featured-legend-steps.featured-legend-gradient span{flex:1 1 auto;width:auto}
     .featured-legend-scale{display:flex;justify-content:space-between;margin-top:4px;font-weight:600;color:#475569}
     @media (max-width:920px){
       #slug-map-wrap{margin:0 24px 20px;padding:14px}
@@ -726,7 +727,7 @@
   <script defer src="/js/user-maps.js"></script>
   <script defer src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
   <script defer src="/js/basemap-config.js"></script>
-  <script defer src="/js/gallery-page.js?v=1791312002"></script>
+  <script defer src="/js/gallery-page.js?v=1791600000"></script>
   <script defer src="/js/tracking.js?v=1791312000"></script>
   <script>
     document.querySelectorAll('img').forEach(function (image) {
