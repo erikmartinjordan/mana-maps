@@ -17,9 +17,29 @@
 
   var loadPromise = null, loaded = false, broken = false;
   var renderer = null, scene = null, camera = null;
-  var handGroup = null, tipAnchor = null, fingerAnchors = null;
-  var rafId = null, running = false, startTime = 0;
+  var handGroup = null, tipAnchor = null, fingerAnchors = null, flexPivots = null;
+  var rafId = null, running = false, startTime = 0, lastFrameT = 0;
   var lastW = 0, lastH = 0;
+
+  // ── muelles del cameo ─────────────────────────────────────────────────
+  // La mano no es un maniquí: cede con el peso de la bola (dip), hace
+  // follow-through en la dirección del guantazo (lean) y los dedos absorben
+  // el golpe (curl). Todo con muelles amortiguados integrados por frame.
+  var springs = null;
+  function makeSpring(k, c) { return { x: 0, v: 0, k: k, c: c }; }
+  function resetSprings() {
+    springs = {
+      dip: makeSpring(110, 14),   // ~1.7 Hz, ζ≈0.67: rebote corto y creíble
+      lean: makeSpring(85, 11),   // giro de follow-through, ζ≈0.6
+      curl: makeSpring(140, 16)   // dedos: rápido y sin rebote visible
+    };
+  }
+  resetSprings();
+  function stepSpring(s, dt) {
+    var a = -s.k * s.x - s.c * s.v;
+    s.v += a * dt;
+    s.x += s.v * dt;
+  }
 
   function now() {
     return (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -81,180 +101,479 @@
     return texture;
   }
 
-  // ── la mano (adaptada del demo; devuelve el ancla de la yema) ─────────
+  // ── la mano (modelado propio; devuelve el ancla de la yema) ───────────
   function createHand() {
     var skinMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xe09b82,
-      roughness: 0.48,
+      color: 0xd99a7c,
+      roughness: 0.44,
       metalness: 0.0,
       bumpMap: createSkinBumpMap(),
-      bumpScale: 0.008,
-      clearcoat: 0.12,
-      clearcoatRoughness: 0.4,
-      transmission: 0.08
+      bumpScale: 0.01,
+      clearcoat: 0.16,
+      clearcoatRoughness: 0.36
     });
 
     var nailMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xeeaba0,
-      roughness: 0.25,
+      color: 0xe8b2a4,
+      roughness: 0.22,
       metalness: 0.0,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.1
+      clearcoat: 0.7,
+      clearcoatRoughness: 0.08,
+      side: THREE.DoubleSide
     });
 
-    function buildFinger(radius, lengths, rotations, startPos, hasNail) {
-      var fingerGroup = new THREE.Group();
-      fingerGroup.position.copy(startPos);
-      var currentParent = fingerGroup;
+    // La última falange lleva su propio material: permite teñir la almohadilla
+    // con un degradado de vértices (la carne de la yema es más rosada que la
+    // del resto del dedo) y bajarle el brillo, que es lo que la hace parecer
+    // plástico. El color base va a blanco: los vertex colors se MULTIPLICAN,
+    // no sustituyen, así que el degradado ya lleva el color de la piel.
+    var tipMaterial = skinMaterial.clone();
+    tipMaterial.color.setHex(0xffffff);
+    tipMaterial.vertexColors = true;
+    tipMaterial.roughness = 0.54;
+    tipMaterial.clearcoat = 0.10;
 
-      for (var i = 0; i < lengths.length; i++) {
-        var len = lengths[i];
-        var jointRadius = radius * (1 - i * 0.1);
+// Radio del perfil de una falange en la fracción t (0..1) de su longitud.
+    // Interpolación SUAVE (derivada 0 en los extremos) + bombeo central: dos
+    // falanges contiguas comparten plano, radio y tangente en la articulación,
+    // así que la unión es invisible (solo queda el pliegue, como en una
+    // articulación real) en vez del escalón esfera-vs-cilindro.
+    function phalanxRadius(t, rStart, rEnd) {
+      var e = t * t * (3 - 2 * t);            // smoothstep
+      var r = rStart + (rEnd - rStart) * e;
+      return r * (1 + 0.055 * Math.sin(Math.PI * t)); // bombeo de la falange
+    }
 
-        var joint = new THREE.Mesh(new THREE.SphereGeometry(jointRadius * 1.08, 24, 24), skinMaterial);
-        joint.castShadow = true;
-        joint.receiveShadow = true;
-        currentParent.add(joint);
+    function smooth01(t) {
+      t = t < 0 ? 0 : (t > 1 ? 1 : t);
+      return t * t * (3 - 2 * t);
+    }
 
-        var pivot = new THREE.Group();
-        pivot.rotation.set(rotations[i].x, rotations[i].y, rotations[i].z);
-        joint.add(pivot);
+    // Hermite con pendientes en unidades reales (r por unidad de Y), para
+    // encadenar tramos de perfil sin quiebro en la unión.
+    function hermiteSlope(y, y0, y1, p0, p1, s0, s1) {
+      var h = y1 - y0;
+      if (h <= 1e-6) return p1;
+      var t = (y - y0) / h, t2 = t * t, t3 = t2 * t;
+      return (2 * t3 - 3 * t2 + 1) * p0 + (t3 - 2 * t2 + t) * (s0 * h) +
+             (-2 * t3 + 3 * t2) * p1 + (t3 - t2) * (s1 * h);
+    }
 
-        var boneGeo = new THREE.CylinderGeometry(jointRadius * 0.88, jointRadius, len, 24);
-        var bone = new THREE.Mesh(boneGeo, skinMaterial);
-        bone.position.y = len / 2;
-        bone.castShadow = true;
-        bone.receiveShadow = true;
-        pivot.add(bone);
-
-        if (i === lengths.length - 1 && hasNail !== false) {
-          var nailGeo = new THREE.BoxGeometry(jointRadius * 1.1, len * 0.45, jointRadius * 0.3);
-          var nail = new THREE.Mesh(nailGeo, nailMaterial);
-          nail.position.set(0, len * 0.65, jointRadius * 0.65);
-          nail.rotation.x = -0.1;
-          pivot.add(nail);
+    // Cierra un extremo de la revolución con una CÚPULA suave hacia dentro
+    // (un disco plano queda casi coplanar con el cilindro que lo rodea y
+    // z-fightea con él; un cono afilado asomaba en el meñique como un corte
+    // diagonal). El anillo que recibe la cúpula se DUPLICA antes de cerrar:
+    // LatheGeometry comparte esos vértices entre el muro y el cierre, así que
+    // computeVertexNormals() promedia la normal del muro (hacia fuera) con la
+    // del cierre (hacia arriba) y el canto se orienta al cielo → se pintaba
+    // una banda blanca en cada articulación. Entre los dos anillos
+    // coincidentes solo quedan triángulos de área cero, que no aportan a la
+    // normal. La cúpula añade puntos en un cuarto de círculo para que el
+    // redondeo sea continuo, no un vértice apuntado.
+    function capEnds(pts) {
+      if (pts.length < 2) return pts;
+      var SEG = 6;
+      if (pts[0].x > 1e-3) {
+        var first = pts[0];
+        var capH0 = Math.max(0.03, first.x * 0.4);
+        pts.unshift(first.clone());
+        for (var i = 1; i <= SEG; i++) {
+          var a0 = (i / SEG) * Math.PI / 2;
+          pts.unshift(new THREE.Vector2(
+            Math.max(0.0001, first.x * Math.cos(a0)),
+            first.y + capH0 * Math.sin(a0)
+          ));
         }
-
-        var nextParent = new THREE.Group();
-        nextParent.position.y = len;
-        pivot.add(nextParent);
-
-        currentParent = nextParent;
-        radius *= 0.88;
       }
-      // Extremo de la última falange: donde se apoya la pelota (el globo).
-      fingerGroup.userData.tipAnchor = currentParent;
-      return fingerGroup;
+      var last = pts[pts.length - 1];
+      if (last.x > 1e-3) {
+        var capH1 = Math.max(0.03, last.x * 0.4);
+        pts.push(last.clone());
+        for (var j = 1; j <= SEG; j++) {
+          var a1 = (j / SEG) * Math.PI / 2;
+          pts.push(new THREE.Vector2(
+            Math.max(0.0001, last.x * Math.cos(a1)),
+            last.y - capH1 * Math.sin(a1)
+          ));
+        }
+      }
+      return pts;
+    }
+
+// Falange de revolución: perfil continuo de rStart (nudillo base) a rEnd
+    // (nudillo siguiente) y, si es la última, cúpula de yema del MISMO radio
+    // para que la punta sea una continuación — no una esfera pegada encima.
+    // `root` engorda y hunde el arranque para que el dedo se funda con el
+    // puño (si no, se ve un corte entre la base del dedo y la palma).
+    function phalanx(len, rStart, rEnd, root) {
+      var pts = [];
+      if (root) {
+        pts.push(new THREE.Vector2(Math.max(0.0001, rStart * 1.28), -rStart * 1.15));
+        pts.push(new THREE.Vector2(rStart * 1.06, -rStart * 0.25));
+      }
+      var n = 9;
+      for (var s = 0; s <= n; s++) {
+        var t = s / n;
+        pts.push(new THREE.Vector2(Math.max(0.0001, phalanxRadius(t, rStart, rEnd)), len * t));
+      }
+      var geo = new THREE.LatheGeometry(capEnds(pts), 40);
+      geo.computeVertexNormals();
+      var mesh = new THREE.Mesh(geo, skinMaterial);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    // Falange distal: la YEMA. La cámara mira la PALMA (+Z: ahí están el
+    // thenar, el hypothenar y la raíz del pulgar), así que lo que el usuario
+    // ve es la almohadilla de carne —no el dorso—. El perfil se arma en tres
+    // tramos con tangente emparejada en cada unión:
+    //   A) base un pelín más ancha (3.5 %) que el tope de la falange anterior,
+    //      para cubrir su borde durante el solape y no dejar escalón,
+    //   B) cuello que AFINA hacia la punta (un dedo estrecha; antes abombaba
+    //      un 8 % y eso daba la silueta de bala),
+    //   C) cuarto de elipse: redondea a partir del 70 % de la longitud y con
+    //      el radio casi igual a la altura → media esfera, no un huevo.
+    // Después, una pasada de deformación suave por anillo rompe la simetría
+    // de revolución: afina en X, da profundidad en Z y corre la carne hacia
+    // la palma (+Z), que es donde de verdad está el pulpejo.
+    function tipPhalanx(len, rStart, capH, prevLen) {
+      var L = len + capH;                    // NO cambiar: fija el ancla de la yema
+      var seam = Math.max(0, (prevLen - len) / 2);  // fin visible de la anterior
+      var yCap = L * 0.70;                   // ecuador de la almohadilla
+      if (seam > yCap * 0.5) seam = yCap * 0.5;
+      var r0 = rStart * 1.035;               // ≥ radio de la falange anterior
+      var rCap = rStart * 0.97;              // afina antes de redondear
+      var capLen = L - yCap;
+      var sJoint = (seam > 1e-5) ? (rCap - rStart) / (yCap - seam) : 0;
+
+      function radiusAt(y) {
+        if (y >= yCap) {
+          var s = capLen > 1e-6 ? Math.min(1, (y - yCap) / capLen) : 1;
+          return Math.max(0.0001, rCap * Math.sqrt(Math.max(0, 1 - s * s)));
+        }
+        if (seam > 1e-5 && y <= seam) {
+          return hermiteSlope(y, 0, seam, r0, rStart, 0, sJoint);
+        }
+        var a = seam > 1e-5 ? seam : 0;
+        var pa = seam > 1e-5 ? rStart : r0;
+        var sa = seam > 1e-5 ? sJoint : 0;
+        return hermiteSlope(y, a, yCap, pa, rCap, sa, 0);
+      }
+
+      var apex = L;
+      var pts = [];
+      // Collar de arranque: hunde y engorda la base para que el dedo se funda
+      // con el puño (solo aplica si la falange nace en la palma).
+      if (prevLen == null) {
+        pts.push(new THREE.Vector2(rStart * 1.28, -rStart * 1.15));
+        pts.push(new THREE.Vector2(rStart * 1.06, -rStart * 0.25));
+      }
+      var n = 36;
+      for (var i = 0; i <= n; i++) {
+        var y = L * i / n;
+        pts.push(new THREE.Vector2(radiusAt(y), y));
+      }
+      var geo = new THREE.LatheGeometry(capEnds(pts), 48);
+
+      // Deformación por anillo + color de la almohadilla.
+      var pos = geo.attributes.position;
+      var col = new Float32Array(pos.count * 3);
+      var skinC = [0.851, 0.604, 0.486];   // 0xd99a7c
+      var padC = [0.831, 0.478, 0.396];    // 0xd47a65: la yema se inyecta
+      for (var v = 0; v < pos.count; v++) {
+        var px = pos.getX(v), py = pos.getY(v), pz = pos.getZ(v);
+        var u = py / L;
+        var g = smooth01((u - 0.32) / 0.68);
+        pos.setXYZ(v, px * (1 - 0.07 * g), py, pz * (1 + 0.16 * g) + 0.14 * rCap * g);
+        var k = smooth01((u - 0.22) / 0.78);
+        col[v * 3] = skinC[0] + (padC[0] - skinC[0]) * k;
+        col[v * 3 + 1] = skinC[1] + (padC[1] - skinC[1]) * k;
+        col[v * 3 + 2] = skinC[2] + (padC[2] - skinC[2]) * k;
+      }
+      pos.needsUpdate = true;
+      geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      geo.computeVertexNormals();
+
+      var mesh = new THREE.Mesh(geo, tipMaterial);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return { mesh: mesh, apex: apex, radiusAt: radiusAt, L: L, seam: seam, rCap: rCap };
+    }
+
+    // Uña: placa curva muestreada sobre el MISMO perfil y la MISMA deformación
+    // que la piel de la falange distal, con un pequeño alejamiento radial, así
+    // se apoya en el dedo por construcción (antes era una esfera achatada que
+    // acababa flotando o metiéndose dentro). Va en el DORSO (-Z): la cámara
+    // mira la palma, así que en el cameo no se ve — pero es donde va.
+    // Contorno en planta: cutillo redondeado, cuerpo a ancho completo y borde
+    // libre recto (como una uña de verdad).
+    function buildNail(tipInfo, yA, yB, halfFrac, lift) {
+      var L = tipInfo.L, rCap = tipInfo.rCap, radiusAt = tipInfo.radiusAt;
+      var NU = 18, NV = 16;
+      var halfChord = radiusAt((yA + yB) / 2) * halfFrac;
+      var verts = [], idx = [];
+      for (var i = 0; i <= NU; i++) {
+        var u = i / NU;
+        var y = yA + (yB - yA) * u;
+        var s = Math.min(1, u / 0.26);
+        var outline = Math.sqrt(Math.max(0, 1 - (1 - s) * (1 - s)));
+        var r = Math.max(1e-4, radiusAt(y));
+        var ax = Math.asin(Math.min(0.97, (halfChord * outline) / r));
+        var uu = y / L;
+        var g = smooth01((uu - 0.32) / 0.68);
+        var xs = 1 - 0.07 * g, zs = 1 + 0.16 * g, sh = 0.14 * rCap * g;
+        for (var j = 0; j <= NV; j++) {
+          var psi = ((j / NV) * 2 - 1) * ax;
+          var dx = r * Math.sin(psi) * xs;
+          var dz = -r * Math.cos(psi) * zs + sh;
+          var m = Math.sqrt(dx * dx + dz * dz);
+          if (m > 1e-6) { var k = (m + lift) / m; dx *= k; dz *= k; }
+          verts.push(dx, y, dz);
+        }
+      }
+      for (var a = 0; a < NU; a++) {
+        for (var b = 0; b < NV; b++) {
+          var p0 = a * (NV + 1) + b, p1 = p0 + 1, p2 = p0 + NV + 1, p3 = p2 + 1;
+          idx.push(p0, p2, p1, p1, p2, p3);
+        }
+      }
+      var geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.setIndex(idx);
+      geo.computeVertexNormals();
+      return new THREE.Mesh(geo, nailMaterial);
+    }
+
+    // Construye un dedo completo: falanges de revolución encadenadas por
+    // pivotes (para flexionar) y yemaContinua en la punta.
+    function buildFinger(spec) {
+      var group = new THREE.Group();
+      group.position.copy(spec.root);
+      var g = spec.groupRot || {};
+      // `spread` inclina el dedo sobre su raíz: abre los dedos cerrados
+      // respecto al vecino para que se lean como dedos, no como una masa.
+      group.rotation.set(g.x || 0, g.y || 0, (g.z || 0) + (spec.spread || 0));
+
+      var parent = group, tip = null;
+      var tipInfo = null;
+      var pivots = [];
+      var last = spec.lengths.length - 1;
+      for (var i = 0; i < spec.lengths.length; i++) {
+        var pivot = new THREE.Group();
+        var rot = spec.rot[i] || {};
+        pivot.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
+        pivot.userData.baseRX = pivot.rotation.x;
+        pivots.push(pivot);
+        parent.add(pivot);
+
+        // Radio compartido en la articulación: el tope de esta falange y la base
+        // de la siguiente son el MISMO radio → unión sin costura.
+        var rStart = spec.radii[i];
+        var rEnd = (i + 1 < spec.radii.length) ? spec.radii[i + 1] : spec.radii[i] * 0.92;
+        var isLast = i === last;
+        // La última falange lleva la bola de carne; las demás, huso simple.
+        var seg, apex = 0;
+        // Desplazamiento de la malla dentro de su pivote: el collar hunde el
+        // arranque bajo el pivote para que la falange se descentre y su base
+        // quede dentro del puño. NO tocar: fija dónde nace cada falange y,
+        // con ello, el ancla de la yema.
+        var offsetY = (i === 0) ? spec.lengths[i] / 2 - rStart * 0.4 : spec.lengths[i] / 2;
+        if (isLast) {
+          // capH ≈ cuánto sobresale la carne del pulpejo más allá del hueso.
+          // `prevLen` = longitud de la falange anterior: con ella se calcula
+          // hasta dónde llega el solape y así el perfil empieza exactamente en
+          // el mismo radio → unión sin escalón.
+          var prevLen = i > 0 ? spec.lengths[i - 1] : 0;
+          tipInfo = tipPhalanx(spec.lengths[i], rStart, spec.lengths[i] * 0.38, i > 0 ? prevLen : null);
+          seg = tipInfo.mesh;
+          apex = tipInfo.apex;
+        } else {
+          // La falange SÍ se solapa con la siguiente ((len_i − len_{i+1})/2):
+          // el solape es lo que tapa la bisagra cuando el nudillo se dobla (el
+          // anillo de la falange siguiente se inclina y abre una cuña). Sin
+          // él se ven agujeros en el puño. Ese muro extra no es el que pintaba
+          // la banda blanca: eso venía de capEnds (anillo compartido con el
+          // cono de cierre), ya corregido.
+          seg = phalanx(spec.lengths[i], rStart, rEnd, i === 0);
+        }
+        seg.position.y = offsetY;
+        pivot.add(seg);
+
+        var next = new THREE.Group();
+        next.position.y = spec.lengths[i];
+        pivot.add(next);
+        parent = next;
+        if (isLast) {
+          // Ancla de la yema en el vértice real de la bola (no en el nudillo):
+          // es lo que se clava contra el globo.
+          parent.userData.tipLift = apex - spec.lengths[i];
+          parent.position.y = apex;
+        }
+      }
+      tip = parent;
+
+      // Uña sobre el dorso (-Z) de la última falange (solo índice y pulgar).
+      // Las coordenadas son las de la malla de la yema, así que el translate
+      // es exactamente el mismo que el de esa malla y la uña cae sobre el dedo.
+      if (spec.nail && tipInfo) {
+        var vis = tipInfo.L - tipInfo.seam;
+        var yA = tipInfo.seam + vis * 0.22;   // cutillo
+        var yB = tipInfo.seam + vis * 0.90;   // borde libre
+        var nail = buildNail(tipInfo, yA, yB, 0.68, tipInfo.rCap * 0.05);
+        nail.position.y = spec.lengths[spec.lengths.length - 1] / 2;
+        parent.parent.add(nail);
+      }
+
+      group.userData.tipAnchor = tip;
+      group.userData.pivots = pivots;
+      return group;
     }
 
     var hand = new THREE.Group();
 
-    // Antebrazo y muñeca
-    var arm = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.45, 6, 32), skinMaterial);
-    arm.position.set(0.1, -4.2, -0.2);
+    // Antebrazo: tronco cónico que entra desde abajo y muñeca redondeada.
+    var arm = new THREE.Mesh(new THREE.CylinderGeometry(1.02, 1.42, 7, 32), skinMaterial);
+    arm.position.set(0.1, -4.4, -0.15);
     arm.castShadow = true;
     arm.receiveShadow = true;
     hand.add(arm);
 
-    var wrist = new THREE.Mesh(new THREE.SphereGeometry(1.28, 32, 32), skinMaterial);
-    wrist.scale.set(0.95, 0.65, 0.55);
-    wrist.position.set(0.05, -1.2, -0.1);
+    var cuff = new THREE.Mesh(new THREE.SphereGeometry(1.15, 28, 28), skinMaterial);
+    cuff.scale.set(0.92, 0.5, 0.62);
+    cuff.position.set(0.1, -2.6, -0.15);
+    cuff.castShadow = true;
+    hand.add(cuff);
+
+    var wrist = new THREE.Mesh(new THREE.SphereGeometry(1.0, 30, 30), skinMaterial);
+    wrist.scale.set(0.98, 0.72, 0.66);
+    wrist.position.set(0.05, -1.35, -0.08);
     wrist.castShadow = true;
     hand.add(wrist);
 
-    // Palma y eminencias
-    var palm = new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 32), skinMaterial);
-    palm.scale.set(1.0, 1.15, 0.48);
-    palm.position.set(0, 0.3, 0);
+    // Palma y eminencias tenar / hipotenar.
+    var palm = new THREE.Mesh(new THREE.SphereGeometry(1.45, 34, 34), skinMaterial);
+    palm.scale.set(1.0, 1.12, 0.5);
+    palm.position.set(0, 0.32, 0);
     palm.castShadow = true;
     palm.receiveShadow = true;
     hand.add(palm);
 
-    var thenar = new THREE.Mesh(new THREE.SphereGeometry(0.85, 32, 32), skinMaterial);
-    thenar.scale.set(0.85, 1.2, 0.65);
-    thenar.position.set(-0.75, -0.2, 0.25);
-    thenar.rotation.z = -0.3;
+    var thenar = new THREE.Mesh(new THREE.SphereGeometry(0.78, 28, 28), skinMaterial);
+    thenar.scale.set(0.92, 1.18, 0.66);
+    thenar.position.set(-0.86, -0.35, 0.2);
     thenar.castShadow = true;
     hand.add(thenar);
 
-    var hypothenar = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), skinMaterial);
-    hypothenar.scale.set(0.7, 1.1, 0.55);
-    hypothenar.position.set(0.8, -0.3, 0.15);
+    var hypothenar = new THREE.Mesh(new THREE.SphereGeometry(0.62, 28, 28), skinMaterial);
+    hypothenar.scale.set(0.82, 1.1, 0.56);
+    hypothenar.position.set(0.86, -0.3, 0.12);
     hypothenar.castShadow = true;
     hand.add(hypothenar);
 
-    // Índice extendido hacia arriba (la yema sostiene el globo)
-    var indexFinger = buildFinger(0.34, [1.35, 0.9, 0.7], [
-      { x: 0.0, y: 0.0, z: -0.02 },
-      { x: 0.0, y: 0.0, z: 0.0 },
-      { x: 0.0, y: 0.0, z: 0.0 }
-    ], new THREE.Vector3(-0.72, 1.45, 0.05));
+    // Membranas entre las raíces de los dedos.
+    var web = new THREE.Mesh(new THREE.SphereGeometry(0.62, 24, 24), skinMaterial);
+    web.scale.set(1.5, 0.5, 0.5);
+    web.position.set(0.28, 1.28, 0.02);
+    web.castShadow = true;
+    hand.add(web);
+
+    // Índice extendido: la yema sostiene el globo.
+    var indexFinger = buildFinger({
+      root: new THREE.Vector3(-0.7, 1.4, 0.04),
+      radii: [0.35, 0.32, 0.285],
+      lengths: [1.32, 0.88, 0.66],
+      rot: [{ x: 0.02, z: -0.02 }, { x: 0, z: -0.01 }, { x: 0, z: -0.01 }],
+      nail: true,
+      spread: 0.04
+    });
     hand.add(indexFinger);
 
-    // Dedos cerrados
-    hand.add(buildFinger(0.36, [1.4, 0.95, 0.72], [
-      { x: 1.62, y: 0.05, z: -0.05 },
-      { x: 1.55, y: 0.0, z: 0.0 },
-      { x: 1.1, y: 0.0, z: 0.0 }
-    ], new THREE.Vector3(-0.02, 1.5, 0.05)));
+    // Dedos cerrados: se curvan para apoyarse en la cara delantera de la
+    // palma, a la altura de los nudillos (visibles, no enterrados en el brazo).
+    var closedSpecs = [
+      { root: new THREE.Vector3(-0.08, 1.42, 0.2), radii: [0.36, 0.33, 0.3], lengths: [1.28, 0.88, 0.66],
+        rot: [{ x: 1.42 }, { x: 1.22 }, { x: 0.9 }], spread: 0.06 },
+      { root: new THREE.Vector3(0.6, 1.3, 0.14), radii: [0.34, 0.31, 0.28], lengths: [1.22, 0.84, 0.62],
+        rot: [{ x: 1.5 }, { x: 1.3 }, { x: 0.96 }], spread: -0.02 },
+      { root: new THREE.Vector3(1.22, 0.94, 0.04), radii: [0.29, 0.26, 0.235], lengths: [1.0, 0.7, 0.54],
+        rot: [{ x: 1.56 }, { x: 1.36 }, { x: 1.0 }], spread: -0.12 }
+    ];
+    var closedFingers = closedSpecs.map(function (spec) {
+      var f = buildFinger(spec);
+      hand.add(f);
+      return f;
+    });
 
-    hand.add(buildFinger(0.33, [1.3, 0.88, 0.68], [
-      { x: 1.65, y: -0.05, z: 0.05 },
-      { x: 1.58, y: 0.0, z: 0.0 },
-      { x: 1.15, y: 0.0, z: 0.0 }
-    ], new THREE.Vector3(0.65, 1.38, 0.02)));
-
-    hand.add(buildFinger(0.28, [1.0, 0.68, 0.55], [
-      { x: 1.7, y: -0.1, z: 0.12 },
-      { x: 1.62, y: 0.0, z: 0.0 },
-      { x: 1.2, y: 0.0, z: 0.0 }
-    ], new THREE.Vector3(1.22, 1.05, -0.02)));
-
-    // Pulgar relajado POR DEBAJO de los dedos cerrados: recorre el bajo palma
-    // y la punta sube ligeramente, metida bajo el meñique.
-    var thumbFinger = buildFinger(0.38, [1.25, 0.85, 0.65], [
-      { x: 0.4061, y: -0.3582, z: -1.4427 },
-      { x: -0.6927, y: -0.5173, z: -0.3501 },
-      { x: 0.1823, y: -0.5677, z: 1.4304 }
-    ], new THREE.Vector3(-1.05, -0.75, 0.35));
+    // Pulgar cruzado POR DELANTE de los dedos cerrados, apoyado en la palma.
+    var thumbFinger = buildFinger({
+      root: new THREE.Vector3(-0.8, -0.1, 0.78),
+      groupRot: { z: -1.05, y: 0.7 },
+      radii: [0.42, 0.38, 0.35],
+      lengths: [0.88, 0.72, 0.56],
+      rot: [{ x: 1.14 }, { x: 0.94 }, { x: 0.58 }],
+      nail: true,
+      nailSpin: -1.2
+    });
     hand.add(thumbFinger);
+
+    // Pivotes flexibles para absorber el impacto: el índice cede en cascada
+    // (más en la punta), los dedos cerrados aprietan un poco y el pulgar
+    // acompaña. Cada pivote guarda su rotación base en userData.baseRX.
+    var flexPivots = [];
+    function collect(finger, factors) {
+      var ps = finger.userData.pivots || [];
+      for (var i = 0; i < ps.length; i++) {
+        flexPivots.push({ pivot: ps[i], flex: factors[Math.min(i, factors.length - 1)] });
+      }
+    }
+    collect(indexFinger, [0.10, 0.16, 0.22]);
+    closedFingers.forEach(function (f) { collect(f, [0.10, 0.14, 0.12]); });
+    collect(thumbFinger, [0.05, 0.07, 0.07]);
 
     return {
       group: hand,
       tip: indexFinger.userData.tipAnchor,
       anchors: {
         index: indexFinger.userData.tipAnchor,
-        middle: hand.children[6].userData.tipAnchor,
-        ring: hand.children[7].userData.tipAnchor,
-        pinky: hand.children[8].userData.tipAnchor,
+        middle: closedFingers[0].userData.tipAnchor,
+        ring: closedFingers[1].userData.tipAnchor,
+        pinky: closedFingers[2].userData.tipAnchor,
         thumb: thumbFinger.userData.tipAnchor
-      }
+      },
+      flexPivots: flexPivots
     };
   }
 
   // ── luces de estudio del demo ─────────────────────────────────────────
   function addLights() {
-    scene.add(new THREE.AmbientLight(0xfff5ea, 0.55));
+    scene.add(new THREE.AmbientLight(0xfff5ea, 0.62));
 
-    var keyLight = new THREE.DirectionalLight(0xfffaee, 2.2);
-    keyLight.position.set(6, 12, 10);
+    var keyLight = new THREE.DirectionalLight(0xfffaee, 2.4);
+    keyLight.position.set(7, 13, 11);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 1024;
     keyLight.shadow.mapSize.height = 1024;
     keyLight.shadow.camera.near = 0.5;
-    keyLight.shadow.camera.far = 30;
+    keyLight.shadow.camera.far = 32;
     keyLight.shadow.bias = -0.0001;
     scene.add(keyLight);
 
-    var fillLight = new THREE.DirectionalLight(0x6080b0, 0.8);
-    fillLight.position.set(-8, -2, 6);
+    var fillLight = new THREE.DirectionalLight(0x6f8cbb, 0.75);
+    fillLight.position.set(-9, -3, 7);
     scene.add(fillLight);
 
-    var rimLight = new THREE.SpotLight(0xffffff, 4.5);
-    rimLight.position.set(-4, 10, -12);
+    // Contra desde atrás: separa la silueta del fondo claro del mapa.
+    var rimLight = new THREE.SpotLight(0xffffff, 5.2);
+    rimLight.position.set(-5, 11, -13);
     rimLight.angle = Math.PI / 3;
-    rimLight.penumbra = 0.8;
+    rimLight.penumbra = 0.85;
     scene.add(rimLight);
+
+    // Luz cenital suave para que la palma no queme plana.
+    var topLight = new THREE.DirectionalLight(0xfff8f0, 0.5);
+    topLight.position.set(1, 14, 2);
+    scene.add(topLight);
   }
 
   // La yema se proyecta siempre en TIP_FRAC del lienzo: la cámara mira en la
@@ -320,6 +639,7 @@
       handGroup = hand.group;
       tipAnchor = hand.tip;
       fingerAnchors = hand.anchors;
+      flexPivots = hand.flexPivots;
       handGroup.position.set(0, BASE_HAND_Y, 0);
       scene.add(handGroup);
 
@@ -332,6 +652,7 @@
       renderFrame();
       return true;
     } catch (e) {
+      console.error('GLOBEHAND3D_BUILD_ERR', e && e.message, e && e.stack);
       broken = true;
       hardDispose();
       return false;
@@ -384,10 +705,41 @@
     return { world: world, screen: screen };
   }
 
-  function resetPose(t) {
+  function applyRestPose() {
     if (!handGroup) return;
-    handGroup.position.y = BASE_HAND_Y + Math.sin(t) * 0.04;
-    handGroup.rotation.z = Math.sin(t * 0.8) * 0.01;
+    handGroup.position.y = BASE_HAND_Y;
+    handGroup.rotation.z = 0;
+    if (flexPivots) {
+      for (var i = 0; i < flexPivots.length; i++) {
+        flexPivots[i].pivot.rotation.x = flexPivots[i].pivot.userData.baseRX;
+      }
+    }
+  }
+
+  // Un frame de vida: respiración sutil + muelles del impacto.
+  function applyPose(tt, dt) {
+    if (!handGroup) return;
+    stepSpring(springs.dip, dt);
+    stepSpring(springs.lean, dt);
+    stepSpring(springs.curl, dt);
+    var curl = Math.max(0, Math.min(0.75, springs.curl.x));
+    handGroup.position.y = BASE_HAND_Y + Math.sin(tt) * 0.04 + springs.dip.x;
+    handGroup.rotation.z = Math.sin(tt * 0.8) * 0.01 + springs.lean.x;
+    if (flexPivots) {
+      for (var i = 0; i < flexPivots.length; i++) {
+        var fp = flexPivots[i];
+        fp.pivot.rotation.x = fp.pivot.userData.baseRX + curl * fp.flex;
+      }
+    }
+  }
+
+  // El guantazo: impulsos sobre los muelles, escalados con la fuerza del gesto.
+  function impact(strength, dir) {
+    var st = Math.max(0, Math.min(1, strength == null ? 0.5 : strength));
+    var d = dir >= 0 ? 1 : -1;
+    springs.dip.v -= 2.4 * st;    // la bola pesa: la mano cede y recupera
+    springs.lean.v += d * 1.15 * st; // follow-through del golpe
+    springs.curl.v += 5.5 * st;   // los dedos amortiguan la caída
   }
 
   function start() {
@@ -395,16 +747,20 @@
     stop();
     running = true;
     startTime = now();
+    lastFrameT = startTime;
     var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
-      resetPose(0);
+      applyRestPose();
       renderFrame();
       return;
     }
     var loop = function () {
       if (!running) return;
       rafId = requestAnimationFrame(loop);
-      resetPose((now() - startTime) * 0.0015);
+      var t = now();
+      var dt = Math.min(0.05, Math.max(0.001, (t - lastFrameT) / 1000));
+      lastFrameT = t;
+      applyPose((t - startTime) * 0.0015, dt);
       renderFrame();
     };
     rafId = requestAnimationFrame(loop);
@@ -413,12 +769,14 @@
   function stop() {
     running = false;
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    resetPose(0);
+    resetSprings();
+    applyRestPose();
   }
 
   function hardDispose() {
     try { if (renderer) { renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); } } catch (e) {}
     renderer = null; scene = null; camera = null; handGroup = null; tipAnchor = null;
+    fingerAnchors = null; flexPivots = null;
     rafId = null; running = false; lastW = 0; lastH = 0;
   }
 
@@ -445,6 +803,7 @@
     resize: resize,
     tip: tip,
     tips: tips,
+    impact: impact,
     start: start,
     stop: stop,
     dispose: dispose

@@ -7,7 +7,9 @@
   var POINTER_VEL_MIN = 2.2;  // px/ms medios del puntero para disparar (fuerza)
   var COOLDOWN = 2600;        // ms between hand cameos
   var SPIN_GAIN = 0.3;        // giro inicial base (deg/ms; se escala con la fuerza)
-  var SPIN_DECAY = 0.95;       // decaimiento por 16.7 ms de giro
+  var SPIN_DECAY = 0.994;      // decaimiento suave por 16.7 ms de giro
+  var SPIN_FRICTION = 0.00005; // fricción constante (deg/ms²)
+  var SPIN_BRAKE = 0.00045;    // brake extra al final (deg/ms²) para parada limpia
   var SPIN_MAX = 0.65;         // tope deg/ms: por encima estroboscopia a 60 Hz
   var SPIN_STOP = 0.012;       // umbral deg/ms para detener el impulso
   var LIFT_ZOOM = 1.05;       // globe shrinks to at most this zoom during the cameo
@@ -407,10 +409,23 @@
         var c = globeMap.getCenter();
         c.lng += spinVel * dt;
         globeMap.setCenter(c);
+        // Exponential decay + fricción constante + brake al final
         spinVel *= Math.pow(SPIN_DECAY, dt / 16.7);
+        var fric = SPIN_FRICTION * dt;
+        if (Math.abs(spinVel) <= fric) spinVel = 0;
+        else spinVel -= Math.sign(spinVel) * fric;
+        if (Math.abs(spinVel) < 0.05) {
+          var brk = SPIN_BRAKE * dt;
+          if (Math.abs(spinVel) <= brk) spinVel = 0;
+          else spinVel -= Math.sign(spinVel) * brk;
+        }
       }
       if (Math.abs(spinVel) > SPIN_STOP) spinRAF = requestAnimationFrame(step);
-      else spinRAF = null;
+      else {
+        spinRAF = null;
+        // El giro se ha parado solo: ahora sí restauramos zoom/padding.
+        setTimeout(restoreGlobe, 200);
+      }
     };
     spinRAF = requestAnimationFrame(step);
   }
@@ -473,10 +488,10 @@
     hideTimer = setTimeout(function () {
       if (el) el.classList.remove('gh-in');
       if (window.GlobeHand3D) window.GlobeHand3D.stop();
-      if (spinRAF) { cancelAnimationFrame(spinRAF); spinRAF = null; }
-      spinVel = 0;
+      // El giro NO se corta aquí: la mano se va pero el globo sigue
+      // deslizando con su inercia (startMomentum sigue corriendo). La
+      // restauración de zoom/padding se dispara cuando el spin se para solo.
       active = false;
-      setTimeout(restoreGlobe, 420);
     }, HOLD_MS);
   }
 

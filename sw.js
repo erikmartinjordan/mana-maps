@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v50';
+const CACHE_NAME = 'mana-maps-pwa-v51';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -31,8 +31,8 @@ const PRECACHE_URLS = [
   '/js/stats.js?v=1776927826',
   '/js/globe.js?v=1791708010',
   '/js/globe-hand-variants.js?v=2',
-  '/js/globe-hand-3d.js?v=5',
-  '/js/globe-hand.js?v=15',
+  '/js/globe-hand-3d.js?v=8',
+  '/js/globe-hand.js?v=16',
   'https://unpkg.com/three@0.128.0/build/three.min.js',
   '/js/tools.js?v=1776927827',
   '/js/context-menu.js?v=1790749821',
