@@ -6,7 +6,7 @@
 // Datos: autopilot/strategy/data/tourism-arrivals-world/un-tourism-arrivals.json
 //   (UN Tourism/OMT — base de datos de estadísticas de turismo, indicador
 //    INBD_TRIP_TOTL_TOTL_TOUR, descarga diciembre de 2025 + World Tourism
-//    Barometer 2023 para destinos principales; último dato 2019-2023).
+//    Barometer 2023 para destinos principales; último dato 2019-2024).
 // Geometría: data/population-by-country.geojson (polígonos oficiales ya
 //   validados en la galería, 205 países/territorios).
 //
@@ -116,8 +116,8 @@ function main() {
       props[NUM_KEY] = v;
       props['Turistas internacionales'] = `${fmtInt(v)} turistas`;
       props['Año'] = rec.year;
-      props['Fuente'] = rec.source === 'World Tourism Barometer 2023'
-        ? 'UN Tourism — World Tourism Barometer 2023'
+      props['Fuente'] = rec.source === 'World Tourism Barometer 2024'
+        ? 'UN Tourism — World Tourism Barometer 2024'
         : 'UN Tourism — base de datos de estadísticas de turismo';
       props['Dato'] = `${fmtInt(v)} turistas (${rec.year})`;
       props['Description'] = `${es} — ${fmtInt(v)} turistas internacionales (${rec.year}) — ${continente}`;

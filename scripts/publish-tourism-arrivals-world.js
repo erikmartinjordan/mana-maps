@@ -2,7 +2,7 @@
 // ── publish-tourism-arrivals-world.js ─
 // Mapa coroplético: Países que más reciben turistas internacionales
 // Fuente: UN Tourism (OMT) — base de estadísticas de turismo (INBD_TRIP_TOTL_
-// TOTL_TOUR, descarga dic. 2025) + World Tourism Barometer 2023.
+// TOTL_TOUR, descarga dic. 2025) + World Tourism Barometer (enero 2026, datos 2024).
 // Lee data/tourism-arrivals-world.geojson generado por
 // scripts/gen-tourism-arrivals-world.js y publica en Firestore.
 'use strict';
@@ -12,7 +12,7 @@ const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsAr
 const SLUG = 'tourism-arrivals-world';
 const TITLE = 'Países que más reciben turistas internacionales';
 const DRY_RUN = process.argv.includes('--dry-run');
-const DATA_YEAR = 2023;
+const DATA_YEAR = 2024;
 
 function buildMapPreview(geo) {
   let bbox = [180, 90, -180, -90];
@@ -73,7 +73,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Mapa coroplético mundial del número de turistas internacionales que recibe cada país, con datos de UN Tourism (OMT): Francia encabeza la lista con unos 100 millones de llegadas, seguida de España (85,2 millones) y Estados Unidos (66,3 millones). El dato de cada país corresponde al último año disponible entre 2019 y 2023, con la paleta ámbar ordenada por volumen de llegadas en escala logarítmica. El primer mapa de turismo de la galería: 165 países y territorios con cifras publicadas.'),
+    description: fsStr('Mapa coroplético mundial del número de turistas internacionales que recibe cada país, con datos de UN Tourism (OMT): Francia encabeza la lista con unos 102 millones de llegadas, seguida de España (93,8 millones) y Estados Unidos (72,4 millones). Cada país muestra su último año disponible (2024 en 65 países y 2019-2024 en la mayoría; otros con datos más antiguos), con la paleta ámbar ordenada por volumen de llegadas en escala logarítmica. El primer mapa de turismo de la galería: 182 países y territorios con cifras publicadas.'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
@@ -91,7 +91,7 @@ async function main() {
     allowPublicEdit: fsBool(false), isPublished: fsBool(true),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
-    dataSource: fsStr('UN Tourism (OMT) — Base de datos de estadísticas de turismo, indicador INBD_TRIP_TOTL_TOTL_TOUR (inbound trips, descarga de diciembre de 2025) + World Tourism Barometer 2023. Geometrías: Natural Earth (vía population-by-country). https://www.unwto.org/tourism-statistics'),
+    dataSource: fsStr('UN Tourism (OMT) — Base de datos de estadísticas de turismo, indicador INBD_TRIP_TOTL_TOTL_TOUR (inbound trips, descarga de diciembre de 2025) + World Tourism Barometer (enero 2026, datos 2024). Geometrías: Natural Earth (vía population-by-country). https://www.unwto.org/tourism-statistics'),
     dataDate: fsStr(`${DATA_YEAR}-12-31`),
     dataYear: fsInt(DATA_YEAR),
     tags: fsArr(['Turismo', 'Economía', 'Geografía']),
