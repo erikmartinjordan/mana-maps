@@ -200,6 +200,11 @@ const KNOWN_META = {
     dataDate: '2024-12-31',
     tags: ['Salud', 'Demografía', 'Geografía'],
   },
+  'gini-index-world': {
+    dataSource: 'World Bank — Poverty and Inequality Platform (PIP, 2026), vía Our World in Data (ourworldindata.org/grapher/gini-coefficient-wb): Gini coefficient, ingreso/consumo tras impuestos y transferencias. Geometrías: Natural Earth 110m/50m.',
+    dataDate: '2025-12-31',
+    tags: ['Economía', 'Desigualdad', 'Geografía'],
+  },
 };
 
 // ── Popups con información real (AGENTS.md §5) ────────────────────

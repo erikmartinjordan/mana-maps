@@ -109,6 +109,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/gallery/gini-index-world/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/gallery/happiness-index-world/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
