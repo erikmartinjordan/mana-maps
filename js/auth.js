@@ -903,11 +903,19 @@
   // ═══════════════════════════════════════════════════════════════
   // INIT
   // ═══════════════════════════════════════════════════════════════
+  // Auth is not needed for the first paint of public pages (the gallery shows
+  // no account UI for anonymous visitors). Running it once the page is idle
+  // keeps Firebase's auth iframe + gapi off the critical path; the state still
+  // resolves a moment later and any pending action is resumed as usual.
+  function _scheduleAuthInit() {
+    if ('requestIdleCallback' in window) requestIdleCallback(initAuthListener, { timeout: 2000 });
+    else setTimeout(initAuthListener, 400);
+  }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuthListener);
+    document.addEventListener('DOMContentLoaded', _scheduleAuthInit);
   } else {
-    initAuthListener();
+    _scheduleAuthInit();
   }
 
 })();

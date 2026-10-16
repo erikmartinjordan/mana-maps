@@ -742,7 +742,10 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .mobile-toggle:hover,.mobile-toggle:active{background:var(--surface-2);}
   .mobile-toggle svg{width:18px;height:18px;}
 
-  /* hide secondary actions on mobile — keep hamburger, the right-side account CTA, export, and chat */
+  /* hide secondary actions on mobile — keep the hamburger and the account CTA.
+     The chat toggle is dropped too. Note: this removes the mobile chat entry
+     point (view-only gallery maps have no chat anyway; in the editor the chat
+     would only be reachable from desktop unless we wire it into the menu). */
   .topbar-right > .btn.btn-ghost{display:none !important;}
   .topbar-right > .menu-wrap{display:none !important;}
   .topbar-right > .menu-wrap:has(.export-action){display:flex !important;}
@@ -755,8 +758,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .topbar-right .btn:not(.topbar-icon-btn){padding:6px 10px;font-size:12px;gap:4px;}
   .topbar-right .btn:not(.topbar-icon-btn) svg{width:12px;height:12px;}
   .topbar-icon-btn{width:36px;height:36px;min-width:36px;}
-  #mana-login-btn{order:90;flex-shrink:0;padding:7px 12px;}
-  #mobile-chat-toggle{order:100;}
+  #mana-login-btn{order:10;flex-shrink:0;padding:7px 12px;}
+  #mobile-sidebar-toggle{order:20;}
+  #mobile-chat-toggle{display:none !important;}
 
   /* ── Layout: single column ── */
   #app{
@@ -824,13 +828,15 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   /* ── Drop menus ── */
   .drop-menu{min-width:150px;}
 
-  /* ── Globe controls ── */
-  #map-pillbar{bottom:calc(114px + env(safe-area-inset-bottom));}
-  #map-pillbar .pb-content{padding:4px;}
-  #map-pillbar .pb-btn,#map-pillbar #locate-btn{width:36px;height:36px;}
+  /* ── Globe controls: hidden on mobile. Zoom, pan and 2D/3D use gestures. ── */
+  #map-pillbar{display:none;}
 
   /* ── Basemap selector ── */
-  #basemap-stack{right:8px;bottom:calc(114px + env(safe-area-inset-bottom));}
+  #basemap-stack{right:8px;bottom:calc(64px + env(safe-area-inset-bottom));}
+
+  /* ── Map legend: bottom-left, baseline-aligned with the basemap selector.
+        Allows scrolling when the legend is taller than the viewport. ── */
+  #map-legend{bottom:calc(64px + env(safe-area-inset-bottom));max-height:40vh;overflow:auto;-webkit-overflow-scrolling:touch;}
 
   /* ── Draw hint ── */
   #draw-hint{font-size:11px;padding:6px 12px;}

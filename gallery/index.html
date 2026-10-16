@@ -30,7 +30,6 @@
   <meta name="twitter:image:alt" content="Maña Maps — Galería de mapas">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#ffffff">
-  <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -292,6 +291,13 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Warm up the origins the gallery talks to (Firebase, fonts, tiles) so the
+       first request to each doesn't pay DNS+TLS on slow mobile networks. -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="dns-prefetch" href="https://apis.google.com">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://tiles.openfreemap.org">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/auth-gallery.css"/>
   <style>
@@ -730,17 +736,30 @@
 
   <script defer src="/js/world-land.js"></script>
   <script defer src="/js/map-preview.js?v=1791708010"></script>
+  <script defer src="/js/share-card.js?v=4"></script>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/firebase.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/auth.js?v=1792000000"></script>
   <script defer src="/js/user-maps.js"></script>
-  <script defer src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
   <script defer src="/js/basemap-config.js"></script>
-  <script defer src="/js/gallery-page.js?v=1791600000"></script>
-  <script defer src="/js/tracking.js?v=1791312000"></script>
+  <script defer src="/js/gallery-page.js?v=1792000000"></script>
+  <!-- MapLibre (image map for ?slug=) is loaded on demand by gallery-page.js -->
+  <script>
+    // Analytics/geo lookup is non-critical: run it once the page is idle.
+    window.addEventListener('load', function () {
+      var run = function () {
+        var s = document.createElement('script');
+        s.src = '/js/tracking.js?v=1791312000';
+        s.defer = true;
+        document.body.appendChild(s);
+      };
+      if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 3000 });
+      else setTimeout(run, 1200);
+    });
+  </script>
   <script>
     document.querySelectorAll('img').forEach(function (image) {
       image.loading = 'lazy';

@@ -7,12 +7,14 @@
 
   // The grid only needs lightweight card data; `mapPreview` is fetched lazily
   // per visible card (see schedulePreviews) and the featured ?slug= map fetches
-  // its own full document on demand. `geojsonText` is never listed.
+  // its own full document on demand. `geojsonText` is never listed. We also
+  // drop fields the cards never render (description, dataDate, views…): the
+  // product hides descriptions/data source on cards and the featured landing
+  // re-reads the full doc, so shipping them in the list only wastes bytes.
   const GALLERY_LIST_FIELDS = [
-    'title', 'name', 'slug', 'description', 'tags', 'likes', 'views',
+    'title', 'name', 'slug', 'tags', 'likes',
     'authorHandle', 'shareMode', 'featureCount', 'createdAt', 'createdAtMs',
-    'updatedAtMs', 'legendKey', 'legendTitle', 'legendFormat',
-    'dataSource', 'dataYear', 'dataDate', 'isPublished'
+    'legendKey', 'legendTitle', 'legendFormat', 'dataSource'
   ];
 
   function withListFields(query) {
@@ -369,11 +371,63 @@
     } catch (_) {}
   }
 
-  function renderCards(items) {
-    const list = document.getElementById('gallery-list');
+  // The grid renders in chunks and pages in more as the user scrolls. This
+  // keeps the first paint cheap (fewer nodes + SVG previews) on slow devices
+  // while the full list stays in memory for the category filter.
+  var GALLERY_PAGE_SIZE = 12;
+  var _renderSource = [];
+  var _renderedCount = 0;
+  var _loadMoreObserver = null;
+
+  function galleryListEl() { return document.getElementById('gallery-list'); }
+
+  function teardownLoadMore() {
+    if (_loadMoreObserver) { _loadMoreObserver.disconnect(); _loadMoreObserver = null; }
+    var s = document.getElementById('gallery-sentinel');
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+  }
+
+  function setupLoadMore() {
+    var list = galleryListEl();
     if (!list) return;
+    var sentinel = document.getElementById('gallery-sentinel');
+    if (!sentinel) {
+      sentinel = document.createElement('div');
+      sentinel.id = 'gallery-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      sentinel.style.height = '1px';
+      list.parentNode.insertBefore(sentinel, list.nextSibling);
+    }
+    if (!('IntersectionObserver' in window)) { appendGalleryCards(); return; }
+    if (_loadMoreObserver) _loadMoreObserver.disconnect();
+    _loadMoreObserver = new IntersectionObserver(function(entries) {
+      if (entries.some(function(e) { return e.isIntersecting; })) appendGalleryCards();
+    }, { rootMargin: '600px 0px' });
+    _loadMoreObserver.observe(sentinel);
+  }
+
+  function appendGalleryCards() {
+    var list = galleryListEl();
+    if (!list) return;
+    var next = _renderSource.slice(_renderedCount, _renderedCount + GALLERY_PAGE_SIZE);
+    if (!next.length) { teardownLoadMore(); return; }
+    var tpl = document.createElement('template');
+    tpl.innerHTML = next.map(cardHtml).join('');
+    list.appendChild(tpl.content);
+    _renderedCount += next.length;
+    schedulePreviews(next);
+    if (_renderedCount < _renderSource.length) setupLoadMore();
+    else teardownLoadMore();
+  }
+
+  function renderCards(items) {
+    const list = galleryListEl();
+    if (!list) return;
+    teardownLoadMore();
     list.classList.remove('empty-state');
-    if (!items.length) {
+    _renderSource = items || [];
+    _renderedCount = 0;
+    if (!_renderSource.length) {
       list.classList.add('empty-state');
       list.innerHTML = '<div class="empty">' +
         '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>' +
@@ -384,7 +438,11 @@
       return;
     }
 
-    list.innerHTML = items.map(function(item) {
+    list.innerHTML = '';
+    appendGalleryCards();
+  }
+
+  function cardHtml(item) {
       const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
       const thumb = renderThumb(item);
       const likes = item.likes || 0;
@@ -423,9 +481,6 @@
             '</button>' +
           '</div>' +
         '</div>';
-    }).join('');
-
-    schedulePreviews(items);
   }
 
   // Lazily fill in thumbnails. The list query is deliberately lightweight (no
@@ -863,20 +918,237 @@
     });
   }
 
-  // Share a published map from the gallery grid.
+  // Share a published map from the gallery grid → opens the image share modal.
   window.galleryShareCard = function(btn) {
     var slug = btn.getAttribute('data-map-id');
     if (!slug) return;
     var title = btn.getAttribute('data-title') || 'Mapa de Maña Maps';
-    doShare(shareUrlFor(slug), title, 'gallery_card');
+    track('share', { source: 'gallery_card' });
+    var item = (typeof findMapByKey === 'function' ? findMapByKey(slug) : null) || { slug: slug, title: title };
+    openShareImageModal({ slug: slug, title: title, item: item });
   };
 
-  // Share the featured ?slug= map.
+  // Share the featured ?slug= map → opens the image share modal.
   window.galleryShareSlug = function(btn) {
-    var url = (btn && btn.getAttribute('data-url')) || window.location.href;
-    var title = (btn && btn.getAttribute('data-title')) || document.title;
-    doShare(url, title, 'gallery_slug');
+    var d = window.__manaShareMap || {};
+    var item = d.item || {};
+    var slug = item.slug || item.id;
+    var title = item.title || item.name || (btn && btn.getAttribute('data-title')) || document.title;
+    if (!slug) return;
+    track('share', { source: 'gallery_slug' });
+    openShareImageModal({ slug: slug, title: title, item: item, geo: d.geo });
   };
+
+  // Create a square (1080×1080) share image for the featured map.
+  function shortSource(s) {
+    if (!s) return '';
+    var t = String(s).split(' — ')[0].split('. ')[0];
+    return t.length > 72 ? t.slice(0, 70) + '…' : t;
+  }
+  window.manaShareImage = function(btn) {
+    var d = window.__manaShareMap;
+    if (!d || !d.geo || !d.geo.features) { galleryToast('El mapa aún se está cargando.'); return; }
+    var item = d.item || {};
+    openShareImageModal({ slug: item.slug || item.id, title: item.title || item.name || 'Mapa', item: item, geo: d.geo });
+  };
+
+  // ── Menú contextual (clic derecho) sobre un mapa: generar imagen ──
+  function ensureCtxMenuStyles() {
+    if (document.getElementById('mana-ctx-style')) return;
+    var s = document.createElement('style');
+    s.id = 'mana-ctx-style';
+    s.textContent =
+      '.mana-ctx{position:fixed;z-index:99999;min-width:196px;background:#fff;border:1px solid #e5e5ea;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.16);padding:6px;font-family:inherit}' +
+      '.mana-ctx button{display:flex;align-items:center;gap:9px;width:100%;border:none;background:none;text-align:left;padding:9px 12px;border-radius:8px;font:inherit;font-size:14px;font-weight:600;color:#1d1d1f;cursor:pointer}' +
+      '.mana-ctx button:hover{background:#f2f2f4}' +
+      '.mana-ctx button svg{flex-shrink:0}' +
+      '@media (prefers-color-scheme: dark){.mana-ctx{background:#1c1c1e;border-color:#2c2c2e}.mana-ctx button{color:#f5f5f7}.mana-ctx button:hover{background:#2c2c2e}}';
+    document.head.appendChild(s);
+  }
+  var _ctxMenu = null;
+  function hideCtxMenu() { if (_ctxMenu) { _ctxMenu.remove(); _ctxMenu = null; } }
+  function showCtxMenu(x, y, items) {
+    hideCtxMenu();
+    var m = document.createElement('div');
+    m.className = 'mana-ctx';
+    items.forEach(function(it) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = (it.icon || '') + '<span>' + escHtml(it.label) + '</span>';
+      b.onclick = function() { hideCtxMenu(); try { it.act(); } catch (e) {} };
+      m.appendChild(b);
+    });
+    document.body.appendChild(m);
+    var w = m.offsetWidth, h = m.offsetHeight;
+    m.style.left = Math.max(6, Math.min(x, window.innerWidth - w - 8)) + 'px';
+    m.style.top = Math.max(6, Math.min(y, window.innerHeight - h - 8)) + 'px';
+    _ctxMenu = m;
+  }
+  document.addEventListener('click', hideCtxMenu, true);
+  document.addEventListener('scroll', hideCtxMenu, true);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideCtxMenu(); });
+
+  function shareImageForItem(item) {
+    if (!item) { galleryToast('No se pudo cargar el mapa.'); return; }
+    return Promise.resolve(getPublishedGeo(item) || getPublishedGeoAsync(item)).then(function(geo) {
+      if (!geo || !geo.features) { galleryToast('No se pudo cargar el mapa.'); return; }
+      var src = shortSource(item.dataSource);
+      track('share', { source: 'context_image' });
+      return window.ManaShareCard.share({
+        title: item.title || item.name || 'Mapa de Maña Maps',
+        subtitle: item.legendTitle || '',
+        source: src ? ('Fuente: ' + src) : '',
+        geojson: geo
+      });
+    }).catch(function() {});
+  }
+
+  var ICON_IMG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="M21 16l-4.7-4.7L6 21"/></svg>';
+  var ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>';
+  var ICON_X = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>';
+
+  document.addEventListener('contextmenu', function(e) {
+    if (!e.target || !e.target.closest) return;
+    var thumb = e.target.closest('.card .thumb[data-map-id]');
+    var featured = e.target.closest('#slug-map, #slug-map-wrap');
+    if (!thumb && !featured) return;
+    e.preventDefault();
+    var item = null;
+    if (featured && window.__manaShareMap && window.__manaShareMap.item) item = window.__manaShareMap.item;
+    else if (thumb) item = findMapByKey(thumb.getAttribute('data-map-id')) || { slug: thumb.getAttribute('data-map-id') };
+    var slug = (item && (item.slug || item.id)) || (thumb && thumb.getAttribute('data-map-id'));
+    if (!slug) return;
+    var title = (item && (item.title || item.name)) || 'Mapa de Maña Maps';
+    var url = shareUrlFor(slug);
+    ensureCtxMenuStyles();
+    showCtxMenu(e.clientX, e.clientY, [
+      { label: 'Compartir imagen', icon: ICON_IMG, act: function() {
+          var geo = (featured && window.__manaShareMap) ? window.__manaShareMap.geo : null;
+          openShareImageModal({ slug: slug, title: title, item: item, geo: geo });
+        } },
+      { label: 'Copiar enlace', icon: ICON_LINK, act: function() {
+          copyToClipboard(url).then(function() { galleryToast('Enlace copiado al portapapeles'); });
+        } },
+      { label: 'Compartir en X', icon: ICON_X, act: function() {
+          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — vía Maña Maps') + '&url=' + encodeURIComponent(url), '_blank');
+          track('share', { network: 'x', source: 'context' });
+        } }
+    ]);
+  });
+
+  // ── Modal «Compartir» con preview de imagen (estilo Maña) ──
+  function ensureShareImageStyles() {
+    if (document.getElementById('mana-share-img-style')) return;
+    var s = document.createElement('style');
+    s.id = 'mana-share-img-style';
+    s.textContent =
+      '.mi-modal{position:fixed;inset:0;z-index:9600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(17,24,39,.32);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}' +
+      '.mi-modal.open{display:flex}' +
+      '.mi-box{width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border:1px solid rgba(16,24,40,.12);border-radius:20px;box-shadow:0 16px 64px rgba(15,23,42,.24);padding:18px;position:relative;font-family:"DM Sans",-apple-system,sans-serif}' +
+      '.mi-close{position:absolute;right:10px;top:10px;width:38px;height:38px;border:none;border-radius:10px;background:none;font-size:20px;line-height:1;color:#5f6670;cursor:pointer;transition:background .12s,color .12s}' +
+      '.mi-close:hover{background:#f3f4f6;color:#111214}' +
+      '.mi-title{font-size:18px;font-weight:800;color:#111214;letter-spacing:-.02em;padding-right:46px}' +
+      '.mi-sub{font-size:13px;color:#5f6670;margin:6px 0 14px;line-height:1.5}' +
+      '.mi-preview{border:1px solid rgba(16,24,40,.12);border-radius:14px;overflow:hidden;background:#f5f5f7;aspect-ratio:1/1;display:grid;place-items:center;color:#9aa0a8;font-size:13px;font-weight:600}' +
+      '.mi-preview svg{display:block;width:100%;height:auto}' +
+      '.mi-actions{display:flex;flex-direction:column;gap:10px;margin-top:14px}' +
+      '.mi-btn{width:100%;border:1px solid rgba(16,24,40,.12);border-radius:12px;background:#fff;padding:12px 14px;text-align:left;cursor:pointer;font-family:inherit;transition:border-color .14s,transform .14s,background .14s}' +
+      '.mi-btn:hover{border-color:#111214;transform:translateY(-1px)}' +
+      '.mi-btn:active{transform:scale(.99)}' +
+      '.mi-btn[disabled]{opacity:.5;cursor:default;transform:none}' +
+      '.mi-btn .mt{display:block;font-size:14px;font-weight:700;color:#111214}' +
+      '.mi-btn .md{display:block;font-size:12px;color:#5f6670;margin-top:2px;line-height:1.45}' +
+      '.mi-btn.primary{background:#17191c;border-color:#17191c}' +
+      '.mi-btn.primary:hover{background:#0f1115}' +
+      '.mi-btn.primary .mt{color:#fff}.mi-btn.primary .md{color:rgba(255,255,255,.74)}' +
+      '@media (prefers-color-scheme: dark){.mi-box{background:#1c1c1e;border-color:#2c2c2e}.mi-title{color:#f5f5f7}.mi-sub{color:#9ca3af}.mi-close{color:#9ca3af}.mi-close:hover{background:#2c2c2e;color:#fff}.mi-btn{background:#1c1c1e;border-color:#2c2c2e}.mi-btn .mt{color:#f5f5f7}.mi-btn .md{color:#9ca3af}.mi-preview{background:#141416;border-color:#2c2c2e}}';
+    document.head.appendChild(s);
+  }
+  var _shareImgModal = null, _shareImgCtx = null, _shareImgOpts = null, _shareImgBlob = null;
+  function openShareImageModal(ctx) {
+    ensureShareImageStyles();
+    ctx = ctx || {};
+    _shareImgCtx = ctx;
+    _shareImgOpts = null;
+    _shareImgBlob = null;
+    var m = _shareImgModal;
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'mana-share-img';
+      m.className = 'mi-modal';
+      m.setAttribute('aria-hidden', 'true');
+      m.innerHTML =
+        '<div class="mi-box" role="dialog" aria-modal="true" aria-label="Compartir mapa">' +
+          '<button class="mi-close" type="button" aria-label="Cerrar">&times;</button>' +
+          '<h3 class="mi-title">Compartir</h3>' +
+          '<p class="mi-sub"></p>' +
+          '<div class="mi-preview">Generando imagen…</div>' +
+          '<div class="mi-actions">' +
+            '<button type="button" class="mi-btn primary" data-a="img" disabled><span class="mt">Compartir imagen</span><span class="md">Tarjeta cuadrada lista para publicar.</span></button>' +
+            '<button type="button" class="mi-btn" data-a="link"><span class="mt">Copiar enlace</span><span class="md">Enlace público del mapa.</span></button>' +
+            '<button type="button" class="mi-btn" data-a="x"><span class="mt">Compartir en X</span><span class="md">Abrir un tuit con el mapa.</span></button>' +
+            '<button type="button" class="mi-btn" data-a="dl" disabled><span class="mt">Descargar PNG</span><span class="md">Guardar la imagen en el dispositivo.</span></button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(m);
+      m.addEventListener('click', function(e) {
+        if (e.target === m || e.target.closest('.mi-close')) { closeShareImageModal(); return; }
+        var b = e.target.closest('[data-a]'); if (!b) return;
+        var a = b.getAttribute('data-a'), c = _shareImgCtx || {}, opts = _shareImgOpts;
+        if (a === 'link') { copyToClipboard(shareUrlFor(c.slug)).then(function() { galleryToast('Enlace copiado al portapapeles'); }); return; }
+        if (a === 'x') { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent((c.title || 'Mapa') + ' — vía Maña Maps') + '&url=' + encodeURIComponent(shareUrlFor(c.slug)), '_blank'); track('share', { network: 'x', source: 'share_modal' }); return; }
+        if (!window.ManaShareCard) { galleryToast('Función no disponible en este navegador.'); return; }
+        if (!opts || !_shareImgBlob) { galleryToast('La imagen aún se está generando…'); return; }
+        var fname = window.ManaShareCard.filename(c.title || 'Mapa');
+        if (a === 'dl') { window.ManaShareCard.downloadBlob(_shareImgBlob, fname); return; }
+        if (a === 'img') {
+          track('share', { source: 'share_modal_image' });
+          window.ManaShareCard.shareBlob(_shareImgBlob, c.title || 'Mapa');
+        }
+      });
+      _shareImgModal = m;
+    }
+    m.querySelector('.mi-sub').textContent = ctx.title || '';
+    var prev = m.querySelector('.mi-preview');
+    prev.textContent = 'Generando imagen…';
+    var imgBtn = m.querySelector('[data-a="img"]'), dlBtn = m.querySelector('[data-a="dl"]');
+    if (imgBtn) imgBtn.disabled = true;
+    if (dlBtn) dlBtn.disabled = true;
+    m.removeAttribute('data-ready');
+    m.classList.add('open');
+    m.setAttribute('aria-hidden', 'false');
+    var build = ctx.geo ? Promise.resolve(ctx.geo) : Promise.resolve(getPublishedGeo(ctx.item) || getPublishedGeoAsync(ctx.item));
+    Promise.resolve(build).then(function(geo) {
+      if (!geo || !geo.features || !window.ManaShareCard) { prev.textContent = 'No se pudo generar la imagen.'; return; }
+      var src = shortSource(ctx.item && ctx.item.dataSource);
+      var opts = {
+        title: ctx.title || 'Mapa',
+        subtitle: (ctx.item && ctx.item.legendTitle) || '',
+        source: src ? ('Fuente: ' + src) : '',
+        geojson: geo,
+        valueKey: ctx.item && ctx.item.legendKey,
+        legendFormat: ctx.item && ctx.item.legendFormat
+      };
+      var svg;
+      try { svg = window.ManaShareCard.build(opts); } catch (e) { prev.textContent = 'No se pudo generar la imagen.'; return; }
+      prev.innerHTML = svg;
+      _shareImgOpts = opts;
+      _shareImgBlob = null;
+      Promise.resolve(window.ManaShareCard.toBlob(opts, { scale: 2 })).then(function (bl) {
+        _shareImgBlob = bl;
+        if (imgBtn) imgBtn.disabled = false;
+        if (dlBtn) dlBtn.disabled = false;
+        m.setAttribute('data-ready', '1');
+      }).catch(function () {});
+    }).catch(function() {
+      prev.textContent = 'No se pudo generar la imagen.';
+      galleryToast('No se pudo generar la imagen del mapa.');
+    });
+  }
+  function closeShareImageModal() {
+    if (_shareImgModal) { _shareImgModal.classList.remove('open'); _shareImgModal.setAttribute('aria-hidden', 'true'); }
+  }
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeShareImageModal(); });
 
   // Count a public landing view. The editor flow already increments views
   // (js/persistence.js); here we cover direct visits to /gallery/?slug=.
@@ -914,6 +1186,9 @@
         '<a class="slug-share-btn" href="' + escAttr(xHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'x\')" aria-label="Compartir en X">' +
           '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>' +
           'X</a>' +
+        '<button type="button" class="slug-share-btn" onclick="manaShareImage(this)" aria-label="Crear imagen para compartir">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="M21 16l-4.7-4.7L6 21"/></svg>' +
+          'Imagen</button>' +
       '</div>' +
       '<div class="slug-watermark">Hecho con <strong>Maña Maps</strong> · <a href="/map/" onclick="galleryTrackCta()">Crea el tuyo gratis</a></div>';
   }
@@ -1382,6 +1657,30 @@
     });
   }
 
+  // MapLibre is heavy (~270 KB) and only needed for the featured ?slug= map,
+  // so it is injected on demand instead of shipping it with every list visit.
+  var _maplibrePromise = null;
+  function ensureMapLibre() {
+    if (window.maplibregl) return Promise.resolve(true);
+    if (_maplibrePromise) return _maplibrePromise;
+    _maplibrePromise = new Promise(function(resolve) {
+      if (!document.getElementById('maplibre-css')) {
+        var css = document.createElement('link');
+        css.id = 'maplibre-css';
+        css.rel = 'stylesheet';
+        css.href = 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css';
+        document.head.appendChild(css);
+      }
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js';
+      s.async = true;
+      s.onload = function() { resolve(!!window.maplibregl); };
+      s.onerror = function() { _maplibrePromise = null; resolve(false); };
+      document.head.appendChild(s);
+    });
+    return _maplibrePromise;
+  }
+
   async function showSlugMap(item) {
     if (!item) return;
     var wrap = document.getElementById('slug-map-wrap');
@@ -1397,7 +1696,9 @@
     // landing para interconectar el SEO de la galería.
     renderRelatedMaps(item, _allMaps);
 
+    var maplibreReady = ensureMapLibre();
     var geo = await getPublishedGeoAsync(item);
+    window.__manaShareMap = { item: item, geo: geo };
     if (titleEl) titleEl.textContent = item.title || item.name || 'Mapa';
     wrap.hidden = false;
 
@@ -1407,6 +1708,7 @@
     }
     target.innerHTML = '';
 
+    await maplibreReady;
     if (!geo || !geo.features || !geo.features.length || !window.maplibregl) {
       var fallbackSvg = (window.ManaMapPreview && renderThumb) ? renderThumb(item) : '';
       target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';

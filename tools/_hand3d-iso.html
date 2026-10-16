@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Mano 3D aislada</title>
+<style>
+ html,body{margin:0;height:100%;background:#eef2f6;font-family:sans-serif}
+ #lab{position:fixed;left:20px;top:20px;z-index:9;display:flex;gap:8px;flex-wrap:wrap;max-width:96vw}
+ #lab button{font:600 12px/1 inherit;padding:8px 10px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer}
+ #lab button[aria-pressed="true"]{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+ #stage{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;height:520px}
+ #stage canvas{width:100%!important;height:100%!important;display:block}
+</style>
+</head><body>
+<div id="lab">
+  <button data-bg="claro" aria-pressed="true">Fondo claro</button>
+  <button data-bg="oscuro" aria-pressed="false">Fondo oscuro</button>
+</div>
+<div id="stage"></div>
+<script src="/tools/_tmp/three.min.js"></script>
+<script src="/js/globe-hand-3d.js?v=1791708010"></script>
+<script>
+(function(){
+  var buttons = [].slice.call(document.querySelectorAll('#lab button[data-bg]'));
+  buttons.forEach(function(b){
+    b.addEventListener('click', function(){
+      buttons.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      document.body.style.background = b.dataset.bg === 'oscuro' ? '#0d1117' : '#eef2f6';
+    });
+  });
+
+  window.GlobeHand3D.preload().then(function () {
+    var stage = document.getElementById('stage');
+    var holder = document.createElement('div');
+    holder.className = 'gh-rot gh-3d';
+    stage.appendChild(holder);
+    document.body.dataset.ok = window.GlobeHand3D.build(holder) ? '1' : '0';
+    window.GlobeHand3D.start();
+  }, function (e) {
+    document.body.dataset.ok = '0';
+    console.log('preload fail', e);
+  });
+})();
+</script>
+</body></html>
