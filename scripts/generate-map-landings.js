@@ -186,7 +186,7 @@ function buildLandingHTML(m, all) {
 <meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap">
 <script type="application/ld+json">${JSON.stringify(dataset)}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
@@ -195,10 +195,10 @@ function buildLandingHTML(m, all) {
   a{color:var(--sky)}
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line);max-width:1080px;margin:0 auto}
   .brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
-  .brand-logo{position:relative;width:34px;height:34px;flex-shrink:0}
+  .brand-logo{position:relative;width:36px;height:36px;flex-shrink:0}
   .brand-logo svg{width:100%;height:100%;display:block}
-  .brand-wordmark{font-size:19px;font-weight:900;color:var(--ink);letter-spacing:-.5px}
-  .brand-sub{font-size:11px;color:var(--muted);margin-left:3px;font-weight:600;vertical-align:super;letter-spacing:.02em}
+  .brand-word{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+  .brand-sub{font-size:11px;color:var(--muted);margin-left:3px;font-weight:600;vertical-align:super}
   .nav a{margin-left:16px;text-decoration:none;font-weight:600;font-size:14px;color:var(--muted)}
   .wrap{max-width:880px;margin:0 auto;padding:28px 22px 60px}
   h1{font-size:clamp(26px,4vw,40px);letter-spacing:-1px;margin:6px 0 8px}
@@ -224,7 +224,7 @@ function buildLandingHTML(m, all) {
   <header class="topbar">
     <a class="brand" href="/" aria-label="Maña Maps">
       <span class="brand-logo">${LOGO_SVG}</span>
-      <span><span class="brand-wordmark">Maña</span><span class="brand-sub">Maps</span></span>
+      <span><span class="brand-word">Maña</span><span class="brand-sub">Maps</span></span>
     </a>
     <nav class="nav"><a href="/gallery/">Galería</a><a href="/map/">Crear mapa</a></nav>
   </header>
