@@ -3,6 +3,7 @@
 var globeMap = null;
 var spinActive = false;
 var spinRAF = null;
+var globePopup = null;
 
 // El «espacio» exterior del globo lo dibuja MapLibre con la propiedad `sky`.
 // Sin definirla usa un azul oscuro que desentona en modo claro; la fijamos por
@@ -61,6 +62,7 @@ function initGlobe() {
       if (typeof initGlobeHand === 'function') initGlobeHand();
     });
 
+    globeMap.on('click', onGlobeFeatureClick);
     globeMap.on('rotate', updateCompassIcon);
 
     setTimeout(function() { if (globeMap) globeMap.resize(); }, 300);
@@ -148,6 +150,7 @@ function _manaGlobeLabelAnchor(geom) {
 
 function syncToGlobe() {
   if (!globeMap) return;
+  if (globePopup) { globePopup.remove(); globePopup = null; }
   if (globeMap.getLayer('drawn-feature-labels')) globeMap.removeLayer('drawn-feature-labels');
   if (globeMap.getSource('drawn-labels')) globeMap.removeSource('drawn-labels');
   if (globeMap.getLayer('drawn-point-labels')) globeMap.removeLayer('drawn-point-labels');
@@ -344,6 +347,56 @@ function syncToGlobe() {
   if (typeof _updateTileLabelVisibility === 'function') _updateTileLabelVisibility();
 }
 
+// Popups de datos en el globo: el 3D usa MapLibre (no Leaflet), así que hay que
+// consultar las capas renderizadas y reutilizar el mismo HTML que el mapa 2D.
+function _globePopupLayers() {
+  return ['drawn-fills', 'drawn-lines', 'drawn-points', 'drawn-emoji-points'].filter(function(id) {
+    try { return !!globeMap.getLayer(id); } catch (e) { return false; }
+  });
+}
+
+function _globePopupProps(props) {
+  var out = {};
+  if (!props) return out;
+  Object.keys(props).forEach(function(k) {
+    if (k.charAt(0) === '_' || k === 'bbox' || k === 'color' || k === 'markerType') return;
+    out[k] = props[k];
+  });
+  return out;
+}
+
+function onGlobeFeatureClick(e) {
+  if (!globeMap || (typeof activeBase !== 'undefined' && activeBase !== 'globe')) return;
+  var layers = _globePopupLayers();
+  if (!layers.length) return;
+
+  var features = [];
+  try { features = globeMap.queryRenderedFeatures(e.point, { layers: layers }); } catch (err) { return; }
+  if (!features || !features.length) return;
+
+  var f = features[0];
+  var props = _globePopupProps(f.properties);
+  var geomType = (f.geometry && f.geometry.type) || '';
+  var html = (typeof buildAttrPopup === 'function')
+    ? buildAttrPopup(props, geomType)
+    : '<div class="attr-popup"></div>';
+
+  var lngLat = e.lngLat;
+  if (f.geometry && f.geometry.type === 'Point' && f.geometry.coordinates) {
+    lngLat = { lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] };
+  }
+
+  if (!globePopup) {
+    globePopup = new maplibregl.Popup({
+      maxWidth: '360px',
+      className: 'attr-popup-wrapper',
+      closeButton: true,
+      closeOnClick: true
+    });
+  }
+  globePopup.setLngLat(lngLat).setHTML(html).addTo(globeMap);
+}
+
 function globeZoomIn() {
   if (typeof activeBase !== 'undefined' && activeBase === 'globe' && globeMap) { globeMap.zoomIn(); return; }
   if (typeof map !== 'undefined' && map) map.zoomIn();
@@ -367,8 +420,12 @@ function updateCompassIcon() {
 // Pillbar: alterna mapa 2D ↔ globo 3D.
 function toggle2D3D() {
   if (typeof setBaseLayer !== 'function') return;
-  if (typeof activeBase !== 'undefined' && activeBase === 'globe') setBaseLayer('map');
-  else setBaseLayer('globe');
+  if (typeof activeBase !== 'undefined' && activeBase === 'globe') {
+    if (globePopup) { globePopup.remove(); globePopup = null; }
+    setBaseLayer('map');
+  } else {
+    setBaseLayer('globe');
+  }
 }
 
 // Refleja el modo actual (2D/3D) en el pillbar inferior. El icono de
