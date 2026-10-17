@@ -24,62 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate local asset references in HTML
-        run: |
-          python3 <<'PY'
-          import re
-          from pathlib import Path
-
-          root = Path('.')
-          html_files = [p for p in root.rglob('*.html') if '.git' not in p.parts and 'node_modules' not in p.parts]
-          attr_re = re.compile(r'''\b(?:src|href)\s*=\s*(?P<q>["'])(?P<url>.*?)(?P=q)''', re.IGNORECASE)
-
-          OPTIONAL_LOCAL_ASSETS = {'/js/firebase-config.local.js', 'js/firebase-config.local.js', '../js/firebase-config.local.js'}
-
-          def should_skip(url: str) -> bool:
-            u = url.strip()
-            if not u:
-              return True
-            if u in OPTIONAL_LOCAL_ASSETS:
-              return True
-            return (
-              u.startswith('#') or
-              u.startswith('http://') or
-              u.startswith('https://') or
-              u.startswith('//') or
-              u.startswith('mailto:') or
-              u.startswith('tel:') or
-              u.startswith('javascript:') or
-              u.startswith('data:')
-            )
-
-          missing = []
-
-          for html in html_files:
-            text = html.read_text(encoding='utf-8')
-            for m in attr_re.finditer(text):
-              raw = m.group('url').split('?', 1)[0].split('#', 1)[0]
-              if should_skip(raw):
-                continue
-
-              if raw.startswith('/'):
-                target = root / raw.lstrip('/')
-              else:
-                target = html.parent / raw
-
-              if raw.endswith('/'):
-                target = target / 'index.html'
-
-              if not target.exists():
-                missing.append((str(html), raw))
-
-          if missing:
-            print('Missing local asset references found:')
-            for file_path, ref in missing:
-              print(f'  - {file_path}: {ref}')
-            raise SystemExit(1)
-
-          print(f'Checked {len(html_files)} HTML files. All local references resolved.')
-          PY
+        run: node scripts/check-local-assets.js
 
   js-syntax:
     name: JavaScript syntax
