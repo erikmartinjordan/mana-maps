@@ -113,7 +113,7 @@ function buildFeatures(rows) {
     const heightTxt = `${fmtEs(r.height_m, r.height_m % 1 ? 1 : 0)} m`;
     const description = [
       `${unique} mide ${heightTxt} y tiene ${fmtEs(r.floors)} plantas. ` +
-        `Está en ${r.city} (${r.country}) y se completó en ${r.year}; ` +
+        `Está en ${r.city} (${r.country}) y se terminó o coronó en ${r.year}; ` +
         `ocupa el puesto ${r.rank}º entre los edificios más altos del mundo.`,
       note,
     ].filter(Boolean).join(' ');
