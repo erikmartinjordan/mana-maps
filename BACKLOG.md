@@ -1,6 +1,5 @@
 # BACKLOG
 
-- [ ] Arreglar los tests que fallan tras: Nuevo mapa: "Desigualdad de ingresos (índice Gini) mundial por país" — coropleta con ~150 países, datos Banco Mundial vía Our World in Data, tags [Economía,Desigualdad,Geografía], dataSource/dataDate, legendKey/legendTitle/legendFormat, publicado en Firestore + landing + og-card + JSON-LD (CollectionPage/Dataset) + sitemap. Gap temático: el cluster de economía solo tiene PIB per cápita, salario mínimo y turismo; falta la distribución de la renta (15-10)
 - [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
