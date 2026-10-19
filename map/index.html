@@ -112,6 +112,13 @@ try {
   }
 } catch (e) {}
 </script>
+<script>
+try {
+  if (new URLSearchParams(window.location.search).get('embed') === '1') {
+    document.documentElement.classList.add('mana-editor-embed');
+  }
+} catch (e) {}
+</script>
 <link rel="stylesheet" href="/styles.css?v=1791912000"/>
 <link rel="stylesheet" href="/auth-gallery.css"/>
 
