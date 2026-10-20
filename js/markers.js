@@ -194,6 +194,7 @@ var MK = [
   { id:'emoji_beach',       cat:'emoji', es:'Playa 🏖️',        en:'Beach 🏖️',               e:'🏖️',  emoji:true },
   { id:'emoji_camping',     cat:'emoji', es:'Camping ⛺',       en:'Camping ⛺',              e:'⛺',   emoji:true },
   { id:'emoji_water',       cat:'emoji', es:'Agua 🌊',         en:'Water 🌊',                e:'🌊',  emoji:true },
+  { id:'emoji_rain',        cat:'emoji', es:'Lluvia 🌧️',       en:'Rain 🌧️',                e:'🌧️',  emoji:true },
   { id:'emoji_flower',      cat:'emoji', es:'Flor 🌸',         en:'Flower 🌸',               e:'🌸',  emoji:true },
   { id:'emoji_sun',         cat:'emoji', es:'Sol ☀️',          en:'Sun ☀️',                 e:'☀️',   emoji:true },
   { id:'emoji_moon',        cat:'emoji', es:'Luna 🌙',         en:'Moon 🌙',                 e:'🌙',  emoji:true },
