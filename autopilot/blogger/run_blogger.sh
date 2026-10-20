@@ -14,6 +14,21 @@ cd "$REPO" || {
   exit 1
 }
 
+# Evita solaparse con el loop principal (cada 45 min): espera hasta 15 min.
+for _ in $(seq 1 30); do
+  [ ! -d "$ROOT/.loop.lock" ] && break
+  sleep 30
+done
+if [ -d "$ROOT/.loop.lock" ]; then
+  echo "Loop principal ocupado; se pospone el blog." >>"$LOG"
+  exit 0
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Repo con cambios sin commitear; se aborta el blog." >>"$LOG"
+  exit 1
+fi
+
 git fetch origin main >>"$LOG" 2>&1
 git checkout main >>"$LOG" 2>&1
 git pull --ff-only origin main >>"$LOG" 2>&1
