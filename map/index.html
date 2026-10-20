@@ -112,7 +112,15 @@ try {
   }
 } catch (e) {}
 </script>
-<link rel="stylesheet" href="/styles.css?v=1791912000"/>
+<script>
+try {
+  if (new URLSearchParams(window.location.search).get('embed') === '1') {
+    document.documentElement.classList.add('mana-editor-embed');
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+} catch (e) {}
+</script>
+<link rel="stylesheet" href="/styles.css?v=1792000001"/>
 <link rel="stylesheet" href="/auth-gallery.css"/>
 
 </head>

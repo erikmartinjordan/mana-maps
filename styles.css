@@ -3495,3 +3495,26 @@ body.profile-page{
 }
 .label-modal-btn-ghost{background:var(--surface);color:var(--text-2);}
 .label-modal-btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* ── Modo embed del editor (?embed=1): solo el mapa, para iframes de blog ── */
+html.mana-editor-embed{--blue:#17191c;--color-accent:#17191c}
+html.mana-editor-embed #topbar,
+html.mana-editor-embed #sidebar,
+html.mana-editor-embed #chat-panel,
+html.mana-editor-embed #mobile-backdrop,
+html.mana-editor-embed .mobile-toggle,
+html.mana-editor-embed #handle-left,
+html.mana-editor-embed #handle-right,
+html.mana-editor-embed #map-bottom-bar,
+html.mana-editor-embed #coords-overlay,
+html.mana-editor-embed #basemap-stack,
+html.mana-editor-embed #drop-overlay,
+html.mana-editor-embed #attr-modal,
+html.mana-editor-embed #attr-table-panel,
+html.mana-editor-embed #stats-panel,
+html.mana-editor-embed #presence-avatars{display:none!important}
+html.mana-editor-embed,html.mana-editor-embed body{height:100%;overflow:hidden}
+html.mana-editor-embed #app{grid-template-columns:1fr!important;height:100vh;height:100dvh;width:100%;background:var(--surface)}
+html.mana-editor-embed #map-wrap{grid-column:1 / -1}
+html.mana-editor-embed #map-pillbar{display:block!important;bottom:calc(20px + env(safe-area-inset-bottom))}
+html.mana-editor-embed #map-legend{bottom:calc(20px + env(safe-area-inset-bottom))}

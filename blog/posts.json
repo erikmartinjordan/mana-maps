@@ -1,0 +1,25 @@
+[
+  {
+    "date": "2026-10-19",
+    "event": "Protestas y disturbios en Francia, Italia y Bélgica (17-18 de octubre de 2026)",
+    "mapSlug": "gini-index-world",
+    "sourceUrls": [
+      "https://www.elimparcial.com/mundo/2026/10/18/el-descontento-se-expande-por-europa-portugal-italia-y-belgica-se-suman-a-las-protestas-de-francia-y-espana-por-salarios-y-vivienda/",
+      "https://www.marca.com/tiramillas/sociedad/2026/10/18/saqueos-barricadas-1-200-detenidos-ayuntamiento-llamas-revuelta-sacude-europa-mas-alla-aulas.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "2026-10-19-revueltas-europa",
+        "url": "/blog/2026-10-19-revueltas-europa/",
+        "title": "Francia, Italia y Bélgica: la revuelta va más allá de las aulas",
+        "description": "El fin de semana del 17 y 18 de octubre, cientos de miles de personas salieron a la calle en Francia. Italia y Bélgica se sumaron con protestas estudiantiles. El mapa de desigualdad de ingresos ayuda a contextualizar el malestar, pero también muestra sus límites."
+      },
+      "en": {
+        "slug": "2026-10-19-revolts-europe",
+        "url": "/en/blog/2026-10-19-revolts-europe/",
+        "title": "France, Italy and Belgium: the revolt goes beyond the classroom",
+        "description": "Over the weekend of 17-18 October, hundreds of thousands of people took to the streets in France. Italy and Belgium joined with student protests. The income-inequality map helps contextualise the unrest, but it also shows its limits."
+      }
+    }
+  }
+]

@@ -8,6 +8,11 @@ function isDarkMapTheme() {
 }
 
 function getManaBasemapStyleUrl(isDark) {
+  // En modo embed usamos una variante neutra (agua gris, sin tinte azul) para
+  // que el mapa case con el diseño blanco/gris del artículo.
+  if (document.documentElement.classList.contains('mana-editor-embed')) {
+    return '/styles/mana-positron-neutral.json?v=1792000001';
+  }
   if (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getStyleUrl) {
     return window.MANA_BASEMAPS.getStyleUrl(isDark);
   }
