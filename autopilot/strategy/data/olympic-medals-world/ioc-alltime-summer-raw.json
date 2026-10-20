@@ -1,0 +1,1141 @@
+{
+  "_source": "Comité Olímpico Internacional (COI / Olympics.com) — tabla histórica de medallas de los Juegos Olímpicos de Verano hasta París 2024, recopilada en Wikipedia (All-time Olympic Games medal table, consultada 2026-10). Los equipos históricos (URSS, RDA, RFA, Checoslovaquia, Yugoslavia, Equipo Unificado, ROC, AIN…) se contabilizan por separado y no se atribuyen a los países sucesores. Geometrías: Natural Earth 110m/50m.",
+  "_url": "https://en.wikipedia.org/wiki/All-time_Olympic_Games_medal_table",
+  "_date": "2026-10-20",
+  "teams": [
+    {
+      "codigo": "AFG",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 2,
+      "total": 2
+    },
+    {
+      "codigo": "ALB",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 2,
+      "total": 2
+    },
+    {
+      "codigo": "ALG",
+      "oro": 7,
+      "plata": 4,
+      "bronce": 9,
+      "total": 20
+    },
+    {
+      "codigo": "ARG",
+      "oro": 22,
+      "plata": 27,
+      "bronce": 31,
+      "total": 80
+    },
+    {
+      "codigo": "ARM",
+      "oro": 2,
+      "plata": 11,
+      "bronce": 9,
+      "total": 22
+    },
+    {
+      "codigo": "ANZ",
+      "oro": 3,
+      "plata": 4,
+      "bronce": 5,
+      "total": 12
+    },
+    {
+      "codigo": "AUS",
+      "oro": 180,
+      "plata": 189,
+      "bronce": 225,
+      "total": 594
+    },
+    {
+      "codigo": "AUT",
+      "oro": 21,
+      "plata": 34,
+      "bronce": 43,
+      "total": 98
+    },
+    {
+      "codigo": "AZE",
+      "oro": 9,
+      "plata": 16,
+      "bronce": 31,
+      "total": 56
+    },
+    {
+      "codigo": "BAH",
+      "oro": 8,
+      "plata": 2,
+      "bronce": 6,
+      "total": 16
+    },
+    {
+      "codigo": "BRN",
+      "oro": 4,
+      "plata": 3,
+      "bronce": 1,
+      "total": 8
+    },
+    {
+      "codigo": "BAR",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "BLR",
+      "oro": 13,
+      "plata": 30,
+      "bronce": 42,
+      "total": 85
+    },
+    {
+      "codigo": "BEL",
+      "oro": 47,
+      "plata": 57,
+      "bronce": 64,
+      "total": 168
+    },
+    {
+      "codigo": "BER",
+      "oro": 1,
+      "plata": 0,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "BOH",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 3,
+      "total": 4
+    },
+    {
+      "codigo": "BOT",
+      "oro": 1,
+      "plata": 2,
+      "bronce": 1,
+      "total": 4
+    },
+    {
+      "codigo": "BRA",
+      "oro": 40,
+      "plata": 49,
+      "bronce": 81,
+      "total": 170
+    },
+    {
+      "codigo": "BWI",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 2,
+      "total": 2
+    },
+    {
+      "codigo": "BUL",
+      "oro": 57,
+      "plata": 89,
+      "bronce": 85,
+      "total": 231
+    },
+    {
+      "codigo": "BUR",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "BDI",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 0,
+      "total": 2
+    },
+    {
+      "codigo": "CMR",
+      "oro": 3,
+      "plata": 1,
+      "bronce": 2,
+      "total": 6
+    },
+    {
+      "codigo": "CAN",
+      "oro": 79,
+      "plata": 117,
+      "bronce": 155,
+      "total": 351
+    },
+    {
+      "codigo": "CPV",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "CHI",
+      "oro": 3,
+      "plata": 8,
+      "bronce": 4,
+      "total": 15
+    },
+    {
+      "codigo": "CHN",
+      "oro": 303,
+      "plata": 226,
+      "bronce": 198,
+      "total": 727
+    },
+    {
+      "codigo": "TPE",
+      "oro": 9,
+      "plata": 11,
+      "bronce": 23,
+      "total": 43
+    },
+    {
+      "codigo": "COL",
+      "oro": 5,
+      "plata": 16,
+      "bronce": 17,
+      "total": 38
+    },
+    {
+      "codigo": "CRC",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 2,
+      "total": 4
+    },
+    {
+      "codigo": "CRO",
+      "oro": 16,
+      "plata": 15,
+      "bronce": 18,
+      "total": 49
+    },
+    {
+      "codigo": "CUB",
+      "oro": 86,
+      "plata": 70,
+      "bronce": 88,
+      "total": 244
+    },
+    {
+      "codigo": "CYP",
+      "oro": 0,
+      "plata": 2,
+      "bronce": 0,
+      "total": 2
+    },
+    {
+      "codigo": "CZE",
+      "oro": 22,
+      "plata": 22,
+      "bronce": 28,
+      "total": 72
+    },
+    {
+      "codigo": "TCH",
+      "oro": 49,
+      "plata": 49,
+      "bronce": 45,
+      "total": 143
+    },
+    {
+      "codigo": "DEN",
+      "oro": 50,
+      "plata": 80,
+      "bronce": 84,
+      "total": 214
+    },
+    {
+      "codigo": "DJI",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "DMA",
+      "oro": 1,
+      "plata": 0,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "DOM",
+      "oro": 4,
+      "plata": 5,
+      "bronce": 6,
+      "total": 15
+    },
+    {
+      "codigo": "ECU",
+      "oro": 4,
+      "plata": 4,
+      "bronce": 2,
+      "total": 10
+    },
+    {
+      "codigo": "EGY",
+      "oro": 9,
+      "plata": 12,
+      "bronce": 20,
+      "total": 41
+    },
+    {
+      "codigo": "ERI",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "EST",
+      "oro": 10,
+      "plata": 9,
+      "bronce": 17,
+      "total": 36
+    },
+    {
+      "codigo": "ETH",
+      "oro": 24,
+      "plata": 16,
+      "bronce": 22,
+      "total": 62
+    },
+    {
+      "codigo": "FIJ",
+      "oro": 2,
+      "plata": 1,
+      "bronce": 1,
+      "total": 4
+    },
+    {
+      "codigo": "FIN",
+      "oro": 101,
+      "plata": 85,
+      "bronce": 119,
+      "total": 305
+    },
+    {
+      "codigo": "FRA",
+      "oro": 243,
+      "plata": 279,
+      "bronce": 302,
+      "total": 824
+    },
+    {
+      "codigo": "GAB",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "GEO",
+      "oro": 13,
+      "plata": 15,
+      "bronce": 19,
+      "total": 47
+    },
+    {
+      "codigo": "GER",
+      "oro": 214,
+      "plata": 219,
+      "bronce": 254,
+      "total": 687
+    },
+    {
+      "codigo": "EUA",
+      "oro": 28,
+      "plata": 54,
+      "bronce": 36,
+      "total": 118
+    },
+    {
+      "codigo": "GDR",
+      "oro": 153,
+      "plata": 129,
+      "bronce": 127,
+      "total": 409
+    },
+    {
+      "codigo": "FRG",
+      "oro": 56,
+      "plata": 67,
+      "bronce": 81,
+      "total": 204
+    },
+    {
+      "codigo": "GHA",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 4,
+      "total": 5
+    },
+    {
+      "codigo": "GBR",
+      "oro": 303,
+      "plata": 340,
+      "bronce": 343,
+      "total": 986
+    },
+    {
+      "codigo": "GRE",
+      "oro": 36,
+      "plata": 46,
+      "bronce": 47,
+      "total": 129
+    },
+    {
+      "codigo": "GRN",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 3,
+      "total": 5
+    },
+    {
+      "codigo": "GUA",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 1,
+      "total": 3
+    },
+    {
+      "codigo": "GUY",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "HAI",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "HKG",
+      "oro": 4,
+      "plata": 3,
+      "bronce": 6,
+      "total": 13
+    },
+    {
+      "codigo": "HUN",
+      "oro": 187,
+      "plata": 161,
+      "bronce": 182,
+      "total": 530
+    },
+    {
+      "codigo": "ISL",
+      "oro": 0,
+      "plata": 2,
+      "bronce": 2,
+      "total": 4
+    },
+    {
+      "codigo": "IND",
+      "oro": 10,
+      "plata": 10,
+      "bronce": 21,
+      "total": 41
+    },
+    {
+      "codigo": "INA",
+      "oro": 10,
+      "plata": 14,
+      "bronce": 16,
+      "total": 40
+    },
+    {
+      "codigo": "IRI",
+      "oro": 27,
+      "plata": 29,
+      "bronce": 32,
+      "total": 88
+    },
+    {
+      "codigo": "IRQ",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "IRL",
+      "oro": 15,
+      "plata": 10,
+      "bronce": 17,
+      "total": 42
+    },
+    {
+      "codigo": "ISR",
+      "oro": 4,
+      "plata": 6,
+      "bronce": 10,
+      "total": 20
+    },
+    {
+      "codigo": "ITA",
+      "oro": 229,
+      "plata": 201,
+      "bronce": 228,
+      "total": 658
+    },
+    {
+      "codigo": "CIV",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 3,
+      "total": 5
+    },
+    {
+      "codigo": "JAM",
+      "oro": 27,
+      "plata": 39,
+      "bronce": 28,
+      "total": 94
+    },
+    {
+      "codigo": "JPN",
+      "oro": 189,
+      "plata": 162,
+      "bronce": 191,
+      "total": 542
+    },
+    {
+      "codigo": "JOR",
+      "oro": 1,
+      "plata": 2,
+      "bronce": 1,
+      "total": 4
+    },
+    {
+      "codigo": "KAZ",
+      "oro": 15,
+      "plata": 25,
+      "bronce": 38,
+      "total": 78
+    },
+    {
+      "codigo": "KEN",
+      "oro": 39,
+      "plata": 45,
+      "bronce": 40,
+      "total": 124
+    },
+    {
+      "codigo": "PRK",
+      "oro": 16,
+      "plata": 18,
+      "bronce": 27,
+      "total": 61
+    },
+    {
+      "codigo": "KOR",
+      "oro": 109,
+      "plata": 100,
+      "bronce": 111,
+      "total": 320
+    },
+    {
+      "codigo": "KOS",
+      "oro": 3,
+      "plata": 1,
+      "bronce": 1,
+      "total": 5
+    },
+    {
+      "codigo": "KUW",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 3,
+      "total": 3
+    },
+    {
+      "codigo": "KGZ",
+      "oro": 0,
+      "plata": 5,
+      "bronce": 8,
+      "total": 13
+    },
+    {
+      "codigo": "LAT",
+      "oro": 4,
+      "plata": 11,
+      "bronce": 6,
+      "total": 21
+    },
+    {
+      "codigo": "LBN",
+      "oro": 0,
+      "plata": 2,
+      "bronce": 2,
+      "total": 4
+    },
+    {
+      "codigo": "LIE",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 0,
+      "total": 0
+    },
+    {
+      "codigo": "LTU",
+      "oro": 6,
+      "plata": 9,
+      "bronce": 15,
+      "total": 30
+    },
+    {
+      "codigo": "LUX",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 0,
+      "total": 2
+    },
+    {
+      "codigo": "MAS",
+      "oro": 0,
+      "plata": 8,
+      "bronce": 7,
+      "total": 15
+    },
+    {
+      "codigo": "MRI",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "MEX",
+      "oro": 13,
+      "plata": 27,
+      "bronce": 37,
+      "total": 77
+    },
+    {
+      "codigo": "MDA",
+      "oro": 0,
+      "plata": 3,
+      "bronce": 7,
+      "total": 10
+    },
+    {
+      "codigo": "MGL",
+      "oro": 2,
+      "plata": 12,
+      "bronce": 17,
+      "total": 31
+    },
+    {
+      "codigo": "MNE",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "MAR",
+      "oro": 8,
+      "plata": 5,
+      "bronce": 13,
+      "total": 26
+    },
+    {
+      "codigo": "MOZ",
+      "oro": 1,
+      "plata": 0,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "NAM",
+      "oro": 0,
+      "plata": 5,
+      "bronce": 0,
+      "total": 5
+    },
+    {
+      "codigo": "NED",
+      "oro": 111,
+      "plata": 112,
+      "bronce": 134,
+      "total": 357
+    },
+    {
+      "codigo": "AHO",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "NZL",
+      "oro": 63,
+      "plata": 40,
+      "bronce": 54,
+      "total": 157
+    },
+    {
+      "codigo": "NIG",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "NGR",
+      "oro": 3,
+      "plata": 11,
+      "bronce": 13,
+      "total": 27
+    },
+    {
+      "codigo": "MKD",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "NOR",
+      "oro": 63,
+      "plata": 53,
+      "bronce": 53,
+      "total": 169
+    },
+    {
+      "codigo": "PAK",
+      "oro": 4,
+      "plata": 3,
+      "bronce": 4,
+      "total": 11
+    },
+    {
+      "codigo": "PAN",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 2,
+      "total": 4
+    },
+    {
+      "codigo": "PAR",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "PER",
+      "oro": 1,
+      "plata": 3,
+      "bronce": 1,
+      "total": 5
+    },
+    {
+      "codigo": "PHI",
+      "oro": 3,
+      "plata": 5,
+      "bronce": 10,
+      "total": 18
+    },
+    {
+      "codigo": "POL",
+      "oro": 73,
+      "plata": 93,
+      "bronce": 142,
+      "total": 308
+    },
+    {
+      "codigo": "POR",
+      "oro": 6,
+      "plata": 11,
+      "bronce": 15,
+      "total": 32
+    },
+    {
+      "codigo": "PUR",
+      "oro": 2,
+      "plata": 2,
+      "bronce": 8,
+      "total": 12
+    },
+    {
+      "codigo": "QAT",
+      "oro": 2,
+      "plata": 2,
+      "bronce": 5,
+      "total": 9
+    },
+    {
+      "codigo": "EOR",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "ROU",
+      "oro": 93,
+      "plata": 101,
+      "bronce": 123,
+      "total": 317
+    },
+    {
+      "codigo": "RUS",
+      "oro": 147,
+      "plata": 124,
+      "bronce": 150,
+      "total": 421
+    },
+    {
+      "codigo": "RU1",
+      "oro": 1,
+      "plata": 4,
+      "bronce": 3,
+      "total": 8
+    },
+    {
+      "codigo": "URS",
+      "oro": 395,
+      "plata": 319,
+      "bronce": 296,
+      "total": 1010
+    },
+    {
+      "codigo": "EUN",
+      "oro": 45,
+      "plata": 38,
+      "bronce": 29,
+      "total": 112
+    },
+    {
+      "codigo": "OAR",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 0,
+      "total": 0
+    },
+    {
+      "codigo": "ROC",
+      "oro": 20,
+      "plata": 28,
+      "bronce": 23,
+      "total": 71
+    },
+    {
+      "codigo": "LCA",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 0,
+      "total": 2
+    },
+    {
+      "codigo": "SAM",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "SMR",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 2,
+      "total": 3
+    },
+    {
+      "codigo": "KSA",
+      "oro": 0,
+      "plata": 2,
+      "bronce": 2,
+      "total": 4
+    },
+    {
+      "codigo": "SEN",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "SRB",
+      "oro": 9,
+      "plata": 8,
+      "bronce": 11,
+      "total": 28
+    },
+    {
+      "codigo": "SCG",
+      "oro": 2,
+      "plata": 4,
+      "bronce": 3,
+      "total": 9
+    },
+    {
+      "codigo": "SGP",
+      "oro": 1,
+      "plata": 2,
+      "bronce": 3,
+      "total": 6
+    },
+    {
+      "codigo": "SVK",
+      "oro": 10,
+      "plata": 14,
+      "bronce": 9,
+      "total": 33
+    },
+    {
+      "codigo": "SLO",
+      "oro": 10,
+      "plata": 10,
+      "bronce": 11,
+      "total": 31
+    },
+    {
+      "codigo": "RSA",
+      "oro": 28,
+      "plata": 36,
+      "bronce": 31,
+      "total": 95
+    },
+    {
+      "codigo": "ESP",
+      "oro": 53,
+      "plata": 76,
+      "bronce": 58,
+      "total": 187
+    },
+    {
+      "codigo": "SRI",
+      "oro": 0,
+      "plata": 2,
+      "bronce": 0,
+      "total": 2
+    },
+    {
+      "codigo": "SUD",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "SUR",
+      "oro": 1,
+      "plata": 0,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "SWE",
+      "oro": 151,
+      "plata": 181,
+      "bronce": 182,
+      "total": 514
+    },
+    {
+      "codigo": "SUI",
+      "oro": 53,
+      "plata": 82,
+      "bronce": 77,
+      "total": 212
+    },
+    {
+      "codigo": "SYR",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 2,
+      "total": 4
+    },
+    {
+      "codigo": "TJK",
+      "oro": 1,
+      "plata": 1,
+      "bronce": 5,
+      "total": 7
+    },
+    {
+      "codigo": "TAN",
+      "oro": 0,
+      "plata": 2,
+      "bronce": 0,
+      "total": 2
+    },
+    {
+      "codigo": "THA",
+      "oro": 11,
+      "plata": 11,
+      "bronce": 19,
+      "total": 41
+    },
+    {
+      "codigo": "TOG",
+      "oro": 0,
+      "plata": 0,
+      "bronce": 1,
+      "total": 1
+    },
+    {
+      "codigo": "TGA",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "TTO",
+      "oro": 3,
+      "plata": 5,
+      "bronce": 11,
+      "total": 19
+    },
+    {
+      "codigo": "TUN",
+      "oro": 6,
+      "plata": 4,
+      "bronce": 8,
+      "total": 18
+    },
+    {
+      "codigo": "TUR",
+      "oro": 41,
+      "plata": 29,
+      "bronce": 41,
+      "total": 111
+    },
+    {
+      "codigo": "TKM",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "UGA",
+      "oro": 5,
+      "plata": 5,
+      "bronce": 3,
+      "total": 13
+    },
+    {
+      "codigo": "UKR",
+      "oro": 38,
+      "plata": 41,
+      "bronce": 72,
+      "total": 151
+    },
+    {
+      "codigo": "UAE",
+      "oro": 1,
+      "plata": 0,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "USA",
+      "oro": 1106,
+      "plata": 880,
+      "bronce": 788,
+      "total": 2774
+    },
+    {
+      "codigo": "URU",
+      "oro": 2,
+      "plata": 2,
+      "bronce": 6,
+      "total": 10
+    },
+    {
+      "codigo": "UZB",
+      "oro": 18,
+      "plata": 8,
+      "bronce": 23,
+      "total": 49
+    },
+    {
+      "codigo": "VEN",
+      "oro": 3,
+      "plata": 7,
+      "bronce": 9,
+      "total": 19
+    },
+    {
+      "codigo": "VIE",
+      "oro": 1,
+      "plata": 3,
+      "bronce": 1,
+      "total": 5
+    },
+    {
+      "codigo": "ISV",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 0,
+      "total": 1
+    },
+    {
+      "codigo": "YUG",
+      "oro": 26,
+      "plata": 29,
+      "bronce": 28,
+      "total": 83
+    },
+    {
+      "codigo": "ZAM",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 2,
+      "total": 3
+    },
+    {
+      "codigo": "ZIM",
+      "oro": 3,
+      "plata": 4,
+      "bronce": 1,
+      "total": 8
+    },
+    {
+      "codigo": "AIN",
+      "oro": 1,
+      "plata": 3,
+      "bronce": 1,
+      "total": 5
+    },
+    {
+      "codigo": "IOA",
+      "oro": 1,
+      "plata": 0,
+      "bronce": 1,
+      "total": 2
+    },
+    {
+      "codigo": "IOP",
+      "oro": 0,
+      "plata": 1,
+      "bronce": 2,
+      "total": 3
+    },
+    {
+      "codigo": "ZZX",
+      "oro": 3,
+      "plata": 2,
+      "bronce": 4,
+      "total": 9
+    }
+  ]
+}
