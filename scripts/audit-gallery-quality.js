@@ -26,6 +26,11 @@
 //      válido del catálogo js/markers.js, _manaEmojiSize o Area para escalar
 //      el icono, _manaGroupName y _manaGroupId. Nunca se representa un área
 //      (país, desierto, región…) con un punto: eso exige polígono real §2.
+//  10. deriva de metadatos SEO: los mapas isPublished de Firestore deben
+//      coincidir exactamente con el itemListElement/numberOfItems del JSON-LD
+//      CollectionPage de gallery/index.html y con las URLs de mapa de
+//      sitemap.xml. Lista faltantes/sobrantes/duplicados y falla (exit 1) si
+//      hay desajuste. Acepta landings /gallery/<slug>/ y /gallery/?slug=<slug>.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -1191,6 +1196,177 @@ function auditMap(map) {
   return { issues, fixes, manual, geo, dirty: geoDirty, popupFixed, popupMissing, paletteFixed, paletteKind: palette.kind, pointFixed, pointManualCount };
 }
 
+// ── Deriva de metadatos SEO (check 10) ───────────────────────────
+// La galería se sirve desde Firestore, pero el JSON-LD CollectionPage y el
+// sitemap.xml son ficheros estáticos: cada mapa publicado debe aparecer en
+// ambos (y ninguno despublicado debe quedarse). Este check detecta la deriva
+// antes de desplegar.
+
+const GALLERY_HTML_PATH = require('path').join(__dirname, '..', 'gallery', 'index.html');
+const SITEMAP_XML_PATH = require('path').join(__dirname, '..', 'sitemap.xml');
+
+// Extrae el slug de una URL de mapa de la galería. Soporta las dos formas
+// usadas en el repo:
+//   https://maña.com/gallery/?slug=<slug>
+//   https://maña.com/gallery/<slug>/
+function slugFromGalleryUrl(url) {
+  if (!url) return '';
+  const s = String(url).trim();
+  const query = s.match(/\/gallery\/?\?(?:[^#]*&)?slug=([^&#]+)/i);
+  if (query) {
+    try { return decodeURIComponent(query[1]); } catch (_) { return query[1]; }
+  }
+  const landing = s.match(/\/gallery\/([^/?#]+)\/?(?:[?#].*)?$/i);
+  if (landing) {
+    try { return decodeURIComponent(landing[1]); } catch (_) { return landing[1]; }
+  }
+  return '';
+}
+
+// Lee el JSON-LD CollectionPage (script#ld-collection) de gallery/index.html.
+// Devuelve { found, error, numberOfItems, itemCount, slugs, duplicates,
+// positionsOk }.
+function parseCollectionLd(html) {
+  const result = {
+    found: false,
+    error: null,
+    numberOfItems: null,
+    itemCount: 0,
+    slugs: [],
+    invalidItems: 0,
+    duplicates: [],
+    positionsOk: true,
+  };
+  if (!html || typeof html !== 'string') {
+    result.error = 'HTML de la galería vacío';
+    return result;
+  }
+  const m = html.match(/<script[^>]*\bid=["']ld-collection["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (!m) {
+    result.error = 'no se encontró <script id="ld-collection">';
+    return result;
+  }
+  let json;
+  try {
+    json = JSON.parse(m[1]);
+  } catch (e) {
+    result.error = `JSON-LD inválido: ${e.message}`;
+    return result;
+  }
+  result.found = true;
+  const main = json.mainEntity || {};
+  result.numberOfItems = Number.isFinite(Number(main.numberOfItems)) ? Number(main.numberOfItems) : null;
+  const items = Array.isArray(main.itemListElement) ? main.itemListElement : [];
+  result.itemCount = items.length;
+  for (const it of items) {
+    const slug = slugFromGalleryUrl(it && it.url);
+    if (slug) result.slugs.push(slug);
+    else result.invalidItems++;
+  }
+  const seen = new Set();
+  const dup = new Set();
+  for (const s of result.slugs) {
+    if (seen.has(s)) dup.add(s);
+    seen.add(s);
+  }
+  result.duplicates = [...dup].sort();
+  result.positionsOk = items.every((it, i) => Number(it && it.position) === i + 1);
+  return result;
+}
+
+// Extrae los slugs de mapa de sitemap.xml (landings /gallery/<slug>/ o
+// /gallery/?slug=<slug>), ignorando la URL raíz /gallery/.
+function parseSitemapGallerySlugs(xml) {
+  const slugs = [];
+  if (!xml || typeof xml !== 'string') return slugs;
+  for (const m of xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)) {
+    const slug = slugFromGalleryUrl(m[1]);
+    if (slug) slugs.push(slug);
+  }
+  return slugs;
+}
+
+function diffSlugs(expected, actual) {
+  const exp = new Set(expected);
+  const act = new Set(actual);
+  return {
+    missing: [...exp].filter(s => !act.has(s)).sort(),
+    extra: [...act].filter(s => !exp.has(s)).sort(),
+  };
+}
+
+function duplicatesOf(list) {
+  const seen = new Set();
+  const dup = new Set();
+  for (const s of list) {
+    if (seen.has(s)) dup.add(s);
+    seen.add(s);
+  }
+  return [...dup].sort();
+}
+
+// Compara la lista de slugs publicados (Firestore) con el JSON-LD y el
+// sitemap. Devuelve { issues, published, collection, sitemap } donde cada
+// issue es una línea legible; cualquier issue hace fallar la auditoría.
+function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '' } = {}) {
+  const issues = [];
+  const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
+  const collection = parseCollectionLd(galleryHtml);
+  const sitemapSlugs = parseSitemapGallerySlugs(sitemapXml);
+  const sitemap = {
+    slugs: sitemapSlugs,
+    duplicates: duplicatesOf(sitemapSlugs),
+  };
+
+  // JSON-LD CollectionPage
+  if (!collection.found) {
+    issues.push(`JSON-LD CollectionPage: ${collection.error}`);
+  } else {
+    if (collection.numberOfItems == null) {
+      issues.push('JSON-LD CollectionPage: numberOfItems ausente o no numérico');
+    } else if (collection.numberOfItems !== collection.itemCount) {
+      issues.push(`JSON-LD CollectionPage: numberOfItems=${collection.numberOfItems} ≠ itemListElement=${collection.itemCount}`);
+    }
+    if (collection.numberOfItems !== published.length) {
+      issues.push(`JSON-LD CollectionPage: numberOfItems=${collection.numberOfItems} ≠ publicados en Firestore=${published.length}`);
+    }
+    if (collection.invalidItems) {
+      issues.push(`JSON-LD CollectionPage: ${collection.invalidItems} itemListElement sin URL de mapa válida`);
+    }
+    if (collection.duplicates.length) {
+      issues.push(`JSON-LD CollectionPage: slugs duplicados (${collection.duplicates.join(', ')})`);
+    }
+    if (!collection.positionsOk) {
+      issues.push('JSON-LD CollectionPage: posiciones de itemListElement no consecutivas desde 1');
+    }
+    const d = diffSlugs(published, collection.slugs);
+    if (d.missing.length) {
+      issues.push(`JSON-LD CollectionPage: faltan ${d.missing.length} publicados (${d.missing.join(', ')})`);
+    }
+    if (d.extra.length) {
+      issues.push(`JSON-LD CollectionPage: sobran ${d.extra.length} no publicados o inexistentes (${d.extra.join(', ')})`);
+    }
+  }
+
+  // sitemap.xml
+  if (sitemapSlugs.length === 0) {
+    issues.push('sitemap.xml: no contiene ninguna URL de mapa (/gallery/<slug>/ o /gallery/?slug=)');
+  } else {
+    if (sitemap.duplicates.length) {
+      issues.push(`sitemap.xml: slugs duplicados (${sitemap.duplicates.join(', ')})`);
+    }
+    const d = diffSlugs(published, sitemapSlugs);
+    if (d.missing.length) {
+      issues.push(`sitemap.xml: faltan ${d.missing.length} publicados (${d.missing.join(', ')})`);
+    }
+    if (d.extra.length) {
+      issues.push(`sitemap.xml: sobran ${d.extra.length} no publicados o inexistentes (${d.extra.join(', ')})`);
+    }
+  }
+
+  return { issues, published, collection, sitemap };
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -1255,10 +1431,30 @@ async function main() {
   const published = allMaps.filter(m => m.isPublished === true);
   console.log(`Found ${allMaps.length} docs, ${published.length} published.\n`);
 
+  // 10. Deriva de metadatos SEO (Firestore ↔ JSON-LD CollectionPage ↔ sitemap).
+  let seo = null;
+  try {
+    const fsMod = require('fs');
+    seo = auditSeoMetadata(published.map(m => m.id), {
+      galleryHtml: fsMod.readFileSync(GALLERY_HTML_PATH, 'utf8'),
+      sitemapXml: fsMod.readFileSync(SITEMAP_XML_PATH, 'utf8'),
+    });
+  } catch (e) {
+    seo = { issues: [`no se pudieron leer gallery/index.html o sitemap.xml: ${e.message}`] };
+  }
+  console.log('SEO DRIFT | ISSUES');
+  console.log('----------|-------');
+  if (seo.issues.length === 0) {
+    console.log(`OK: ${published.length} publicados sincronizados con JSON-LD CollectionPage y sitemap.xml`);
+  } else {
+    for (const issue of seo.issues) console.log(`DRIFT: ${issue}`);
+  }
+  console.log('');
+
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = 0;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -1387,6 +1583,7 @@ async function main() {
   console.log(`Popups (AGENTS.md §5): ${popupFixedTotal} features completadas, ${popupMissingTotal} aún sin datos concretos`);
   console.log(`Paleta (AGENTS.md §3): ${paletteFixedTotal} props corregidas (rampa/borde/color semántico)`);
   console.log(`Puntos (AGENTS.md §9): ${pointFixedTotal} props corregidas (marker/escala/grupo), ${pointManualTotal} features con fallos no auto-fixables`);
+  console.log(`Deriva SEO (check 10): ${seo.issues.length === 0 ? 'OK' : `${seo.issues.length} desajustes entre Firestore, JSON-LD y sitemap`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -1428,6 +1625,14 @@ module.exports = {
   isDenyPopupKey,
   auditMap,
   auditSemanticPalette,
+  slugFromGalleryUrl,
+  parseCollectionLd,
+  parseSitemapGallerySlugs,
+  diffSlugs,
+  duplicatesOf,
+  auditSeoMetadata,
+  GALLERY_HTML_PATH,
+  SITEMAP_XML_PATH,
   parseLegendNumber,
   hexToHsl,
   hslToHex,
