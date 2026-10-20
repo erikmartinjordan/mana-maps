@@ -39,7 +39,10 @@ if [ -f "$ROOT/config.json" ]; then
   [ -n "$MODEL" ] && MODEL_OPT="--model $MODEL"
 fi
 
-opencode run --dir "$REPO" --agent blogger --auto $MODEL_OPT \
+# opencode corre dentro del contenedor con el home montado en /home/erik.
+OPDIR=$(printf '%s' "$REPO" | sed "s|^$HOME|/home/erik|")
+
+opencode run --dir "$OPDIR" --agent blogger --auto $MODEL_OPT \
   "Escribe y publica el post diario bilingüe (es/en) con un mapa interactivo. Sigue .opencode/agent/blogger.md." \
   >>"$LOG" 2>&1
 
