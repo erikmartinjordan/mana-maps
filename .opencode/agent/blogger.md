@@ -218,12 +218,12 @@ curl -s -X POST \
 
 ### 6. Publicar
 
-- Crea una rama `blog/AAAAMMDD-slug` desde `main`. No trabajes en `main`.
-- Commit: `feat: blog diario <slug> (es/en)`.
-- Push de la rama y, si `gh` está disponible y autenticado, abre una PR
-  contra `main` con el resumen y las fuentes. El loop del iMac se encarga de
-  mergear la rama si el CI pasa.
-- Nunca hagas push directo a `main`, `--force` ni borres ramas.
+- El runner diario ya deja el repo en `main` y hace `git pull`. Trabaja sobre
+  `main` en esta ejecución automática.
+- Ejecuta los tests. Si pasan: `git add` de los archivos del blog,
+  `git commit -m "feat: blog diario <slug> (es/en)"` y `git push origin main`.
+- Si los tests fallan: no commitees ni pushees, deja el árbol limpio y explica
+  el fallo. Nunca uses `--force` ni borres ramas.
 
 ## SI NO HAY POST
 
