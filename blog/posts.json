@@ -1,5 +1,28 @@
 [
   {
+    "date": "2026-10-21",
+    "event": "Pausa del Kilauea tras el episodio 55 y previsión del episodio 56 (17-20 de octubre de 2026)",
+    "mapSlug": "active-volcanoes-world",
+    "sourceUrls": [
+      "https://www.usgs.gov/volcanoes/kilauea/volcano-updates",
+      "https://mauinow.com/2026/10/19/episode-55-of-ongoing-kilauea-eruption-lasted-less-than-6-hours-on-saturday-morning/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "2026-10-21-kilauea-episodio-56",
+        "url": "/blog/2026-10-21-kilauea-episodio-56/",
+        "title": "El Kilauea entra en pausa a la espera del episodio 56",
+        "description": "El episodio 55 de fuentes de lava duró menos de seis horas y terminó el 17 de octubre. El USGS prevé el siguiente entre el 27 de octubre y el 6 de noviembre. El mapa de volcanes activos sitúa el cráter en el Pacífico."
+      },
+      "en": {
+        "slug": "2026-10-21-kilauea-episode-56",
+        "url": "/en/blog/2026-10-21-kilauea-episode-56/",
+        "title": "Kilauea pauses as USGS forecasts episode 56",
+        "description": "Episode 55 of lava fountaining lasted less than six hours and ended on 17 October. The USGS expects the next episode between 27 October and 6 November. The active-volcanoes map places the crater in the Pacific."
+      }
+    }
+  },
+  {
     "date": "2026-10-19",
     "event": "Protestas y disturbios en Francia, Italia y Bélgica (17-18 de octubre de 2026)",
     "mapSlug": "gini-index-world",
