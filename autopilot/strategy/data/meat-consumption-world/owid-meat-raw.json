@@ -1,0 +1,1159 @@
+{
+  "_source": "FAO — Food Balances (2025), vía Our World in Data (ourworldindata.org/grapher/meat-supply-per-person): suministro de carne disponible para consumo, kg por persona y año; excluye pescado y no corrige el desperdicio doméstico. Geometrías: Natural Earth, vía population-by-country.",
+  "_date": "2026-10-21",
+  "_url": "https://ourworldindata.org/grapher/meat-supply-per-person.csv?csvType=full",
+  "countries": [
+    {
+      "entidad": "Afghanistan",
+      "valor": 6.4,
+      "anio": 2023,
+      "iso3": "AFG"
+    },
+    {
+      "entidad": "Albania",
+      "valor": 56.7,
+      "anio": 2023,
+      "iso3": "ALB"
+    },
+    {
+      "entidad": "Algeria",
+      "valor": 22.3,
+      "anio": 2023,
+      "iso3": "DZA"
+    },
+    {
+      "entidad": "Angola",
+      "valor": 18.6,
+      "anio": 2023,
+      "iso3": "AGO"
+    },
+    {
+      "entidad": "Antigua and Barbuda",
+      "valor": 96.4,
+      "anio": 2023,
+      "iso3": "ATG"
+    },
+    {
+      "entidad": "Argentina",
+      "valor": 114.9,
+      "anio": 2023,
+      "iso3": "ARG"
+    },
+    {
+      "entidad": "Armenia",
+      "valor": 54.7,
+      "anio": 2023,
+      "iso3": "ARM"
+    },
+    {
+      "entidad": "Australia",
+      "valor": 116.8,
+      "anio": 2023,
+      "iso3": "AUS"
+    },
+    {
+      "entidad": "Austria",
+      "valor": 73.7,
+      "anio": 2023,
+      "iso3": "AUT"
+    },
+    {
+      "entidad": "Azerbaijan",
+      "valor": 39.4,
+      "anio": 2023,
+      "iso3": "AZE"
+    },
+    {
+      "entidad": "Bahamas",
+      "valor": 114.9,
+      "anio": 2023,
+      "iso3": "BHS"
+    },
+    {
+      "entidad": "Bahrain",
+      "valor": 76.3,
+      "anio": 2023,
+      "iso3": "BHR"
+    },
+    {
+      "entidad": "Bangladesh",
+      "valor": 4.5,
+      "anio": 2023,
+      "iso3": "BGD"
+    },
+    {
+      "entidad": "Barbados",
+      "valor": 76.2,
+      "anio": 2023,
+      "iso3": "BRB"
+    },
+    {
+      "entidad": "Belarus",
+      "valor": 111.7,
+      "anio": 2023,
+      "iso3": "BLR"
+    },
+    {
+      "entidad": "Belgium",
+      "valor": 60,
+      "anio": 2023,
+      "iso3": "BEL"
+    },
+    {
+      "entidad": "Belize",
+      "valor": 68.2,
+      "anio": 2023,
+      "iso3": "BLZ"
+    },
+    {
+      "entidad": "Benin",
+      "valor": 17.3,
+      "anio": 2022,
+      "iso3": "BEN"
+    },
+    {
+      "entidad": "Bermuda",
+      "valor": 105.2,
+      "anio": 2009,
+      "iso3": "BMU"
+    },
+    {
+      "entidad": "Bhutan",
+      "valor": 14.7,
+      "anio": 2023,
+      "iso3": "BTN"
+    },
+    {
+      "entidad": "Bolivia",
+      "valor": 84.4,
+      "anio": 2023,
+      "iso3": "BOL"
+    },
+    {
+      "entidad": "Bosnia and Herzegovina",
+      "valor": 51.9,
+      "anio": 2023,
+      "iso3": "BIH"
+    },
+    {
+      "entidad": "Botswana",
+      "valor": 43.3,
+      "anio": 2023,
+      "iso3": "BWA"
+    },
+    {
+      "entidad": "Brazil",
+      "valor": 104.6,
+      "anio": 2023,
+      "iso3": "BRA"
+    },
+    {
+      "entidad": "Brunei",
+      "valor": 74.7,
+      "anio": 2009,
+      "iso3": "BRN"
+    },
+    {
+      "entidad": "Bulgaria",
+      "valor": 63.7,
+      "anio": 2023,
+      "iso3": "BGR"
+    },
+    {
+      "entidad": "Burkina Faso",
+      "valor": 23.1,
+      "anio": 2023,
+      "iso3": "BFA"
+    },
+    {
+      "entidad": "Burundi",
+      "valor": 3.6,
+      "anio": 2022,
+      "iso3": "BDI"
+    },
+    {
+      "entidad": "Cambodia",
+      "valor": 16.1,
+      "anio": 2023,
+      "iso3": "KHM"
+    },
+    {
+      "entidad": "Cameroon",
+      "valor": 14.8,
+      "anio": 2023,
+      "iso3": "CMR"
+    },
+    {
+      "entidad": "Canada",
+      "valor": 94.8,
+      "anio": 2023,
+      "iso3": "CAN"
+    },
+    {
+      "entidad": "Cape Verde",
+      "valor": 43.8,
+      "anio": 2023,
+      "iso3": "CPV"
+    },
+    {
+      "entidad": "Central African Republic",
+      "valor": 39.1,
+      "anio": 2022,
+      "iso3": "CAF"
+    },
+    {
+      "entidad": "Chad",
+      "valor": 47,
+      "anio": 2022,
+      "iso3": "TCD"
+    },
+    {
+      "entidad": "Chile",
+      "valor": 98.5,
+      "anio": 2023,
+      "iso3": "CHL"
+    },
+    {
+      "entidad": "China",
+      "valor": 73.5,
+      "anio": 2023,
+      "iso3": "CHN"
+    },
+    {
+      "entidad": "Colombia",
+      "valor": 62.6,
+      "anio": 2023,
+      "iso3": "COL"
+    },
+    {
+      "entidad": "Comoros",
+      "valor": 26.6,
+      "anio": 2023,
+      "iso3": "COM"
+    },
+    {
+      "entidad": "Congo",
+      "valor": 55.8,
+      "anio": 2023,
+      "iso3": "COG"
+    },
+    {
+      "entidad": "Costa Rica",
+      "valor": 64.1,
+      "anio": 2023,
+      "iso3": "CRI"
+    },
+    {
+      "entidad": "Cote d'Ivoire",
+      "valor": 12,
+      "anio": 2023,
+      "iso3": "CIV"
+    },
+    {
+      "entidad": "Croatia",
+      "valor": 99.7,
+      "anio": 2023,
+      "iso3": "HRV"
+    },
+    {
+      "entidad": "Cuba",
+      "valor": 65.7,
+      "anio": 2019,
+      "iso3": "CUB"
+    },
+    {
+      "entidad": "Cyprus",
+      "valor": 77.9,
+      "anio": 2023,
+      "iso3": "CYP"
+    },
+    {
+      "entidad": "Czechia",
+      "valor": 82.3,
+      "anio": 2023,
+      "iso3": "CZE"
+    },
+    {
+      "entidad": "Democratic Republic of Congo",
+      "valor": 3.5,
+      "anio": 2023,
+      "iso3": "COD"
+    },
+    {
+      "entidad": "Denmark",
+      "valor": 101.3,
+      "anio": 2023,
+      "iso3": "DNK"
+    },
+    {
+      "entidad": "Djibouti",
+      "valor": 14.1,
+      "anio": 2023,
+      "iso3": "DJI"
+    },
+    {
+      "entidad": "Dominica",
+      "valor": 86.4,
+      "anio": 2022,
+      "iso3": "DMA"
+    },
+    {
+      "entidad": "Dominican Republic",
+      "valor": 61.6,
+      "anio": 2023,
+      "iso3": "DOM"
+    },
+    {
+      "entidad": "East Timor",
+      "valor": 31.8,
+      "anio": 2023,
+      "iso3": "TLS"
+    },
+    {
+      "entidad": "Ecuador",
+      "valor": 56.2,
+      "anio": 2023,
+      "iso3": "ECU"
+    },
+    {
+      "entidad": "Egypt",
+      "valor": 27.6,
+      "anio": 2023,
+      "iso3": "EGY"
+    },
+    {
+      "entidad": "El Salvador",
+      "valor": 45.6,
+      "anio": 2023,
+      "iso3": "SLV"
+    },
+    {
+      "entidad": "Estonia",
+      "valor": 64.7,
+      "anio": 2023,
+      "iso3": "EST"
+    },
+    {
+      "entidad": "Eswatini",
+      "valor": 22.4,
+      "anio": 2023,
+      "iso3": "SWZ"
+    },
+    {
+      "entidad": "Ethiopia",
+      "valor": 6.9,
+      "anio": 2023,
+      "iso3": "ETH"
+    },
+    {
+      "entidad": "Fiji",
+      "valor": 63.2,
+      "anio": 2023,
+      "iso3": "FJI"
+    },
+    {
+      "entidad": "Finland",
+      "valor": 69.4,
+      "anio": 2023,
+      "iso3": "FIN"
+    },
+    {
+      "entidad": "France",
+      "valor": 80.3,
+      "anio": 2023,
+      "iso3": "FRA"
+    },
+    {
+      "entidad": "French Polynesia",
+      "valor": 98.5,
+      "anio": 2023,
+      "iso3": "PYF"
+    },
+    {
+      "entidad": "Gabon",
+      "valor": 63.1,
+      "anio": 2023,
+      "iso3": "GAB"
+    },
+    {
+      "entidad": "Gambia",
+      "valor": 19.1,
+      "anio": 2023,
+      "iso3": "GMB"
+    },
+    {
+      "entidad": "Georgia",
+      "valor": 45.4,
+      "anio": 2023,
+      "iso3": "GEO"
+    },
+    {
+      "entidad": "Germany",
+      "valor": 70.7,
+      "anio": 2023,
+      "iso3": "DEU"
+    },
+    {
+      "entidad": "Ghana",
+      "valor": 17.4,
+      "anio": 2023,
+      "iso3": "GHA"
+    },
+    {
+      "entidad": "Greece",
+      "valor": 82,
+      "anio": 2023,
+      "iso3": "GRC"
+    },
+    {
+      "entidad": "Grenada",
+      "valor": 80.5,
+      "anio": 2023,
+      "iso3": "GRD"
+    },
+    {
+      "entidad": "Guatemala",
+      "valor": 54.3,
+      "anio": 2023,
+      "iso3": "GTM"
+    },
+    {
+      "entidad": "Guinea",
+      "valor": 15.2,
+      "anio": 2023,
+      "iso3": "GIN"
+    },
+    {
+      "entidad": "Guinea-Bissau",
+      "valor": 14,
+      "anio": 2023,
+      "iso3": "GNB"
+    },
+    {
+      "entidad": "Guyana",
+      "valor": 88.7,
+      "anio": 2023,
+      "iso3": "GUY"
+    },
+    {
+      "entidad": "Haiti",
+      "valor": 20.7,
+      "anio": 2023,
+      "iso3": "HTI"
+    },
+    {
+      "entidad": "Honduras",
+      "valor": 37.7,
+      "anio": 2023,
+      "iso3": "HND"
+    },
+    {
+      "entidad": "Hong Kong",
+      "valor": 107.4,
+      "anio": 2023,
+      "iso3": "HKG"
+    },
+    {
+      "entidad": "Hungary",
+      "valor": 76.3,
+      "anio": 2023,
+      "iso3": "HUN"
+    },
+    {
+      "entidad": "Iceland",
+      "valor": 98.1,
+      "anio": 2023,
+      "iso3": "ISL"
+    },
+    {
+      "entidad": "India",
+      "valor": 8.1,
+      "anio": 2023,
+      "iso3": "IND"
+    },
+    {
+      "entidad": "Indonesia",
+      "valor": 20,
+      "anio": 2023,
+      "iso3": "IDN"
+    },
+    {
+      "entidad": "Iran",
+      "valor": 29.9,
+      "anio": 2023,
+      "iso3": "IRN"
+    },
+    {
+      "entidad": "Iraq",
+      "valor": 21.1,
+      "anio": 2023,
+      "iso3": "IRQ"
+    },
+    {
+      "entidad": "Ireland",
+      "valor": 98.4,
+      "anio": 2023,
+      "iso3": "IRL"
+    },
+    {
+      "entidad": "Israel",
+      "valor": 108.7,
+      "anio": 2023,
+      "iso3": "ISR"
+    },
+    {
+      "entidad": "Italy",
+      "valor": 71.2,
+      "anio": 2023,
+      "iso3": "ITA"
+    },
+    {
+      "entidad": "Jamaica",
+      "valor": 67,
+      "anio": 2023,
+      "iso3": "JAM"
+    },
+    {
+      "entidad": "Japan",
+      "valor": 59.9,
+      "anio": 2022,
+      "iso3": "JPN"
+    },
+    {
+      "entidad": "Jordan",
+      "valor": 35.1,
+      "anio": 2023,
+      "iso3": "JOR"
+    },
+    {
+      "entidad": "Kazakhstan",
+      "valor": 64.9,
+      "anio": 2023,
+      "iso3": "KAZ"
+    },
+    {
+      "entidad": "Kenya",
+      "valor": 10.2,
+      "anio": 2023,
+      "iso3": "KEN"
+    },
+    {
+      "entidad": "Kiribati",
+      "valor": 45.1,
+      "anio": 2023,
+      "iso3": "KIR"
+    },
+    {
+      "entidad": "Kuwait",
+      "valor": 62.5,
+      "anio": 2023,
+      "iso3": "KWT"
+    },
+    {
+      "entidad": "Kyrgyzstan",
+      "valor": 40,
+      "anio": 2023,
+      "iso3": "KGZ"
+    },
+    {
+      "entidad": "Laos",
+      "valor": 31.1,
+      "anio": 2023,
+      "iso3": "LAO"
+    },
+    {
+      "entidad": "Latvia",
+      "valor": 82.7,
+      "anio": 2023,
+      "iso3": "LVA"
+    },
+    {
+      "entidad": "Lebanon",
+      "valor": 38.2,
+      "anio": 2023,
+      "iso3": "LBN"
+    },
+    {
+      "entidad": "Lesotho",
+      "valor": 18.8,
+      "anio": 2023,
+      "iso3": "LSO"
+    },
+    {
+      "entidad": "Liberia",
+      "valor": 12.3,
+      "anio": 2023,
+      "iso3": "LBR"
+    },
+    {
+      "entidad": "Libya",
+      "valor": 43.7,
+      "anio": 2023,
+      "iso3": "LBY"
+    },
+    {
+      "entidad": "Lithuania",
+      "valor": 80.9,
+      "anio": 2023,
+      "iso3": "LTU"
+    },
+    {
+      "entidad": "Luxembourg",
+      "valor": 83,
+      "anio": 2023,
+      "iso3": "LUX"
+    },
+    {
+      "entidad": "Macao",
+      "valor": 121.2,
+      "anio": 2023,
+      "iso3": "MAC"
+    },
+    {
+      "entidad": "Madagascar",
+      "valor": 5.3,
+      "anio": 2023,
+      "iso3": "MDG"
+    },
+    {
+      "entidad": "Malawi",
+      "valor": 28.2,
+      "anio": 2023,
+      "iso3": "MWI"
+    },
+    {
+      "entidad": "Malaysia",
+      "valor": 69.1,
+      "anio": 2023,
+      "iso3": "MYS"
+    },
+    {
+      "entidad": "Maldives",
+      "valor": 29.6,
+      "anio": 2023,
+      "iso3": "MDV"
+    },
+    {
+      "entidad": "Mali",
+      "valor": 7.5,
+      "anio": 2022,
+      "iso3": "MLI"
+    },
+    {
+      "entidad": "Malta",
+      "valor": 71.8,
+      "anio": 2023,
+      "iso3": "MLT"
+    },
+    {
+      "entidad": "Marshall Islands",
+      "valor": 125.6,
+      "anio": 2023,
+      "iso3": "MHL"
+    },
+    {
+      "entidad": "Mauritania",
+      "valor": 36.5,
+      "anio": 2023,
+      "iso3": "MRT"
+    },
+    {
+      "entidad": "Mauritius",
+      "valor": 64.5,
+      "anio": 2023,
+      "iso3": "MUS"
+    },
+    {
+      "entidad": "Mexico",
+      "valor": 78.2,
+      "anio": 2023,
+      "iso3": "MEX"
+    },
+    {
+      "entidad": "Micronesia (country)",
+      "valor": 64,
+      "anio": 2023,
+      "iso3": "FSM"
+    },
+    {
+      "entidad": "Moldova",
+      "valor": 33.9,
+      "anio": 2023,
+      "iso3": "MDA"
+    },
+    {
+      "entidad": "Mongolia",
+      "valor": 136.1,
+      "anio": 2023,
+      "iso3": "MNG"
+    },
+    {
+      "entidad": "Montenegro",
+      "valor": 96.9,
+      "anio": 2023,
+      "iso3": "MNE"
+    },
+    {
+      "entidad": "Morocco",
+      "valor": 32.8,
+      "anio": 2023,
+      "iso3": "MAR"
+    },
+    {
+      "entidad": "Mozambique",
+      "valor": 10.3,
+      "anio": 2023,
+      "iso3": "MOZ"
+    },
+    {
+      "entidad": "Myanmar",
+      "valor": 20.9,
+      "anio": 2023,
+      "iso3": "MMR"
+    },
+    {
+      "entidad": "Namibia",
+      "valor": 24.2,
+      "anio": 2023,
+      "iso3": "NAM"
+    },
+    {
+      "entidad": "Nauru",
+      "valor": 109.2,
+      "anio": 2023,
+      "iso3": "NRU"
+    },
+    {
+      "entidad": "Nepal",
+      "valor": 14.5,
+      "anio": 2023,
+      "iso3": "NPL"
+    },
+    {
+      "entidad": "Netherlands",
+      "valor": 71.6,
+      "anio": 2023,
+      "iso3": "NLD"
+    },
+    {
+      "entidad": "Netherlands Antilles",
+      "valor": 96.6,
+      "anio": 2009,
+      "iso3": "ANT"
+    },
+    {
+      "entidad": "New Caledonia",
+      "valor": 89.6,
+      "anio": 2023,
+      "iso3": "NCL"
+    },
+    {
+      "entidad": "New Zealand",
+      "valor": 79.5,
+      "anio": 2023,
+      "iso3": "NZL"
+    },
+    {
+      "entidad": "Nicaragua",
+      "valor": 36.3,
+      "anio": 2023,
+      "iso3": "NIC"
+    },
+    {
+      "entidad": "Niger",
+      "valor": 7.7,
+      "anio": 2023,
+      "iso3": "NER"
+    },
+    {
+      "entidad": "Nigeria",
+      "valor": 7.1,
+      "anio": 2023,
+      "iso3": "NGA"
+    },
+    {
+      "entidad": "North Korea",
+      "valor": 13.8,
+      "anio": 2018,
+      "iso3": "PRK"
+    },
+    {
+      "entidad": "North Macedonia",
+      "valor": 51.5,
+      "anio": 2023,
+      "iso3": "MKD"
+    },
+    {
+      "entidad": "Norway",
+      "valor": 70.4,
+      "anio": 2023,
+      "iso3": "NOR"
+    },
+    {
+      "entidad": "Oman",
+      "valor": 37.6,
+      "anio": 2023,
+      "iso3": "OMN"
+    },
+    {
+      "entidad": "Pakistan",
+      "valor": 21.2,
+      "anio": 2023,
+      "iso3": "PAK"
+    },
+    {
+      "entidad": "Panama",
+      "valor": 78,
+      "anio": 2023,
+      "iso3": "PAN"
+    },
+    {
+      "entidad": "Papua New Guinea",
+      "valor": 58.5,
+      "anio": 2023,
+      "iso3": "PNG"
+    },
+    {
+      "entidad": "Paraguay",
+      "valor": 26.9,
+      "anio": 2023,
+      "iso3": "PRY"
+    },
+    {
+      "entidad": "Peru",
+      "valor": 55.4,
+      "anio": 2023,
+      "iso3": "PER"
+    },
+    {
+      "entidad": "Philippines",
+      "valor": 33.6,
+      "anio": 2023,
+      "iso3": "PHL"
+    },
+    {
+      "entidad": "Poland",
+      "valor": 83.3,
+      "anio": 2023,
+      "iso3": "POL"
+    },
+    {
+      "entidad": "Portugal",
+      "valor": 99.3,
+      "anio": 2023,
+      "iso3": "PRT"
+    },
+    {
+      "entidad": "Qatar",
+      "valor": 71.4,
+      "anio": 2023,
+      "iso3": "QAT"
+    },
+    {
+      "entidad": "Romania",
+      "valor": 72.4,
+      "anio": 2023,
+      "iso3": "ROU"
+    },
+    {
+      "entidad": "Russia",
+      "valor": 84.8,
+      "anio": 2023,
+      "iso3": "RUS"
+    },
+    {
+      "entidad": "Rwanda",
+      "valor": 6.4,
+      "anio": 2023,
+      "iso3": "RWA"
+    },
+    {
+      "entidad": "Saint Kitts and Nevis",
+      "valor": 88.8,
+      "anio": 2023,
+      "iso3": "KNA"
+    },
+    {
+      "entidad": "Saint Lucia",
+      "valor": 90.3,
+      "anio": 2023,
+      "iso3": "LCA"
+    },
+    {
+      "entidad": "Saint Vincent and the Grenadines",
+      "valor": 118.5,
+      "anio": 2023,
+      "iso3": "VCT"
+    },
+    {
+      "entidad": "Samoa",
+      "valor": 109,
+      "anio": 2023,
+      "iso3": "WSM"
+    },
+    {
+      "entidad": "Sao Tome and Principe",
+      "valor": 25.2,
+      "anio": 2023,
+      "iso3": "STP"
+    },
+    {
+      "entidad": "Saudi Arabia",
+      "valor": 58.1,
+      "anio": 2023,
+      "iso3": "SAU"
+    },
+    {
+      "entidad": "Senegal",
+      "valor": 20,
+      "anio": 2023,
+      "iso3": "SEN"
+    },
+    {
+      "entidad": "Serbia",
+      "valor": 84.2,
+      "anio": 2023,
+      "iso3": "SRB"
+    },
+    {
+      "entidad": "Seychelles",
+      "valor": 70.7,
+      "anio": 2023,
+      "iso3": "SYC"
+    },
+    {
+      "entidad": "Sierra Leone",
+      "valor": 10.8,
+      "anio": 2023,
+      "iso3": "SLE"
+    },
+    {
+      "entidad": "Slovakia",
+      "valor": 70,
+      "anio": 2023,
+      "iso3": "SVK"
+    },
+    {
+      "entidad": "Slovenia",
+      "valor": 60.4,
+      "anio": 2023,
+      "iso3": "SVN"
+    },
+    {
+      "entidad": "Solomon Islands",
+      "valor": 15.6,
+      "anio": 2023,
+      "iso3": "SLB"
+    },
+    {
+      "entidad": "Somalia",
+      "valor": 11.1,
+      "anio": 2022,
+      "iso3": "SOM"
+    },
+    {
+      "entidad": "South Africa",
+      "valor": 58.3,
+      "anio": 2023,
+      "iso3": "ZAF"
+    },
+    {
+      "entidad": "South Korea",
+      "valor": 84,
+      "anio": 2023,
+      "iso3": "KOR"
+    },
+    {
+      "entidad": "South Sudan",
+      "valor": 21.4,
+      "anio": 2022,
+      "iso3": "SSD"
+    },
+    {
+      "entidad": "Spain",
+      "valor": 100.8,
+      "anio": 2023,
+      "iso3": "ESP"
+    },
+    {
+      "entidad": "Sri Lanka",
+      "valor": 11.6,
+      "anio": 2023,
+      "iso3": "LKA"
+    },
+    {
+      "entidad": "Sudan",
+      "valor": 18.4,
+      "anio": 2022,
+      "iso3": "SDN"
+    },
+    {
+      "entidad": "Suriname",
+      "valor": 48.5,
+      "anio": 2023,
+      "iso3": "SUR"
+    },
+    {
+      "entidad": "Sweden",
+      "valor": 68.3,
+      "anio": 2023,
+      "iso3": "SWE"
+    },
+    {
+      "entidad": "Switzerland",
+      "valor": 64,
+      "anio": 2023,
+      "iso3": "CHE"
+    },
+    {
+      "entidad": "Syria",
+      "valor": 16.2,
+      "anio": 2023,
+      "iso3": "SYR"
+    },
+    {
+      "entidad": "Taiwan",
+      "valor": 91.5,
+      "anio": 2023,
+      "iso3": "TWN"
+    },
+    {
+      "entidad": "Tajikistan",
+      "valor": 32.9,
+      "anio": 2023,
+      "iso3": "TJK"
+    },
+    {
+      "entidad": "Tanzania",
+      "valor": 12.2,
+      "anio": 2023,
+      "iso3": "TZA"
+    },
+    {
+      "entidad": "Thailand",
+      "valor": 24.5,
+      "anio": 2023,
+      "iso3": "THA"
+    },
+    {
+      "entidad": "Togo",
+      "valor": 11.7,
+      "anio": 2022,
+      "iso3": "TGO"
+    },
+    {
+      "entidad": "Tonga",
+      "valor": 156.9,
+      "anio": 2023,
+      "iso3": "TON"
+    },
+    {
+      "entidad": "Trinidad and Tobago",
+      "valor": 65.7,
+      "anio": 2023,
+      "iso3": "TTO"
+    },
+    {
+      "entidad": "Tunisia",
+      "valor": 30.9,
+      "anio": 2023,
+      "iso3": "TUN"
+    },
+    {
+      "entidad": "Turkey",
+      "valor": 49.4,
+      "anio": 2023,
+      "iso3": "TUR"
+    },
+    {
+      "entidad": "Turkmenistan",
+      "valor": 51.2,
+      "anio": 2023,
+      "iso3": "TKM"
+    },
+    {
+      "entidad": "Tuvalu",
+      "valor": 85.1,
+      "anio": 2023,
+      "iso3": "TUV"
+    },
+    {
+      "entidad": "Uganda",
+      "valor": 10.8,
+      "anio": 2023,
+      "iso3": "UGA"
+    },
+    {
+      "entidad": "Ukraine",
+      "valor": 49.5,
+      "anio": 2023,
+      "iso3": "UKR"
+    },
+    {
+      "entidad": "United Arab Emirates",
+      "valor": 67.8,
+      "anio": 2023,
+      "iso3": "ARE"
+    },
+    {
+      "entidad": "United Kingdom",
+      "valor": 84.4,
+      "anio": 2023,
+      "iso3": "GBR"
+    },
+    {
+      "entidad": "United States",
+      "valor": 122.1,
+      "anio": 2023,
+      "iso3": "USA"
+    },
+    {
+      "entidad": "Uruguay",
+      "valor": 69.3,
+      "anio": 2023,
+      "iso3": "URY"
+    },
+    {
+      "entidad": "Uzbekistan",
+      "valor": 47.4,
+      "anio": 2023,
+      "iso3": "UZB"
+    },
+    {
+      "entidad": "Vanuatu",
+      "valor": 41,
+      "anio": 2023,
+      "iso3": "VUT"
+    },
+    {
+      "entidad": "Venezuela",
+      "valor": 38,
+      "anio": 2023,
+      "iso3": "VEN"
+    },
+    {
+      "entidad": "Vietnam",
+      "valor": 60.5,
+      "anio": 2023,
+      "iso3": "VNM"
+    },
+    {
+      "entidad": "Yemen",
+      "valor": 13.7,
+      "anio": 2023,
+      "iso3": "YEM"
+    },
+    {
+      "entidad": "Zambia",
+      "valor": 17.6,
+      "anio": 2023,
+      "iso3": "ZMB"
+    },
+    {
+      "entidad": "Zimbabwe",
+      "valor": 57.6,
+      "anio": 2023,
+      "iso3": "ZWE"
+    }
+  ]
+}
