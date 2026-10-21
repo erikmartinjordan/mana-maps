@@ -265,9 +265,9 @@
   }
 
   // Returns the renderable preview for an item, cached on the item so the SVG
-  // is never rebuilt twice per card (renderThumb + thumbAspectStyle both call
-  // this). Prefers the stored mapPreview; only falls back to parsing the full
-  // GeoJSON when the item happens to carry it (e.g. the ?slug= featured map).
+  // is never rebuilt twice per card. Prefers the stored mapPreview; only falls
+  // back to parsing the full GeoJSON when the item happens to carry it (e.g.
+  // the ?slug= featured map).
   function previewOf(item) {
     if (!item) return null;
     if (item._manaPreview) return item._manaPreview;
@@ -303,19 +303,6 @@
       '<svg class="thumb-preview"',
       '<svg class="thumb-preview" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
     );
-  }
-
-  // Sizes the thumb box to the map's aspect ratio so the preview fills the
-  // whole card instead of leaving empty margins. aspectOf already returns the
-  // clamped canvas aspect that renderSVG uses; content-box makes the ratio
-  // apply to the area inside the 1px border so the match is exact.
-  function thumbAspectStyle(item) {
-    if (!window.ManaMapPreview || !window.ManaMapPreview.aspectOf) return '';
-    var preview = previewOf(item);
-    if (!preview) return '';
-    var aspect = window.ManaMapPreview.aspectOf(preview);
-    if (!isFinite(aspect) || aspect <= 0) return '';
-    return ' style="aspect-ratio:' + aspect + ';height:auto;box-sizing:content-box"';
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -457,7 +444,7 @@
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
-            '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '"' + thumbAspectStyle(item) + '>' + thumb + '</div>' +
+            '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + thumb + '</div>' +
             '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
           '</a>' +
           '<div class="meta">' +
@@ -487,6 +474,24 @@
   // mapPreview, ~9 KB for the whole gallery), so previews are fetched per card
   // only when it is about to scroll into view.
   var _previewObserver = null;
+  var _previewQueue = [];
+  var _previewQueueTimer = null;
+
+  function enqueuePreview(item) {
+    if (!item || item._previewQueued) return;
+    item._previewQueued = true;
+    _previewQueue.push(item);
+    if (!_previewQueueTimer) _previewQueueTimer = setTimeout(pumpPreviewQueue, 0);
+  }
+
+  function pumpPreviewQueue() {
+    _previewQueueTimer = null;
+    var item = _previewQueue.shift();
+    if (!item) return;
+    item._previewQueued = false;
+    loadPreviewForItem(item);
+    if (_previewQueue.length) _previewQueueTimer = setTimeout(pumpPreviewQueue, 80);
+  }
 
   function ensurePreviewObserver() {
     if (_previewObserver || typeof IntersectionObserver === 'undefined') return _previewObserver;
@@ -495,7 +500,7 @@
         if (!entry.isIntersecting) return;
         _previewObserver.unobserve(entry.target);
         var item = findMapByKey(entry.target.getAttribute('data-map-id'));
-        if (item) loadPreviewForItem(item);
+        if (item) enqueuePreview(item);
       });
     }, { rootMargin: '400px 0px' });
     return _previewObserver;
@@ -520,7 +525,7 @@
       if (!item || previewOf(item)) return;
       thumb.setAttribute('data-preview-observed', '1');
       if (observer) observer.observe(thumb);
-      else loadPreviewForItem(item);
+      else enqueuePreview(item);
     });
   }
 
@@ -573,13 +578,6 @@
     });
     if (!thumb) return;
     thumb.innerHTML = renderThumb(item);
-    var preview = previewOf(item);
-    var aspect = preview ? window.ManaMapPreview.aspectOf(preview) : NaN;
-    if (isFinite(aspect) && aspect > 0) {
-      thumb.style.aspectRatio = aspect;
-      thumb.style.height = 'auto';
-      thumb.style.boxSizing = 'content-box';
-    }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -985,7 +983,7 @@
     _ctxMenu = m;
   }
   document.addEventListener('click', hideCtxMenu, true);
-  document.addEventListener('scroll', hideCtxMenu, true);
+  document.addEventListener('scroll', hideCtxMenu, { capture: true, passive: true });
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideCtxMenu(); });
 
   function shareImageForItem(item) {
