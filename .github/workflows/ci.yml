@@ -128,7 +128,11 @@ jobs:
 
   deploy:
     name: Deploy GitHub Pages
-    needs: [static-checks, js-syntax, e2e-smoke]
+    # Espera al job changelog para que el artefacto incluya la página
+    # /changelog regenerada en esta misma ejecución (el push del bot con
+    # GITHUB_TOKEN no dispara un nuevo workflow, así que sin esta
+    # dependencia el changelog quedaría siempre un paso atrasado).
+    needs: [static-checks, js-syntax, e2e-smoke, changelog]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
@@ -141,6 +145,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Main en lugar del SHA disparador: incluye el commit
+          # "chore: update changelog" acabado de crear por el job changelog.
+          ref: main
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
