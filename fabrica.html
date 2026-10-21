@@ -129,7 +129,7 @@ html.embedded .real-bar{top:12px;bottom:auto;left:12px;transform:none;}
 </head>
 <body>
 <div class="stage">
-<svg id="scene" role="img" aria-label="Infografía isométrica animada: el equipo real de maña.com como fábrica isométrica: Erik dirige desde su escritorio, el Ideador alimenta el BACKLOG, el Constructor programa, los Tests de Playwright validan, el Revisor aprueba o devuelve, la PR se fusiona a main y la web se publica viva" xmlns="http://www.w3.org/2000/svg"></svg>
+<svg id="scene" role="img" aria-label="Infografía isométrica animada: el equipo real de maña.com como fábrica isométrica: Erik dirige desde su escritorio, el Ideador alimenta el BACKLOG, el Constructor programa, los Tests de Playwright validan, el Revisor aprueba o devuelve, el Blogger convierte la actualidad en un post bilingüe con mapa, la PR se fusiona a main y la web se publica viva" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
 
 <header class="hud top">
@@ -139,7 +139,7 @@ html.embedded .real-bar{top:12px;bottom:auto;left:12px;transform:none;}
     </div>
     <div class="brand-txt">
       <strong>Ma&#241;a Maps</strong>
-      <em>La f&#225;brica operativa &#183; cuatro agentes en relevo, del dato a la galer&#237;a</em>
+      <em>La f&#225;brica operativa &#183; cinco agentes en relevo, de la noticia al blog y a la galer&#237;a</em>
     </div>
   </div>
   <div class="badges">
@@ -195,6 +195,13 @@ html.embedded .real-bar{top:12px;bottom:auto;left:12px;transform:none;}
       <div class="ameta"><span>Notas</span><em id="cn-K">0</em></div>
     </div>
     <div class="acol">
+      <div class="ahead"><i style="background:#e11d48"></i><b>A5</b><span>Blogger</span></div>
+      <div class="ameta"><span>Puesto</span><em>salida</em></div>
+      <div class="ameta"><span>Real</span><em class="hot">diario 08:00</em></div>
+      <div class="ameta"><span>Sim · publica cada</span><em id="ev-B">—</em></div>
+      <div class="ameta"><span>Posts</span><em id="cn-B">0</em></div>
+    </div>
+    <div class="acol">
       <div class="ahead"><i style="background:#1a1a1a"></i><b>Erik</b><span>Dirección</span></div>
       <div class="ameta"><span>Puesto</span><em>escritorio</em></div>
       <div class="ameta"><span>Real</span><em>humano</em></div>
@@ -205,7 +212,7 @@ html.embedded .real-bar{top:12px;bottom:auto;left:12px;transform:none;}
 </div>
 
 <div class="hud foot">
-  <b>A1</b> ideador &#183; <b>A2</b> constructor &#183; <b>A3</b> revisor &#183; <b>A4</b> chat &#183; <b>Erik</b> dirección<br>
+  <b>A1</b> ideador &#183; <b>A2</b> constructor &#183; <b>A3</b> revisor &#183; <b>A4</b> chat &#183; <b>A5</b> blogger &#183; <b>Erik</b> dirección<br>
   Propuesta de infograf&#237;a isom&#233;trica &#183; Ma&#241;a Maps &#183; hecho con &#10084; en Barcelona
 </div>
 
@@ -782,7 +789,8 @@ var WORKER_DEFS=[
   {id:"I",name:"Ideador",hue:"#0ea5e9",home:ERIK.x+3.6,amp:0,ph:0.4,walkY:ERIK.y-1.45,stayHome:true},
   {id:"C",name:"Constructor",hue:"#8b5cf6",home:13.5,amp:1.5,ph:2.1},
   {id:"R",name:"Revisor",hue:"#f59e0b",home:25.5,amp:1.35,ph:4.2},
-  {id:"K",name:"Chat",hue:"#10b981",orbit:true,ph:1.1}
+  {id:"K",name:"Chat",hue:"#10b981",orbit:true,ph:1.1},
+  {id:"B",name:"Blogger",hue:"#e11d48",home:47.2,amp:1.5,ph:0.7,walkY:18.3}
 ];
 var workers=WORKER_DEFS.map(function(def){
   var ga=el("g",null,Ldyn);
@@ -798,6 +806,15 @@ var workers=WORKER_DEFS.map(function(def){
     var badge=el("g",{"pointer-events":"none"},gb);
     el("rect",{x:-10,y:-21.5,width:20,height:12,rx:3.5,fill:def.hue,stroke:"#ffffff","stroke-width":1},badge);
     txt(badge,0,-12.6,def.id,{a:"middle",s:7,w:800,f:"#ffffff",ff:"'DM Mono',monospace"});
+  }
+  if(def.id==="B"){
+    var bl=el("g",{"class":"sign","pointer-events":"none"},gb);
+    el("line",{x1:0,y1:-22,x2:0,y2:-34,stroke:"rgba(23,30,38,.35)","stroke-width":1.2},bl);
+    el("rect",{x:-36,y:-52,width:72,height:20,rx:6,fill:"#ffffff",stroke:"rgba(23,30,38,.16)","stroke-width":1},bl);
+    el("circle",{cx:-25,cy:-42,r:6,fill:def.hue},bl);
+    txt(bl,-25,-39.4,"B",{a:"middle",s:7,w:800,f:"#ffffff"});
+    txt(bl,-15,-45.2,"Blogger",{s:9,w:800});
+    txt(bl,-15,-36.8,"08:00 · ES/EN",{s:7,f:"#828c99"});
   }
   if(def.id==="I"){
     el("line",{x1:2,y1:-13,x2:14,y2:-29,stroke:"rgba(23,30,38,.35)","stroke-width":1.2},gb);
@@ -821,7 +838,8 @@ var workers=WORKER_DEFS.map(function(def){
 });
 
 var STATS={I:{n:0,last:null,int:0},C:{n:0,last:null,int:0},
-           R:{n:0,last:null,int:0,ok:0},K:{n:0,last:null,int:0},E:{n:0,last:null,int:0}};
+           R:{n:0,last:null,int:0,ok:0},K:{n:0,last:null,int:0},E:{n:0,last:null,int:0},
+           B:{n:0,last:null,int:0}};
 function markSt(k){var s=STATS[k];if(s.last!==null){var iv=T-s.last;s.int=s.int?s.int*0.7+iv*0.3:iv;}s.last=T;s.n++;}
 
 var fx=[];
@@ -982,6 +1000,14 @@ function updateWorker(w,dt){
     if(w.ping>0){w.ping+=dt;if(w.ping>1.2)w.ping=0;}
     return;
   }
+  if(w.def.id==="B"){
+    w.pingT-=dt;
+    if(w.pingT<=0){
+      w.pingT=16+Math.random()*8;
+      markSt("B");
+      popGlyph("post","#e11d48",w.pos,w.def.walkY,SURF_Z+1.4);
+    }
+  }
   w.workT-=dt;
   var target=(w.workT>0&&!w.def.stayHome)?w.workX:(w.def.home+(w.def.stayHome?Math.sin(T*0.9+w.def.ph)*0.22:Math.sin(T*0.45+w.def.ph)*w.def.amp));
   w.pos+=(target-w.pos)*Math.min(1,dt*(w.workT>0?6:1.8));
@@ -1055,6 +1081,7 @@ function step(dt){
     if(prEl)prEl.textContent=STATS.R.n?Math.round(100*STATS.R.ok/STATS.R.n)+"%":"\u2014";
     setStat("ev-K","cn-K",STATS.K);
     setStat("ev-E","cn-E",STATS.E);
+    setStat("ev-B","cn-B",STATS.B);
   }
 }
 
