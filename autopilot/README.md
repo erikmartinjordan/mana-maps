@@ -1,10 +1,10 @@
 # Autopilot
 
 Esta carpeta contiene **solo los prompts de los agentes** (`agents/*.md`).
-Son la fuente de verdad de los prompts: el iMac los copia automáticamente a
-`~/autopilot/agents/` en cada pull del repo (`sync_repo_agents()` en el
-`run_loop.sh` del iMac), de modo que editar un prompt aquí lo aplica el loop
-sin tocar el iMac a mano.
+Son la fuente de verdad de los prompts. El runner del blog sincroniza
+`autopilot/agents/blogger.md` a `~/autopilot/agents/` y
+`~/.config/opencode/agents/` antes de ejecutarlo; el resto de agentes se
+copian al instalar o actualizar el iMac.
 
 El **sistema que ejecuta esos agentes vive únicamente en el iMac**, en
 `~/autopilot` (no es un repo): loop, configuración real, scripts, panel, bot de

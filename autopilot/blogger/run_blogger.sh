@@ -44,6 +44,15 @@ git fetch origin main >>"$LOG" 2>&1
 git checkout main >>"$LOG" 2>&1
 git pull --ff-only origin main >>"$LOG" 2>&1
 
+# El prompt canónico vive en el repo (autopilot/agents/blogger.md). Lo
+# sincronizamos con la config global de opencode para que el agente `blogger`
+# esté disponible sin duplicar el archivo en .opencode/agent/.
+if [ -f "$REPO/autopilot/agents/blogger.md" ]; then
+  mkdir -p "$HOME/.config/opencode/agents" "$ROOT/agents"
+  cp "$REPO/autopilot/agents/blogger.md" "$HOME/.config/opencode/agents/blogger.md"
+  cp "$REPO/autopilot/agents/blogger.md" "$ROOT/agents/blogger.md"
+fi
+
 MODEL_OPT=""
 if [ -f "$ROOT/config.json" ]; then
   MODEL=$(node -e "try{const c=require('$ROOT/config.json');process.stdout.write(c.model||'')}catch(e){}" 2>/dev/null || true)
@@ -54,7 +63,7 @@ fi
 OPDIR=$(printf '%s' "$REPO" | sed "s|^$HOME|/home/erik|")
 
 opencode run --dir "$OPDIR" --agent blogger --auto $MODEL_OPT \
-  "Escribe y publica el post diario bilingüe (es/en) con un mapa interactivo. Sigue .opencode/agent/blogger.md. No termines sin haber hecho commit y push a main y sin dejar git status limpio." \
+  "Escribe y publica el post diario bilingüe (es/en) con un mapa interactivo. Sigue autopilot/agents/blogger.md. No termines sin haber hecho commit y push a main y sin dejar git status limpio." \
   >>"$LOG" 2>&1
 AGENT_RC=$?
 echo "OPENCODE_RC=$AGENT_RC" >>"$LOG"

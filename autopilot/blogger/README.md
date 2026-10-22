@@ -2,8 +2,7 @@
 
 El agente `blogger` escribe una noticia diaria en español e inglés con un mapa
 interactivo del editor de Maña Maps. El prompt canónico vive en
-`.opencode/agent/blogger.md` y el wrapper para el autopilot en
-`autopilot/agents/blogger.md`.
+`autopilot/agents/blogger.md` y es el único sitio donde se mantiene.
 
 ## Instalación en el iMac
 
@@ -33,10 +32,12 @@ interactivo del editor de Maña Maps. El prompt canónico vive en
 }
 ```
 
-2. Copia el prompt wrapper al directorio de agentes del autopilot:
+2. `run_blogger.sh` sincroniza el prompt canónico a `~/autopilot/agents/` y
+   `~/.config/opencode/agents/` antes de ejecutar el agente. Si lo haces a mano:
 
 ```sh
 cp ~/autopilot/workspaces/mana-maps/autopilot/agents/blogger.md ~/autopilot/agents/blogger.md
+cp ~/autopilot/workspaces/mana-maps/autopilot/agents/blogger.md ~/.config/opencode/agents/blogger.md
 ```
 
 3. Da permisos de ejecución al runner y carga el LaunchAgent:
