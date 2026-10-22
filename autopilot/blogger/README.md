@@ -52,3 +52,14 @@ Se ejecuta todos los días a las 08:00 (hora local). Para cambiar la hora,
 edita `StartCalendarInterval` en el plist y vuelve a cargarlo.
 
 Los logs quedan en `~/autopilot/logs/blog-AAAAMMDD-HHMM.log`.
+
+## Autonomía ante árbol sucio
+
+El runner y el loop llaman a `~/autopilot/scripts/recover_workspace.sh` antes
+de sincronizar. Si solo hay cambios de blog (`blog/`, `en/blog/`, `sitemap.xml`)
+los commitea y publica en `main`; cualquier otro cambio se preserva en una rama
+`autopilot/rescue-<fecha>` y el workspace vuelve limpio. Así un post a medias
+ya no bloquea el autopilot.
+
+Al terminar, `run_blogger.sh` verifica que el árbol está limpio y que `HEAD`
+coincide con `origin/main`; si no, registra `BLOG_RC=1` y sale con error.

@@ -222,6 +222,12 @@ curl -s -X POST \
   `main` en esta ejecución automática.
 - Ejecuta los tests. Si pasan: `git add` de los archivos del blog,
   `git commit -m "feat: blog diario <slug> (es/en)"` y `git push origin main`.
+- **Cierre obligatorio:** no des la tarea por terminada hasta que
+  `git status --porcelain` esté vacío y `git rev-parse HEAD` coincida con
+  `git rev-parse origin/main`. Un post sin push no cuenta como publicado. Si el
+  push falla, reintenta con `git pull --rebase --autostash origin main` y
+  `git push origin main`; si sigue fallando, deja el árbol limpio y reporta el
+  error exacto.
 - Si los tests fallan: no commitees ni pushees, deja el árbol limpio y explica
   el fallo. Nunca uses `--force` ni borres ramas.
 
