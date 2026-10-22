@@ -538,7 +538,7 @@ async function main(){
   console.log('sites min', Math.min(...counts), 'max', Math.max(...counts));
 
   // Save intermediate data
-  const dataDir=path.join(__dirname,'..','strategy','data','unesco-world-heritage');
+  const dataDir=path.join(__dirname,'..','data','sources','unesco-world-heritage');
   if(!fs.existsSync(dataDir)) fs.mkdirSync(dataDir,{recursive:true});
   fs.writeFileSync(path.join(dataDir,'patrimonio-unesco-por-pais.json'), JSON.stringify({
     _source:'UNESCO World Heritage Centre — IHP-WINS 2025',

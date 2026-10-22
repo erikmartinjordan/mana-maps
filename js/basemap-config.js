@@ -6,9 +6,9 @@
     provider: 'openfreemap',
     providers: {
       openfreemap: {
-        lightStyle: '/styles/mana-positron.json?v=1776927833',
-        darkStyle: '/styles/mana-dark.json?v=1776927833',
-        satelliteStyle: '/styles/mana-openfreemap-alt.json?v=1776927833',
+        lightStyle: '/basemaps/mana-positron.json?v=1776927833',
+        darkStyle: '/basemaps/mana-dark.json?v=1776927833',
+        satelliteStyle: '/basemaps/mana-openfreemap-alt.json?v=1776927833',
         satelliteTileUrl: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
         satelliteAttribution: 'Imagery &copy; <a href="https://www.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">Google</a>',
         attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a>'

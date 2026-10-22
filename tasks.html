@@ -245,8 +245,8 @@ h1 {
 
   <section class="factory-section" aria-label="F&#225;brica operativa">
     <div class="factory-card" id="factoryCard">
-      <iframe src="./fabrica.html" title="F&#225;brica isom&#233;trica — Ma&#241;a Maps" loading="lazy" onload="this.closest('.factory-card').classList.add('loaded')"></iframe>
-      <a class="factory-expand" href="./fabrica.html" target="_blank" rel="noopener" aria-label="Abrir la f&#225;brica a pantalla completa">
+      <iframe src="./docs/fabrica.html" title="F&#225;brica isom&#233;trica — Ma&#241;a Maps" loading="lazy" onload="this.closest('.factory-card').classList.add('loaded')"></iframe>
+      <a class="factory-expand" href="./docs/fabrica.html" target="_blank" rel="noopener" aria-label="Abrir la f&#225;brica a pantalla completa">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
         Abrir en grande
       </a>
@@ -296,7 +296,7 @@ h1 {
     if(firstDate && vals[2]) vals[2].textContent=firstDate.textContent.trim();
     try{ localStorage.setItem('manaStats', JSON.stringify({ok:ok, err:err, live:live, total:ok+err+live, lastDate:firstDate?firstDate.textContent.trim():''})); }catch(e){}
     var expandBtn=document.querySelector('.factory-expand');
-    if(expandBtn) expandBtn.href='./fabrica.html?ok='+ok+'&err='+err+'&live='+live;
+    if(expandBtn) expandBtn.href='./docs/fabrica.html?ok='+ok+'&err='+err+'&live='+live;
     var iframe=document.querySelector('.factory-card iframe');
     if(iframe && iframe.contentWindow){
       try{ iframe.contentWindow.postMessage({type:'manaStats', ok:ok, err:err, live:live, total:ok+err+live, lastDate:firstDate?firstDate.textContent.trim():''}, '*'); }catch(e){}
@@ -324,7 +324,7 @@ h1 {
         if(newFirst && vals[2]) vals[2].textContent=newLastDate;
         try{ localStorage.setItem('manaStats', JSON.stringify({ok:newOk, err:newErr, live:newLive, total:newOk+newErr+newLive, lastDate:newLastDate})); }catch(e){}
         var expandBtn=document.querySelector('.factory-expand');
-        if(expandBtn) expandBtn.href='./fabrica.html?ok='+newOk+'&err='+newErr+'&live='+newLive;
+        if(expandBtn) expandBtn.href='./docs/fabrica.html?ok='+newOk+'&err='+newErr+'&live='+newLive;
         var fr=document.querySelector('.factory-card iframe');
         if(fr && fr.contentWindow){
           try{ fr.contentWindow.postMessage({type:'manaStats', ok:newOk, err:newErr, live:newLive, total:newOk+newErr+newLive, lastDate:newLastDate}, '*'); }catch(e){}

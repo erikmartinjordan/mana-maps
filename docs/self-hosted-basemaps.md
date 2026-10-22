@@ -2,9 +2,9 @@
 
 Maña Maps uses local styles based on OpenFreeMap by default:
 
-- Light: `/styles/mana-positron.json`
-- Dark: `/styles/mana-dark.json`
-- Alternative view: `/styles/mana-openfreemap-alt.json`
+- Light: `/basemaps/mana-positron.json`
+- Dark: `/basemaps/mana-dark.json`
+- Alternative view: `/basemaps/mana-openfreemap-alt.json`
 
 To switch the app to self-hosted MapLibre/OpenMapTiles-compatible styles, serve these URLs:
 
