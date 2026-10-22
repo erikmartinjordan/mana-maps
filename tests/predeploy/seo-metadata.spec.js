@@ -7,6 +7,8 @@ const {
   parseCollectionLd,
   parseSitemapGallerySlugs,
   auditLandingCoverage,
+  parseLandingMetadata,
+  auditLandingMetadata,
 } = require('../../scripts/tools/audit-gallery-quality');
 
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
@@ -116,6 +118,155 @@ test('landing coverage check reports missing landings, OG cards and absent slugs
   expect(issues).toContain('faltan 1 landings gallery/<slug>/index.html (sin-landing)');
   expect(issues).toContain('2 landings no contienen su slug (landing-vacia, sin-slug)');
   expect(issues).toContain('faltan 2 OG cards og-cards/<slug>.png (og-vacia, sin-og)');
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+// Regresión del check 12: cada landing estática es una página SEO propia y
+// debe tener <title> propio, meta description no vacía, canonical con su slug
+// y JSON-LD Dataset.
+function landingDoc({ title, description, canonical, dataset }) {
+  return [
+    '<!DOCTYPE html><html lang="es"><head>',
+    title === undefined ? '' : `<title>${title}</title>`,
+    description === undefined ? '' : `<meta name="description" content="${description}">`,
+    canonical === undefined ? '' : `<link rel="canonical" href="${canonical}">`,
+    dataset === undefined ? '' : `<script type="application/ld+json">${dataset}</script>`,
+    '</head><body></body></html>',
+  ].join('\n');
+}
+
+test('landing metadata is complete for every published map', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const result = auditLandingMetadata(published);
+  expect(result.issues).toEqual([]);
+  expect(result.missingLandings).toEqual([]);
+  expect(result.missingTitle).toEqual([]);
+  expect(result.genericTitle).toEqual([]);
+  expect(result.duplicateTitles).toEqual([]);
+  expect(result.missingDescription).toEqual([]);
+  expect(result.missingCanonical).toEqual([]);
+  expect(result.wrongCanonical).toEqual([]);
+  expect(result.missingDataset).toEqual([]);
+  expect(result.invalidJsonLd).toEqual([]);
+  for (const slug of published) {
+    expect(result.details[slug].title, slug).toBeTruthy();
+    expect(result.details[slug].dataset, slug).toBe(true);
+  }
+});
+
+test('landing metadata check parses and reports missing, generic or wrong metadata', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-landing-meta-'));
+  const galleryDir = path.join(tmp, 'gallery');
+  fs.mkdirSync(galleryDir, { recursive: true });
+
+  const write = (slug, html) => {
+    fs.mkdirSync(path.join(galleryDir, slug));
+    fs.writeFileSync(path.join(galleryDir, slug, 'index.html'), html);
+  };
+  const validDataset = '{"@context":"https://schema.org","@type":"Dataset","name":"Mapa"}';
+
+  write('ok-map', landingDoc({
+    title: 'Un mapa correcto — Maña Maps',
+    description: 'Descripción útil del mapa.',
+    canonical: 'https://maña.com/gallery/ok-map/',
+    dataset: validDataset,
+  }));
+  write('sin-title', landingDoc({
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/sin-title/',
+    dataset: validDataset,
+  }));
+  write('titulo-generico', landingDoc({
+    title: 'Maña Maps — Galería',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/titulo-generico/',
+    dataset: validDataset,
+  }));
+  write('titulo-repetido-a', landingDoc({
+    title: 'Mapa repetido — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/titulo-repetido-a/',
+    dataset: validDataset,
+  }));
+  write('titulo-repetido-b', landingDoc({
+    title: 'Mapa repetido — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/titulo-repetido-b/',
+    dataset: validDataset,
+  }));
+  write('sin-description', landingDoc({
+    title: 'Sin description — Maña Maps',
+    description: '   ',
+    canonical: 'https://maña.com/gallery/sin-description/',
+    dataset: validDataset,
+  }));
+  write('sin-canonical', landingDoc({
+    title: 'Sin canonical — Maña Maps',
+    description: 'Descripción',
+    dataset: validDataset,
+  }));
+  write('canonical-ajeno', landingDoc({
+    title: 'Canonical ajeno — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/otro-mapa/',
+    dataset: validDataset,
+  }));
+  write('sin-dataset', landingDoc({
+    title: 'Sin Dataset — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/sin-dataset/',
+    dataset: '{"@context":"https://schema.org","@type":"WebPage","name":"Mapa"}',
+  }));
+  write('dataset-invalido', landingDoc({
+    title: 'Dataset inválido — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/dataset-invalido/',
+    dataset: '{no es json}',
+  }));
+
+  const slugs = [
+    'ok-map', 'sin-title', 'titulo-generico', 'titulo-repetido-a',
+    'titulo-repetido-b', 'sin-description', 'sin-canonical',
+    'canonical-ajeno', 'sin-dataset', 'dataset-invalido', 'sin-landing',
+  ];
+  const result = auditLandingMetadata(slugs, { galleryDir });
+
+  expect(result.missingLandings).toEqual(['sin-landing']);
+  expect(result.missingTitle).toEqual(['sin-title']);
+  expect(result.genericTitle).toEqual(['titulo-generico']);
+  expect(result.duplicateTitles).toEqual([
+    { title: 'Mapa repetido — Maña Maps', slugs: ['titulo-repetido-a', 'titulo-repetido-b'] },
+  ]);
+  expect(result.missingDescription).toEqual(['sin-description']);
+  expect(result.missingCanonical).toEqual(['sin-canonical']);
+  expect(result.wrongCanonical).toEqual([
+    { slug: 'canonical-ajeno', href: 'https://maña.com/gallery/otro-mapa/', canonicalSlug: 'otro-mapa' },
+  ]);
+  expect(result.invalidJsonLd).toHaveLength(1);
+  expect(result.invalidJsonLd[0].slug).toBe('dataset-invalido');
+  expect(result.missingDataset).toEqual(['dataset-invalido', 'sin-dataset']);
+
+  const issues = result.issues.join('\n');
+  expect(issues).toContain('faltan 1 landings gallery/<slug>/index.html (sin-landing)');
+  expect(issues).toContain('1 landings sin <title> (sin-title)');
+  expect(issues).toContain('1 landings con <title> genérico (titulo-generico)');
+  expect(issues).toContain('títulos de landing duplicados: "Mapa repetido — Maña Maps"');
+  expect(issues).toContain('1 landings sin meta description (sin-description)');
+  expect(issues).toContain('1 landings sin canonical (sin-canonical)');
+  expect(issues).toContain('canonical incorrecto en canonical-ajeno');
+  expect(issues).toContain('JSON-LD inválido en dataset-invalido');
+  expect(issues).toContain('2 landings sin JSON-LD Dataset (dataset-invalido, sin-dataset)');
+
+  // El parser tolera el orden de atributos y decodifica entidades.
+  const parsed = parseLandingMetadata(
+    '<title>Mapa &amp; datos — Maña Maps</title>' +
+    '<meta content="A &quot;b&quot; c" name="description">' +
+    '<link href="https://maña.com/gallery/orden/?" rel="canonical">'
+  );
+  expect(parsed.title).toBe('Mapa & datos — Maña Maps');
+  expect(parsed.description).toBe('A "b" c');
+  expect(parsed.canonical).toBe('https://maña.com/gallery/orden/?');
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });

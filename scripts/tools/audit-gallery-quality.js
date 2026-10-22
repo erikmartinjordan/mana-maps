@@ -35,6 +35,10 @@
 //      gallery/<slug>/index.html (que además debe contener su slug) y
 //      og-cards/<slug>.png no vacío. Lista los faltantes y falla (exit 1).
 //      Los que falten se generan con `node scripts/tools/generate-map-landings.js`.
+//  12. metadatos de cada landing: gallery/<slug>/index.html debe tener
+//      <title> propio (no vacío, no genérico y único entre landings), meta
+//      description no vacía, canonical cuyo slug sea el del mapa y un JSON-LD
+//      Dataset válido. Lista los fallos y falla (exit 1).
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -1431,6 +1435,224 @@ function auditLandingCoverage(publishedSlugs, {
   return { issues, published, missingLandings, landingsWithoutSlug, missingOgCards };
 }
 
+// ── Metadatos de las landings (check 12) ──────────────────────────
+// Cada landing estática es una página SEO independiente: necesita un título
+// propio (no el genérico de la galería ni repetido entre mapas), una meta
+// description con contenido, un canonical que apunte a su propio slug y un
+// JSON-LD Dataset. Si el generador cambia o una landing se copia a mano, este
+// check lo detecta antes del deploy.
+
+// Títulos que no identifican ningún mapa: el de la galería y variantes.
+const GENERIC_LANDING_TITLES = new Set([
+  'maña maps',
+  'maña maps galería',
+  'maña maps — galería',
+  'maña maps - galería',
+  'maña maps gallery',
+  'maña maps — gallery',
+  'maña maps - gallery',
+  'galería',
+  'galeria',
+  'gallery',
+  'mapa',
+]);
+
+function decodeHtmlEntities(value) {
+  return String(value == null ? '' : value)
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&');
+}
+
+// Atributos de una etiqueta HTML (<meta …>, <link …>) a un objeto en minúsculas.
+function parseHtmlAttrs(tag) {
+  const attrs = {};
+  const re = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+))/g;
+  let m;
+  while ((m = re.exec(tag))) {
+    attrs[m[1].toLowerCase()] = decodeHtmlEntities(m[2] != null ? m[2] : (m[3] != null ? m[3] : m[4]));
+  }
+  return attrs;
+}
+
+function hasDatasetType(value) {
+  if (!value) return false;
+  if (Array.isArray(value)) return value.some(hasDatasetType);
+  if (typeof value === 'string') return value === 'Dataset';
+  if (typeof value === 'object') {
+    if (Array.isArray(value['@graph'])) return value['@graph'].some(hasDatasetType);
+    if (value['@type'] === 'Dataset') return true;
+    if (Array.isArray(value['@type'])) return value['@type'].includes('Dataset');
+  }
+  return false;
+}
+
+// Extrae los metadatos SEO de una landing: { title, description, canonical,
+// dataset, jsonLdErrors }.
+function parseLandingMetadata(html) {
+  const out = { title: '', description: '', canonical: '', dataset: false, jsonLdErrors: [] };
+  if (!html || typeof html !== 'string') return out;
+
+  const titleMatch = html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
+  if (titleMatch) out.title = decodeHtmlEntities(titleMatch[1]).replace(/\s+/g, ' ').trim();
+
+  const description = [];
+  for (const m of html.matchAll(/<meta\b[^>]*>/gi)) {
+    const attrs = parseHtmlAttrs(m[0]);
+    if ((attrs.name || '').toLowerCase() === 'description') description.push(attrs.content || '');
+  }
+  out.description = description.find(v => String(v).trim()) || '';
+
+  for (const m of html.matchAll(/<link\b[^>]*>/gi)) {
+    const attrs = parseHtmlAttrs(m[0]);
+    const rels = String(attrs.rel || '').toLowerCase().split(/\s+/);
+    if (rels.includes('canonical')) {
+      out.canonical = attrs.href || '';
+      break;
+    }
+  }
+
+  for (const m of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    let json;
+    try {
+      json = JSON.parse(m[1]);
+    } catch (e) {
+      out.jsonLdErrors.push(`JSON-LD inválido: ${e.message}`);
+      continue;
+    }
+    if (hasDatasetType(json)) out.dataset = true;
+  }
+
+  return out;
+}
+
+// Quita el sufijo de marca del <title> para decidir si es genérico.
+function landingTitleIsGeneric(title) {
+  const base = String(title || '')
+    .replace(/\s*[—–-]\s*maña maps\s*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+  return !base || GENERIC_LANDING_TITLES.has(base);
+}
+
+function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } = {}) {
+  const issues = [];
+  const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
+  const details = {};
+  const missingLandings = [];
+  const missingTitle = [];
+  const genericTitle = [];
+  const missingDescription = [];
+  const missingCanonical = [];
+  const wrongCanonical = [];
+  const missingDataset = [];
+  const invalidJsonLd = [];
+  const titlesBySlug = new Map();
+
+  for (const slug of published) {
+    if (slug === '.' || slug === '..' || /[\\/]/.test(slug)) {
+      issues.push(`slug inválido para metadatos de landing: ${JSON.stringify(slug)}`);
+      continue;
+    }
+
+    const landingPath = require('path').join(galleryDir, slug, 'index.html');
+    let html = null;
+    try {
+      html = fs.readFileSync(landingPath, 'utf8');
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        missingLandings.push(slug);
+      } else {
+        issues.push(`no se pudo leer gallery/${slug}/index.html: ${e.message}`);
+      }
+      continue;
+    }
+
+    const meta = parseLandingMetadata(html);
+    details[slug] = meta;
+    if (meta.title) titlesBySlug.set(slug, meta.title);
+
+    if (!meta.title) {
+      missingTitle.push(slug);
+    } else if (landingTitleIsGeneric(meta.title)) {
+      genericTitle.push(slug);
+    }
+    if (!String(meta.description || '').trim()) missingDescription.push(slug);
+    if (!meta.canonical) {
+      missingCanonical.push(slug);
+    } else {
+      const canonicalSlug = slugFromGalleryUrl(meta.canonical);
+      if (canonicalSlug !== slug) wrongCanonical.push({ slug, href: meta.canonical, canonicalSlug });
+    }
+    if (meta.jsonLdErrors.length) invalidJsonLd.push({ slug, errors: meta.jsonLdErrors });
+    if (!meta.dataset) missingDataset.push(slug);
+  }
+
+  // Títulos repetidos entre landings: no son «propios» aunque no sean genéricos.
+  const byTitle = new Map();
+  for (const [slug, title] of titlesBySlug) {
+    const key = title.toLowerCase();
+    if (!byTitle.has(key)) byTitle.set(key, { title, slugs: [] });
+    byTitle.get(key).slugs.push(slug);
+  }
+  const duplicateTitles = [...byTitle.values()]
+    .filter(g => g.slugs.length > 1)
+    .map(g => ({ title: g.title, slugs: g.slugs.sort() }))
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  if (missingLandings.length) {
+    issues.push(`faltan ${missingLandings.length} landings gallery/<slug>/index.html (${missingLandings.join(', ')})`);
+  }
+  if (missingTitle.length) {
+    issues.push(`${missingTitle.length} landings sin <title> (${missingTitle.join(', ')})`);
+  }
+  if (genericTitle.length) {
+    issues.push(`${genericTitle.length} landings con <title> genérico (${genericTitle.join(', ')})`);
+  }
+  if (duplicateTitles.length) {
+    for (const d of duplicateTitles) {
+      issues.push(`títulos de landing duplicados: "${d.title}" (${d.slugs.join(', ')})`);
+    }
+  }
+  if (missingDescription.length) {
+    issues.push(`${missingDescription.length} landings sin meta description (${missingDescription.join(', ')})`);
+  }
+  if (missingCanonical.length) {
+    issues.push(`${missingCanonical.length} landings sin canonical (${missingCanonical.join(', ')})`);
+  }
+  for (const c of wrongCanonical) {
+    const found = c.canonicalSlug ? `apunta a ${c.canonicalSlug}` : 'sin slug de mapa';
+    issues.push(`canonical incorrecto en ${c.slug} (${found}: ${c.href})`);
+  }
+  if (invalidJsonLd.length) {
+    for (const j of invalidJsonLd) {
+      issues.push(`JSON-LD inválido en ${j.slug} (${j.errors.join('; ')})`);
+    }
+  }
+  if (missingDataset.length) {
+    issues.push(`${missingDataset.length} landings sin JSON-LD Dataset (${missingDataset.join(', ')})`);
+  }
+
+  return {
+    issues,
+    published,
+    details,
+    missingLandings,
+    missingTitle,
+    genericTitle,
+    duplicateTitles,
+    missingDescription,
+    missingCanonical,
+    wrongCanonical,
+    missingDataset,
+    invalidJsonLd,
+  };
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -1531,10 +1753,26 @@ async function main() {
   }
   console.log('');
 
+  // 12. Metadatos SEO de cada landing (title, description, canonical, Dataset).
+  let landingMeta = null;
+  try {
+    landingMeta = auditLandingMetadata(published.map(m => m.id));
+  } catch (e) {
+    landingMeta = { issues: [`no se pudieron comprobar los metadatos de las landings: ${e.message}`] };
+  }
+  console.log('LANDING META | ISSUES');
+  console.log('-------------|-------');
+  if (landingMeta.issues.length === 0) {
+    console.log(`OK: ${published.length} landings con title propio, meta description, canonical y JSON-LD Dataset`);
+  } else {
+    for (const issue of landingMeta.issues) console.log(`META: ${issue}`);
+  }
+  console.log('');
+
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -1665,6 +1903,7 @@ async function main() {
   console.log(`Puntos (AGENTS.md §9): ${pointFixedTotal} props corregidas (marker/escala/grupo), ${pointManualTotal} features con fallos no auto-fixables`);
   console.log(`Deriva SEO (check 10): ${seo.issues.length === 0 ? 'OK' : `${seo.issues.length} desajustes entre Firestore, JSON-LD y sitemap`}`);
   console.log(`Cobertura landings/OG (check 11): ${coverage.issues.length === 0 ? 'OK' : `${coverage.issues.length} incidencias`}`);
+  console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -1715,6 +1954,11 @@ module.exports = {
   GALLERY_HTML_PATH,
   SITEMAP_XML_PATH,
   auditLandingCoverage,
+  parseLandingMetadata,
+  auditLandingMetadata,
+  landingTitleIsGeneric,
+  decodeHtmlEntities,
+  hasDatasetType,
   GALLERY_DIR_PATH,
   OG_CARDS_DIR_PATH,
   parseLegendNumber,
