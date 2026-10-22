@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // map-card.js — Renderizador de tarjetas OG (1200x630) y silueta de tierra.
-// Módulo compartido por tools/render-map-images.js y scripts/generate-map-landings.js.
+// Módulo compartido por scripts/generate-map-landings.js y los generadores de tarjetas OG.
 'use strict';
 
 const fs = require('fs');

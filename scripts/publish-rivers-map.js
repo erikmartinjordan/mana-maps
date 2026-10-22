@@ -284,17 +284,13 @@ function fsMap(obj) {
 
 // ─── GeoJSON loading / generation ────────────────────────────────
 async function loadOrGenerateGeoJSON() {
-  // Try loading from local fallback data first (gallery-rios.js)
-  const localPath = path.join(__dirname, '..', 'data', 'gallery-rios.js');
+  // Try loading the committed GeoJSON first (source of truth for this map).
+  const localPath = path.join(__dirname, '..', 'data', 'longest-rivers-world.geojson');
   if (fs.existsSync(localPath)) {
-    const code = fs.readFileSync(localPath, 'utf8');
-    const match = code.match(/window\.MANA_RIOS_MAP\s*=\s*(\{.*\});/s);
-    if (match) {
-      const localData = JSON.parse(match[1]);
-      if (localData.geojsonText) {
-        console.log('Loaded GeoJSON from local fallback (data/gallery-rios.js)');
-        return JSON.parse(localData.geojsonText);
-      }
+    const localData = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+    if (localData && localData.features) {
+      console.log('Loaded GeoJSON from data/longest-rivers-world.geojson');
+      return localData;
     }
   }
 

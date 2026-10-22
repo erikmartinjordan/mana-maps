@@ -7,8 +7,13 @@ js/firebase-config.local.js
 node_modules/
 autopilot/reports/
 test-results/
+playwright-report/
+blob-report/
 og-cards/_render.log
 *.log
+*.tmp.js
 .DS_Store
 .firebaserc
 firebase.json
+n
+nlog
