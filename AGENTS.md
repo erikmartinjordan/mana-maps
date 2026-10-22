@@ -17,6 +17,23 @@ obligatoria para cualquier agente que trabaje aquí.
   `js/gallery-page.js`; con rampas continuas (muchos colores) la leyenda se
   colapsa en una barra de degradado.
 
+## Estructura del repositorio (obligatoria)
+
+- `data/maps/<slug>.geojson`: GeoJSON publicable de cada mapa. Los crudos que
+  sí se versionan van en `data/sources/`.
+- `scripts/maps/`: un `gen-<slug>.js` y un `publish-<slug>.js` por mapa.
+- `scripts/tools/`: auditorías, generación de landings/OG, sitemap, higiene y
+  utilidades. `scripts/lib/publisher.js` es la única puerta a Firestore.
+- `assets/`: imágenes de marca y OG raíz. `css/`: `main.css` y
+  `auth-gallery.css`. `basemaps/`: estilos MapLibre. `docs/`: documentación y
+  páginas internas.
+- **Prohibido** en la raíz: `.DS_Store`, `*.tmp.js`, `strategy/`, `styles/`,
+  `brand/`, `globe-thumb.png`, `og-card.png`, `styles.css`,
+  `auth-gallery.css`, `fabrica.html`. También prohibidos `data/gallery-*.js`
+  y scripts de mapas sueltos en `scripts/`.
+- Documentación: `docs/repo-structure.md` y `scripts/README.md`.
+- Guardia en CI: `node scripts/tools/check-repo-hygiene.js`.
+
 ## Estándar de publicación de mapas (obligatorio)
 
 Todo mapa nuevo o actualización de la galería debe cumplir:
@@ -42,7 +59,9 @@ Todo mapa nuevo o actualización de la galería debe cumplir:
    ±180/±90, `featureCount` coherente, colores hex válidos, labelStyles
    completos, sin nombres duplicados, rampa ordenable por el dato.
 7. **Tests en verde**: `npx playwright test --config=tests/predeploy/playwright.config.js`
-   → 10/10 antes de pushear.
+   → 19/19 antes de pushear. Añadir también
+   `node scripts/tools/check-local-assets.js` y
+   `node scripts/tools/check-repo-hygiene.js`.
 8. **Publicación directa en Firestore** (REST o SDK con cuenta publicadora;
    credenciales fuera del repo): documento `maps/<slug>` con `isPublished:
    true`, `shareMode: 'view'`, `createdBy`/`ownerUid` = uid autenticado.

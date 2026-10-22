@@ -105,13 +105,16 @@ proyecto y prevalece sobre este prompt en caso de duda. Resumen operativo:
   y "_date".
 
 ### 2. Genera el documento del mapa
-- Crea un generador propio <slug>.py|js en ~/autopilot/strategy/ que produzca
-  el FeatureCollection final validado.
+- Crea un generador propio `scripts/maps/gen-<slug>.js` en el repo (o en
+  `~/autopilot/strategy/` si es un one-off) que produzca el FeatureCollection
+  final validado y lo guarde en `data/maps/<slug>.geojson`.
 - Referencia de calidad: el mapa oceans-and-seas-world publicado (18 features,
   costas reales Natural Earth 1:50m, rampa por profundidad). Puedes leer su
   geojsonText desde Firestore como plantilla de estructura.
-- NO crees bundles locales: data/gallery-*.js fue eliminado del repo. La
-  galeria sirve todo desde Firestore.
+- NO crees bundles locales (`data/gallery-*.js`). Los GeoJSON publicables van
+  en `data/maps/`; los crudos en `data/sources/` o en el iMac. La galeria sirve
+  todo desde Firestore.
+- Deja un publicador reproducible en `scripts/maps/publish-<slug>.js`.
 
 ### 3. Valida ANTES de publicar (obligatorio)
 - GeoJSON valido; todas las coordenadas dentro de ±180/±90.
@@ -119,7 +122,9 @@ proyecto y prevalece sobre este prompt en caso de duda. Resumen operativo:
 - Colores hex validos (#rrggbb); labelStyles completos en todas las features.
 - Sin nombres duplicados; la rampa es ordenable por el dato.
 - Ejecuta `npx playwright test -c tests/predeploy/playwright.config.js`
-  en el repo -> 10/10 antes de pushear.
+  en el repo -> 19/19 antes de pushear. Ejecuta tambien
+  `node scripts/tools/check-local-assets.js` y
+  `node scripts/tools/check-repo-hygiene.js`.
 
 ### 4. Commit
 - Rama autopilot/AAAAMMDD-slug, nunca main directamente.
@@ -147,7 +152,8 @@ Antes de commitear, pregunta:
 Si el dato es dudoso o el mapa es generico, NO lo crees: termina sin cambios.
 
 ## REGLAS
-- No toques nada del repo salvo ramas autopilot/*: los bundles data/ ya no
-  existen y la galeria no carga archivos locales.
+- No toques nada del repo salvo ramas autopilot/*: los datos publicables van
+  en `data/maps/`, los scripts en `scripts/maps/` y la galeria no carga
+  archivos locales.
 - No instales librerias nuevas npm; python3+shapely del sistema esta permitido.
 - Escribe el resumen de la sesion en ~/autopilot/logs/sessions/

@@ -26,6 +26,9 @@ jobs:
       - name: Validate local asset references in HTML
         run: node scripts/tools/check-local-assets.js
 
+      - name: Check repository hygiene
+        run: node scripts/tools/check-repo-hygiene.js
+
   js-syntax:
     name: JavaScript syntax
     runs-on: ubuntu-latest

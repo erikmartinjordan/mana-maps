@@ -61,6 +61,17 @@ window.MANA_FIREBASE_CONFIGS = {
 
 Production deploys generate that file from `FIREBASE_PRE_CONFIG_JSON` and `FIREBASE_PRO_CONFIG_JSON` GitHub Actions secrets. Each secret may be strict JSON or the Firebase Console's JavaScript object-literal snippet, but it must include `apiKey`, `authDomain`, `projectId`, and `appId`.
 
+## Repository layout
+
+- `data/maps/` — public GeoJSON sources for the gallery maps.
+- `scripts/maps/` — one `gen-*` and one `publish-*` per map.
+- `scripts/tools/` — audits, landings/OG generation, hygiene and utilities.
+- `assets/`, `css/`, `basemaps/` — brand images, styles and MapLibre basemaps.
+- `gallery/`, `og-cards/`, `blog/` — generated/public content.
+
+Full details: [`docs/repo-structure.md`](docs/repo-structure.md) and
+[`scripts/README.md`](scripts/README.md).
+
 ## Tests
 
 ```bash
