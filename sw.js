@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v53';
+const CACHE_NAME = 'mana-maps-pwa-v54';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -8,7 +8,7 @@ const PRECACHE_URLS = [
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
   'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
-  '/styles.css?v=1791912000',
+  '/styles.css?v=1792660000',
   '/styles/mana-positron.json?v=1776927833',
   '/styles/mana-dark.json?v=1776927833',
   '/styles/mana-openfreemap-alt.json?v=1776927833',
@@ -25,7 +25,7 @@ const PRECACHE_URLS = [
   '/js/basemap-config.js?v=1776927833',
   '/js/markers.js?v=1791708010',
   '/js/modal.js?v=1776927826',
-  '/js/map-core.js?v=1790832009',
+  '/js/map-core.js?v=1792660000',
   '/js/map-preview.js?v=1791708010',
   '/js/vector-renderer.js?v=1791708010',
   '/js/stats.js?v=1776927826',
@@ -36,10 +36,10 @@ const PRECACHE_URLS = [
   'https://unpkg.com/three@0.128.0/build/three.min.js',
   '/js/tools.js?v=1776927827',
   '/js/context-menu.js?v=1790749821',
-  '/js/import-export.js?v=1790749821',
+  '/js/import-export.js?v=1792660000',
   '/js/chat.js?v=1776927827',
   '/js/undo-redo.js?v=1776927827',
-  '/js/persistence.js?v=1790749821',
+  '/js/persistence.js?v=1792660000',
   '/js/gallery.js?v=1776927826',
   '/js/ogc-loader.js?v=1776927826',
   '/js/responsive.js?v=1776927826',
