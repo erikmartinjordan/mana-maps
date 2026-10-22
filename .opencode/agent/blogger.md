@@ -206,7 +206,7 @@ curl -s -X POST \
 
 ### 5. Validar antes de publicar
 
-- `node scripts/check-local-assets.js`
+- `node scripts/tools/check-local-assets.js`
 - `npx playwright test -c tests/predeploy/playwright.config.js`
 - Comprueba que el HTML cierra bien, que canonical/OG/JSON-LD son válidos y
   que el iframe y la imagen OG responden 200. Verifica en Playwright que el

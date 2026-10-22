@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate local asset references in HTML
-        run: node scripts/check-local-assets.js
+        run: node scripts/tools/check-local-assets.js
 
   js-syntax:
     name: JavaScript syntax

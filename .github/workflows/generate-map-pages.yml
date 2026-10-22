@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/generate-map-landings.js'
+      - 'scripts/tools/generate-map-landings.js'
       - 'tools/map-card.js'
       - '.github/workflows/generate-map-pages.yml'
 
@@ -45,7 +45,7 @@ jobs:
         run: node .github/scripts/generate-firebase-config.js
 
       - name: Generate static landings + OG cards
-        run: node scripts/generate-map-landings.js
+        run: node scripts/tools/generate-map-landings.js
 
       - name: Commit generated pages
         run: |

@@ -7,9 +7,9 @@ const {
   parseCollectionLd,
   parseSitemapGallerySlugs,
   auditLandingCoverage,
-} = require('../../scripts/audit-gallery-quality');
+} = require('../../scripts/tools/audit-gallery-quality');
 
-// Regresión del check 10 de scripts/audit-gallery-quality.js: el JSON-LD
+// Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
 // seguir sincronizados con los mapas publicados en Firestore.
 const repoRoot = path.resolve(__dirname, '..', '..');

@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { checkLocalAssets } = require('../../scripts/check-local-assets');
+const { checkLocalAssets } = require('../../scripts/tools/check-local-assets');
 
 test('every local asset referenced by HTML exists', async () => {
   const { checked, missing } = checkLocalAssets();
