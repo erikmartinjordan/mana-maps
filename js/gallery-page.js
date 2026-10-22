@@ -1430,7 +1430,6 @@
           seenCat[label] = 1;
           catSteps.push({ label: String(label), c: p._manaColor });
         });
-        catSteps.sort(function(a, b) { return String(a.label).localeCompare(String(b.label)); });
       }
       catSteps = catSteps.filter(function(s) { return !!s.c; });
       if (!catSteps.length) return '';
