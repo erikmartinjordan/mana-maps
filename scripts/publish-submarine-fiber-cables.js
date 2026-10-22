@@ -119,7 +119,13 @@ function fsMap(obj) {
     else if (typeof v === 'string') fields[k] = fsStr(v);
     else if (typeof v === 'number') fields[k] = fsNum(v);
     else if (typeof v === 'boolean') fields[k] = { booleanValue: v };
-    else if (Array.isArray(v)) fields[k] = { arrayValue: { values: v.map(x => (typeof x === 'string') ? fsStr(x) : x) } };
+    else if (Array.isArray(v)) fields[k] = { arrayValue: { values: v.map(x => {
+      if (typeof x === 'string') return fsStr(x);
+      if (typeof x === 'number') return fsNum(x);
+      if (typeof x === 'boolean') return { booleanValue: x };
+      if (x && typeof x === 'object') return fsMap(x);
+      return fsNull();
+    }) } };
     else if (typeof v === 'object') fields[k] = fsMap(v);
     else fields[k] = fsStr(String(v));
   }
