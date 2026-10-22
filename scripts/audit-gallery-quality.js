@@ -31,6 +31,10 @@
 //      CollectionPage de gallery/index.html y con las URLs de mapa de
 //      sitemap.xml. Lista faltantes/sobrantes/duplicados y falla (exit 1) si
 //      hay desajuste. Acepta landings /gallery/<slug>/ y /gallery/?slug=<slug>.
+//  11. cobertura de landings y OG cards: cada mapa isPublished debe tener
+//      gallery/<slug>/index.html (que además debe contener su slug) y
+//      og-cards/<slug>.png no vacío. Lista los faltantes y falla (exit 1).
+//      Los que falten se generan con `node scripts/generate-map-landings.js`.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -55,6 +59,8 @@
 //   node scripts/audit-gallery-quality.js [--dry-run] [--verbose]
 
 'use strict';
+
+const fs = require('fs');
 
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsArr } = require('./lib/publisher');
 
@@ -1367,6 +1373,64 @@ function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '' } 
   return { issues, published, collection, sitemap };
 }
 
+// ── Cobertura de landings y OG cards (check 11) ───────────────────
+// Las landings estáticas gallery/<slug>/index.html y las tarjetas
+// og-cards/<slug>.png se generan con scripts/generate-map-landings.js. Si un
+// mapa se publica en Firestore pero no se regeneran, su landing y su OG card
+// nunca llegan al repo: este check lo detecta antes del deploy.
+
+const GALLERY_DIR_PATH = require('path').join(__dirname, '..', 'gallery');
+const OG_CARDS_DIR_PATH = require('path').join(__dirname, '..', 'og-cards');
+
+function auditLandingCoverage(publishedSlugs, {
+  galleryDir = GALLERY_DIR_PATH,
+  ogCardsDir = OG_CARDS_DIR_PATH,
+} = {}) {
+  const issues = [];
+  const missingLandings = [];
+  const landingsWithoutSlug = [];
+  const missingOgCards = [];
+  const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
+
+  for (const slug of published) {
+    // Un slug con separadores no puede mapear a un directorio del repo.
+    if (slug === '.' || slug === '..' || /[\\/]/.test(slug)) {
+      issues.push(`slug inválido para landing/OG card: ${JSON.stringify(slug)}`);
+      continue;
+    }
+
+    const landingPath = require('path').join(galleryDir, slug, 'index.html');
+    if (!fs.existsSync(landingPath)) {
+      missingLandings.push(slug);
+    } else {
+      let html = null;
+      try {
+        html = fs.readFileSync(landingPath, 'utf8');
+      } catch (e) {
+        issues.push(`no se pudo leer gallery/${slug}/index.html: ${e.message}`);
+      }
+      if (html !== null && !html.includes(slug)) landingsWithoutSlug.push(slug);
+    }
+
+    const ogPath = require('path').join(ogCardsDir, `${slug}.png`);
+    let ogStat = null;
+    try { ogStat = fs.existsSync(ogPath) ? fs.statSync(ogPath) : null; } catch (_) { ogStat = null; }
+    if (!ogStat || !ogStat.isFile() || ogStat.size === 0) missingOgCards.push(slug);
+  }
+
+  if (missingLandings.length) {
+    issues.push(`faltan ${missingLandings.length} landings gallery/<slug>/index.html (${missingLandings.join(', ')})`);
+  }
+  if (landingsWithoutSlug.length) {
+    issues.push(`${landingsWithoutSlug.length} landings no contienen su slug (${landingsWithoutSlug.join(', ')})`);
+  }
+  if (missingOgCards.length) {
+    issues.push(`faltan ${missingOgCards.length} OG cards og-cards/<slug>.png (${missingOgCards.join(', ')})`);
+  }
+
+  return { issues, published, missingLandings, landingsWithoutSlug, missingOgCards };
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -1451,10 +1515,26 @@ async function main() {
   }
   console.log('');
 
+  // 11. Cobertura de landings estáticas y OG cards.
+  let coverage = null;
+  try {
+    coverage = auditLandingCoverage(published.map(m => m.id));
+  } catch (e) {
+    coverage = { issues: [`no se pudieron comprobar landings/OG cards: ${e.message}`] };
+  }
+  console.log('LANDINGS / OG | ISSUES');
+  console.log('--------------|-------');
+  if (coverage.issues.length === 0) {
+    console.log(`OK: ${published.length} publicados con landing /gallery/<slug>/ y OG card /og-cards/<slug>.png`);
+  } else {
+    for (const issue of coverage.issues) console.log(`FALTA: ${issue}`);
+  }
+  console.log('');
+
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -1584,6 +1664,7 @@ async function main() {
   console.log(`Paleta (AGENTS.md §3): ${paletteFixedTotal} props corregidas (rampa/borde/color semántico)`);
   console.log(`Puntos (AGENTS.md §9): ${pointFixedTotal} props corregidas (marker/escala/grupo), ${pointManualTotal} features con fallos no auto-fixables`);
   console.log(`Deriva SEO (check 10): ${seo.issues.length === 0 ? 'OK' : `${seo.issues.length} desajustes entre Firestore, JSON-LD y sitemap`}`);
+  console.log(`Cobertura landings/OG (check 11): ${coverage.issues.length === 0 ? 'OK' : `${coverage.issues.length} incidencias`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -1633,6 +1714,9 @@ module.exports = {
   auditSeoMetadata,
   GALLERY_HTML_PATH,
   SITEMAP_XML_PATH,
+  auditLandingCoverage,
+  GALLERY_DIR_PATH,
+  OG_CARDS_DIR_PATH,
   parseLegendNumber,
   hexToHsl,
   hslToHex,
