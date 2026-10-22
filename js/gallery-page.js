@@ -1409,6 +1409,40 @@
     if (!key) return '';
     var title = (item && item.legendTitle) || key;
     var fmt = (item && item.legendFormat) || 'number';
+
+    // Leyenda categórica (p. ej. estado de un cable): pasos declarados en el
+    // documento (label + color) o derivados de las features.
+    if (fmt === 'category' || fmt === 'text') {
+      var catSteps = [];
+      var legend = item && item.legend;
+      if (legend && Array.isArray(legend.steps) && legend.steps.length) {
+        catSteps = legend.steps.map(function(s) {
+          return { label: (s && (s.label || s.v)) || '', c: (s && (s.c || s.color)) || '' };
+        });
+      } else {
+        var seenCat = {};
+        (geo.features || []).forEach(function(f) {
+          var p = f && f.properties;
+          if (!p || !p._manaColor) return;
+          var label = p[key];
+          if (label == null || label === '') return;
+          if (seenCat[label]) return;
+          seenCat[label] = 1;
+          catSteps.push({ label: String(label), c: p._manaColor });
+        });
+        catSteps.sort(function(a, b) { return String(a.label).localeCompare(String(b.label)); });
+      }
+      catSteps = catSteps.filter(function(s) { return !!s.c; });
+      if (!catSteps.length) return '';
+      var catItems = catSteps.map(function(s) {
+        return '<span class="featured-legend-item"><i style="background:' + s.c + '"></i>' + escHtml(String(s.label)) + '</span>';
+      }).join('');
+      return '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
+        '<div class="featured-legend-title">' + escHtml(title) + '</div>' +
+        '<div class="featured-legend-items">' + catItems + '</div>' +
+        '</div>';
+    }
+
     var groups = {};
     (geo.features || []).forEach(function(f) {
       var p = f && f.properties;

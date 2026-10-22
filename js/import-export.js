@@ -152,10 +152,14 @@ function loadGeoJSON(geo, groupName, opts) {
     style: (f) => {
       const p = (f && f.properties) || {};
       const c = (p._manaColor || p.color) ? String(p._manaColor || p.color) : importColor;
-      const border = p._manaBorderColor ? String(p._manaBorderColor) : c;
+      const geomType = f && f.geometry && f.geometry.type;
+      const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+      // En líneas el trazo ES el dato: usar _manaColor, no el borde blanco de
+      // los polígonos (si no, los mapas de cables/rios se pintan invisibles).
+      const border = isLine ? c : (p._manaBorderColor ? String(p._manaBorderColor) : c);
       const weight = (typeof p._manaWeight === 'number') ? p._manaWeight : 2;
       const fillOpacity = (typeof p._manaFillOpacity === 'number') ? p._manaFillOpacity : .18;
-      return { color: border, weight: weight, fillColor: c, fillOpacity: fillOpacity, bubblingMouseEvents: true };
+      return { color: border, weight: weight, fillColor: c, fillOpacity: isLine ? 0 : fillOpacity, bubblingMouseEvents: true };
     },
     pointToLayer: (f, ll) => {
       const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || t('geom_imported');

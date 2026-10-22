@@ -400,7 +400,12 @@ async function restoreFromURL() {
         // Exponer los metadatos de leyenda del mapa cargado para que la vista
         // del editor (/map/) pueda pintar la rampa numérica declarada (legendKey).
         window.MANA_LOADED_LEGEND = (galleryPayload && galleryPayload.legendKey)
-          ? { key: galleryPayload.legendKey, title: galleryPayload.legendTitle || galleryPayload.legendKey, format: galleryPayload.legendFormat || 'number' }
+          ? {
+              key: galleryPayload.legendKey,
+              title: galleryPayload.legendTitle || galleryPayload.legendKey,
+              format: galleryPayload.legendFormat || 'number',
+              legend: galleryPayload.legend || null
+            }
           : null;
         const galleryGeo = await readPublishedGeo(db, gallerySlug, galleryPayload);
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {

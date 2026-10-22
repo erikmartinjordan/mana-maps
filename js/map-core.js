@@ -1784,6 +1784,22 @@ function renderLegend() {
   // Rampa numérica declarada (legendKey): si el mapa declara una clave y hay
   // rampa válida dentro de un grupo, la pintamos en lugar de la lista de grupos.
   var li = window.MANA_LOADED_LEGEND;
+
+  // Leyenda categórica declarada (label + color), p. ej. estado de un cable.
+  if (li && (li.format === 'category' || li.format === 'text') &&
+      li.legend && Array.isArray(li.legend.steps) && li.legend.steps.length) {
+    var catHtml = '<div class="map-legend-title">' + esc(li.legend.title || li.title || li.key || '') + '</div>';
+    li.legend.steps.forEach(function(s) {
+      var label = (s && (s.label || s.v)) || '';
+      var col = (s && (s.c || s.color)) || '#94a3b8';
+      if (!label) return;
+      catHtml += '<div class="map-legend-item"><span class="map-legend-line" style="background:' + esc(col) + '"></span><span class="map-legend-label">' + esc(label) + '</span></div>';
+    });
+    legend.classList.remove('empty');
+    legend.innerHTML = catHtml;
+    return;
+  }
+
   if (li && li.key) {
     var ramps = {};
     for (var gid in _manaGroupMeta) {
