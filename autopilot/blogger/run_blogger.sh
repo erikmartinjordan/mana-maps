@@ -28,10 +28,12 @@ fi
 # Autonomía: si quedó trabajo de una ejecución anterior, se publica (blog) o se
 # rescata en una rama antes de empezar, para no bloquear el loop.
 if [ -x "$RECOVER" ]; then
-  "$RECOVER" "$REPO" >>"$LOG" 2>&1 || {
-    echo "No se pudo limpiar el workspace; se aborta el blog." >>"$LOG"
+  "$RECOVER" "$REPO" >>"$LOG" 2>&1
+  REC_RC=$?
+  if [ "$REC_RC" -ne 0 ]; then
+    echo "BLOG_RC=1 (recovery rc=$REC_RC; revisar $ROOT/logs/recovery.log)" >>"$LOG"
     exit 1
-  }
+  fi
 fi
 if [ -n "$(git status --porcelain)" ]; then
   echo "Repo sucio tras el rescate; se aborta el blog." >>"$LOG"
@@ -59,7 +61,12 @@ echo "OPENCODE_RC=$AGENT_RC" >>"$LOG"
 
 # Si el agente dejó el trabajo sin commitear, lo publicamos nosotros.
 if [ -x "$RECOVER" ]; then
-  "$RECOVER" "$REPO" >>"$LOG" 2>&1 || echo "Recovery tras blog: fallo" >>"$LOG"
+  "$RECOVER" "$REPO" >>"$LOG" 2>&1
+  REC_RC=$?
+  if [ "$REC_RC" -ne 0 ]; then
+    echo "BLOG_RC=1 (recovery rc=$REC_RC; el post no quedo en main; revisar $ROOT/logs/recovery.log)" >>"$LOG"
+    exit 1
+  fi
 fi
 
 if [ -n "$(git status --porcelain)" ]; then
