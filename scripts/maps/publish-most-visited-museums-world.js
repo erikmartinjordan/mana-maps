@@ -10,7 +10,7 @@
 // (mana-maps-pro-f2177).
 'use strict';
 const fs = require('fs'), path = require('path');
-const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNull, fsMap } = require('./lib/publisher');
+const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNull, fsMap } = require('../lib/publisher');
 
 const SLUG = 'most-visited-museums-world';
 const TITLE = 'Los museos más visitados del mundo';
@@ -50,7 +50,7 @@ function buildMapPreview(geo) {
 }
 
 async function main() {
-  const geoPath = path.join(__dirname, '..', 'data', `${SLUG}.geojson`);
+  const geoPath = path.join(__dirname, '..', '..', 'data', 'maps', `${SLUG}.geojson`);
   if (!fs.existsSync(geoPath)) { console.error('ERROR: no existe', geoPath); process.exit(1); }
   const geo = JSON.parse(fs.readFileSync(geoPath, 'utf8'));
 
