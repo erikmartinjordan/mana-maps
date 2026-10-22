@@ -7,6 +7,18 @@
   const USERS_COLLECTION = 'users';
   const firebaseConfig = window.ManaFirebase && window.ManaFirebase.getConfig();
 
+  function isEn() {
+    return typeof LANG !== 'undefined' && LANG === 'en';
+  }
+
+  function pl(es, en) {
+    return isEn() ? en : es;
+  }
+
+  function locale() {
+    return isEn() ? 'en-GB' : 'es-ES';
+  }
+
   function escHtml(str) {
     var div = document.createElement('div');
     div.textContent = str == null ? '' : String(str);
@@ -32,11 +44,11 @@
   }
 
   function safeDate(tsMs) {
-    if (!tsMs) return 'Sin fecha';
+    if (!tsMs) return pl('Sin fecha', 'No date');
     try {
-      return new Date(tsMs).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(tsMs).toLocaleDateString(locale(), { day: '2-digit', month: 'short', year: 'numeric' });
     } catch (e) {
-      return 'Sin fecha';
+      return pl('Sin fecha', 'No date');
     }
   }
 
@@ -60,11 +72,12 @@
   }
 
   function formatNumber(value) {
-    try { return numericStat(value).toLocaleString('es-ES'); }
+    try { return numericStat(value).toLocaleString(locale()); }
     catch (e) { return String(numericStat(value)); }
   }
 
   function mapCountLabel(count) {
+    if (isEn()) return count === 1 ? 'public map' : 'public maps';
     return count === 1 ? 'mapa público' : 'mapas públicos';
   }
 
@@ -175,14 +188,14 @@
     if (!summary) return;
     var visibleMaps = maps.filter(function(item) { return mapViews(item) > 0; }).slice(0, 12);
     if (!visibleMaps.length) {
-      summary.innerHTML = '<span class="public-profile-views-empty">Sin visualizaciones todavía</span>';
+      summary.innerHTML = '<span class="public-profile-views-empty">' + pl('Sin visualizaciones todavía', 'No views yet') + '</span>';
       return;
     }
     var maxViews = visibleMaps.reduce(function(max, item) { return Math.max(max, mapViews(item)); }, 1);
     summary.innerHTML = '<div class="public-profile-view-bars">' + visibleMaps.map(function(item) {
       var views = mapViews(item);
       var height = Math.max(18, Math.round((views / maxViews) * 100));
-      var title = (item.title || item.name || 'Mapa sin título') + ': ' + formatNumber(views) + ' visualizaciones';
+      var title = (item.title || item.name || pl('Mapa sin título', 'Untitled map')) + ': ' + formatNumber(views) + ' ' + pl('visualizaciones', 'views');
       return '<span class="public-profile-view-bar" style="--bar-height:' + height + '%" title="' + escHtml(title) + '" aria-label="' + escHtml(title) + '"></span>';
     }).join('') + '</div>';
   }
@@ -191,7 +204,7 @@
     var list = document.getElementById('public-profile-maps');
     if (!list) return;
     if (!maps.length) {
-      list.innerHTML = '<div class="public-profile-empty">@' + escHtml(handle) + ' todavía no tiene mapas públicos.</div>';
+      list.innerHTML = '<div class="public-profile-empty">@' + escHtml(handle) + ' ' + pl('todavía no tiene mapas públicos.', 'has no public maps yet.') + '</div>';
       return;
     }
     list.innerHTML = maps.map(function(item) {
@@ -210,17 +223,17 @@
       return '' +
         '<article class="public-map-card">' +
           '<a class="public-map-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(item.shareMode || 'view') + '">' +
-            '<div class="thumb"' + aspectStyle + '>' + (thumb || '<span class="public-map-empty-thumb">Vista previa no disponible</span>') + '</div>' +
-            '<h3>' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
+            '<div class="thumb"' + aspectStyle + '>' + (thumb || '<span class="public-map-empty-thumb">' + pl('Vista previa no disponible', 'Preview unavailable') + '</span>') + '</div>' +
+            '<h3>' + escHtml(item.title || item.name || pl('Mapa sin título', 'Untitled map')) + '</h3>' +
           '</a>' +
           '<p>' + escHtml(item.description || '') + '</p>' +
-          '<div class="public-map-meta"><span>' + (item.featureCount || 0) + ' elementos</span><span>·</span><span>' + safeDate(created) + '</span></div>' +
-          '<div class="public-map-engagement" aria-label="Actividad del mapa">' +
-            '<span class="public-map-stat" title="Visualizaciones">' +
+          '<div class="public-map-meta"><span>' + (item.featureCount || 0) + ' ' + pl('elementos', 'elements') + '</span><span>·</span><span>' + safeDate(created) + '</span></div>' +
+          '<div class="public-map-engagement" aria-label="' + pl('Actividad del mapa', 'Map activity') + '">' +
+            '<span class="public-map-stat" title="' + pl('Visualizaciones', 'Views') + '">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>' +
               '<span>' + formatNumber(views) + '</span>' +
             '</span>' +
-            '<span class="public-map-stat public-map-like-stat" title="Me gustas">' +
+            '<span class="public-map-stat public-map-like-stat" title="' + pl('Me gustas', 'Likes') + '">' +
               '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>' +
               '<span>' + formatNumber(likes) + '</span>' +
             '</span>' +
@@ -256,8 +269,8 @@
       if (document.body.classList.contains('public-profile-page')) {
         var empty = document.getElementById('public-profile-maps');
         var bio = document.getElementById('public-profile-bio');
-        if (bio) bio.textContent = 'Esta página no existe todavía.';
-        if (empty) empty.innerHTML = '<div class="public-profile-empty">Perfil no encontrado. Visita la galería para descubrir mapas públicos.</div>';
+        if (bio) bio.textContent = pl('Esta página no existe todavía.', 'This page does not exist yet.');
+        if (empty) empty.innerHTML = '<div class="public-profile-empty">' + pl('Perfil no encontrado. Visita la galería para descubrir mapas públicos.', 'Profile not found. Visit the gallery to discover public maps.') + '</div>';
       }
       return;
     }
@@ -284,7 +297,7 @@
       var viewsEl = document.getElementById('public-profile-view-count');
       if (nameEl) nameEl.textContent = displayName;
       if (handleEl) handleEl.textContent = '@' + handle;
-      if (bioEl) bioEl.textContent = (profile && profile.bio) || 'Mapas públicos creados con Maña Maps.';
+      if (bioEl) bioEl.textContent = (profile && profile.bio) || pl('Mapas públicos creados con Maña Maps.', 'Public maps created with Maña Maps.');
       if (avatarEl) avatarEl.innerHTML = renderAvatar(profile, handle);
       var totalViews = maps.reduce(function(total, item) { return total + mapViews(item); }, 0);
       if (countEl) countEl.textContent = formatNumber(maps.length);
@@ -295,7 +308,7 @@
     } catch (e) {
       console.warn('public profile failed:', e);
       var list = document.getElementById('public-profile-maps');
-      if (list) list.innerHTML = '<div class="public-profile-empty">No se pudo cargar este perfil.</div>';
+      if (list) list.innerHTML = '<div class="public-profile-empty">' + pl('No se pudo cargar este perfil.', 'Could not load this profile.') + '</div>';
     }
   }
 

@@ -115,7 +115,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 /* FEATURE GRID */
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:480px){.feat-grid{grid-template-columns:1fr;}}
- @media(max-width:600px){#topbar{padding:0 12px}.topbar-right{gap:6px}.topbar-right .btn-ghost{display:none}.topbar-right .btn{padding:7px 11px;font-size:12px;flex-shrink:0}}
+ @media(max-width:600px){#topbar{padding:0 12px}.topbar-right{gap:6px}.topbar-right .btn-ghost{display:none}.topbar-right .lang-toggle{display:inline-flex}.topbar-right .btn{padding:7px 11px;font-size:12px;flex-shrink:0}}
 .feat-card{
   background:var(--bgBox);border:1px solid var(--border);border-radius:14px;
   padding:16px 18px;display:flex;gap:12px;align-items:flex-start;
@@ -173,6 +173,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   </a>
   <div class="topbar-right">
     <a class="btn btn-ghost" href="/changelog" data-i18n="about_changelog_desc">Changelog</a>
+    <button class="btn btn-ghost lang-toggle" id="lang-btn" type="button" onclick="toggleLang()" data-i18n-aria-label="lang_toggle_aria" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés"><span class="tb-lang-label">EN</span></button>
     <a class="btn btn-primary" href="/" data-i18n="nav_open_map">Abrir mapa</a>
   </div>
 </div>

@@ -614,6 +614,7 @@
       .topbar-actions{gap:6px;min-width:0}
       .topbar-actions .btn{height:34px;padding:0 9px;font-size:11px}
       .topbar-actions .btn-ghost{display:none}
+      .topbar-actions .lang-toggle{display:inline-flex}
       .hero{padding:30px 18px 22px}
       .grid{padding-left:18px;padding-right:18px}
       .cat-bar{margin:0 18px 14px;gap:8px}
@@ -673,32 +674,33 @@
         <span class="brand-copy"><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
       </a>
       <div class="topbar-actions">
-        <a class="btn btn-ghost" href="/">Inicio</a>
-        <a class="btn btn-ghost" href="/my-maps/">Mis mapas</a>
-        <a class="btn btn-primary" href="/map/">Crear mapa</a>
+        <a class="btn btn-ghost" href="/" data-i18n="gallery_home">Inicio</a>
+        <a class="btn btn-ghost" href="/my-maps/" data-i18n="gallery_my_maps">Mis mapas</a>
+        <button class="btn btn-ghost lang-toggle" id="lang-btn" type="button" onclick="toggleLang()" data-i18n-aria-label="lang_toggle_aria" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés"><span class="tb-lang-label">EN</span></button>
+        <a class="btn btn-primary" href="/map/" data-i18n="gallery_create">Crear mapa</a>
       </div>
     </header>
 
     <section class="hero">
-      <span class="eyebrow">Comunidad</span>
-      <h1>Galería de mapas</h1>
-      <p>Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.</p>
+      <span class="eyebrow" data-i18n="gallery_eyebrow">Comunidad</span>
+      <h1 data-i18n="gallery_title">Galería de mapas</h1>
+      <p data-i18n="gallery_subtitle">Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.</p>
     </section>
 
     <div class="cat-bar" id="cat-bar" hidden>
       <div class="cat-dd" id="cat-dd">
         <button class="cat-dd-btn" id="cat-dd-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="cat-panel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-          Categorías
+          <span data-i18n="gallery_categories">Categorías</span>
           <span class="cat-dd-count" id="cat-dd-count" hidden>0</span>
           <svg class="cat-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="cat-panel" id="cat-panel" role="dialog" aria-label="Elegir categorías">
-          <input class="cat-search" id="cat-search" type="search" placeholder="Buscar categoría…" autocomplete="off" spellcheck="false"/>
-          <div class="cat-opts" id="cat-opts" role="group" aria-label="Opciones de categoría"></div>
+        <div class="cat-panel" id="cat-panel" role="dialog" data-i18n-aria-label="gallery_choose_categories" aria-label="Elegir categorías">
+          <input class="cat-search" id="cat-search" type="search" data-i18n-placeholder="gallery_search_category" placeholder="Buscar categoría…" autocomplete="off" spellcheck="false"/>
+          <div class="cat-opts" id="cat-opts" role="group" data-i18n-aria-label="gallery_category_options" aria-label="Opciones de categoría"></div>
           <div class="cat-foot">
-            <button class="cat-clear" id="cat-clear" type="button">Limpiar</button>
-            <button class="cat-apply" id="cat-apply" type="button">Aplicar</button>
+            <button class="cat-clear" id="cat-clear" type="button" data-i18n="gallery_clear">Limpiar</button>
+            <button class="cat-apply" id="cat-apply" type="button" data-i18n="gallery_apply">Aplicar</button>
           </div>
         </div>
       </div>
@@ -707,17 +709,17 @@
     <div id="filter-status" class="filter-result-text" aria-live="polite" role="status"></div>
 
     <!-- Mapa + leyenda de la landing /gallery/?slug=<id> (SEO). Oculto sin slug. -->
-    <section id="slug-map-wrap" aria-label="Mapa publicado" hidden>
+    <section id="slug-map-wrap" data-i18n-aria-label="gallery_published_map" aria-label="Mapa publicado" hidden>
       <div class="featured-head">
-        <h2 id="slug-map-title">Mapa</h2>
+        <h2 id="slug-map-title" data-i18n="gallery_map">Mapa</h2>
       </div>
       <div id="slug-map"></div>
       <div id="slug-map-meta"></div>
     </section>
 
     <!-- Mapas relacionados de la landing /gallery/?slug=<id> (SEO). Oculto sin slug. -->
-    <section id="related-maps" aria-label="Mapas relacionados" hidden>
-      <h2 id="related-maps-title">Mapas relacionados</h2>
+    <section id="related-maps" data-i18n-aria-label="gallery_related_maps" aria-label="Mapas relacionados" hidden>
+      <h2 id="related-maps-title" data-i18n="gallery_related_maps">Mapas relacionados</h2>
       <ul id="related-maps-list" class="related-maps-list"></ul>
     </section>
 
@@ -731,12 +733,12 @@
     </section>
 
     <footer class="footer">
-      <span>Hecho con &#9829; en Barcelona.</span>
+      <span data-i18n="gallery_footer_made">Hecho con &#9829; en Barcelona.</span>
       <span>
-        <a href="/about">Acerca de</a> &middot;
-        <a href="/changelog">Ver novedades</a> &middot;
-        <a href="/open">Estadísticas</a> &middot;
-        <a href="/pricing">Precios</a>
+        <a href="/about" data-i18n="footer_about">Acerca de</a> &middot;
+        <a href="/changelog" data-i18n="footer_changelog">Ver novedades</a> &middot;
+        <a href="/open" data-i18n="footer_stats">Estadísticas</a> &middot;
+        <a href="/pricing" data-i18n="footer_pricing">Precios</a>
       </span>
       <span>&copy; Maña Maps</span>
     </footer>
@@ -744,29 +746,29 @@
 
   <div id="auth-modal" class="share-modal" aria-hidden="true">
     <div class="auth-modal-box" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
-      <button class="modal-close-btn share-close" onclick="closeAuthModal()" aria-label="Cerrar">&times;</button>
+      <button class="modal-close-btn share-close" onclick="closeAuthModal()" data-i18n-aria-label="gallery_close" aria-label="Cerrar">&times;</button>
       <div class="auth-modal-header">
         <div class="auth-logo">
           <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path fill="#30363B" d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z" transform="translate(100 100)"/>
           <g transform="translate(62.7889 133.0811) scale(0.04069010 -0.04069010)"><path fill="#fff" d="M1675 0H1303V987L1032 350H777L506 987V0H154V1489H585L915 754L1244 1489H1675Z"/><path fill="#fff" transform="translate(1530 -40)" d="M-186 2061Q-196 1894 -269.0 1816.5Q-342 1739 -472 1739Q-520 1739 -563.0 1758.5Q-606 1778 -637 1797Q-667 1816 -703.5 1835.5Q-740 1855 -765 1855Q-815 1855 -833.0 1823.5Q-851 1792 -855 1733H-1065Q-1059 1879 -983.0 1966.5Q-907 2054 -780 2054Q-732 2054 -691.0 2037.0Q-650 2020 -612 1998Q-582 1981 -546.0 1962.0Q-510 1943 -487 1943Q-439 1943 -418.5 1975.0Q-398 2007 -396 2061Z"/></g></svg>
         </div>
-        <h3 id="auth-modal-title">Inicia sesi&#243;n</h3>
-        <p class="auth-subtitle">Guarda, comparte y da me gusta a los mapas.</p>
+        <h3 id="auth-modal-title" data-i18n="auth_title">Inicia sesi&#243;n</h3>
+        <p class="auth-subtitle" data-i18n="gallery_auth_subtitle">Guarda, comparte y da me gusta a los mapas.</p>
       </div>
       <form class="auth-form" onsubmit="signInWithEmail(event)" autocomplete="on">
         <div class="auth-field">
-          <label for="auth-email">Correo electr&#243;nico</label>
+          <label for="auth-email" data-i18n="auth_email_label">Correo electr&#243;nico</label>
           <input id="auth-email" type="email" placeholder="tu@email.com" required autocomplete="email" spellcheck="false"/>
         </div>
         <div class="auth-field">
-          <label for="auth-password">Contrase&#241;a</label>
+          <label for="auth-password" data-i18n="auth_password_label">Contrase&#241;a</label>
           <input id="auth-password" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required autocomplete="current-password"/>
         </div>
-        <button type="submit" class="auth-submit-btn">Iniciar sesi&#243;n</button>
-        <p class="auth-signup-hint"><span>&#191;No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode(event)">Crear cuenta</a></p>
+        <button type="submit" class="auth-submit-btn" data-i18n="auth_login_btn">Iniciar sesi&#243;n</button>
+        <p class="auth-signup-hint"><span data-i18n="auth_no_account">&#191;No tienes cuenta?</span> <a href="#" onclick="toggleAuthMode(event)" data-i18n="auth_create_account">Crear cuenta</a></p>
       </form>
-      <div class="auth-divider"><span>o</span></div>
+      <div class="auth-divider"><span data-i18n="auth_or">o</span></div>
       <button class="auth-google-btn" onclick="signInWithGoogle()">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -774,7 +776,7 @@
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        <span>Continuar con Google</span>
+        <span data-i18n="auth_google">Continuar con Google</span>
       </button>
     </div>
   </div>
@@ -787,10 +789,11 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script defer src="/js/i18n.js?v=1792100000"></script>
   <script defer src="/js/auth.js?v=1792000000"></script>
   <script defer src="/js/user-maps.js"></script>
   <script defer src="/js/basemap-config.js"></script>
-  <script defer src="/js/gallery-page.js?v=1792660001"></script>
+  <script defer src="/js/gallery-page.js?v=1792660002"></script>
   <!-- MapLibre (image map for ?slug=) is loaded on demand by gallery-page.js -->
   <script>
     // Analytics/geo lookup is non-critical: run it once the page is idle.
@@ -811,6 +814,6 @@
       image.decoding = 'async';
     });
   </script>
-  <script>var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es'; function manaAlert(m){alert(m)} function showToast(){}</script>
+  <script>function manaAlert(m){alert(m)} function showToast(){}</script>
 </body>
 </html>

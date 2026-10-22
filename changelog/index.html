@@ -31,7 +31,7 @@
 }
 .logo-wordmark{font-size:18px;font-weight:800;letter-spacing:-0.02em;color:var(--primary);}
 .logo-sub{font-size:11px;color:var(--third);font-weight:600;vertical-align:super;margin-left:3px;}
-@media(max-width:480px){.logo-wordmark{font-size:16px}}
+@media(max-width:480px){.logo-wordmark{font-size:16px}#topbar{padding:0 10px;gap:6px}.topbar-right{gap:6px}.topbar-right .btn{padding:7px 9px;font-size:11px}}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:50px;
@@ -77,6 +77,7 @@
 .page-footer a{color:var(--third);text-decoration:none;}
 .page-footer a:hover{color:var(--primary);}
 </style>
+<script src="/js/i18n.js"></script>
 </head>
 <body>
 <div id="topbar">
@@ -92,13 +93,14 @@
     <span><span class="logo-wordmark">Ma&ntilde;a</span><span class="logo-sub">Maps</span></span>
   </a>
   <div class="topbar-right">
-    <a class="btn btn-ghost" href="/">Volver al mapa</a>
+    <a class="btn btn-ghost" href="/" data-i18n="changelog_back">Volver al mapa</a>
+    <button class="btn btn-ghost lang-toggle" id="lang-btn" type="button" onclick="toggleLang()" data-i18n-aria-label="lang_toggle_aria" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés"><span class="tb-lang-label">EN</span></button>
   </div>
 </div>
 <div class="page">
   <div class="page-header">
     <h1>Changelog</h1>
-    <p>Historial de cambios y mejoras de Ma&ntilde;a Maps. Todos los commits, organizados por fecha.</p>
+    <p data-i18n="changelog_subtitle">Historial de cambios y mejoras de Ma&ntilde;a Maps. Todos los commits, organizados por fecha.</p>
   </div>
   <div class="timeline">
     <div class="day-group">

@@ -210,7 +210,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
     <a class="btn btn-ghost" href="/about" data-i18n="open_about">Acerca de</a>
     <a class="btn btn-ghost" href="/pricing" data-i18n="footer_pricing">Precios</a>
     <a class="btn btn-ghost" href="/changelog" data-i18n="footer_changelog">Changelog</a>
-    <button class="btn btn-ghost" type="button" onclick="toggleLang(); renderSkeletonKPIs(); loadData();"><span class="tb-lang-label">EN</span></button>
+    <button class="btn btn-ghost lang-toggle" id="lang-btn" type="button" data-lang-toggle onclick="toggleLang(); renderSkeletonKPIs(); loadData();" data-i18n-aria-label="lang_toggle_aria" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés"><span class="tb-lang-label">EN</span></button>
     <a class="btn btn-primary" href="/" data-i18n="nav_open_map">Abrir mapa</a>
   </div>
 </div>

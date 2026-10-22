@@ -2740,3 +2740,8 @@ function _initAttrTableResize() {
   handle.addEventListener('mousedown', onStart);
   handle.addEventListener('touchstart', onStart, { passive: false });
 }
+
+// Re-render dynamic map UI (layers, templates…) when the global language changes.
+window.addEventListener('mana:languagechange', function() {
+  try { if (typeof renderLayers === 'function') renderLayers(); } catch (e) {}
+});

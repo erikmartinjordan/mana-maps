@@ -43,46 +43,47 @@
         <span><span class="logo-wordmark">Ma&#241;a</span><span class="logo-sub">Maps</span></span>
       </a>
       <nav class="profile-nav" aria-label="Navegación de perfil">
-        <a class="btn btn-ghost" href="/my-maps/">Mis mapas</a>
-        <a class="btn btn-primary" href="/map/">Editor</a>
+        <a class="btn btn-ghost" href="/my-maps/" data-i18n="gallery_my_maps">Mis mapas</a>
+        <button class="btn btn-ghost lang-toggle" id="lang-btn" type="button" onclick="toggleLang()" data-i18n-aria-label="lang_toggle_aria" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés"><span class="tb-lang-label">EN</span></button>
+        <a class="btn btn-primary" href="/map/" data-i18n="gallery_create">Editor</a>
       </nav>
     </div>
 
     <section id="private-profile-card" class="profile-card">
-      <h1 id="profile-title">Perfil de usuario</h1>
-      <p id="profile-subtitle">Configura tu nombre público y tu handle. El handle identifica tu perfil y tus mapas publicados.</p>
+      <h1 id="profile-title" data-i18n="gallery_profile_title">Perfil de usuario</h1>
+      <p id="profile-subtitle" data-i18n="gallery_profile_subtitle">Configura tu nombre público y tu handle. El handle identifica tu perfil y tus mapas publicados.</p>
 
-      <div id="profile-loading" class="profile-loading">Cargando perfil…</div>
+      <div id="profile-loading" class="profile-loading" data-i18n="gallery_profile_loading">Cargando perfil…</div>
       <div id="profile-login" class="profile-login">
-        <p>Inicia sesión para configurar tu perfil.</p>
-        <button class="btn btn-primary profile-submit" type="button" onclick="manaAuth.openAuthModal()">Iniciar sesión</button>
+        <p data-i18n="gallery_profile_login_text">Inicia sesión para configurar tu perfil.</p>
+        <button class="btn btn-primary profile-submit" type="button" onclick="manaAuth.openAuthModal()" data-i18n="auth_login_btn">Iniciar sesión</button>
       </div>
 
       <form id="profile-form" class="profile-form" autocomplete="on">
         <span id="profile-current-handle" class="profile-handle-preview">@</span>
         <div class="profile-row">
-          <label for="profile-display-name">Nombre visible</label>
+          <label for="profile-display-name" data-i18n="gallery_profile_display_name">Nombre visible</label>
           <input id="profile-display-name" type="text" maxlength="80" autocomplete="name"/>
-          <small>Este nombre se muestra en tu menú de usuario.</small>
+          <small data-i18n="gallery_profile_name_help">Este nombre se muestra en tu menú de usuario.</small>
         </div>
         <div class="profile-row">
-          <label for="profile-handle">Handle</label>
+          <label for="profile-handle" data-i18n="gallery_profile_handle">Handle</label>
           <input id="profile-handle" type="text" maxlength="24" autocomplete="username" spellcheck="false"/>
-          <small>Entre 3 y 24 caracteres. Usa letras minúsculas, números, puntos, guiones o guiones bajos. Cambiarlo también mueve tus mapas privados al nuevo handle.</small>
+          <small data-i18n="gallery_profile_handle_help">Entre 3 y 24 caracteres. Usa letras minúsculas, números, puntos, guiones o guiones bajos. Cambiarlo también mueve tus mapas privados al nuevo handle.</small>
         </div>
         <div class="profile-row">
-          <label for="profile-avatar-url">Foto de perfil</label>
+          <label for="profile-avatar-url" data-i18n="gallery_profile_avatar">Foto de perfil</label>
           <input id="profile-avatar-url" type="url" maxlength="500" autocomplete="photo" placeholder="https://…"/>
-          <small>Pega una URL pública de imagen. Si la dejas vacía, usaremos la foto de tu cuenta o tus iniciales.</small>
+          <small data-i18n="gallery_profile_avatar_help">Pega una URL pública de imagen. Si la dejas vacía, usaremos la foto de tu cuenta o tus iniciales.</small>
         </div>
         <div class="profile-row">
-          <label for="profile-bio">Descripción breve</label>
-          <textarea id="profile-bio" maxlength="180" rows="4" placeholder="Cuéntale al mundo qué mapas haces."></textarea>
-          <small>Máximo 180 caracteres. Aparecerá en tu perfil público.</small>
+          <label for="profile-bio" data-i18n="gallery_profile_bio">Descripción breve</label>
+          <textarea id="profile-bio" maxlength="180" rows="4" data-i18n-placeholder="gallery_profile_bio_placeholder" placeholder="Cuéntale al mundo qué mapas haces."></textarea>
+          <small data-i18n="gallery_profile_bio_help">Máximo 180 caracteres. Aparecerá en tu perfil público.</small>
         </div>
         <div class="profile-actions">
-          <button id="profile-save" class="btn btn-primary profile-submit" type="submit">Guardar cambios</button>
-          <button class="btn btn-ghost profile-secondary" type="button" onclick="location.href='/map/'">Volver al editor</button>
+          <button id="profile-save" class="btn btn-primary profile-submit" type="submit" data-i18n="gallery_profile_save">Guardar cambios</button>
+          <button class="btn btn-ghost profile-secondary" type="button" onclick="location.href='/map/'" data-i18n="gallery_profile_back">Volver al editor</button>
           <span id="profile-status" class="profile-status" role="status" aria-live="polite"></span>
         </div>
       </form>
@@ -98,22 +99,22 @@
           <div class="public-profile-stats" aria-label="Resumen del perfil">
             <span class="public-profile-stat-pill">
               <strong id="public-profile-map-count">0</strong>
-              <span id="public-profile-map-label">mapas públicos</span>
+              <span id="public-profile-map-label" data-i18n="gallery_public_maps">mapas públicos</span>
             </span>
             <span class="public-profile-stat-pill public-profile-views-pill">
               <strong id="public-profile-view-count">0</strong>
-              <span>visualizaciones</span>
+              <span data-i18n="gallery_public_views">visualizaciones</span>
             </span>
           </div>
           <div id="public-profile-views-summary" class="public-profile-views-summary" aria-label="Visualizaciones por mapa"></div>
         </div>
       </div>
       <div class="public-profile-section-head">
-        <h2>Mapas públicos</h2>
-        <a class="btn btn-ghost" href="/gallery/">Ver galería</a>
+        <h2 data-i18n="gallery_public_maps">Mapas públicos</h2>
+        <a class="btn btn-ghost" href="/gallery/" data-i18n="gallery_view_gallery">Ver galería</a>
       </div>
       <div id="public-profile-maps" class="public-profile-grid">
-        <div class="public-profile-empty">Cargando mapas…</div>
+        <div class="public-profile-empty" data-i18n="gallery_profile_loading">Cargando mapas…</div>
       </div>
     </section>
   </main>
@@ -141,12 +142,14 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script defer src="/js/i18n.js"></script>
   <script defer src="/js/auth.js"></script>
   <script defer src="/js/world-land.js"></script>
   <script defer src="/js/map-preview.js?v=1791708010"></script>
   <script defer src="/js/public-profile.js"></script>
   <script>
-    var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es';
+    // Language is provided by js/i18n.js (window.manaLang + global LANG).
+    function profileT(es, en) { return (typeof LANG !== 'undefined' && LANG === 'en') ? en : es; }
     function manaAlert(message) { setProfileStatus(message, 'error'); }
     function showToast(message) { setProfileStatus(message, 'ok'); }
     function setProfileStatus(message, type) {
@@ -194,19 +197,21 @@
         var displayName = document.getElementById('profile-display-name').value.trim();
         var avatarUrl = document.getElementById('profile-avatar-url').value.trim();
         var bio = document.getElementById('profile-bio').value.trim();
-        if (!isValidHandle(handle)) { setProfileStatus('Handle no válido.', 'error'); return; }
-        save.disabled = true; save.textContent = 'Guardando…'; setProfileStatus('', '');
+        if (!isValidHandle(handle)) { setProfileStatus(profileT('Handle no válido.', 'Invalid handle.'), 'error'); return; }
+        save.disabled = true; save.textContent = profileT('Guardando…', 'Saving…'); setProfileStatus('', '');
         try {
           var result = await window.manaAuth.updateProfileSettings({ handle: handle, displayName: displayName, avatarUrl: avatarUrl, bio: bio });
           document.getElementById('profile-current-handle').textContent = '@' + result.handle;
-          setProfileStatus('Perfil guardado ✓', 'ok');
+          setProfileStatus(profileT('Perfil guardado ✓', 'Profile saved ✓'), 'ok');
         } catch (err) {
           var code = err && (err.code || err.message || '');
-          var msg = (code === 'handle-taken' || code === 'permission-denied') ? 'Ese handle ya está en uso o no está disponible.' : 'No se pudo guardar el perfil.';
+          var msg = (code === 'handle-taken' || code === 'permission-denied')
+            ? profileT('Ese handle ya está en uso o no está disponible.', 'That handle is already taken or unavailable.')
+            : profileT('No se pudo guardar el perfil.', 'Could not save the profile.');
           setProfileStatus(msg, 'error');
           console.warn('profile save failed:', err);
         } finally {
-          save.disabled = false; save.textContent = 'Guardar cambios';
+          save.disabled = false; save.textContent = profileT('Guardar cambios', 'Save changes');
         }
       });
     });

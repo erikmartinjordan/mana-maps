@@ -548,6 +548,53 @@ const I18N = {
     marker_flag: "Bandera",
     marker_bolt: "Rayo",
     marker_heart: "Corazón",
+    // ── Gallery ──
+    gallery_home: "Inicio",
+    gallery_my_maps: "Mis mapas",
+    gallery_create: "Crear mapa",
+    gallery_eyebrow: "Comunidad",
+    gallery_title: "Galería de mapas",
+    gallery_subtitle: "Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.",
+    gallery_categories: "Categorías",
+    gallery_choose_categories: "Elegir categorías",
+    gallery_search_category: "Buscar categoría…",
+    gallery_category_options: "Opciones de categoría",
+    gallery_clear: "Limpiar",
+    gallery_apply: "Aplicar",
+    gallery_published_map: "Mapa publicado",
+    gallery_map: "Mapa",
+    gallery_related_maps: "Mapas relacionados",
+    gallery_footer_made: "Hecho con ♥ en Barcelona.",
+    gallery_auth_subtitle: "Guarda, comparte y da me gusta a los mapas.",
+    gallery_close: "Cerrar",
+    gallery_my_maps_title: "Mis mapas",
+    gallery_my_maps_subtitle: "Tus mapas guardados. Solo tú puedes verlos.",
+    gallery_new_map: "Nuevo mapa",
+    gallery_login_needed_title: "Inicia sesión",
+    gallery_login_needed_text: "Necesitas iniciar sesión para ver tus mapas guardados.",
+    gallery_profile_title: "Perfil de usuario",
+    gallery_profile_subtitle: "Configura tu nombre público y tu handle. El handle identifica tu perfil y tus mapas publicados.",
+    gallery_profile_login_text: "Inicia sesión para configurar tu perfil.",
+    gallery_profile_display_name: "Nombre visible",
+    gallery_profile_handle: "Handle",
+    gallery_profile_avatar: "Foto de perfil",
+    gallery_profile_bio: "Descripción breve",
+    gallery_profile_save: "Guardar cambios",
+    gallery_profile_back: "Volver al editor",
+    gallery_public_maps: "Mapas públicos",
+    gallery_view_gallery: "Ver galería",
+    gallery_profile_name_help: "Este nombre se muestra en tu menú de usuario.",
+    gallery_profile_handle_help: "Entre 3 y 24 caracteres. Usa letras minúsculas, números, puntos, guiones o guiones bajos. Cambiarlo también mueve tus mapas privados al nuevo handle.",
+    gallery_profile_avatar_help: "Pega una URL pública de imagen. Si la dejas vacía, usaremos la foto de tu cuenta o tus iniciales.",
+    gallery_profile_bio_help: "Máximo 180 caracteres. Aparecerá en tu perfil público.",
+    gallery_profile_bio_placeholder: "Cuéntale al mundo qué mapas haces.",
+    gallery_profile_loading: "Cargando perfil…",
+    gallery_public_views: "visualizaciones",
+    gallery_public_no_maps: "todavía no tiene mapas públicos.",
+    gallery_public_not_found: "Perfil no encontrado. Visita la galería para descubrir mapas públicos.",
+    gallery_public_bio_default: "Mapas públicos creados con Maña Maps.",
+    gallery_public_load_failed: "No se pudo cargar este perfil.",
+    gallery_public_no_views: "Sin visualizaciones todavía",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "es",
   },
@@ -1097,60 +1144,113 @@ const I18N = {
     marker_flag: "Flag",
     marker_bolt: "Bolt",
     marker_heart: "Heart",
+    // ── Gallery ──
+    gallery_home: "Home",
+    gallery_my_maps: "My maps",
+    gallery_create: "Create map",
+    gallery_eyebrow: "Community",
+    gallery_title: "Map gallery",
+    gallery_subtitle: "Discover maps created and shared by the community: open them, like them or fork them to adapt them to your workflow.",
+    gallery_categories: "Categories",
+    gallery_choose_categories: "Choose categories",
+    gallery_search_category: "Search category…",
+    gallery_category_options: "Category options",
+    gallery_clear: "Clear",
+    gallery_apply: "Apply",
+    gallery_published_map: "Published map",
+    gallery_map: "Map",
+    gallery_related_maps: "Related maps",
+    gallery_footer_made: "Made with ♥ in Barcelona.",
+    gallery_auth_subtitle: "Save, share and like maps.",
+    gallery_close: "Close",
+    gallery_my_maps_title: "My maps",
+    gallery_my_maps_subtitle: "Your saved maps. Only you can see them.",
+    gallery_new_map: "New map",
+    gallery_login_needed_title: "Sign in",
+    gallery_login_needed_text: "You need to sign in to see your saved maps.",
+    gallery_profile_title: "User profile",
+    gallery_profile_subtitle: "Set your public name and handle. Your handle identifies your profile and your published maps.",
+    gallery_profile_login_text: "Sign in to set up your profile.",
+    gallery_profile_display_name: "Display name",
+    gallery_profile_handle: "Handle",
+    gallery_profile_avatar: "Profile picture",
+    gallery_profile_bio: "Short description",
+    gallery_profile_save: "Save changes",
+    gallery_profile_back: "Back to editor",
+    gallery_public_maps: "Public maps",
+    gallery_view_gallery: "View gallery",
+    gallery_profile_name_help: "This name is shown in your user menu.",
+    gallery_profile_handle_help: "Between 3 and 24 characters. Use lowercase letters, numbers, dots, hyphens or underscores. Changing it also moves your private maps to the new handle.",
+    gallery_profile_avatar_help: "Paste a public image URL. If you leave it empty, we will use your account photo or your initials.",
+    gallery_profile_bio_help: "Maximum 180 characters. It will appear on your public profile.",
+    gallery_profile_bio_placeholder: "Tell the world what maps you make.",
+    gallery_profile_loading: "Loading profile…",
+    gallery_public_views: "views",
+    gallery_public_no_maps: "has no public maps yet.",
+    gallery_public_not_found: "Profile not found. Visit the gallery to discover public maps.",
+    gallery_public_bio_default: "Public maps created with Maña Maps.",
+    gallery_public_load_failed: "Could not load this profile.",
+    gallery_public_no_views: "No views yet",
     // ── Nominatim Accept-Language ──
     nominatim_lang: "en",
   }
 };
 
-// ── Language detection: localStorage > URL path > browser locale ──
+// ── Language detection: URL ?lang > localStorage > /en path > Spanish ──
 const MANA_LANG_KEY = 'mana-lang';
 const MANA_LEGACY_LANDING_LANG_KEY = 'mana-landing-lang';
 
 function getStoredManaLang() {
-  var stored = localStorage.getItem(MANA_LANG_KEY) || localStorage.getItem(MANA_LEGACY_LANDING_LANG_KEY);
+  var stored = null;
+  try {
+    stored = localStorage.getItem(MANA_LANG_KEY) || localStorage.getItem(MANA_LEGACY_LANDING_LANG_KEY);
+  } catch (e) {}
   return stored && I18N[stored] ? stored : null;
 }
 
 function persistManaLang(lang) {
   if (!I18N[lang]) return;
-  localStorage.setItem(MANA_LANG_KEY, lang);
-  // Keep the legacy landing-page key in sync so older cached pages do not
-  // switch the user back to a different language when navigating home.
-  localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
+  try {
+    localStorage.setItem(MANA_LANG_KEY, lang);
+    // Keep the legacy landing-page key in sync so older cached pages do not
+    // switch the user back to a different language when navigating home.
+    localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
+  } catch (e) {}
 }
 
-// Language detection policy:
-// 1) Persisted setting wins.
-// 2) /en URL path forces EN.
-// 3) Default EN unless browser locale clearly maps to Spain or a Spanish-speaking country.
-var SPANISH_COUNTRIES = {
-  ES: true, AR: true, BO: true, CL: true, CO: true, CR: true, CU: true, DO: true,
-  EC: true, GQ: true, GT: true, HN: true, MX: true, NI: true, PA: true, PE: true,
-  PR: true, PY: true, SV: true, UY: true, VE: true
-};
-
-function getBrowserRegion(navLocale) {
-  if (!navLocale) return '';
-  var locale = String(navLocale).replace('_', '-');
-  var parts = locale.split('-');
-  if (parts.length > 1 && parts[1]) return parts[1].toUpperCase();
-  return '';
+function getUrlManaLang() {
+  try {
+    var lang = new URLSearchParams(window.location.search).get('lang');
+    return lang && I18N[lang] ? lang : null;
+  } catch (e) {
+    return null;
+  }
 }
 
-let LANG = (function() {
+// One policy for every page: an explicit ?lang wins, then the persisted
+// choice, then the /en/ URL prefix and finally Spanish (the site default).
+function resolveManaLang() {
+  var urlLang = getUrlManaLang();
+  if (urlLang) { persistManaLang(urlLang); return urlLang; }
   var stored = getStoredManaLang();
   if (stored) return stored;
-  if (window.location.pathname.startsWith('/en')) return 'en';
+  if (window.location.pathname === '/en' || window.location.pathname.indexOf('/en/') === 0) return 'en';
+  return 'es';
+}
 
-  var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-  var lang2 = nav.slice(0, 2);
-  var region = getBrowserRegion(nav);
+// If the page was opened with an explicit ?lang, keep that parameter in sync
+// when the user toggles the language so a reload does not undo the choice.
+function syncLangUrlParam(lang) {
+  try {
+    var url = new URL(window.location.href);
+    if (!url.searchParams.has('lang')) return;
+    url.searchParams.set('lang', lang);
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+  } catch (e) {}
+}
 
-  if (lang2 === 'ca' || lang2 === 'gl' || lang2 === 'eu') return 'es';
-  if (lang2 === 'es' && region && SPANISH_COUNTRIES[region]) return 'es';
-
-  return 'en';
-})();
+let LANG = resolveManaLang();
+persistManaLang(LANG);
 
 // ── Translation function ──
 function t(key, params) {
@@ -1190,6 +1290,7 @@ function formatMeasureNumber(value, maxDecimals) {
 function applyTranslations(lang) {
   if (lang && I18N[lang]) LANG = lang;
   persistManaLang(LANG);
+  syncLangUrlParam(LANG);
 
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
@@ -1225,9 +1326,14 @@ function applyTranslations(lang) {
     if (val !== key) el.setAttribute('data-tooltip-desc', val);
   });
 
-  // Update lang toggle button label
-  var langLabel = document.querySelector('.tb-lang-label');
-  if (langLabel) langLabel.textContent = (LANG === 'es' ? 'EN' : 'ES');
+  // Keep every language toggle in sync (the label always shows the language
+  // the user will switch to, not the current one).
+  var nextLabel = LANG === 'es' ? 'EN' : 'ES';
+  document.querySelectorAll('.tb-lang-label').forEach(function(el) { el.textContent = nextLabel; });
+  document.querySelectorAll('#lang-btn, #lang-toggle, [data-lang-toggle]').forEach(function(el) {
+    if (!el.querySelector('.tb-lang-label')) el.textContent = nextLabel;
+    el.setAttribute('aria-label', t('lang_toggle_aria'));
+  });
 
   // Update HTML lang attribute
   document.documentElement.lang = LANG === 'en' ? 'en' : 'es';
@@ -1236,13 +1342,50 @@ function applyTranslations(lang) {
   if (window.manaAuth && typeof window.manaAuth.refreshTranslations === 'function') {
     window.manaAuth.refreshTranslations();
   }
+
+  try {
+    window.dispatchEvent(new CustomEvent('mana:languagechange', { detail: { lang: LANG } }));
+  } catch (e) {}
+}
+
+// ── Public language API ──
+function setLanguage(lang) {
+  if (!I18N[lang]) return LANG;
+  applyTranslations(lang);
+  return LANG;
+}
+
+function getLanguage() {
+  return LANG;
 }
 
 // ── Toggle language (called from lang button) ──
 function toggleLang() {
-  LANG = (LANG === 'es') ? 'en' : 'es';
+  return setLanguage(LANG === 'es' ? 'en' : 'es');
+}
+
+// Keep tabs in sync: choosing a language in one tab applies to all of them.
+window.addEventListener('storage', function(e) {
+  if (e.key !== MANA_LANG_KEY && e.key !== MANA_LEGACY_LANDING_LANG_KEY) return;
+  var next = e.newValue;
+  if (next && I18N[next] && next !== LANG) applyTranslations(next);
+});
+
+// Apply on load so plain pages (about, gallery, changelog…) get translations
+// even when they do not call applyTranslations() manually.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { applyTranslations(LANG); });
+} else {
   applyTranslations(LANG);
 }
+
+window.manaLang = {
+  get: getLanguage,
+  set: setLanguage,
+  toggle: toggleLang,
+  apply: applyTranslations,
+  t: t
+};
 
 // ── Inline attribute feedback helper ──
 function attrInlineFeedback(anchorEl, msg, type) {

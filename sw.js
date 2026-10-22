@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v54';
+const CACHE_NAME = 'mana-maps-pwa-v55';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -21,11 +21,11 @@ const PRECACHE_URLS = [
   'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js',
   '/js/firebase-config.local.js',
   '/js/firebase.js',
-  '/js/i18n.js?v=1790749823',
+  '/js/i18n.js?v=1792100000',
   '/js/basemap-config.js?v=1776927833',
   '/js/markers.js?v=1791708010',
   '/js/modal.js?v=1776927826',
-  '/js/map-core.js?v=1792660000',
+  '/js/map-core.js?v=1792660002',
   '/js/map-preview.js?v=1791708010',
   '/js/vector-renderer.js?v=1791708010',
   '/js/stats.js?v=1776927826',

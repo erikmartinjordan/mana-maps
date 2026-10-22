@@ -92,6 +92,20 @@
 
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#ffffff">
+<script>
+(function() {
+  try {
+    var stored = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang');
+    if (!stored) {
+      localStorage.setItem('mana-lang', 'en');
+      localStorage.setItem('mana-landing-lang', 'en');
+    } else if (stored === 'es') {
+      var q = window.location.search.replace(/^\?/, '');
+      window.location.replace('/map/' + (q ? '?' + q + '&lang=es' : '?lang=es'));
+    }
+  } catch (e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -283,9 +297,9 @@
       </div>
     </div>
     <div class="lang-switcher">
-      <a href="/" class="lang-btn" hreflang="es">ES</a>
+      <a href="/map/?lang=es" class="lang-btn" hreflang="es">ES</a>
       <span class="lang-sep">/</span>
-      <a href="/en/" class="lang-btn active" hreflang="en">EN</a>
+      <a href="/en/" class="lang-btn active" hreflang="en" onclick="try{localStorage.setItem('mana-lang','en');localStorage.setItem('mana-landing-lang','en')}catch(e){}">EN</a>
     </div>
     <button class="mobile-toggle" id="mobile-chat-toggle" aria-label="Chat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -738,7 +752,7 @@
 <script src="../js/basemap-config.js"></script>
 <script src="../js/markers.js?v=1791708010"></script>      <!-- color y marcadores -->
 <script src="../js/modal.js"></script>        <!-- diálogo de nombre -->
-<script src="../js/map-core.js?v=1792660000"></script>     <!-- mapa, capas, stats -->
+<script src="../js/map-core.js?v=1792660002"></script>     <!-- mapa, capas, stats -->
 <script src="../js/vector-renderer.js?v=1791708010"></script>  <!-- render vectorial sin drift -->
 <script src="../js/stats.js"></script>      <!-- panel de estadísticas -->
 <script src="../js/globe.js?v=1791708010"></script>        <!-- globo 3D -->

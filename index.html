@@ -726,6 +726,9 @@ var LANG = {
 var MANA_LANG_KEY = 'mana-lang';
 var MANA_LEGACY_LANDING_LANG_KEY = 'mana-landing-lang';
 function getStoredLang() {
+  var urlLang = null;
+  try { urlLang = new URLSearchParams(window.location.search).get('lang'); } catch (e) {}
+  if (urlLang && LANG[urlLang]) return urlLang;
   var stored = localStorage.getItem(MANA_LANG_KEY) || localStorage.getItem(MANA_LEGACY_LANDING_LANG_KEY);
   return LANG[stored] ? stored : 'es';
 }
@@ -738,6 +741,13 @@ function applyLang(lang) {
   var languageChanged = currentLang !== lang;
   currentLang = lang;
   persistLang(lang);
+  try {
+    var url = new URL(window.location.href);
+    if (url.searchParams.has('lang')) {
+      url.searchParams.set('lang', lang);
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    }
+  } catch (e) {}
   document.documentElement.lang = lang;
   var strings = LANG[lang];
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
@@ -771,6 +781,10 @@ function applyLang(lang) {
 }
 function toggleLang() { applyLang(currentLang === 'es' ? 'en' : 'es'); }
 applyLang(currentLang);
+window.addEventListener('storage', function(e) {
+  if (e.key !== MANA_LANG_KEY && e.key !== MANA_LEGACY_LANDING_LANG_KEY) return;
+  if (e.newValue && LANG[e.newValue] && e.newValue !== currentLang) applyLang(e.newValue);
+});
 
 // ── Scroll reveal ──
 (function() {

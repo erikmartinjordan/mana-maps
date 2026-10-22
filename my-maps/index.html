@@ -84,20 +84,21 @@
         <span><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
       </a>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn" href="/gallery/">Galería</a>
-        <a class="btn primary" href="/map/">Nuevo mapa</a>
+        <a class="btn" href="/gallery/" data-i18n="gallery_view_gallery">Galería</a>
+        <button class="btn lang-toggle" id="lang-btn" type="button" onclick="toggleLang()" data-i18n-aria-label="lang_toggle_aria" aria-label="Cambiar idioma. Idioma actual: español. Cambiar a inglés"><span class="tb-lang-label">EN</span></button>
+        <a class="btn primary" href="/map/" data-i18n="gallery_new_map">Nuevo mapa</a>
       </div>
     </header>
 
     <section class="hero">
-      <h1 id="gallery-title">Mis mapas</h1>
-      <p id="gallery-subtitle">Tus mapas guardados. Solo tú puedes verlos.</p>
+      <h1 id="gallery-title" data-i18n="gallery_my_maps_title">Mis mapas</h1>
+      <p id="gallery-subtitle" data-i18n="gallery_my_maps_subtitle">Tus mapas guardados. Solo tú puedes verlos.</p>
     </section>
 
     <div id="login-prompt">
-      <h2>Inicia sesión</h2>
-      <p>Necesitas iniciar sesión para ver tus mapas guardados.</p>
-      <button class="btn primary" onclick="manaAuth.openAuthModal()">Iniciar sesión</button>
+      <h2 data-i18n="gallery_login_needed_title">Inicia sesión</h2>
+      <p data-i18n="gallery_login_needed_text">Necesitas iniciar sesión para ver tus mapas guardados.</p>
+      <button class="btn primary" onclick="manaAuth.openAuthModal()" data-i18n="auth_login_btn">Iniciar sesión</button>
     </div>
 
     <section id="maps-grid"></section>
@@ -109,6 +110,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script defer src="/js/i18n.js"></script>
   <script defer src="/js/auth.js"></script>
   <script defer src="/js/world-land.js"></script>
   <script defer src="/js/map-preview.js?v=1791708010"></script>
@@ -145,8 +147,7 @@
     authModalStyle.textContent = '.share-modal{display:none}.share-modal.open{display:flex}';
     document.head.appendChild(authModalStyle);
 
-    // Global LANG detection
-    var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es';
+    // Language is provided by js/i18n.js (window.manaLang + global LANG).
 
     var _toastTimer = null;
     var _confirmResolve = null;
@@ -281,25 +282,28 @@
       });
     }
 
+    function myMapsT(es, en) { return LANG === 'en' ? en : es; }
+
     async function renderMaps() {
       var grid = document.getElementById('maps-grid');
-      if (!window.manaMaps) { grid.innerHTML = '<div class="empty">Cargando...</div>'; return; }
+      if (!window.manaMaps) { grid.innerHTML = '<div class="empty">' + myMapsT('Cargando...', 'Loading...') + '</div>'; return; }
 
       var handle = window.manaAuth.getHandle();
       var title = document.getElementById('gallery-title');
-      if (title && handle) title.textContent = '@' + handle + ' — Mis mapas';
+      if (title && handle) title.textContent = '@' + handle + ' — ' + myMapsT('Mis mapas', 'My maps');
 
       var maps = await window.manaMaps.listMaps();
       if (!maps.length) {
-        grid.innerHTML = '<div class="empty">Todavía no tienes mapas guardados.<br><a href="/map/">Crea tu primer mapa</a></div>';
+        grid.innerHTML = '<div class="empty">' + myMapsT('Todavía no tienes mapas guardados.', 'You have no saved maps yet.') + '<br><a href="/map/">' + myMapsT('Crea tu primer mapa', 'Create your first map') + '</a></div>';
         return;
       }
 
+      var locale = LANG === 'en' ? 'en-GB' : 'es-ES';
       grid.innerHTML = maps.map(function(m) {
-        var date = m.updatedAt && m.updatedAt.toDate ? m.updatedAt.toDate().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '';
+        var date = m.updatedAt && m.updatedAt.toDate ? m.updatedAt.toDate().toLocaleDateString(locale,{day:'2-digit',month:'short',year:'numeric'}) : '';
         var badge = m.public
-          ? '<span class="badge badge-public">Público</span>'
-          : '<span class="badge badge-private">Privado</span>';
+          ? '<span class="badge badge-public">' + myMapsT('Público', 'Public') + '</span>'
+          : '<span class="badge badge-private">' + myMapsT('Privado', 'Private') + '</span>';
         var preview = renderMapPreviewSVG(m.mapPreview);
         var aspectStyle = '';
         if (window.ManaMapPreview && window.ManaMapPreview.aspectOf) {
@@ -310,21 +314,25 @@
           }
         }
         return '<div class="map-card">' +
-          '<div class="map-card-preview"' + aspectStyle + '>' + (preview || '<span class="map-card-preview-empty">Vista previa no disponible</span>') + '</div>' +
+          '<div class="map-card-preview"' + aspectStyle + '>' + (preview || '<span class="map-card-preview-empty">' + myMapsT('Vista previa no disponible', 'Preview unavailable') + '</span>') + '</div>' +
           '<div class="map-card-body">' +
           '<div class="map-card-title">' + escHtml(m.title) + '</div>' +
-          '<div class="map-card-meta">' + badge + '<span>' + m.featureCount + ' elementos</span><span>' + date + '</span></div>' +
+          '<div class="map-card-meta">' + badge + '<span>' + m.featureCount + ' ' + myMapsT('elementos', 'elements') + '</span><span>' + date + '</span></div>' +
           '<div class="map-card-actions">' +
-            '<a class="btn" href="/map/index.html?load=' + encodeURIComponent(m.id) + '">Editar</a>' +
+            '<a class="btn" href="/map/index.html?load=' + encodeURIComponent(m.id) + '">' + myMapsT('Editar', 'Edit') + '</a>' +
             (m.public
-              ? '<button class="btn" onclick="togglePublish(\'' + m.id + '\', false)">Despublicar</button>'
-              : '<button class="btn" onclick="togglePublish(\'' + m.id + '\', true)">Publicar</button>') +
-            '<button class="btn" style="color:var(--red)" onclick="confirmDelete(\'' + m.id + '\')">Eliminar</button>' +
+              ? '<button class="btn" onclick="togglePublish(\'' + m.id + '\', false)">' + myMapsT('Despublicar', 'Unpublish') + '</button>'
+              : '<button class="btn" onclick="togglePublish(\'' + m.id + '\', true)">' + myMapsT('Publicar', 'Publish') + '</button>') +
+            '<button class="btn" style="color:var(--red)" onclick="confirmDelete(\'' + m.id + '\')">' + myMapsT('Eliminar', 'Delete') + '</button>' +
           '</div>' +
           '</div>' +
         '</div>';
       }).join('');
     }
+
+    window.addEventListener('mana:languagechange', function() {
+      if (window.manaAuth && window.manaAuth.getHandle && window.manaAuth.getHandle()) renderMaps();
+    });
 
     async function togglePublish(mapId, publish) {
       if (publish) {

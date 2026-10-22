@@ -98,6 +98,23 @@ test('language selector exposes the selected language to assistive technology', 
   await expect(page.locator('#lang-status')).toHaveText('Language changed to English.');
 });
 
+test('language choice persists across landing, gallery, pricing and editor', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#lang-btn').click();
+
+  await page.goto('/gallery/');
+  await expect(page.locator('.hero h1')).toHaveText('Map gallery');
+  await expect(page.locator('#lang-btn')).toHaveText('ES');
+
+  await page.goto('/pricing/');
+  await expect(page.locator('h1')).toHaveText('Pricing');
+  await expect(page.locator('#lang-btn .tb-lang-label')).toHaveText('ES');
+
+  await page.goto('/map/');
+  await expect(page.locator('[data-i18n="tool_point"]').first()).toHaveText('Add point');
+  await expect(page.locator('#lang-toggle .tb-lang-label')).toHaveText('ES');
+});
+
 test('landing section labels follow the selected language', async ({ page }) => {
   await page.goto('/');
 
