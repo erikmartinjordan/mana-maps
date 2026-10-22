@@ -64,6 +64,15 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/blog/2026-10-22-cable-submarino-groenlandia-ue/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/blog/2026-10-22-cable-submarino-groenlandia-ue/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/blog/2026-10-22-eu-greenland-submarine-cable/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/blog/2026-10-22-cable-submarino-groenlandia-ue/"/>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/en/blog/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/blog/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/blog/"/>
@@ -86,6 +95,15 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/blog/2026-10-21-kilauea-episode-56/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/blog/2026-10-21-kilauea-episodio-56/"/>
     <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/blog/2026-10-22-eu-greenland-submarine-cable/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/blog/2026-10-22-cable-submarino-groenlandia-ue/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/blog/2026-10-22-eu-greenland-submarine-cable/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/blog/2026-10-22-cable-submarino-groenlandia-ue/"/>
+    <lastmod>2026-10-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>

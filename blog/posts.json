@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-22",
+    "event": "Nueva estrategia del Ártico de la UE y cable submarino panártico para conectar Groenlandia con Europa (20-21 de octubre de 2026)",
+    "mapSlug": "submarine-fiber-cables",
+    "sourceUrls": [
+      "https://digital-strategy.ec.europa.eu/en/news/eu-sets-out-new-strategy-arctic",
+      "https://www.aljazeera.com/news/2026/10/20/eu-revises-arctic-strategy-as-pressure-from-russia-us-grows",
+      "https://www.euronews.com/2026/10/19/eu-eyes-arctic-cable-linking-greenland-to-europe-amid-growing-security-threats",
+      "https://www.heise.de/en/news/EU-plans-Arctic-data-cable-11496221.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "2026-10-22-cable-submarino-groenlandia-ue",
+        "url": "/blog/2026-10-22-cable-submarino-groenlandia-ue/",
+        "title": "La UE proyecta un cable submarino para unir Groenlandia con Europa",
+        "description": "Bruselas presenta su estrategia del Ártico y apuesta por un cable submarino entre Groenlandia y la UE. El mapa de cables ayuda a leer las rutas actuales."
+      },
+      "en": {
+        "slug": "2026-10-22-eu-greenland-submarine-cable",
+        "url": "/en/blog/2026-10-22-eu-greenland-submarine-cable/",
+        "title": "The EU plans a submarine cable to link Greenland with Europe",
+        "description": "Brussels sets out its Arctic strategy with a submarine cable linking Greenland to the EU. The submarine-cable map helps make sense of the routes in place today."
+      }
+    }
+  },
+  {
     "date": "2026-10-21",
     "event": "Pausa del Kilauea tras el episodio 55 y previsión del episodio 56 (17-20 de octubre de 2026)",
     "mapSlug": "active-volcanoes-world",
