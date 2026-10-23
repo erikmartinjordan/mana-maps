@@ -11,14 +11,14 @@
     ],
     "translations": {
       "es": {
-        "slug": "2026-10-23-terremoto-nagqu-tibet",
-        "url": "/blog/2026-10-23-terremoto-nagqu-tibet/",
+        "slug": "terremoto-nagqu-tibet",
+        "url": "/terremoto-nagqu-tibet/",
         "title": "El terremoto de Nagqu deja al menos 16 muertos en el Tíbet",
         "description": "Un seísmo de magnitud 7,0 en Nagqu (Tíbet) deja al menos 16 muertos y decenas de heridos. El mapa de los mayores terremotos ayuda a leer el contexto sísmico."
       },
       "en": {
-        "slug": "2026-10-23-tibet-nagqu-earthquake",
-        "url": "/en/blog/2026-10-23-tibet-nagqu-earthquake/",
+        "slug": "tibet-nagqu-earthquake",
+        "url": "/en/tibet-nagqu-earthquake/",
         "title": "Magnitude 7 earthquake in Tibet kills at least 16 people",
         "description": "A magnitude 7.0 earthquake in Nagqu, Tibet, has killed at least 16 people and injured dozens. The largest-earthquakes map sets out the regional context."
       }
@@ -36,14 +36,14 @@
     ],
     "translations": {
       "es": {
-        "slug": "2026-10-22-cable-submarino-groenlandia-ue",
-        "url": "/blog/2026-10-22-cable-submarino-groenlandia-ue/",
+        "slug": "cable-submarino-groenlandia-ue",
+        "url": "/cable-submarino-groenlandia-ue/",
         "title": "La UE proyecta un cable submarino para unir Groenlandia con Europa",
         "description": "Bruselas presenta su estrategia del Ártico y apuesta por un cable submarino entre Groenlandia y la UE. El mapa de cables ayuda a leer las rutas actuales."
       },
       "en": {
-        "slug": "2026-10-22-eu-greenland-submarine-cable",
-        "url": "/en/blog/2026-10-22-eu-greenland-submarine-cable/",
+        "slug": "eu-greenland-submarine-cable",
+        "url": "/en/eu-greenland-submarine-cable/",
         "title": "The EU plans a submarine cable to link Greenland with Europe",
         "description": "Brussels sets out its Arctic strategy with a submarine cable linking Greenland to the EU. The submarine-cable map helps make sense of the routes in place today."
       }
@@ -59,14 +59,14 @@
     ],
     "translations": {
       "es": {
-        "slug": "2026-10-21-kilauea-episodio-56",
-        "url": "/blog/2026-10-21-kilauea-episodio-56/",
+        "slug": "kilauea-episodio-56",
+        "url": "/kilauea-episodio-56/",
         "title": "El Kilauea entra en pausa a la espera del episodio 56",
         "description": "El episodio 55 de fuentes de lava duró menos de seis horas y terminó el 17 de octubre. El USGS prevé el siguiente entre el 27 de octubre y el 6 de noviembre. El mapa de volcanes activos sitúa el cráter en el Pacífico."
       },
       "en": {
-        "slug": "2026-10-21-kilauea-episode-56",
-        "url": "/en/blog/2026-10-21-kilauea-episode-56/",
+        "slug": "kilauea-episode-56",
+        "url": "/en/kilauea-episode-56/",
         "title": "Kilauea pauses as USGS forecasts episode 56",
         "description": "Episode 55 of lava fountaining lasted less than six hours and ended on 17 October. The USGS expects the next episode between 27 October and 6 November. The active-volcanoes map places the crater in the Pacific."
       }
@@ -82,14 +82,14 @@
     ],
     "translations": {
       "es": {
-        "slug": "2026-10-19-revueltas-europa",
-        "url": "/blog/2026-10-19-revueltas-europa/",
+        "slug": "revueltas-europa",
+        "url": "/revueltas-europa/",
         "title": "Francia, Italia y Bélgica: la revuelta va más allá de las aulas",
         "description": "El fin de semana del 17 y 18 de octubre, cientos de miles de personas salieron a la calle en Francia. Italia y Bélgica se sumaron con protestas estudiantiles. El mapa de desigualdad de ingresos ayuda a contextualizar el malestar, pero también muestra sus límites."
       },
       "en": {
-        "slug": "2026-10-19-revolts-europe",
-        "url": "/en/blog/2026-10-19-revolts-europe/",
+        "slug": "revolts-europe",
+        "url": "/en/revolts-europe/",
         "title": "France, Italy and Belgium: the revolt goes beyond the classroom",
         "description": "Over the weekend of 17-18 October, hundreds of thousands of people took to the streets in France. Italy and Belgium joined with student protests. The income-inequality map helps contextualise the unrest, but it also shows its limits."
       }

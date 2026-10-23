@@ -248,7 +248,7 @@ function buildLandingHTML(m, all) {
     <span>© Maña Maps</span>
   </footer>
   <script defer src="/js/firebase-config.local.js"></script>
-  <script defer src="/js/tracking.js?v=1792741000"></script>
+  <script defer src="/js/tracking.js?v=1792742000"></script>
 </body>
 </html>
 `;

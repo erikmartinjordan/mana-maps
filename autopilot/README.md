@@ -16,9 +16,9 @@ WhatsApp, datos y generadores de estrategia. Nada de eso se versiona aquí.
 - `agents/mapmaker.md` — crea mapas nuevos (pipelina dato real → Firestore).
 - `agents/ideator.md` — audita la galería y propone tareas en `BACKLOG.md`.
 - `agents/reviewer.md` — subagente que revisa `git diff` sin modificar (`agents/chat.md` vive solo en el iMac).
-- `agents/blogger.md` — escribe cada día un post bilingüe (ES/EN) con un mapa interactivo. El scheduling y el runner están en `blogger/`; ver `blogger/README.md`.
+- `agents/blogger.md` — escribe cada día una pieza bilingüe de News (ES/EN) con un mapa interactivo. El scheduling y el runner están en `blogger/`; ver `blogger/README.md`.
 
-## Blog diario (en el iMac)
+## News diario (en el iMac)
 
 El agente `blogger` se ejecuta a diario a las 08:00 con
 `autopilot/blogger/run_blogger.sh` y el LaunchAgent

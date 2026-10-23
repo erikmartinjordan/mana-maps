@@ -1,5 +1,5 @@
 ---
-description: Escribe el post diario de actualidad con un mapa interactivo de Maña Maps.
+description: Escribe la pieza diaria de News con un mapa interactivo de Maña Maps.
 agent: blogger
 ---
 

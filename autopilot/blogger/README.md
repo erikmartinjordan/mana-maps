@@ -1,6 +1,6 @@
-# Blog diario (ES + EN)
+# News diario (ES + EN)
 
-El agente `blogger` escribe una noticia diaria en español e inglés con un mapa
+El agente `blogger` escribe una pieza diaria de News en español e inglés con un mapa
 interactivo del editor de Maña Maps. El prompt canónico vive en
 `autopilot/agents/blogger.md` y es el único sitio donde se mantiene.
 
@@ -52,12 +52,12 @@ launchctl load ~/Library/LaunchAgents/com.mana-maps.blogger.plist
 Se ejecuta todos los días a las 08:00 (hora local). Para cambiar la hora,
 edita `StartCalendarInterval` en el plist y vuelve a cargarlo.
 
-Los logs quedan en `~/autopilot/logs/blog-AAAAMMDD-HHMM.log`.
+Los logs quedan en `~/autopilot/logs/news-AAAAMMDD-HHMM.log`.
 
 ## Autonomía ante árbol sucio
 
 El runner y el loop llaman a `~/autopilot/scripts/recover_workspace.sh` antes
-de sincronizar. Si solo hay cambios de blog (`blog/`, `en/blog/`, `sitemap.xml`)
+de sincronizar. Si solo hay cambios de News (`news/`, `en/news/`, artículos en la raíz, `sitemap.xml`)
 los commitea y publica en `main`; cualquier otro cambio se preserva en una rama
 `autopilot/rescue-<fecha>` y el workspace vuelve limpio. Así un post a medias
 ya no bloquea el autopilot.

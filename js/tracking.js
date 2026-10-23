@@ -177,27 +177,39 @@
       lang: (document.documentElement && document.documentElement.lang) || '',
       title: document.title || ''
     };
-    // Blog: enriquece el evento para poder medir visitas por artículo y mapa.
-    // El path del post es /blog/<slug>/ o /en/blog/<slug>/; los índices son
-    // /blog/ y /en/blog/.
+    // News: enriquece el evento para poder medir visitas por artículo y mapa.
+    // Los artículos declaran data-page-type="news", data-slug y data-map-slug;
+    // los índices usan data-page-type="news_index". Así funciona también con
+    // URLs limpias en la raíz (/<slug>/ y /en/<slug>/).
     try {
-      var pathOnly = location.pathname;
-      var blogMatch = pathOnly.match(/^\/(en\/)?blog\/([^/]+)\/?(?:index\.html)?$/);
-      if (blogMatch) {
-        params.contentType = 'blog';
-        params.slug = blogMatch[2];
-        params.lang = blogMatch[1] ? 'en' : 'es';
-        var iframe = document.querySelector('iframe[src*="/map/?gallery="]') ||
-          document.querySelector('iframe[src*="gallery="]');
-        if (iframe) {
-          var raw = iframe.getAttribute('src') || '';
-          var query = raw.split('?')[1] || '';
-          var mapSlug = new URLSearchParams(query).get('gallery');
-          if (mapSlug) params.mapSlug = mapSlug;
+      var rootEl = document.documentElement;
+      var pageType = rootEl.getAttribute('data-page-type') || '';
+      if (pageType === 'news' || pageType === 'news_index') {
+        params.contentType = pageType;
+        params.lang = rootEl.getAttribute('lang') || params.lang;
+        var pageSlug = rootEl.getAttribute('data-slug') || '';
+        if (pageSlug) params.slug = pageSlug;
+        var dataMap = rootEl.getAttribute('data-map-slug') || '';
+        if (dataMap) {
+          params.mapSlug = dataMap;
+        } else {
+          var iframe = document.querySelector('iframe[src*="/map/?gallery="]') ||
+            document.querySelector('iframe[src*="gallery="]');
+          if (iframe) {
+            var raw = iframe.getAttribute('src') || '';
+            var query = raw.split('?')[1] || '';
+            var mapSlug = new URLSearchParams(query).get('gallery');
+            if (mapSlug) params.mapSlug = mapSlug;
+          }
         }
-      } else if (pathOnly === '/blog/' || pathOnly === '/en/blog/') {
-        params.contentType = 'blog_index';
-        params.lang = pathOnly === '/en/blog/' ? 'en' : 'es';
+      } else {
+        // Compatibilidad con URLs antiguas /blog/... que aún lleguen por enlaces.
+        var legacy = location.pathname.match(/^\/(en\/)?blog\/([^/]+)\/?(?:index\.html)?$/);
+        if (legacy) {
+          params.contentType = 'news';
+          params.slug = legacy[2];
+          params.lang = legacy[1] ? 'en' : 'es';
+        }
       }
     } catch (e) {}
     if (loc) params.location = loc;

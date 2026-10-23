@@ -6,7 +6,7 @@ REPO="$ROOT/workspaces/mana-maps"
 LOG_DIR="$ROOT/logs"
 RECOVER="$ROOT/scripts/recover_workspace.sh"
 mkdir -p "$LOG_DIR"
-LOG="$LOG_DIR/blog-$(date +%Y%m%d-%H%M).log"
+LOG="$LOG_DIR/news-$(date +%Y%m%d-%H%M).log"
 
 export PATH="$HOME/bin:$HOME/node/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
@@ -63,7 +63,7 @@ fi
 OPDIR=$(printf '%s' "$REPO" | sed "s|^$HOME|/home/erik|")
 
 opencode run --dir "$OPDIR" --agent blogger --auto $MODEL_OPT \
-  "Escribe y publica el post diario bilingüe (es/en) con un mapa interactivo. Sigue autopilot/agents/blogger.md. No termines sin haber hecho commit y push a main y sin dejar git status limpio." \
+  "Escribe y publica la pieza diaria de News bilingüe (es/en) con un mapa interactivo. Sigue autopilot/agents/blogger.md. No termines sin haber hecho commit y push a main y sin dejar git status limpio." \
   >>"$LOG" 2>&1
 AGENT_RC=$?
 echo "OPENCODE_RC=$AGENT_RC" >>"$LOG"
