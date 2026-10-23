@@ -177,6 +177,29 @@
       lang: (document.documentElement && document.documentElement.lang) || '',
       title: document.title || ''
     };
+    // Blog: enriquece el evento para poder medir visitas por artículo y mapa.
+    // El path del post es /blog/<slug>/ o /en/blog/<slug>/; los índices son
+    // /blog/ y /en/blog/.
+    try {
+      var pathOnly = location.pathname;
+      var blogMatch = pathOnly.match(/^\/(en\/)?blog\/([^/]+)\/?(?:index\.html)?$/);
+      if (blogMatch) {
+        params.contentType = 'blog';
+        params.slug = blogMatch[2];
+        params.lang = blogMatch[1] ? 'en' : 'es';
+        var iframe = document.querySelector('iframe[src*="/map/?gallery="]') ||
+          document.querySelector('iframe[src*="gallery="]');
+        if (iframe) {
+          var raw = iframe.getAttribute('src') || '';
+          var query = raw.split('?')[1] || '';
+          var mapSlug = new URLSearchParams(query).get('gallery');
+          if (mapSlug) params.mapSlug = mapSlug;
+        }
+      } else if (pathOnly === '/blog/' || pathOnly === '/en/blog/') {
+        params.contentType = 'blog_index';
+        params.lang = pathOnly === '/en/blog/' ? 'en' : 'es';
+      }
+    } catch (e) {}
     if (loc) params.location = loc;
     track('sessionstart', params);
   });

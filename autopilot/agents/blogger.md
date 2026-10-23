@@ -53,6 +53,11 @@ El post debe parecer parte del sitio actual, no un blog con estilos propios:
 - Pie **Opción C** en ambos idiomas: bloque negro `footer-cta-dark` con CTA y
   `footer-links` a mapas relacionados. Nada de selector de variantes en el
   archivo final.
+- **Tracking:** incluye antes de `</body>` en las cuatro páginas
+  `<script defer src="/js/firebase-config.local.js"></script>` y
+  `<script defer src="/js/tracking.js?v=1792741000"></script>`. El evento
+  `sessionstart` añade `contentType=blog`, `slug` y `mapSlug`; no dupliques
+  eventos ni añadas analítica externa.
 - **No menciones la marca en la prosa.** La única mención visible en el cuerpo
   es el crédito del mapa, debajo del iframe:
   `Mapa interactivo: Maña Maps · Datos: <fuente y año>` en español y

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v57';
+const CACHE_NAME = 'mana-maps-pwa-v58';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -48,7 +48,7 @@ const PRECACHE_URLS = [
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js',
   '/js/auth.js?v=1776927826',
   '/js/user-maps.js?v=1776927826',
-  '/js/tracking.js?v=1776927826',
+  '/js/tracking.js?v=1792741000',
   '/js/collab.js?v=1776927826',
   '/js/plans.js?v=1776927826',
   '/js/upsell.js?v=1776927826',
