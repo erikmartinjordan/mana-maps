@@ -88,6 +88,7 @@ async function main() {
     allowPublicEdit: fsBool(false), isPublished: fsBool(true),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
+    initialView: fsMap({ center: fsArr([93.7797, 32.3805]), zoom: fsInt(3), mode: fsStr('2d') }),
     dataSource: fsStr('USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700; evento us6000u43g (Nagqu, 22-10-2026) para el destacado reciente.'),
     dataDate: fsStr('2026-10-22'),
     dataYear: fsInt(2026),

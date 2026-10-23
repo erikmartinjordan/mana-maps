@@ -414,7 +414,21 @@ async function restoreFromURL() {
           await _importRestoredGeoJSON(galleryGeo);
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
-              try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
+              try {
+                var initialView = galleryPayload.initialView;
+                if (initialView && Array.isArray(initialView.center) && initialView.center.length === 2) {
+                  var vLng = Number(initialView.center[0]);
+                  var vLat = Number(initialView.center[1]);
+                  var vZoom = Number(initialView.zoom);
+                  if (!isFinite(vZoom)) vZoom = 3;
+                  if (initialView.mode === '2d' && typeof setBaseLayer === 'function') {
+                    try { setBaseLayer('map'); } catch(e) {}
+                  }
+                  map.setView([vLat, vLng], vZoom, { animate: false });
+                } else {
+                  map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false });
+                }
+              } catch(e) {}
             });
           }
           incrementPublishedMapView(db, gallerySlug, galleryPayload);

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v54';
+const CACHE_NAME = 'mana-maps-pwa-v57';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -39,7 +39,7 @@ const PRECACHE_URLS = [
   '/js/import-export.js?v=1792660000',
   '/js/chat.js?v=1776927827',
   '/js/undo-redo.js?v=1776927827',
-  '/js/persistence.js?v=1792660000',
+  '/js/persistence.js?v=1792740000',
   '/js/gallery.js?v=1776927826',
   '/js/ogc-loader.js?v=1776927826',
   '/js/responsive.js?v=1776927826',
