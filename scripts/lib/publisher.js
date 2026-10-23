@@ -82,6 +82,15 @@ function firestoreRequest(token, method, urlPath, body) {
 }
 
 // Firestore value helpers
+const FS_VALUE_KEYS = {
+  nullValue: 1, stringValue: 1, integerValue: 1, doubleValue: 1,
+  booleanValue: 1, timestampValue: 1, arrayValue: 1, mapValue: 1
+};
+function isFsValue(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  const keys = Object.keys(v);
+  return keys.length === 1 && !!FS_VALUE_KEYS[keys[0]];
+}
 function fsStr(v) { return v != null ? { stringValue: String(v) } : { stringValue: '' }; }
 function fsInt(v) { return { integerValue: String(v) }; }
 function fsBool(v) { return { booleanValue: !!v }; }
@@ -90,7 +99,7 @@ function fsArr(arr) { return { arrayValue: { values: (arr || []).map(v => {
   if (typeof v === 'number') return fsNum(v);
   if (typeof v === 'boolean') return fsBool(v);
   if (Array.isArray(v)) return fsArr(v);
-  if (v && typeof v === 'object') return fsMap(v);
+  if (v && typeof v === 'object') return isFsValue(v) ? v : fsMap(v);
   return fsNull();
 }) } }; }
 function fsNum(v) { return Number.isInteger(v) ? fsInt(v) : { doubleValue: v }; }
@@ -103,7 +112,7 @@ function fsMap(obj) {
     else if (typeof v === 'number') fields[k] = fsNum(v);
     else if (typeof v === 'boolean') fields[k] = fsBool(v);
     else if (Array.isArray(v)) fields[k] = fsArr(v);
-    else if (typeof v === 'object') fields[k] = fsMap(v);
+    else if (typeof v === 'object') fields[k] = isFsValue(v) ? v : fsMap(v);
     else fields[k] = fsStr(String(v));
   }
   return { mapValue: { fields } };
