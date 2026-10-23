@@ -2,9 +2,9 @@
 // ── gen-biggest-earthquakes-world.js ─
 // Genera data/maps/biggest-earthquakes-world.geojson a partir del catálogo FDSN
 // del USGS Earthquake Hazards Program (ComCat): todos los eventos M≥8 desde
-// 1700. Una feature Point por epicentro real, markerType emoji_collision,
-// icono escalado por magnitud (_manaEmojiSize) y rampa monocromática roja
-// ordenada por la magnitud (AGENTS.md §3).
+// 1700. Una feature Point por epicentro real, markerType emoji_collision e
+// icono escalado por magnitud. Los históricos van en rojo y el terremoto de
+// Nagqu de 2026 (M7,0) se añade como referencia destacada en azul.
 //
 // Uso:
 //   node scripts/maps/gen-biggest-earthquakes-world.js [--fetch]
@@ -175,12 +175,15 @@ const NOTE_BY_EID = {
   usp0008hzd: 'Sismo oceánico profundo en las islas Balleny, al sur del círculo polar antártico.',
 };
 
-const GROUP_NAME = 'Terremotos de magnitud ≥ 8';
+const HISTORICAL_GROUP = 'Histórico M≥8';
+const HIGHLIGHT_GROUP = 'Nagqu 2026';
 const GROUP_ID = 1;
 const MARKER_TYPE = 'emoji_collision';
+const HISTORICAL_COLOR = '#B91C1C';
+const HIGHLIGHT_COLOR = '#0EA5E9';
 const DATA_SOURCE =
-  'USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700.';
-const DATA_DATE = '2026-10-06';
+  'USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700; evento us6000u43g (Nagqu, 22-10-2026) para el destacado reciente.';
+const DATA_DATE = '2026-10-22';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -195,26 +198,6 @@ function eventId(props) {
   return url ? url.replace(/\/$/, '').split('/').pop() : `${props.net || ''}${props.code || ''}`;
 }
 
-// Rampa monocromática roja (claro→oscuro) por cuantiles de magnitud.
-function monoRedRamp(steps = 6) {
-  const out = [];
-  for (let i = 0; i < steps; i++) {
-    const t = steps === 1 ? 0 : i / (steps - 1);
-    const l = 88 - t * 62;  // 88% → 26% luminosidad
-    const s = 55 + t * 30;  // 55% → 85% saturación
-    // hsl(0, s, l) → hex
-    const c = (1 - Math.abs(2 * (l / 100) - 1)) * (s / 100);
-    const x = c * (1 - Math.abs(((0 / 60) % 2) - 1));
-    const m = l / 100 - c / 2;
-    const r = Math.round((c + m) * 255);
-    const g = Math.round((x + m) * 255);
-    const b = Math.round((0 + m) * 255);
-    const hx = (v) => v.toString(16).padStart(2, '0');
-    out.push(`#${hx(r)}${hx(g)}${hx(b)}`);
-  }
-  return out;
-}
-
 function emojiSizeForMag(mag) {
   // 8.0 → 22 px ; 9.5 → 66 px (escala por magnitud, rango soportado 22-66)
   const t = Math.max(0, Math.min(1, (mag - 8) / 1.5));
@@ -224,17 +207,6 @@ function emojiSizeForMag(mag) {
 function buildFeatures(raw) {
   const feats = raw.features || [];
   const sorted = feats.slice().sort((a, b) => (b.properties.mag || 0) - (a.properties.mag || 0));
-  const mags = sorted.map((f) => f.properties.mag).filter((m) => Number.isFinite(m));
-  const ramp = monoRedRamp(6);
-
-  // Cuantiles de magnitud → paso de rampa (claro = menos potente)
-  function colorForMag(mag) {
-    const below = mags.filter((m) => m <= mag).length;
-    const t = mags.length <= 1 ? 1 : (below - 1) / (mags.length - 1);
-    const idx = Math.max(0, Math.min(ramp.length - 1, Math.round(t * (ramp.length - 1))));
-    return ramp[idx];
-  }
-
   const out = [];
   const seenNames = new Set();
   for (const f of sorted) {
@@ -272,12 +244,12 @@ function buildFeatures(raw) {
       properties: {
         _manaName: unique,
         name: unique,
-        _manaColor: colorForMag(mag),
+        _manaColor: HISTORICAL_COLOR,
         _manaFillOpacity: 0.9,
         _manaWeight: 1.2,
         _manaBorderColor: '#ffffff',
         _manaGeometryType: 'point',
-        _manaGroupName: GROUP_NAME,
+        _manaGroupName: HISTORICAL_GROUP,
         _manaGroupId: GROUP_ID,
         markerType: MARKER_TYPE,
         _manaMarkerType: MARKER_TYPE,
@@ -302,12 +274,57 @@ function buildFeatures(raw) {
         'Lugar (USGS)': p.place || '—',
         Tsunami: tsunami,
         'Código USGS': eid,
+        Tipo: 'Histórico M≥8',
         Dato: `M ${magTxt} · ${depthTxt} · ${year || '—'}`,
         Description: description,
       },
       geometry: { type: 'Point', coordinates: [lon, lat] },
     });
   }
+
+  // Referencia reciente: Nagqu 2026 (M7,0), fuera del umbral M8 del catálogo
+  // histórico, pero útil para comparar la escala con los grandes sismos.
+  out.push({
+    type: 'Feature',
+    properties: {
+      _manaName: 'Terremoto de Nagqu de 2026 (Tíbet)',
+      name: 'Terremoto de Nagqu de 2026 (Tíbet)',
+      _manaColor: HIGHLIGHT_COLOR,
+      _manaFillOpacity: 0.95,
+      _manaWeight: 1.2,
+      _manaBorderColor: '#ffffff',
+      _manaGeometryType: 'point',
+      _manaGroupName: HIGHLIGHT_GROUP,
+      _manaGroupId: 2,
+      markerType: MARKER_TYPE,
+      _manaMarkerType: MARKER_TYPE,
+      _manaEmojiSize: 50,
+      _manaLabelStyle: {
+        enabled: true,
+        field: '_manaName',
+        fontFamily: 'monospace',
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#075985',
+        haloWidth: 3,
+        haloColor: '#ffffff',
+        opacity: 0.95,
+        placement: 'auto',
+      },
+      Tipo: 'Nagqu 2026',
+      Magnitud: 7.0,
+      'Profundidad (km)': 18,
+      Año: 2026,
+      Fecha: '2026-10-22',
+      'Lugar (USGS)': '191 km ENE of Nagqu, China',
+      Tsunami: 'No',
+      'Código USGS': 'us6000u43g',
+      Dato: 'M 7,0 · 18 km · 2026',
+      Description: 'Terremoto de magnitud 7,0 en Nagqu (Tíbet), con epicentro en Maru (condado de Baqen), a 191 km al este-noreste de Nagqu. Profundidad focal: 18 km (USGS; 10 km según CENC). Al menos 16 muertos y decenas de heridos; 339 viviendas derrumbadas o dañadas. Se muestra como referencia reciente: no alcanza el umbral M8 del resto del mapa.',
+    },
+    geometry: { type: 'Point', coordinates: [93.7797, 32.3805] },
+  });
+
   return out;
 }
 
@@ -346,7 +363,10 @@ async function main() {
   const popupOk = features.every((f) =>
     ['Magnitud', 'Año', 'Dato', 'Description'].every((k) => f.properties[k] != null && f.properties[k] !== '')
   );
-  const magsOk = features.every((f) => Number.isFinite(f.properties.Magnitud) && f.properties.Magnitud >= 8);
+  const historical = features.filter((f) => f.properties.Tipo === 'Histórico M≥8');
+  const highlight = features.find((f) => f.properties.Tipo === 'Nagqu 2026');
+  const magsOk = historical.every((f) => Number.isFinite(f.properties.Magnitud) && f.properties.Magnitud >= 8) &&
+    !!highlight && highlight.properties.Magnitud === 7;
   // Palabras de área prohibidas en el nombre (auditoría §2 del repo)
   const AREA_RE = /(?:^|\s)(?:desiertos?|pa[ií]ses?|regi[oó]ns?|islas?|oc[eé]anos?|mar de|mares?|lagos?|bosques?|glaciares?|pen[ií]nsulas?|archipi[eé]lagos?|deltas?|arrecifes?)\b/i;
   const areaNameOk = features.every((f) => !AREA_RE.test(f.properties._manaName));
@@ -356,6 +376,7 @@ async function main() {
   console.log(`coords: ${coordsOk} | nombres únicos: ${uniqueOk} | popups: ${popupOk} | M≥8: ${magsOk} | sin palabras de área: ${areaNameOk}`);
   const magVals = features.map((f) => f.properties.Magnitud);
   console.log(`magnitud: min ${fmtEs(Math.min(...magVals))} max ${fmtEs(Math.max(...magVals))}`);
+  console.log(`históricos M≥8: ${historical.length} | destacado Nagqu: M${fmtEs(highlight?.properties?.Magnitud)}`);
   if (!hexOk || !haloOk || !markerOk || !scaleOk || !coordsOk || !uniqueOk || !popupOk || !magsOk || !areaNameOk) {
     console.error('VALIDATION FAILED');
     process.exit(1);

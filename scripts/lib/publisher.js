@@ -85,7 +85,14 @@ function firestoreRequest(token, method, urlPath, body) {
 function fsStr(v) { return v != null ? { stringValue: String(v) } : { stringValue: '' }; }
 function fsInt(v) { return { integerValue: String(v) }; }
 function fsBool(v) { return { booleanValue: !!v }; }
-function fsArr(arr) { return { arrayValue: { values: (arr || []).map(v => { if (typeof v === 'string') return fsStr(v); if (typeof v === 'number') return fsNum(v); if (typeof v === 'boolean') return fsBool(v); return v; }) } }; }
+function fsArr(arr) { return { arrayValue: { values: (arr || []).map(v => {
+  if (typeof v === 'string') return fsStr(v);
+  if (typeof v === 'number') return fsNum(v);
+  if (typeof v === 'boolean') return fsBool(v);
+  if (Array.isArray(v)) return fsArr(v);
+  if (v && typeof v === 'object') return fsMap(v);
+  return fsNull();
+}) } }; }
 function fsNum(v) { return Number.isInteger(v) ? fsInt(v) : { doubleValue: v }; }
 function fsNull() { return { nullValue: null }; }
 function fsMap(obj) {

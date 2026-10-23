@@ -105,9 +105,13 @@ function buildMapSVG(geo, worldLandPath) {
     if (!g) continue;
     if (g.type === 'Point' || g.type === 'MultiPoint') {
       const pts = g.type === 'Point' ? [g.coordinates] : g.coordinates;
+      const emojiSize = Number(f.properties && f.properties._manaEmojiSize);
+      const radius = Number.isFinite(emojiSize) && emojiSize > 0
+        ? Math.max(3, Math.min(10, emojiSize / 7))
+        : (weight * 1.6 + 2);
       for (const [x, y] of pts) {
         if (typeof x !== 'number' || typeof y !== 'number') continue;
-        paths += '<circle cx="' + tx(x).toFixed(1) + '" cy="' + ty(mercY(y)).toFixed(1) + '" r="' + (weight * 1.6 + 2).toFixed(1) + '" fill="' + color + '" stroke="rgba(255,255,255,0.85)" stroke-width="1.4"/>';
+        paths += '<circle cx="' + tx(x).toFixed(1) + '" cy="' + ty(mercY(y)).toFixed(1) + '" r="' + radius.toFixed(1) + '" fill="' + color + '" stroke="rgba(255,255,255,0.85)" stroke-width="1.4"/>';
         bounds++;
       }
       continue;

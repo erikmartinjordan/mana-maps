@@ -2,7 +2,7 @@
 // ── publish-biggest-earthquakes-world.js ─
 // Mapa puntual: Los terremotos más potentes de la historia
 // Fuente: USGS Earthquake Hazards Program — catálogo ComCat/FDSN (M≥8 desde 1700)
-// Point + emoji_collision escalado por magnitud; rampa mono roja por magnitud
+// Point + emoji_collision: históricos M≥8 en rojo y Nagqu 2026 (M7,0) en azul
 // Publica el documento maps/<slug> en Firestore (mana-maps-pro-f2177).
 'use strict';
 const fs = require('fs'), path = require('path');
@@ -69,7 +69,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Los 104 terremotos de magnitud 8 o superior registrados por el USGS desde 1700, cada uno en su epicentro real, con magnitud, profundidad y año. El gran terremoto de Valdivia de 1960 (Chile), de magnitud 9,5, sigue siendo el más potente jamás medido por instrumentos; le siguen Alaska 1964 (9,2), Sumatra 2004 (9,1) y Tōhoku 2011 (9,1). La secuencia de Yakutat de 1899 incluye dos sismos M8,16 separados por seis días, y el día previo al de Valdivia ya hubo un M8,1 en Cañete: a veces el aviso llega antes que la catástrofe.'),
+    description: fsStr('Los 104 terremotos de magnitud 8 o superior registrados por el USGS desde 1700, más el terremoto de Nagqu de 2026 (M7,0) destacado en azul como referencia reciente. El gran terremoto de Valdivia de 1960 (Chile), de magnitud 9,5, sigue siendo el más potente jamás medido por instrumentos; le siguen Alaska 1964 (9,2), Sumatra 2004 (9,1) y Tōhoku 2011 (9,1). La secuencia de Yakutat de 1899 incluye dos sismos M8,16 separados por seis días, y el día previo al de Valdivia ya hubo un M8,1 en Cañete: a veces el aviso llega antes que la catástrofe.'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
@@ -88,16 +88,22 @@ async function main() {
     allowPublicEdit: fsBool(false), isPublished: fsBool(true),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
-    dataSource: fsStr('USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700.'),
-    dataDate: fsStr('2026-10-06'),
+    dataSource: fsStr('USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700; evento us6000u43g (Nagqu, 22-10-2026) para el destacado reciente.'),
+    dataDate: fsStr('2026-10-22'),
     dataYear: fsInt(2026),
     tags: fsArr(['Naturaleza', 'Geología', 'Desastres']),
-    legendKey: fsStr('Magnitud'),
-    legendTitle: fsStr('Magnitud (escala Richter)'),
-    legendFormat: fsStr('number'),
+    legendKey: fsStr('Tipo'),
+    legendTitle: fsStr('Terremotos'),
+    legendFormat: fsStr('category'),
+    legend: fsMap({
+      title: 'Terremotos',
+      steps: [
+        { v: 1, c: '#B91C1C', label: 'Histórico M≥8' },
+        { v: 2, c: '#0EA5E9', label: 'Nagqu 2026 (M7,0)' }
+      ]
+    }),
     authorHandle: fsStr('maña-maps'), createdBy: fsStr('maña-maps'), ownerUid: fsStr('maña-maps'),
-    createdAtMs: fsInt(now), updatedAtMs: fsInt(now), createdAt: serverNow, updatedAt: serverNow,
-    views: fsInt(0), likes: fsInt(0)
+    updatedAtMs: fsInt(now), updatedAt: serverNow
   };
 
   if (DRY_RUN) {
