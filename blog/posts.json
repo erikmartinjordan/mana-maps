@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-23",
+    "event": "Terremoto de magnitud 7,0 en Baqen, Nagqu (Tíbet), con al menos 16 muertos (22-23 de octubre de 2026)",
+    "mapSlug": "biggest-earthquakes-world",
+    "sourceUrls": [
+      "https://apnews.com/article/china-earthquake-tibet-be27a2db79ada1c6309914d173b983a8",
+      "https://english.news.cn/20261023/c133fa4affa5419d93ccb4fc4f47f148/c.html",
+      "https://earthquake.usgs.gov/earthquakes/eventpage/us6000u43g",
+      "https://www.channelnewsasia.com/world/china-tibet-earthquake-16-dead-6484266"
+    ],
+    "translations": {
+      "es": {
+        "slug": "2026-10-23-terremoto-nagqu-tibet",
+        "url": "/blog/2026-10-23-terremoto-nagqu-tibet/",
+        "title": "El terremoto de Nagqu deja al menos 16 muertos en el Tíbet",
+        "description": "Un seísmo de magnitud 7,0 en Nagqu (Tíbet) deja al menos 16 muertos y decenas de heridos. El mapa de los mayores terremotos ayuda a leer el contexto sísmico."
+      },
+      "en": {
+        "slug": "2026-10-23-tibet-nagqu-earthquake",
+        "url": "/en/blog/2026-10-23-tibet-nagqu-earthquake/",
+        "title": "Magnitude 7 earthquake in Tibet kills at least 16 people",
+        "description": "A magnitude 7.0 earthquake in Nagqu, Tibet, has killed at least 16 people and injured dozens. The largest-earthquakes map sets out the regional context."
+      }
+    }
+  },
+  {
     "date": "2026-10-22",
     "event": "Nueva estrategia del Ártico de la UE y cable submarino panártico para conectar Groenlandia con Europa (20-21 de octubre de 2026)",
     "mapSlug": "submarine-fiber-cables",
