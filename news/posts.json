@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-24",
+    "event": "Un estudio en Nature Health estima 50.391 muertes por calor en 854 ciudades europeas en el verano de 2026 (23 de octubre de 2026)",
+    "mapSlug": "co2-per-capita-world",
+    "sourceUrls": [
+      "https://www.lshtm.ac.uk/newsevents/news/2026/more-50000-heat-related-deaths-estimated-european-urban-areas-during-summer",
+      "https://apnews.com/article/killer-heat-climate-change-europe-deaths-d57dac06335203107caba8ae6ef67185",
+      "https://www.bmj.com/content/395/bmj-2026-101199",
+      "https://www.nature.com/articles/s44360-026-00209-8"
+    ],
+    "translations": {
+      "es": {
+        "slug": "calor-muertes-ciudades-europeas",
+        "url": "/calor-muertes-ciudades-europeas/",
+        "title": "Un estudio atribuye al calor 50.391 muertes en ciudades europeas",
+        "description": "Un estudio estima 50.391 muertes por calor en 854 ciudades europeas en 2026 y atribuye dos tercios al cambio climático. El mapa de CO₂ per cápita contextualiza."
+      },
+      "en": {
+        "slug": "heat-deaths-european-cities",
+        "url": "/en/heat-deaths-european-cities/",
+        "title": "Heat linked to 50,391 deaths in European cities, study finds",
+        "description": "A study estimates 50,391 heat deaths in 854 European cities in 2026 and blames two-thirds on climate change. The interactive CO₂ per-capita map adds context."
+      }
+    }
+  },
+  {
     "date": "2026-10-23",
     "event": "Terremoto de magnitud 7,0 en Baqen, Nagqu (Tíbet), con al menos 16 muertos (22-23 de octubre de 2026)",
     "mapSlug": "biggest-earthquakes-world",

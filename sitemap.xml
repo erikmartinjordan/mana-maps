@@ -82,6 +82,24 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/calor-muertes-ciudades-europeas/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/calor-muertes-ciudades-europeas/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/heat-deaths-european-cities/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/calor-muertes-ciudades-europeas/"/>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/heat-deaths-european-cities/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/calor-muertes-ciudades-europeas/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/heat-deaths-european-cities/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/calor-muertes-ciudades-europeas/"/>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/en/news/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/"/>
