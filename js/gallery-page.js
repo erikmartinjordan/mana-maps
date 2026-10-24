@@ -1450,7 +1450,8 @@
       if (!p._manaColor) return;
       var v = parseLegendNumber(p[key]);
       // 0 / no numérico = «sin dato»: fuera de la rampa y del rango.
-      if (!isFinite(v) || v <= 0) return;
+      // Los negativos son datos reales (p. ej. deflación del mapa de inflación).
+      if (!isFinite(v) || v === 0) return;
       if (!groups[gname]) groups[gname] = { colors: {}, min: Infinity, max: -Infinity };
       var b = groups[gname];
       if (!b.colors[p._manaColor]) b.colors[p._manaColor] = { sum: 0, n: 0 };

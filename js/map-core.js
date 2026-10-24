@@ -1813,7 +1813,8 @@ function renderLegend() {
         if (!c) return;
         var v = _manaParsePropNumber(_manaLayerProp(l, li.key));
         // 0 / no numérico = «sin dato»: fuera de la rampa y del rango.
-        if (!isFinite(v) || v <= 0) return;
+        // Los negativos son datos reales (p. ej. deflación del mapa de inflación).
+        if (!isFinite(v) || v === 0) return;
         allVals.push(v);
         if (!colors[c]) colors[c] = { sum: 0, n: 0 };
         colors[c].sum += v; colors[c].n++;
