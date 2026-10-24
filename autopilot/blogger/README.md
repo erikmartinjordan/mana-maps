@@ -1,66 +1,26 @@
 # News diario (ES + EN)
 
-El agente `blogger` escribe una pieza diaria de News en español e inglés con un mapa
-interactivo del editor de Maña Maps. El prompt canónico vive en
+El agente `blogger` escribe la pieza diaria de News en español e inglés con un
+mapa interactivo del editor de Maña Maps. El prompt canónico vive en
 `autopilot/agents/blogger.md` y es el único sitio donde se mantiene.
 
-## Instalación en el iMac
+## Ejecución
 
-1. Añade el agente a `~/autopilot/opencode.json`:
+Ya no hay runner ni LaunchAgent propios. El loop `~/autopilot/run_loop.sh` lo
+ejecuta como primer trabajo de cada ciclo:
 
-```json
-"blogger": {
-  "description": "Escribe el post diario bilingüe (ES/EN) con un mapa interactivo.",
-  "mode": "primary",
-  "prompt": "{file:./agents/blogger.md}",
-  "steps": 60,
-  "permission": {
-    "question": "deny",
-    "read": "allow",
-    "edit": "allow",
-    "bash": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "task": "allow",
-    "todowrite": "allow",
-    "lsp": "deny",
-    "skill": "allow"
-  }
-}
-```
+- **07:00** — primer intento.
+- **13:00** — reintento si falta el post del día.
+- **19:00** — segundo reintento si sigue faltando.
+- **01:00** — no ejecuta News (fuera de la ventana 07–23 h).
 
-2. `run_blogger.sh` sincroniza el prompt canónico a `~/autopilot/agents/` y
-   `~/.config/opencode/agents/` antes de ejecutar el agente. Si lo haces a mano:
+El loop sincroniza los prompts desde `autopilot/agents/`, lanza
+`opencode run --agent blogger` (120 steps) y publica en `main` solo si
+`news/posts.json` contiene la fecha de hoy y existen las páginas ES/EN.
 
-```sh
-cp ~/autopilot/workspaces/mana-maps/autopilot/agents/blogger.md ~/autopilot/agents/blogger.md
-cp ~/autopilot/workspaces/mana-maps/autopilot/agents/blogger.md ~/.config/opencode/agents/blogger.md
-```
+Si el agente deja trabajo sin commitear, el loop lo commitea y lo pushea. Si el
+resultado no es válido, lo guarda en `git stash` y lo reintenta en el siguiente
+ciclo (máximo 3 intentos al día).
 
-3. Da permisos de ejecución al runner y carga el LaunchAgent:
-
-```sh
-chmod +x ~/autopilot/workspaces/mana-maps/autopilot/blogger/run_blogger.sh
-cp ~/autopilot/workspaces/mana-maps/autopilot/blogger/com.mana-maps.blogger.plist ~/Library/LaunchAgents/
-launchctl unload ~/Library/LaunchAgents/com.mana-maps.blogger.plist 2>/dev/null || true
-launchctl load ~/Library/LaunchAgents/com.mana-maps.blogger.plist
-```
-
-Se ejecuta todos los días a las 08:00 (hora local). Para cambiar la hora,
-edita `StartCalendarInterval` en el plist y vuelve a cargarlo.
-
-Los logs quedan en `~/autopilot/logs/news-AAAAMMDD-HHMM.log`.
-
-## Autonomía ante árbol sucio
-
-El runner y el loop llaman a `~/autopilot/scripts/recover_workspace.sh` antes
-de sincronizar. Si solo hay cambios de News (`news/`, `en/news/`, artículos en la raíz, `sitemap.xml`)
-los commitea y publica en `main`; cualquier otro cambio se preserva en una rama
-`autopilot/rescue-<fecha>` y el workspace vuelve limpio. Así un post a medias
-ya no bloquea el autopilot.
-
-Al terminar, `run_blogger.sh` verifica que el árbol está limpio y que `HEAD`
-coincide con `origin/main`; si no, registra `BLOG_RC=1` y sale con error.
+Los logs quedan en `~/autopilot/logs/sessions/blogger-AAAAMMDD-HHMM.md` y en
+`~/autopilot/logs/loop.log`.

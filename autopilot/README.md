@@ -1,10 +1,9 @@
 # Autopilot
 
 Esta carpeta contiene **solo los prompts de los agentes** (`agents/*.md`).
-Son la fuente de verdad de los prompts. El runner del blog sincroniza
-`autopilot/agents/blogger.md` a `~/autopilot/agents/` y
-`~/.config/opencode/agents/` antes de ejecutarlo; el resto de agentes se
-copian al instalar o actualizar el iMac.
+Son la fuente de verdad de los prompts. El loop del iMac sincroniza todos los
+prompts a `~/autopilot/agents/` y `~/.config/opencode/agents/` al inicio de cada
+ejecución.
 
 El **sistema que ejecuta esos agentes vive únicamente en el iMac**, en
 `~/autopilot` (no es un repo): loop, configuración real, scripts, panel, bot de
@@ -16,13 +15,14 @@ WhatsApp, datos y generadores de estrategia. Nada de eso se versiona aquí.
 - `agents/mapmaker.md` — crea mapas nuevos (pipelina dato real → Firestore).
 - `agents/ideator.md` — audita la galería y propone tareas en `BACKLOG.md`.
 - `agents/reviewer.md` — subagente que revisa `git diff` sin modificar (`agents/chat.md` vive solo en el iMac).
-- `agents/blogger.md` — escribe cada día una pieza bilingüe de News (ES/EN) con un mapa interactivo. El scheduling y el runner están en `blogger/`; ver `blogger/README.md`.
+- `agents/blogger.md` — escribe cada día una pieza bilingüe de News (ES/EN) con un mapa interactivo. Es un trabajo del loop; ver `blogger/README.md`.
 
 ## News diario (en el iMac)
 
-El agente `blogger` se ejecuta a diario a las 08:00 con
-`autopilot/blogger/run_blogger.sh` y el LaunchAgent
-`autopilot/blogger/com.mana-maps.blogger.plist`. Instrucciones completas en
+El loop `~/autopilot/run_loop.sh` se ejecuta a las **07:00, 13:00, 19:00 y
+01:00**. El primer trabajo de cada ciclo es el News del día: se intenta a las
+07:00 y, si falta, se reintenta a las 13:00 y a las 19:00 (máximo 3 intentos).
+No hay runner ni LaunchAgent propios del blog. Instrucciones completas en
 `autopilot/blogger/README.md`.
 
 ## Configuración (en el iMac)

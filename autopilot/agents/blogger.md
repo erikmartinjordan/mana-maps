@@ -1,7 +1,7 @@
 ---
 description: Escribe la pieza diaria de News con un mapa interactivo de Maña Maps.
 mode: primary
-steps: 60
+steps: 120
 permission:
   question: deny
   read: allow
