@@ -39,6 +39,11 @@
 //      <title> propio (no vacío, no genérico y único entre landings), meta
 //      description no vacía, canonical cuyo slug sea el del mapa y un JSON-LD
 //      Dataset válido. Lista los fallos y falla (exit 1).
+//  13. higiene de metadatos: la description de Firestore debe tener entre 60 y
+//      200 caracteres y ser única entre mapas, y dataDate debe estar en ISO
+//      8601 (YYYY o YYYY-MM-DD). Lista los fallos y falla (exit 1); las
+//      descripciones se recortan/amplían y dataDate se normaliza cuando hay
+//      una conversión inequívoca.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -54,6 +59,10 @@
 //   - Point: sincronizar markerType/_manaMarkerType cuando uno es válido;
 //     añadir _manaEmojiSize por defecto si falta escala; completar
 //     _manaGroupName/_manaGroupId
+//   - description fuera de 60–200 caracteres o duplicada → recorte por frase
+//     (≤200) o ampliación con el título del mapa (≥60), garantizando unicidad
+//   - dataDate no ISO → YYYY-MM al día 1, rangos de años al 31-12 del año
+//     final y fechas ISO con hora a su fecha; el resto se reporta como MANUAL
 // Lo demás (latitud fuera de ±90, colores no convertibles, metadatos
 // desconocidos, popups sin fix conocido, arcoíris sin slug en la tabla,
 // marker id inválido sin equivalente, área representada con punto) se
@@ -1653,6 +1662,221 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
   };
 }
 
+// ── Higiene de metadatos (check 13) ───────────────────────────────
+// La description alimenta la tarjeta y la landing de cada mapa, y dataDate se
+// muestra como fuente. Una descripción demasiado corta no aporta contexto, una
+// demasiado larga se corta en la UI y dos descripciones idénticas restan
+// credibilidad SEO. dataDate debe poder ordenarse y compararse: ISO 8601
+// (YYYY o YYYY-MM-DD).
+
+const DESCRIPTION_MIN_LEN = 60;
+const DESCRIPTION_MAX_LEN = 200;
+const ISO_YEAR_RE = /^\d{4}$/;
+
+function textLength(value) {
+  return [...String(value == null ? '' : value)].length;
+}
+
+function normalizeDescription(value) {
+  return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+}
+
+function isValidDescription(value) {
+  const len = textLength(normalizeDescription(value));
+  return len >= DESCRIPTION_MIN_LEN && len <= DESCRIPTION_MAX_LEN;
+}
+
+// YYYY o YYYY-MM-DD, comprobando que la fecha existe en el calendario.
+function isValidIsoDataDate(value) {
+  const s = String(value == null ? '' : value).trim();
+  if (ISO_YEAR_RE.test(s)) return true;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return false;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (month < 1 || month > 12 || day < 1) return false;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year
+    && date.getUTCMonth() === month - 1
+    && date.getUTCDate() === day;
+}
+
+// Normaliza a ISO 8601 los formatos habituales del repo. Devuelve null si no
+// hay una conversión inequívoca (p. ej. texto libre), que se reporta MANUAL.
+function normalizeDataDate(value) {
+  const s = String(value == null ? '' : value).trim();
+  if (isValidIsoDataDate(s)) return s;
+
+  // YYYY-MM → primer día del mes.
+  let m = s.match(/^(\d{4})-(\d{2})$/);
+  if (m) {
+    const candidate = `${m[1]}-${m[2]}-01`;
+    if (isValidIsoDataDate(candidate)) return candidate;
+    return null;
+  }
+
+  // Rango de años (2024-2025, 1991-2020) → último día del año final.
+  m = s.match(/^(\d{4})[-/](\d{4})$/);
+  if (m && Number(m[2]) >= Number(m[1])) return `${m[2]}-12-31`;
+
+  // ISO con hora (2025-01-01T00:00:00Z) → solo la fecha.
+  m = s.match(/^(\d{4}-\d{2}-\d{2})[T ]/);
+  if (m && isValidIsoDataDate(m[1])) return m[1];
+
+  return null;
+}
+
+// Recorta a max caracteres por límite de frase; si la primera frase ya es
+// demasiado larga, corta en palabra completa y cierra con punto.
+function shortenDescription(value, max = DESCRIPTION_MAX_LEN) {
+  const clean = normalizeDescription(value);
+  if (textLength(clean) <= max) return clean;
+
+  // Solo son límites de frase los signos seguidos de espacio o final: así no
+  // se parte «PM2.5», «NY.GDP.PCAP.CD» ni los decimales con punto.
+  const sentences = [];
+  const boundaryRe = /[.!?]+(?:["»”’']+)?(?=\s|$)/g;
+  let start = 0;
+  let match;
+  while ((match = boundaryRe.exec(clean))) {
+    const end = match.index + match[0].length;
+    const sentence = clean.slice(start, end).trim();
+    if (sentence) sentences.push(sentence);
+    start = end;
+  }
+  const tail = clean.slice(start).trim();
+  if (tail) sentences.push(tail);
+
+  let acc = '';
+  for (const sentence of sentences) {
+    const candidate = acc ? `${acc} ${sentence}` : sentence;
+    if (textLength(candidate) > max) break;
+    acc = candidate;
+  }
+  if (textLength(acc) >= DESCRIPTION_MIN_LEN && /[.!?]$/.test(acc)) return acc;
+
+  // Corte de emergencia en palabra completa, sin dejar un token a medias.
+  let cut = [...clean].slice(0, max - 1).join('');
+  cut = cut.replace(/\s+\S*$/, '').replace(/[\s,;:—–-]+$/, '').trim();
+  if (!cut) cut = [...clean].slice(0, max - 1).join('').trim();
+  const openParens = (cut.match(/\(/g) || []).length;
+  const closeParens = (cut.match(/\)/g) || []).length;
+  if (openParens > closeParens) cut += ')'.repeat(openParens - closeParens);
+  if (!/[.!?]$/.test(cut)) cut = cut.replace(/["»”’']+$/, '') + '.';
+  return cut;
+}
+
+// Amplía una descripción ausente o demasiado corta con el título del mapa,
+// que es único, para que supere el mínimo sin inventar datos.
+function expandDescription(value, map, max = DESCRIPTION_MAX_LEN) {
+  const base = normalizeDescription(value);
+  if (textLength(base) >= DESCRIPTION_MIN_LEN) return shortenDescription(base, max);
+  const title = normalizeDescription(map && (map.title || map.name || map.id)) || 'este mapa';
+  let out = base ? `${base} Mapa de ${title}.` : `Mapa de ${title}.`;
+  if (textLength(out) < DESCRIPTION_MIN_LEN) {
+    out += ' Datos citados en la ficha del mapa, parte de la galería de Maña Maps.';
+  }
+  return shortenDescription(out, max);
+}
+
+// Audita description (60–200, única) y dataDate (ISO 8601) de los mapas
+// publicados. Devuelve { issues, fixes, details, manual }:
+//   - issues: líneas legibles, una por incidencia
+//   - fixes: { slug: { description?, dataDate? } } para PATCH en Firestore
+//   - details: { slug: { description, dataDate, issues } } valores tras el fix
+//   - manual: incidencias sin corrección inequívoca
+function auditMetadataHygiene(maps) {
+  const issues = [];
+  const fixes = {};
+  const details = {};
+  const manual = [];
+  const list = (Array.isArray(maps) ? maps : [])
+    .filter(m => m && m.id)
+    .slice()
+    .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  // 1) Validación individual de description y dataDate.
+  for (const map of list) {
+    const rawDesc = normalizeDescription(map.description);
+    const rawDate = String(map.dataDate == null ? '' : map.dataDate).trim();
+    const localIssues = [];
+    let description = rawDesc;
+    let dataDate = rawDate;
+    let dateManual = false;
+    const fix = {};
+
+    if (!rawDesc) {
+      localIssues.push('description ausente');
+      description = expandDescription('', map);
+      fix.description = description;
+    } else if (textLength(rawDesc) < DESCRIPTION_MIN_LEN) {
+      localIssues.push(`description demasiado corta (${textLength(rawDesc)} < ${DESCRIPTION_MIN_LEN} caracteres)`);
+      description = expandDescription(rawDesc, map);
+      fix.description = description;
+    } else if (textLength(rawDesc) > DESCRIPTION_MAX_LEN) {
+      localIssues.push(`description demasiado larga (${textLength(rawDesc)} > ${DESCRIPTION_MAX_LEN} caracteres)`);
+      description = shortenDescription(rawDesc, DESCRIPTION_MAX_LEN);
+      fix.description = description;
+    }
+
+    if (!isValidIsoDataDate(rawDate)) {
+      const normalized = normalizeDataDate(rawDate);
+      if (normalized) {
+        dataDate = normalized;
+        localIssues.push(`dataDate no ISO 8601 (${rawDate}) → ${normalized}`);
+        fix.dataDate = normalized;
+      } else {
+        dateManual = true;
+        localIssues.push(`dataDate no ISO 8601 sin normalización segura (${rawDate})`);
+      }
+    }
+
+    details[map.id] = { description, dataDate, issues: localIssues };
+    if (Object.keys(fix).length) fixes[map.id] = fix;
+    if (dateManual) manual.push({ slug: map.id, issues: localIssues });
+    for (const issue of localIssues) issues.push(`${map.id}: ${issue}`);
+  }
+
+  // 2) Unicidad: tras los recortes puede haber descripciones repetidas. Se
+  // prefija el título (y el slug como último recurso) a las posteriores.
+  const byDescription = new Map();
+  for (const map of list) {
+    const desc = details[map.id].description;
+    const key = desc.toLowerCase();
+    if (!byDescription.has(key)) byDescription.set(key, []);
+    byDescription.get(key).push(map);
+  }
+  for (const group of byDescription.values()) {
+    if (group.length < 2) continue;
+    for (const map of group.slice(1)) {
+      const title = normalizeDescription(map.title || map.name || map.id) || map.id;
+      let candidate = shortenDescription(`${title}. ${details[map.id].description}`, DESCRIPTION_MAX_LEN);
+      if (candidate.toLowerCase() === details[group[0].id].description.toLowerCase()) {
+        candidate = shortenDescription(`${title} (${map.id}). ${details[map.id].description}`, DESCRIPTION_MAX_LEN);
+      }
+      details[map.id].description = candidate;
+      details[map.id].issues.push('description duplicada');
+      issues.push(`${map.id}: description duplicada`);
+      fixes[map.id] = Object.assign({}, fixes[map.id], { description: candidate });
+    }
+  }
+
+  // 3) Verificación final: cualquier valor que siga fuera de norma es MANUAL.
+  for (const map of list) {
+    const finalDesc = details[map.id].description;
+    if (!isValidDescription(finalDesc)) {
+      const msg = `description final fuera de rango (${textLength(finalDesc)} caracteres)`;
+      details[map.id].issues.push(msg);
+      issues.push(`${map.id}: ${msg}`);
+      if (!manual.some(m => m.slug === map.id)) manual.push({ slug: map.id, issues: details[map.id].issues });
+      delete fixes[map.id];
+    }
+  }
+
+  return { issues, fixes, details, manual };
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -1704,6 +1928,7 @@ async function main() {
         lang: extractField(doc, 'lang'),
         dataSource: extractField(doc, 'dataSource'),
         dataDate: extractField(doc, 'dataDate'),
+        description: extractField(doc, 'description'),
         tags: extractField(doc, 'tags'),
         featureCount: extractField(doc, 'featureCount'),
         legendKey: extractField(doc, 'legendKey'),
@@ -1769,10 +1994,68 @@ async function main() {
   }
   console.log('');
 
+  // 13. Higiene de metadatos: description 60–200 única y dataDate ISO 8601.
+  let hygiene = null;
+  try {
+    hygiene = auditMetadataHygiene(published);
+  } catch (e) {
+    hygiene = {
+      issues: [`no se pudo auditar la higiene de metadatos: ${e.message}`],
+      fixes: {}, details: {}, manual: [],
+    };
+  }
+  console.log('METADATA HYGIENE | ISSUES');
+  console.log('-----------------|-------');
+  if (hygiene.issues.length === 0) {
+    console.log(`OK: ${published.length} descripciones de ${DESCRIPTION_MIN_LEN}–${DESCRIPTION_MAX_LEN} caracteres, únicas, y dataDate en ISO 8601`);
+  } else {
+    for (const issue of hygiene.issues) console.log(`HYGIENE: ${issue}`);
+  }
+  console.log('');
+
+  let hygieneErrors = hygiene.manual.length;
+  let hygieneFixed = 0;
+  const hygieneFixSlugs = Object.keys(hygiene.fixes || {}).sort();
+  for (const slug of hygieneFixSlugs) {
+    const fix = hygiene.fixes[slug];
+    const map = published.find(m => m.id === slug) || {};
+    const summary = Object.keys(fix)
+      .map(k => `${k}: ${JSON.stringify(map[k])} → ${JSON.stringify(fix[k])}`)
+      .join(', ');
+    if (DRY_RUN) {
+      console.log(`FIX (dry-run) ${slug}: ${summary}`);
+      hygieneFixed++;
+      continue;
+    }
+    const mask = Object.keys(fix).map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`).join('&');
+    const fields = {};
+    for (const [key, value] of Object.entries(fix)) fields[key] = fsStr(value);
+    const res = await fsReq('PATCH', `/${COLLECTION}/${slug}?${mask}`, { fields });
+    if (res.status >= 400) {
+      console.error(`  ✗ HYGIENE UPDATE failed ${slug} (${res.status}): ${JSON.stringify(res.data).slice(0, 300)}`);
+      hygieneErrors++;
+      continue;
+    }
+    const verify = await fsReq('GET', `/${COLLECTION}/${slug}`);
+    const vDesc = verify.status === 200 ? extractField(verify.data, 'description') : null;
+    const vDate = verify.status === 200 ? extractField(verify.data, 'dataDate') : null;
+    const bad = [];
+    if (fix.description !== undefined && vDesc !== fix.description) bad.push('description no coincide');
+    if (fix.dataDate !== undefined && vDate !== fix.dataDate) bad.push('dataDate no coincide');
+    if (bad.length) {
+      console.error(`  ✗ HYGIENE Verify FAILED ${slug}: ${bad.join('; ')}`);
+      hygieneErrors++;
+    } else {
+      console.log(`  ✓ HYGIENE Updated ${slug}: ${summary}`);
+      hygieneFixed++;
+    }
+  }
+  if (DRY_RUN) hygieneErrors += hygieneFixSlugs.length;
+
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + hygieneErrors;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -1904,6 +2187,7 @@ async function main() {
   console.log(`Deriva SEO (check 10): ${seo.issues.length === 0 ? 'OK' : `${seo.issues.length} desajustes entre Firestore, JSON-LD y sitemap`}`);
   console.log(`Cobertura landings/OG (check 11): ${coverage.issues.length === 0 ? 'OK' : `${coverage.issues.length} incidencias`}`);
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
+  console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -1961,6 +2245,16 @@ module.exports = {
   hasDatasetType,
   GALLERY_DIR_PATH,
   OG_CARDS_DIR_PATH,
+  DESCRIPTION_MIN_LEN,
+  DESCRIPTION_MAX_LEN,
+  textLength,
+  normalizeDescription,
+  isValidDescription,
+  isValidIsoDataDate,
+  normalizeDataDate,
+  shortenDescription,
+  expandDescription,
+  auditMetadataHygiene,
   parseLegendNumber,
   hexToHsl,
   hslToHex,

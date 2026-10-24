@@ -9,6 +9,13 @@ const {
   auditLandingCoverage,
   parseLandingMetadata,
   auditLandingMetadata,
+  auditMetadataHygiene,
+  normalizeDataDate,
+  isValidIsoDataDate,
+  isValidDescription,
+  shortenDescription,
+  DESCRIPTION_MIN_LEN,
+  DESCRIPTION_MAX_LEN,
 } = require('../../scripts/tools/audit-gallery-quality');
 
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
@@ -269,4 +276,79 @@ test('landing metadata check parses and reports missing, generic or wrong metada
   expect(parsed.canonical).toBe('https://maña.com/gallery/orden/?');
 
   fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+// Regresión del check 13: higiene de metadatos. Cada mapa publicado debe tener
+// una description de 60–200 caracteres, única, y un dataDate ISO 8601.
+const VALID_DESCRIPTION = 'Mapa de prueba con una descripción suficientemente larga para superar el mínimo exigido.';
+const OTHER_DESCRIPTION = 'Otro mapa de prueba con un texto distinto y también válido para la auditoría de higiene.';
+
+test('metadata hygiene accepts valid descriptions and ISO dates', () => {
+  const result = auditMetadataHygiene([
+    { id: 'mapa-a', title: 'Mapa A', description: VALID_DESCRIPTION, dataDate: '2024' },
+    { id: 'mapa-b', title: 'Mapa B', description: OTHER_DESCRIPTION, dataDate: '2024-02-29' },
+  ]);
+  expect(result.issues).toEqual([]);
+  expect(result.fixes).toEqual({});
+  expect(result.manual).toEqual([]);
+  expect(isValidIsoDataDate('2024-02-29')).toBe(true);
+  expect(isValidIsoDataDate('2023-02-29')).toBe(false);
+  expect(isValidIsoDataDate('2024-02')).toBe(false);
+});
+
+test('metadata hygiene fixes long, short, missing and duplicated descriptions', () => {
+  const long = 'Frase inicial del mapa de prueba. ' + 'Dato '.repeat(80).trim();
+  const result = auditMetadataHygiene([
+    { id: 'larga', title: 'Mapa largo', description: long, dataDate: '2024' },
+    { id: 'corta', title: 'Mapa corto', description: 'Muy corta.', dataDate: '2024' },
+    { id: 'sin-desc', title: 'Mapa sin descripción', description: '', dataDate: '2024' },
+    { id: 'dup-a', title: 'Mapa duplicado A', description: VALID_DESCRIPTION, dataDate: '2024' },
+    { id: 'dup-b', title: 'Mapa duplicado B', description: VALID_DESCRIPTION, dataDate: '2024' },
+  ]);
+
+  const issues = result.issues.join('\n');
+  expect(issues).toContain('larga: description demasiado larga');
+  expect(issues).toContain('corta: description demasiado corta');
+  expect(issues).toContain('sin-desc: description ausente');
+  expect(issues).toContain('dup-b: description duplicada');
+
+  for (const slug of ['larga', 'corta', 'sin-desc', 'dup-a', 'dup-b']) {
+    const desc = result.details[slug].description;
+    expect(isValidDescription(desc), `${slug}: ${desc}`).toBe(true);
+  }
+  for (const slug of ['larga', 'corta', 'sin-desc', 'dup-b']) {
+    expect(result.fixes[slug].description).toBe(result.details[slug].description);
+  }
+  expect(result.fixes['dup-a']).toBeUndefined();
+  const all = Object.values(result.details).map(d => d.description.toLowerCase());
+  expect(new Set(all).size).toBe(all.length);
+  expect(result.manual).toEqual([]);
+});
+
+test('metadata hygiene normalizes non-ISO dataDate and reports unknown values', () => {
+  expect(normalizeDataDate('2026-09')).toBe('2026-09-01');
+  expect(normalizeDataDate('1991-2020')).toBe('2020-12-31');
+  expect(normalizeDataDate('2024-2025')).toBe('2025-12-31');
+  expect(normalizeDataDate('2025-01-01T10:00:00Z')).toBe('2025-01-01');
+  expect(normalizeDataDate('ayer')).toBe(null);
+
+  const result = auditMetadataHygiene([
+    { id: 'mes', title: 'Mapa mes', description: VALID_DESCRIPTION, dataDate: '2026-09' },
+    { id: 'rango', title: 'Mapa rango', description: OTHER_DESCRIPTION, dataDate: '1991-2020' },
+    { id: 'texto', title: 'Mapa texto', description: VALID_DESCRIPTION + ' Extra.', dataDate: 'ayer' },
+  ]);
+
+  expect(result.fixes.mes.dataDate).toBe('2026-09-01');
+  expect(result.fixes.rango.dataDate).toBe('2020-12-31');
+  expect(result.fixes.texto).toBeUndefined();
+  expect(result.manual.map(m => m.slug)).toContain('texto');
+  expect(result.issues.join('\n')).toContain('texto: dataDate no ISO 8601 sin normalización segura (ayer)');
+});
+
+test('description shortening respects the maximum and keeps whole sentences when possible', () => {
+  const text = 'Primera frase corta. ' + 'Segunda frase con más contenido. '.repeat(30);
+  const short = shortenDescription(text);
+  expect(short.length).toBeLessThanOrEqual(DESCRIPTION_MAX_LEN);
+  expect(short.length).toBeGreaterThanOrEqual(DESCRIPTION_MIN_LEN);
+  expect(short.endsWith('.')).toBe(true);
 });
