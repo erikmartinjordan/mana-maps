@@ -1,0 +1,1044 @@
+{
+  "_source": "OMS — Global Health Observatory (SA_0000001688, ODS 3.5.2): consumo total de alcohol per cápita (15+ años) en litros de alcohol puro, media trienal; último año publicado 2024 (repite el valor de 2023). Geometrías: Natural Earth 110m/50m.",
+  "_indicator": "SA_0000001688",
+  "_url": "https://ghoapi.azureedge.net/api/SA_0000001688",
+  "_date": "2026-10-24",
+  "_lastUpdated": "2026-06-15T12:47:21.837+02:00",
+  "countries": [
+    {
+      "iso3": "ABW",
+      "valor": 11.96,
+      "anio": 2024
+    },
+    {
+      "iso3": "AFG",
+      "valor": 0.03,
+      "anio": 2024
+    },
+    {
+      "iso3": "AGO",
+      "valor": 3.78,
+      "anio": 2024
+    },
+    {
+      "iso3": "ALB",
+      "valor": 4.27,
+      "anio": 2024
+    },
+    {
+      "iso3": "AND",
+      "valor": 11.59,
+      "anio": 2024
+    },
+    {
+      "iso3": "ARE",
+      "valor": 0.64,
+      "anio": 2024
+    },
+    {
+      "iso3": "ARG",
+      "valor": 7.1,
+      "anio": 2024
+    },
+    {
+      "iso3": "ARM",
+      "valor": 6.6,
+      "anio": 2024
+    },
+    {
+      "iso3": "ATG",
+      "valor": 8.22,
+      "anio": 2024
+    },
+    {
+      "iso3": "AUS",
+      "valor": 10.51,
+      "anio": 2024
+    },
+    {
+      "iso3": "AUT",
+      "valor": 11.6,
+      "anio": 2024
+    },
+    {
+      "iso3": "AZE",
+      "valor": 2.25,
+      "anio": 2024
+    },
+    {
+      "iso3": "BDI",
+      "valor": 3.46,
+      "anio": 2024
+    },
+    {
+      "iso3": "BEL",
+      "valor": 9.54,
+      "anio": 2024
+    },
+    {
+      "iso3": "BEN",
+      "valor": 4.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "BFA",
+      "valor": 4.94,
+      "anio": 2024
+    },
+    {
+      "iso3": "BGD",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "BGR",
+      "valor": 13.25,
+      "anio": 2024
+    },
+    {
+      "iso3": "BHR",
+      "valor": 2.01,
+      "anio": 2024
+    },
+    {
+      "iso3": "BHS",
+      "valor": 8.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "BIH",
+      "valor": 6.57,
+      "anio": 2024
+    },
+    {
+      "iso3": "BLR",
+      "valor": 11.29,
+      "anio": 2024
+    },
+    {
+      "iso3": "BLZ",
+      "valor": 4.99,
+      "anio": 2024
+    },
+    {
+      "iso3": "BMU",
+      "valor": 11,
+      "anio": 2024
+    },
+    {
+      "iso3": "BOL",
+      "valor": 3.82,
+      "anio": 2024
+    },
+    {
+      "iso3": "BRA",
+      "valor": 10.37,
+      "anio": 2024
+    },
+    {
+      "iso3": "BRB",
+      "valor": 10.07,
+      "anio": 2024
+    },
+    {
+      "iso3": "BRN",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "BTN",
+      "valor": 3.08,
+      "anio": 2024
+    },
+    {
+      "iso3": "BWA",
+      "valor": 4.87,
+      "anio": 2024
+    },
+    {
+      "iso3": "CAF",
+      "valor": 1.83,
+      "anio": 2024
+    },
+    {
+      "iso3": "CAN",
+      "valor": 9.24,
+      "anio": 2024
+    },
+    {
+      "iso3": "CHE",
+      "valor": 8.76,
+      "anio": 2024
+    },
+    {
+      "iso3": "CHL",
+      "valor": 6.58,
+      "anio": 2024
+    },
+    {
+      "iso3": "CHN",
+      "valor": 3.69,
+      "anio": 2024
+    },
+    {
+      "iso3": "CIV",
+      "valor": 4.18,
+      "anio": 2024
+    },
+    {
+      "iso3": "CMR",
+      "valor": 12.94,
+      "anio": 2024
+    },
+    {
+      "iso3": "COD",
+      "valor": 1.6,
+      "anio": 2024
+    },
+    {
+      "iso3": "COG",
+      "valor": 3.88,
+      "anio": 2024
+    },
+    {
+      "iso3": "COK",
+      "valor": 10.22,
+      "anio": 2024
+    },
+    {
+      "iso3": "COL",
+      "valor": 4.87,
+      "anio": 2024
+    },
+    {
+      "iso3": "COM",
+      "valor": 0.14,
+      "anio": 2024
+    },
+    {
+      "iso3": "CPV",
+      "valor": 4.07,
+      "anio": 2024
+    },
+    {
+      "iso3": "CRI",
+      "valor": 3.95,
+      "anio": 2024
+    },
+    {
+      "iso3": "CUB",
+      "valor": 5.53,
+      "anio": 2024
+    },
+    {
+      "iso3": "CUW",
+      "valor": 13.23,
+      "anio": 2024
+    },
+    {
+      "iso3": "CYM",
+      "valor": 11.7,
+      "anio": 2024
+    },
+    {
+      "iso3": "CYP",
+      "valor": 4.86,
+      "anio": 2024
+    },
+    {
+      "iso3": "CZE",
+      "valor": 13.52,
+      "anio": 2024
+    },
+    {
+      "iso3": "DEU",
+      "valor": 10.93,
+      "anio": 2024
+    },
+    {
+      "iso3": "DJI",
+      "valor": 0.33,
+      "anio": 2024
+    },
+    {
+      "iso3": "DMA",
+      "valor": 7.34,
+      "anio": 2024
+    },
+    {
+      "iso3": "DNK",
+      "valor": 9.53,
+      "anio": 2024
+    },
+    {
+      "iso3": "DOM",
+      "valor": 5.18,
+      "anio": 2024
+    },
+    {
+      "iso3": "DZA",
+      "valor": 0.42,
+      "anio": 2024
+    },
+    {
+      "iso3": "ECU",
+      "valor": 3.21,
+      "anio": 2024
+    },
+    {
+      "iso3": "EGY",
+      "valor": 0.1,
+      "anio": 2024
+    },
+    {
+      "iso3": "ERI",
+      "valor": 1.38,
+      "anio": 2024
+    },
+    {
+      "iso3": "ESP",
+      "valor": 12.07,
+      "anio": 2024
+    },
+    {
+      "iso3": "EST",
+      "valor": 10.38,
+      "anio": 2024
+    },
+    {
+      "iso3": "ETH",
+      "valor": 2.27,
+      "anio": 2024
+    },
+    {
+      "iso3": "FIN",
+      "valor": 9.39,
+      "anio": 2024
+    },
+    {
+      "iso3": "FJI",
+      "valor": 3.51,
+      "anio": 2024
+    },
+    {
+      "iso3": "FRA",
+      "valor": 11.19,
+      "anio": 2024
+    },
+    {
+      "iso3": "FSM",
+      "valor": 0.78,
+      "anio": 2024
+    },
+    {
+      "iso3": "GAB",
+      "valor": 8,
+      "anio": 2024
+    },
+    {
+      "iso3": "GBR",
+      "valor": 10.44,
+      "anio": 2024
+    },
+    {
+      "iso3": "GEO",
+      "valor": 14.39,
+      "anio": 2024
+    },
+    {
+      "iso3": "GHA",
+      "valor": 2.59,
+      "anio": 2024
+    },
+    {
+      "iso3": "GIN",
+      "valor": 0.47,
+      "anio": 2024
+    },
+    {
+      "iso3": "GLP",
+      "valor": 9.95,
+      "anio": 2024
+    },
+    {
+      "iso3": "GMB",
+      "valor": 0.48,
+      "anio": 2024
+    },
+    {
+      "iso3": "GNB",
+      "valor": 3.08,
+      "anio": 2024
+    },
+    {
+      "iso3": "GNQ",
+      "valor": 5.28,
+      "anio": 2024
+    },
+    {
+      "iso3": "GRC",
+      "valor": 8.58,
+      "anio": 2024
+    },
+    {
+      "iso3": "GRD",
+      "valor": 8.58,
+      "anio": 2024
+    },
+    {
+      "iso3": "GTM",
+      "valor": 3.05,
+      "anio": 2024
+    },
+    {
+      "iso3": "GUF",
+      "valor": 6.92,
+      "anio": 2024
+    },
+    {
+      "iso3": "GUY",
+      "valor": 6.5,
+      "anio": 2024
+    },
+    {
+      "iso3": "HKG",
+      "valor": 2.88,
+      "anio": 2024
+    },
+    {
+      "iso3": "HND",
+      "valor": 3.47,
+      "anio": 2024
+    },
+    {
+      "iso3": "HRV",
+      "valor": 10.94,
+      "anio": 2024
+    },
+    {
+      "iso3": "HTI",
+      "valor": 3.46,
+      "anio": 2024
+    },
+    {
+      "iso3": "HUN",
+      "valor": 11.36,
+      "anio": 2024
+    },
+    {
+      "iso3": "IDN",
+      "valor": 0.1,
+      "anio": 2024
+    },
+    {
+      "iso3": "IND",
+      "valor": 5.24,
+      "anio": 2024
+    },
+    {
+      "iso3": "IRL",
+      "valor": 10.27,
+      "anio": 2024
+    },
+    {
+      "iso3": "IRN",
+      "valor": 0.02,
+      "anio": 2024
+    },
+    {
+      "iso3": "IRQ",
+      "valor": 0.61,
+      "anio": 2024
+    },
+    {
+      "iso3": "ISL",
+      "valor": 7.71,
+      "anio": 2024
+    },
+    {
+      "iso3": "ISR",
+      "valor": 4.19,
+      "anio": 2024
+    },
+    {
+      "iso3": "ITA",
+      "valor": 8.44,
+      "anio": 2024
+    },
+    {
+      "iso3": "JAM",
+      "valor": 4.36,
+      "anio": 2024
+    },
+    {
+      "iso3": "JOR",
+      "valor": 0.28,
+      "anio": 2024
+    },
+    {
+      "iso3": "JPN",
+      "valor": 6.26,
+      "anio": 2024
+    },
+    {
+      "iso3": "KAZ",
+      "valor": 5.96,
+      "anio": 2024
+    },
+    {
+      "iso3": "KEN",
+      "valor": 2.25,
+      "anio": 2024
+    },
+    {
+      "iso3": "KGZ",
+      "valor": 3.29,
+      "anio": 2024
+    },
+    {
+      "iso3": "KHM",
+      "valor": 4.16,
+      "anio": 2024
+    },
+    {
+      "iso3": "KIR",
+      "valor": 0.63,
+      "anio": 2024
+    },
+    {
+      "iso3": "KNA",
+      "valor": 8.28,
+      "anio": 2024
+    },
+    {
+      "iso3": "KOR",
+      "valor": 8.26,
+      "anio": 2024
+    },
+    {
+      "iso3": "KWT",
+      "valor": 0.12,
+      "anio": 2024
+    },
+    {
+      "iso3": "LAO",
+      "valor": 5.92,
+      "anio": 2024
+    },
+    {
+      "iso3": "LBN",
+      "valor": 1.99,
+      "anio": 2024
+    },
+    {
+      "iso3": "LBR",
+      "valor": 1.69,
+      "anio": 2024
+    },
+    {
+      "iso3": "LBY",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "LCA",
+      "valor": 11.83,
+      "anio": 2024
+    },
+    {
+      "iso3": "LKA",
+      "valor": 2.49,
+      "anio": 2024
+    },
+    {
+      "iso3": "LSO",
+      "valor": 4.24,
+      "anio": 2024
+    },
+    {
+      "iso3": "LTU",
+      "valor": 11.23,
+      "anio": 2024
+    },
+    {
+      "iso3": "LUX",
+      "valor": 11.42,
+      "anio": 2024
+    },
+    {
+      "iso3": "LVA",
+      "valor": 14.18,
+      "anio": 2024
+    },
+    {
+      "iso3": "MAC",
+      "valor": 3.36,
+      "anio": 2024
+    },
+    {
+      "iso3": "MAR",
+      "valor": 0.45,
+      "anio": 2024
+    },
+    {
+      "iso3": "MDA",
+      "valor": 12.99,
+      "anio": 2024
+    },
+    {
+      "iso3": "MDG",
+      "valor": 0.73,
+      "anio": 2024
+    },
+    {
+      "iso3": "MDV",
+      "valor": 2.46,
+      "anio": 2024
+    },
+    {
+      "iso3": "MEX",
+      "valor": 6.69,
+      "anio": 2024
+    },
+    {
+      "iso3": "MHL",
+      "valor": 0.7,
+      "anio": 2024
+    },
+    {
+      "iso3": "MKD",
+      "valor": 6.23,
+      "anio": 2024
+    },
+    {
+      "iso3": "MLI",
+      "valor": 1.99,
+      "anio": 2024
+    },
+    {
+      "iso3": "MLT",
+      "valor": 7.65,
+      "anio": 2024
+    },
+    {
+      "iso3": "MMR",
+      "valor": 1.9,
+      "anio": 2024
+    },
+    {
+      "iso3": "MNE",
+      "valor": 10.17,
+      "anio": 2024
+    },
+    {
+      "iso3": "MNG",
+      "valor": 7.14,
+      "anio": 2024
+    },
+    {
+      "iso3": "MOZ",
+      "valor": 1.99,
+      "anio": 2024
+    },
+    {
+      "iso3": "MRT",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "MTQ",
+      "valor": 10.93,
+      "anio": 2024
+    },
+    {
+      "iso3": "MUS",
+      "valor": 8.46,
+      "anio": 2024
+    },
+    {
+      "iso3": "MWI",
+      "valor": 1,
+      "anio": 2024
+    },
+    {
+      "iso3": "MYS",
+      "valor": 0.81,
+      "anio": 2024
+    },
+    {
+      "iso3": "NAM",
+      "valor": 8.49,
+      "anio": 2024
+    },
+    {
+      "iso3": "NCL",
+      "valor": 8.19,
+      "anio": 2024
+    },
+    {
+      "iso3": "NER",
+      "valor": 0.13,
+      "anio": 2024
+    },
+    {
+      "iso3": "NGA",
+      "valor": 2.04,
+      "anio": 2024
+    },
+    {
+      "iso3": "NIC",
+      "valor": 4.26,
+      "anio": 2024
+    },
+    {
+      "iso3": "NIU",
+      "valor": 2.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "NLD",
+      "valor": 8.56,
+      "anio": 2024
+    },
+    {
+      "iso3": "NOR",
+      "valor": 6.95,
+      "anio": 2024
+    },
+    {
+      "iso3": "NPL",
+      "valor": 1.97,
+      "anio": 2024
+    },
+    {
+      "iso3": "NRU",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "NZL",
+      "valor": 8.85,
+      "anio": 2024
+    },
+    {
+      "iso3": "OMN",
+      "valor": 1.18,
+      "anio": 2024
+    },
+    {
+      "iso3": "PAK",
+      "valor": 0.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "PAN",
+      "valor": 7.2,
+      "anio": 2024
+    },
+    {
+      "iso3": "PER",
+      "valor": 4.78,
+      "anio": 2024
+    },
+    {
+      "iso3": "PHL",
+      "valor": 6.1,
+      "anio": 2024
+    },
+    {
+      "iso3": "PNG",
+      "valor": 0.96,
+      "anio": 2024
+    },
+    {
+      "iso3": "POL",
+      "valor": 11.51,
+      "anio": 2024
+    },
+    {
+      "iso3": "PRI",
+      "valor": 5.86,
+      "anio": 2024
+    },
+    {
+      "iso3": "PRK",
+      "valor": 2.63,
+      "anio": 2024
+    },
+    {
+      "iso3": "PRT",
+      "valor": 13.75,
+      "anio": 2024
+    },
+    {
+      "iso3": "PRY",
+      "valor": 6.9,
+      "anio": 2024
+    },
+    {
+      "iso3": "PYF",
+      "valor": 7.41,
+      "anio": 2024
+    },
+    {
+      "iso3": "QAT",
+      "valor": 1.3,
+      "anio": 2024
+    },
+    {
+      "iso3": "REU",
+      "valor": 10.55,
+      "anio": 2024
+    },
+    {
+      "iso3": "ROU",
+      "valor": 17.07,
+      "anio": 2024
+    },
+    {
+      "iso3": "RUS",
+      "valor": 10.41,
+      "anio": 2024
+    },
+    {
+      "iso3": "RWA",
+      "valor": 4.14,
+      "anio": 2024
+    },
+    {
+      "iso3": "SDN",
+      "valor": 1.4,
+      "anio": 2024
+    },
+    {
+      "iso3": "SEN",
+      "valor": 0.33,
+      "anio": 2024
+    },
+    {
+      "iso3": "SGP",
+      "valor": 2.18,
+      "anio": 2024
+    },
+    {
+      "iso3": "SHN",
+      "valor": 3.29,
+      "anio": 2024
+    },
+    {
+      "iso3": "SLB",
+      "valor": 0.59,
+      "anio": 2024
+    },
+    {
+      "iso3": "SLE",
+      "valor": 0.24,
+      "anio": 2024
+    },
+    {
+      "iso3": "SLV",
+      "valor": 3.63,
+      "anio": 2024
+    },
+    {
+      "iso3": "SOM",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "SRB",
+      "valor": 11.21,
+      "anio": 2024
+    },
+    {
+      "iso3": "SSD",
+      "valor": 0.41,
+      "anio": 2024
+    },
+    {
+      "iso3": "STP",
+      "valor": 4.34,
+      "anio": 2024
+    },
+    {
+      "iso3": "SUR",
+      "valor": 6.03,
+      "anio": 2024
+    },
+    {
+      "iso3": "SVK",
+      "valor": 9.07,
+      "anio": 2024
+    },
+    {
+      "iso3": "SVN",
+      "valor": 10.74,
+      "anio": 2024
+    },
+    {
+      "iso3": "SWE",
+      "valor": 8.68,
+      "anio": 2024
+    },
+    {
+      "iso3": "SWZ",
+      "valor": 6.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "SYC",
+      "valor": 9,
+      "anio": 2024
+    },
+    {
+      "iso3": "SYR",
+      "valor": 0.11,
+      "anio": 2024
+    },
+    {
+      "iso3": "TCA",
+      "valor": 14.66,
+      "anio": 2024
+    },
+    {
+      "iso3": "TCD",
+      "valor": 3,
+      "anio": 2024
+    },
+    {
+      "iso3": "TGO",
+      "valor": 1.5,
+      "anio": 2024
+    },
+    {
+      "iso3": "THA",
+      "valor": 7.9,
+      "anio": 2024
+    },
+    {
+      "iso3": "TJK",
+      "valor": 0.68,
+      "anio": 2024
+    },
+    {
+      "iso3": "TKM",
+      "valor": 1.52,
+      "anio": 2024
+    },
+    {
+      "iso3": "TLS",
+      "valor": 0.2,
+      "anio": 2024
+    },
+    {
+      "iso3": "TON",
+      "valor": 0.2,
+      "anio": 2024
+    },
+    {
+      "iso3": "TTO",
+      "valor": 4.98,
+      "anio": 2024
+    },
+    {
+      "iso3": "TUN",
+      "valor": 1.7,
+      "anio": 2024
+    },
+    {
+      "iso3": "TUR",
+      "valor": 2.22,
+      "anio": 2024
+    },
+    {
+      "iso3": "TUV",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "TZA",
+      "valor": 1.49,
+      "anio": 2024
+    },
+    {
+      "iso3": "UGA",
+      "valor": 4.03,
+      "anio": 2024
+    },
+    {
+      "iso3": "UKR",
+      "valor": 3.88,
+      "anio": 2024
+    },
+    {
+      "iso3": "URY",
+      "valor": 5.84,
+      "anio": 2024
+    },
+    {
+      "iso3": "USA",
+      "valor": 9.56,
+      "anio": 2024
+    },
+    {
+      "iso3": "UZB",
+      "valor": 2.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "VCT",
+      "valor": 8.44,
+      "anio": 2024
+    },
+    {
+      "iso3": "VEN",
+      "valor": 2.61,
+      "anio": 2024
+    },
+    {
+      "iso3": "VGB",
+      "valor": 10.69,
+      "anio": 2024
+    },
+    {
+      "iso3": "VIR",
+      "valor": 20.1,
+      "anio": 2024
+    },
+    {
+      "iso3": "VNM",
+      "valor": 10.71,
+      "anio": 2024
+    },
+    {
+      "iso3": "VUT",
+      "valor": 2.09,
+      "anio": 2024
+    },
+    {
+      "iso3": "WSM",
+      "valor": 2.94,
+      "anio": 2024
+    },
+    {
+      "iso3": "YEM",
+      "valor": 0,
+      "anio": 2024
+    },
+    {
+      "iso3": "ZAF",
+      "valor": 8.63,
+      "anio": 2024
+    },
+    {
+      "iso3": "ZMB",
+      "valor": 2.13,
+      "anio": 2024
+    },
+    {
+      "iso3": "ZWE",
+      "valor": 5.42,
+      "anio": 2024
+    }
+  ]
+}
