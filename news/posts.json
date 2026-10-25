@@ -1,5 +1,32 @@
 [
   {
+    "date": "2026-10-25",
+    "event": "Disturbios en Barcelona tras una protesta juvenil convocada por redes sociales: un centenar de detenidos, 14 comercios saqueados y 33 incendios (24 de octubre de 2026)",
+    "mapSlug": "unemployment-world",
+    "sourceUrls": [
+      "https://elpais.com/espana/catalunya/2026-10-24/centenares-de-jovenes-violentos-destrozan-el-centro-de-barcelona.html",
+      "https://www.reuters.com/world/arrests-barcelona-after-anti-system-rioters-loot-shops-set-fires-2026-10-24",
+      "https://www.heraldo.es/noticias/nacional/2026/10/24/tension-centro-barcelona-ante-disturbios-vandalismo-decenas-encapuchados-2062565.html",
+      "https://www.bbc.com/news/articles/c95ynd587ynzo",
+      "https://elpais.com/internacional/2026-10-24/francia-contiene-el-aliento-ante-una-nueva-jornada-de-protestas.html",
+      "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/3-01102026-ap"
+    ],
+    "translations": {
+      "es": {
+        "slug": "disturbios-barcelona-protesta-juvenil",
+        "url": "/disturbios-barcelona-protesta-juvenil/",
+        "title": "Barcelona: un centenar de detenidos en una protesta juvenil",
+        "description": "Un centenar de detenidos, 14 comercios saqueados y 33 incendios: una protesta juvenil convocada por redes desborda Barcelona. El mapa de paro contextualiza."
+      },
+      "en": {
+        "slug": "barcelona-youth-protest-riots",
+        "url": "/en/barcelona-youth-protest-riots/",
+        "title": "Barcelona: about 100 arrested as a youth protest turns violent",
+        "description": "About 100 arrested, 14 shops looted and 33 fires: a youth protest called on social media overruns central Barcelona. The unemployment map adds context."
+      }
+    }
+  },
+  {
     "date": "2026-10-24",
     "event": "Un estudio en Nature Health estima 50.391 muertes por calor en 854 ciudades europeas en el verano de 2026 (23 de octubre de 2026)",
     "mapSlug": "co2-per-capita-world",
