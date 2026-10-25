@@ -143,6 +143,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .globe-emoji:hover{transform:translate(-50%,-50%) scale(1.18);}
 .globe-emoji:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
 .globe-emoji-face{display:block;line-height:1;}
+.globe-emoji-badge{position:absolute;top:-7px;right:-7px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;border:2px solid #fff;background:var(--blue);color:#fff;font:600 10px/12px var(--mono);text-align:center;box-shadow:0 1px 3px rgba(15,23,42,.22);}
 .globe-popup{position:absolute;z-index:4;transform:translate(-50%,-100%);min-width:150px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.16);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;pointer-events:auto;}
 .globe-popup::after{content:'';position:absolute;left:50%;bottom:-6px;width:10px;height:10px;background:#fff;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:translateX(-50%) rotate(45deg);}
 .globe-popup-emoji{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--bgBox);}
@@ -150,6 +151,24 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
 .globe-popup-city{font-size:15px;font-weight:800;color:var(--primary);letter-spacing:-.01em;}
 .globe-popup-time{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:12px;color:var(--secondary);font-family:var(--mono);}
 .globe-popup-time svg{width:13px;height:13px;flex-shrink:0;color:var(--third);}
+.globe-popup-sub{margin-top:3px;font-size:11px;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.04em;}
+.globe-popup-list{margin:6px 0 0;padding:0;list-style:none;max-height:220px;overflow-y:auto;overscroll-behavior:contain;}
+.globe-popup-list li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 0;font-size:12px;color:var(--secondary);border-top:1px solid rgba(0,0,0,.05);}
+.globe-popup-list li:first-child{border-top:0;}
+.globe-popup-list li span:last-child{font-family:var(--mono);color:var(--third);white-space:nowrap;}
+.globe-popup-more{margin-top:5px;font-size:11px;color:var(--third);}
+.live-hint{margin:8px 2px 0;font-size:12px;color:var(--third);line-height:1.5;}
+.globe-fan{position:absolute;inset:0;z-index:6;pointer-events:none;}
+.globe-fan-lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+.globe-fan-lines line{stroke:rgba(14,165,233,.6);stroke-width:1.2;stroke-dasharray:3 3;}
+.globe-fan-lines circle{fill:var(--blue);}
+.globe-fan-chip{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;max-width:180px;padding:3px 8px 3px 4px;border:1px solid var(--border);border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.14);pointer-events:auto;cursor:pointer;white-space:nowrap;font-size:11px;color:var(--primary);animation:fanFade .16s ease-out both;}
+@keyframes fanFade{from{opacity:0}to{opacity:1}}
+.globe-fan-chip:hover{border-color:var(--blue);}
+.globe-fan-face{display:flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0;border-radius:50%;background:var(--bgBox);font-size:12px;}
+.globe-fan-name{overflow:hidden;text-overflow:ellipsis;font-weight:700;}
+.globe-fan-count{font-family:var(--mono);font-size:10px;color:var(--third);}
+.globe-emoji.is-fanned{opacity:0!important;}
 .globe-fallback{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .globe-fallback.is-visible{position:absolute;z-index:3;inset:50% 24px auto;transform:translateY(-50%);width:auto;height:auto;margin:0;padding:16px;overflow:visible;clip:auto;white-space:normal;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.9);color:var(--third);text-align:center;font-size:14px;line-height:1.5;}
 .globe-noscript-fallback{position:absolute;z-index:3;inset:50% 24px auto;transform:translateY(-50%);margin:0;padding:16px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.9);color:var(--third);text-align:center;font-size:14px;line-height:1.5;}
@@ -233,6 +252,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
       <noscript><p class="globe-noscript-fallback">Mapa 3D de usuarios conectados en las &#250;ltimas 24 horas. Activa JavaScript para verlo.</p></noscript>
       <div id="globeEmpty" class="globe-empty" hidden data-i18n="open_live_empty">A&#250;n no hay conexiones registradas en las &#250;ltimas 24 horas.</div>
     </div>
+    <p id="globeClusterHint" class="live-hint" hidden data-i18n="open_live_cluster_hint">Pasa el cursor por un punto para desplegar las ciudades cercanas y ver de d&#243;nde vienen.</p>
   </div>
   <div class="hdivider"></div>
   <div class="section">
@@ -304,6 +324,7 @@ loadData();
   var wrapper = document.getElementById('globe');
   var canvas = document.getElementById('cobe-canvas');
   var emptyEl = document.getElementById('globeEmpty');
+  var hintEl = document.getElementById('globeClusterHint');
   var countEl = document.getElementById('liveCount');
   if (!wrapper || !canvas) return;
 
@@ -313,12 +334,13 @@ loadData();
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var liveUsers = [];
+  var clusters = [];
 
   function buildMarkers() {
-    // Marcadores transparentes: solo sirven de ancla de posición para los
-    // emojis que superponemos (evita el punto azul de Cobe).
-    return liveUsers.map(function(u, i) {
-      return { location: [u.lat, u.lng], size: 0.05, color: [1, 1, 1], id: 'u' + i };
+    // Un marcador por grupo de conexiones, no por conexión: así las visitas
+    // que comparten coordenadas (misma ciudad) no se apilan una encima de otra.
+    return clusters.map(function(c, i) {
+      return { location: [c.lat, c.lng], size: 0.05, color: [1, 1, 1], id: 'u' + i };
     });
   }
 
@@ -352,6 +374,56 @@ loadData();
       });
   }
 
+  // Agrupa por coordenada redondeada (tracking.js ya redondea a 0.01°, nivel
+  // ciudad). Cada grupo se dibuja como un único marcador con contador.
+  function groupUsers(users) {
+    var groups = [];
+    var byKey = {};
+    users.forEach(function(u) {
+      var key = u.lat.toFixed(2) + ',' + u.lng.toFixed(2);
+      var group = byKey[key];
+      if (!group) {
+        group = byKey[key] = { lat: u.lat, lng: u.lng, users: [] };
+        groups.push(group);
+      }
+      group.users.push(u);
+    });
+    groups.forEach(function(g) {
+      g.users.sort(function(a, b) { return String(b.time).localeCompare(String(a.time)); });
+    });
+    groups.sort(function(a, b) {
+      if (b.users.length !== a.users.length) return b.users.length - a.users.length;
+      var ca = a.users[0] || {};
+      var cb = b.users[0] || {};
+      return ((ca.city || '') + (ca.country || '')).localeCompare((cb.city || '') + (cb.country || ''));
+    });
+    return groups;
+  }
+
+  function tr(key, fallback) {
+    return typeof t === 'function' ? t(key) : fallback;
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
+  function groupSummary(group) {
+    var cities = [];
+    var countries = [];
+    group.users.forEach(function(u) {
+      if (u.city && cities.indexOf(u.city) === -1) cities.push(u.city);
+      if (u.country && countries.indexOf(u.country) === -1) countries.push(u.country);
+    });
+    return {
+      city: cities.length === 1 ? cities[0] : (cities.length > 1 ? cities.length + ' ' + tr('open_live_cities', 'ciudades') : ''),
+      country: countries.join(', '),
+      cities: cities
+    };
+  }
+
   // Cobe solo pinta puntos/marcas, así que ponemos emojis de persona como
   // etiquetas DOM ancladas a cada marcador (CSS Anchor Positioning soportado
   // por la lib: --cobe-<id> / --cobe-visible-<id>).
@@ -376,21 +448,44 @@ loadData();
       if (activePopup && !activePopup.contains(e.target) && !e.target.closest('.globe-emoji')) closePopup();
     }
 
-    function openPopup(el, user) {
+    function popupHtml(group, face) {
+      var summary = groupSummary(group);
+      var total = group.users.length;
+      var clock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+      var html =
+        '<div class="globe-popup-emoji">' + face + '</div>' +
+        '<div class="globe-popup-body">' +
+          '<div class="globe-popup-city">' + escapeHtml(summary.city) + '</div>' +
+          '<div class="globe-popup-country">' + escapeHtml(summary.country) + '</div>';
+      if (total === 1) {
+        html += '<div class="globe-popup-time">' + clock + escapeHtml(tr('open_live_connection', 'Conexión')) + ': ' + escapeHtml(group.users[0].time) + '</div>';
+      } else {
+        html += '<div class="globe-popup-sub">' + total + ' ' + escapeHtml(tr('open_live_connections', 'conexiones')) + '</div>' +
+          '<ul class="globe-popup-list">';
+        var showCity = summary.cities.length > 1;
+        group.users.slice(0, 12).forEach(function(u) {
+          html += '<li>' +
+            (showCity ? '<span>' + escapeHtml(u.city || u.country || '—') + '</span>' : '') +
+            '<span>' + escapeHtml(u.time || '—') + '</span>' +
+          '</li>';
+        });
+        html += '</ul>';
+        if (total > 12) {
+          html += '<div class="globe-popup-more">+' + (total - 12) + ' ' + escapeHtml(tr('open_live_more', 'más')) + '</div>';
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function openPopup(el, group) {
+      closeFan();
       closePopup();
       var pop = document.createElement('div');
       pop.className = 'globe-popup';
       pop.setAttribute('role', 'dialog');
-      pop.innerHTML =
-        '<div class="globe-popup-emoji">' + (el.querySelector('.globe-emoji-face') || el).textContent + '</div>' +
-        '<div class="globe-popup-body">' +
-          '<div class="globe-popup-city">' + user.city + '</div>' +
-          '<div class="globe-popup-country">' + user.country + '</div>' +
-          '<div class="globe-popup-time">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' +
-            'Conexión: ' + user.time +
-          '</div>' +
-        '</div>';
+      var face = (el.querySelector('.globe-emoji-face') || el).textContent;
+      pop.innerHTML = popupHtml(group, face);
       wrapper.appendChild(pop);
       activePopup = pop;
 
@@ -407,6 +502,178 @@ loadData();
       setTimeout(function() { document.addEventListener('click', onDocClick, true); }, 0);
     }
 
+    var canHover = !!(window.matchMedia && window.matchMedia('(hover: hover)').matches);
+    var fan = null;
+    var fanTimer = null;
+    var fanRAF = null;
+
+    function clearFanTimer() {
+      if (fanTimer) { clearTimeout(fanTimer); fanTimer = null; }
+    }
+
+    function scheduleFanClose() {
+      clearFanTimer();
+      fanTimer = setTimeout(function() { closeFan(); }, 700);
+    }
+
+    function anchorPos(entry) {
+      var style = entry.anchor.getAttribute('style') || '';
+      var ml = style.match(/left:\s*([\d.]+)%/);
+      var mt = style.match(/top:\s*([\d.]+)%/);
+      var rect = wrapper.getBoundingClientRect();
+      return {
+        x: (ml ? parseFloat(ml[1]) : 50) / 100 * rect.width,
+        y: (mt ? parseFloat(mt[1]) : 50) / 100 * rect.height
+      };
+    }
+
+    function isEntryVisible(entry) {
+      return getComputedStyle(entry.el).getPropertyValue('--globe-vis').trim() === '1';
+    }
+
+    function closeFan() {
+      clearFanTimer();
+      if (fanRAF) { cancelAnimationFrame(fanRAF); fanRAF = null; }
+      if (!fan) return;
+      if (fan.onPointerMove) document.removeEventListener('pointermove', fan.onPointerMove);
+      if (fan.onClick) document.removeEventListener('click', fan.onClick, true);
+      if (fan.el.parentElement) fan.el.parentElement.removeChild(fan.el);
+      fan.chips.forEach(function(chip) { chip.entry.el.classList.remove('is-fanned'); });
+      fan = null;
+    }
+
+    function openFan(entry) {
+      if (!canHover || (fan && fan.entry === entry)) return;
+      closeFan();
+      var rect = wrapper.getBoundingClientRect();
+      var p = anchorPos(entry);
+      var maxDist = Math.max(56, Math.min(96, rect.width * 0.075));
+      var neighbors = [];
+      emojis.forEach(function(e) {
+        if (!isEntryVisible(e)) return;
+        var q = anchorPos(e);
+        var d = Math.sqrt(Math.pow(q.x - p.x, 2) + Math.pow(q.y - p.y, 2));
+        if (d <= maxDist) neighbors.push({ entry: e, dist: d });
+      });
+      if (neighbors.length < 2) return;
+      neighbors.sort(function(a, b) {
+        var qa = anchorPos(a.entry);
+        var qb = anchorPos(b.entry);
+        if (Math.abs(qa.y - qb.y) > 4) return qa.y - qb.y;
+        return qa.x - qb.x;
+      });
+      var spacing = 32;
+      var maxChips = Math.max(3, Math.min(10, Math.floor((rect.height - 48) / spacing) + 1));
+      var shown = neighbors.slice(0, maxChips);
+      var hidden = neighbors.length - shown.length;
+
+      var dir = p.x < rect.width / 2 ? 1 : -1;
+      var chipX = p.x + dir * Math.min(130, Math.max(86, rect.width * 0.12));
+      chipX = Math.max(70, Math.min(rect.width - 70, chipX));
+      var startY = p.y - ((shown.length - 1) * spacing) / 2;
+      if (startY < 24) startY = 24;
+      var endY = startY + (shown.length - 1) * spacing;
+      if (endY > rect.height - 24) startY -= endY - (rect.height - 24);
+
+      var overlay = document.createElement('div');
+      overlay.className = 'globe-fan';
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'globe-fan-lines');
+      overlay.appendChild(svg);
+      var chips = [];
+
+      shown.forEach(function(item) {
+        var group = clusters[item.entry.id];
+        if (!group) return;
+        var summary = groupSummary(group);
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'globe-fan-chip';
+        var faceEl = item.entry.el.querySelector('.globe-emoji-face');
+        chip.innerHTML =
+          '<span class="globe-fan-face">' + (faceEl ? faceEl.textContent : '') + '</span>' +
+          '<span class="globe-fan-name">' + escapeHtml(summary.city || summary.country) + '</span>' +
+          (group.users.length > 1 ? '<span class="globe-fan-count">×' + group.users.length + '</span>' : '');
+        chip.title = summary.city + (summary.country ? ', ' + summary.country : '') + ' · ' +
+          group.users.map(function(u) { return u.time; }).join(', ');
+        chip.addEventListener('pointerenter', clearFanTimer);
+        chip.addEventListener('pointerleave', scheduleFanClose);
+        chip.addEventListener('focus', clearFanTimer);
+        chip.addEventListener('blur', scheduleFanClose);
+        chip.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openPopup(item.entry.el, group);
+        });
+        overlay.appendChild(chip);
+
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('r', '2.5');
+        svg.appendChild(line);
+        svg.appendChild(dot);
+
+        item.entry.el.classList.add('is-fanned');
+        chips.push({ entry: item.entry, el: chip, line: line, dot: dot });
+      });
+
+      var moreEl = null;
+      if (hidden > 0) {
+        moreEl = document.createElement('div');
+        moreEl.className = 'globe-fan-chip';
+        moreEl.style.pointerEvents = 'none';
+        moreEl.textContent = '+' + hidden + ' ' + tr('open_live_more', 'más');
+        overlay.appendChild(moreEl);
+      }
+
+      wrapper.appendChild(overlay);
+      fan = { entry: entry, el: overlay, chips: chips };
+      fan.onPointerMove = function(e) {
+        if (e.target && e.target.closest && e.target.closest('.globe-fan-chip')) { clearFanTimer(); return; }
+        var r = wrapper.getBoundingClientRect();
+        var base = anchorPos(entry);
+        var dx = e.clientX - (r.left + base.x);
+        var dy = e.clientY - (r.top + base.y);
+        if (Math.sqrt(dx * dx + dy * dy) <= 260) clearFanTimer();
+        else scheduleFanClose();
+      };
+      fan.onClick = function(e) {
+        if (e.target.closest('.globe-fan-chip') || e.target.closest('.globe-emoji')) return;
+        closeFan();
+      };
+      document.addEventListener('pointermove', fan.onPointerMove);
+      document.addEventListener('click', fan.onClick, true);
+
+      function positionFan() {
+        if (!fan) return;
+        if (!isEntryVisible(entry)) { closeFan(); return; }
+        var base = anchorPos(entry);
+        var nowDir = base.x < rect.width / 2 ? 1 : -1;
+        if (nowDir !== dir) {
+          dir = nowDir;
+          chipX = base.x + dir * Math.min(130, Math.max(86, rect.width * 0.12));
+          chipX = Math.max(70, Math.min(rect.width - 70, chipX));
+        }
+        chips.forEach(function(chip, idx) {
+          var q = anchorPos(chip.entry);
+          var y = startY + idx * spacing;
+          chip.el.style.left = chipX + 'px';
+          chip.el.style.top = y + 'px';
+          chip.line.setAttribute('x1', q.x);
+          chip.line.setAttribute('y1', q.y);
+          chip.line.setAttribute('x2', chipX);
+          chip.line.setAttribute('y2', y);
+          chip.dot.setAttribute('cx', q.x);
+          chip.dot.setAttribute('cy', q.y);
+        });
+        if (moreEl) {
+          moreEl.style.left = chipX + 'px';
+          moreEl.style.top = (startY + chips.length * spacing) + 'px';
+        }
+        fanRAF = requestAnimationFrame(positionFan);
+      }
+      positionFan();
+    }
+
     function attach() {
       var anchors = host.querySelectorAll('div[style*="anchor-name"]');
       if (!anchors.length) {
@@ -414,21 +681,42 @@ loadData();
         return;
       }
       anchors.forEach(function(anchor, i) {
-        var user = liveUsers[i];
-        if (!user) return;
+        var group = clusters[i];
+        if (!group) return;
+        var summary = groupSummary(group);
+        var total = group.users.length;
+        var times = group.users.slice(0, 4).map(function(u) { return u.time; }).join(', ');
         var el = document.createElement('button');
         el.type = 'button';
         el.className = 'globe-emoji';
-        el.setAttribute('aria-label', (user.city ? user.city + ', ' : '') + user.country + '. Conexión: ' + user.time);
+        el.setAttribute('aria-label',
+          (summary.city ? summary.city + ', ' : '') + summary.country + '. ' +
+          (total > 1 ? total + ' ' + tr('open_live_connections', 'conexiones') + ': ' + times : tr('open_live_connection', 'Conexión') + ': ' + times)
+        );
         el.innerHTML = '<span class="globe-emoji-face">' + PERSON_EMOJIS[i % PERSON_EMOJIS.length] + '</span>';
+        if (total > 1) {
+          var badge = document.createElement('span');
+          badge.className = 'globe-emoji-badge';
+          badge.textContent = total > 99 ? '99+' : String(total);
+          el.appendChild(badge);
+        }
         el.addEventListener('click', function(e) {
           e.stopPropagation();
-          openPopup(el, user);
+          openPopup(el, group);
         });
+        var entry = { anchor: anchor, el: el, id: i };
+        if (canHover) {
+          el.addEventListener('pointerenter', function() { openFan(entry); });
+          el.addEventListener('pointerleave', scheduleFanClose);
+          el.addEventListener('focus', function() { openFan(entry); });
+          el.addEventListener('blur', scheduleFanClose);
+        }
         host.appendChild(el);
-        emojis.push({ anchor: anchor, el: el, id: i });
+        emojis.push(entry);
       });
       wrapper.addEventListener('click', function() { /* keep clicks inside globe */ });
+      window.addEventListener('resize', function() { closeFan(); });
+      document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeFan(); });
       requestAnimationFrame(sync);
     }
 
@@ -486,7 +774,6 @@ loadData();
     var idleTimer = null;
     var userInteracted = false;
     var isDragging = false;
-
     function animate() {
       if (spinActive) targetPhi += reduceMotion ? 0 : 0.003;
       else if (!isDragging) {
@@ -586,11 +873,13 @@ loadData();
     return readLiveUsers();
   }).then(function(users) {
     liveUsers = users || [];
+    clusters = groupUsers(liveUsers);
     if (countEl) countEl.textContent = String(liveUsers.length);
     if (!liveUsers.length) {
       if (emptyEl) emptyEl.hidden = false;
       return;
     }
+    if (hintEl) hintEl.hidden = clusters.length < 2;
     startGlobe();
     buildMarkerLabels();
   }).catch(function(error) {
