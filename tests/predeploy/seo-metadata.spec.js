@@ -16,6 +16,7 @@ const {
   shortenDescription,
   DESCRIPTION_MIN_LEN,
   DESCRIPTION_MAX_LEN,
+  isAreaEntityName,
 } = require('../../scripts/tools/audit-gallery-quality');
 
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
@@ -351,4 +352,19 @@ test('description shortening respects the maximum and keeps whole sentences when
   expect(short.length).toBeLessThanOrEqual(DESCRIPTION_MAX_LEN);
   expect(short.length).toBeGreaterThanOrEqual(DESCRIPTION_MIN_LEN);
   expect(short.endsWith('.')).toBe(true);
+});
+
+// Regresión del check 9: la detección de «área representada con punto» no debe
+// marcar topónimos que solo coinciden con una palabra de área (Lagos, la ciudad
+// nigeriana) ni nombres propios de instalaciones (Prairie Island, central
+// nuclear de Minnesota), pero sí las áreas reales.
+test('area-with-point detection ignores proper nouns that look like areas', () => {
+  expect(isAreaEntityName('Prairie Island')).toBe(false);
+  expect(isAreaEntityName('Prairie Island (Minnesota)')).toBe(false);
+  expect(isAreaEntityName('Lagos')).toBe(false);
+  expect(isAreaEntityName('Lagos (Nigeria)')).toBe(false);
+  expect(isAreaEntityName('Seabrook')).toBe(false);
+  expect(isAreaEntityName('Islas Canarias')).toBe(true);
+  expect(isAreaEntityName('Desierto del Sahara')).toBe(true);
+  expect(isAreaEntityName('Océano Pacífico')).toBe(true);
 });

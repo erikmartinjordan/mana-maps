@@ -772,8 +772,10 @@ const AREA_ENTITY_NAME_RE = new RegExp(
   ')\\b', 'i');
 
 // Topónimos reales que el regex anterior detectaría como área (falsos
-// positivos): «Lagos» (Nigeria) es una ciudad, no el plural de «lago».
-const AREA_ENTITY_NAME_EXCEPTIONS = new Set(['lagos']);
+// positivos): «Lagos» (Nigeria) es una ciudad, no el plural de «lago», y
+// «Prairie Island» es una central nuclear (Minnesota), no una isla. Se compara
+// el primer token, así que la excepción cubre variantes con sufijo.
+const AREA_ENTITY_NAME_EXCEPTIONS = new Set(['lagos', 'prairie']);
 
 function isAreaEntityName(name) {
   if (!name || typeof name !== 'string') return false;
