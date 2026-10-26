@@ -25,7 +25,7 @@ obligatoria para cualquier agente que trabaje aquí.
 - `scripts/tools/`: auditorías, generación de landings/OG, sitemap, higiene y
   utilidades. `scripts/lib/publisher.js` es la única puerta a Firestore.
 - `assets/`: imágenes de marca y OG raíz. `css/`: `main.css`,
-  `auth-gallery.css` y `site-footer.css`. `basemaps/`: estilos MapLibre. `docs/`: documentación y
+  `auth-gallery.css`, `site-footer.css` y `site-navbar.css`. `basemaps/`: estilos MapLibre. `docs/`: documentación y
   páginas internas.
 - **Prohibido** en la raíz: `.DS_Store`, `*.tmp.js`, `strategy/`, `styles/`,
   `brand/`, `globe-thumb.png`, `og-card.png`, `styles.css`,

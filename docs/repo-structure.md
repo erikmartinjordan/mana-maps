@@ -30,7 +30,7 @@ autopilot/    # prompts, informes mensuales y directiva de estrategia
 basemaps/     # estilos MapLibre (JSON)
 blog/         # posts ES (en/ contiene los EN)
 changelog/    # página generada
-css/          # main.css + auth-gallery.css + site-footer.css
+css/          # main.css + auth-gallery.css + site-footer.css + site-navbar.css
 data/
   maps/       # GeoJSON publicables (fuente de los publicadores)
   sources/    # crudos que sí se versionan (p. ej. UNESCO)
@@ -76,6 +76,7 @@ fuente cruda → scripts/maps/gen-*.js → data/maps/*.geojson
 - `css/main.css`: hoja principal del editor.
 - `css/auth-gallery.css`: autenticación y acciones de galería.
 - `css/site-footer.css`: pie de página compartido y fondo del overscroll iOS.
+- `css/site-navbar.css`: barra superior compartida de las páginas públicas.
 - `og-cards/`: una tarjeta 1200×630 por mapa publicado.
 
 ## Higiene

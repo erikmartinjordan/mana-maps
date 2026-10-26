@@ -159,6 +159,8 @@ const I18N = {
     footer_news: "News",
     footer_company: "Compañía",
     footer_github: "GitHub",
+    nav_app: "Abrir app",
+    nav_menu: "Menú",
     footer_pro: "Maña Cloud →",
     footer_pro_active: "Maña Cloud Pro",
     footer_pro_label: "Actualizar a Pro",
@@ -724,6 +726,8 @@ const I18N = {
     footer_news: "News",
     footer_company: "Company",
     footer_github: "GitHub",
+    nav_app: "Open app",
+    nav_menu: "Menu",
     footer_pro: "Maña Cloud →",
     footer_pro_active: "Maña Cloud Pro",
     footer_pro_label: "Upgrade to Pro",
@@ -1152,36 +1156,14 @@ function persistManaLang(lang) {
 }
 
 // Language detection policy:
-// 1) Persisted setting wins.
+// 1) Persisted setting wins (shared with the home page).
 // 2) /en URL path forces EN.
-// 3) Default EN unless browser locale clearly maps to Spain or a Spanish-speaking country.
-var SPANISH_COUNTRIES = {
-  ES: true, AR: true, BO: true, CL: true, CO: true, CR: true, CU: true, DO: true,
-  EC: true, GQ: true, GT: true, HN: true, MX: true, NI: true, PA: true, PE: true,
-  PR: true, PY: true, SV: true, UY: true, VE: true
-};
-
-function getBrowserRegion(navLocale) {
-  if (!navLocale) return '';
-  var locale = String(navLocale).replace('_', '-');
-  var parts = locale.split('-');
-  if (parts.length > 1 && parts[1]) return parts[1].toUpperCase();
-  return '';
-}
-
+// 3) Default ES, matching the Spanish-first home page.
 let LANG = (function() {
   var stored = getStoredManaLang();
   if (stored) return stored;
   if (window.location.pathname.startsWith('/en')) return 'en';
-
-  var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-  var lang2 = nav.slice(0, 2);
-  var region = getBrowserRegion(nav);
-
-  if (lang2 === 'ca' || lang2 === 'gl' || lang2 === 'eu') return 'es';
-  if (lang2 === 'es' && region && SPANISH_COUNTRIES[region]) return 'es';
-
-  return 'en';
+  return 'es';
 })();
 
 // ── Translation function ──

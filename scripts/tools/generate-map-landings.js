@@ -219,14 +219,30 @@ function buildLandingHTML(m, all) {
   .related a{text-decoration:none;font-weight:600}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
+<link rel="stylesheet" href="/css/site-navbar.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/" aria-label="Maña Maps">
-      <span class="brand-logo">${LOGO_SVG}</span>
-      <span><span class="brand-word">Maña</span><span class="brand-sub">Maps</span></span>
-    </a>
-    <nav class="nav"><a href="/gallery/">Galería</a><a href="/map/">Crear mapa</a></nav>
+  <header class="site-navbar">
+    <div class="site-navbar__inner">
+      <a class="brand" href="/" aria-label="Maña Maps">
+        <span class="brand-logo">${LOGO_SVG}</span>
+        <span><span class="brand-word">Maña</span><span class="brand-sub">Maps</span></span>
+      </a>
+      <nav class="site-navbar__actions" aria-label="Navegación principal">
+        <a class="site-navbar__link site-navbar__link--desktop" href="/news/" data-i18n="footer_news">News</a>
+        <a class="site-navbar__link site-navbar__link--desktop" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+        <a class="site-navbar__link site-navbar__link--desktop" href="/pricing/" data-i18n="footer_pricing">Precios</a>
+        <details class="site-navbar__more">
+          <summary class="site-navbar__link site-navbar__menu" data-i18n="nav_menu">Menú</summary>
+          <div class="site-navbar__panel">
+            <a href="/news/" data-i18n="footer_news">News</a>
+            <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+            <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+          </div>
+        </details>
+        <a class="site-navbar__link site-navbar__cta" href="/map/" data-i18n="nav_app">Abrir app</a>
+      </nav>
+    </div>
   </header>
   <main class="wrap">
     <h1>${esc(title)}</h1>

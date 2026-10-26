@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v63';
+const CACHE_NAME = 'mana-maps-pwa-v65';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -14,6 +14,7 @@ const PRECACHE_URLS = [
   '/basemaps/mana-openfreemap-alt.json?v=1776927833',
   '/css/auth-gallery.css',
   '/css/site-footer.css',
+  '/css/site-navbar.css',
   'https://unpkg.com/shpjs@4.0.4/dist/shp.js',
   'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
@@ -22,7 +23,7 @@ const PRECACHE_URLS = [
   'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js',
   '/js/firebase-config.local.js',
   '/js/firebase.js',
-  '/js/i18n.js?v=1790749823',
+  '/js/i18n.js?v=20261026',
   '/js/basemap-config.js?v=1776927833',
   '/js/markers.js?v=1791708010',
   '/js/modal.js?v=1776927826',
@@ -150,7 +151,10 @@ function cacheFirst(request) {
 }
 
 function networkFirst(request, isNavigation) {
-  return caches.open(CACHE_NAME).then((cache) => fetch(request)
+  // Bypass the HTTP cache for navigations so a fresh HTML build is never
+  // hidden by a stale document cached by the browser.
+  const fetchRequest = isNavigation ? new Request(request, { cache: 'no-store' }) : request;
+  return caches.open(CACHE_NAME).then((cache) => fetch(fetchRequest)
     .then((response) => {
       if (response && (response.ok || response.type === 'opaque')) {
         cache.put(request, response.clone());
