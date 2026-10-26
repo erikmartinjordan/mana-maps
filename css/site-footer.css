@@ -195,11 +195,6 @@ html {
     border-bottom: 1px dashed var(--sf-line);
   }
   .site-footer__group--wide { grid-column: 1 / -1; }
-  .site-footer__group--wide .site-footer__links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 24px;
-  }
   .site-footer__lead {
     max-width: none;
     padding-top: 16px;

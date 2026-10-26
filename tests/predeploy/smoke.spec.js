@@ -142,6 +142,13 @@ test('site footer stays consistent and readable on mobile', async ({ page }) => 
 
   const firstLink = await footer.locator('.site-footer__group a').first().boundingBox();
   expect(firstLink.height).toBeGreaterThanOrEqual(44);
+
+  const companyLinks = footer.locator('.site-footer__group--wide a');
+  const aboutBox = await companyLinks.nth(0).boundingBox();
+  const githubBox = await companyLinks.nth(1).boundingBox();
+  expect(Math.abs(aboutBox.x - githubBox.x)).toBeLessThanOrEqual(1);
+  expect(githubBox.y).toBeGreaterThanOrEqual(aboutBox.y + aboutBox.height - 1);
+
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(255, 255, 255)');
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
