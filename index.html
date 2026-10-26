@@ -877,7 +877,7 @@ var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 var dayNight = null;
 try {
-  var dayNightModule = await import('/js/globe-daynight.js?v=1');
+  var dayNightModule = await import('/js/globe-daynight.js?v=4');
   dayNight = dayNightModule.createDayNightOverlay(wrapper, { scale: 1.05 });
 } catch (overlayError) {
   console.warn('No se pudo cargar la capa de día y noche.', overlayError);
