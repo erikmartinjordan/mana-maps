@@ -196,6 +196,7 @@ TEMPLATE = """<!DOCTYPE html>
 .entry-time{{font-size:11px;color:var(--third);}}
 </style>
 <link rel="stylesheet" href="/css/site-footer.css">
+<style>:root{{--overscroll-bg:#fff}}</style>
 </head>
 <body>
 <div id="topbar">
@@ -222,7 +223,8 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="timeline">
 {timeline}
   </div>
-  <footer class="site-footer site-footer--compact" aria-label="Pie de página">
+</div>
+<footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
     <div class="site-footer__lead">
       <a class="site-footer__brand" href="/">
         <img src="/favicon.svg" alt="" width="30" height="30">
@@ -259,8 +261,7 @@ TEMPLATE = """<!DOCTYPE html>
     <div class="site-footer__bottom">
       <span class="site-footer__copyright">© 2026 Maña Maps</span>
     </div>
-  </footer>
-</div>
+  </div></footer>
 </body>
 </html>
 """

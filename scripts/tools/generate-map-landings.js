@@ -188,6 +188,7 @@ function buildLandingHTML(m, all) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap">
 <link rel="stylesheet" href="/css/site-footer.css">
+<style>:root{--overscroll-bg:#fff}@media (prefers-color-scheme: dark){:root{--overscroll-bg:#0b0f14}}</style>
 <script type="application/ld+json">${JSON.stringify(dataset)}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
@@ -240,7 +241,7 @@ function buildLandingHTML(m, all) {
     ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}
     ${relatedLinks(all, m)}
   </main>
-  <footer class="site-footer" aria-label="Pie de página">
+  <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
     <div class="site-footer__lead">
       <a class="site-footer__brand" href="/">
         <img src="/favicon.svg" alt="" width="30" height="30">
@@ -277,7 +278,7 @@ function buildLandingHTML(m, all) {
     <div class="site-footer__bottom">
       <span class="site-footer__copyright">© 2026 Maña Maps</span>
     </div>
-  </footer>
+  </div></footer>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/tracking.js?v=1792742000"></script>
 </body>

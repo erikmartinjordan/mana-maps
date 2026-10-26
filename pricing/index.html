@@ -87,6 +87,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--primary);}
  @media(max-width:420px){.page-header{text-align:left}.page-header p{margin:0}.badge{margin-bottom:12px}}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
+  <style>:root{--overscroll-bg:#fff}</style>
 </head>
 <body>
 <div id="topbar">
@@ -178,7 +179,8 @@ html,body{min-height:100%;background:var(--bg);color:var(--primary);}
     </div>
   </section>
   <p class="note" data-i18n="pricing_note">Sin planes complejos: usa Maña Maps gratis y activa Pro cuando tu flujo de trabajo lo pida.</p>
-  <footer class="site-footer" aria-label="Pie de página">
+  </main>
+<footer class="site-footer site-footer--sticky-cta" aria-label="Pie de página"><div class="site-footer__inner">
   <div class="site-footer__lead">
     <a class="site-footer__brand" href="/">
       <img src="/favicon.svg" alt="" width="30" height="30">
@@ -215,8 +217,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--primary);}
   <div class="site-footer__bottom">
     <span class="site-footer__copyright">© 2026 Maña Maps</span>
   </div>
-</footer>
- </main>
+</div></footer>
   <aside class="sticky-cta" data-i18n-aria-label="pricing_cta_label" aria-label="Llamada a la acción">
    <strong data-i18n="pricing_sticky_text">¿Listo para trabajar sin límites?</strong>
    <a class="btn btn-primary" href="https://buy.stripe.com/00w9AU9Rz2ohbfX1OxdfG00" target="_blank" rel="noopener" data-i18n="pricing_cta_pro">Actualizar a Pro</a>

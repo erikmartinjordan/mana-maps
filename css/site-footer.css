@@ -1,7 +1,8 @@
 /* ── Site footer ──────────────────────────────────────────────────────────
-   Componente único para todo el sitio. Mantiene el fondo gris también en el
-   área de overscroll de iOS (rubber-band) para que no aparezca una banda
-   blanca al llegar al final de la página. */
+   Componente único para todo el sitio. El fondo ocupa todo el ancho y el
+   contenido se centra en un máximo de 1120px, igual que el frame de la home.
+   El fondo del documento usa --overscroll-bg para que el área de overscroll
+   de iOS coincida con el fondo real de cada página. */
 
 html {
   background-color: var(--overscroll-bg, #efeff1);
@@ -15,13 +16,8 @@ html {
   --sf-line: #e5e7eb;
   --sf-soft: #fbfcfd;
   --sf-sky: #0ea5e9;
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(0, 700px);
-  grid-template-areas: "lead groups" "bottom bottom";
-  gap: 30px 56px;
-  padding: 32px clamp(24px, 4vw, 40px) 22px;
-  border-top: 1px solid var(--sf-line);
   background: var(--sf-soft);
+  border-top: 1px solid var(--sf-line);
   color: var(--sf-text);
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 12.5px;
@@ -32,6 +28,16 @@ html {
 .site-footer *,
 .site-footer *::before,
 .site-footer *::after { box-sizing: border-box; }
+
+.site-footer__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px clamp(24px, 4vw, 40px) 22px;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 700px);
+  grid-template-areas: "lead groups" "bottom bottom";
+  gap: 30px 56px;
+}
 
 .site-footer__lead {
   grid-area: lead;
@@ -136,45 +142,8 @@ html {
 
 .site-footer__copyright { white-space: nowrap; }
 
-/* Variante compacta para contenedores estrechos (About, Changelog). */
-.site-footer--compact {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: "groups groups" "lead bottom";
-  gap: 0 12px;
-  padding: 24px 18px calc(16px + env(safe-area-inset-bottom));
-}
-.site-footer--compact .site-footer__groups {
-  grid-template-columns: 1fr 1fr;
-  gap: 24px 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px dashed var(--sf-line);
-}
-.site-footer--compact .site-footer__group--wide { grid-column: 1 / -1; }
-.site-footer--compact .site-footer__group--wide .site-footer__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 24px;
-}
-.site-footer--compact .site-footer__lead {
-  max-width: none;
-  padding-top: 16px;
-  gap: 2px;
-}
-.site-footer--compact .site-footer__tagline { display: none; }
-.site-footer--compact .site-footer__made { font-size: 11px; }
-.site-footer--compact .site-footer__group h2 { margin-bottom: 4px; }
-.site-footer--compact .site-footer__group a { min-height: 44px; font-size: 13.5px; }
-.site-footer--compact .site-footer__bottom {
-  align-self: end;
-  justify-self: end;
-  margin: 0;
-  padding-top: 16px;
-  border-top: 0;
-}
-.site-footer--compact .site-footer__copyright { font-size: 11px; }
-
 @media (max-width: 920px) {
-  .site-footer {
+  .site-footer__inner {
     grid-template-columns: minmax(180px, 1fr) minmax(0, 1fr);
     gap: 26px 32px;
   }
@@ -182,7 +151,7 @@ html {
 }
 
 @media (max-width: 720px) {
-  .site-footer {
+  .site-footer__inner {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "groups groups" "lead bottom";
     gap: 0 12px;
@@ -219,9 +188,14 @@ html {
   .site-footer__copyright { font-size: 11px; }
 }
 
+/* Pricing: deja hueco para la CTA fija inferior en móvil. */
+@media (max-width: 720px) {
+  .site-footer--sticky-cta .site-footer__inner {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
 @media (max-width: 360px) {
   .site-footer__groups { grid-template-columns: 1fr; }
   .site-footer__group--wide { grid-column: auto; }
-  .site-footer--compact .site-footer__groups { grid-template-columns: 1fr; }
-  .site-footer--compact .site-footer__group--wide { grid-column: auto; }
 }
