@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v59';
+const CACHE_NAME = 'mana-maps-pwa-v60';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -13,6 +13,7 @@ const PRECACHE_URLS = [
   '/basemaps/mana-dark.json?v=1776927833',
   '/basemaps/mana-openfreemap-alt.json?v=1776927833',
   '/css/auth-gallery.css',
+  '/css/site-footer.css',
   'https://unpkg.com/shpjs@4.0.4/dist/shp.js',
   'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',

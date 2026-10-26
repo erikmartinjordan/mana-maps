@@ -30,7 +30,7 @@ autopilot/    # prompts y runner del sistema (no es el loop del iMac)
 basemaps/     # estilos MapLibre (JSON)
 blog/         # posts ES (en/ contiene los EN)
 changelog/    # página generada
-css/          # main.css + auth-gallery.css
+css/          # main.css + auth-gallery.css + site-footer.css
 data/
   maps/       # GeoJSON publicables (fuente de los publicadores)
   sources/    # crudos que sí se versionan (p. ej. UNESCO)
@@ -75,6 +75,7 @@ fuente cruda → scripts/maps/gen-*.js → data/maps/*.geojson
 - `basemaps/*.json`: estilos MapLibre (no son CSS).
 - `css/main.css`: hoja principal del editor.
 - `css/auth-gallery.css`: autenticación y acciones de galería.
+- `css/site-footer.css`: pie de página compartido y fondo del overscroll iOS.
 - `og-cards/`: una tarjeta 1200×630 por mapa publicado.
 
 ## Higiene

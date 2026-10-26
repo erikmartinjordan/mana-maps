@@ -694,6 +694,7 @@
     .auth-google-btn:hover{border-color:rgba(16,24,40,.25);background:#f6f7f9;transform:translateY(-1px)}
     .auth-google-btn:active{transform:scale(.98)}
   </style>
+  <link rel="stylesheet" href="/css/site-footer.css">
 </head>
 <body>
   <main class="frame">
@@ -766,16 +767,44 @@
       <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
     </section>
 
-    <footer class="footer">
-      <span>Hecho con &#9829; en Barcelona.</span>
-      <span>
-        <a href="/about">Acerca de</a> &middot;
-        <a href="/changelog">Ver novedades</a> &middot;
-        <a href="/open">Estadísticas</a> &middot;
-        <a href="/pricing">Precios</a>
-      </span>
-      <span>&copy; Maña Maps</span>
-    </footer>
+    <footer class="site-footer" aria-label="Pie de página">
+  <div class="site-footer__lead">
+    <a class="site-footer__brand" href="/">
+      <img src="/favicon.svg" alt="" width="30" height="30">
+      <span>Maña Maps</span>
+    </a>
+    <p class="site-footer__tagline" data-i18n="footer_tagline">Mapas claros, decisiones rápidas.</p>
+    <span class="site-footer__made" data-i18n="footer_made">Hecho con ♥ en Barcelona</span>
+  </div>
+  <nav class="site-footer__groups" aria-label="Enlaces del pie">
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_product">Producto</h2>
+      <div class="site-footer__links">
+        <a href="/map/" data-i18n="footer_create">Crear mapa</a>
+        <a href="/gallery/" data-i18n="footer_gallery">Galería</a>
+        <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      </div>
+    </section>
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_resources">Recursos</h2>
+      <div class="site-footer__links">
+        <a href="/news/" data-i18n="footer_news">News</a>
+        <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+        <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
+      </div>
+    </section>
+    <section class="site-footer__group site-footer__group--wide">
+      <h2 data-i18n="footer_company">Compañía</h2>
+      <div class="site-footer__links">
+        <a href="/about/" data-i18n="footer_about">Acerca de</a>
+        <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener" data-i18n="footer_github">GitHub</a>
+      </div>
+    </section>
+  </nav>
+  <div class="site-footer__bottom">
+    <span class="site-footer__copyright">© 2026 Maña Maps</span>
+  </div>
+</footer>
   </main>
 
   <div id="auth-modal" class="share-modal" aria-hidden="true">

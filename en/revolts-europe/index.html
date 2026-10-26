@@ -161,6 +161,7 @@
   .footer-links{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:8px}
   .footer-links a{font-size:14px;text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
 </style>
+  <link rel="stylesheet" href="/css/site-footer.css">
 </head>
 <body>
   <main class="frame">
@@ -269,11 +270,44 @@
       </article>
     </div>
 
-    <footer class="footer">
-      <span>Made with ♥ in Barcelona.</span>
-      <span><a href="/about">About</a> · <a href="/changelog">Changelog</a> · <a href="/open">Stats</a> · <a href="/pricing">Pricing</a></span>
-      <span>© Maña Maps</span>
-    </footer>
+    <footer class="site-footer" aria-label="Footer">
+  <div class="site-footer__lead">
+    <a class="site-footer__brand" href="/">
+      <img src="/favicon.svg" alt="" width="30" height="30">
+      <span>Maña Maps</span>
+    </a>
+    <p class="site-footer__tagline">Clear maps, fast decisions.</p>
+    <span class="site-footer__made">Made with ♥ in Barcelona</span>
+  </div>
+  <nav class="site-footer__groups" aria-label="Footer links">
+    <section class="site-footer__group">
+      <h2>Product</h2>
+      <div class="site-footer__links">
+        <a href="/en/">Create map</a>
+        <a href="/gallery/">Gallery</a>
+        <a href="/pricing/">Pricing</a>
+      </div>
+    </section>
+    <section class="site-footer__group">
+      <h2>Resources</h2>
+      <div class="site-footer__links">
+        <a href="/en/news/">News</a>
+        <a href="/changelog/">Changelog</a>
+        <a href="/open/">Statistics</a>
+      </div>
+    </section>
+    <section class="site-footer__group site-footer__group--wide">
+      <h2>Company</h2>
+      <div class="site-footer__links">
+        <a href="/about/">About</a>
+        <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </section>
+  </nav>
+  <div class="site-footer__bottom">
+    <span class="site-footer__copyright">© 2026 Maña Maps</span>
+  </div>
+</footer>
   </main>
 
   <script defer src="/js/firebase-config.local.js"></script>

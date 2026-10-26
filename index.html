@@ -473,6 +473,7 @@ h1 {
   outline: 2px solid #0a84ff; outline-offset: 2px;
 }
 </style>
+  <link rel="stylesheet" href="/css/site-footer.css">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Saltar al contenido</a>
@@ -618,18 +619,44 @@ h1 {
     </div>
   </section>
 
-  <footer class="footer">
-    <span data-i18n="footer_made">Hecho con &#9829; en Barcelona.</span>
-    <span>
-      <a href="/about" data-i18n="nav_about">Acerca de</a> &middot;
-      <a href="/gallery" data-i18n="nav_gallery">Galer&#237;a</a> &middot;
-      <a href="/news/" data-i18n="nav_blog">News</a> &middot;
-      <a href="/changelog" data-i18n="cta_changelog">Ver novedades</a> &middot;
-      <a href="/open" data-i18n="nav_stats">Estad&#237;sticas</a> &middot;
-      <a href="/pricing" data-i18n="nav_pricing">Precios</a>
-    </span>
-    <span>&copy; Ma&#241;a Maps</span>
-  </footer>
+  <footer class="site-footer" aria-label="Pie de página">
+  <div class="site-footer__lead">
+    <a class="site-footer__brand" href="/">
+      <img src="/favicon.svg" alt="" width="30" height="30">
+      <span>Maña Maps</span>
+    </a>
+    <p class="site-footer__tagline" data-i18n="footer_tagline">Mapas claros, decisiones rápidas.</p>
+    <span class="site-footer__made" data-i18n="footer_made">Hecho con ♥ en Barcelona</span>
+  </div>
+  <nav class="site-footer__groups" aria-label="Enlaces del pie">
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_product">Producto</h2>
+      <div class="site-footer__links">
+        <a href="/map/" data-i18n="footer_create">Crear mapa</a>
+        <a href="/gallery/" data-i18n="footer_gallery">Galería</a>
+        <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      </div>
+    </section>
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_resources">Recursos</h2>
+      <div class="site-footer__links">
+        <a href="/news/" data-i18n="footer_news">News</a>
+        <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+        <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
+      </div>
+    </section>
+    <section class="site-footer__group site-footer__group--wide">
+      <h2 data-i18n="footer_company">Compañía</h2>
+      <div class="site-footer__links">
+        <a href="/about/" data-i18n="footer_about">Acerca de</a>
+        <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener" data-i18n="footer_github">GitHub</a>
+      </div>
+    </section>
+  </nav>
+  <div class="site-footer__bottom">
+    <span class="site-footer__copyright">© 2026 Maña Maps</span>
+  </div>
+</footer>
 </main>
 
 <script>
@@ -668,7 +695,19 @@ var LANG = {
     cta_title:'\u00bfListo para dise\u00f1ar tu mapa?',
     cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
     cta_aria:'Llamada a la acci\u00f3n',
-    footer_made:'Hecho con \u2665 en Barcelona.',
+    footer_made:'Hecho con \u2665 en Barcelona',
+    footer_tagline:'Mapas claros, decisiones r\u00e1pidas.',
+    footer_product:'Producto',
+    footer_create:'Crear mapa',
+    footer_gallery:'Galer\u00eda',
+    footer_resources:'Recursos',
+    footer_news:'News',
+    footer_company:'Compa\u00f1\u00eda',
+    footer_github:'GitHub',
+    footer_about:'Acerca de',
+    footer_changelog:'Changelog',
+    footer_stats:'Estad\u00edsticas',
+    footer_pricing:'Precios',
     page_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
     meta_desc:'Ma\u00f1a Maps: crea mapas limpios y precisos en segundos. GeoJSON, KML, Shapefile. IA integrada. Gratis.',
     og_title:'Ma\u00f1a Maps \u2014 Dise\u00f1a mapas con claridad',
@@ -712,7 +751,19 @@ var LANG = {
     cta_title:'Ready to design your map?',
     cta_sub:'Free, no signup. Open the app and start in seconds.',
     cta_aria:'Call to action',
-    footer_made:'Made with \u2665 in Barcelona.',
+    footer_made:'Made with \u2665 in Barcelona',
+    footer_tagline:'Clear maps, fast decisions.',
+    footer_product:'Product',
+    footer_create:'Create map',
+    footer_gallery:'Gallery',
+    footer_resources:'Resources',
+    footer_news:'News',
+    footer_company:'Company',
+    footer_github:'GitHub',
+    footer_about:'About',
+    footer_changelog:'Changelog',
+    footer_stats:'Statistics',
+    footer_pricing:'Pricing',
     page_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',
     meta_desc:'Ma\u00f1a Maps: create clean, precise maps in seconds. GeoJSON, KML, Shapefile. Built-in AI. Free.',
     og_title:'Ma\u00f1a Maps \u2014 Design maps with clarity',

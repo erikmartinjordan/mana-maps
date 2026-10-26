@@ -130,3 +130,18 @@ test('map editor shell loads core UI containers', async ({ page }) => {
 
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
+
+test('site footer stays consistent and readable on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  const footer = page.locator('.site-footer').first();
+  await expect(footer).toBeVisible();
+  await expect(footer.locator('.site-footer__group h2')).toHaveText(['Producto', 'Recursos', 'Compañía']);
+  await expect(footer.locator('.site-footer__group a')).toHaveCount(8);
+
+  const firstLink = await footer.locator('.site-footer__group a').first().boundingBox();
+  expect(firstLink.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(239, 239, 241)');
+});
