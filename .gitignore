@@ -5,7 +5,11 @@ js/firebase-config.local.js
 .env.*
 
 node_modules/
-autopilot/reports/
+# Informes mensuales: el Markdown canónico se versiona; JSON/HTML de ejecución no.
+autopilot/reports/*
+!autopilot/reports/monthly/
+autopilot/reports/monthly/*
+!autopilot/reports/monthly/*.md
 test-results/
 playwright-report/
 blob-report/

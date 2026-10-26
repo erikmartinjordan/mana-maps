@@ -28,3 +28,18 @@ X/SEO → mapa público (gallery) → CTA "haz tu mapa" → editor → plan grat
 - Sin backend nuevo: GitHub Pages + Firebase existentes.
 - Sin cuentas de pago externas de momento.
 - El autopilot automatiza PRODUCCION, no el criterio.
+
+## Ciclo mensual (operativo)
+
+El último dato manda sobre la inercia. La primera ejecución de News del último
+día del mes cierra el mes y produce un informe canónico en
+`autopilot/reports/monthly/<YYYY-MM>.md`. Si falla, los días 1-3 lo regeneran con el
+mes completo. `autopilot` lo lee antes de tocar el
+BACKLOG, escribe `autopilot/strategy/current.md` y redirige a `ideator`,
+`mapmaker`, `blogger` y `reviewer` con instrucciones por rol.
+
+Regla de decisión: si el informe muestra que el cuello de botella es
+distribución, medición o activación, **no se producen más mapas por inercia**.
+Si muestra que una hipótesis de producto falla, se corrige el embudo antes de
+ampliar el catálogo. `AGENTS.md` y las decisiones de producto siguen siendo el
+límite duro.

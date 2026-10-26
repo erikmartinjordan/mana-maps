@@ -38,7 +38,7 @@
   html{scroll-behavior:smooth}
   body{
     min-height:100vh;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    color:var(--text);background:radial-gradient(circle at 10% 0%, #ffffff 0%, #f5f5f7 48%, #efeff1 100%);
+    color:var(--text);background:linear-gradient(180deg, #ffffff 0%, #f5f5f7 48%, #efeff1 100%);
     -webkit-font-smoothing:antialiased;line-height:1.65;
   }
   a{color:inherit;text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
@@ -322,5 +322,20 @@
   </main>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/tracking.js?v=1792741000"></script>
+<script data-overscroll-bg="1">
+(function(){
+  if(!document.querySelector('.frame')) return;
+  var root=document.documentElement, top='#ffffff', bottom='#efeff1';
+  function sync(){
+    var y=window.scrollY||window.pageYOffset||0;
+    var max=Math.max(0,root.scrollHeight-window.innerHeight);
+    if(y<=1) root.style.backgroundColor=top;
+    else if(y>=max-1) root.style.backgroundColor=bottom;
+  }
+  window.addEventListener('scroll',sync,{passive:true});
+  window.addEventListener('resize',sync);
+  sync();
+})();
+</script>
 </body>
 </html>

@@ -24,3 +24,39 @@ ciclo (máximo 3 intentos al día).
 
 Los logs quedan en `~/autopilot/logs/sessions/blogger-AAAAMMDD-HHMM.md` y en
 `~/autopilot/logs/loop.log`.
+
+## Informe mensual
+
+En la **primera ejecución de News del último día del mes** (07:00), el agente
+cierra el mes y escribe el informe mensual en lugar de la pieza diaria. Si esa
+ejecución falla, los **días 1-3** lo reintentan con el mes anterior completo:
+
+1. Ejecuta (usa el mes en curso en el cierre del último día y el anterior en el
+   fallback de los días 1-3):
+
+   ```bash
+   node scripts/tools/monthly-report-metrics.js \
+     --month <mes-a-cerrar> \
+     --out autopilot/reports/monthly/<mes-a-cerrar>.json \
+     --md-out autopilot/reports/monthly/<mes-a-cerrar>.md
+   ```
+2. Completa el Markdown canónico (lectura, 3 prioridades e instrucciones por
+   rol), cambia `status: draft` a `status: final` y lo commitea en
+   `autopilot/reports/monthly/<mes>.md`. Un informe en `draft` no se consume.
+3. Publica el artículo ES/EN como primera tarjeta de News, con gráficas y sin
+   iframe de mapa.
+4. Añade una entrada a `news/posts.json` con `type: "report"`, `mapSlug: null`
+   y `sourceUrls: []`. El loop necesita esa entrada para validar y pushear la
+   publicación.
+5. Actualiza sitemap y hreflang. No añadas el informe a la deduplicación de
+   noticias diarias.
+
+El informe canónico es la entrada de `autopilot`: en el primer ciclo del día 1,
+después del `blogger`, el agente `autopilot` lo lee antes de tocar el BACKLOG y
+escribe `autopilot/strategy/current.md`. Si el informe ya existe, el `blogger`
+sigue con la pieza diaria normal.
+
+Si el informe falla el último día, el loop reintenta a las 13:00 y 19:00 porque
+`news/posts.json` aún no tiene la fecha de hoy. Si sigue fallando, los días 1-3 lo
+generan con el mes anterior completo. El informe del último día es un cierre
+provisional con datos hasta la mañana; el del día 1 es el cierre completo.

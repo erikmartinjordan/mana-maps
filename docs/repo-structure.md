@@ -26,7 +26,7 @@ my-maps/  open/  pricing/  profile/  tasks.html
 
 # Código y contenido
 assets/       # imágenes de marca y tarjetas OG raíz
-autopilot/    # prompts y runner del sistema (no es el loop del iMac)
+autopilot/    # prompts, informes mensuales y directiva de estrategia
 basemaps/     # estilos MapLibre (JSON)
 blog/         # posts ES (en/ contiene los EN)
 changelog/    # página generada

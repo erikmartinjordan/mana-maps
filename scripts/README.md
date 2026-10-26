@@ -45,6 +45,7 @@ node scripts/tools/check-local-assets.js
 node scripts/tools/check-repo-hygiene.js
 node scripts/tools/generate-map-landings.js
 node scripts/tools/update-sitemap-gallery.js
+node scripts/tools/monthly-report-metrics.js --month 2026-10
 ```
 
 ## Reglas
@@ -57,3 +58,7 @@ node scripts/tools/update-sitemap-gallery.js
 - Antes de publicar: `--dry-run`, validar GeoJSON, colores, etiquetas y
   coordenadas, y dejar Playwright en verde.
 - `scripts/lib/publisher.js` es la única puerta de autenticación con Firestore.
+- `scripts/tools/monthly-report-metrics.js` genera las métricas del informe
+  mensual de News desde Firestore (sesiones externas, fuentes, mercados,
+  catálogo y eventos de producto). Es la entrada determinista del agente
+  `blogger`; no recalcules esas cifras a mano.

@@ -24,6 +24,20 @@ máximo **un** artículo de News en dos versiones del mismo contenido: español
 y reciente con un mapa ya publicado en la galería. El mapa se inserta como
 editor interactivo dentro de ambos artículos.
 
+**Excepción mensual:** la primera ejecución de News del último día del mes no
+publica la pieza diaria. Cierra el mes y publica el informe de estado del sitio,
+sin iframe de mapa y con gráficas. Si falla, se regenera con el mes anterior
+completo en los días 1-3. Ver «MODO INFORME MENSUAL».
+
+## DIRECTIVA MENSUAL (obligatoria)
+
+Antes de empezar, lee `autopilot/strategy/current.md` si existe. Si su
+frontmatter `month:` es el mes actual o el anterior y tiene menos de 45 días,
+aplica su `focus` y su `role_directives.blogger` para elegir ángulos, temas y
+distribución. Si no existe, está caducada o contradice `AGENTS.md`, ignórala.
+La directiva no puede saltarse la veracidad, las fuentes ni las decisiones de
+producto.
+
 Trabajas en el repositorio de Maña Maps. Antes de empezar, lee `AGENTS.md` y
 respeta sus convenciones. La prioridad es la veracidad: si no puedes verificar
 la noticia o no encuentras un mapa que aporte contexto real, **no publiques
@@ -84,7 +98,128 @@ Cada ejecución publica las dos versiones, no una traducción automática:
 - Añade un enlace de idioma: el artículo ES lleva «Read in English» al EN; el EN
   lleva «Leer en español» al ES. Los índices, igual.
 
+## MODO INFORME MENSUAL (cierre de mes)
+
+El informe se publica en la **primera ejecución de News del último día del
+mes**. Si falla, se regenera con el mes anterior completo en los **días 1-3**.
+Publica
+un informe de estado para dirección, no una noticia diaria. Es la única
+excepción a la regla del mapa interactivo como primer visual: el informe lleva
+gráficas, no iframe.
+
+### Disparo
+
+```bash
+DAY=$(date +%d)
+NEXT_DAY=$(date -v+1d +%d 2>/dev/null || date -d tomorrow +%d)
+CURRENT_MONTH=$(date +%Y-%m)
+PREV_MONTH=$(python3 -c "import datetime; d=datetime.date.today().replace(day=1)-datetime.timedelta(days=1); print(d.strftime('%Y-%m'))")
+
+if [ "$NEXT_DAY" = "01" ] && [ ! -f "autopilot/reports/monthly/$CURRENT_MONTH.md" ]; then
+  REPORT_MONTH="$CURRENT_MONTH"; MODE="cierre"
+elif [ "$DAY" -le 3 ] && [ ! -f "autopilot/reports/monthly/$PREV_MONTH.md" ]; then
+  REPORT_MONTH="$PREV_MONTH"; MODE="fallback"
+else
+  MODE="daily"
+fi
+```
+
+- `MODE=daily`: sigue con la pieza diaria normal.
+- `MODE=cierre`: informe del mes en curso con datos hasta ahora (cierre
+  provisional del último día).
+- `MODE=fallback`: informe del mes anterior completo (días 1-3).
+- Si el informe ya existe, no lo dupliques. Si el loop te vuelve a ejecutar,
+  vuelve a evaluar el disparo.
+
+### 1. Métricas
+
+Ejecuta desde la raíz del repo:
+
+```bash
+node scripts/tools/monthly-report-metrics.js \
+  --month "$REPORT_MONTH" \
+  --out "autopilot/reports/monthly/$REPORT_MONTH.json" \
+  --md-out "autopilot/reports/monthly/$REPORT_MONTH.md"
+```
+
+Lee el JSON y el Markdown generado. **No inventes ni recalcules cifras a mano.**
+Si el script falla, reintenta una vez; si sigue fallando, termina sin publicar y
+explica el error. No publiques un informe con datos estimados a ojo.
+
+### 2. Informe canónico (interno)
+
+Completa `autopilot/reports/monthly/$REPORT_MONTH.md`, cambia
+`status: draft` a `status: final` y respeta las secciones de
+`autopilot/reports/monthly/TEMPLATE.md`:
+
+- `## Métricas clave`
+- `## Lectura`
+- `## Prioridades para el próximo mes`
+- `## Instrucciones por rol`
+
+Estilo obligatorio: ingeniero PhD escribiendo para el equipo directivo. Claro,
+cuantificado y accionable. **500-800 palabras.** Sin secciones numeradas. 3-5
+párrafos con negritas de lead-in, 2-3 gráficas, una tabla de 3 prioridades con
+métrica de éxito y una decisión de «no hacer». Nada de texto por rellenar. Esta
+estructura sustituye a la estructura obligatoria de la pieza diaria.
+
+Reglas del informe:
+
+- Separa tráfico externo de tráfico interno/QA.
+- Si `sources.with_referrer` es 0 o muy bajo, no interpretes fuentes ni
+  mercados: dilo como limitación.
+- No copies cifras del informe del mes anterior ni de la referencia visual:
+  todas las cifras del mes salen del JSON de `monthly-report-metrics.js`.
+- No nombres ciudades internas, UIDs, emails ni IPs. Solo agregados.
+- Si un dato no es comparable con el mes anterior, dilo. Las visitas de mapas
+  del contador de la galería son acumuladas, no del mes.
+- No repitas la tabla de métricas en prosa: cada frase debe aportar una
+  decisión o un dato nuevo.
+- Cada prioridad debe ser accionable y medible.
+- Incluye instrucciones por rol para `ideator`, `mapmaker`, `blogger` y
+  `reviewer`. Son las que usará `autopilot` para redirigir al equipo.
+
+### 3. Artículo público (ES + EN)
+
+El informe es la excepción a la regla de no mencionar la marca: puede nombrar
+«Maña Maps» en el título y en el cuerpo porque el sujeto es el propio sitio.
+
+- ES: `estado-mana-maps-<mes>-<año>/index.html`, usando el mes de `$REPORT_MONTH`.
+- EN: `en/mana-maps-state-<month>-<year>/index.html`, usando el mes de `$REPORT_MONTH`.
+- Mismo contenido, mismas cifras y mismas gráficas en ambos.
+- Sin iframe de mapa. 2-3 gráficas SVG inline (series, fuentes, mercados o top
+  mapas). Sin librerías externas. Usa blanco/gris/negro y, como máximo, un
+  único acento de color en las gráficas si mejora la lectura.
+- Usa como plantilla visual el informe del mes anterior. Si no existe, usa
+  `revueltas-europa/index.html` como shell (topbar, tipografía y footer) y crea
+  2-3 gráficas SVG inline. `estado-mana-maps-octubre-2026/index.html` es una
+  referencia opcional si está disponible.
+- Título: hecho principal + mes. Máximo 70 caracteres.
+- `data-page-type="news"` y `data-slug`; **sin** `data-map-slug`.
+- Incluye tracking como el resto de News.
+- Añade la tarjeta como **primera** de `news/index.html` y
+  `en/news/index.html`, con kicker «Informe».
+- Actualiza `sitemap.xml` y `hreflang`.
+- Añade una entrada a `news/posts.json` con `date` = hoy, `type: "report"`,
+  `mapSlug: null`, `sourceUrls: []` y `translations` es/en. Es necesaria para
+  que el loop valide y pushee la publicación.
+- No uses el informe en la deduplicación de noticias diarias.
+
+### 4. Validación y publicación
+
+- `node scripts/tools/check-local-assets.js`
+- `node scripts/tools/check-repo-hygiene.js`
+- `npx playwright test -c tests/predeploy/playwright.config.js`
+- Revisa escritorio y móvil: las gráficas no deben desbordar ni quedar
+  ilegibles.
+- Commitea y pushea en `main` como el resto de News. No cierres hasta que
+  `git status --porcelain` esté vacío y `HEAD` coincida con `origin/main`.
+
 ## REGLAS INNEGOCIABLES
+
+> El **informe mensual** es la excepción a las reglas 1-4: no lleva noticia ni
+> mapa interactivo. Su fuente es `scripts/tools/monthly-report-metrics.js` y los
+> documentos de Firestore. Las reglas 5-7 sí se aplican.
 
 1. **Noticia real y citada.** Usa al menos dos fuentes independientes o una
    fuente primaria/oficial. Fecha de publicación dentro de las últimas 48 h.
@@ -111,8 +246,11 @@ Cada ejecución publica las dos versiones, no una traducción automática:
 ### 0. Preparación
 
 - Ejecuta `date +%F` y usa esa fecha como `date`.
+- Comprueba el disparo del informe mensual (ver «MODO INFORME MENSUAL»). Si
+  toca, ejecuta ese modo y termina. Si no, sigue con la pieza diaria.
 - Lee `news/posts.json` si existe. Revisa los últimos 14 días y evita repetir
-  el mismo acontecimiento o el mismo mapa.
+  el mismo acontecimiento o el mismo mapa. Ignora las entradas con
+  `type: "report"`: son informes mensuales, no noticias diarias.
 - Lee `AGENTS.md` completo. Revisa `news/index.html` y la plantilla
   `revueltas-europa/index.html`.
 
@@ -214,7 +352,9 @@ curl -s -X POST \
   `priority` `0.7`. No dupliques entradas.
 - Añade `hreflang` y enlaces de idioma en las cuatro páginas.
 - No toques `gallery/`, `data/`, `js/`, `firestore.rules` ni nada fuera de
-  News, los redirects antiguos y el sitemap.
+  News. Las únicas excepciones son los redirects antiguos, el sitemap,
+  `news/posts.json` y el informe canónico
+  `autopilot/reports/monthly/<YYYY-MM>.md`.
 
 ### 5. Validar antes de publicar
 
@@ -252,8 +392,9 @@ noticia descartada, motivo y qué haría falta para publicar.
 ## RESUMEN FINAL
 
 Devuelve solo:
-- URLs y títulos de las versiones ES y EN;
-- mapa usado y por qué encaja;
-- fuentes consultadas;
-- resultado de los tests;
-- rama/PR creada o motivo por el que no se publicó.
+
+- Si es **informe mensual:** ruta del informe canónico, URLs y títulos ES/EN,
+  tres prioridades y resultado de los tests.
+- Si es **noticia diaria:** URLs y títulos de las versiones ES y EN, mapa usado
+  y por qué encaja, fuentes consultadas y resultado de los tests.
+- En ambos casos: rama/PR creada o motivo por el que no se publicó.
