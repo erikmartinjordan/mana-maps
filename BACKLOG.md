@@ -1,6 +1,6 @@
 # BACKLOG
 
-- [x] Anadir meta tags Open Graph y Twitter Cards a la galeria (gallery/index.html) siguiendo los de la portada (14-08)
+- [ ] Arreglar los tests que fallan tras: Despublicar en Firestore los mapas user no editoriales arrecifes-de-coral-...-3172026-1785478772912 y ciudades-perdidas-...-3072026-1785391217436 (isPublished:false, limpiar JSON-LD y sitemap): slug de 77 caracteres, 8 features con geometrías mixtas Point/Polygon/LineString y markerType `circle` fuera del catálogo, grupo genérico «Capa 1»; republicarlos solo con slug corto y geometría real
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
 - [x] Corregir los enlaces hreflang de la portada para que `en` apunte a `/en/` y validar que cada variante tenga su URL canónica
 - [x] Añadir un enlace visible a Precios en la navegación superior de la portada para reducir fricción hacia la conversión
