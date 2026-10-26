@@ -1,0 +1,781 @@
+{
+  "source": "Smithsonian Institution — Global Volcanism Program, Volcanoes of the World: volcanes con erupciones del Holoceno o históricas. https://volcano.si.edu",
+  "retrieved": "2026-10",
+  "notes": "Instantánea curada de los 86 volcanes activos publicados en la galería; coordenadas del punto de cada volcán según GVP.",
+  "volcanoes": [
+    {
+      "nombre": "Kilauea",
+      "pais": "EE.UU. (Hawái)",
+      "altitudM": 1247,
+      "ultimaErupcion": "2026",
+      "tipo": "Volcán en escudo",
+      "lng": -155.287,
+      "lat": 19.421
+    },
+    {
+      "nombre": "Mauna Loa",
+      "pais": "EE.UU. (Hawái)",
+      "altitudM": 4169,
+      "ultimaErupcion": "2022",
+      "tipo": "Volcán en escudo",
+      "lng": -155.608,
+      "lat": 19.475
+    },
+    {
+      "nombre": "Mount St. Helens",
+      "pais": "EE.UU. (Washington)",
+      "altitudM": 2549,
+      "ultimaErupcion": "2008",
+      "tipo": "Estratovolcán",
+      "lng": -122.195,
+      "lat": 46.191
+    },
+    {
+      "nombre": "Mount Rainier",
+      "pais": "EE.UU. (Washington)",
+      "altitudM": 4392,
+      "ultimaErupcion": "1894",
+      "tipo": "Estratovolcán",
+      "lng": -121.76,
+      "lat": 46.853
+    },
+    {
+      "nombre": "Mount Shasta",
+      "pais": "EE.UU. (California)",
+      "altitudM": 4317,
+      "ultimaErupcion": "1786",
+      "tipo": "Estratovolcán",
+      "lng": -122.193,
+      "lat": 41.409
+    },
+    {
+      "nombre": "Yellowstone",
+      "pais": "EE.UU. (Wyoming)",
+      "altitudM": 2805,
+      "ultimaErupcion": "~1350 BC",
+      "tipo": "Caldera",
+      "lng": -110.67,
+      "lat": 44.43
+    },
+    {
+      "nombre": "Augustine",
+      "pais": "EE.UU. (Alaska)",
+      "altitudM": 1252,
+      "ultimaErupcion": "2006",
+      "tipo": "Domo de lava",
+      "lng": -153.43,
+      "lat": 59.363
+    },
+    {
+      "nombre": "Redoubt",
+      "pais": "EE.UU. (Alaska)",
+      "altitudM": 3108,
+      "ultimaErupcion": "2009",
+      "tipo": "Estratovolcán",
+      "lng": -152.742,
+      "lat": 60.485
+    },
+    {
+      "nombre": "Shishaldin",
+      "pais": "EE.UU. (Alaska)",
+      "altitudM": 2857,
+      "ultimaErupcion": "2023",
+      "tipo": "Estratovolcán",
+      "lng": -163.97,
+      "lat": 54.756
+    },
+    {
+      "nombre": "Cleveland",
+      "pais": "EE.UU. (Islas Aleutianas)",
+      "altitudM": 1730,
+      "ultimaErupcion": "2020",
+      "tipo": "Estratovolcán",
+      "lng": -169.944,
+      "lat": 52.825
+    },
+    {
+      "nombre": "Pavlof",
+      "pais": "EE.UU. (Alaska)",
+      "altitudM": 2519,
+      "ultimaErupcion": "2022",
+      "tipo": "Estratovolcán",
+      "lng": -161.884,
+      "lat": 55.417
+    },
+    {
+      "nombre": "Popocatépetl",
+      "pais": "México",
+      "altitudM": 5426,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": -98.622,
+      "lat": 19.023
+    },
+    {
+      "nombre": "Colima",
+      "pais": "México",
+      "altitudM": 3850,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": -103.619,
+      "lat": 19.514
+    },
+    {
+      "nombre": "Volcán de Fuego",
+      "pais": "Guatemala",
+      "altitudM": 3763,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": -90.88,
+      "lat": 14.473
+    },
+    {
+      "nombre": "Pacaya",
+      "pais": "Guatemala",
+      "altitudM": 2552,
+      "ultimaErupcion": "2026",
+      "tipo": "Volcán complejo",
+      "lng": -90.601,
+      "lat": 14.381
+    },
+    {
+      "nombre": "Santa María",
+      "pais": "Guatemala",
+      "altitudM": 3772,
+      "ultimaErupcion": "2022",
+      "tipo": "Estratovolcán",
+      "lng": -91.552,
+      "lat": 14.757
+    },
+    {
+      "nombre": "Arenal",
+      "pais": "Costa Rica",
+      "altitudM": 1670,
+      "ultimaErupcion": "2010",
+      "tipo": "Estratovolcán",
+      "lng": -84.703,
+      "lat": 10.463
+    },
+    {
+      "nombre": "Poás",
+      "pais": "Costa Rica",
+      "altitudM": 2708,
+      "ultimaErupcion": "2023",
+      "tipo": "Estratovolcán",
+      "lng": -84.231,
+      "lat": 10.198
+    },
+    {
+      "nombre": "Turrialba",
+      "pais": "Costa Rica",
+      "altitudM": 3340,
+      "ultimaErupcion": "2021",
+      "tipo": "Estratovolcán",
+      "lng": -83.767,
+      "lat": 10.025
+    },
+    {
+      "nombre": "Masaya",
+      "pais": "Nicaragua",
+      "altitudM": 635,
+      "ultimaErupcion": "2024",
+      "tipo": "Volcán en escudo",
+      "lng": -86.161,
+      "lat": 11.984
+    },
+    {
+      "nombre": "San Cristóbal",
+      "pais": "Nicaragua",
+      "altitudM": 1745,
+      "ultimaErupcion": "2023",
+      "tipo": "Estratovolcán",
+      "lng": -87.004,
+      "lat": 12.702
+    },
+    {
+      "nombre": "Nevado del Ruiz",
+      "pais": "Colombia",
+      "altitudM": 5321,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": -75.322,
+      "lat": 4.895
+    },
+    {
+      "nombre": "Galeras",
+      "pais": "Colombia",
+      "altitudM": 4276,
+      "ultimaErupcion": "2014",
+      "tipo": "Volcán complejo",
+      "lng": -77.36,
+      "lat": 1.22
+    },
+    {
+      "nombre": "Reventador",
+      "pais": "Ecuador",
+      "altitudM": 3562,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": -77.656,
+      "lat": -0.077
+    },
+    {
+      "nombre": "Tungurahua",
+      "pais": "Ecuador",
+      "altitudM": 5023,
+      "ultimaErupcion": "2021",
+      "tipo": "Estratovolcán",
+      "lng": -78.442,
+      "lat": -1.467
+    },
+    {
+      "nombre": "Cotopaxi",
+      "pais": "Ecuador",
+      "altitudM": 5911,
+      "ultimaErupcion": "2022",
+      "tipo": "Estratovolcán",
+      "lng": -78.437,
+      "lat": -0.678
+    },
+    {
+      "nombre": "Sabancaya",
+      "pais": "Perú",
+      "altitudM": 5976,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": -71.857,
+      "lat": -15.787
+    },
+    {
+      "nombre": "Ubinas",
+      "pais": "Perú",
+      "altitudM": 5672,
+      "ultimaErupcion": "2024",
+      "tipo": "Estratovolcán",
+      "lng": -70.903,
+      "lat": -16.355
+    },
+    {
+      "nombre": "Villarrica",
+      "pais": "Chile",
+      "altitudM": 2847,
+      "ultimaErupcion": "2025",
+      "tipo": "Estratovolcán",
+      "lng": -71.93,
+      "lat": -39.42
+    },
+    {
+      "nombre": "Láscar",
+      "pais": "Chile",
+      "altitudM": 5592,
+      "ultimaErupcion": "2024",
+      "tipo": "Estratovolcán",
+      "lng": -67.73,
+      "lat": -23.37
+    },
+    {
+      "nombre": "Llaima",
+      "pais": "Chile",
+      "altitudM": 3125,
+      "ultimaErupcion": "2020",
+      "tipo": "Estratovolcán",
+      "lng": -71.729,
+      "lat": -38.692
+    },
+    {
+      "nombre": "Calbuco",
+      "pais": "Chile",
+      "altitudM": 2003,
+      "ultimaErupcion": "2015",
+      "tipo": "Estratovolcán",
+      "lng": -72.614,
+      "lat": -41.326
+    },
+    {
+      "nombre": "Chaitén",
+      "pais": "Chile",
+      "altitudM": 1122,
+      "ultimaErupcion": "2016",
+      "tipo": "Caldera",
+      "lng": -72.646,
+      "lat": -42.833
+    },
+    {
+      "nombre": "Eyjafjallajökull",
+      "pais": "Islandia",
+      "altitudM": 1651,
+      "ultimaErupcion": "2010",
+      "tipo": "Estratovolcán",
+      "lng": -19.617,
+      "lat": 63.633
+    },
+    {
+      "nombre": "Katla",
+      "pais": "Islandia",
+      "altitudM": 1512,
+      "ultimaErupcion": "1918",
+      "tipo": "Volcán subglacial",
+      "lng": -19.083,
+      "lat": 63.633
+    },
+    {
+      "nombre": "Grímsvötn",
+      "pais": "Islandia",
+      "altitudM": 1725,
+      "ultimaErupcion": "2011",
+      "tipo": "Caldera",
+      "lng": -17.317,
+      "lat": 64.416
+    },
+    {
+      "nombre": "Hekla",
+      "pais": "Islandia",
+      "altitudM": 1491,
+      "ultimaErupcion": "2000",
+      "tipo": "Estratovolcán",
+      "lng": -19.699,
+      "lat": 63.988
+    },
+    {
+      "nombre": "Etna",
+      "pais": "Italia",
+      "altitudM": 3357,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 14.999,
+      "lat": 37.748
+    },
+    {
+      "nombre": "Stromboli",
+      "pais": "Italia",
+      "altitudM": 926,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 15.213,
+      "lat": 38.789
+    },
+    {
+      "nombre": "Vesuvius",
+      "pais": "Italia",
+      "altitudM": 1281,
+      "ultimaErupcion": "1944",
+      "tipo": "Volcán Somma",
+      "lng": 14.427,
+      "lat": 40.821
+    },
+    {
+      "nombre": "Campi Flegrei",
+      "pais": "Italia",
+      "altitudM": 458,
+      "ultimaErupcion": "1538",
+      "tipo": "Caldera",
+      "lng": 14.139,
+      "lat": 40.827
+    },
+    {
+      "nombre": "Vulcano",
+      "pais": "Italia",
+      "altitudM": 500,
+      "ultimaErupcion": "1890",
+      "tipo": "Volcán complejo",
+      "lng": 14.961,
+      "lat": 38.404
+    },
+    {
+      "nombre": "Santorini",
+      "pais": "Grecia",
+      "altitudM": 367,
+      "ultimaErupcion": "1950",
+      "tipo": "Caldera",
+      "lng": 25.396,
+      "lat": 36.404
+    },
+    {
+      "nombre": "Nyiragongo",
+      "pais": "Rep. Dem. del Congo",
+      "altitudM": 3470,
+      "ultimaErupcion": "2025",
+      "tipo": "Estratovolcán",
+      "lng": 29.25,
+      "lat": -1.52
+    },
+    {
+      "nombre": "Nyamuragira",
+      "pais": "Rep. Dem. del Congo",
+      "altitudM": 3058,
+      "ultimaErupcion": "2023",
+      "tipo": "Volcán en escudo",
+      "lng": 29.201,
+      "lat": -1.408
+    },
+    {
+      "nombre": "Erta Ale",
+      "pais": "Etiopía",
+      "altitudM": 613,
+      "ultimaErupcion": "2024",
+      "tipo": "Volcán en escudo",
+      "lng": 40.67,
+      "lat": 13.6
+    },
+    {
+      "nombre": "Ol Doinyo Lengai",
+      "pais": "Tanzania",
+      "altitudM": 2962,
+      "ultimaErupcion": "2024",
+      "tipo": "Estratovolcán",
+      "lng": 35.914,
+      "lat": -2.764
+    },
+    {
+      "nombre": "Mount Cameroon",
+      "pais": "Camerún",
+      "altitudM": 4095,
+      "ultimaErupcion": "2012",
+      "tipo": "Estratovolcán",
+      "lng": 9.17,
+      "lat": 4.217
+    },
+    {
+      "nombre": "Piton de la Fournaise",
+      "pais": "Reunión",
+      "altitudM": 2632,
+      "ultimaErupcion": "2025",
+      "tipo": "Volcán en escudo",
+      "lng": 55.708,
+      "lat": -21.244
+    },
+    {
+      "nombre": "Teide",
+      "pais": "España (Islas Canarias)",
+      "altitudM": 3715,
+      "ultimaErupcion": "1909",
+      "tipo": "Estratovolcán",
+      "lng": -16.642,
+      "lat": 28.272
+    },
+    {
+      "nombre": "Cumbre Vieja",
+      "pais": "España (La Palma)",
+      "altitudM": 1949,
+      "ultimaErupcion": "2021",
+      "tipo": "Fisura volcánica",
+      "lng": -17.84,
+      "lat": 28.57
+    },
+    {
+      "nombre": "Jabal al-Tair",
+      "pais": "Yemen",
+      "altitudM": 244,
+      "ultimaErupcion": "2007",
+      "tipo": "Volcán en escudo",
+      "lng": 41.8,
+      "lat": 15.7
+    },
+    {
+      "nombre": "Harrat Rahat",
+      "pais": "Arabia Saudita",
+      "altitudM": 1744,
+      "ultimaErupcion": "1256",
+      "tipo": "Campo volcánico",
+      "lng": 40.4,
+      "lat": 23.6
+    },
+    {
+      "nombre": "Klyuchevskoy",
+      "pais": "Rusia (Kamchatka)",
+      "altitudM": 4754,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 160.642,
+      "lat": 56.056
+    },
+    {
+      "nombre": "Sheveluch",
+      "pais": "Rusia (Kamchatka)",
+      "altitudM": 3283,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 161.36,
+      "lat": 56.653
+    },
+    {
+      "nombre": "Bezymianny",
+      "pais": "Rusia (Kamchatka)",
+      "altitudM": 2882,
+      "ultimaErupcion": "2025",
+      "tipo": "Estratovolcán",
+      "lng": 160.587,
+      "lat": 55.978
+    },
+    {
+      "nombre": "Karymsky",
+      "pais": "Rusia (Kamchatka)",
+      "altitudM": 1536,
+      "ultimaErupcion": "2025",
+      "tipo": "Estratovolcán",
+      "lng": 159.443,
+      "lat": 54.049
+    },
+    {
+      "nombre": "Ebeko",
+      "pais": "Rusia (Islas Kuriles)",
+      "altitudM": 1103,
+      "ultimaErupcion": "2025",
+      "tipo": "Volcán Somma",
+      "lng": 156.014,
+      "lat": 50.686
+    },
+    {
+      "nombre": "Sakurajima",
+      "pais": "Japón",
+      "altitudM": 1117,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 130.657,
+      "lat": 31.587
+    },
+    {
+      "nombre": "Mount Aso",
+      "pais": "Japón",
+      "altitudM": 1592,
+      "ultimaErupcion": "2023",
+      "tipo": "Caldera",
+      "lng": 131.104,
+      "lat": 32.885
+    },
+    {
+      "nombre": "Suwanosejima",
+      "pais": "Japón",
+      "altitudM": 799,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 129.714,
+      "lat": 29.638
+    },
+    {
+      "nombre": "Mount Fuji",
+      "pais": "Japón",
+      "altitudM": 3776,
+      "ultimaErupcion": "1707",
+      "tipo": "Estratovolcán",
+      "lng": 138.728,
+      "lat": 35.361
+    },
+    {
+      "nombre": "Ontake",
+      "pais": "Japón",
+      "altitudM": 3067,
+      "ultimaErupcion": "2014",
+      "tipo": "Volcán complejo",
+      "lng": 137.48,
+      "lat": 35.893
+    },
+    {
+      "nombre": "Taal",
+      "pais": "Filipinas",
+      "altitudM": 311,
+      "ultimaErupcion": "2022",
+      "tipo": "Caldera",
+      "lng": 120.993,
+      "lat": 14.002
+    },
+    {
+      "nombre": "Mayon",
+      "pais": "Filipinas",
+      "altitudM": 2462,
+      "ultimaErupcion": "2024",
+      "tipo": "Estratovolcán",
+      "lng": 123.685,
+      "lat": 13.257
+    },
+    {
+      "nombre": "Pinatubo",
+      "pais": "Filipinas",
+      "altitudM": 1486,
+      "ultimaErupcion": "1993",
+      "tipo": "Estratovolcán",
+      "lng": 120.35,
+      "lat": 15.13
+    },
+    {
+      "nombre": "Kanlaon",
+      "pais": "Filipinas",
+      "altitudM": 2435,
+      "ultimaErupcion": "2024",
+      "tipo": "Estratovolcán",
+      "lng": 123.132,
+      "lat": 10.412
+    },
+    {
+      "nombre": "Merapi",
+      "pais": "Indonesia (Java)",
+      "altitudM": 2910,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 110.446,
+      "lat": -7.541
+    },
+    {
+      "nombre": "Semeru",
+      "pais": "Indonesia (Java)",
+      "altitudM": 3676,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 112.922,
+      "lat": -8.108
+    },
+    {
+      "nombre": "Anak Krakatau",
+      "pais": "Estrecho de la Sonda, Indonesia",
+      "altitudM": 813,
+      "ultimaErupcion": "2024",
+      "tipo": "Caldera",
+      "lng": 105.423,
+      "lat": -6.102
+    },
+    {
+      "nombre": "Sinabung",
+      "pais": "Indonesia (Sumatra)",
+      "altitudM": 2460,
+      "ultimaErupcion": "2021",
+      "tipo": "Estratovolcán",
+      "lng": 98.392,
+      "lat": 3.17
+    },
+    {
+      "nombre": "Agung",
+      "pais": "Indonesia (Bali)",
+      "altitudM": 2997,
+      "ultimaErupcion": "2019",
+      "tipo": "Estratovolcán",
+      "lng": 115.508,
+      "lat": -8.343
+    },
+    {
+      "nombre": "Rinjani",
+      "pais": "Indonesia (Lombok)",
+      "altitudM": 3726,
+      "ultimaErupcion": "2016",
+      "tipo": "Estratovolcán",
+      "lng": 116.47,
+      "lat": -8.42
+    },
+    {
+      "nombre": "Dukono",
+      "pais": "Indonesia (Halmahera)",
+      "altitudM": 1185,
+      "ultimaErupcion": "2026",
+      "tipo": "Volcán complejo",
+      "lng": 127.894,
+      "lat": 1.693
+    },
+    {
+      "nombre": "Ibu",
+      "pais": "Indonesia (Halmahera)",
+      "altitudM": 1325,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 127.63,
+      "lat": 1.488
+    },
+    {
+      "nombre": "Ruang",
+      "pais": "Indonesia (Sangihe)",
+      "altitudM": 725,
+      "ultimaErupcion": "2024",
+      "tipo": "Estratovolcán",
+      "lng": 125.372,
+      "lat": 2.303
+    },
+    {
+      "nombre": "Mount Ruapehu",
+      "pais": "Nueva Zelanda",
+      "altitudM": 2797,
+      "ultimaErupcion": "2023",
+      "tipo": "Estratovolcán",
+      "lng": 175.57,
+      "lat": -39.28
+    },
+    {
+      "nombre": "Whakaari",
+      "pais": "Nueva Zelanda",
+      "altitudM": 321,
+      "ultimaErupcion": "2019",
+      "tipo": "Estratovolcán",
+      "lng": 177.18,
+      "lat": -37.52
+    },
+    {
+      "nombre": "Tongariro",
+      "pais": "Nueva Zelanda",
+      "altitudM": 1978,
+      "ultimaErupcion": "2012",
+      "tipo": "Estratovolcán",
+      "lng": 175.632,
+      "lat": -39.157
+    },
+    {
+      "nombre": "Bagana",
+      "pais": "Papúa Nueva Guinea",
+      "altitudM": 1855,
+      "ultimaErupcion": "2025",
+      "tipo": "Cono de lava",
+      "lng": 155.195,
+      "lat": -6.14
+    },
+    {
+      "nombre": "Manam",
+      "pais": "Papúa Nueva Guinea",
+      "altitudM": 1807,
+      "ultimaErupcion": "2023",
+      "tipo": "Estratovolcán",
+      "lng": 145.037,
+      "lat": -4.083
+    },
+    {
+      "nombre": "Ulawun",
+      "pais": "Papúa Nueva Guinea",
+      "altitudM": 2334,
+      "ultimaErupcion": "2023",
+      "tipo": "Estratovolcán",
+      "lng": 151.33,
+      "lat": -5.05
+    },
+    {
+      "nombre": "Rabaul",
+      "pais": "Papúa Nueva Guinea",
+      "altitudM": 688,
+      "ultimaErupcion": "2023",
+      "tipo": "Caldera",
+      "lng": 152.204,
+      "lat": -4.238
+    },
+    {
+      "nombre": "Yasur",
+      "pais": "Vanuatu",
+      "altitudM": 361,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 169.447,
+      "lat": -19.532
+    },
+    {
+      "nombre": "Ambrym",
+      "pais": "Vanuatu",
+      "altitudM": 1334,
+      "ultimaErupcion": "2022",
+      "tipo": "Caldera",
+      "lng": 168.124,
+      "lat": -16.254
+    },
+    {
+      "nombre": "Mount Erebus",
+      "pais": "Antártida",
+      "altitudM": 3794,
+      "ultimaErupcion": "2026",
+      "tipo": "Estratovolcán",
+      "lng": 167.17,
+      "lat": -77.53
+    }
+  ]
+}
