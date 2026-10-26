@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="/css/site-footer.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"PIB per cápita mundial por país","description":"Mapa coroplético mundial del PIB per cápita por país con datos del World Bank (NY.GDP.PCAP.CD, vía Our World in Data).","url":"https://maña.com/gallery/gdp-per-capita-world/","spatialCoverage":{"@type":"Place","name":"Mundo"},"creator":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"source":"World Bank (vía Our World in Data) — GDP per capita (current US$). Indicator NY.GDP.PCAP.CD. https://data.worldbank.org/indicator/NY.GDP.PCAP.CD · 2025-12-31","dateModified":"2026-10-06","keywords":["Economía","Desarrollo","Geografía"]}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
@@ -53,7 +54,6 @@
   .related a{text-decoration:none;font-weight:600}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
-  <link rel="stylesheet" href="/css/site-footer.css">
 </head>
 <body>
   <header class="topbar">
@@ -77,43 +77,43 @@
     <section class="related"><h2>Más mapas</h2><ul><li><a href="/gallery/nuclear-reactors-world/">Los reactores nucleares del mundo</a></li><li><a href="/gallery/alcohol-consumption-world/">Consumo de alcohol per cápita por país</a></li><li><a href="/gallery/inflation-world/">Inflación anual por país</a></li><li><a href="/gallery/obesity-adults-world/">Obesidad adulta mundial por país</a></li></ul></section>
   </main>
   <footer class="site-footer" aria-label="Pie de página">
-  <div class="site-footer__lead">
-    <a class="site-footer__brand" href="/">
-      <img src="/favicon.svg" alt="" width="30" height="30">
-      <span>Maña Maps</span>
-    </a>
-    <p class="site-footer__tagline" data-i18n="footer_tagline">Mapas claros, decisiones rápidas.</p>
-    <span class="site-footer__made" data-i18n="footer_made">Hecho con ♥ en Barcelona</span>
-  </div>
-  <nav class="site-footer__groups" aria-label="Enlaces del pie">
-    <section class="site-footer__group">
-      <h2 data-i18n="footer_product">Producto</h2>
-      <div class="site-footer__links">
-        <a href="/map/" data-i18n="footer_create">Crear mapa</a>
-        <a href="/gallery/" data-i18n="footer_gallery">Galería</a>
-        <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
-      </div>
-    </section>
-    <section class="site-footer__group">
-      <h2 data-i18n="footer_resources">Recursos</h2>
-      <div class="site-footer__links">
-        <a href="/news/" data-i18n="footer_news">News</a>
-        <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
-        <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
-      </div>
-    </section>
-    <section class="site-footer__group site-footer__group--wide">
-      <h2 data-i18n="footer_company">Compañía</h2>
-      <div class="site-footer__links">
-        <a href="/about/" data-i18n="footer_about">Acerca de</a>
-        <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener" data-i18n="footer_github">GitHub</a>
-      </div>
-    </section>
-  </nav>
-  <div class="site-footer__bottom">
-    <span class="site-footer__copyright">© 2026 Maña Maps</span>
-  </div>
-</footer>
+    <div class="site-footer__lead">
+      <a class="site-footer__brand" href="/">
+        <img src="/favicon.svg" alt="" width="30" height="30">
+        <span>Maña Maps</span>
+      </a>
+      <p class="site-footer__tagline" data-i18n="footer_tagline">Mapas claros, decisiones rápidas.</p>
+      <span class="site-footer__made" data-i18n="footer_made">Hecho con ♥ en Barcelona</span>
+    </div>
+    <nav class="site-footer__groups" aria-label="Enlaces del pie">
+      <section class="site-footer__group">
+        <h2 data-i18n="footer_product">Producto</h2>
+        <div class="site-footer__links">
+          <a href="/map/" data-i18n="footer_create">Crear mapa</a>
+          <a href="/gallery/" data-i18n="footer_gallery">Galería</a>
+          <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+        </div>
+      </section>
+      <section class="site-footer__group">
+        <h2 data-i18n="footer_resources">Recursos</h2>
+        <div class="site-footer__links">
+          <a href="/news/" data-i18n="footer_news">News</a>
+          <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+          <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
+        </div>
+      </section>
+      <section class="site-footer__group site-footer__group--wide">
+        <h2 data-i18n="footer_company">Compañía</h2>
+        <div class="site-footer__links">
+          <a href="/about/" data-i18n="footer_about">Acerca de</a>
+          <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener" data-i18n="footer_github">GitHub</a>
+        </div>
+      </section>
+    </nav>
+    <div class="site-footer__bottom">
+      <span class="site-footer__copyright">© 2026 Maña Maps</span>
+    </div>
+  </footer>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/tracking.js?v=1792742000"></script>
 </body>
