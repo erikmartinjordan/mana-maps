@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-26",
+    "event": "Delhi registra un AQI de 164 el 26 de octubre, con cinco estaciones aún en 'pobre' y pronóstico de empeoramiento hasta el 28 (26 de octubre de 2026)",
+    "mapSlug": "air-pollution-pm25-world",
+    "sourceUrls": [
+      "https://timesofindia.indiatimes.com/city/delhi/delhi-aqi-today-air-quality-improves-to-164-but-5-stations-remain-in-poor-category-toxic-foam-resurfaces-on-yamuna/articleshow/135202427.cms",
+      "https://www.hindustantimes.com/cities/delhi-news/delhi-env-minister-meets-with-ncr-police-officers-over-pollution-control-measures-101792950479160.html",
+      "https://ews.tropmet.res.in/",
+      "https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2326133&lang=1&reg=3"
+    ],
+    "translations": {
+      "es": {
+        "slug": "delhi-aire-moderado-pronostico-pobre",
+        "url": "/delhi-aire-moderado-pronostico-pobre/",
+        "title": "Delhi mejora a 'moderado' pero el pronóstico sigue 'pobre'",
+        "description": "Delhi amanece con aire 'moderado' pero cinco estaciones siguen en 'pobre' y el pronóstico empeora. El mapa de PM2.5 contextualiza la exposición en India."
+      },
+      "en": {
+        "slug": "delhi-air-moderate-forecast-poor",
+        "url": "/en/delhi-air-moderate-forecast-poor/",
+        "title": "Delhi air improves to 'moderate' but the forecast stays 'poor'",
+        "description": "Delhi air is 'moderate' but five stations remain 'poor' and the forecast worsens. The PM2.5 map contextualises India's annual exposure to fine particles."
+      }
+    }
+  },
+  {
     "date": "2026-10-25",
     "event": "Disturbios en Barcelona tras una protesta juvenil convocada por redes sociales: un centenar de detenidos, 14 comercios saqueados y 33 incendios (24 de octubre de 2026)",
     "mapSlug": "unemployment-world",
