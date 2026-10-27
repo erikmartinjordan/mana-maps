@@ -173,6 +173,25 @@ html {
 
 .site-footer__copyright { white-space: nowrap; }
 
+/* iPhone 16 Pro y móviles: el marco que contiene el pie pierde la sombra y
+   cubre los bordes de la pantalla, de modo que el fondo del pie llega hasta el
+   borde inferior sin dejar una franja gris (ni el shadow del frame) alrededor.
+   Los insets de seguridad mantienen el contenido lejos de la isla y del
+   indicador de inicio en modo PWA. */
+@media (max-width: 480px), (max-height: 500px) and (orientation: landscape) {
+  .frame {
+    width: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
 @media (max-width: 920px) {
   .site-footer__inner {
     grid-template-columns: minmax(180px, 1fr) minmax(0, 1fr);
