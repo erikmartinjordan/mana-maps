@@ -152,5 +152,52 @@ test('site footer stays consistent and readable on mobile', async ({ page }) => 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(255, 255, 255)');
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(239, 239, 241)');
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(251, 252, 253)');
+});
+
+test('iPhone 16 Pro footer covers the screen edges without frame shadow', async ({ page }) => {
+  // Viewports lógicos del iPhone 16 Pro en vertical y horizontal.
+  for (const viewport of [{ width: 402, height: 874 }, { width: 874, height: 402 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+
+    const result = await page.evaluate(() => {
+      const frame = document.querySelector('.frame');
+      const footer = document.querySelector('.site-footer');
+      const frameStyle = getComputedStyle(frame);
+      const footerStyle = getComputedStyle(footer);
+      const frameRect = frame.getBoundingClientRect();
+      return {
+        frameShadow: frameStyle.boxShadow,
+        frameBorderWidth: parseFloat(frameStyle.borderTopWidth),
+        frameRadius: parseFloat(frameStyle.borderTopLeftRadius),
+        frameMarginLeft: parseFloat(frameStyle.marginLeft),
+        frameMarginRight: parseFloat(frameStyle.marginRight),
+        frameWidth: frameRect.width,
+        footerLeft: footer.getBoundingClientRect().left,
+        footerWidth: footer.getBoundingClientRect().width,
+        footerBackground: footerStyle.backgroundColor,
+        viewportWidth: window.innerWidth
+      };
+    });
+
+    // El frame pierde sombra, borde, radio y márgenes: ocupa toda la pantalla.
+    expect(result.frameShadow).toBe('none');
+    expect(result.frameBorderWidth).toBe(0);
+    expect(result.frameRadius).toBe(0);
+    expect(result.frameMarginLeft).toBe(0);
+    expect(result.frameMarginRight).toBe(0);
+    expect(result.frameWidth).toBe(result.viewportWidth);
+
+    // El fondo del pie llega de borde a borde de la pantalla.
+    expect(result.footerBackground).toBe('rgb(251, 252, 253)');
+    expect(result.footerLeft).toBe(0);
+    expect(result.footerWidth).toBe(result.viewportWidth);
+
+    // Al llegar al final el color de overscroll coincide con el fondo del pie,
+    // de modo que iOS no muestra una banda gris que parezca una sombra.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(251, 252, 253)');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  }
 });

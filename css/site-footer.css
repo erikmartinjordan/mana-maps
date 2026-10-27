@@ -5,7 +5,10 @@
    de iOS coincida con el fondo real de cada página. */
 
 html {
-  background-color: var(--overscroll-bg, #efeff1);
+  /* En iOS el overscroll del borde inferior debe coincidir con el fondo real
+     del pie (#fbfcfd); si no, aparece una banda gris bajo el footer que parece
+     una sombra al llegar al final de la página. */
+  background-color: var(--overscroll-bg, #fbfcfd);
   background-image: none;
 }
 
@@ -177,9 +180,13 @@ html {
    cubre los bordes de la pantalla, de modo que el fondo del pie llega hasta el
    borde inferior sin dejar una franja gris (ni el shadow del frame) alrededor.
    Los insets de seguridad mantienen el contenido lejos de la isla y del
-   indicador de inicio en modo PWA. */
+   indicador de inicio en modo PWA; el pie compensa el padding lateral del
+   frame para que su fondo siga llegando a los bordes reales en horizontal. */
 @media (max-width: 480px), (max-height: 500px) and (orientation: landscape) {
   .frame {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     min-height: 100dvh;
     margin: 0;
@@ -187,6 +194,24 @@ html {
     border-radius: 0;
     box-shadow: none;
     padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Si la página es más corta que la pantalla, el pie se pega al borde
+     inferior en lugar de dejar el fondo translúcido del frame debajo. */
+  .frame > .site-footer { margin-top: auto; }
+
+  .site-footer {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* El frame ya está desplazado por los insets laterales; el pie los compensa
+     con márgenes negativos y recupera el padding para no invadir la isla. */
+  .frame > .site-footer {
+    margin-left: calc(-1 * env(safe-area-inset-left));
+    margin-right: calc(-1 * env(safe-area-inset-right));
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
