@@ -1,5 +1,29 @@
 [
   {
+    "date": "2026-10-27",
+    "event": "La Asociación de Líneas Aéreas programa 145,6 millones de asientos para el invierno 2026-2027 (+5,5%), mientras el queroseno cerca de los 1.600 dólares por tonelada frena por primera vez la ocupación de los vuelos de verano (26 de octubre de 2026)",
+    "mapSlug": "airports-world",
+    "sourceUrls": [
+      "https://www.elperiodico.com/es/economia/20261026/aerolineas-guerra-iran-empieza-dejar-asientos-vacios-aviones-135771294",
+      "https://www.europapress.es/economia/transportes-00343/noticia-aerolineas-afrontan-invierno-55-mas-asientos-espana-no-descartan-ajustes-oriente-20261026124057.html",
+      "https://www.expansion.com/empresas/transporte/2026/10/26/6adf3fa8e5fdea212e8b456e.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "queroseno-asientos-vacios-aviones-espana",
+        "url": "/queroseno-asientos-vacios-aviones-espana/",
+        "title": "El queroseno ya deja asientos vacíos en los aviones españoles",
+        "description": "El queroseno roza los 1.600 dólares por tonelada y frena la ocupación de los vuelos en España. El mapa mundial de aeropuertos sitúa Madrid y Barcelona."
+      },
+      "en": {
+        "slug": "jet-fuel-empty-seats-spanish-flights",
+        "url": "/en/jet-fuel-empty-seats-spanish-flights/",
+        "title": "Jet fuel is starting to leave empty seats on Spanish flights",
+        "description": "Jet fuel near $1,600 a tonne is denting flight load factors in Spain. The map of the world's 50 busiest airports puts Madrid and Barcelona in context."
+      }
+    }
+  },
+  {
     "date": "2026-10-26",
     "event": "Delhi registra un AQI de 164 el 26 de octubre, con cinco estaciones aún en 'pobre' y pronóstico de empeoramiento hasta el 28 (26 de octubre de 2026)",
     "mapSlug": "air-pollution-pm25-world",
