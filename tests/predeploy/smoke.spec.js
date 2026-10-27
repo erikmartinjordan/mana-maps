@@ -155,49 +155,84 @@ test('site footer stays consistent and readable on mobile', async ({ page }) => 
   await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(251, 252, 253)');
 });
 
-test('iPhone 16 Pro footer covers the screen edges without frame shadow', async ({ page }) => {
-  // Viewports lógicos del iPhone 16 Pro en vertical y horizontal.
-  for (const viewport of [{ width: 402, height: 874 }, { width: 874, height: 402 }]) {
+test('iPhone 16 Pro footer covers the screen edges on every page template', async ({ page }) => {
+  // Viewports lógicos del iPhone 16 Pro (vertical y horizontal) y del 16 Pro Max.
+  const viewports = [
+    { width: 402, height: 874 },
+    { width: 440, height: 956 },
+    { width: 874, height: 402 }
+  ];
+  // Plantillas con `.frame` (home, galería, news, artículo, 404) y páginas que
+  // montan el pie directamente sobre el body (about, pricing, landing de mapa).
+  const templates = [
+    '/',
+    '/gallery/',
+    '/news/',
+    '/kilauea-episodio-56/',
+    '/404.html',
+    '/about/',
+    '/pricing/',
+    '/gallery/airports-world/'
+  ];
+
+  for (const viewport of viewports) {
     await page.setViewportSize(viewport);
-    await page.goto('/');
 
-    const result = await page.evaluate(() => {
-      const frame = document.querySelector('.frame');
-      const footer = document.querySelector('.site-footer');
-      const frameStyle = getComputedStyle(frame);
-      const footerStyle = getComputedStyle(footer);
-      const frameRect = frame.getBoundingClientRect();
-      return {
-        frameShadow: frameStyle.boxShadow,
-        frameBorderWidth: parseFloat(frameStyle.borderTopWidth),
-        frameRadius: parseFloat(frameStyle.borderTopLeftRadius),
-        frameMarginLeft: parseFloat(frameStyle.marginLeft),
-        frameMarginRight: parseFloat(frameStyle.marginRight),
-        frameWidth: frameRect.width,
-        footerLeft: footer.getBoundingClientRect().left,
-        footerWidth: footer.getBoundingClientRect().width,
-        footerBackground: footerStyle.backgroundColor,
-        viewportWidth: window.innerWidth
-      };
-    });
+    for (const path of templates) {
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      const footer = page.locator('.site-footer').first();
+      await expect(footer, path).toBeVisible();
 
-    // El frame pierde sombra, borde, radio y márgenes: ocupa toda la pantalla.
-    expect(result.frameShadow).toBe('none');
-    expect(result.frameBorderWidth).toBe(0);
-    expect(result.frameRadius).toBe(0);
-    expect(result.frameMarginLeft).toBe(0);
-    expect(result.frameMarginRight).toBe(0);
-    expect(result.frameWidth).toBe(result.viewportWidth);
+      const result = await page.evaluate(() => {
+        const footerEl = document.querySelector('.site-footer');
+        const frameEl = document.querySelector('.frame');
+        const footerRect = footerEl.getBoundingClientRect();
+        const footerStyle = getComputedStyle(footerEl);
+        const frameStyle = frameEl ? getComputedStyle(frameEl) : null;
+        const frameRect = frameEl ? frameEl.getBoundingClientRect() : null;
+        return {
+          footerLeft: Math.round(footerRect.left),
+          footerWidth: Math.round(footerRect.width),
+          footerBackground: footerStyle.backgroundColor,
+          gapBelowFooter: Math.round(document.documentElement.scrollHeight - (footerRect.bottom + window.scrollY)),
+          viewportWidth: window.innerWidth,
+          noHorizontalScroll: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+          frame: frameStyle ? {
+            shadow: frameStyle.boxShadow,
+            borderWidth: parseFloat(frameStyle.borderTopWidth),
+            radius: parseFloat(frameStyle.borderTopLeftRadius),
+            marginLeft: parseFloat(frameStyle.marginLeft),
+            marginRight: parseFloat(frameStyle.marginRight),
+            width: Math.round(frameRect.width)
+          } : null
+        };
+      });
 
-    // El fondo del pie llega de borde a borde de la pantalla.
-    expect(result.footerBackground).toBe('rgb(251, 252, 253)');
-    expect(result.footerLeft).toBe(0);
-    expect(result.footerWidth).toBe(result.viewportWidth);
+      // Sin scroll horizontal y con el pie pegado al borde inferior del documento.
+      expect(result.noHorizontalScroll, path).toBe(true);
+      expect(result.gapBelowFooter, path).toBeLessThanOrEqual(1);
 
-    // Al llegar al final el color de overscroll coincide con el fondo del pie,
-    // de modo que iOS no muestra una banda gris que parezca una sombra.
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(251, 252, 253)');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+      // El fondo del pie llega de borde a borde de la pantalla.
+      expect(result.footerBackground, path).toBe('rgb(251, 252, 253)');
+      expect(result.footerLeft, path).toBe(0);
+      expect(result.footerWidth, path).toBe(result.viewportWidth);
+
+      if (result.frame) {
+        // El frame pierde sombra, borde, radio y márgenes: ocupa toda la pantalla.
+        expect(result.frame.shadow, path).toBe('none');
+        expect(result.frame.borderWidth, path).toBe(0);
+        expect(result.frame.radius, path).toBe(0);
+        expect(result.frame.marginLeft, path).toBe(0);
+        expect(result.frame.marginRight, path).toBe(0);
+        expect(result.frame.width, path).toBe(result.viewportWidth);
+
+        // Al llegar al final el color de overscroll coincide con el fondo del pie,
+        // de modo que iOS no muestra una banda gris que parezca una sombra.
+        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        await expect
+          .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor))
+          .toBe('rgb(251, 252, 253)');
+      }
+    }
   }
 });

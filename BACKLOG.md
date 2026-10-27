@@ -1,6 +1,6 @@
 # BACKLOG
 
-- [ ] Corregir la sombra del footer y ajustar la cobertura de los bordes para que encaje perfectamente con la pantalla del iPhone 16 Pro
+- [x] Corregir la sombra del footer y ajustar la cobertura de los bordes para que encaje perfectamente con la pantalla del iPhone 16 Pro (27-10) — el pie ocupa todo el ancho en las tres plantillas (`.frame`, body directo y landings), el frame pierde sombra/borde/radio/márgenes en 402×874, 440×956 y 874×402, el fondo llega al borde inferior sin hueco y el overscroll coincide con `#fbfcfd`; test de regresión ampliado a home, galería, news, artículo, 404, about, pricing y landing de mapa
 - [x] Revisar el footer en versión móvil: «Acerca de» y «GitHub» están alineados en horizontal en lugar de vertical (css/site-footer.css o footer equivalente) (26-10)
 - [ ] Arreglar los tests que fallan tras: Despublicar en Firestore los mapas user no editoriales arrecifes-de-coral-...-3172026-1785478772912 y ciudades-perdidas-...-3072026-1785391217436 (isPublished:false, limpiar JSON-LD y sitemap): slug de 77 caracteres, 8 features con geometrías mixtas Point/Polygon/LineString y markerType `circle` fuera del catálogo, grupo genérico «Capa 1»; republicarlos solo con slug corto y geometría real
 - [x] Completar la entrada de /pricing/ en sitemap.xml con changefreq y priority coherentes para mejorar su descubribilidad SEO
