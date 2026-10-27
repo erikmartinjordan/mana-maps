@@ -776,10 +776,12 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   /* ── Sidebar: overlay from left ── */
   #sidebar{
     position:absolute;top:0;left:0;bottom:0;z-index:1200;
+    width:min(288px, calc(100vw - 24px));
     transform:translateX(-100%);
     transition:transform .28s cubic-bezier(.4,0,.2,1);
     box-shadow:none;
   }
+  #float-panel{min-width:0;}
   #sidebar.mobile-open{
     transform:translateX(0);
     box-shadow:4px 0 24px rgba(0,0,0,.12);
@@ -861,8 +863,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   .topbar-right .btn.btn-primary .btn-text{display:none;}
   .topbar-right .btn:not(.topbar-icon-btn){padding:6px 8px;min-width:34px;justify-content:center;}
 
-  /* narrower sidebar */
-  #sidebar{width:260px;}
+  /* narrower chat panel */
   #chat-panel{width:calc(100vw - 40px);}
   .stat-pill{padding:3px 6px;font-size:10px;}
 

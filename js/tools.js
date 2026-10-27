@@ -21,6 +21,16 @@ let _routeRequestId = 0;
 const _routeCache = new Map();
 let _routePendingConfirm = false;
 
+// While a drawing/measuring tool is active, existing features must not
+// intercept map clicks. Their popups are restored as soon as the tool stops.
+function _setDrawnLayersClickable(clickable) {
+  if (typeof drawnItems === 'undefined') return;
+  drawnItems.eachLayer(function(layer) {
+    if (layer._path) layer._path.style.pointerEvents = clickable ? '' : 'none';
+    if (layer._icon) layer._icon.style.pointerEvents = clickable ? '' : 'none';
+  });
+}
+
 function stopAll() {
   if (drawHandler) { try { drawHandler.disable(); } catch (e) {} drawHandler = null; }
   _resetSelectedRouteFlow();
@@ -31,6 +41,7 @@ function stopAll() {
   document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
   var tbRuler = document.getElementById('tb-ruler');
   if (tbRuler) tbRuler.classList.remove('active');
+  _setDrawnLayersClickable(true);
   activeTool = null;
 }
 
@@ -47,6 +58,10 @@ function setTool(tool) {
   if (activeTool === tool) { stopAll(); return; }
   stopAll();
   activeTool = tool;
+  if (tool === 'point' || tool === 'line' || tool === 'polygon' || tool === 'ruler') {
+    _setDrawnLayersClickable(false);
+    if (map.closePopup) map.closePopup();
+  }
   var btn = document.getElementById('btn-' + tool);
   if (btn) btn.classList.add('active');
   // Also highlight toolbar ruler icon

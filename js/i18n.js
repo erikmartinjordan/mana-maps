@@ -1250,6 +1250,11 @@ function applyTranslations(lang) {
   if (window.manaAuth && typeof window.manaAuth.refreshTranslations === 'function') {
     window.manaAuth.refreshTranslations();
   }
+  // The layers panel (including starter-template cards) is generated from t(),
+  // so re-render it when the language changes.
+  if (typeof renderLayers === 'function' && document.getElementById('layer-list')) {
+    try { renderLayers(); } catch (e) {}
+  }
 }
 
 // ── Toggle language (called from lang button) ──

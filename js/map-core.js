@@ -1949,8 +1949,25 @@ function _starterTemplateLabel(es, en) {
   return (typeof LANG !== 'undefined' && LANG === 'en') ? en : es;
 }
 
+const MANA_STARTER_LABEL_STYLE = {
+  enabled: true,
+  field: 'name',
+  fontSize: 11,
+  haloWidth: 2,
+  placement: 'auto',
+};
+
 function _starterFeature(type, coordinates, properties) {
-  return { type: 'Feature', geometry: { type: type, coordinates: coordinates }, properties: properties || {} };
+  const props = Object.assign({}, properties || {});
+  if (type === 'Point' && !props._manaLabelStyle) {
+    props._manaLabelStyle = Object.assign({}, MANA_STARTER_LABEL_STYLE, {
+      offsetY: -16,
+    });
+  }
+  if (type === 'Point' && !props.markerType && !props._manaMarkerType) {
+    props.markerType = 'pin';
+  }
+  return { type: 'Feature', geometry: { type: type, coordinates: coordinates }, properties: props };
 }
 
 function _starterTemplateData(id) {
@@ -1963,10 +1980,10 @@ function _starterTemplateData(id) {
           name: _starterTemplateLabel('Paradas', 'Stops'),
           color: '#0ea5e9',
           features: [
-            _starterFeature('Point', [-3.7038, 40.4168], { name: _starterTemplateLabel('Punto de encuentro', 'Meeting point'), type: _starterTemplateLabel('Inicio', 'Start'), order: 1 }),
-            _starterFeature('Point', [-3.6921, 40.4138], { name: _starterTemplateLabel('Museo principal', 'Main museum'), type: _starterTemplateLabel('Visita', 'Visit'), order: 2 }),
-            _starterFeature('Point', [-3.6884, 40.4153], { name: _starterTemplateLabel('Parada para comer', 'Lunch stop'), type: _starterTemplateLabel('Comida', 'Food'), order: 3 }),
-            _starterFeature('Point', [-3.7149, 40.4261], { name: _starterTemplateLabel('Mirador final', 'Final viewpoint'), type: _starterTemplateLabel('Final', 'End'), order: 4 }),
+            _starterFeature('Point', [-3.7038, 40.4168], { name: _starterTemplateLabel('Punto de encuentro', 'Meeting point'), type: _starterTemplateLabel('Inicio', 'Start'), order: 1, markerType: 'flag' }),
+            _starterFeature('Point', [-3.6921, 40.4138], { name: _starterTemplateLabel('Museo principal', 'Main museum'), type: _starterTemplateLabel('Visita', 'Visit'), order: 2, markerType: 'museum' }),
+            _starterFeature('Point', [-3.6884, 40.4153], { name: _starterTemplateLabel('Parada para comer', 'Lunch stop'), type: _starterTemplateLabel('Comida', 'Food'), order: 3, markerType: 'restaurant' }),
+            _starterFeature('Point', [-3.7149, 40.4261], { name: _starterTemplateLabel('Mirador final', 'Final viewpoint'), type: _starterTemplateLabel('Final', 'End'), order: 4, markerType: 'eye' }),
           ],
         },
         {
@@ -2002,9 +2019,9 @@ function _starterTemplateData(id) {
           name: _starterTemplateLabel('Clientes clave', 'Key accounts'),
           color: '#ef4444',
           features: [
-            _starterFeature('Point', [-3.711, 40.412], { name: _starterTemplateLabel('Cliente A', 'Account A'), revenue: 42, priority: 'A' }),
-            _starterFeature('Point', [-3.674, 40.409], { name: _starterTemplateLabel('Cliente B', 'Account B'), revenue: 25, priority: 'B' }),
-            _starterFeature('Point', [-3.693, 40.433], { name: _starterTemplateLabel('Cliente C', 'Account C'), revenue: 34, priority: 'A' }),
+            _starterFeature('Point', [-3.711, 40.412], { name: _starterTemplateLabel('Cliente A', 'Account A'), revenue: 42, priority: 'A', markerType: 'shop' }),
+            _starterFeature('Point', [-3.674, 40.409], { name: _starterTemplateLabel('Cliente B', 'Account B'), revenue: 25, priority: 'B', markerType: 'shop' }),
+            _starterFeature('Point', [-3.693, 40.433], { name: _starterTemplateLabel('Cliente C', 'Account C'), revenue: 34, priority: 'A', markerType: 'shop' }),
           ],
         },
       ],
@@ -2015,18 +2032,18 @@ function _starterTemplateData(id) {
       layers: [
         {
           name: _starterTemplateLabel('Área de estudio', 'Study area'),
-          color: '#22c55e',
+          color: '#65a30d',
           features: [
             _starterFeature('Polygon', [[[-3.744, 40.401], [-3.716, 40.404], [-3.713, 40.421], [-3.739, 40.419], [-3.744, 40.401]]], { name: _starterTemplateLabel('Parcela piloto', 'Pilot plot'), habitat: _starterTemplateLabel('Mixto', 'Mixed') }),
           ],
         },
         {
           name: _starterTemplateLabel('Muestras', 'Samples'),
-          color: '#16a34a',
+          color: '#059669',
           features: [
-            _starterFeature('Point', [-3.739, 40.405], { name: 'S-01', status: _starterTemplateLabel('Pendiente', 'Pending'), ph: 7.1 }),
-            _starterFeature('Point', [-3.729, 40.410], { name: 'S-02', status: _starterTemplateLabel('Tomada', 'Collected'), ph: 6.8 }),
-            _starterFeature('Point', [-3.721, 40.417], { name: 'S-03', status: _starterTemplateLabel('Pendiente', 'Pending'), ph: 7.4 }),
+            _starterFeature('Point', [-3.739, 40.405], { name: 'S-01', status: _starterTemplateLabel('Pendiente', 'Pending'), ph: 7.1, markerType: 'target' }),
+            _starterFeature('Point', [-3.734, 40.407], { name: 'S-02', status: _starterTemplateLabel('Tomada', 'Collected'), ph: 6.8, markerType: 'target' }),
+            _starterFeature('Point', [-3.721, 40.417], { name: 'S-03', status: _starterTemplateLabel('Pendiente', 'Pending'), ph: 7.4, markerType: 'target' }),
           ],
         },
         {
@@ -2040,7 +2057,7 @@ function _starterTemplateData(id) {
     },
     event: {
       name: _starterTemplateLabel('Evento local', 'Local event'),
-      view: [[40.412, -3.725], [40.426, -3.699]],
+      view: [[40.411, -3.727], [40.427, -3.693]],
       layers: [
         {
           name: _starterTemplateLabel('Zonas del evento', 'Event zones'),
@@ -2054,17 +2071,17 @@ function _starterTemplateData(id) {
           name: _starterTemplateLabel('Servicios', 'Services'),
           color: '#ec4899',
           features: [
-            _starterFeature('Point', [-3.718, 40.417], { name: _starterTemplateLabel('Información', 'Information'), category: _starterTemplateLabel('Ayuda', 'Help') }),
-            _starterFeature('Point', [-3.711, 40.419], { name: _starterTemplateLabel('Primeros auxilios', 'First aid'), category: _starterTemplateLabel('Salud', 'Health') }),
-            _starterFeature('Point', [-3.703, 40.418], { name: _starterTemplateLabel('Comida', 'Food'), category: _starterTemplateLabel('Restauración', 'Food') }),
+            _starterFeature('Point', [-3.720, 40.415], { name: _starterTemplateLabel('Información', 'Information'), category: _starterTemplateLabel('Ayuda', 'Help'), markerType: 'info' }),
+            _starterFeature('Point', [-3.711, 40.419], { name: _starterTemplateLabel('Primeros auxilios', 'First aid'), category: _starterTemplateLabel('Salud', 'Health'), markerType: 'hospital' }),
+            _starterFeature('Point', [-3.7005, 40.416], { name: _starterTemplateLabel('Comida', 'Food'), category: _starterTemplateLabel('Restauración', 'Food'), markerType: 'restaurant' }),
           ],
         },
         {
           name: _starterTemplateLabel('Accesos', 'Access'),
-          color: '#7c3aed',
+          color: '#f59e0b',
           features: [
-            _starterFeature('LineString', [[-3.725, 40.412], [-3.719, 40.416], [-3.711, 40.418]], { name: _starterTemplateLabel('Entrada oeste', 'West entrance'), type: _starterTemplateLabel('Peatonal', 'Pedestrian') }),
-            _starterFeature('LineString', [[-3.699, 40.426], [-3.704, 40.420], [-3.711, 40.418]], { name: _starterTemplateLabel('Entrada este', 'East entrance'), type: _starterTemplateLabel('Servicios', 'Service') }),
+            _starterFeature('LineString', [[-3.726, 40.412], [-3.723, 40.415], [-3.721, 40.4175]], { name: _starterTemplateLabel('Entrada oeste', 'West entrance'), type: _starterTemplateLabel('Peatonal', 'Pedestrian') }),
+            _starterFeature('LineString', [[-3.694, 40.425], [-3.697, 40.4215], [-3.699, 40.4185]], { name: _starterTemplateLabel('Entrada este', 'East entrance'), type: _starterTemplateLabel('Servicios', 'Service') }),
           ],
         },
       ],
@@ -2114,6 +2131,7 @@ async function applyStarterTemplate(id) {
   }
 
   if (typeof pushUndo === 'function') pushUndo();
+  if (typeof stopAll === 'function') stopAll();
   const prevColor = drawColor;
   _clearMapForTemplate();
   const imports = [];
@@ -2121,8 +2139,7 @@ async function applyStarterTemplate(id) {
     drawColor = layer.color;
     imports.push(Promise.resolve(loadGeoJSON(
       { type: 'FeatureCollection', features: layer.features },
-      layer.name,
-      { templatePassive: true }
+      layer.name
     )));
   }
   drawColor = prevColor;

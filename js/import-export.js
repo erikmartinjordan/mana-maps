@@ -127,12 +127,10 @@ function cloneFeatureProperties(properties) {
   return { ...properties };
 }
 
-function loadGeoJSON(geo, groupName, opts) {
+function loadGeoJSON(geo, groupName) {
   if (!geo) return;
   if (geo.type === 'Feature') geo = { type: 'FeatureCollection', features: [geo] };
   if (!geo.features) { manaAlert(t('geojson_invalid'), 'error'); return; }
-  const options = opts || {};
-  const templatePassive = options.templatePassive === true;
   const featureCount = geo.features.length;
   const useChunkedImport = featureCount > 1200;
   const batchSize = 250;
@@ -148,7 +146,6 @@ function loadGeoJSON(geo, groupName, opts) {
   }
 
   const layer = L.geoJSON(null, {
-    interactive: !templatePassive,
     style: (f) => {
       const p = (f && f.properties) || {};
       const c = (p._manaColor || p.color) ? String(p._manaColor || p.color) : importColor;
@@ -169,21 +166,14 @@ function loadGeoJSON(geo, groupName, opts) {
         ? (f.properties._manaEmojiSize || _emojiSizeFromArea(_parseArea(f.properties.Area)))
         : null;
       const icon = makeMarkerIcon(importedColor, importedMarkerType, emojiSize);
-      const m = L.marker(ll, {
-        icon,
-        bubblingMouseEvents: true,
-        interactive: !templatePassive,
-        keyboard: !templatePassive
-      });
+      const m = L.marker(ll, { icon, bubblingMouseEvents: true });
       m._manaName = n; m._manaColor = importedColor;
       m._manaMarkerType = importedMarkerType;
       if (emojiSize) m._manaEmojiSize = emojiSize;
       m._manaGroupId = groupId;
       m._manaGroupName = gName;
       m._manaProperties = cloneFeatureProperties(f.properties);
-      if (!templatePassive) {
-        m.bindPopup(() => buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
-      }
+      m.bindPopup(() => buildAttrPopup(f.properties, 'Point'), { maxWidth: 360, className: 'attr-popup-wrapper' });
       return m;
     },
     onEachFeature: (f, l) => {
@@ -194,14 +184,9 @@ function loadGeoJSON(geo, groupName, opts) {
         const fp = f.properties || {};
         const fc = (fp._manaColor || fp.color) ? String(fp._manaColor || fp.color) : importColor;
         l._manaColor = fc;
-        if (templatePassive && typeof l.setStyle === 'function') {
-          l.setStyle({ interactive: false });
-        }
         const n = (f.properties && (f.properties.name || f.properties.Name || f.properties.NAME)) || '';
         if (n) l._manaName = n;
-        if (!templatePassive) {
-          l.bindPopup(() => buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
-        }
+        l.bindPopup(() => buildAttrPopup(f.properties, f.geometry && f.geometry.type), { maxWidth: 360, className: 'attr-popup-wrapper' });
       }
     }
   });
