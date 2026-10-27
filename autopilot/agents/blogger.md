@@ -308,11 +308,13 @@ curl -s -X POST \
   2. Mapa interactivo como primer visual (iframe, no imagen estática).
   3. «Qué ha pasado»: hechos, fechas, cifras y atribuciones.
   4. «El mapa»: explica qué se ve y qué aporta.
-  5. «Cómo leer el mapa»: unidad, escala, año y limitaciones.
-  6. «Lo que el mapa no dice»: vivienda, servicios públicos, empleo juvenil,
-     educación, etc. Evita conclusiones monocausales.
-  7. «Qué viene»: próximas movilizaciones o fechas confirmadas.
-  8. «Fuentes»: lista con enlaces reales y fecha de consulta.
+  5. «Qué viene»: próximas movilizaciones o fechas confirmadas.
+  6. «Fuentes»: lista con enlaces reales y fecha de consulta.
+- **Prohibido** incluir las secciones «Cómo leer el mapa» y «Lo que el mapa
+  no dice» (en inglés, «How to read the map» y «What the map does not say»),
+  ni variantes con otro título equivalente. Si la unidad, la escala, las
+  limitaciones o los vacíos del mapa son imprescindibles, intégralos en «El
+  mapa» o en el cuerpo del artículo, sin crear una sección propia.
 - Incluye al menos una cifra de la noticia y otra del mapa. Si usas una
   comparación entre países, hazla con los valores exactos del mapa.
 - Cita textualmente solo lo que aparezca entrecomillado en la fuente, con
@@ -366,6 +368,8 @@ curl -s -X POST \
   chat del editor están ocultos en modo embed.
 - Comprueba que no hay enlaces locales rotos, ni cifras sin fuente, ni
   afirmaciones causales no demostradas.
+- Verifica que no aparecen las secciones «Cómo leer el mapa» / «How to read
+  the map» ni «Lo que el mapa no dice» / «What the map does not say».
 - Si algo falla, corrige o revierte. **Nunca commitees con tests rojos.**
 
 ### 6. Publicar

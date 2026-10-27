@@ -80,6 +80,17 @@
   .post-excerpt{font-size:15px;line-height:1.65;color:#374151;margin:0 0 12px}
   .post-more{font-size:13px;font-weight:700;text-decoration:underline;text-decoration-color:rgba(16,24,40,.3);text-underline-offset:3px}
   .post-more:hover{text-decoration-color:currentColor}
+  .post-list .post-card[hidden]{display:none}
+  .load-more-wrap{display:flex;justify-content:center;margin-top:28px}
+  .load-more{
+    display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 26px;
+    border:1px solid rgba(16,24,40,.18);border-radius:50px;background:rgba(255,255,255,.72);
+    font:inherit;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;
+    transition:background .15s,border-color .15s,transform .1s;
+  }
+  .load-more:hover{background:rgba(16,24,40,.05);border-color:rgba(16,24,40,.32);transform:translateY(-1px)}
+  .load-more:focus-visible{outline:2px solid var(--cta);outline-offset:3px}
+  .load-more[hidden]{display:none}
   .footer{
     display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
     padding:18px 28px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);
@@ -133,7 +144,7 @@
         <p class="standfirst">Every day, one story with an interactive map so you can explore the data for yourself.</p>
       </header>
 
-      <section class="post-list" aria-label="News posts">
+      <section class="post-list" id="news-list" data-news-list data-batch-size="10" aria-label="News posts">
         <article class="post-card">
           <p class="kicker">News · Aviation</p>
           <h2><a href="/en/jet-fuel-empty-seats-spanish-flights/">Jet fuel is starting to leave empty seats on Spanish flights</a></h2>
@@ -191,6 +202,9 @@
           <a class="post-more" href="/en/revolts-europe/">Read the story →</a>
         </article>
       </section>
+      <div class="load-more-wrap">
+        <button class="load-more" type="button" data-news-load-more aria-controls="news-list" hidden>See more</button>
+      </div>
     </div>
 
     <footer class="site-footer" aria-label="Footer"><div class="site-footer__inner">
@@ -233,6 +247,7 @@
 </div></footer>
   </main>
   <script defer src="/js/firebase-config.local.js"></script>
+  <script defer src="/js/news-load-more.js?v=20261027"></script>
   <script defer src="/js/tracking.js?v=1792741000"></script>
 <script data-overscroll-bg="1">
 (function(){
