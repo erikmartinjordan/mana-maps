@@ -1,0 +1,263 @@
+/* ── INTERACTIVE TUTORIAL ─────────────────────────────────────
+   Guided onboarding tour for the Maña Maps editor.
+   Uses the real UI elements as targets; it never blocks the app
+   except for the tooltip card itself. */
+
+#mana-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  pointer-events: none;
+}
+#mana-tutorial[hidden] { display: none !important; }
+
+.mt-highlight {
+  position: fixed;
+  z-index: 99991;
+  border-radius: 13px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 9999px rgba(9, 13, 18, 0.62),
+    0 0 0 3px rgba(14, 165, 233, 0.22);
+  outline: 2px solid var(--blue);
+  outline-offset: 0;
+  transition:
+    top 0.18s ease,
+    left 0.18s ease,
+    width 0.18s ease,
+    height 0.18s ease;
+}
+.mt-highlight::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 18px;
+  border: 2px solid var(--blue);
+  opacity: 0;
+  animation: mt-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes mt-pulse {
+  0% { opacity: 0.55; transform: scale(0.99); }
+  70% { opacity: 0; transform: scale(1.025); }
+  100% { opacity: 0; transform: scale(1.025); }
+}
+
+.mt-card {
+  position: fixed;
+  z-index: 99993;
+  width: min(360px, calc(100vw - 24px));
+  padding: 18px 18px 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  pointer-events: auto;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.mt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.mt-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.mt-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+  flex-shrink: 0;
+}
+.mt-close {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.mt-close:hover,
+.mt-close:focus-visible {
+  background: var(--surface-2);
+  color: var(--text);
+  outline: none;
+}
+.mt-title {
+  margin: 0 0 7px;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--text);
+}
+.mt-body {
+  margin: 0;
+  font-size: 13.3px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.mt-tip {
+  margin-top: 11px;
+  padding: 9px 11px;
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  background: rgba(14, 165, 233, 0.08);
+  font-size: 12.2px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.mt-tip[hidden] { display: none; }
+.mt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mt-actions[hidden] { display: none; }
+.mt-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px dashed var(--border-hover);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.mt-action:hover,
+.mt-action:focus-visible {
+  border-color: var(--blue);
+  background: rgba(14, 165, 233, 0.1);
+  outline: none;
+}
+.mt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--border);
+}
+.mt-btn {
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
+}
+.mt-prev {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-2);
+}
+.mt-prev:hover:not(:disabled),
+.mt-prev:focus-visible:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+  outline: none;
+}
+.mt-prev:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.mt-next {
+  background: var(--primary);
+  color: var(--surface);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.mt-next:hover,
+.mt-next:focus-visible {
+  opacity: 0.86;
+  outline: none;
+}
+.mt-card.mt-sheet {
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  top: auto;
+  width: auto;
+}
+.mt-card.mt-sheet.mt-sheet-top {
+  top: 12px;
+  bottom: auto;
+}
+
+/* Launcher pill in the bottom bar */
+.tutorial-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: "DM Sans", sans-serif;
+  transition: color 0.15s, background 0.15s;
+}
+.tutorial-pill:hover,
+.tutorial-pill:focus-visible {
+  color: var(--text);
+  background: var(--surface-2);
+  outline: none;
+}
+.tutorial-pill svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 679px) {
+  .mt-card {
+    padding: 16px 16px 12px;
+    border-radius: 16px;
+  }
+  .mt-title { font-size: 15.5px; }
+  .mt-body { font-size: 13px; }
+  .mt-footer { margin-top: 13px; }
+  .mt-card.mt-sheet {
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+  }
+  .tutorial-pill span {
+    display: none;
+  }
+  .tutorial-pill {
+    padding-inline: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-highlight,
+  .mt-highlight::after {
+    transition: none;
+    animation: none;
+  }
+}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mana-maps-pwa-v67';
+const CACHE_NAME = 'mana-maps-pwa-v68';
 const PRECACHE_URLS = [
   '/',
   '/map/',
@@ -9,6 +9,7 @@ const PRECACHE_URLS = [
   'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
   'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
   '/css/main.css?v=1793020900',
+  '/css/tutorial.css?v=1',
   '/basemaps/mana-positron.json?v=1776927833',
   '/basemaps/mana-dark.json?v=1776927833',
   '/basemaps/mana-openfreemap-alt.json?v=1776927833',
@@ -55,7 +56,8 @@ const PRECACHE_URLS = [
   '/js/plans.js?v=1776927826',
   '/js/upsell.js?v=1776927826',
   '/js/categorize.js?v=1776927826',
-  '/js/shortcuts.js?v=1776927826'
+  '/js/shortcuts.js?v=1776927826',
+  '/js/tutorial.js?v=1'
 ];
 
 const PRECACHE_KEYS = new Set(PRECACHE_URLS.map((url) => new URL(url, self.location.origin).href));

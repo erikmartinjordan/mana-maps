@@ -281,6 +281,7 @@ function buildLandingHTML(m, all) {
           <a href="/news/" data-i18n="footer_news">News</a>
           <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
           <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
+          <a href="/map/?tutorial=1">Tutorial</a>
         </div>
       </section>
       <section class="site-footer__group site-footer__group--wide">

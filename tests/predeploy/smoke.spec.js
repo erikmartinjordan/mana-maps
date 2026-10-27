@@ -138,7 +138,7 @@ test('site footer stays consistent and readable on mobile', async ({ page }) => 
   const footer = page.locator('.site-footer').first();
   await expect(footer).toBeVisible();
   await expect(footer.locator('.site-footer__group h2')).toHaveText(['Producto', 'Recursos', 'Compañía']);
-  await expect(footer.locator('.site-footer__group a')).toHaveCount(8);
+  await expect(footer.locator('.site-footer__group a')).toHaveCount(9);
 
   const firstLink = await footer.locator('.site-footer__group a').first().boundingBox();
   expect(firstLink.height).toBeGreaterThanOrEqual(44);
