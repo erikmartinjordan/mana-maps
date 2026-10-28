@@ -80,9 +80,11 @@ test('landing and OG card coverage is complete for every published map', () => {
   expect(result.missingLandings).toEqual([]);
   expect(result.landingsWithoutSlug).toEqual([]);
   expect(result.missingOgCards).toEqual([]);
+  expect(result.orphanLandings).toEqual([]);
+  expect(result.orphanOgCards).toEqual([]);
 });
 
-test('landing coverage check reports missing landings, OG cards and absent slugs', () => {
+test('landing coverage check reports missing landings, OG cards, absent slugs and orphans', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-landing-coverage-'));
   const galleryDir = path.join(tmp, 'gallery');
   const ogDir = path.join(tmp, 'og-cards');
@@ -116,16 +118,27 @@ test('landing coverage check reports missing landings, OG cards and absent slugs
   fs.writeFileSync(path.join(galleryDir, 'landing-vacia', 'index.html'), '');
   fs.writeFileSync(path.join(ogDir, 'landing-vacia.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
 
+  // 'huerfana': ya no está publicada pero conserva landing y OG card.
+  fs.mkdirSync(path.join(galleryDir, 'huerfana'));
+  fs.writeFileSync(path.join(galleryDir, 'huerfana', 'index.html'), '/gallery/huerfana/');
+  fs.writeFileSync(path.join(ogDir, 'huerfana.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+  // Los ficheros que no son PNG (p. ej. _render.log) no cuentan como OG card.
+  fs.writeFileSync(path.join(ogDir, '_render.log'), 'log');
+
   const slugs = ['ok-map', 'sin-landing', 'sin-slug', 'sin-og', 'og-vacia', 'landing-vacia'];
   const result = auditLandingCoverage(slugs, { galleryDir, ogCardsDir: ogDir });
 
   expect(result.missingLandings).toEqual(['sin-landing']);
   expect(result.landingsWithoutSlug).toEqual(['landing-vacia', 'sin-slug']);
   expect(result.missingOgCards).toEqual(['og-vacia', 'sin-og']);
+  expect(result.orphanLandings).toEqual(['huerfana']);
+  expect(result.orphanOgCards).toEqual(['huerfana']);
   const issues = result.issues.join('\n');
   expect(issues).toContain('faltan 1 landings gallery/<slug>/index.html (sin-landing)');
   expect(issues).toContain('2 landings no contienen su slug (landing-vacia, sin-slug)');
   expect(issues).toContain('faltan 2 OG cards og-cards/<slug>.png (og-vacia, sin-og)');
+  expect(issues).toContain('sobran 1 landings de mapas no publicados (huerfana)');
+  expect(issues).toContain('sobran 1 OG cards de mapas no publicados (huerfana)');
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });

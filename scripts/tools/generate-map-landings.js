@@ -357,7 +357,7 @@ function buildLandingHTML(m, all) {
 
   if (browser) await browser.close();
 
-  // Elimina landings estáticas de mapas ya no publicados.
+  // Elimina landings y OG cards estáticas de mapas ya no publicados.
   if (!DRY_RUN && fs.existsSync(OUT_PAGES)) {
     for (const entry of fs.readdirSync(OUT_PAGES)) {
       const stat = fs.statSync(path.join(OUT_PAGES, entry));
@@ -368,8 +368,18 @@ function buildLandingHTML(m, all) {
       }
     }
   }
+  let cardsSkipped = 0;
+  if (!DRY_RUN && fs.existsSync(OUT_CARDS)) {
+    for (const entry of fs.readdirSync(OUT_CARDS)) {
+      if (!entry.endsWith('.png')) continue;
+      const slug = entry.slice(0, -4);
+      if (generatedSlugs.has(slug)) continue;
+      fs.rmSync(path.join(OUT_CARDS, entry), { force: true });
+      cardsSkipped++;
+    }
+  }
 
-  console.log(`${DRY_RUN ? '[dry-run] ' : ''}Landings: ${pages} · OG cards: ${cards} · eliminadas: ${skipped}`);
+  console.log(`${DRY_RUN ? '[dry-run] ' : ''}Landings: ${pages} · OG cards: ${cards} · eliminadas: ${skipped} · OG eliminadas: ${cardsSkipped}`);
   if (page) console.log('Hecho.');
 })().catch((e) => { console.error(e); process.exit(1); });
 

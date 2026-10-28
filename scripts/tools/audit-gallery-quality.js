@@ -1405,7 +1405,10 @@ function auditLandingCoverage(publishedSlugs, {
   const missingLandings = [];
   const landingsWithoutSlug = [];
   const missingOgCards = [];
+  const orphanLandings = [];
+  const orphanOgCards = [];
   const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
+  const publishedSet = new Set(published);
 
   for (const slug of published) {
     // Un slug con separadores no puede mapear a un directorio del repo.
@@ -1443,7 +1446,54 @@ function auditLandingCoverage(publishedSlugs, {
     issues.push(`faltan ${missingOgCards.length} OG cards og-cards/<slug>.png (${missingOgCards.join(', ')})`);
   }
 
-  return { issues, published, missingLandings, landingsWithoutSlug, missingOgCards };
+  // Los mapas despublicados no deben dejar landings ni OG cards huérfanas:
+  // el generador las retira, pero una ejecución antigua o un cambio manual
+  // pueden dejarlas accesibles y desincronizadas con Firestore.
+  const pathMod = require('path');
+  try {
+    if (fs.existsSync(galleryDir)) {
+      for (const entry of fs.readdirSync(galleryDir)) {
+        if (publishedSet.has(entry)) continue;
+        let stat = null;
+        try { stat = fs.statSync(pathMod.join(galleryDir, entry)); } catch (_) { stat = null; }
+        if (stat && stat.isDirectory()) orphanLandings.push(entry);
+      }
+    }
+  } catch (e) {
+    issues.push(`no se pudo revisar gallery/ en busca de landings huérfanas: ${e.message}`);
+  }
+  try {
+    if (fs.existsSync(ogCardsDir)) {
+      for (const entry of fs.readdirSync(ogCardsDir)) {
+        if (!/\.png$/i.test(entry)) continue;
+        const slug = entry.slice(0, -4);
+        if (publishedSet.has(slug)) continue;
+        let stat = null;
+        try { stat = fs.statSync(pathMod.join(ogCardsDir, entry)); } catch (_) { stat = null; }
+        if (stat && stat.isFile()) orphanOgCards.push(slug);
+      }
+    }
+  } catch (e) {
+    issues.push(`no se pudo revisar og-cards/ en busca de tarjetas huérfanas: ${e.message}`);
+  }
+  orphanLandings.sort();
+  orphanOgCards.sort();
+  if (orphanLandings.length) {
+    issues.push(`sobran ${orphanLandings.length} landings de mapas no publicados (${orphanLandings.join(', ')})`);
+  }
+  if (orphanOgCards.length) {
+    issues.push(`sobran ${orphanOgCards.length} OG cards de mapas no publicados (${orphanOgCards.join(', ')})`);
+  }
+
+  return {
+    issues,
+    published,
+    missingLandings,
+    landingsWithoutSlug,
+    missingOgCards,
+    orphanLandings,
+    orphanOgCards,
+  };
 }
 
 // ── Metadatos de las landings (check 12) ──────────────────────────
