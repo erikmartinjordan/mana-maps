@@ -1,5 +1,29 @@
 [
   {
+    "date": "2026-10-28",
+    "event": "La IAEA abre en Incheon su conferencia ministerial con 417 reactores operativos en 31 países y 78 en construcción, y eleva sus previsiones de capacidad por sexto año consecutivo (27 de octubre de 2026)",
+    "mapSlug": "nuclear-reactors-world",
+    "sourceUrls": [
+      "https://www.iaea.org/newscenter/news/iaeas-grossi-calls-for-progress-in-deploying-nuclear-power-as-ministerial-conference-opens",
+      "https://en.yna.co.kr/view/AEN20261027006100320",
+      "https://www.iaea.org/events/ministerial-nuclear-power-conference-2026"
+    ],
+    "translations": {
+      "es": {
+        "slug": "nuclear-417-reactores-78-en-construccion",
+        "url": "/nuclear-417-reactores-78-en-construccion/",
+        "title": "La nuclear busca resultados: 417 reactores y 78 en obra",
+        "description": "La IAEA abre en Incheon su conferencia ministerial con 417 reactores operativos y 78 en construcción. El mapa de las 170 centrales nucleares muestra dónde está hoy la potencia instalada."
+      },
+      "en": {
+        "slug": "nuclear-417-reactors-78-under-construction",
+        "url": "/en/nuclear-417-reactors-78-under-construction/",
+        "title": "Nuclear power seeks results: 417 reactors and 78 in build",
+        "description": "The IAEA opens its ministerial conference in Incheon with 417 reactors operating and 78 under construction. The map of 170 nuclear plants shows where installed capacity stands today."
+      }
+    }
+  },
+  {
     "date": "2026-10-27",
     "event": "La Asociación de Líneas Aéreas programa 145,6 millones de asientos para el invierno 2026-2027 (+5,5%), mientras el queroseno cerca de los 1.600 dólares por tonelada frena por primera vez la ocupación de los vuelos de verano (26 de octubre de 2026)",
     "mapSlug": "airports-world",
