@@ -31,6 +31,7 @@ const OUT_CARDS = path.join(ROOT, 'og-cards');
 const OUT_PAGES = path.join(ROOT, 'gallery');
 const DRY_RUN = process.argv.includes('--dry-run');
 const NO_IMAGES = process.argv.includes('--no-images');
+const SLUG_FILTER = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
 
 // ── Logo unificado (mismo SVG vectorial que el resto del sitio) ──
 // Blob oscuro + M̃ vectorial (sin dependencia de fuente) + wordmark.
@@ -312,8 +313,15 @@ function buildLandingHTML(m, all) {
   }
 
   console.log('Leyendo mapas publicados de Firestore…');
-  const maps = await fetchPublishedMaps(cfg);
-  console.log(`Mapas publicados: ${maps.length}`);
+  const allMaps = await fetchPublishedMaps(cfg);
+  const maps = SLUG_FILTER
+    ? allMaps.filter((m) => (m.slug || m.id) === SLUG_FILTER)
+    : allMaps;
+  console.log(`Mapas publicados: ${allMaps.length}${SLUG_FILTER ? ` · filtro: ${SLUG_FILTER}` : ''}`);
+  if (SLUG_FILTER && !maps.length) {
+    console.error(`No hay un mapa publicado con slug ${SLUG_FILTER}.`);
+    process.exit(1);
+  }
 
   let browser = null;
   let page = null;
@@ -345,7 +353,7 @@ function buildLandingHTML(m, all) {
       }
     }
 
-    const html = buildLandingHTML(m, maps);
+    const html = buildLandingHTML(m, allMaps);
     if (!DRY_RUN) {
       const dir = path.join(OUT_PAGES, slug);
       fs.mkdirSync(dir, { recursive: true });
@@ -358,7 +366,7 @@ function buildLandingHTML(m, all) {
   if (browser) await browser.close();
 
   // Elimina landings y OG cards estáticas de mapas ya no publicados.
-  if (!DRY_RUN && fs.existsSync(OUT_PAGES)) {
+  if (!DRY_RUN && !SLUG_FILTER && fs.existsSync(OUT_PAGES)) {
     for (const entry of fs.readdirSync(OUT_PAGES)) {
       const stat = fs.statSync(path.join(OUT_PAGES, entry));
       if (!stat.isDirectory()) continue;
@@ -369,7 +377,7 @@ function buildLandingHTML(m, all) {
     }
   }
   let cardsSkipped = 0;
-  if (!DRY_RUN && fs.existsSync(OUT_CARDS)) {
+  if (!DRY_RUN && !SLUG_FILTER && fs.existsSync(OUT_CARDS)) {
     for (const entry of fs.readdirSync(OUT_CARDS)) {
       if (!entry.endsWith('.png')) continue;
       const slug = entry.slice(0, -4);

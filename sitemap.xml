@@ -172,19 +172,19 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/espana-concentra-44-superficie-quemada-ue/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/espana-concentra-44-superficie-quemada-ue/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/spain-accounts-44-percent-eu-burnt-area/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/espana-concentra-44-superficie-quemada-ue/"/>
+    <loc>https://xn--maa-8ma.com/colision-trenes-urda-toledo/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/colision-trenes-urda-toledo/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/train-collision-urda-toledo/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/colision-trenes-urda-toledo/"/>
     <lastmod>2026-10-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/en/spain-accounts-44-percent-eu-burnt-area/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/espana-concentra-44-superficie-quemada-ue/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/spain-accounts-44-percent-eu-burnt-area/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/espana-concentra-44-superficie-quemada-ue/"/>
+    <loc>https://xn--maa-8ma.com/en/train-collision-urda-toledo/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/colision-trenes-urda-toledo/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/train-collision-urda-toledo/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/colision-trenes-urda-toledo/"/>
     <lastmod>2026-10-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
@@ -356,6 +356,11 @@
   </url>
   <url>
     <loc>https://xn--maa-8ma.com/gallery/largest-islands-world/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/linea-ave-madrid-sevilla-urda/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

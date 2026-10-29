@@ -228,9 +228,11 @@ test('iPhone 16 Pro footer covers the screen edges on every page template', asyn
 
         // Al llegar al final el color de overscroll coincide con el fondo del pie,
         // de modo que iOS no muestra una banda gris que parezca una sombra.
-        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
         await expect
-          .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor))
+          .poll(async () => {
+            await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+            return page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
+          })
           .toBe('rgb(251, 252, 253)');
       }
     }

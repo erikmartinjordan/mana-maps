@@ -1,26 +1,29 @@
 [
   {
     "date": "2026-10-29",
-    "event": "Zero Carbon Analytics publica que España concentró el 44% de la superficie quemada en la UE en 2026, con unas 299.000 hectáreas, en el tercer peor año de la serie desde 2006 (28 de octubre de 2026)",
-    "mapSlug": "worst-wildfires-world",
+    "event": "Un AVE de Renfe embiste a un tren de Iryo detenido en la línea Madrid-Sevilla a la altura de Urda (Toledo): al menos 68 muertos y más de un centenar de heridos; la investigación apunta a una orden del centro de control de Adif tras un fallo del sistema LZB (28 de octubre de 2026)",
+    "mapSlug": "linea-ave-madrid-sevilla-urda",
     "sourceUrls": [
-      "https://zerocarbon-analytics.org/nature/eu-wildfire-seasons-becoming-more-extreme-and-harder-to-insure/",
-      "https://efe.com/medio-ambiente/2026-10-28/espana-superficie-quemada-incendios-ue-2026/",
-      "https://www.agenciasinc.es/Noticias/Espana-acumula-299-000-hectareas-quemadas-y-concentra-el-44-del-total-de-la-UE",
-      "https://www.abc.es/sociedad/espana-aglutina-terreno-quemado-incendios-ano-ue-20261028012100-nt.html"
+      "https://apnews.com/article/train-accident-spain-4f65471a0e36f448d7ee9efe0768cd77",
+      "https://www.bbc.com/news/articles/cm8xz7pkd0jjo",
+      "https://www.rtve.es/noticias/20261028/interrumpen-circulacion-linea-alta-velocidad-madrid-andalucia-por-alcance-entre-dos-trenes/17286647.shtml",
+      "https://www.rtve.es/noticias/20261028/accidente-tren-directo-ultima-hora/17286720.shtml",
+      "https://cadenaser.com/nacional/2026/10/29/accidente-de-tren-en-toledo-la-ultima-hora-en-directo-cadena-ser/",
+      "https://elpais.com/espana/2026-10-28/la-guardia-civil-activa-un-protocolo-de-investigacion-identico-al-que-se-siguio-en-el-accidente-de-adamuz.html",
+      "https://www.elespanol.com/espana/20261029/sigue-busqueda-cadaveres-dentro-trenes-muertos-heridos-graves-colision-urda/1003744438997_0.html"
     ],
     "translations": {
       "es": {
-        "slug": "espana-concentra-44-superficie-quemada-ue",
-        "url": "/espana-concentra-44-superficie-quemada-ue/",
-        "title": "España concentra el 44% de la superficie quemada en la UE",
-        "description": "España acumula 299.000 hectáreas quemadas, el 44% del total de la UE en 2026, el tercer peor año desde 2006. El mapa de los grandes incendios lo dimensiona."
+        "slug": "colision-trenes-urda-toledo",
+        "url": "/colision-trenes-urda-toledo/",
+        "title": "Al menos 68 muertos en la colisión de dos trenes en Urda",
+        "description": "Un AVE de Renfe embiste a un Iryo detenido en Urda (Toledo): 68 muertos y más de un centenar de heridos. La investigación apunta al centro de control."
       },
       "en": {
-        "slug": "spain-accounts-44-percent-eu-burnt-area",
-        "url": "/en/spain-accounts-44-percent-eu-burnt-area/",
-        "title": "Spain accounts for 44% of the EU's burnt area this year",
-        "description": "Spain has burnt 299,000 hectares in 2026, 44% of the EU total and the third-worst year since records began in 2006. The map of the worst wildfires adds scale."
+        "slug": "train-collision-urda-toledo",
+        "url": "/en/train-collision-urda-toledo/",
+        "title": "At least 68 killed as two trains collide near Urda",
+        "description": "A Renfe AVE train hit a stationary Iryo train near Urda, Toledo: 68 dead and more than a hundred injured. The investigation focuses on Adif's control centre."
       }
     }
   },
