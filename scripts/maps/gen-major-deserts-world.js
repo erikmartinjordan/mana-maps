@@ -358,12 +358,75 @@ async function buildDesertGeometry(sources, log) {
   return geom;
 }
 
+// ── Datos de popup en español y rampa por superficie ────────────────
+const COUNTRIES_ES = {
+  Algeria: 'Argelia', Egypt: 'Egipto', Libya: 'Libia', Mali: 'Malí', Niger: 'Níger',
+  Chad: 'Chad', Sudan: 'Sudán', Morocco: 'Marruecos', Tunisia: 'Túnez',
+  'Saudi Arabia': 'Arabia Saudí', Yemen: 'Yemen', Oman: 'Omán',
+  UAE: 'Emiratos Árabes Unidos', Qatar: 'Catar', Kuwait: 'Kuwait', Iraq: 'Irak',
+  China: 'China', Mongolia: 'Mongolia', Botswana: 'Botsuana', Namibia: 'Namibia',
+  'South Africa': 'Sudáfrica', Argentina: 'Argentina', Chile: 'Chile',
+  Australia: 'Australia', Syria: 'Siria', Jordan: 'Jordania',
+  'United States': 'Estados Unidos', Mexico: 'México', Turkmenistan: 'Turkmenistán',
+  Uzbekistan: 'Uzbekistán', Kazakhstan: 'Kazajistán', India: 'India', Pakistan: 'Pakistán',
+  'Antarctica (international territory)': 'Antártida (territorio internacional)',
+};
+
+const CONTINENTS_ES = { Africa: 'África', Oceania: 'Oceanía', 'North America': 'Norteamérica', 'South America': 'Sudamérica' };
+
+function translateCountries(raw) {
+  return String(raw || '').split(',').map(s => s.trim()).filter(Boolean)
+    .map(s => COUNTRIES_ES[s] || s).join(', ');
+}
+
+function parseAreaKm2(raw) {
+  const m = String(raw || '').match(/([\d.,]+)\s*(million|M)?/i);
+  if (!m) return null;
+  const n = parseFloat(m[1].replace(/,/g, ''));
+  return Number.isFinite(n) ? Math.round(/million|M/i.test(m[2] || '') ? n * 1e6 : n) : null;
+}
+
+function formatEs(n) {
+  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Misma rampa que la auditoría §3 (claro→oscuro por cuantiles del dato).
+function hslToHex(h, s, l) {
+  const ss = s / 100, ll = l / 100;
+  const c = (1 - Math.abs(2 * ll - 1)) * ss;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = ll - c / 2;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+  const to = v => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+  return `#${to(r)}${to(g)}${to(b)}`;
+}
+
+function applySurfaceRamp(features) {
+  const steps = 9;
+  const ramp = Array.from({ length: steps }, (_, i) => {
+    const t = i / (steps - 1);
+    return hslToHex(32, 48 + t * 28, 92 - t * 72); // naranja #d97706 ≈ 32°
+  });
+  const sorted = features.slice().sort((a, b) => a.properties.Superficie - b.properties.Superficie);
+  sorted.forEach((f, idx) => {
+    const t = sorted.length === 1 ? 1 : idx / (sorted.length - 1);
+    f.properties._manaColor = ramp[Math.round(t * (steps - 1))];
+  });
+}
+
 // ── Propiedades de cada feature ─────────────────────────────────────
-// Se conservan los datos de popup ya publicados (Continente, Superficie,
-// Países, Tipo y Description) y se actualiza lo necesario para polígonos:
+// Datos de popup en español (Continente, Superficie numérica en km², Países,
+// Tipo, Dato y Description) y lo necesario para polígonos:
 // _manaGeometryType 'polygon', sin markerType (los desiertos son áreas,
 // no puntos), fillOpacity/borde blanco fino y labelStyle centrado.
 function buildProperties(d) {
+  const superficie = parseAreaKm2(d.area);
   return {
     _manaName: d.name,
     name: d.name,
@@ -372,8 +435,8 @@ function buildProperties(d) {
     _manaBorderColor: '#FFFFFF',
     _manaWeight: 1,
     _manaOpacity: 1,
-    _manaGroupName: d.groupName,
-    _manaGroupId: d.groupId,
+    _manaGroupName: 'Desiertos',
+    _manaGroupId: 1,
     _manaGeometryType: 'polygon',
     _manaLabelStyle: {
       enabled: true,
@@ -390,10 +453,11 @@ function buildProperties(d) {
       offsetY: 0,
       placement: 'point',
     },
-    Continent: d.continent,
-    Area: d.area,
-    Countries: d.countries,
-    Type: d.type,
+    Continente: CONTINENTS_ES[d.continent] || d.continent,
+    Superficie: superficie,
+    Países: translateCountries(d.countries),
+    Tipo: d.type,
+    Dato: `${formatEs(superficie)} km²`,
     Description: d.description,
   };
 }
@@ -421,7 +485,7 @@ function validate(geo) {
         if (c[0] < -180 || c[0] > 180 || c[1] < -90 || c[1] > 90) errors.push(`${name}: coord fuera de rango`);
       } else c.forEach(walk);
     })(f.geometry.coordinates);
-    if (!p.Continent || !p.Area || !p.Countries || !p.Description) {
+    if (!p.Continente || !p.Superficie || !p.Países || !p.Description) {
       errors.push(`${name}: popup sin datos concretos (§5)`);
     }
   }
@@ -454,6 +518,7 @@ async function main() {
   }
 
   const geo = { type: 'FeatureCollection', features };
+  applySurfaceRamp(features); // rampa mono ordenada por superficie (AGENTS.md §3)
   const errors = validate(geo);
   if (errors.length) {
     console.error('\n✗ Validación fallida:');

@@ -1,0 +1,895 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -115,
+     55
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios canadienses de 2023",
+    "name": "Incendios canadienses de 2023",
+    "_manaColor": "#5a210c",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Temporada de incendios récord en las 13 provincias. Enormes columnas de humo alcanzaron Europa y EE.UU. Más de 200.000 personas evacuadas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 18500000,
+    "Muertos": 300,
+    "Año": "2023",
+    "País": "Canadá",
+    "Dato": "18.500.000 ha quemadas",
+    "_manaEmojiSize": 66
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -56,
+     -17
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios del Pantanal de 2024",
+    "name": "Incendios del Pantanal de 2024",
+    "_manaColor": "#c65329",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Incendios sin precedentes devastaron el mayor humedal tropical del mundo. Impacto devastador en las poblaciones de jaguares y la biodiversidad única.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 2000000,
+    "Muertos": 200,
+    "Año": "2024",
+    "País": "Brasil",
+    "Dato": "2.000.000 ha quemadas",
+    "_manaEmojiSize": 55
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     150,
+     -35
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios australianos de 2019-2020",
+    "name": "Incendios australianos de 2019-2020",
+    "_manaColor": "#5a210c",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Conocido como el Verano Negro. Mató o desplazó a casi 3.000 millones de animales. El humo dio la vuelta al mundo. Se estima que 445 personas murieron por inhalación de humo.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 18600000,
+    "Muertos": 478,
+    "Año": "2019-20",
+    "País": "Australia",
+    "Dato": "18.600.000 ha quemadas",
+    "_manaEmojiSize": 66
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -156.5,
+     20.9
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Maui de 2023",
+    "name": "Incendios de Maui de 2023",
+    "_manaColor": "#f4e6e1",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "El incendio forestal más mort��fero en EE.UU. en más de un siglo. La histórica ciudad de Lahaina fue casi destruida. Vientos del huracán Dora alimentaron las llamas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 8600,
+    "Muertos": 101,
+    "Año": "2023",
+    "País": "Hawái, EE.UU.",
+    "Dato": "8.600 ha quemadas",
+    "_manaEmojiSize": 27
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -101,
+     35.8
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendio de Smokehouse Creek de 2024",
+    "name": "Incendio de Smokehouse Creek de 2024",
+    "_manaColor": "#d46e49",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "El mayor incendio forestal en la historia de Texas. Arrasó el Panhandle con sequía extrema y vientos fuertes. Causó enormes pérdidas de ganado.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 424000,
+    "Muertos": 2,
+    "Año": "2024",
+    "País": "Texas, EE.UU.",
+    "Dato": "424.000 ha quemadas",
+    "_manaEmojiSize": 47
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -118.3,
+     34.1
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Los Ángeles de 2025",
+    "name": "Incendios de Los Ángeles de 2025",
+    "_manaColor": "#e1ac98",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Gran tormenta de fuego en la cuenca de Los Ángeles. Impulsada por vientos Santa Ana extremos y sequía prolongada. Destrucción extensa de zonas urbanas y comunidades en las colinas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 40000,
+    "Muertos": 60,
+    "Año": "2025",
+    "País": "California, EE.UU.",
+    "Dato": "40.000 ha quemadas",
+    "_manaEmojiSize": 35
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -72,
+     -38
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios chilenos de 2023",
+    "name": "Incendios chilenos de 2023",
+    "_manaColor": "#d46e49",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Ola de calor récord y sequía crearon condiciones para incendios masivos en las regiones del Biobío y la Araucanía. Destruyeron cientos de viviendas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 450000,
+    "Muertos": 30,
+    "Año": "2023",
+    "País": "Chile",
+    "Dato": "450.000 ha quemadas",
+    "_manaEmojiSize": 47
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     30,
+     37
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Turquía de 2021",
+    "name": "Incendios de Turquía de 2021",
+    "_manaColor": "#da8d72",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Peores incendios forestales en la historia moderna de Turquía. Intensa ola de calor con temperaturas superiores a 45 °C. Estaciones costeras evacuadas. Turismo gravemente afectado.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 139000,
+    "Muertos": 9,
+    "Año": "2021",
+    "País": "Turquía",
+    "Dato": "139.000 ha quemadas",
+    "_manaEmojiSize": 41
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23,
+     38
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Grecia de 2021",
+    "name": "Incendios de Grecia de 2021",
+    "_manaColor": "#da8d72",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Incendios devastadores en la isla de Evia y el Peloponeso. El primer ministro lo calificó de \"desastre natural de proporciones sin precedentes\". Antiguos olivares destruidos.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 130000,
+    "Muertos": 3,
+    "Año": "2021",
+    "País": "Grecia",
+    "Dato": "130.000 ha quemadas",
+    "_manaEmojiSize": 41
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -8,
+     40
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios europeos de 2022",
+    "name": "Incendios europeos de 2022",
+    "_manaColor": "#c65329",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "La peor temporada de incendios en Europa. Temperaturas récord de 47 °C en Portugal. Francia sufrió incendios masivos en Gironde. El Reino Unido alcanzó los 40 °C por primera vez.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 785000,
+    "Muertos": 50,
+    "Año": "2022",
+    "País": "Europa (Portugal, España, Francia)",
+    "Dato": "785.000 ha quemadas",
+    "_manaEmojiSize": 50
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     120,
+     63
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios siberianos de 2023",
+    "name": "Incendios siberianos de 2023",
+    "_manaColor": "#803114",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Incendios masivos de bosque boreal en la República de Sajá y las regiones de Irkutsk. Liberaron cantidades récord de carbono. El deshielo del permafrost se aceleró por los incendios.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 8000000,
+    "Muertos": 10,
+    "Año": "2023",
+    "País": "Siberia, Rusia",
+    "Dato": "8.000.000 ha quemadas",
+    "_manaEmojiSize": 62
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60,
+     -5
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios amazónicos de 2019",
+    "name": "Incendios amazónicos de 2019",
+    "_manaColor": "#803114",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Indignación mundial cuando los incendios arrasaron los \"pulmones del planeta\". São Paulo quedó a oscuras por la tarde a causa del humo. Se ofreció ayuda internacional.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 7600000,
+    "Muertos": 10,
+    "Año": "2019",
+    "País": "Amazonia, Brasil",
+    "Dato": "7.600.000 ha quemadas",
+    "_manaEmojiSize": 61
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -121.6,
+     39.8
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendio Camp Fire de 2018",
+    "name": "Incendio Camp Fire de 2018",
+    "_manaColor": "#e1ac98",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "El incendio forestal más destructivo en la historia de California. La ciudad de Paradise fue completamente destruida. Comunidades enteras desaparecieron en horas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 62000,
+    "Muertos": 85,
+    "Año": "2018",
+    "País": "California, EE.UU.",
+    "Dato": "62.000 ha quemadas",
+    "_manaEmojiSize": 37
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     145,
+     -37
+    ]
+   },
+   "properties": {
+    "_manaName": "Sábado Negro de 2009",
+    "name": "Sábado Negro de 2009",
+    "_manaColor": "#c65329",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "La catástrofe natural más mortal de Australia en la era moderna. Las temperaturas alcanzaron los 46,4 °C. Se formaron tornados de fuego. Pueblos enteros fueron incinerados.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 450000,
+    "Muertos": 173,
+    "Año": "2009",
+    "País": "Victoria, Australia",
+    "Dato": "450.000 ha quemadas",
+    "_manaEmojiSize": 47
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     24,
+     38
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Ática de 2018",
+    "name": "Incendios de Ática de 2018",
+    "_manaColor": "#f4e6e1",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "El segundo incendio forestal más mortal del siglo XXI. Víctimas atrapadas por el mar cerca del complejo de Mati. Muchos se ahogaron intentando escapar de las llamas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 3000,
+    "Muertos": 104,
+    "Año": "2018",
+    "País": "Ática, Grecia",
+    "Dato": "3.000 ha quemadas",
+    "_manaEmojiSize": 22
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -62,
+     -18
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Bolivia de 2024",
+    "name": "Incendios de Bolivia de 2024",
+    "_manaColor": "#a4421e",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Incendios sin precedentes en las regiones de Santa Cruz y Beni. Columnas de humo visibles desde el espacio. Estado de emergencia declarado. Esfuerzos de rescate de fauna silvestre abrumados.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 4000000,
+    "Muertos": 5,
+    "Año": "2024",
+    "País": "Bolivia",
+    "Dato": "4.000.000 ha quemadas",
+    "_manaEmojiSize": 58
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3,
+     42
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios ibéricos de 2025",
+    "name": "Incendios ibéricos de 2025",
+    "_manaColor": "#da8d72",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Incendios severos en toda la península ibérica. Intensa ola de calor y condiciones secas. Afectaron parques naturales en España y centro de Portugal.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 100000,
+    "Muertos": 10,
+    "Año": "2025",
+    "País": "España/Portugal",
+    "Dato": "100.000 ha quemadas",
+    "_manaEmojiSize": 40
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     3,
+     36
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Argelia de 2023",
+    "name": "Incendios de Argelia de 2023",
+    "_manaColor": "#eac9bd",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Incendios mortales en las regiones de Cabilia y Bejaia. Aldeas enteras evacuadas. Vientos fuertes propagaron las llamas rápidamente por el terreno montañoso.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 10000,
+    "Muertos": 40,
+    "Año": "2023",
+    "País": "Argelia",
+    "Dato": "10.000 ha quemadas",
+    "_manaEmojiSize": 28
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -65,
+     -3
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios por sequía amazónica de 2024",
+    "name": "Incendios por sequía amazónica de 2024",
+    "_manaColor": "#a4421e",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Sequía severa en la cuenca amazónica provocó incendios generalizados. Niveles de los ríos en mínimos históricos. Manaus sofocada bajo humo denso durante semanas.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 6500000,
+    "Muertos": 5,
+    "Año": "2024",
+    "País": "Amazonia, Brasil",
+    "Dato": "6.500.000 ha quemadas",
+    "_manaEmojiSize": 61
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -74,
+     4
+    ]
+   },
+   "properties": {
+    "_manaName": "Incendios de Colombia de 2024",
+    "name": "Incendios de Colombia de 2024",
+    "_manaColor": "#eac9bd",
+    "_manaMarkerType": "emoji_fire",
+    "_manaWeight": 3,
+    "_manaOpacity": 1,
+    "_manaGroupName": "Incendios forestales",
+    "_manaGroupId": 1,
+    "_manaGeometryType": "point",
+    "_manaLabelStyle": {
+     "enabled": true,
+     "field": "name",
+     "fontFamily": "DM Mono, monospace",
+     "fontSize": 11,
+     "color": "#ffffff",
+     "fontWeight": "bold",
+     "fontStyle": "normal",
+     "haloColor": "#000000",
+     "haloWidth": 3,
+     "opacity": 1,
+     "offsetX": 0,
+     "offsetY": -38,
+     "placement": "point"
+    },
+    "Description": "Numerosos incendios en las regiones andinas y amazónicas. Bogotá declaró desastre. El fenómeno de El Niño agravó las condiciones de sequía.",
+    "markerType": "emoji_fire",
+    "Superficie quemada (ha)": 17000,
+    "Muertos": 2,
+    "Año": "2024",
+    "País": "Colombia",
+    "Dato": "17.000 ha quemadas",
+    "_manaEmojiSize": 31
+   }
+  }
+ ],
+ "legend": {
+  "title": "Incendios forestales",
+  "steps": [
+   {
+    "v": 20,
+    "c": "#ff4500",
+    "label": "Incendio extremo (20)"
+   }
+  ]
+ }
+}

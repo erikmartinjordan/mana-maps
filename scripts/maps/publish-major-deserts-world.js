@@ -67,7 +67,7 @@ async function main() {
     walk(f.geometry.coordinates); return ok;
   });
   const names = new Set(geo.features.map(f => f.properties._manaName));
-  const withData = geo.features.filter(f => f.properties.Continent && f.properties.Area && f.properties.Countries && f.properties.Description).length;
+  const withData = geo.features.filter(f => f.properties.Continente && f.properties.Superficie && f.properties.Países && f.properties.Description).length;
   const noMarkers = geo.features.every(f => !f.properties.markerType && !f.properties._manaMarkerType);
   const geojsonText = JSON.stringify(geo);
   console.log(`features: ${geo.features.length} | con datos popup: ${withData} | KB: ${(geojsonText.length / 1024).toFixed(1)}`);
@@ -86,6 +86,9 @@ async function main() {
     featureCount: fsInt(geo.features.length),
     dataSource: fsStr(DATA_SOURCE),
     dataDate: fsStr('2024'),
+    legendKey: fsStr('Superficie'),
+    legendTitle: fsStr('Superficie (km²)'),
+    legendFormat: fsStr('number'),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     mapPreview: fsMap({
       bbox: { arrayValue: { values: preview.bbox.map(v => ({ doubleValue: v })) } },

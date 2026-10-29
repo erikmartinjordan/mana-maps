@@ -6,12 +6,12 @@
    "properties": {
     "_manaName": "Sahara",
     "name": "Sahara",
-    "_manaColor": "#d97706",
+    "_manaColor": "#804e14",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -29,11 +29,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "África",
-    "Area": "9.2 million km²",
-    "Countries": "Algeria, Egypt, Libya, Mali, Niger, Chad, Sudan, Morocco, Tunisia",
-    "Type": "Cálido",
-    "Description": "Sahara: El desierto cálido más grande de la Tierra. Cubre la mayor parte del norte de África. Temperaturas extremas que pueden superar los 50 °C. Hogar de asentamientos oásiticos dispersos."
+    "Description": "Sahara: El desierto cálido más grande de la Tierra. Cubre la mayor parte del norte de África. Temperaturas extremas que pueden superar los 50 °C. Hogar de asentamientos oásiticos dispersos.",
+    "Continente": "África",
+    "Superficie": 9200000,
+    "Países": "Argelia, Egipto, Libia, Malí, Níger, Chad, Sudán, Marruecos, Túnez",
+    "Tipo": "Cálido",
+    "Dato": "9.200.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -6448,12 +6449,12 @@
    "properties": {
     "_manaName": "Desierto arábigo",
     "name": "Desierto arábigo",
-    "_manaColor": "#d97706",
+    "_manaColor": "#804e14",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -6471,11 +6472,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Asia",
-    "Area": "2.3 million km²",
-    "Countries": "Saudi Arabia, Yemen, Oman, UAE, Qatar, Kuwait, Iraq",
-    "Type": "Cálido",
-    "Description": "Desierto arábigo: Incluye el Rub' al Khali (El Cuarto Vacío), la mayor masa de arena continua de la Tierra. Rico en reservas de petróleo."
+    "Description": "Desierto arábigo: Incluye el Rub' al Khali (El Cuarto Vacío), la mayor masa de arena continua de la Tierra. Rico en reservas de petróleo.",
+    "Continente": "Asia",
+    "Superficie": 2300000,
+    "Países": "Arabia Saudí, Yemen, Omán, Emiratos Árabes Unidos, Catar, Kuwait, Irak",
+    "Tipo": "Cálido",
+    "Dato": "2.300.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -10240,13 +10242,13 @@
    "properties": {
     "_manaName": "Desierto de Gobi",
     "name": "Desierto de Gobi",
-    "_manaColor": "#7c3aed",
+    "_manaColor": "#a4651e",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos fríos",
-    "_manaGroupId": 2,
+    "_manaGroupName": "Desiertos",
+    "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
      "enabled": true,
@@ -10263,11 +10265,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Asia",
-    "Area": "1.3 million km²",
-    "Countries": "China, Mongolia",
-    "Type": "Frío",
-    "Description": "Desierto de Gobi: Un desierto frío que se extiende por el sur de Mongolia y el norte de China. Parte de la antigua Ruta de la Seda. Famoso por descubrimientos de fósiles de dinosaurios."
+    "Description": "Desierto de Gobi: Un desierto frío que se extiende por el sur de Mongolia y el norte de China. Parte de la antigua Ruta de la Seda. Famoso por descubrimientos de fósiles de dinosaurios.",
+    "Continente": "Asia",
+    "Superficie": 1300000,
+    "Países": "China, Mongolia",
+    "Tipo": "Frío",
+    "Dato": "1.300.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -12274,12 +12277,12 @@
    "properties": {
     "_manaName": "Desierto del Kalahari",
     "name": "Desierto del Kalahari",
-    "_manaColor": "#d97706",
+    "_manaColor": "#a4651e",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -12297,11 +12300,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "África",
-    "Area": "900,000 km²",
-    "Countries": "Botswana, Namibia, South Africa",
-    "Type": "Cálido",
-    "Description": "Desierto del Kalahari: Una sabana semiárida y arenosa que cubre gran parte de Botsuana. Hogar del pueblo San y una diversa fauna silvestre que incluye suricatas y chacales pardos."
+    "Description": "Desierto del Kalahari: Una sabana semiárida y arenosa que cubre gran parte de Botsuana. Hogar del pueblo San y una diversa fauna silvestre que incluye suricatas y chacales pardos.",
+    "Continente": "África",
+    "Superficie": 900000,
+    "Países": "Botsuana, Namibia, Sudáfrica",
+    "Tipo": "Cálido",
+    "Dato": "900.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -12856,13 +12860,13 @@
    "properties": {
     "_manaName": "Desierto patagónico",
     "name": "Desierto patagónico",
-    "_manaColor": "#7c3aed",
+    "_manaColor": "#c67d29",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos fríos",
-    "_manaGroupId": 2,
+    "_manaGroupName": "Desiertos",
+    "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
      "enabled": true,
@@ -12879,11 +12883,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Sudamérica",
-    "Area": "673,000 km²",
-    "Countries": "Argentina, Chile",
-    "Type": "Frío",
-    "Description": "Desierto patagónico: El desierto más grande de las Américas. Formado por la sombra pluviométrica de los Andes. Rico en fósiles de dinosaurios y fauna esteparia."
+    "Description": "Desierto patagónico: El desierto más grande de las Américas. Formado por la sombra pluviométrica de los Andes. Rico en fósiles de dinosaurios y fauna esteparia.",
+    "Continente": "Sudamérica",
+    "Superficie": 673000,
+    "Países": "Argentina, Chile",
+    "Tipo": "Frío",
+    "Dato": "673.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -14322,12 +14327,12 @@
    "properties": {
     "_manaName": "Gran Desierto de Victoria",
     "name": "Gran Desierto de Victoria",
-    "_manaColor": "#d97706",
+    "_manaColor": "#e1bf98",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -14345,11 +14350,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Oceania",
-    "Area": "348,750 km²",
-    "Countries": "Australia",
-    "Type": "Cálido",
-    "Description": "Gran Desierto de Victoria: El desierto más grande de Australia. Presenta dunas de arena, praderas y lagos salados. Una área silvestre protegida."
+    "Description": "Gran Desierto de Victoria: El desierto más grande de Australia. Presenta dunas de arena, praderas y lagos salados. Una área silvestre protegida.",
+    "Continente": "Oceanía",
+    "Superficie": 348750,
+    "Países": "Australia",
+    "Tipo": "Cálido",
+    "Dato": "348.750 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -15216,12 +15222,12 @@
    "properties": {
     "_manaName": "Desierto sirio",
     "name": "Desierto sirio",
-    "_manaColor": "#d97706",
+    "_manaColor": "#c67d29",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -15239,11 +15245,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Asia",
-    "Area": "500,000 km²",
-    "Countries": "Syria, Jordan, Iraq, Saudi Arabia",
-    "Type": "Cálido",
-    "Description": "Desierto sirio: Un meseta estéril que conecta la Media Luna Fértil. Históricamente vital como ruta de caravanas que conectaba Mesopotamia con el Mediterráneo."
+    "Description": "Desierto sirio: Un meseta estéril que conecta la Media Luna Fértil. Históricamente vital como ruta de caravanas que conectaba Mesopotamia con el Mediterráneo.",
+    "Continente": "Asia",
+    "Superficie": 500000,
+    "Países": "Siria, Jordania, Irak, Arabia Saudí",
+    "Tipo": "Cálido",
+    "Dato": "500.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -15652,13 +15659,13 @@
    "properties": {
     "_manaName": "Gran Cuenca",
     "name": "Gran Cuenca",
-    "_manaColor": "#7c3aed",
+    "_manaColor": "#d49349",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos fríos",
-    "_manaGroupId": 2,
+    "_manaGroupName": "Desiertos",
+    "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
      "enabled": true,
@@ -15675,11 +15682,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Norteamérica",
-    "Area": "492,000 km²",
-    "Countries": "United States",
-    "Type": "Frío",
-    "Description": "Gran Cuenca: El desierto más grande de EE.UU. Nombrado por las cuencas endorreicas. Presenta estepa de artemisa y el Gran Lago Salado."
+    "Description": "Gran Cuenca: El desierto más grande de EE.UU. Nombrado por las cuencas endorreicas. Presenta estepa de artemisa y el Gran Lago Salado.",
+    "Continente": "Norteamérica",
+    "Superficie": 492000,
+    "Países": "Estados Unidos",
+    "Tipo": "Frío",
+    "Dato": "492.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -16942,12 +16950,12 @@
    "properties": {
     "_manaName": "Desierto de Chihuahua",
     "name": "Desierto de Chihuahua",
-    "_manaColor": "#d97706",
+    "_manaColor": "#daa972",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -16965,11 +16973,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Norteamérica",
-    "Area": "450,000 km²",
-    "Countries": "Mexico, United States",
-    "Type": "Cálido",
-    "Description": "Desierto de Chihuahua: El desierto con mayor diversidad biológica de Norteamérica. Conocido por sus agaves, yucas y el hábitat del lobo mexicano."
+    "Description": "Desierto de Chihuahua: El desierto con mayor diversidad biológica de Norteamérica. Conocido por sus agaves, yucas y el hábitat del lobo mexicano.",
+    "Continente": "Norteamérica",
+    "Superficie": 450000,
+    "Países": "México, Estados Unidos",
+    "Tipo": "Cálido",
+    "Dato": "450.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -22040,12 +22049,12 @@
    "properties": {
     "_manaName": "Desierto de Kara-Kum",
     "name": "Desierto de Kara-Kum",
-    "_manaColor": "#d97706",
+    "_manaColor": "#daa972",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -22063,11 +22072,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Asia",
-    "Area": "350,000 km²",
-    "Countries": "Turkmenistan",
-    "Type": "Cálido",
-    "Description": "Desierto de Kara-Kum: Cubre el 70% de Turkmenistán. Hogar del cráter de gas de Darvaza, la \"Puerta del Infierno\", ardiendo desde 1971."
+    "Description": "Desierto de Kara-Kum: Cubre el 70% de Turkmenistán. Hogar del cráter de gas de Darvaza, la \"Puerta del Infierno\", ardiendo desde 1971.",
+    "Continente": "Asia",
+    "Superficie": 350000,
+    "Países": "Turkmenistán",
+    "Tipo": "Cálido",
+    "Dato": "350.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -22768,12 +22778,12 @@
    "properties": {
     "_manaName": "Desierto de Kyzyl-Kum",
     "name": "Desierto de Kyzyl-Kum",
-    "_manaColor": "#d97706",
+    "_manaColor": "#ead5bd",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -22791,11 +22801,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Asia",
-    "Area": "298,000 km²",
-    "Countries": "Uzbekistan, Kazakhstan, Turkmenistan",
-    "Type": "Cálido",
-    "Description": "Desierto de Kyzyl-Kum: Ubicado entre los ríos Amu Daria y Syr Daria. El antiguo templo zoroástrico de fuego de Chilpyk se erige en su interior."
+    "Description": "Desierto de Kyzyl-Kum: Ubicado entre los ríos Amu Daria y Syr Daria. El antiguo templo zoroástrico de fuego de Chilpyk se erige en su interior.",
+    "Continente": "Asia",
+    "Superficie": 298000,
+    "Países": "Uzbekistán, Kazajistán, Turkmenistán",
+    "Tipo": "Cálido",
+    "Dato": "298.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -23178,12 +23189,12 @@
    "properties": {
     "_manaName": "Desierto de Thar",
     "name": "Desierto de Thar",
-    "_manaColor": "#d97706",
+    "_manaColor": "#ead5bd",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -23201,11 +23212,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Asia",
-    "Area": "200,000 km²",
-    "Countries": "India, Pakistan",
-    "Type": "Cálido",
-    "Description": "Desierto de Thar: El desierto más densamente poblado del mundo. Rico patrimonio cultural con festivales vibrantes y textiles coloridos."
+    "Description": "Desierto de Thar: El desierto más densamente poblado del mundo. Rico patrimonio cultural con festivales vibrantes y textiles coloridos.",
+    "Continente": "Asia",
+    "Superficie": 200000,
+    "Países": "India, Pakistán",
+    "Tipo": "Cálido",
+    "Dato": "200.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -23696,12 +23708,12 @@
    "properties": {
     "_manaName": "Desierto de Sonora",
     "name": "Desierto de Sonora",
-    "_manaColor": "#d97706",
+    "_manaColor": "#e1bf98",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -23719,11 +23731,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Norteamérica",
-    "Area": "310,000 km²",
-    "Countries": "Mexico, United States",
-    "Type": "Cálido",
-    "Description": "Desierto de Sonora: Conocido por sus icónicos cactus saguaro. Se extiende por Arizona, California y Sonora. Dos temporadas de lluvias sustentan una rica biodiversidad."
+    "Description": "Desierto de Sonora: Conocido por sus icónicos cactus saguaro. Se extiende por Arizona, California y Sonora. Dos temporadas de lluvias sustentan una rica biodiversidad.",
+    "Continente": "Norteamérica",
+    "Superficie": 310000,
+    "Países": "México, Estados Unidos",
+    "Tipo": "Cálido",
+    "Dato": "310.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -24890,13 +24903,13 @@
    "properties": {
     "_manaName": "Desierto antártico",
     "name": "Desierto antártico",
-    "_manaColor": "#7c3aed",
+    "_manaColor": "#5a360c",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos fríos",
-    "_manaGroupId": 2,
+    "_manaGroupName": "Desiertos",
+    "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
      "enabled": true,
@@ -24913,11 +24926,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Antártida",
-    "Area": "14.2 million km²",
-    "Countries": "Antarctica (international territory)",
-    "Type": "Frío",
-    "Description": "Desierto antártico: El desierto más grande de la Tierra por superficie. Recibe menos de 50 mm de precipitación al año. 98% cubierto por una capa de hielo de 2.160 m de espesor medio."
+    "Description": "Desierto antártico: El desierto más grande de la Tierra por superficie. Recibe menos de 50 mm de precipitación al año. 98% cubierto por una capa de hielo de 2.160 m de espesor medio.",
+    "Continente": "Antártida",
+    "Superficie": 14200000,
+    "Países": "Antártida (territorio internacional)",
+    "Tipo": "Frío",
+    "Dato": "14.200.000 km²"
    },
    "geometry": {
     "type": "Polygon",
@@ -46286,12 +46300,12 @@
    "properties": {
     "_manaName": "Desierto de Simpson",
     "name": "Desierto de Simpson",
-    "_manaColor": "#d97706",
+    "_manaColor": "#f4ebe1",
     "_manaFillOpacity": 0.85,
     "_manaBorderColor": "#FFFFFF",
     "_manaWeight": 1,
     "_manaOpacity": 1,
-    "_manaGroupName": "Desiertos cálidos",
+    "_manaGroupName": "Desiertos",
     "_manaGroupId": 1,
     "_manaGeometryType": "polygon",
     "_manaLabelStyle": {
@@ -46309,11 +46323,12 @@
      "offsetY": 0,
      "placement": "point"
     },
-    "Continent": "Oceanía",
-    "Area": "176,500 km²",
-    "Countries": "Australia",
-    "Type": "Cálido",
-    "Description": "Desierto de Simpson: Famoso por sus largas dunas de arena paralelas, las dunas paralelas más largas del mundo. Nombrado en honor a Alfred Simpson."
+    "Description": "Desierto de Simpson: Famoso por sus largas dunas de arena paralelas, las dunas paralelas más largas del mundo. Nombrado en honor a Alfred Simpson.",
+    "Continente": "Oceanía",
+    "Superficie": 176500,
+    "Países": "Australia",
+    "Tipo": "Cálido",
+    "Dato": "176.500 km²"
    },
    "geometry": {
     "type": "Polygon",
