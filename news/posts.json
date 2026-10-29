@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-10-29",
+    "event": "Zero Carbon Analytics publica que España concentró el 44% de la superficie quemada en la UE en 2026, con unas 299.000 hectáreas, en el tercer peor año de la serie desde 2006 (28 de octubre de 2026)",
+    "mapSlug": "worst-wildfires-world",
+    "sourceUrls": [
+      "https://zerocarbon-analytics.org/nature/eu-wildfire-seasons-becoming-more-extreme-and-harder-to-insure/",
+      "https://efe.com/medio-ambiente/2026-10-28/espana-superficie-quemada-incendios-ue-2026/",
+      "https://www.agenciasinc.es/Noticias/Espana-acumula-299-000-hectareas-quemadas-y-concentra-el-44-del-total-de-la-UE",
+      "https://www.abc.es/sociedad/espana-aglutina-terreno-quemado-incendios-ano-ue-20261028012100-nt.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "espana-concentra-44-superficie-quemada-ue",
+        "url": "/espana-concentra-44-superficie-quemada-ue/",
+        "title": "España concentra el 44% de la superficie quemada en la UE",
+        "description": "España acumula 299.000 hectáreas quemadas, el 44% del total de la UE en 2026, el tercer peor año desde 2006. El mapa de los grandes incendios lo dimensiona."
+      },
+      "en": {
+        "slug": "spain-accounts-44-percent-eu-burnt-area",
+        "url": "/en/spain-accounts-44-percent-eu-burnt-area/",
+        "title": "Spain accounts for 44% of the EU's burnt area this year",
+        "description": "Spain has burnt 299,000 hectares in 2026, 44% of the EU total and the third-worst year since records began in 2006. The map of the worst wildfires adds scale."
+      }
+    }
+  },
+  {
     "date": "2026-10-28",
     "event": "La IAEA abre en Incheon su conferencia ministerial con 417 reactores operativos en 31 países y 78 en construcción, y eleva sus previsiones de capacidad por sexto año consecutivo (27 de octubre de 2026)",
     "mapSlug": "nuclear-reactors-world",
