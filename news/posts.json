@@ -1,5 +1,31 @@
 [
   {
+    "date": "2026-10-30",
+    "event": "La gasolina y el diésel encadenan cuatro semanas de bajadas en octubre y se quedan en 1,75 y 1,88 euros por litro, pero llenar el depósito sigue costando más que en 2025; la ayuda fiscal de 20 céntimos por litro se mantiene en noviembre (30 de octubre de 2026)",
+    "mapSlug": "inflation-world",
+    "sourceUrls": [
+      "https://www.abc.es/economia/cuentas-corrientes/precio-gasolina-diesel-contiene-puertas-puente-gracias-20261030011211-nt.html",
+      "https://www.europapress.es/economia/macroeconomia-00338/noticia-ine-confirma-ipc-sube-49-septiembre-rebaja-fiscal-combustible-sera-20-centimos-20261014090030.html",
+      "https://www.ine.es/dyngs/Prensa/IPC0926.htm",
+      "https://www.infobae.com/espana/agencias/2026/10/29/hoy-sera-noticia-viernes-30-de-octubre/",
+      "https://www.elespanol.com/invertia/economia/macroeconomia/20261017/espana-duplica-inflacion-comienzo-guerra-iran-encima-media-ue/1003744420280_0.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "gasolina-diesel-bajan-octubre-mas-caros-2025",
+        "url": "/gasolina-diesel-bajan-octubre-mas-caros-2025/",
+        "title": "Gasolina y diésel bajan en octubre, pero siguen más caros que en 2025",
+        "description": "La gasolina cae a 1,75 €/l y el diésel a 1,88 €/l en octubre, pero llenar el depósito cuesta hoy más que en 2025. El mapa de inflación compara 187 países."
+      },
+      "en": {
+        "slug": "petrol-diesel-fall-october-dearer-2025",
+        "url": "/en/petrol-diesel-fall-october-dearer-2025/",
+        "title": "Petrol and diesel fall in October but remain dearer than in 2025",
+        "description": "Petrol falls to €1.75/l and diesel to €1.88/l in October, but filling up still costs more today than in 2025. The inflation map compares 187 countries."
+      }
+    }
+  },
+  {
     "date": "2026-10-29",
     "event": "Un AVE de Renfe embiste a un tren de Iryo detenido en la línea Madrid-Sevilla a la altura de Urda (Toledo): al menos 68 muertos y más de un centenar de heridos; la investigación apunta a una orden del centro de control de Adif tras un fallo del sistema LZB (28 de octubre de 2026)",
     "mapSlug": "linea-ave-madrid-sevilla-urda",
