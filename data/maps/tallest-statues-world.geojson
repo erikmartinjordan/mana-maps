@@ -1,0 +1,821 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Estatua de la Unidad",
+        "name": "Estatua de la Unidad",
+        "_manaColor": "#865809",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 66,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Vallabhbhai Patel",
+        "Continente": "Asia",
+        "País": "India",
+        "Lugar": "Kevadiya, Gujarat",
+        "Altura": 182,
+        "Altura de la estatua": "182 m",
+        "Altura total": "240 m",
+        "Inauguración": "2018",
+        "Dato": "182 m · India · 2018",
+        "Description": "La estatua más alta del mundo representa a Vallabhbhai Patel, político clave en la independencia de la India. Se inauguró en 2018 junto a la presa de Sardar Sarovar."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.719083,
+          21.838
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Buda del Templo de Primavera",
+        "name": "Buda del Templo de Primavera",
+        "_manaColor": "#93610b",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 48,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Buda Vairocana",
+        "Continente": "Asia",
+        "País": "China",
+        "Lugar": "Lushan, Henan",
+        "Altura": 128,
+        "Altura de la estatua": "128 m",
+        "Altura total": "208 m",
+        "Inauguración": "2008",
+        "Dato": "128 m · China · 2008",
+        "Description": "Buda Vairocana de 128 m en Lushan (Henan). Fue la estatua más alta del mundo entre 2008 y 2018 y su conjunto monumental alcanza los 208 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          112.450925,
+          33.775082
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Laykyun Sekkya",
+        "name": "Laykyun Sekkya",
+        "_manaColor": "#9f6a0d",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 43,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Buda Gautama",
+        "Continente": "Asia",
+        "País": "Myanmar",
+        "Lugar": "Khatakan Taung, Monywa",
+        "Altura": 115.8,
+        "Altura de la estatua": "115,8 m",
+        "Altura total": "129,2 m",
+        "Inauguración": "2008",
+        "Dato": "115,8 m · Myanmar · 2008",
+        "Description": "Buda Gautama de pie en Khatakan Taung, cerca de Monywa. Con 115,8 m, fue la segunda estatua más alta del mundo al inaugurarse en 2008."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          95.2893,
+          22.0803
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Estatua de la Creencia",
+        "name": "Estatua de la Creencia",
+        "_manaColor": "#ab7210",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 39,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Shiva",
+        "Continente": "Asia",
+        "País": "India",
+        "Lugar": "Nathdwara, Rajastán",
+        "Altura": 106,
+        "Altura de la estatua": "106 m",
+        "Altura total": "112 m",
+        "Inauguración": "2020",
+        "Dato": "106 m · India · 2020",
+        "Description": "Shiva de 106 m en Nathdwara (Rajastán), la estatua más alta dedicada a esta deidad. El monumento completo mide 112 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.8178,
+          24.919
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Ushiku Daibutsu",
+        "name": "Ushiku Daibutsu",
+        "_manaColor": "#b77b13",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 36,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Buda Amitābha",
+        "Continente": "Asia",
+        "País": "Japón",
+        "Lugar": "Ushiku, Ibaraki",
+        "Altura": 100,
+        "Altura de la estatua": "100 m",
+        "Altura total": "120 m",
+        "Inauguración": "1993",
+        "Dato": "100 m · Japón · 1993",
+        "Description": "Buda Amitābha de 100 m en Ushiku (Ibaraki). Fue la estatua más alta del mundo entre 1993 y 2008."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          140.2203,
+          35.9827
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Guanyin de Guishan",
+        "name": "Guanyin de Guishan",
+        "_manaColor": "#c28316",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 35,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Guanyin",
+        "Continente": "Asia",
+        "País": "China",
+        "Lugar": "Weishan, Changsha (Hunan)",
+        "Altura": 99,
+        "Altura de la estatua": "99 m",
+        "Altura total": "99 m",
+        "Inauguración": "2009",
+        "Dato": "99 m · China · 2009",
+        "Description": "Guanyin de once cabezas y mil brazos, de bronce dorado, en la provincia de Hunan. Mide 99 m y se alza en el monte Weishan."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          111.963361,
+          28.184944
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Madre de Toda Asia",
+        "name": "Madre de Toda Asia",
+        "_manaColor": "#ce8b19",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 35,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Virgen María",
+        "Continente": "Asia",
+        "País": "Filipinas",
+        "Lugar": "Batangas",
+        "Altura": 98.15,
+        "Altura de la estatua": "98,15 m",
+        "Altura total": "98,15 m",
+        "Inauguración": "2021",
+        "Dato": "98,15 m · Filipinas · 2021",
+        "Description": "La Virgen María más alta del mundo, con 98,15 m, en la costa de Batangas. Se inauguró en 2021."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.0433,
+          13.6423
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Gran Buda de Tailandia",
+        "name": "Gran Buda de Tailandia",
+        "_manaColor": "#d9941d",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 32,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Buda Gautama",
+        "Continente": "Asia",
+        "País": "Tailandia",
+        "Lugar": "Ang Thong",
+        "Altura": 93,
+        "Altura de la estatua": "93 m",
+        "Altura total": "93 m",
+        "Inauguración": "2008",
+        "Dato": "93 m · Tailandia · 2008",
+        "Description": "Buda Gautama de hormigón pintado de oro en Ang Thong. Con 93 m, es una de las estatuas más altas del sudeste asiático."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.377778,
+          14.593222
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Sendai Daikannon",
+        "name": "Sendai Daikannon",
+        "_manaColor": "#e09b24",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 32,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Kannon (Avalokiteśvara)",
+        "Continente": "Asia",
+        "País": "Japón",
+        "Lugar": "Sendai, Miyagi",
+        "Altura": 92,
+        "Altura de la estatua": "92 m",
+        "Altura total": "100 m",
+        "Inauguración": "1991",
+        "Dato": "92 m · Japón · 1991",
+        "Description": "Kannon de 92 m en Sendai, la estatua más alta del mundo entre 1991 y 1993. Su pedestal eleva el conjunto a 100 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          140.8236,
+          38.3005
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Dai Kannon de Kita no Miyako",
+        "name": "Dai Kannon de Kita no Miyako",
+        "_manaColor": "#e0a033",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 29,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Kannon (Avalokiteśvara)",
+        "Continente": "Asia",
+        "País": "Japón",
+        "Lugar": "Ashibetsu, Hokkaidō",
+        "Altura": 88,
+        "Altura de la estatua": "88 m",
+        "Altura total": "88 m",
+        "Inauguración": "1989",
+        "Dato": "88 m · Japón · 1989",
+        "Description": "Kannon blanca de 88 m en el parque Kita no Miyako, Ashibetsu. Fue la estatua más alta del mundo entre 1989 y 1991."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          142.198083,
+          43.528167
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "La Madre Patria llama",
+        "name": "La Madre Patria llama",
+        "_manaColor": "#e0a642",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 28,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Madre Patria",
+        "Continente": "Europa",
+        "País": "Rusia",
+        "Lugar": "Volgogrado",
+        "Altura": 85,
+        "Altura de la estatua": "85 m",
+        "Altura total": "85 m",
+        "Inauguración": "1967",
+        "Dato": "85 m · Rusia · 1967",
+        "Description": "La Madre Patria llama, en Volgogrado, conmemora la batalla de Stalingrado. Con 85 m, es la estatua más alta de Europa."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          44.537083,
+          48.742361
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Gran Buda de Ling Shan",
+        "name": "Gran Buda de Ling Shan",
+        "_manaColor": "#e0ab50",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 24,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Buda Amitābha",
+        "Continente": "Asia",
+        "País": "China",
+        "Lugar": "Wuxi, Jiangsu",
+        "Altura": 79,
+        "Altura de la estatua": "79 m",
+        "Altura total": "88 m",
+        "Inauguración": "1996",
+        "Dato": "79 m · China · 1996",
+        "Description": "Buda Amitābha de 79 m a orillas del lago Taihu, en Wuxi. El conjunto con el pedestal de loto alcanza los 88 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.09139,
+          31.43194
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Guanyin de Nanshan",
+        "name": "Guanyin de Nanshan",
+        "_manaColor": "#e1b15e",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 23,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Guanyin",
+        "Continente": "Asia",
+        "País": "China",
+        "Lugar": "Sanya, Hainan",
+        "Altura": 78,
+        "Altura de la estatua": "78 m",
+        "Altura total": "108 m",
+        "Inauguración": "2005",
+        "Dato": "78 m · China · 2005",
+        "Description": "Guanyin de tres caras y 78 m frente al mar en Sanya (Hainan). El monumento completo, con pedestal, mide 108 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          109.2087,
+          18.2927
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Buda de Kyaikhto",
+        "name": "Buda de Kyaikhto",
+        "_manaColor": "#e2b66c",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 23,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Buda Gautama",
+        "Continente": "Asia",
+        "País": "Myanmar",
+        "Lugar": "Kyaikhto, estado Mon",
+        "Altura": 77.9,
+        "Altura de la estatua": "77,9 m",
+        "Altura total": "No consta",
+        "Inauguración": "2019",
+        "Dato": "77,9 m · Myanmar · 2019",
+        "Description": "Buda Gautama de 77,9 m en Kyaikhto (estado Mon), inaugurado en 2019."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          97.0281018,
+          17.3183733
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Dizang del monte Jiuhua",
+        "name": "Dizang del monte Jiuhua",
+        "_manaColor": "#e3bc79",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Ksitigarbha",
+        "Continente": "Asia",
+        "País": "China",
+        "Lugar": "Qingyang, Anhui",
+        "Altura": 76,
+        "Altura de la estatua": "76 m",
+        "Altura total": "99 m",
+        "Inauguración": "2012",
+        "Dato": "76 m · China · 2012",
+        "Description": "Ksitigarbha de bronce de 76 m en el monte Jiuhua (Anhui). El conjunto alcanza los 99 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          117.8042,
+          30.539
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Garuda Wisnu Kencana",
+        "name": "Garuda Wisnu Kencana",
+        "_manaColor": "#e4c287",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Garuda y Vishnu",
+        "Continente": "Asia",
+        "País": "Indonesia",
+        "Lugar": "Bali",
+        "Altura": 76,
+        "Altura de la estatua": "76 m",
+        "Altura total": "122 m",
+        "Inauguración": "2018",
+        "Dato": "76 m · Indonesia · 2018",
+        "Description": "Garuda montado por Vishnu, de 76 m, en el parque cultural de Bali. Con su pedestal, el monumento llega a 122 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.166882,
+          -8.813951
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Guanyin de Tsz Shan",
+        "name": "Guanyin de Tsz Shan",
+        "_manaColor": "#e6c894",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Estatuas más altas del mundo",
+        "_manaGroupId": 1,
+        "markerType": "emoji_star",
+        "_manaMarkerType": "emoji_star",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Representa": "Guanyin",
+        "Continente": "Asia",
+        "País": "China (Hong Kong)",
+        "Lugar": "Hong Kong",
+        "Altura": 76,
+        "Altura de la estatua": "76 m",
+        "Altura total": "76 m",
+        "Inauguración": "2012",
+        "Dato": "76 m · China (Hong Kong) · 2012",
+        "Description": "Guanyin de 76 m en el monasterio de Tsz Shan, en Hong Kong, fundida en bronce blanco."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.2063,
+          22.4756
+        ]
+      }
+    }
+  ]
+}

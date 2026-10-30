@@ -378,12 +378,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/gallery/linea-ave-madrid-sevilla-urda/</loc>
+    <loc>https://xn--maa-8ma.com/gallery/life-expectancy-world/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://xn--maa-8ma.com/gallery/life-expectancy-world/</loc>
+    <loc>https://xn--maa-8ma.com/gallery/linea-ave-madrid-sevilla-urda/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -474,6 +474,11 @@
   </url>
   <url>
     <loc>https://xn--maa-8ma.com/gallery/tallest-skyscrapers-world/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/gallery/tallest-statues-world/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
