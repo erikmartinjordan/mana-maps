@@ -1,0 +1,509 @@
+{
+  "slug": "largest-hydro-dams-world",
+  "title": "Las presas hidroeléctricas más potentes del mundo",
+  "source": "Wikipedia, «List of conventional hydroelectric power stations» (consulta de octubre de 2026), compilada a partir del ICOLD World Register of Dams y de los datos publicados por los operadores de cada central.",
+  "sourceUrl": "https://en.wikipedia.org/wiki/List_of_conventional_hydroelectric_power_stations",
+  "dataDate": "2026-10-30",
+  "dams": [
+    {
+      "nombre": "Tres Gargantas",
+      "pais": "China",
+      "rio": "Yangtsé",
+      "lat": 30.82083,
+      "lng": 111.00222,
+      "potenciaMW": 22500,
+      "puestaEnServicio": "2012",
+      "nota": "La mayor central hidroeléctrica del mundo, con 32 turbinas de 700 MW y dos de 50 MW para el consumo propio de la presa."
+    },
+    {
+      "nombre": "Baihetan",
+      "pais": "China",
+      "rio": "Jinsha",
+      "lat": 28.25167,
+      "lng": 103.65944,
+      "potenciaMW": 16000,
+      "puestaEnServicio": "2022",
+      "nota": "Segunda mayor del mundo y la primera equipada con turbinas de 1.000 MW."
+    },
+    {
+      "nombre": "Itaipú",
+      "pais": "Brasil / Paraguay",
+      "rio": "Paraná",
+      "lat": -25.40861,
+      "lng": -54.58917,
+      "potenciaMW": 14000,
+      "puestaEnServicio": "1984–2003",
+      "nota": "La central que más electricidad produce al año del mundo, con 20 turbinas de 700 MW repartidas entre ambos países."
+    },
+    {
+      "nombre": "Xiluodu",
+      "pais": "China",
+      "rio": "Jinsha",
+      "lat": 28.26444,
+      "lng": 103.64639,
+      "potenciaMW": 13860,
+      "puestaEnServicio": "2014",
+      "nota": "Tercera central de China por potencia, con 18 turbinas Francis de 770 MW."
+    },
+    {
+      "nombre": "Belo Monte",
+      "pais": "Brasil",
+      "rio": "Xingu",
+      "lat": -3.12778,
+      "lng": -51.77583,
+      "potenciaMW": 11223,
+      "puestaEnServicio": "2016–2019",
+      "nota": "La mayor central hidroeléctrica de Brasil y una de las mayores del mundo por energía generada."
+    },
+    {
+      "nombre": "Guri",
+      "pais": "Venezuela",
+      "rio": "Caroní",
+      "lat": 7.76667,
+      "lng": -63,
+      "potenciaMW": 10235,
+      "puestaEnServicio": "1978–1986",
+      "nota": "La mayor central hidroeléctrica de Venezuela y el principal suministro eléctrico del país."
+    },
+    {
+      "nombre": "Wudongde",
+      "pais": "China",
+      "rio": "Jinsha",
+      "lat": 26.33389,
+      "lng": 102.63,
+      "potenciaMW": 10200,
+      "puestaEnServicio": "2021",
+      "nota": "Cuarta gran presa del complejo del Jinsha inferior, tras Wudongde, Baihetan, Xiluodu y Xiangjiaba."
+    },
+    {
+      "nombre": "Tucuruí",
+      "pais": "Brasil",
+      "rio": "Tocantins",
+      "lat": -3.83167,
+      "lng": -49.64667,
+      "potenciaMW": 8370,
+      "puestaEnServicio": "1984–2010",
+      "nota": "La mayor central hidroeléctrica de la cuenca del Tocantins y una de las mayores de Brasil."
+    },
+    {
+      "nombre": "Xiangjiaba",
+      "pais": "China",
+      "rio": "Jinsha",
+      "lat": 28.64917,
+      "lng": 104.37056,
+      "potenciaMW": 7798,
+      "puestaEnServicio": "2014",
+      "nota": "Cierra el complejo de cuatro presas del tramo inferior del Jinsha."
+    },
+    {
+      "nombre": "Grand Coulee",
+      "pais": "Estados Unidos",
+      "rio": "Columbia",
+      "lat": 47.95667,
+      "lng": -118.98333,
+      "potenciaMW": 6809,
+      "puestaEnServicio": "1942–1991",
+      "nota": "La mayor central hidroeléctrica de Estados Unidos y una de las mayores obras de riego del mundo."
+    },
+    {
+      "nombre": "Longtan",
+      "pais": "China",
+      "rio": "Hongshui",
+      "lat": 25.02722,
+      "lng": 107.0475,
+      "potenciaMW": 6426,
+      "puestaEnServicio": "2009",
+      "nota": "La mayor central hidroeléctrica de la cuenca del Hongshui, con una presa de 216 m."
+    },
+    {
+      "nombre": "Sayano-Shúshenskaya",
+      "pais": "Rusia",
+      "rio": "Yeniséi",
+      "lat": 52.82528,
+      "lng": 91.37083,
+      "potenciaMW": 6400,
+      "puestaEnServicio": "1978–2014",
+      "nota": "La mayor central hidroeléctrica de Rusia; sufrió un grave accidente en 2009 y fue reconstruida."
+    },
+    {
+      "nombre": "Krasnoyarsk",
+      "pais": "Rusia",
+      "rio": "Yeniséi",
+      "lat": 55.93472,
+      "lng": 92.29444,
+      "potenciaMW": 6000,
+      "puestaEnServicio": "1967–1972",
+      "nota": "Su embalse es uno de los mayores de Rusia por superficie."
+    },
+    {
+      "nombre": "Nuozhadu",
+      "pais": "China",
+      "rio": "Lancang (Mekong)",
+      "lat": 22.56417,
+      "lng": 100.51278,
+      "potenciaMW": 5850,
+      "puestaEnServicio": "2014",
+      "nota": "La mayor central hidroeléctrica china en el curso alto del Mekong."
+    },
+    {
+      "nombre": "Robert-Bourassa",
+      "pais": "Canadá",
+      "rio": "La Grande",
+      "lat": 53.79528,
+      "lng": -77.44056,
+      "potenciaMW": 5616,
+      "puestaEnServicio": "1979–1981",
+      "nota": "Central principal del complejo La Grande, el mayor sistema hidroeléctrico de Canadá."
+    },
+    {
+      "nombre": "Churchill Falls",
+      "pais": "Canadá",
+      "rio": "Churchill",
+      "lat": 53.52944,
+      "lng": -63.96806,
+      "potenciaMW": 5428,
+      "puestaEnServicio": "1971–1974",
+      "nota": "Central subterránea de Labrador que aprovecha una cascada de 75 m."
+    },
+    {
+      "nombre": "Tarbela",
+      "pais": "Pakistán",
+      "rio": "Indo",
+      "lat": 34.08972,
+      "lng": 72.69833,
+      "potenciaMW": 4888,
+      "puestaEnServicio": "1976–2018",
+      "nota": "La mayor presa de Pakistán y uno de los embalses de tierra más grandes del mundo."
+    },
+    {
+      "nombre": "Jinping II",
+      "pais": "China",
+      "rio": "Yalong",
+      "lat": 28.23889,
+      "lng": 101.64222,
+      "potenciaMW": 4800,
+      "puestaEnServicio": "2014",
+      "nota": "Central de desvío que lleva el agua por cuatro túneles de unos 17 km."
+    },
+    {
+      "nombre": "Bratsk",
+      "pais": "Rusia",
+      "rio": "Angará",
+      "lat": 56.28611,
+      "lng": 101.78611,
+      "potenciaMW": 4500,
+      "puestaEnServicio": "1961–1966",
+      "nota": "Su embalse es uno de los mayores del mundo por superficie."
+    },
+    {
+      "nombre": "Paulo Afonso",
+      "pais": "Brasil",
+      "rio": "São Francisco",
+      "lat": -9.39694,
+      "lng": -38.20222,
+      "potenciaMW": 4279,
+      "puestaEnServicio": "1954–1979",
+      "nota": "Complejo de varias centrales escalonadas en los saltos del São Francisco."
+    },
+    {
+      "nombre": "Laxiwa",
+      "pais": "China",
+      "rio": "Huang He (Amarillo)",
+      "lat": 36.07028,
+      "lng": 101.18556,
+      "potenciaMW": 4200,
+      "puestaEnServicio": "2010",
+      "nota": "La mayor central hidroeléctrica del río Amarillo, con una presa de 250 m."
+    },
+    {
+      "nombre": "Xiaowan",
+      "pais": "China",
+      "rio": "Lancang (Mekong)",
+      "lat": 24.70528,
+      "lng": 100.09222,
+      "potenciaMW": 4200,
+      "puestaEnServicio": "2010",
+      "nota": "Su presa de 292 m es una de las más altas del mundo."
+    },
+    {
+      "nombre": "Ust-Ilimsk",
+      "pais": "Rusia",
+      "rio": "Angará",
+      "lat": 57.96833,
+      "lng": 102.69583,
+      "potenciaMW": 3840,
+      "puestaEnServicio": "1980",
+      "nota": "Tercera gran central del río Angará, tras Irkutsk y Bratsk."
+    },
+    {
+      "nombre": "Jirau",
+      "pais": "Brasil",
+      "rio": "Madeira",
+      "lat": -9.25,
+      "lng": -64.4,
+      "potenciaMW": 3750,
+      "puestaEnServicio": "2014–2016",
+      "nota": "Central de 50 turbinas tipo bulb en el río Madeira, en la Amazonia."
+    },
+    {
+      "nombre": "Jinping I",
+      "pais": "China",
+      "rio": "Yalong",
+      "lat": 28.18528,
+      "lng": 101.62833,
+      "potenciaMW": 3600,
+      "puestaEnServicio": "2014",
+      "nota": "Su presa de 305 m es la más alta del mundo."
+    },
+    {
+      "nombre": "Santo Antônio",
+      "pais": "Brasil",
+      "rio": "Madeira",
+      "lat": -8.80167,
+      "lng": -63.95083,
+      "potenciaMW": 3568,
+      "puestaEnServicio": "2012–2016",
+      "nota": "Central de turbinas bulb construida junto a Jirau, también en el Madeira."
+    },
+    {
+      "nombre": "Ilha Solteira",
+      "pais": "Brasil",
+      "rio": "Paraná",
+      "lat": -20.38278,
+      "lng": -51.36222,
+      "potenciaMW": 3444,
+      "puestaEnServicio": "1973",
+      "nota": "La mayor central hidroeléctrica del estado de São Paulo."
+    },
+    {
+      "nombre": "Ertan",
+      "pais": "China",
+      "rio": "Yalong",
+      "lat": 26.82111,
+      "lng": 101.78111,
+      "potenciaMW": 3300,
+      "puestaEnServicio": "1999",
+      "nota": "Primera gran presa china en el río Yalong."
+    },
+    {
+      "nombre": "Pubugou",
+      "pais": "China",
+      "rio": "Dadu",
+      "lat": 29.20944,
+      "lng": 102.83639,
+      "potenciaMW": 3300,
+      "puestaEnServicio": "2009–2010",
+      "nota": "La mayor central hidroeléctrica del río Dadu."
+    },
+    {
+      "nombre": "Macagua",
+      "pais": "Venezuela",
+      "rio": "Caroní",
+      "lat": 8.30389,
+      "lng": -62.66778,
+      "potenciaMW": 3167.5,
+      "puestaEnServicio": "1961–1997",
+      "nota": "Complejo de tres centrales escalonadas aguas abajo de Guri."
+    },
+    {
+      "nombre": "Xingó",
+      "pais": "Brasil",
+      "rio": "São Francisco",
+      "lat": -9.62056,
+      "lng": -37.79278,
+      "potenciaMW": 3162,
+      "puestaEnServicio": "1994–1997",
+      "nota": "Central del São Francisco situada entre los estados de Alagoas y Sergipe."
+    },
+    {
+      "nombre": "Yacyretá",
+      "pais": "Argentina / Paraguay",
+      "rio": "Paraná",
+      "lat": -27.48278,
+      "lng": -56.725,
+      "potenciaMW": 3100,
+      "puestaEnServicio": "1994–1998",
+      "nota": "Central binacional argentino-paraguaya en el río Paraná."
+    },
+    {
+      "nombre": "Nurek",
+      "pais": "Tayikistán",
+      "rio": "Vakhsh",
+      "lat": 38.36667,
+      "lng": 69.35,
+      "potenciaMW": 3015,
+      "puestaEnServicio": "1979–1988",
+      "nota": "Su presa de 300 m fue la más alta del mundo hasta 2013."
+    },
+    {
+      "nombre": "Goupitan",
+      "pais": "China",
+      "rio": "Wu",
+      "lat": 27.37528,
+      "lng": 107.63306,
+      "potenciaMW": 3000,
+      "puestaEnServicio": "2009–2011",
+      "nota": "Central del río Wu, afluente del Yangtsé en la provincia de Guizhou."
+    },
+    {
+      "nombre": "Guanyinyan",
+      "pais": "China",
+      "rio": "Jinsha",
+      "lat": 26.52139,
+      "lng": 101.43778,
+      "potenciaMW": 3000,
+      "puestaEnServicio": "2014–2016",
+      "nota": "Central del tramo medio del Jinsha, entre Yunnan y Sichuan."
+    },
+    {
+      "nombre": "Lianghekou",
+      "pais": "China",
+      "rio": "Yalong",
+      "lat": 30.16278,
+      "lng": 101.01361,
+      "potenciaMW": 3000,
+      "puestaEnServicio": "2021–2022",
+      "nota": "Cuenta con el embalse más grande del río Yalong."
+    },
+    {
+      "nombre": "Boguchany",
+      "pais": "Rusia",
+      "rio": "Angará",
+      "lat": 58.69472,
+      "lng": 99.14889,
+      "potenciaMW": 2997,
+      "puestaEnServicio": "2014–2015",
+      "nota": "Central del Angará en Siberia, aguas abajo de Ust-Ilimsk."
+    },
+    {
+      "nombre": "Gordon M. Shrum",
+      "pais": "Canadá",
+      "rio": "Peace",
+      "lat": 56.01806,
+      "lng": -122.20667,
+      "potenciaMW": 2907,
+      "puestaEnServicio": "1968–1980",
+      "nota": "Asociada a la presa W. A. C. Bennett, la mayor de la cuenca del Peace."
+    },
+    {
+      "nombre": "Mica",
+      "pais": "Canadá",
+      "rio": "Columbia",
+      "lat": 52.07778,
+      "lng": -118.56639,
+      "potenciaMW": 2805,
+      "puestaEnServicio": "1973–1977",
+      "nota": "Una de las tres grandes presas canadienses del río Columbia."
+    },
+    {
+      "nombre": "La Grande-4",
+      "pais": "Canadá",
+      "rio": "La Grande",
+      "lat": 53.88667,
+      "lng": -73.46528,
+      "potenciaMW": 2779,
+      "puestaEnServicio": "1984",
+      "nota": "Parte del complejo hidroeléctrico de la bahía James, en Quebec."
+    },
+    {
+      "nombre": "Volga",
+      "pais": "Rusia",
+      "rio": "Volga",
+      "lat": 48.82611,
+      "lng": 44.67194,
+      "potenciaMW": 2734,
+      "puestaEnServicio": "1958–1961",
+      "nota": "La mayor central hidroeléctrica de Europa."
+    },
+    {
+      "nombre": "Gezhouba",
+      "pais": "China",
+      "rio": "Yangtsé",
+      "lat": 30.73972,
+      "lng": 111.27222,
+      "potenciaMW": 2715,
+      "puestaEnServicio": "1988",
+      "nota": "Primera gran presa construida sobre el Yangtsé y central asociada a Tres Gargantas."
+    },
+    {
+      "nombre": "Robert Moses Niagara",
+      "pais": "Estados Unidos",
+      "rio": "Niágara",
+      "lat": 43.14306,
+      "lng": -79.03972,
+      "potenciaMW": 2675,
+      "puestaEnServicio": "1961",
+      "nota": "La central hidroeléctrica principal de las cataratas del Niágara."
+    },
+    {
+      "nombre": "Chief Joseph",
+      "pais": "Estados Unidos",
+      "rio": "Columbia",
+      "lat": 47.99528,
+      "lng": -119.63333,
+      "potenciaMW": 2620,
+      "puestaEnServicio": "1955–1979",
+      "nota": "La segunda mayor central hidroeléctrica de Estados Unidos."
+    },
+    {
+      "nombre": "Dagangshan",
+      "pais": "China",
+      "rio": "Dadu",
+      "lat": 29.44917,
+      "lng": 102.21722,
+      "potenciaMW": 2600,
+      "puestaEnServicio": "2015–2016",
+      "nota": "Central del río Dadu con cuatro turbinas de 650 MW."
+    },
+    {
+      "nombre": "Bakun",
+      "pais": "Malasia",
+      "rio": "Balui",
+      "lat": 2.75639,
+      "lng": 114.06306,
+      "potenciaMW": 2520,
+      "puestaEnServicio": "2011",
+      "nota": "La mayor central hidroeléctrica de Malasia, en el estado de Sarawak."
+    },
+    {
+      "nombre": "Zhiguli",
+      "pais": "Rusia",
+      "rio": "Volga",
+      "lat": 53.445,
+      "lng": 49.49,
+      "potenciaMW": 2488,
+      "puestaEnServicio": "1957",
+      "nota": "También conocida como central hidroeléctrica Volzhskaya, junto a Samara."
+    },
+    {
+      "nombre": "Revelstoke",
+      "pais": "Canadá",
+      "rio": "Columbia",
+      "lat": 51.04944,
+      "lng": -118.19389,
+      "potenciaMW": 2480,
+      "puestaEnServicio": "1984–2011",
+      "nota": "Central canadiense del Columbia cuya capacidad se amplió en 2011."
+    },
+    {
+      "nombre": "Chicoasén",
+      "pais": "México",
+      "rio": "Grijalva",
+      "lat": 16.94167,
+      "lng": -93.10056,
+      "potenciaMW": 2430,
+      "puestaEnServicio": "1980",
+      "nota": "La mayor central hidroeléctrica de México, en el cañón del Sumidero."
+    },
+    {
+      "nombre": "La Grande-3",
+      "pais": "Canadá",
+      "rio": "La Grande",
+      "lat": 53.72778,
+      "lng": -75.99861,
+      "potenciaMW": 2418,
+      "puestaEnServicio": "1984",
+      "nota": "Parte del complejo La Grande de Quebec, junto a Robert-Bourassa y La Grande-4."
+    }
+  ]
+}
