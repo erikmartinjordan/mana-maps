@@ -1,0 +1,327 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Everest",
+        "name": "Everest",
+        "_manaColor": "#0a368f",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 66,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "Asia",
+        "País": "Nepal / China",
+        "Elevación": "8.849 m",
+        "Altitud": 8849,
+        "Cordillera": "Himalaya",
+        "Primera ascensión": "1953 (Edmund Hillary y Tenzing Norgay)",
+        "Dato": "8.849 m · Himalaya",
+        "Description": "Everest (Nepal / China), 8.849 m. La montaña más alta de la Tierra, en el Himalaya. Edmund Hillary y Tenzing Norgay alcanzaron la cumbre en 1953."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          86.925,
+          27.988
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Aconcagua",
+        "name": "Aconcagua",
+        "_manaColor": "#134ab8",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 48,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "Sudamérica",
+        "País": "Argentina",
+        "Elevación": "6.961 m",
+        "Altitud": 6961,
+        "Cordillera": "Andes",
+        "Primera ascensión": "1897 (Matthias Zurbriggen)",
+        "Dato": "6.961 m · Andes",
+        "Description": "Aconcagua (Argentina), 6.961 m. El pico más alto de los Andes y de todo el hemisferio occidental. Matthias Zurbriggen lo coronó en 1897."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.011,
+          -32.653
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Denali",
+        "name": "Denali",
+        "_manaColor": "#1e5ede",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 40,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "Norteamérica",
+        "País": "Estados Unidos (Alaska)",
+        "Elevación": "6.190 m",
+        "Altitud": 6190,
+        "Cordillera": "Cordillera de Alaska",
+        "Primera ascensión": "1913 (equipo de Hudson Stuck)",
+        "Dato": "6.190 m · Cordillera de Alaska",
+        "Description": "Denali (Estados Unidos, Alaska), 6.190 m. La cima más alta de Norteamérica, antes llamada monte McKinley. La expedición de Hudson Stuck llegó en 1913."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -151.007,
+          63.069
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Kilimanjaro",
+        "name": "Kilimanjaro",
+        "_manaColor": "#4c7ee1",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 36,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "África",
+        "País": "Tanzania",
+        "Elevación": "5.895 m",
+        "Altitud": 5895,
+        "Cordillera": "Kilimanjaro",
+        "Primera ascensión": "1889 (Hans Meyer y Ludwig Purtscheller)",
+        "Dato": "5.895 m · Kilimanjaro",
+        "Description": "Kilimanjaro (Tanzania), 5.895 m. La montaña más alta de África y el volcán exento más alto del mundo. Hans Meyer y Ludwig Purtscheller la escalaron en 1889."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.3556,
+          -3.0674
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Elbrús",
+        "name": "Elbrús",
+        "_manaColor": "#7b9ee4",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 33,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "Europa",
+        "País": "Rusia",
+        "Elevación": "5.642 m",
+        "Altitud": 5642,
+        "Cordillera": "Cáucaso",
+        "Primera ascensión": "1874 (equipo de Florence Crauford Grove)",
+        "Dato": "5.642 m · Cáucaso",
+        "Description": "Elbrús (Rusia), 5.642 m. La cima más alta de Europa, un estratovolcán dormido de dos cumbres en el Cáucaso. Se ascendió por primera vez en 1874."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          42.439,
+          43.355
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Macizo Vinson",
+        "name": "Macizo Vinson",
+        "_manaColor": "#a6bde9",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "Antártida",
+        "País": "Antártida",
+        "Elevación": "4.892 m",
+        "Altitud": 4892,
+        "Cordillera": "Cordillera Sentinel",
+        "Primera ascensión": "1966 (equipo de Nicholas Clinch)",
+        "Dato": "4.892 m · Cordillera Sentinel",
+        "Description": "Macizo Vinson (Antártida), 4.892 m. El pico más alto de la Antártida, en la remota cordillera Sentinel. La expedición de Nicholas Clinch lo alcanzó en 1966."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -85.617,
+          -78.525
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Puncak Jaya",
+        "name": "Puncak Jaya",
+        "_manaColor": "#d0dbf1",
+        "_manaWeight": 3,
+        "_manaOpacity": 1,
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Las Siete Cumbres",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#ffffff",
+          "haloColor": "#000000",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "Continente": "Oceanía",
+        "País": "Indonesia (Papúa)",
+        "Elevación": "4.884 m",
+        "Altitud": 4884,
+        "Cordillera": "Montañas Maoke",
+        "Primera ascensión": "1962 (equipo de Heinrich Harrer)",
+        "Dato": "4.884 m · Montañas Maoke",
+        "Description": "Puncak Jaya (Indonesia, Papúa), 4.884 m. La cima más alta de Oceanía, en las montañas Maoke, con glaciares ecuatoriales en retroceso. Heinrich Harrer la escaló en 1962."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.1833,
+          -4.0833
+        ]
+      }
+    }
+  ]
+}

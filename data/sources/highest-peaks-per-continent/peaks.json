@@ -1,0 +1,91 @@
+{
+  "fuente": "SRTM (NASA/JPL) y levantamientos topográficos oficiales de las Siete Cumbres (Everest 8.849 m, medición conjunta China-Nepal 2020)",
+  "fecha": "2020",
+  "nota": "Altitudes en metros sobre el nivel del mar. Coordenadas de la cumbre en grados decimales [lng, lat]. Una feature por cumbre.",
+  "peaks": [
+    {
+      "nombre": "Everest",
+      "continente": "Asia",
+      "pais": "Nepal / China",
+      "altitudM": 8849,
+      "cordillera": "Himalaya",
+      "primeraAscension": "1953",
+      "protagonistas": "Edmund Hillary y Tenzing Norgay",
+      "lng": 86.925,
+      "lat": 27.988,
+      "descripcion": "Everest (Nepal / China), 8.849 m. La montaña más alta de la Tierra, en el Himalaya. Edmund Hillary y Tenzing Norgay alcanzaron la cumbre en 1953."
+    },
+    {
+      "nombre": "Aconcagua",
+      "continente": "Sudamérica",
+      "pais": "Argentina",
+      "altitudM": 6961,
+      "cordillera": "Andes",
+      "primeraAscension": "1897",
+      "protagonistas": "Matthias Zurbriggen",
+      "lng": -70.011,
+      "lat": -32.653,
+      "descripcion": "Aconcagua (Argentina), 6.961 m. El pico más alto de los Andes y de todo el hemisferio occidental. Matthias Zurbriggen lo coronó en 1897."
+    },
+    {
+      "nombre": "Denali",
+      "continente": "Norteamérica",
+      "pais": "Estados Unidos (Alaska)",
+      "altitudM": 6190,
+      "cordillera": "Cordillera de Alaska",
+      "primeraAscension": "1913",
+      "protagonistas": "equipo de Hudson Stuck",
+      "lng": -151.007,
+      "lat": 63.069,
+      "descripcion": "Denali (Estados Unidos, Alaska), 6.190 m. La cima más alta de Norteamérica, antes llamada monte McKinley. La expedición de Hudson Stuck llegó en 1913."
+    },
+    {
+      "nombre": "Kilimanjaro",
+      "continente": "África",
+      "pais": "Tanzania",
+      "altitudM": 5895,
+      "cordillera": "Kilimanjaro",
+      "primeraAscension": "1889",
+      "protagonistas": "Hans Meyer y Ludwig Purtscheller",
+      "lng": 37.3556,
+      "lat": -3.0674,
+      "descripcion": "Kilimanjaro (Tanzania), 5.895 m. La montaña más alta de África y el volcán exento más alto del mundo. Hans Meyer y Ludwig Purtscheller la escalaron en 1889."
+    },
+    {
+      "nombre": "Elbrús",
+      "continente": "Europa",
+      "pais": "Rusia",
+      "altitudM": 5642,
+      "cordillera": "Cáucaso",
+      "primeraAscension": "1874",
+      "protagonistas": "equipo de Florence Crauford Grove",
+      "lng": 42.439,
+      "lat": 43.355,
+      "descripcion": "Elbrús (Rusia), 5.642 m. La cima más alta de Europa, un estratovolcán dormido de dos cumbres en el Cáucaso. Se ascendió por primera vez en 1874."
+    },
+    {
+      "nombre": "Macizo Vinson",
+      "continente": "Antártida",
+      "pais": "Antártida",
+      "altitudM": 4892,
+      "cordillera": "Cordillera Sentinel",
+      "primeraAscension": "1966",
+      "protagonistas": "equipo de Nicholas Clinch",
+      "lng": -85.617,
+      "lat": -78.525,
+      "descripcion": "Macizo Vinson (Antártida), 4.892 m. El pico más alto de la Antártida, en la remota cordillera Sentinel. La expedición de Nicholas Clinch lo alcanzó en 1966."
+    },
+    {
+      "nombre": "Puncak Jaya",
+      "continente": "Oceanía",
+      "pais": "Indonesia (Papúa)",
+      "altitudM": 4884,
+      "cordillera": "Montañas Maoke",
+      "primeraAscension": "1962",
+      "protagonistas": "equipo de Heinrich Harrer",
+      "lng": 137.1833,
+      "lat": -4.0833,
+      "descripcion": "Puncak Jaya (Indonesia, Papúa), 4.884 m. La cima más alta de Oceanía, en las montañas Maoke, con glaciares ecuatoriales en retroceso. Heinrich Harrer la escaló en 1962."
+    }
+  ]
+}
