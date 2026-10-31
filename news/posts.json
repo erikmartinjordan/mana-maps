@@ -1,6 +1,31 @@
 [
   {
     "date": "2026-10-31",
+    "event": "La Guardia Civil y la Policía Nacional detienen a diez presuntos dinamizadores de Blocus en Barcelona, Valencia, Tenerife, Bilbao y Málaga antes de las convocatorias de Halloween; Barcelona cerró el 24-O con 133 detenidos, 89 menores (30-31 de octubre de 2026)",
+    "mapSlug": "internet-users-world",
+    "sourceUrls": [
+      "https://www.abc.es/espana/cataluna/golpe-policial-blocus-espana-visperas-convocatoria-nuevos-20261030164010-nt.html",
+      "https://www.abc.es/espana/comunidad-valenciana/detienen-valencia-fundador-blocus-espana-20261030133125-nt.html",
+      "https://elpais.com/expres/2026-10-28/como-funciona-y-que-planes-tiene-blocus-la-red-que-encendio-los-disturbios-en-barcelona.html",
+      "https://es.euronews.com/2026/10/31/noche-disturbios-palma-espana-protestas-halloween-blocus"
+    ],
+    "translations": {
+      "es": {
+        "slug": "blocus-diez-detenidos-halloween",
+        "url": "/blocus-diez-detenidos-halloween/",
+        "title": "Blocus: diez detenidos y España se blinda en Halloween",
+        "description": "La red Blocus, difundida por TikTok y Telegram, suma diez detenidos antes de Halloween. El mapa de usuarios de internet muestra el terreno digital de la red."
+      },
+      "en": {
+        "slug": "blocus-ten-arrests-halloween",
+        "url": "/en/blocus-ten-arrests-halloween/",
+        "title": "Blocus: ten arrests as Spain braces for Halloween",
+        "description": "The Blocus network, spread via TikTok and Telegram, has ten people detained before Halloween in Spain. The internet-users map shows the digital terrain."
+      }
+    }
+  },
+  {
+    "date": "2026-10-31",
     "event": "Informe mensual de octubre de 2026: 314 sesiones externas (+16,7% frente a septiembre), 865 internas de pruebas, 52 mapas publicados y 6.934 geometrías; el catálogo crece más rápido que la distribución",
     "type": "report",
     "mapSlug": null,

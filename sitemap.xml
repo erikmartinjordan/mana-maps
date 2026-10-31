@@ -55,6 +55,15 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/blocus-diez-detenidos-halloween/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/blocus-diez-detenidos-halloween/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/blocus-ten-arrests-halloween/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/blocus-diez-detenidos-halloween/"/>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/revueltas-europa/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/revueltas-europa/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/revolts-europe/"/>
@@ -229,6 +238,15 @@
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/estado-mana-maps-octubre-2026/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/mana-maps-state-october-2026/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/estado-mana-maps-octubre-2026/"/>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/blocus-ten-arrests-halloween/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/blocus-diez-detenidos-halloween/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/blocus-ten-arrests-halloween/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/blocus-diez-detenidos-halloween/"/>
     <lastmod>2026-10-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
