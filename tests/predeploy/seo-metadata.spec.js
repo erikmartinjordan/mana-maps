@@ -23,8 +23,9 @@ const {
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
 // seguir sincronizados con los mapas publicados en Firestore.
 const repoRoot = path.resolve(__dirname, '..', '..');
-const galleryHtml = fs.readFileSync(path.join(repoRoot, 'gallery', 'index.html'), 'utf8');
-const sitemapXml = fs.readFileSync(path.join(repoRoot, 'sitemap.xml'), 'utf8');
+const siteRoot = path.join(repoRoot, 'site');
+const galleryHtml = fs.readFileSync(path.join(siteRoot, 'gallery', 'index.html'), 'utf8');
+const sitemapXml = fs.readFileSync(path.join(siteRoot, 'sitemap.xml'), 'utf8');
 
 test('gallery CollectionPage and sitemap stay internally consistent', () => {
   const collection = parseCollectionLd(galleryHtml);

@@ -41,7 +41,7 @@ No build step is required.
 ```bash
 git clone https://github.com/erikmartinjordan/mana-maps.git
 cd mana-maps
-python3 -m http.server 4173
+python3 -m http.server 4173 --directory site
 ```
 
 Open <http://127.0.0.1:4173> in your browser.
@@ -50,7 +50,7 @@ Open <http://127.0.0.1:4173> in your browser.
 
 Firebase is optional for local UI work. Without it, the editor still loads and local-only features continue to work.
 
-To enable Firebase-backed auth, sharing, tracking, or collaboration locally, create `js/firebase-config.local.js`:
+To enable Firebase-backed auth, sharing, tracking, or collaboration locally, create `site/js/firebase-config.local.js`:
 
 ```js
 window.MANA_FIREBASE_CONFIGS = {
@@ -63,12 +63,15 @@ Production deploys generate that file from `FIREBASE_PRE_CONFIG_JSON` and `FIREB
 
 ## Repository layout
 
+- `site/` — everything that is deployed to GitHub Pages (HTML, CSS, JS, assets, landings, OG cards and News).
+- `site/gallery/`, `site/og-cards/`, `site/news/`, `site/en/news/` — generated/public content.
+- `site/blog/` — solo redirects legacy a `/news/`.
 - `data/maps/` — public GeoJSON sources for the gallery maps.
+- `data/sources/` — raw source data that is versioned.
 - `scripts/maps/` — one `gen-*` and one `publish-*` per map.
 - `scripts/tools/` — audits, landings/OG generation, hygiene and utilities.
-- `assets/`, `css/`, `basemaps/` — brand images, styles and MapLibre basemaps.
-- `gallery/`, `og-cards/`, `news/`, `en/news/` — generated/public content.
-- `blog/` — solo redirects legacy a `/news/`.
+- `autopilot/` — agent prompts, monthly directive and reports.
+- `docs/` — internal documentation (not deployed).
 
 Full details: [`docs/repo-structure.md`](docs/repo-structure.md) and
 [`scripts/README.md`](scripts/README.md).

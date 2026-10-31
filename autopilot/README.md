@@ -27,7 +27,7 @@ de WhatsApp y datos crudos. Nada de eso se versiona aquí.
 - `agents/mapmaker.md` — crea mapas nuevos (pipelina dato real → Firestore).
 - `agents/ideator.md` — audita la galería y propone tareas en `BACKLOG.md`.
 - `agents/reviewer.md` — subagente que revisa `git diff` sin modificar (`agents/chat.md` vive solo en el iMac).
-- `agents/blogger.md` — escribe cada día una pieza bilingüe de News (ES/EN) en `news/<slug>/` y `en/news/<slug>/` con un mapa interactivo. La primera ejecución de cada mes escribe el informe mensual de estado.
+- `agents/blogger.md` — escribe cada día una pieza bilingüe de News (ES/EN) en `site/news/<slug>/` y `site/en/news/<slug>/` con un mapa interactivo. La primera ejecución de cada mes escribe el informe mensual de estado.
 
 ## Ciclo mensual
 
@@ -38,7 +38,7 @@ el fallback de los días 1-3 usa el mes completo. El `blogger` genera:
 
 1. `autopilot/reports/monthly/<YYYY-MM>.md` — informe canónico del mes cerrado.
 2. Un artículo público ES/EN, como primera tarjeta de News, con gráficas y una
-   versión resumida para dirección. Se registra en `news/posts.json` con
+   versión resumida para dirección. Se registra en `site/news/posts.json` con
    `type: "report"` y `mapSlug: null` para que el loop valide la publicación.
 
 Después, en el primer ciclo del día 1 (o en los dos días siguientes si el

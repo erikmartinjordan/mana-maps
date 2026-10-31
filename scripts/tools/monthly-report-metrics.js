@@ -102,11 +102,11 @@ function monthInfo(month) {
 
 function readApiKey() {
   if (process.env.MANA_FIREBASE_API_KEY) return process.env.MANA_FIREBASE_API_KEY;
-  const cfg = path.join(process.cwd(), 'js', 'firebase-config.local.js');
+  const cfg = path.join(process.cwd(), 'site', 'js', 'firebase-config.local.js');
   if (!fs.existsSync(cfg)) throw new Error(`No encuentro ${cfg}. Ejecuta desde la raíz del repo o define MANA_FIREBASE_API_KEY.`);
   const text = fs.readFileSync(cfg, 'utf8');
   const m = text.match(/"pro"[\s\S]*?"apiKey"\s*:\s*"([^"]+)"/);
-  if (!m) throw new Error('No encuentro la apiKey de producción en js/firebase-config.local.js');
+  if (!m) throw new Error('No encuentro la apiKey de producción en site/js/firebase-config.local.js');
   return m[1];
 }
 

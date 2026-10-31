@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..', '..');
+const ROOT = path.resolve(__dirname, '..', '..', 'site');
 const WORDMARK_CLASSES = ['brand-word', 'logo-wordmark'];
 const SUB_CLASSES = ['brand-sub', 'logo-sub'];
 const ICON_CONTAINERS = ['brand-logo', 'mana-logo-icon'];

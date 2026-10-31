@@ -207,7 +207,7 @@ async function getAccessToken() {
   } catch(_){}
   if (!apiKey) {
     try {
-      const fb = require('fs').readFileSync('js/firebase.js','utf8');
+      const fb = require('fs').readFileSync('site/js/firebase.js','utf8');
       const m = fb.match(/apiKey:\s*["']([^"']+)["']/);
       if (m) apiKey = m[1];
     } catch(_){}

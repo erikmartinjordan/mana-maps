@@ -64,7 +64,7 @@ async function getAccessToken() {
   }
   // Anon fallback
   let apiKey = pub && pub.apiKey;
-  if (!apiKey) { try { const fb = fs.readFileSync(path.join(__dirname, '..', '..', 'js', 'firebase.js'), 'utf8'); const m = fb.match(/apiKey:\s*["']([^"']+)["']/); if (m) apiKey = m[1]; } catch (_) { } }
+  if (!apiKey) { try { const fb = fs.readFileSync(path.join(__dirname, '..', '..', 'site', 'js', 'firebase.js'), 'utf8'); const m = fb.match(/apiKey:\s*["']([^"']+)["']/); if (m) apiKey = m[1]; } catch (_) { } }
   if (!apiKey) { console.error('ERROR: no credentials/API key'); process.exit(1); }
   const body = JSON.stringify({ returnSecureToken: true });
   const res = await httpsRequest('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + apiKey, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) } }, body);

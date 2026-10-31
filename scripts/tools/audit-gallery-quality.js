@@ -738,7 +738,7 @@ function auditSemanticPalette(map, geo) {
 function loadMarkerCatalogIds() {
   const fsMod = require('fs');
   const pathMod = require('path');
-  const p = pathMod.join(__dirname, '..', '..', 'js', 'markers.js');
+  const p = pathMod.join(__dirname, '..', '..', 'site', 'js', 'markers.js');
   try {
     if (fsMod.existsSync(p)) {
       const src = fsMod.readFileSync(p, 'utf8');
@@ -1223,8 +1223,8 @@ function auditMap(map) {
 // ambos (y ninguno despublicado debe quedarse). Este check detecta la deriva
 // antes de desplegar.
 
-const GALLERY_HTML_PATH = require('path').join(__dirname, '..', '..', 'gallery', 'index.html');
-const SITEMAP_XML_PATH = require('path').join(__dirname, '..', '..', 'sitemap.xml');
+const GALLERY_HTML_PATH = require('path').join(__dirname, '..', '..', 'site', 'gallery', 'index.html');
+const SITEMAP_XML_PATH = require('path').join(__dirname, '..', '..', 'site', 'sitemap.xml');
 
 // Extrae el slug de una URL de mapa de la galería. Soporta las dos formas
 // usadas en el repo:
@@ -1394,8 +1394,8 @@ function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '' } 
 // mapa se publica en Firestore pero no se regeneran, su landing y su OG card
 // nunca llegan al repo: este check lo detecta antes del deploy.
 
-const GALLERY_DIR_PATH = require('path').join(__dirname, '..', '..', 'gallery');
-const OG_CARDS_DIR_PATH = require('path').join(__dirname, '..', '..', 'og-cards');
+const GALLERY_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'gallery');
+const OG_CARDS_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'og-cards');
 
 function auditLandingCoverage(publishedSlugs, {
   galleryDir = GALLERY_DIR_PATH,

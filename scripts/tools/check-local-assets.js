@@ -8,7 +8,8 @@ const SKIP_PREFIXES = ['#', 'http://', 'https://', '//', 'mailto:', 'tel:', 'jav
 const OPTIONAL_LOCAL_ASSETS = new Set([
   '/js/firebase-config.local.js',
   'js/firebase-config.local.js',
-  '../js/firebase-config.local.js'
+  '../js/firebase-config.local.js',
+  '../../js/firebase-config.local.js'
 ]);
 const ATTR_RE = /\b(?:src|href)\s*=\s*(["'])(.*?)\1/gi;
 
@@ -27,7 +28,7 @@ function shouldSkip(url) {
   return SKIP_PREFIXES.some((prefix) => u.startsWith(prefix));
 }
 
-function checkLocalAssets(root = path.resolve(__dirname, '..', '..')) {
+function checkLocalAssets(root = path.resolve(__dirname, '..', '..', 'site')) {
   const files = [];
   walkHtml(root, files);
   const missing = [];

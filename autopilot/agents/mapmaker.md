@@ -58,10 +58,10 @@ Temas de inspiracion (no los copies, busca otros):
 Esquema OBLIGATORIO de cada feature Point (ya soportado por el render):
 - geometry {"type":"Point","coordinates":[lng,lat]}; una feature por lugar real.
 - name y _manaName: nombre visible del lugar.
-- markerType y _manaMarkerType: id de emoji VALIDO del catalogo js/markers.js
+- markerType y _manaMarkerType: id de emoji VALIDO del catalogo site/js/markers.js
   (p. ej. emoji_mountain, emoji_fire, emoji_warning, emoji_water, emoji_star).
-  Debe existir en _emojiMap de js/vector-renderer.js y en la lista de
-  js/globe.js; si no, el icono NO se pinta.
+  Debe existir en _emojiMap de site/js/vector-renderer.js y en la lista de
+  site/js/globe.js; si no, el icono NO se pinta.
 - _manaColor: hex de acento coherente con el tema.
 - Tamano del icono: define _manaEmojiSize (22-66) o una clave Area
   ("1.5M ha", "424,000 ha") para escalarlo por el dato (p. ej. ha quemadas).

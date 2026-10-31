@@ -258,7 +258,7 @@ if(window.top===window.self){
       return false;
     }
     if(!params.has('ok') && !applyFromStorage()){
-      fetch('./tasks.html').then(function(r){ if(!r.ok) throw new Error(); return r.text(); }).then(function(html){
+      fetch('/tasks.html').then(function(r){ if(!r.ok) throw new Error(); return r.text(); }).then(function(html){
         var doc=new DOMParser().parseFromString(html,'text/html');
         var ok=doc.querySelectorAll('.chip-ok').length;
         var err=doc.querySelectorAll('.chip-err').length;
@@ -271,7 +271,7 @@ if(window.top===window.self){
 // Continuous sync for large view and as backup for thumbnail
 (function(){
   function pollOnce(){
-    fetch('./tasks.html', {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(); return r.text(); }).then(function(html){
+    fetch('/tasks.html', {cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error(); return r.text(); }).then(function(html){
       var doc=new DOMParser().parseFromString(html,'text/html');
       var ok=doc.querySelectorAll('.chip-ok').length;
       var err=doc.querySelectorAll('.chip-err').length;

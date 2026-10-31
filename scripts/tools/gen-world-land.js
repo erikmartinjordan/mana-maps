@@ -1,8 +1,9 @@
-// Generates js/world-land.js — a compact world land path in canonical
+// Generates site/js/world-land.js — a compact world land path in canonical
 // (lon*10000, mercatorY(lat)*10000) integer coordinates for preview backgrounds.
 // Source: Natural Earth 110m land polygons (GeoJSON). Usage:
-//   node tools/gen-world-land.js <path/to/ne_110m_land.geojson>
+//   node scripts/tools/gen-world-land.js <path/to/ne_110m_land.geojson>
 const fs = require('fs');
+const path = require('path');
 const geoPath = process.argv[2] || '/var/folders/mj/87d56wh11nn1hcjjtl_hjk7h0000gn/T/opencode/ne_110m_land.geojson';
 const geo = JSON.parse(fs.readFileSync(geoPath, 'utf8'));
 
@@ -87,7 +88,8 @@ console.log('path length (chars):', path.length, 'approx KB:', (path.length / 10
 const js = '// ── world-land.js ─ simplified world land path for stylized preview backgrounds ──\n' +
   '// Canonical coordinates: lon*10000, mercatorY(lat)*10000. Rendered by map-preview.js\n' +
   '// via a shared <path id="mana-land-path"> referenced with <use>.\n' +
-  '// Regenerate with: node tools/gen-world-land.js <ne_110m_land.geojson>\n' +
+  '// Regenerate with: node scripts/tools/gen-world-land.js <ne_110m_land.geojson>\n' +
   'window.WORLD_LAND_PATH = "' + path + '";\n';
-fs.writeFileSync('js/world-land.js', js);
-console.log('written js/world-land.js');
+const out = path.join(__dirname, '..', '..', 'site', 'js', 'world-land.js');
+fs.writeFileSync(out, js);
+console.log('written', out);

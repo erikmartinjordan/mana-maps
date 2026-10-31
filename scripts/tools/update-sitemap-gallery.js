@@ -18,7 +18,7 @@ const PROJECT_ID = 'mana-maps-pro-f2177';
 const DATABASE = '(default)';
 const COLLECTION = 'maps';
 const SITE_BASE = 'https://xn--maa-8ma.com';
-const SITEMAP_PATH = path.join(__dirname, '..', '..', 'sitemap.xml');
+const SITEMAP_PATH = path.join(__dirname, '..', '..', 'site', 'sitemap.xml');
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // ─── Auth helpers (reuse from homogeneize-gallery.js) ──────────────

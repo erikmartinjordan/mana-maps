@@ -72,7 +72,7 @@ function buildRuntimeConfigs() {
   );
 }
 
-function writeRuntimeConfig(outputPath = 'js/firebase-config.local.js') {
+function writeRuntimeConfig(outputPath = 'site/js/firebase-config.local.js') {
   const configs = buildRuntimeConfigs();
   fs.writeFileSync(
     outputPath,

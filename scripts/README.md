@@ -12,7 +12,8 @@ scripts/
 │   └── publish-<slug>.js   # geojson → Firestore + metadatos
 ├── tools/         # auditorías, landings, sitemap, higiene y utilidades
 └── lib/
-    └── publisher.js        # auth y helpers compartidos de Firestore
+    ├── publisher.js        # auth y helpers compartidos de Firestore
+    └── map-card.js         # renderizado de tarjetas OG y siluetas
 ```
 
 ## Pipeline de un mapa
@@ -31,8 +32,8 @@ data/maps/<slug>.geojson
 scripts/maps/publish-<slug>.js
         │
         ├── Firestore: maps/<slug> (isPublished, legendKey, mapPreview…)
-        ├── scripts/tools/generate-map-landings.js → gallery/<slug>/ + og-cards/<slug>.png
-        └── scripts/tools/update-sitemap-gallery.js → sitemap.xml + JSON-LD
+        ├── scripts/tools/generate-map-landings.js → site/gallery/<slug>/ + site/og-cards/<slug>.png
+        └── scripts/tools/update-sitemap-gallery.js → site/sitemap.xml + JSON-LD
 ```
 
 ## Comandos habituales

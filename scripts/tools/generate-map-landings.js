@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // ── generate-map-landings.js ─
 // Genera, para cada mapa publicado en Firestore:
-//   1) una tarjeta OG 1200x630  → og-cards/<slug>.png
-//   2) una landing estática SEO → gallery/<slug>/index.html
+//   1) una tarjeta OG 1200x630  → site/og-cards/<slug>.png
+//   2) una landing estática SEO → site/gallery/<slug>/index.html
 //
 // Las landings estáticas existen porque los crawlers de X/Facebook no ejecutan
 // JS: necesitan meta/OG en el HTML servido. La URL canónica pasa a ser
@@ -12,7 +12,7 @@
 //   node scripts/tools/generate-map-landings.js [--dry-run] [--no-images]
 //
 // Configuración (en orden): MANA_FIREBASE_PRO_CONFIG_JSON, o
-// js/firebase-config.local.js. Solo necesita la API key pública (lectura).
+// site/js/firebase-config.local.js. Solo necesita la API key pública (lectura).
 
 'use strict';
 
@@ -20,15 +20,16 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright-core');
-const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../../tools/map-card');
+const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
 
 const ROOT = path.resolve(__dirname, '..', '..');
+const SITE_ROOT = path.join(ROOT, 'site');
 const PROJECT_ID = 'mana-maps-pro-f2177';
 const DATABASE = '(default)';
 const COLLECTION = 'maps';
 const SITE_BASE = 'https://maña.com';
-const OUT_CARDS = path.join(ROOT, 'og-cards');
-const OUT_PAGES = path.join(ROOT, 'gallery');
+const OUT_CARDS = path.join(SITE_ROOT, 'og-cards');
+const OUT_PAGES = path.join(SITE_ROOT, 'gallery');
 const DRY_RUN = process.argv.includes('--dry-run');
 const NO_IMAGES = process.argv.includes('--no-images');
 const SLUG_FILTER = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
@@ -45,7 +46,7 @@ function loadConfig() {
     try { return JSON.parse(process.env.MANA_FIREBASE_PRO_CONFIG_JSON); } catch (e) {}
   }
   try {
-    const src = fs.readFileSync(path.join(ROOT, 'js/firebase-config.local.js'), 'utf8');
+    const src = fs.readFileSync(path.join(SITE_ROOT, 'js/firebase-config.local.js'), 'utf8');
     const sandbox = {};
     Function('window', src)(sandbox);
     if (sandbox.MANA_FIREBASE_CONFIGS && sandbox.MANA_FIREBASE_CONFIGS.pro) {
@@ -308,7 +309,7 @@ function buildLandingHTML(m, all) {
 (async () => {
   const cfg = loadConfig();
   if (!cfg || !cfg.apiKey) {
-    console.error('Falta configuración de Firebase (MANA_FIREBASE_PRO_CONFIG_JSON o js/firebase-config.local.js).');
+    console.error('Falta configuración de Firebase (MANA_FIREBASE_PRO_CONFIG_JSON o site/js/firebase-config.local.js).');
     process.exit(1);
   }
 
@@ -330,7 +331,7 @@ function buildLandingHTML(m, all) {
     browser = await chromium.launch({ headless: true });
     page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
   }
-  const worldLandPath = loadWorldLandPath(ROOT);
+  const worldLandPath = loadWorldLandPath(SITE_ROOT);
 
   let pages = 0, cards = 0, skipped = 0;
   const generatedSlugs = new Set();

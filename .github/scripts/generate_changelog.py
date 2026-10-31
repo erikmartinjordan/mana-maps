@@ -282,7 +282,7 @@ def main():
     parsed = [p for c in raw if (p := parse_commit(c)) is not None]
     timeline = build_timeline_html(parsed)
     html = TEMPLATE.format(timeline=timeline, repo=REPO)
-    out = os.path.join(os.path.dirname(__file__), "..", "..", "changelog", "index.html")
+    out = os.path.join(os.path.dirname(__file__), "..", "..", "site", "changelog", "index.html")
     with open(os.path.normpath(out), "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Changelog generado con {len(parsed)} entradas.")

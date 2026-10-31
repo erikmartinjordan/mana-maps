@@ -53,16 +53,16 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
 - Tipografía DM Sans. Títulos 800 con `letter-spacing` negativo; entradilla de
   19 px; cuerpo de 17 px con `line-height` 1.75.
 - **El primer visual es el mapa interactivo**, justo después de la entradilla y
-  la firma. Prohibido poner una imagen estática (`og-cards`) como cabecera.
+  la firma. Prohibido poner una imagen estática (`site/og-cards`) como cabecera.
   La imagen OG solo puede ir en `<meta>` para redes sociales.
 - El mapa embebido es el **editor real de Maña Maps en modo `?embed=1`**, no la
   landing 2D de la galería: al alejar el zoom se transforma en globo 3D y el
   control 2D/3D permite volver al plano. No degradar a un mapa 2D simple.
 - Paleta **blanco/gris/negro**: sin azules ni acentos de color. Botones
   primarios negros y enlaces en el color del texto con subrayado sutil.
-- Usa `news/revueltas-europa/index.html` y
-  `en/news/revolts-europe/index.html` como plantillas visuales
-  canónicas; `news/index.html` y `en/news/index.html` como plantillas de los
+- Usa `site/news/revueltas-europa/index.html` y
+  `site/en/news/revolts-europe/index.html` como plantillas visuales
+  canónicas; `site/news/index.html` y `site/en/news/index.html` como plantillas de los
   listados.
 - Pie **Opción C** en ambos idiomas: bloque negro `footer-cta-dark` con CTA y
   `footer-links` a mapas relacionados. Nada de selector de variantes en el
@@ -83,10 +83,10 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
 
 Cada ejecución publica las dos versiones, no una traducción automática:
 
-- Español: `news/<slug-es>/index.html`
-- Inglés: `en/news/<slug-en>/index.html`
-- Índices: `news/index.html` y `en/news/index.html`.
-- **Nunca** crees carpetas de artículo en la raíz del sitio ni en `en/`.
+- Español: `site/news/<slug-es>/index.html`
+- Inglés: `site/en/news/<slug-en>/index.html`
+- Índices: `site/news/index.html` y `site/en/news/index.html`.
+- **Nunca** crees carpetas de artículo fuera de `site/news/` y `site/en/news/`.
 - El slug sale del título, sin fecha; usa minúsculas, sin acentos y con guiones.
 - El `<html>` de cada artículo debe declarar `data-page-type="news"`,
   `data-slug="<slug>"` y `data-map-slug="<mapSlug>"`. Los índices usan
@@ -185,23 +185,23 @@ Reglas del informe:
 El informe es la excepción a la regla de no mencionar la marca: puede nombrar
 «Maña Maps» en el título y en el cuerpo porque el sujeto es el propio sitio.
 
-- ES: `news/estado-mana-maps-<mes>-<año>/index.html`, usando el mes de `$REPORT_MONTH`.
-- EN: `en/news/mana-maps-state-<month>-<year>/index.html`, usando el mes de `$REPORT_MONTH`.
+- ES: `site/news/estado-mana-maps-<mes>-<año>/index.html`, usando el mes de `$REPORT_MONTH`.
+- EN: `site/en/news/mana-maps-state-<month>-<year>/index.html`, usando el mes de `$REPORT_MONTH`.
 - Mismo contenido, mismas cifras y mismas gráficas en ambos.
 - Sin iframe de mapa. 2-3 gráficas SVG inline (series, fuentes, mercados o top
   mapas). Sin librerías externas. Usa blanco/gris/negro y, como máximo, un
   único acento de color en las gráficas si mejora la lectura.
 - Usa como plantilla visual el informe del mes anterior. Si no existe, usa
-  `news/revueltas-europa/index.html` como shell (topbar, tipografía y footer) y crea
-  2-3 gráficas SVG inline. `news/estado-mana-maps-octubre-2026/index.html` es una
+  `site/news/revueltas-europa/index.html` como shell (topbar, tipografía y footer) y crea
+  2-3 gráficas SVG inline. `site/news/estado-mana-maps-octubre-2026/index.html` es una
   referencia opcional si está disponible.
 - Título: hecho principal + mes. Máximo 70 caracteres.
 - `data-page-type="news"` y `data-slug`; **sin** `data-map-slug`.
 - Incluye tracking como el resto de News.
-- Añade la tarjeta como **primera** de `news/index.html` y
-  `en/news/index.html`, con kicker «Informe».
-- Actualiza `sitemap.xml` y `hreflang`.
-- Añade una entrada a `news/posts.json` con `date` = hoy, `type: "report"`,
+- Añade la tarjeta como **primera** de `site/news/index.html` y
+  `site/en/news/index.html`, con kicker «Informe».
+- Actualiza `site/sitemap.xml` y `hreflang`.
+- Añade una entrada a `site/news/posts.json` con `date` = hoy, `type: "report"`,
   `mapSlug: null`, `sourceUrls: []` y `translations` es/en. Es necesaria para
   que el loop valide y pushee la publicación.
 - No uses el informe en la deduplicación de noticias diarias.
@@ -224,7 +224,7 @@ trabajo de cada ciclo:
 - **07:00** primer intento; **13:00** y **19:00** reintentos si falta el post del
   día; **01:00** no ejecuta News (fuera de la ventana 07–23 h).
 - Lanza `opencode run --agent blogger` (120 steps) y publica en `main` solo si
-  `news/posts.json` contiene la fecha de hoy y existen las páginas ES/EN.
+  `site/news/posts.json` contiene la fecha de hoy y existen las páginas ES/EN.
 - Si dejas trabajo sin commitear, el loop lo commitea y pushea. Si el resultado
   no es válido, lo guarda en `git stash` y lo reintenta en el siguiente ciclo
   (máximo 3 intentos al día).
@@ -267,11 +267,11 @@ No hay runner ni LaunchAgent propios del blog. Los prompts se sincronizan desde
 - Ejecuta `date +%F` y usa esa fecha como `date`.
 - Comprueba el disparo del informe mensual (ver «MODO INFORME MENSUAL»). Si
   toca, ejecuta ese modo y termina. Si no, sigue con la pieza diaria.
-- Lee `news/posts.json` si existe. Revisa los últimos 14 días y evita repetir
+- Lee `site/news/posts.json` si existe. Revisa los últimos 14 días y evita repetir
   el mismo acontecimiento o el mismo mapa. Ignora las entradas con
   `type: "report"`: son informes mensuales, no noticias diarias.
-- Lee `AGENTS.md` completo. Revisa `news/index.html` y la plantilla
-  `news/revueltas-europa/index.html`.
+- Lee `AGENTS.md` completo. Revisa `site/news/index.html` y la plantilla
+  `site/news/revueltas-europa/index.html`.
 
 ### 1. Encontrar la noticia
 
@@ -286,10 +286,10 @@ No hay runner ni LaunchAgent propios del blog. Los prompts se sincronizan desde
 ### 2. Elegir el mapa
 
 - Lee la `apiKey` pública de la configuración `pro` en
-  `js/firebase-config.local.js` (proyecto `mana-maps-pro-f2177`). Por ejemplo:
+  `site/js/firebase-config.local.js` (proyecto `mana-maps-pro-f2177`). Por ejemplo:
 
 ```bash
-KEY=$(node -e "const fs=require('fs');const s=fs.readFileSync('js/firebase-config.local.js','utf8');const m=s.match(/\"pro\"[\\s\\S]*?\"apiKey\"\\s*:\\s*\"([^\"]+)\"/);process.stdout.write(m?m[1]:'')")
+KEY=$(node -e "const fs=require('fs');const s=fs.readFileSync('site/js/firebase-config.local.js','utf8');const m=s.match(/\"pro\"[\\s\\S]*?\"apiKey\"\\s*:\\s*\"([^\"]+)\"/);process.stdout.write(m?m[1]:'')")
 ```
 
 - Lista los mapas publicados:
@@ -344,9 +344,9 @@ curl -s -X POST \
 
 ### 4. Crear los archivos
 
-- Genera `news/<slug-es>/index.html` y `en/news/<slug-en>/index.html`, con slugs
+- Genera `site/news/<slug-es>/index.html` y `site/en/news/<slug-en>/index.html`, con slugs
   en minúsculas, sin acentos, separados por guiones y sin fecha.
-- Usa `news/revueltas-europa/index.html` y `en/news/revolts-europe/index.html`
+- Usa `site/news/revueltas-europa/index.html` y `site/en/news/revolts-europe/index.html`
   como plantillas visuales.
 - Añade en el `<html>` de cada artículo `data-page-type="news"`,
   `data-slug="<slug>"` y `data-map-slug="<mapSlug>"`; en los índices,
@@ -363,18 +363,18 @@ curl -s -X POST \
   `https://maña.com/og-cards/<mapSlug>.png` solo va en las metaetiquetas.
 - Añade JSON-LD `NewsArticle` con `headline`, `description`, `datePublished`,
   `dateModified`, `author`, `publisher`, `mainEntityOfPage` e `image`.
-- Actualiza `news/index.html` y `en/news/index.html`: añade la tarjeta del
+- Actualiza `site/news/index.html` y `site/en/news/index.html`: añade la tarjeta del
   artículo al principio de cada uno, con su idioma y enlace correctos.
-- Actualiza `news/posts.json` con un array ordenado del más nuevo al más
+- Actualiza `site/news/posts.json` con un array ordenado del más nuevo al más
   antiguo. Estructura:
   `date`, `event`, `mapSlug`, `sourceUrls` y `translations` con `es` y `en`
   (`slug`, `url`, `title`, `description`).
-- Añade las dos URLs a `sitemap.xml` con `<lastmod>`, `changefreq` `daily` y
+- Añade las dos URLs a `site/sitemap.xml` con `<lastmod>`, `changefreq` `daily` y
   `priority` `0.7`. No dupliques entradas.
 - Añade `hreflang` y enlaces de idioma en las cuatro páginas.
-- No toques `gallery/`, `data/`, `js/`, `firestore.rules` ni nada fuera de
+- No toques `site/gallery/`, `data/`, `site/js/`, `firestore.rules` ni nada fuera de
   News. Las únicas excepciones son los redirects antiguos, el sitemap,
-  `news/posts.json` y el informe canónico
+  `site/news/posts.json` y el informe canónico
   `autopilot/reports/monthly/<YYYY-MM>.md`.
 
 ### 5. Validar antes de publicar

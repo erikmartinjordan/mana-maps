@@ -40,11 +40,11 @@ curl -s "https://firestore.googleapis.com/v1/projects/mana-maps-pro-f2177/databa
 Luego para cada isPublished==true, fetch geojsonText y valida contra AGENTS.md:
 
 1. **Datos autoritativos**: dataSource + dataDate presentes (Natural Earth, IHO, GEBCO/NOAA, USGS, ONU, Smithsonian...). Si vacío → MAJOR.
-2. **Geometría real**: prohibidos polígonos a mano. Debe ser recorte oficial + simplify(preserve_topology), partes >= max(25°²,40% mayor) para evitar etiquetas duplicadas. Points para desiertos = HORROR (deben ser Polygons): un área nunca se representa con un punto. En cambio, los Points SÍ son correctos para entidades puntuales reales (picos, volcanes, incendios, cráteres, lugares extremos); en esos exige `_manaMarkerType`/`markerType` de un emoji válido de `js/markers.js` (presente también en `js/vector-renderer.js` y `js/globe.js`), `_manaEmojiSize` o `Area` para escalar el icono, y `_manaLabelStyle` completo. Valida coords ±180/90, featureCount coherente.
+2. **Geometría real**: prohibidos polígonos a mano. Debe ser recorte oficial + simplify(preserve_topology), partes >= max(25°²,40% mayor) para evitar etiquetas duplicadas. Points para desiertos = HORROR (deben ser Polygons): un área nunca se representa con un punto. En cambio, los Points SÍ son correctos para entidades puntuales reales (picos, volcanes, incendios, cráteres, lugares extremos); en esos exige `_manaMarkerType`/`markerType` de un emoji válido de `site/js/markers.js` (presente también en `site/js/vector-renderer.js` y `site/js/globe.js`), `_manaEmojiSize` o `Area` para escalar el icono, y `_manaLabelStyle` completo. Valida coords ±180/90, featureCount coherente.
 3. **Paleta semántica**: variable numérica → rampa monocromática ordenada claro→oscuro. Borde blanco fino en coropletas (_manaBorderColor #ffffff). Arcoíris = fail.
 4. **Props por feature (ES)**: _manaName, name, _manaColor (hex), _manaFillOpacity, _manaGroupName/_manaGroupId, _manaLabelStyle completo haloWidth>=2, y claves legibles Superficie/Dato/Description + clave numérica para leyenda (ej Profundidad media). Sin duplicados _manaName.
 5. **Popups**: cada feature muestra datos concretos, no solo nombre.
-6. **Visual**: thumbnails vía js/map-preview.js (build+renderSVG) sin vacíos; featured map js/gallery-page.js (buildLegendForKey + popups de feature) con leyenda y labels únicos.
+6. **Visual**: thumbnails vía site/js/map-preview.js (build+renderSVG) sin vacíos; featured map site/js/gallery-page.js (buildLegendForKey + popups de feature) con leyenda y labels únicos.
 7. **Metadatos**: tags no vacío (visible en filter-bar:372), lang:es, slug SEO corto, título no truncado, geojsonText <1MiB.
 
 ## Qué es HORRIBLE hoy (2026-08-27, 9 publicados)
@@ -75,7 +75,7 @@ ROTACIÓN OBLIGATORIA (regla dura, no opcional):
 - Tema puntual = entidad puntual REAL (pico, volcán, reactor nuclear, cráter de
   impacto, terremoto, incendio, lugar extremo...). Nunca un área.
 - `markerType`/`_manaMarkerType` debe ser un id de emoji VÁLIDO del catálogo
-  (js/markers.js). Formato exacto:
+  (site/js/markers.js). Formato exacto:
   `- [ ] Crear mapa puntual: <slug> - <título hook> - Point+emoji (markerType: <emoji_id>; escalar por <clave numérica>) - <fuente autoritativa>`
 
 Ideas no puntuales (coropletas) van al final: `- [ ] Crear mapa: <slug> - <título hook> - <fuente>`
@@ -96,6 +96,6 @@ Ideas no puntuales (coropletas) van al final: `- [ ] Crear mapa: <slug> - <títu
 1. git log --oneline -20 + BACKLOG.md
 2. curl Firestore REST pageSize=50 + python parse
 3. Para 2-3 peores slugs, curl doc individual y python valida props/geo (coords, hex, label)
-4. (opcional) curl https://xn--maa-8ma.com/gallery/ y leer js/gallery-page.js:594 / js/map-preview.js:344 para validar leyenda/thumbs
+4. (opcional) curl https://xn--maa-8ma.com/gallery/ y leer site/js/gallery-page.js:594 / site/js/map-preview.js:344 para validar leyenda/thumbs
 5. Escribir 1-3 tareas en BACKLOG.md (la puntual, primera de las pendientes)
 6. Resumen corto

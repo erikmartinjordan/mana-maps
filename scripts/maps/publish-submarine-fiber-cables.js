@@ -136,7 +136,7 @@ function fsArr(arr) { return { arrayValue: { values: arr.map(v => (typeof v === 
 function buildPreview(geo) {
   const context = { window: {} };
   vm.createContext(context);
-  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', 'map-preview.js'), 'utf8'), context, { filename: 'map-preview.js' });
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'site', 'js', 'map-preview.js'), 'utf8'), context, { filename: 'map-preview.js' });
   const lib = context.window.ManaMapPreview;
   if (!lib || typeof lib.build !== 'function') throw new Error('ManaMapPreview no disponible');
   return lib.build(geo);

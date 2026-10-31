@@ -30,6 +30,10 @@ const FORBIDDEN = [
   { re: /^autopilot\/strategy\//, msg: 'autopilot/strategy/ se movió a autopilot/monthly/' },
   { re: /^autopilot\/blogger\//, msg: 'autopilot/blogger/ se integró en autopilot/agents/blogger.md' },
   { re: /^autopilot\/monthly\/data\//, msg: 'los datos crudos van a data/sources/, no a autopilot/' },
+  { re: /^site\/(AGENTS|BACKLOG|README)\.md$/, msg: 'la documentación interna no se publica en site/' },
+  { re: /^site\/(data|scripts|autopilot|tests|tools)\//, msg: 'contenido interno dentro de site/ (solo debe haber sitio público)' },
+  { re: /^site\/(package\.json|package-lock\.json|firestore\.rules|\.gitignore)$/, msg: 'archivo interno dentro de site/' },
+  { re: /^site\/\.github\//, msg: 'CI dentro de site/' },
   { re: /^(styles\.css|auth-gallery\.css|og-card\.png|globe-thumb\.png|fabrica\.html)$/, msg: 'archivo movido que sigue en la raíz' }
 ];
 
@@ -80,33 +84,50 @@ if (!fs.existsSync('autopilot/reports/monthly/TEMPLATE.md')) errors.push('falta 
 if (!fs.existsSync('autopilot/reports/monthly/README.md')) errors.push('falta autopilot/reports/monthly/README.md');
 if (!fs.existsSync('autopilot/monthly/TEMPLATE.md')) errors.push('falta autopilot/monthly/TEMPLATE.md');
 
-// News: cada post de posts.json vive en news/<slug>/ y en/news/<slug>/
+// Sitio público: debe existir y vivir solo en site/
+for (const file of [
+  'site/index.html',
+  'site/404.html',
+  'site/CNAME',
+  'site/robots.txt',
+  'site/sitemap.xml',
+  'site/manifest.webmanifest',
+  'site/sw.js',
+  'site/css/main.css',
+  'site/js/map-core.js'
+]) {
+  if (!fs.existsSync(file)) errors.push(`falta ${file}`);
+}
+
+// News: cada post de posts.json vive en site/news/<slug>/ y site/en/news/<slug>/
 let newsPosts = [];
 try {
-  newsPosts = JSON.parse(fs.readFileSync('news/posts.json', 'utf8'));
+  newsPosts = JSON.parse(fs.readFileSync('site/news/posts.json', 'utf8'));
 } catch (e) {
-  errors.push(`news/posts.json: no se puede leer (${e.message})`);
+  errors.push(`site/news/posts.json: no se puede leer (${e.message})`);
 }
 for (const post of newsPosts) {
   for (const lang of ['es', 'en']) {
     const translation = post.translations && post.translations[lang];
     if (!translation || !translation.slug) {
-      errors.push(`news/posts.json: entrada ${post.date} sin traducción ${lang}`);
+      errors.push(`site/news/posts.json: entrada ${post.date} sin traducción ${lang}`);
       continue;
     }
     const expectedUrl = lang === 'es' ? `/news/${translation.slug}/` : `/en/news/${translation.slug}/`;
     if (translation.url !== expectedUrl) {
-      errors.push(`news/posts.json: ${translation.slug} debe usar ${expectedUrl}`);
+      errors.push(`site/news/posts.json: ${translation.slug} debe usar ${expectedUrl}`);
     }
     const articlePath = lang === 'es'
-      ? path.join('news', translation.slug, 'index.html')
-      : path.join('en', 'news', translation.slug, 'index.html');
+      ? path.join('site', 'news', translation.slug, 'index.html')
+      : path.join('site', 'en', 'news', translation.slug, 'index.html');
     if (!fs.existsSync(articlePath)) {
       errors.push(`falta ${articlePath}`);
     }
-    const legacyPrefix = lang === 'es' ? `${translation.slug}/` : `en/${translation.slug}/`;
-    if (tracked.some((rel) => rel.startsWith(legacyPrefix))) {
-      errors.push(`${translation.slug}: el artículo no debe vivir en la raíz (${legacyPrefix})`);
+    const legacyPrefixes = lang === 'es'
+      ? [`${translation.slug}/`, `site/${translation.slug}/`]
+      : [`en/${translation.slug}/`, `site/en/${translation.slug}/`];
+    if (tracked.some((rel) => legacyPrefixes.some((prefix) => rel.startsWith(prefix)))) {
+      errors.push(`${translation.slug}: el artículo debe vivir en site/news/, no en la raíz`);
     }
   }
 }

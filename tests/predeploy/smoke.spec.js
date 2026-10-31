@@ -241,9 +241,10 @@ test('iPhone 16 Pro footer covers the screen edges on every page template', asyn
   }
 });
 
-test('news posts live under news/ and en/news/', () => {
+test('news posts live under site/news/ and site/en/news/', () => {
   const root = path.resolve(__dirname, '..', '..');
-  const posts = JSON.parse(fs.readFileSync(path.join(root, 'news', 'posts.json'), 'utf8'));
+  const siteRoot = path.join(root, 'site');
+  const posts = JSON.parse(fs.readFileSync(path.join(siteRoot, 'news', 'posts.json'), 'utf8'));
 
   for (const post of posts) {
     for (const lang of ['es', 'en']) {
@@ -256,14 +257,16 @@ test('news posts live under news/ and en/news/', () => {
       expect(translation.url, `${translation.slug} URL canónica`).toBe(expectedUrl);
 
       const articlePath = lang === 'es'
-        ? path.join(root, 'news', translation.slug, 'index.html')
-        : path.join(root, 'en', 'news', translation.slug, 'index.html');
+        ? path.join(siteRoot, 'news', translation.slug, 'index.html')
+        : path.join(siteRoot, 'en', 'news', translation.slug, 'index.html');
       expect(fs.existsSync(articlePath), `falta ${articlePath}`).toBe(true);
 
-      const legacyPath = lang === 'es'
-        ? path.join(root, translation.slug)
-        : path.join(root, 'en', translation.slug);
-      expect(fs.existsSync(legacyPath), `el artículo ${translation.slug} no debe vivir en la raíz`).toBe(false);
+      const legacyPaths = lang === 'es'
+        ? [path.join(root, translation.slug), path.join(siteRoot, translation.slug)]
+        : [path.join(root, 'en', translation.slug), path.join(siteRoot, 'en', translation.slug)];
+      for (const legacyPath of legacyPaths) {
+        expect(fs.existsSync(legacyPath), `el artículo ${translation.slug} no debe vivir en ${legacyPath}`).toBe(false);
+      }
     }
   }
 });

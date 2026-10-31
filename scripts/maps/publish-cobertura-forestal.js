@@ -99,7 +99,7 @@ async function getAccessToken() {
   console.log('Trying anonymous auth...');
   let apiKey = null;
   try { const pub2 = loadPublisherCredentials(); if (pub2 && pub2.apiKey) apiKey = pub2.apiKey; } catch (_) { }
-  if (!apiKey) { try { const fb = fs.readFileSync('js/firebase.js', 'utf8'); const m = fb.match(/apiKey:\s*["']([^"']+)["']/); if (m) apiKey = m[1]; } catch (_) { } }
+  if (!apiKey) { try { const fb = fs.readFileSync('site/js/firebase.js', 'utf8'); const m = fb.match(/apiKey:\s*["']([^"']+)["']/); if (m) apiKey = m[1]; } catch (_) { } }
   if (!apiKey) { try { const home = require('os').homedir(); const pub3 = JSON.parse(fs.readFileSync(home + '/autopilot/.publisher-credentials.json', 'utf8')); apiKey = pub3.apiKey; } catch (_) { } }
   if (!apiKey) { console.error('ERROR: No API_KEY'); process.exit(1); }
   const anon = await new Promise((resolve, reject) => {

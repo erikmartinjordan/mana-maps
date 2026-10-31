@@ -7,8 +7,8 @@ completo:
 1. **Informe canónico (interno):** `autopilot/reports/monthly/<YYYY-MM>.md`.
    Es la fuente que lee `autopilot` para fijar la estrategia del mes.
 2. **Artículo público:** una pieza de News en ES/EN, resumida y con gráficas,
-   que se añade como primera tarjeta de `news/index.html` y
-   `en/news/index.html`.
+   que se añade como primera tarjeta de `site/news/index.html` y
+   `site/en/news/index.html`.
 
 El informe canónico no se publica en el sitio. Es un documento de trabajo para
 los agentes y para dirección.

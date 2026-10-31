@@ -14,25 +14,32 @@ obligatoria para cualquier agente que trabaje aquí.
   y etiqueta polígonos con `_manaName`, con popups de datos reales al hacer
   clic. Genera leyenda a partir de la clave numérica declarada en el doc
   (`legendKey` + `legendTitle`/`legendFormat`) vía `buildLegendForKey` en
-  `js/gallery-page.js`; con rampas continuas (muchos colores) la leyenda se
+  `site/js/gallery-page.js`; con rampas continuas (muchos colores) la leyenda se
   colapsa en una barra de degradado.
 
 ## Estructura del repositorio (obligatoria)
 
+- `site/`: **todo lo público que se despliega** en GitHub Pages (HTML, CSS, JS,
+  assets, landings, OG cards, News y `tasks.html`). El workflow sube solo esta
+  carpeta como artefacto de Pages.
 - `data/maps/<slug>.geojson`: GeoJSON publicable de cada mapa. Los crudos que
   sí se versionan van en `data/sources/`.
 - `scripts/maps/`: un `gen-<slug>.js` y un `publish-<slug>.js` por mapa.
 - `scripts/tools/`: auditorías, generación de landings/OG, sitemap, higiene y
-  utilidades. `scripts/lib/publisher.js` es la única puerta a Firestore.
-- `assets/`: imágenes de marca y OG raíz. `css/`: `main.css`,
-  `auth-gallery.css`, `site-footer.css` y `site-navbar.css`. `basemaps/`: estilos MapLibre. `docs/`: documentación y
-  páginas internas.
-- **Prohibido** en la raíz: `.DS_Store`, `*.tmp.js`, `strategy/`, `styles/`,
-  `brand/`, `globe-thumb.png`, `og-card.png`, `styles.css`,
-  `auth-gallery.css`, `fabrica.html`, y cualquier carpeta de artículo
-  (`/<slug>/`). Los artículos viven en `news/<slug>/` y `en/news/<slug>/`.
-  También prohibidos `data/gallery-*.js` y scripts de mapas sueltos en
-  `scripts/`.
+  utilidades. `scripts/lib/publisher.js` es la única puerta a Firestore y
+  `scripts/lib/map-card.js` renderiza las tarjetas OG.
+- `site/assets/`: imágenes de marca y OG raíz. `site/css/`: `main.css`,
+  `auth-gallery.css`, `site-footer.css`, `site-navbar.css` y `tutorial.css`.
+  `site/basemaps/`: estilos MapLibre. `docs/`: documentación interna (no se
+  publica).
+- **Prohibido** en la raíz: cualquier archivo o carpeta pública (`index.html`,
+  `404.html`, `gallery/`, `news/`, `css/`, `js/`, `assets/`, `favicon.*`,
+  `sitemap.xml`…) y los residuos `.DS_Store`, `*.tmp.js`, `strategy/`,
+  `styles/`, `brand/`, `globe-thumb.png`, `og-card.png`, `styles.css`,
+  `auth-gallery.css`, `fabrica.html`. Los artículos viven en
+  `site/news/<slug>/` y `site/en/news/<slug>/`. También prohibidos
+  `data/gallery-*.js`, scripts de mapas sueltos en `scripts/` y contenido
+  interno dentro de `site/`.
 - Documentación: `docs/repo-structure.md` y `scripts/README.md`.
 - Guardia en CI: `node scripts/tools/check-repo-hygiene.js`.
 
@@ -77,8 +84,8 @@ Todo mapa nuevo o actualización de la galería debe cumplir:
 Cuando el tema sea una **entidad puntual real** (picos, volcanes, incendios,
 cráteres, lugares extremos), es válido y recomendable usar features `Point`
 con icono. Requisitos por feature: `name`/`_manaName`, `markerType` y
-`_manaMarkerType` con un id de emoji válido del catálogo (`js/markers.js`,
-replicado en `js/vector-renderer.js` y `js/globe.js`), `_manaColor`,
+`_manaMarkerType` con un id de emoji válido del catálogo (`site/js/markers.js`,
+replicado en `site/js/vector-renderer.js` y `site/js/globe.js`), `_manaColor`,
 `_manaEmojiSize` (o clave `Area`) para escalar el icono, `_manaGroupName`,
 `_manaGroupId` y `_manaLabelStyle` completo. **Nunca** representes un área
 (país, desierto, región) con un punto: eso exige polígono real (punto 2).

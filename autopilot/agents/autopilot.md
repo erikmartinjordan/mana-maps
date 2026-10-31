@@ -157,7 +157,7 @@ disponibles, la directiva escrita es suficiente.
   - geometry {"type":"Point","coordinates":[lng,lat]}; una feature por lugar real.
   - `name` y `_manaName`; `_manaColor` (hex); `_manaGroupName`; `_manaGroupId`.
   - `markerType` y `_manaMarkerType`: id de emoji VALIDO del catalogo
-    (js/markers.js, replicado en js/vector-renderer.js y js/globe.js). Si no
+    (site/js/markers.js, replicado en site/js/vector-renderer.js y site/js/globe.js). Si no
     existe en los tres, el icono NO se pinta.
   - `_manaEmojiSize` (22-66) o una clave `Area` para escalar por el dato.
   - `_manaLabelStyle` completo (enabled:true, field:_manaName, haloWidth>=2).

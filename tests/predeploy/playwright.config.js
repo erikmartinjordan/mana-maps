@@ -4,6 +4,7 @@ const os = require('os');
 const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
+const siteRoot = path.join(repoRoot, 'site');
 const legacyChrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const isCatalina = process.platform === 'darwin' && os.release().startsWith('19.');
 const chromePath = process.env.PLAYWRIGHT_CHROME_PATH ||
@@ -22,7 +23,7 @@ module.exports = defineConfig({
     launchOptions,
   },
   webServer: {
-    command: `python3 -m http.server 4175 --bind 127.0.0.1 --directory "${repoRoot}"`,
+    command: `python3 -m http.server 4175 --bind 127.0.0.1 --directory "${siteRoot}"`,
     url: 'http://127.0.0.1:4175',
     reuseExistingServer: false,
     timeout: 30_000,
