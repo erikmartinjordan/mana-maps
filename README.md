@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://maña.com" target="_blank" rel="noopener noreferrer">
-    <img src="./favicon.svg" alt="Maña Maps logo" width="120" height="120">
+    <img src="./site/favicon.svg" alt="Maña Maps logo" width="120" height="120">
   </a>
 </p>
 
