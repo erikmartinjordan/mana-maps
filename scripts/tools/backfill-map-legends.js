@@ -4,7 +4,8 @@
 // mapas publicados que aún no la tenían (auditoría 28-10) y, cuando hace falta,
 // normaliza sus datos de popup para que la leyenda tenga sentido:
 //
-//   • largest-islands-world   → legendKey «superficie_km2» (ya numérico)
+//   • largest-islands-world   → props al español (Superficie (km²) numérica,
+//                               Grupo de superficie) + legendKey «Superficie (km²)»
 //   • longest-rivers-world    → legendKey «Longitud (km)» (ya numérico)
 //   • major-deserts-world     → props al español (Continente, Superficie,
 //                               Países, Tipo) + Superficie numérica en km² y
@@ -154,9 +155,21 @@ function setLegend(fields, key, title, format = 'number') {
 
 const TRANSFORMS = {
   'largest-islands-world': {
-    touchGeo: false,
-    transform() { /* los props ya son numéricos (superficie_km2) */ },
-    applyLegend(fields) { setLegend(fields, 'superficie_km2', 'Superficie (km²)'); },
+    touchGeo: true,
+    transform(geo) {
+      for (const f of geo.features) {
+        const p = f.properties;
+        if ('superficie_km2' in p) {
+          p['Superficie (km²)'] = p.superficie_km2;
+          delete p.superficie_km2;
+        }
+        if ('superficie_bucket' in p) {
+          p['Grupo de superficie'] = p.superficie_bucket;
+          delete p.superficie_bucket;
+        }
+      }
+    },
+    applyLegend(fields) { setLegend(fields, 'Superficie (km²)', 'Superficie (km²)'); },
   },
 
   'longest-rivers-world': {

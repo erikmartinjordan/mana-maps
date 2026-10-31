@@ -138,7 +138,7 @@ function buildMapPreview(geo){
 
 async function main(){
   // Read pre-generated GeoJSON
-  const geoPath='/home/erik/autopilot/strategy/data/largest-islands-world.geojson';
+  const geoPath=path.join(__dirname,'..','..','data','maps','largest-islands-world.geojson');
   if(!fs.existsSync(geoPath)){console.error('GeoJSON not found:',geoPath); process.exit(1);}
   const geo=JSON.parse(fs.readFileSync(geoPath,'utf8'));
   const geojsonText=JSON.stringify(geo);
@@ -184,8 +184,8 @@ async function main(){
     shareUrl:fsStr(`https://maña.com/gallery/?slug=${SLUG}`),
     geojsonText:fsStr(geojsonText), geojsonChunked:fsNull(),
     dataSource:fsStr('Natural Earth 50m (geometría de islas) + Wikipedia (superficie y población)'),
-    dataDate:fsStr('2026-09'),
-    legendKey:fsStr('superficie_km2'),
+    dataDate:fsStr('2026-09-01'),
+    legendKey:fsStr('Superficie (km²)'),
     legendTitle:fsStr('Superficie (km²)'),
     legendFormat:fsStr('number'),
     tags:fsArr(['Geografía','Naturaleza','Islas','Océanos']),
