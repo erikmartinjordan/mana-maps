@@ -1,5 +1,26 @@
 [
   {
+    "date": "2026-10-31",
+    "event": "Informe mensual de octubre de 2026: 314 sesiones externas (+16,7% frente a septiembre), 865 internas de pruebas, 52 mapas publicados y 6.934 geometrías; el catálogo crece más rápido que la distribución",
+    "type": "report",
+    "mapSlug": null,
+    "sourceUrls": [],
+    "translations": {
+      "es": {
+        "slug": "estado-mana-maps-octubre-2026",
+        "url": "/estado-mana-maps-octubre-2026/",
+        "title": "Maña Maps supera las 300 sesiones externas en octubre (+16,7%)",
+        "description": "Octubre cierra con 314 sesiones externas (+16,7%) frente a 865 internas de pruebas. Hay 52 mapas publicados, pero la distribución es el cuello de botella."
+      },
+      "en": {
+        "slug": "mana-maps-state-october-2026",
+        "url": "/en/mana-maps-state-october-2026/",
+        "title": "Maña Maps passes 300 external sessions in October, up 16.7%",
+        "description": "October closes with 314 external sessions (+16.7%) against 865 internal test sessions. The catalogue reaches 52 maps, but distribution is the bottleneck."
+      }
+    }
+  },
+  {
     "date": "2026-10-30",
     "event": "La gasolina y el diésel encadenan cuatro semanas de bajadas en octubre y se quedan en 1,75 y 1,88 euros por litro, pero llenar el depósito sigue costando más que en 2025; la ayuda fiscal de 20 céntimos por litro se mantiene en noviembre (30 de octubre de 2026)",
     "mapSlug": "inflation-world",
