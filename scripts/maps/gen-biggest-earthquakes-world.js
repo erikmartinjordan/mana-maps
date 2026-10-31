@@ -3,8 +3,9 @@
 // Genera data/maps/biggest-earthquakes-world.geojson a partir del catálogo FDSN
 // del USGS Earthquake Hazards Program (ComCat): todos los eventos M≥8 desde
 // 1700. Una feature Point por epicentro real, markerType emoji_collision e
-// icono escalado por magnitud. Los históricos van en rojo y el terremoto de
-// Nagqu de 2026 (M7,0) se añade como referencia destacada en azul.
+// icono escalado por magnitud. El color sigue una rampa secuencial
+// monocromática roja ordenada por magnitud (claro = menor, oscuro = mayor);
+// el terremoto de Nagqu de 2026 (M7,0) se añade como referencia reciente.
 //
 // Uso:
 //   node scripts/maps/gen-biggest-earthquakes-world.js [--fetch]
@@ -175,12 +176,15 @@ const NOTE_BY_EID = {
   usp0008hzd: 'Sismo oceánico profundo en las islas Balleny, al sur del círculo polar antártico.',
 };
 
-const HISTORICAL_GROUP = 'Histórico M≥8';
-const HIGHLIGHT_GROUP = 'Nagqu 2026';
+const GROUP = 'Terremotos';
 const GROUP_ID = 1;
 const MARKER_TYPE = 'emoji_collision';
-const HISTORICAL_COLOR = '#B91C1C';
-const HIGHLIGHT_COLOR = '#0EA5E9';
+// Rampa secuencial monocromática (rojo, tono 0) ordenada por magnitud:
+// claro → oscuro, según AGENTS.md §3. El primer paso es el de menor magnitud.
+const MAGNITUDE_RAMP = [
+  '#f4e1e1', '#eabdbd', '#e19898', '#da7272', '#d44949',
+  '#c62929', '#a41e1e', '#801414', '#5a0c0c',
+];
 const DATA_SOURCE =
   'USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700; evento us6000u43g (Nagqu, 22-10-2026) para el destacado reciente.';
 const DATA_DATE = '2026-10-22';
@@ -202,6 +206,13 @@ function emojiSizeForMag(mag) {
   // 8.0 → 22 px ; 9.5 → 66 px (escala por magnitud, rango soportado 22-66)
   const t = Math.max(0, Math.min(1, (mag - 8) / 1.5));
   return Math.round(22 + t * 44);
+}
+
+// Color de la rampa según la magnitud dentro del rango real del mapa.
+function colorForMagnitude(mag, min, max) {
+  const t = max > min ? (mag - min) / (max - min) : 1;
+  const step = Math.max(0, Math.min(MAGNITUDE_RAMP.length - 1, Math.round(t * (MAGNITUDE_RAMP.length - 1))));
+  return MAGNITUDE_RAMP[step];
 }
 
 function buildFeatures(raw) {
@@ -244,12 +255,12 @@ function buildFeatures(raw) {
       properties: {
         _manaName: unique,
         name: unique,
-        _manaColor: HISTORICAL_COLOR,
+        _manaColor: MAGNITUDE_RAMP[0],
         _manaFillOpacity: 0.9,
         _manaWeight: 1.2,
         _manaBorderColor: '#ffffff',
         _manaGeometryType: 'point',
-        _manaGroupName: HISTORICAL_GROUP,
+        _manaGroupName: GROUP,
         _manaGroupId: GROUP_ID,
         markerType: MARKER_TYPE,
         _manaMarkerType: MARKER_TYPE,
@@ -289,23 +300,23 @@ function buildFeatures(raw) {
     properties: {
       _manaName: 'Terremoto de Nagqu de 2026 (Tíbet)',
       name: 'Terremoto de Nagqu de 2026 (Tíbet)',
-      _manaColor: HIGHLIGHT_COLOR,
+      _manaColor: MAGNITUDE_RAMP[0],
       _manaFillOpacity: 0.95,
       _manaWeight: 1.2,
       _manaBorderColor: '#ffffff',
       _manaGeometryType: 'point',
-      _manaGroupName: HIGHLIGHT_GROUP,
-      _manaGroupId: 2,
+      _manaGroupName: GROUP,
+      _manaGroupId: GROUP_ID,
       markerType: MARKER_TYPE,
       _manaMarkerType: MARKER_TYPE,
-      _manaEmojiSize: 50,
+      _manaEmojiSize: emojiSizeForMag(7),
       _manaLabelStyle: {
         enabled: true,
         field: '_manaName',
         fontFamily: 'monospace',
         fontSize: 11,
         fontWeight: '700',
-        color: '#075985',
+        color: '#0f172a',
         haloWidth: 3,
         haloColor: '#ffffff',
         opacity: 0.95,
@@ -324,6 +335,15 @@ function buildFeatures(raw) {
     },
     geometry: { type: 'Point', coordinates: [93.7797, 32.3805] },
   });
+
+  // Rampa monocromática por magnitud sobre el rango real del mapa (7,0–9,5):
+  // mayor magnitud → color más oscuro (AGENTS.md §3).
+  const mags = out.map((f) => f.properties.Magnitud);
+  const minMag = Math.min(...mags);
+  const maxMag = Math.max(...mags);
+  for (const f of out) {
+    f.properties._manaColor = colorForMagnitude(f.properties.Magnitud, minMag, maxMag);
+  }
 
   return out;
 }
@@ -367,17 +387,22 @@ async function main() {
   const highlight = features.find((f) => f.properties.Tipo === 'Nagqu 2026');
   const magsOk = historical.every((f) => Number.isFinite(f.properties.Magnitud) && f.properties.Magnitud >= 8) &&
     !!highlight && highlight.properties.Magnitud === 7;
+  // Rampa monocromática ordenada por magnitud: el índice de color crece con el dato.
+  const rampIndex = (hex) => MAGNITUDE_RAMP.findIndex((c) => c.toLowerCase() === String(hex).toLowerCase());
+  const byMag = features.slice().sort((a, b) => a.properties.Magnitud - b.properties.Magnitud);
+  const rampOk = byMag.every((f) => rampIndex(f.properties._manaColor) >= 0) &&
+    byMag.every((f, i) => i === 0 || rampIndex(f.properties._manaColor) >= rampIndex(byMag[i - 1].properties._manaColor));
   // Palabras de área prohibidas en el nombre (auditoría §2 del repo)
   const AREA_RE = /(?:^|\s)(?:desiertos?|pa[ií]ses?|regi[oó]ns?|islas?|oc[eé]anos?|mar de|mares?|lagos?|bosques?|glaciares?|pen[ií]nsulas?|archipi[eé]lagos?|deltas?|arrecifes?)\b/i;
   const areaNameOk = features.every((f) => !AREA_RE.test(f.properties._manaName));
 
   console.log(`features: ${features.length} | KB: ${(JSON.stringify(geo).length / 1024).toFixed(1)}`);
   console.log(`hex: ${hexOk} | halo: ${haloOk} | marker: ${markerOk} | escala: ${scaleOk}`);
-  console.log(`coords: ${coordsOk} | nombres únicos: ${uniqueOk} | popups: ${popupOk} | M≥8: ${magsOk} | sin palabras de área: ${areaNameOk}`);
+  console.log(`coords: ${coordsOk} | nombres únicos: ${uniqueOk} | popups: ${popupOk} | M≥8: ${magsOk} | rampa mono por magnitud: ${rampOk} | sin palabras de área: ${areaNameOk}`);
   const magVals = features.map((f) => f.properties.Magnitud);
   console.log(`magnitud: min ${fmtEs(Math.min(...magVals))} max ${fmtEs(Math.max(...magVals))}`);
   console.log(`históricos M≥8: ${historical.length} | destacado Nagqu: M${fmtEs(highlight?.properties?.Magnitud)}`);
-  if (!hexOk || !haloOk || !markerOk || !scaleOk || !coordsOk || !uniqueOk || !popupOk || !magsOk || !areaNameOk) {
+  if (!hexOk || !haloOk || !markerOk || !scaleOk || !coordsOk || !uniqueOk || !popupOk || !magsOk || !rampOk || !areaNameOk) {
     console.error('VALIDATION FAILED');
     process.exit(1);
   }
