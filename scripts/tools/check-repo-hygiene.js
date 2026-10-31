@@ -72,6 +72,10 @@ for (const dir of ['data/maps', 'data/sources', 'scripts/maps', 'scripts/tools',
 }
 if (!fs.existsSync('scripts/lib/publisher.js')) errors.push('falta scripts/lib/publisher.js');
 if (!fs.existsSync('scripts/README.md')) errors.push('falta scripts/README.md');
+if (!fs.existsSync('scripts/tools/monthly-report-metrics.js')) errors.push('falta scripts/tools/monthly-report-metrics.js');
+if (!fs.existsSync('autopilot/reports/monthly/TEMPLATE.md')) errors.push('falta autopilot/reports/monthly/TEMPLATE.md');
+if (!fs.existsSync('autopilot/reports/monthly/README.md')) errors.push('falta autopilot/reports/monthly/README.md');
+if (!fs.existsSync('autopilot/strategy/TEMPLATE.md')) errors.push('falta autopilot/strategy/TEMPLATE.md');
 
 if (totalBytes > MAX_TOTAL_BYTES) {
   errors.push(`tamaño total trackeado ${(totalBytes / 1024 / 1024).toFixed(2)} MB (> ${MAX_TOTAL_BYTES / 1024 / 1024} MB)`);
