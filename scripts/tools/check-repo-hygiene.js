@@ -27,6 +27,9 @@ const FORBIDDEN = [
   { re: /^data\/[^/]+\.geojson$/, msg: 'GeoJSON suelto en data/ (debe ir en data/maps/)' },
   { re: /^scripts\/[^/]+\.js$/, msg: 'script de mapa/utilidad en la raíz de scripts/' },
   { re: /^(strategy|styles|brand)\//, msg: 'carpeta antigua en la raíz' },
+  { re: /^autopilot\/strategy\//, msg: 'autopilot/strategy/ se movió a autopilot/monthly/' },
+  { re: /^autopilot\/blogger\//, msg: 'autopilot/blogger/ se integró en autopilot/agents/blogger.md' },
+  { re: /^autopilot\/monthly\/data\//, msg: 'los datos crudos van a data/sources/, no a autopilot/' },
   { re: /^(styles\.css|auth-gallery\.css|og-card\.png|globe-thumb\.png|fabrica\.html)$/, msg: 'archivo movido que sigue en la raíz' }
 ];
 
@@ -75,7 +78,38 @@ if (!fs.existsSync('scripts/README.md')) errors.push('falta scripts/README.md');
 if (!fs.existsSync('scripts/tools/monthly-report-metrics.js')) errors.push('falta scripts/tools/monthly-report-metrics.js');
 if (!fs.existsSync('autopilot/reports/monthly/TEMPLATE.md')) errors.push('falta autopilot/reports/monthly/TEMPLATE.md');
 if (!fs.existsSync('autopilot/reports/monthly/README.md')) errors.push('falta autopilot/reports/monthly/README.md');
-if (!fs.existsSync('autopilot/strategy/TEMPLATE.md')) errors.push('falta autopilot/strategy/TEMPLATE.md');
+if (!fs.existsSync('autopilot/monthly/TEMPLATE.md')) errors.push('falta autopilot/monthly/TEMPLATE.md');
+
+// News: cada post de posts.json vive en news/<slug>/ y en/news/<slug>/
+let newsPosts = [];
+try {
+  newsPosts = JSON.parse(fs.readFileSync('news/posts.json', 'utf8'));
+} catch (e) {
+  errors.push(`news/posts.json: no se puede leer (${e.message})`);
+}
+for (const post of newsPosts) {
+  for (const lang of ['es', 'en']) {
+    const translation = post.translations && post.translations[lang];
+    if (!translation || !translation.slug) {
+      errors.push(`news/posts.json: entrada ${post.date} sin traducción ${lang}`);
+      continue;
+    }
+    const expectedUrl = lang === 'es' ? `/news/${translation.slug}/` : `/en/news/${translation.slug}/`;
+    if (translation.url !== expectedUrl) {
+      errors.push(`news/posts.json: ${translation.slug} debe usar ${expectedUrl}`);
+    }
+    const articlePath = lang === 'es'
+      ? path.join('news', translation.slug, 'index.html')
+      : path.join('en', 'news', translation.slug, 'index.html');
+    if (!fs.existsSync(articlePath)) {
+      errors.push(`falta ${articlePath}`);
+    }
+    const legacyPrefix = lang === 'es' ? `${translation.slug}/` : `en/${translation.slug}/`;
+    if (tracked.some((rel) => rel.startsWith(legacyPrefix))) {
+      errors.push(`${translation.slug}: el artículo no debe vivir en la raíz (${legacyPrefix})`);
+    }
+  }
+}
 
 if (totalBytes > MAX_TOTAL_BYTES) {
   errors.push(`tamaño total trackeado ${(totalBytes / 1024 / 1024).toFixed(2)} MB (> ${MAX_TOTAL_BYTES / 1024 / 1024} MB)`);

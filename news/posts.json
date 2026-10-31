@@ -12,13 +12,13 @@
     "translations": {
       "es": {
         "slug": "blocus-diez-detenidos-halloween",
-        "url": "/blocus-diez-detenidos-halloween/",
+        "url": "/news/blocus-diez-detenidos-halloween/",
         "title": "Blocus: diez detenidos y España se blinda en Halloween",
         "description": "La red Blocus, difundida por TikTok y Telegram, suma diez detenidos antes de Halloween. El mapa de usuarios de internet muestra el terreno digital de la red."
       },
       "en": {
         "slug": "blocus-ten-arrests-halloween",
-        "url": "/en/blocus-ten-arrests-halloween/",
+        "url": "/en/news/blocus-ten-arrests-halloween/",
         "title": "Blocus: ten arrests as Spain braces for Halloween",
         "description": "The Blocus network, spread via TikTok and Telegram, has ten people detained before Halloween in Spain. The internet-users map shows the digital terrain."
       }
@@ -33,13 +33,13 @@
     "translations": {
       "es": {
         "slug": "estado-mana-maps-octubre-2026",
-        "url": "/estado-mana-maps-octubre-2026/",
+        "url": "/news/estado-mana-maps-octubre-2026/",
         "title": "Maña Maps supera las 300 sesiones externas en octubre (+16,7%)",
         "description": "Octubre cierra con 314 sesiones externas (+16,7%) frente a 865 internas de pruebas. Hay 52 mapas publicados, pero la distribución es el cuello de botella."
       },
       "en": {
         "slug": "mana-maps-state-october-2026",
-        "url": "/en/mana-maps-state-october-2026/",
+        "url": "/en/news/mana-maps-state-october-2026/",
         "title": "Maña Maps passes 300 external sessions in October, up 16.7%",
         "description": "October closes with 314 external sessions (+16.7%) against 865 internal test sessions. The catalogue reaches 52 maps, but distribution is the bottleneck."
       }
@@ -59,13 +59,13 @@
     "translations": {
       "es": {
         "slug": "gasolina-diesel-bajan-octubre-mas-caros-2025",
-        "url": "/gasolina-diesel-bajan-octubre-mas-caros-2025/",
+        "url": "/news/gasolina-diesel-bajan-octubre-mas-caros-2025/",
         "title": "Gasolina y diésel bajan en octubre, pero siguen más caros que en 2025",
         "description": "La gasolina cae a 1,75 €/l y el diésel a 1,88 €/l en octubre, pero llenar el depósito cuesta hoy más que en 2025. El mapa de inflación compara 187 países."
       },
       "en": {
         "slug": "petrol-diesel-fall-october-dearer-2025",
-        "url": "/en/petrol-diesel-fall-october-dearer-2025/",
+        "url": "/en/news/petrol-diesel-fall-october-dearer-2025/",
         "title": "Petrol and diesel fall in October but remain dearer than in 2025",
         "description": "Petrol falls to €1.75/l and diesel to €1.88/l in October, but filling up still costs more today than in 2025. The inflation map compares 187 countries."
       }
@@ -87,13 +87,13 @@
     "translations": {
       "es": {
         "slug": "colision-trenes-urda-toledo",
-        "url": "/colision-trenes-urda-toledo/",
+        "url": "/news/colision-trenes-urda-toledo/",
         "title": "Al menos 68 muertos en la colisión de dos trenes en Urda",
         "description": "Un AVE de Renfe embiste a un Iryo detenido en Urda (Toledo): 68 muertos y más de un centenar de heridos. La investigación apunta al centro de control."
       },
       "en": {
         "slug": "train-collision-urda-toledo",
-        "url": "/en/train-collision-urda-toledo/",
+        "url": "/en/news/train-collision-urda-toledo/",
         "title": "At least 68 killed as two trains collide near Urda",
         "description": "A Renfe AVE train hit a stationary Iryo train near Urda, Toledo: 68 dead and more than a hundred injured. The investigation focuses on Adif's control centre."
       }
@@ -111,13 +111,13 @@
     "translations": {
       "es": {
         "slug": "nuclear-417-reactores-78-en-construccion",
-        "url": "/nuclear-417-reactores-78-en-construccion/",
+        "url": "/news/nuclear-417-reactores-78-en-construccion/",
         "title": "La nuclear busca resultados: 417 reactores y 78 en obra",
         "description": "La IAEA abre en Incheon su conferencia ministerial con 417 reactores operativos y 78 en construcción. El mapa de las 170 centrales nucleares muestra dónde está hoy la potencia instalada."
       },
       "en": {
         "slug": "nuclear-417-reactors-78-under-construction",
-        "url": "/en/nuclear-417-reactors-78-under-construction/",
+        "url": "/en/news/nuclear-417-reactors-78-under-construction/",
         "title": "Nuclear power seeks results: 417 reactors and 78 in build",
         "description": "The IAEA opens its ministerial conference in Incheon with 417 reactors operating and 78 under construction. The map of 170 nuclear plants shows where installed capacity stands today."
       }
@@ -135,13 +135,13 @@
     "translations": {
       "es": {
         "slug": "queroseno-asientos-vacios-aviones-espana",
-        "url": "/queroseno-asientos-vacios-aviones-espana/",
+        "url": "/news/queroseno-asientos-vacios-aviones-espana/",
         "title": "El queroseno ya deja asientos vacíos en los aviones españoles",
         "description": "El queroseno roza los 1.600 dólares por tonelada y frena la ocupación de los vuelos en España. El mapa mundial de aeropuertos sitúa Madrid y Barcelona."
       },
       "en": {
         "slug": "jet-fuel-empty-seats-spanish-flights",
-        "url": "/en/jet-fuel-empty-seats-spanish-flights/",
+        "url": "/en/news/jet-fuel-empty-seats-spanish-flights/",
         "title": "Jet fuel is starting to leave empty seats on Spanish flights",
         "description": "Jet fuel near $1,600 a tonne is denting flight load factors in Spain. The map of the world's 50 busiest airports puts Madrid and Barcelona in context."
       }
@@ -160,13 +160,13 @@
     "translations": {
       "es": {
         "slug": "delhi-aire-moderado-pronostico-pobre",
-        "url": "/delhi-aire-moderado-pronostico-pobre/",
+        "url": "/news/delhi-aire-moderado-pronostico-pobre/",
         "title": "Delhi mejora a 'moderado' pero el pronóstico sigue 'pobre'",
         "description": "Delhi amanece con aire 'moderado' pero cinco estaciones siguen en 'pobre' y el pronóstico empeora. El mapa de PM2.5 contextualiza la exposición en India."
       },
       "en": {
         "slug": "delhi-air-moderate-forecast-poor",
-        "url": "/en/delhi-air-moderate-forecast-poor/",
+        "url": "/en/news/delhi-air-moderate-forecast-poor/",
         "title": "Delhi air improves to 'moderate' but the forecast stays 'poor'",
         "description": "Delhi air is 'moderate' but five stations remain 'poor' and the forecast worsens. The PM2.5 map contextualises India's annual exposure to fine particles."
       }
@@ -187,13 +187,13 @@
     "translations": {
       "es": {
         "slug": "disturbios-barcelona-protesta-juvenil",
-        "url": "/disturbios-barcelona-protesta-juvenil/",
+        "url": "/news/disturbios-barcelona-protesta-juvenil/",
         "title": "Barcelona: un centenar de detenidos en una protesta juvenil",
         "description": "Un centenar de detenidos, 14 comercios saqueados y 33 incendios: una protesta juvenil convocada por redes desborda Barcelona. El mapa de paro contextualiza."
       },
       "en": {
         "slug": "barcelona-youth-protest-riots",
-        "url": "/en/barcelona-youth-protest-riots/",
+        "url": "/en/news/barcelona-youth-protest-riots/",
         "title": "Barcelona: about 100 arrested as a youth protest turns violent",
         "description": "About 100 arrested, 14 shops looted and 33 fires: a youth protest called on social media overruns central Barcelona. The unemployment map adds context."
       }
@@ -212,13 +212,13 @@
     "translations": {
       "es": {
         "slug": "calor-muertes-ciudades-europeas",
-        "url": "/calor-muertes-ciudades-europeas/",
+        "url": "/news/calor-muertes-ciudades-europeas/",
         "title": "Un estudio atribuye al calor 50.391 muertes en ciudades europeas",
         "description": "Un estudio estima 50.391 muertes por calor en 854 ciudades europeas en 2026 y atribuye dos tercios al cambio climático. El mapa de CO₂ per cápita contextualiza."
       },
       "en": {
         "slug": "heat-deaths-european-cities",
-        "url": "/en/heat-deaths-european-cities/",
+        "url": "/en/news/heat-deaths-european-cities/",
         "title": "Heat linked to 50,391 deaths in European cities, study finds",
         "description": "A study estimates 50,391 heat deaths in 854 European cities in 2026 and blames two-thirds on climate change. The interactive CO₂ per-capita map adds context."
       }
@@ -237,13 +237,13 @@
     "translations": {
       "es": {
         "slug": "terremoto-nagqu-tibet",
-        "url": "/terremoto-nagqu-tibet/",
+        "url": "/news/terremoto-nagqu-tibet/",
         "title": "El terremoto de Nagqu deja al menos 16 muertos en el Tíbet",
         "description": "Un seísmo de magnitud 7,0 en Nagqu (Tíbet) deja al menos 16 muertos y decenas de heridos. El mapa de los mayores terremotos ayuda a leer el contexto sísmico."
       },
       "en": {
         "slug": "tibet-nagqu-earthquake",
-        "url": "/en/tibet-nagqu-earthquake/",
+        "url": "/en/news/tibet-nagqu-earthquake/",
         "title": "Magnitude 7 earthquake in Tibet kills at least 16 people",
         "description": "A magnitude 7.0 earthquake in Nagqu, Tibet, has killed at least 16 people and injured dozens. The largest-earthquakes map sets out the regional context."
       }
@@ -262,13 +262,13 @@
     "translations": {
       "es": {
         "slug": "cable-submarino-groenlandia-ue",
-        "url": "/cable-submarino-groenlandia-ue/",
+        "url": "/news/cable-submarino-groenlandia-ue/",
         "title": "La UE proyecta un cable submarino para unir Groenlandia con Europa",
         "description": "Bruselas presenta su estrategia del Ártico y apuesta por un cable submarino entre Groenlandia y la UE. El mapa de cables ayuda a leer las rutas actuales."
       },
       "en": {
         "slug": "eu-greenland-submarine-cable",
-        "url": "/en/eu-greenland-submarine-cable/",
+        "url": "/en/news/eu-greenland-submarine-cable/",
         "title": "The EU plans a submarine cable to link Greenland with Europe",
         "description": "Brussels sets out its Arctic strategy with a submarine cable linking Greenland to the EU. The submarine-cable map helps make sense of the routes in place today."
       }
@@ -285,13 +285,13 @@
     "translations": {
       "es": {
         "slug": "kilauea-episodio-56",
-        "url": "/kilauea-episodio-56/",
+        "url": "/news/kilauea-episodio-56/",
         "title": "El Kilauea entra en pausa a la espera del episodio 56",
         "description": "El episodio 55 de fuentes de lava duró menos de seis horas y terminó el 17 de octubre. El USGS prevé el siguiente entre el 27 de octubre y el 6 de noviembre. El mapa de volcanes activos sitúa el cráter en el Pacífico."
       },
       "en": {
         "slug": "kilauea-episode-56",
-        "url": "/en/kilauea-episode-56/",
+        "url": "/en/news/kilauea-episode-56/",
         "title": "Kilauea pauses as USGS forecasts episode 56",
         "description": "Episode 55 of lava fountaining lasted less than six hours and ended on 17 October. The USGS expects the next episode between 27 October and 6 November. The active-volcanoes map places the crater in the Pacific."
       }
@@ -308,13 +308,13 @@
     "translations": {
       "es": {
         "slug": "revueltas-europa",
-        "url": "/revueltas-europa/",
+        "url": "/news/revueltas-europa/",
         "title": "Francia, Italia y Bélgica: la revuelta va más allá de las aulas",
         "description": "El fin de semana del 17 y 18 de octubre, cientos de miles de personas salieron a la calle en Francia. Italia y Bélgica se sumaron con protestas estudiantiles. El mapa de desigualdad de ingresos ayuda a contextualizar el malestar, pero también muestra sus límites."
       },
       "en": {
         "slug": "revolts-europe",
-        "url": "/en/revolts-europe/",
+        "url": "/en/news/revolts-europe/",
         "title": "France, Italy and Belgium: the revolt goes beyond the classroom",
         "description": "Over the weekend of 17-18 October, hundreds of thousands of people took to the streets in France. Italy and Belgium joined with student protests. The income-inequality map helps contextualise the unrest, but it also shows its limits."
       }

@@ -21,14 +21,15 @@ firestore.rules  package.json  package-lock.json
 README.md  AGENTS.md  BACKLOG.md
 
 # Rutas públicas
-about/  blog/  changelog/  en/  gallery/  map/
+about/  changelog/  en/  gallery/  map/
 my-maps/  open/  pricing/  profile/  tasks.html
+news/         # listado, posts.json y artículos ES (news/<slug>/)
+blog/         # solo redirects legacy a /news/ (temporal)
 
 # Código y contenido
 assets/       # imágenes de marca y tarjetas OG raíz
-autopilot/    # prompts, informes mensuales y directiva de estrategia
+autopilot/    # ver autopilot/README.md (prompts, directiva mensual e informes)
 basemaps/     # estilos MapLibre (JSON)
-blog/         # posts ES (en/ contiene los EN)
 changelog/    # página generada
 css/          # main.css + auth-gallery.css + site-footer.css + site-navbar.css
 data/
@@ -36,6 +37,7 @@ data/
   sources/    # crudos que sí se versionan (p. ej. UNESCO)
 docs/         # documentación y páginas internas (fabrica.html)
 en/           # rutas públicas en inglés
+  news/       # listado EN y artículos (en/news/<slug>/)
 gallery/      # landings estáticas por slug
 icons/        # iconos PWA
 js/           # aplicación del editor y la galería
@@ -51,6 +53,8 @@ tools/        # generadores de tarjetas y utilidades de build
 - `strategy/`, `styles/` o `brand/` en la raíz (sus contenidos viven en
   `data/sources/`, `basemaps/`/`css/` y `assets/brand/`).
 - `.DS_Store`, `*.tmp.js`, `test-results/`, `playwright-report/`, logs.
+- Carpetas de artículo en la raíz (`/<slug>/`) o en `en/<slug>/`: los
+  artículos viven en `news/<slug>/` y `en/news/<slug>/`.
 - GeoJSON sueltos en `data/` (deben ir en `data/maps/`).
 - Scripts de mapas en la raíz de `scripts/` (deben ir en `scripts/maps/`).
 

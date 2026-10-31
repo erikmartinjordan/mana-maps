@@ -67,7 +67,8 @@ Production deploys generate that file from `FIREBASE_PRE_CONFIG_JSON` and `FIREB
 - `scripts/maps/` — one `gen-*` and one `publish-*` per map.
 - `scripts/tools/` — audits, landings/OG generation, hygiene and utilities.
 - `assets/`, `css/`, `basemaps/` — brand images, styles and MapLibre basemaps.
-- `gallery/`, `og-cards/`, `blog/` — generated/public content.
+- `gallery/`, `og-cards/`, `news/`, `en/news/` — generated/public content.
+- `blog/` — solo redirects legacy a `/news/`.
 
 Full details: [`docs/repo-structure.md`](docs/repo-structure.md) and
 [`scripts/README.md`](scripts/README.md).

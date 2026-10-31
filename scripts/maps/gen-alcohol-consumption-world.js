@@ -9,7 +9,7 @@
 //   persona de 15 años o más y año. Se usa el último año disponible de la
 //   serie (2024; la OMS mantiene el valor de 2023 en el año de cierre).
 //   La API se descarga en la ejecución y se guarda un intermedio recortado en
-//   autopilot/strategy/data/alcohol-consumption-world/.
+//   data/sources/alcohol-consumption-world/.
 // Geometría: Natural Earth 110m + 50m (polígonos oficiales, mismo patrón que
 //   inflation-world; microestados desde 50m).
 //
@@ -25,7 +25,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'alcohol-consumption-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'alcohol-consumption-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'alcohol-consumption-world.geojson');
 
 const WHO_URL = 'https://ghoapi.azureedge.net/api/SA_0000001688';

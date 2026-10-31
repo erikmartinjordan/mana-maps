@@ -433,5 +433,14 @@ applyLang(currentLang);
   sync();
 })();
 </script>
+<script>
+/* legacy-news-redirects */
+(function(){
+  var legacy={"/blocus-diez-detenidos-halloween/":"/news/blocus-diez-detenidos-halloween/","/en/blocus-ten-arrests-halloween/":"/en/news/blocus-ten-arrests-halloween/","/estado-mana-maps-octubre-2026/":"/news/estado-mana-maps-octubre-2026/","/en/mana-maps-state-october-2026/":"/en/news/mana-maps-state-october-2026/","/gasolina-diesel-bajan-octubre-mas-caros-2025/":"/news/gasolina-diesel-bajan-octubre-mas-caros-2025/","/en/petrol-diesel-fall-october-dearer-2025/":"/en/news/petrol-diesel-fall-october-dearer-2025/","/colision-trenes-urda-toledo/":"/news/colision-trenes-urda-toledo/","/en/train-collision-urda-toledo/":"/en/news/train-collision-urda-toledo/","/nuclear-417-reactores-78-en-construccion/":"/news/nuclear-417-reactores-78-en-construccion/","/en/nuclear-417-reactors-78-under-construction/":"/en/news/nuclear-417-reactors-78-under-construction/","/queroseno-asientos-vacios-aviones-espana/":"/news/queroseno-asientos-vacios-aviones-espana/","/en/jet-fuel-empty-seats-spanish-flights/":"/en/news/jet-fuel-empty-seats-spanish-flights/","/delhi-aire-moderado-pronostico-pobre/":"/news/delhi-aire-moderado-pronostico-pobre/","/en/delhi-air-moderate-forecast-poor/":"/en/news/delhi-air-moderate-forecast-poor/","/disturbios-barcelona-protesta-juvenil/":"/news/disturbios-barcelona-protesta-juvenil/","/en/barcelona-youth-protest-riots/":"/en/news/barcelona-youth-protest-riots/","/calor-muertes-ciudades-europeas/":"/news/calor-muertes-ciudades-europeas/","/en/heat-deaths-european-cities/":"/en/news/heat-deaths-european-cities/","/terremoto-nagqu-tibet/":"/news/terremoto-nagqu-tibet/","/en/tibet-nagqu-earthquake/":"/en/news/tibet-nagqu-earthquake/","/cable-submarino-groenlandia-ue/":"/news/cable-submarino-groenlandia-ue/","/en/eu-greenland-submarine-cable/":"/en/news/eu-greenland-submarine-cable/","/kilauea-episodio-56/":"/news/kilauea-episodio-56/","/en/kilauea-episode-56/":"/en/news/kilauea-episode-56/","/revueltas-europa/":"/news/revueltas-europa/","/en/revolts-europe/":"/en/news/revolts-europe/"};
+  var p=location.pathname.replace(/index\.html$/,'');
+  if(p.charAt(p.length-1)!=='/') p+='/';
+  if(legacy[p]) location.replace(legacy[p]+location.search+location.hash);
+})();
+</script>
 </body>
 </html>

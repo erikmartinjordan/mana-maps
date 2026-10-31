@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maña Maps · Reestructuración del sitio y de autopilot</title>
+<style>
+:root{
+  --bg:#f7f8f9;
+  --surface:#ffffff;
+  --ink:#171717;
+  --ink-2:#3f4650;
+  --muted:#6b7280;
+  --line:rgba(23,23,23,.1);
+  --line-soft:rgba(23,23,23,.06);
+  --accent:#111111;
+  --green:#0f766e;
+  --amber:#92400e;
+  --red:#991b1b;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --shadow:0 1px 2px rgba(15,15,15,.04),0 8px 24px rgba(15,15,15,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(1200px 700px at 50% -10%,#ffffff 0%,#f4f6f7 55%,#eef1f3 100%);
+  color:var(--ink);
+  font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+  padding:48px 20px 96px;
+}
+.wrap{max-width:1040px;margin:0 auto}
+header.hero{
+  background:var(--surface);border:1px solid var(--line);border-radius:24px;
+  padding:40px 44px;box-shadow:var(--shadow);margin-bottom:28px;
+}
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:6px 12px;margin-bottom:18px;
+}
+.kicker::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green)}
+h1{font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.03em;font-weight:800}
+h1 span{color:var(--muted)}
+.lede{margin-top:16px;font-size:18px;color:var(--ink-2);max-width:76ch}
+.meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}
+.chip{
+  font-size:12px;font-weight:600;color:var(--ink-2);background:#f3f4f5;
+  border:1px solid var(--line-soft);border-radius:999px;padding:5px 11px;
+}
+.chip b{font-family:var(--mono);font-weight:600;color:var(--ink)}
+section{
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:32px 36px;box-shadow:var(--shadow);margin-bottom:24px;
+}
+h2{font-size:22px;letter-spacing:-.02em;font-weight:800;margin-bottom:6px}
+h2 .n{
+  display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;
+  background:var(--ink);color:#fff;font-size:13px;font-weight:700;margin-right:10px;
+  vertical-align:2px;
+}
+.sub{color:var(--muted);font-size:14px;margin-bottom:22px}
+h3{font-size:15px;font-weight:700;margin:24px 0 10px;letter-spacing:-.01em}
+p{color:var(--ink-2);margin-bottom:12px}
+ul,ol{padding-left:22px;color:var(--ink-2)}
+li{margin-bottom:7px}
+code{
+  font-family:var(--mono);font-size:.88em;background:#f1f2f4;border:1px solid var(--line-soft);
+  border-radius:5px;padding:1px 5px;color:var(--ink);
+}
+.grid{display:grid;gap:14px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:760px){.grid.two,.grid.three{grid-template-columns:1fr}section{padding:26px 22px}header.hero{padding:30px 24px}}
+.card{
+  border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:#fbfbfc;
+}
+.card h4{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.card p{margin:0;font-size:14.5px;color:var(--ink-2)}
+.card.bad{border-left:3px solid var(--red)}
+.card.warn{border-left:3px solid var(--amber)}
+.card.good{border-left:3px solid var(--green)}
+pre.tree{
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#24292f;
+  background:#f8f9fa;border:1px solid var(--line);border-radius:14px;
+  padding:22px 24px;overflow-x:auto;
+}
+pre.tree .c{color:#8b949e}
+pre.tree .k{color:#0f766e;font-weight:600}
+pre.tree .r{color:#991b1b}
+pre.tree .b{color:#1d4ed8}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+td code{white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+.tag.move{background:#eef6ff;color:#1d4ed8}
+.tag.del{background:#fdecec;color:#991b1b}
+.tag.keep{background:#e9f7f2;color:#0f766e}
+.phase{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.phase:last-child{border-bottom:none}
+.phase .num{
+  flex:0 0 34px;height:34px;border-radius:10px;background:#f1f2f4;border:1px solid var(--line);
+  display:grid;place-items:center;font-weight:800;font-size:14px;
+}
+.phase .body h4{font-size:15px;margin-bottom:2px}
+.phase .body p{margin:0;font-size:14px;color:var(--muted)}
+.callout{
+  margin-top:18px;border:1px solid var(--line);background:#fbfbfc;border-radius:14px;
+  padding:18px 20px;font-size:14.5px;color:var(--ink-2);
+}
+.callout strong{color:var(--ink)}
+footer{text-align:center;color:var(--muted);font-size:12.5px;padding-top:8px}
+@media print{
+  body{background:#fff;padding:0}
+  section,header.hero{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Documento interno · Reestructuración</div>
+  <h1>Ordenar el sitio y <span>autopilot</span></h1>
+  <p class="lede">
+    Resumen de los cambios propuestos y del árbol final del repositorio. El objetivo es
+    sacar los artículos de la raíz, separar la estrategia de la operación mensual y dejar
+    una única fuente de verdad para prompts, datos y documentación.
+  </p>
+  <div class="meta">
+    <span class="chip">Artículos afectados <b>13 ES · 13 EN</b></span>
+    <span class="chip">Carpetas raíz a eliminar <b>26</b></span>
+    <span class="chip">Carpetas autopilot afectadas <b>3</b></span>
+    <span class="chip">Fases <b>5</b></span>
+  </div>
+</header>
+
+<section>
+  <h2><span class="n">1</span>Resumen ejecutivo</h2>
+  <p class="sub">Dos problemas independientes que se resuelven en el mismo cambio.</p>
+  <div class="grid two">
+    <div class="card bad">
+      <h4>Problema A · Artículos sueltos</h4>
+      <p>13 artículos ES viven en <code>/&lt;slug&gt;/</code> y 13 EN en <code>/en/&lt;slug&gt;/</code>. La raíz parece un cajón: cada noticia es una carpeta al mismo nivel que <code>js/</code> o <code>gallery/</code>.</p>
+    </div>
+    <div class="card bad">
+      <h4>Problema B · autopilot mezclado</h4>
+      <p><code>STRATEGY.md</code>, <code>strategy/</code>, <code>blogger/</code>, <code>reports/</code> y datos crudos conviven sin jerarquía clara. Además hay 9 JSON de fuentes versionados en <code>strategy/data/</code>.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>Principio rector:</strong> una carpeta = una responsabilidad. El contenido editorial vive en
+    <code>news/</code>, la operación del autopilot en <code>autopilot/</code> y los datos de mapas en
+    <code>data/</code>. Nada de artículos ni datos en la raíz.
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">2</span>Antes y después</h2>
+  <p class="sub">La raíz actual, simplificada. En rojo lo que se va; en verde lo que se queda.</p>
+  <pre class="tree"><span class="r">/</span>
+├── <span class="r">blocus-diez-detenidos-halloween/</span>   <span class="c">← artículo ES suelto</span>
+├── <span class="r">revueltas-europa/</span>                  <span class="c">← artículo ES suelto</span>
+├── <span class="r">terremoto-nagqu-tibet/</span>             <span class="c">← … 13 en total</span>
+├── <span class="k">news/</span>                              <span class="c">← listado + posts.json</span>
+├── <span class="k">en/</span>
+│   ├── <span class="r">revolts-europe/</span>                <span class="c">← artículo EN suelto</span>
+│   ├── <span class="r">tibet-nagqu-earthquake/</span>        <span class="c">← … 13 en total</span>
+│   └── <span class="k">news/</span>                          <span class="c">← listado EN</span>
+├── <span class="r">blog/</span>                              <span class="c">← redirects legacy</span>
+├── <span class="k">about/ chalk/ gallery/ map/</span>
+├── <span class="k">my-maps/ open/ pricing/ profile/</span>
+├── <span class="k">data/  css/  js/  scripts/  tests/</span>
+└── <span class="r">autopilot/</span>                          <span class="c">← mezcla 5 cosas</span></pre>
+
+  <h3>Árbol objetivo</h3>
+  <pre class="tree"><span class="k">/</span>
+├── <span class="k">news/</span>                              <span class="c"># todo el contenido editorial</span>
+│   ├── index.html                     <span class="c"># listado ES</span>
+│   ├── posts.json                     <span class="c"># fuente de verdad</span>
+│   └── &lt;slug&gt;/index.html              <span class="c"># artículos ES</span>
+├── <span class="k">en/news/</span>
+│   ├── index.html                     <span class="c"># listado EN</span>
+│   └── &lt;slug&gt;/index.html              <span class="c"># artículos EN</span>
+├── <span class="r">blog/</span>                              <span class="c"># SOLO redirects legacy (temporal)</span>
+├── <span class="k">about/ chalk/ changelog/ gallery/ map/</span>
+├── <span class="k">my-maps/ open/ pricing/ profile/</span>
+│
+├── <span class="k">autopilot/</span>
+│   ├── README.md                      <span class="c"># qué es y cómo encaja</span>
+│   ├── CHARTER.md                     <span class="c"># ex-STRATEGY.md: estrategia de producto</span>
+│   ├── agents/*.md                    <span class="c"># prompts = única fuente de verdad</span>
+│   ├── monthly/                       <span class="c"># ex-strategy/: directiva mensual</span>
+│   │   ├── README.md
+│   │   ├── TEMPLATE.md
+│   │   ├── current.md
+│   │   └── &lt;YYYY-MM&gt;.md
+│   └── reports/monthly/*.md           <span class="c"># informes canónicos</span>
+│
+├── <span class="k">data/</span>
+│   ├── maps/                          <span class="c"># GeoJSON publicables</span>
+│   └── sources/&lt;slug&gt;/                <span class="c"># crudos que sí se versionan</span>
+│
+└── <span class="k">css/  js/  scripts/  tests/  tools/</span></pre>
+</section>
+
+<section>
+  <h2><span class="n">3</span>Cambios concretos</h2>
+  <p class="sub">Qué se mueve, qué se elimina y qué se conserva.</p>
+  <table>
+    <thead>
+      <tr><th>Ahora</th><th>Después</th><th>Acción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/&lt;slug&gt;/</code> (13)</td><td><code>news/&lt;slug&gt;/</code></td><td><span class="tag move">mover</span></td></tr>
+      <tr><td><code>en/&lt;slug&gt;/</code> (13)</td><td><code>en/news/&lt;slug&gt;/</code></td><td><span class="tag move">mover</span></td></tr>
+      <tr><td><code>blog/&lt;fecha-slug&gt;/</code></td><td>redirect a <code>/news/&lt;slug&gt;/</code></td><td><span class="tag keep">temporal</span></td></tr>
+      <tr><td><code>autopilot/STRATEGY.md</code></td><td><code>autopilot/CHARTER.md</code></td><td><span class="tag move">renombrar</span></td></tr>
+      <tr><td><code>autopilot/strategy/</code></td><td><code>autopilot/monthly/</code></td><td><span class="tag move">renombrar</span></td></tr>
+      <tr><td><code>autopilot/strategy/data/*.json</code></td><td><code>data/sources/&lt;slug&gt;/</code> o borrar</td><td><span class="tag del">sacar</span></td></tr>
+      <tr><td><code>autopilot/blogger/README.md</code></td><td>absorbido en <code>agents/blogger.md</code></td><td><span class="tag del">eliminar</span></td></tr>
+      <tr><td><code>autopilot/reports/*.html</code></td><td><code>docs/reports/</code> o borrar</td><td><span class="tag del">limpiar</span></td></tr>
+      <tr><td><code>news/index.html</code>, <code>posts.json</code></td><td>se quedan (se actualizan enlaces)</td><td><span class="tag keep">conservar</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">4</span>Qué hay que tocar además</h2>
+  <p class="sub">Los movimientos de carpetas arrastran URLs, prompts y validaciones.</p>
+  <div class="grid three">
+    <div class="card warn">
+      <h4>SEO · 26 páginas</h4>
+      <p><code>canonical</code>, <code>og:url</code>, <code>hreflang</code>, JSON-LD, <code>lang-switch</code>, enlaces internos, <code>sitemap.xml</code> y tarjetas de los listados.</p>
+    </div>
+    <div class="card warn">
+      <h4>Prompts · autopilot</h4>
+      <p><code>agents/blogger.md</code> crea los artículos: si no se actualiza antes del siguiente ciclo, volverá a escribir en la raíz. También <code>mapmaker</code>, <code>ideator</code>, <code>reviewer</code> y <code>autopilot</code>.</p>
+    </div>
+    <div class="card warn">
+      <h4>Scripts · datos</h4>
+      <p>Los <code>scripts/maps/gen-*.js</code> apuntan a <code>autopilot/strategy/data</code>. Hay que mover la ruta a <code>data/sources</code> o a <code>~/autopilot/</code>.</p>
+    </div>
+    <div class="card warn">
+      <h4>Guardia de higiene</h4>
+      <p><code>check-repo-hygiene.js</code>: prohibir <code>autopilot/strategy/data/</code>, exigir artículos en <code>news/</code> y rechazar slugs de <code>posts.json</code> en la raíz.</p>
+    </div>
+    <div class="card warn">
+      <h4>Redirects legacy</h4>
+      <p>Sin servidor no hay 301. Opción recomendada: mapa de redirección en <code>404.html</code>. Alternativa: stubs <code>noindex</code> 60-90 días.</p>
+    </div>
+    <div class="card warn">
+      <h4>Tests</h4>
+      <p>Añadir comprobación de que cada URL de <code>posts.json</code> resuelve a <code>news/&lt;slug&gt;/</code> y que no queda ningún slug suelto en la raíz.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">5</span>Plan de ejecución</h2>
+  <p class="sub">Orden pensado para no romper el ciclo diario del autopilot.</p>
+  <div class="phase"><div class="num">1</div><div class="body"><h4>Limpiar autopilot</h4><p>Renombrar estrategia y directiva, sacar datos, absorber blogger y borrar HTML sueltos. No toca URLs públicas.</p></div></div>
+  <div class="phase"><div class="num">2</div><div class="body"><h4>Mover artículos ES/EN</h4><p>A <code>news/&lt;slug&gt;/</code> y <code>en/news/&lt;slug&gt;/</code>. Actualizar <code>posts.json</code> y los dos listados.</p></div></div>
+  <div class="phase"><div class="num">3</div><div class="body"><h4>Reescribir SEO</h4><p>Canonical, hreflang, JSON-LD, sitemap y redirects legacy de <code>blog/</code> y <code>404.html</code>.</p></div></div>
+  <div class="phase"><div class="num">4</div><div class="body"><h4>Actualizar prompts y scripts</h4><p>Rutas nuevas en agentes, generadores de mapas, documentación y guardia de higiene.</p></div></div>
+  <div class="phase"><div class="num">5</div><div class="body"><h4>Validar</h4><p><code>check-local-assets</code>, <code>check-repo-hygiene</code> y Playwright 19/19. Revisión visual escritorio y móvil.</p></div></div>
+  <div class="callout">
+    <strong>Riesgo principal:</strong> el loop del iMac ejecuta <code>blogger</code> a diario. El prompt debe
+    actualizarse en la misma tanda que el movimiento de carpetas; si no, el siguiente artículo reaparece
+    en la raíz.
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">6</span>Decisiones aplicadas</h2>
+  <p class="sub">Las tres elecciones que se han ejecutado.</p>
+  <ol>
+    <li><strong>Estrategia:</strong> <code>autopilot/CHARTER.md</code>.</li>
+    <li><strong>Directiva:</strong> <code>autopilot/monthly/</code>.</li>
+    <li><strong>URLs antiguas:</strong> redirect vía <code>404.html</code>.</li>
+  </ol>
+</section>
+
+<footer>Maña Maps · Reestructuración aplicada · Validada en local y en el iMac (29/29)</footer>
+
+</div>
+</body>
+</html>

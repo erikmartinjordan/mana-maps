@@ -33,7 +33,7 @@ MONTH=$(date +%Y-%m)
 PREV_MONTH=$(python3 -c "import datetime; d=datetime.date.today().replace(day=1)-datetime.timedelta(days=1); print(d.strftime('%Y-%m'))")
 ```
 
-Si `autopilot/strategy/current.md` no existe, su frontmatter `month:` no es
+Si `autopilot/monthly/current.md` no existe, su frontmatter `month:` no es
 `$MONTH`, o tiene `fallback: true` y ya existe el informe del mes anterior:
 
 **Si `DAY=01` y no existe `autopilot/reports/monthly/$PREV_MONTH.md`:** no
@@ -47,15 +47,15 @@ informe.
    considera archivos `<YYYY-MM>.md`. Si no existe o sigue en `draft`, y ya es
    día 2 o 3, usa el informe final más reciente de
    `autopilot/reports/monthly/` y anota `source` y `fallback: true`. Si no hay
-   ninguno, no inventes: usa `autopilot/STRATEGY.md` y escribe una directiva
-   mínima con `source: STRATEGY.md`, `fallback: true`.
+   ninguno, no inventes: usa `autopilot/CHARTER.md` y escribe una directiva
+   mínima con `source: CHARTER.md`, `fallback: true`.
 2. Lee el informe completo: métricas, lectura, prioridades e instrucciones por
-   rol. Lee también `autopilot/STRATEGY.md`. Si el informe no trae tres
+   rol. Lee también `autopilot/CHARTER.md`. Si el informe no trae tres
    prioridades o instrucciones para los cuatro roles, no las inventes: usa
-   `autopilot/STRATEGY.md` y marca `fallback: true`.
-3. Escribe `autopilot/strategy/current.md` y
-   `autopilot/strategy/$MONTH.md` con la estructura de
-   `autopilot/strategy/TEMPLATE.md`:
+   `autopilot/CHARTER.md` y marca `fallback: true`.
+3. Escribe `autopilot/monthly/current.md` y
+   `autopilot/monthly/$MONTH.md` con la estructura de
+   `autopilot/monthly/TEMPLATE.md`:
    - `month: $MONTH`
    - `source: <informe leído>`
    - `fallback: false` (o `true` si no se pudo leer el informe del mes).
@@ -70,7 +70,7 @@ informe.
 
 ```bash
 git pull --rebase --autostash origin main
-git add autopilot/strategy/current.md "autopilot/strategy/$MONTH.md"
+git add autopilot/monthly/current.md "autopilot/monthly/$MONTH.md"
 git commit -m "chore: directiva mensual $MONTH"
 git push origin main
 ```
@@ -88,7 +88,7 @@ refrescarla porque la condición de fallback lo permite.
 ## REDIRECCIÓN DEL EQUIPO
 
 La directiva escrita es el mecanismo principal: `ideator`, `mapmaker`, `blogger`
-y `reviewer` leen `autopilot/strategy/current.md` al empezar. Si el entorno
+y `reviewer` leen `autopilot/monthly/current.md` al empezar. Si el entorno
 expone esos agentes vía `task`, puedes delegar como máximo **una** acción corta
 alineada con la prioridad 1 (por ejemplo, un diagnóstico a `ideator`). No
 delegues una implementación completa ni bloquees la tarea principal. Si no están
@@ -96,7 +96,7 @@ disponibles, la directiva escrita es suficiente.
 
 ## PROTOCOLO DE CADA EJECUCIÓN
 
-1. Lee `autopilot/strategy/current.md` si existe y está vigente. Lee
+1. Lee `autopilot/monthly/current.md` si existe y está vigente. Lee
    `BACKLOG.md`. Elige la PRIMERA tarea `- [ ]` alineada con `focus` y
    `backlog_filter`. Si la primera no encaja, sigue buscando. Si ninguna encaja,
    inserta al principio (justo después de la última `- [x]`) una tarea concreta
@@ -131,7 +131,7 @@ disponibles, la directiva escrita es suficiente.
 - No publiques secretos ni credenciales. No modifiques ficheros de auth.
 - No hagas operaciones destructivas (git push --force, rm -rf, borrar ramas).
 - La única escritura directa en `main` permitida es el commit mensual de
-  `autopilot/strategy/`. Cualquier otra cosa va por rama y PR.
+  `autopilot/monthly/`. Cualquier otra cosa va por rama y PR.
 - No preguntes al usuario: el contexto "question" esta deshabilitado.
 - Trabaja solo en lo que pide la tarea del BACKLOG; no refactorices más allá.
   La única excepción es la directiva mensual del preflight.

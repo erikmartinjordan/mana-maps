@@ -22,7 +22,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'meat-consumption-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'meat-consumption-world');
 const SRC_BASE = path.join(ROOT, 'data', 'maps', 'population-by-country.geojson');
 const OUT = path.join(ROOT, 'data', 'maps', 'meat-consumption-world.geojson');
 

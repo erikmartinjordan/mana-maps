@@ -1,7 +1,14 @@
 const { defineConfig } = require('@playwright/test');
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
+const legacyChrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const isCatalina = process.platform === 'darwin' && os.release().startsWith('19.');
+const chromePath = process.env.PLAYWRIGHT_CHROME_PATH ||
+  (isCatalina && fs.existsSync(legacyChrome) ? legacyChrome : '');
+const launchOptions = chromePath ? { executablePath: chromePath } : undefined;
 
 module.exports = defineConfig({
   testDir: __dirname,
@@ -12,6 +19,7 @@ module.exports = defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4175',
     headless: true,
+    launchOptions,
   },
   webServer: {
     command: `python3 -m http.server 4175 --bind 127.0.0.1 --directory "${repoRoot}"`,

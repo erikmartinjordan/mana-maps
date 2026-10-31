@@ -18,7 +18,8 @@ scripts/
 ## Pipeline de un mapa
 
 ```text
-~/autopilot/strategy/data/<slug>/   (fuente cruda, fuera del repo)
+data/sources/<slug>/                (crudos versionados, si aplica)
+~/autopilot/strategy/data/<slug>/   (fuente cruda externa, fuera del repo)
         │
         ▼
 scripts/maps/gen-<slug>.js

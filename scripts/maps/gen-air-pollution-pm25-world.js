@@ -18,7 +18,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'air-pollution-pm25-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'air-pollution-pm25-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'air-pollution-pm25-world.geojson');
 
 const WB_COUNTRIES_URL = 'https://api.worldbank.org/v2/country?format=json&per_page=400';

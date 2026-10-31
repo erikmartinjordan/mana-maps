@@ -29,8 +29,10 @@ obligatoria para cualquier agente que trabaje aquí.
   páginas internas.
 - **Prohibido** en la raíz: `.DS_Store`, `*.tmp.js`, `strategy/`, `styles/`,
   `brand/`, `globe-thumb.png`, `og-card.png`, `styles.css`,
-  `auth-gallery.css`, `fabrica.html`. También prohibidos `data/gallery-*.js`
-  y scripts de mapas sueltos en `scripts/`.
+  `auth-gallery.css`, `fabrica.html`, y cualquier carpeta de artículo
+  (`/<slug>/`). Los artículos viven en `news/<slug>/` y `en/news/<slug>/`.
+  También prohibidos `data/gallery-*.js` y scripts de mapas sueltos en
+  `scripts/`.
 - Documentación: `docs/repo-structure.md` y `scripts/README.md`.
 - Guardia en CI: `node scripts/tools/check-repo-hygiene.js`.
 

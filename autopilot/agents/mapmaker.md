@@ -23,7 +23,7 @@ X.com, creados con datos REALES y un diseño impecable.
 
 ## DIRECTIVA MENSUAL (obligatoria)
 
-Antes de empezar, lee `autopilot/strategy/current.md` si existe. Si su
+Antes de empezar, lee `autopilot/monthly/current.md` si existe. Si su
 frontmatter `month:` es el mes actual o el anterior y tiene menos de 45 días,
 aplica su `focus` y su `role_directives.mapmaker`. Si la directiva dice pausar
 la producción de mapas, **no crees ninguno**: termina con un resumen breve y

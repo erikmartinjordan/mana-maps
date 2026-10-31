@@ -1,4 +1,6 @@
 const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
 
 const firebaseSmokeConfig = {
   apiKey: 'smoke-test-api-key',
@@ -168,7 +170,7 @@ test('iPhone 16 Pro footer covers the screen edges on every page template', asyn
     '/',
     '/gallery/',
     '/news/',
-    '/kilauea-episodio-56/',
+    '/news/kilauea-episodio-56/',
     '/404.html',
     '/about/',
     '/pricing/',
@@ -235,6 +237,33 @@ test('iPhone 16 Pro footer covers the screen edges on every page template', asyn
           })
           .toBe('rgb(251, 252, 253)');
       }
+    }
+  }
+});
+
+test('news posts live under news/ and en/news/', () => {
+  const root = path.resolve(__dirname, '..', '..');
+  const posts = JSON.parse(fs.readFileSync(path.join(root, 'news', 'posts.json'), 'utf8'));
+
+  for (const post of posts) {
+    for (const lang of ['es', 'en']) {
+      const translation = post.translations && post.translations[lang];
+      expect(translation, `${post.date} debe tener traducción ${lang}`).toBeTruthy();
+
+      const expectedUrl = lang === 'es'
+        ? `/news/${translation.slug}/`
+        : `/en/news/${translation.slug}/`;
+      expect(translation.url, `${translation.slug} URL canónica`).toBe(expectedUrl);
+
+      const articlePath = lang === 'es'
+        ? path.join(root, 'news', translation.slug, 'index.html')
+        : path.join(root, 'en', 'news', translation.slug, 'index.html');
+      expect(fs.existsSync(articlePath), `falta ${articlePath}`).toBe(true);
+
+      const legacyPath = lang === 'es'
+        ? path.join(root, translation.slug)
+        : path.join(root, 'en', translation.slug);
+      expect(fs.existsSync(legacyPath), `el artículo ${translation.slug} no debe vivir en la raíz`).toBe(false);
     }
   }
 });

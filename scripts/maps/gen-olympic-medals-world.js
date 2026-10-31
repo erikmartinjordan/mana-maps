@@ -23,7 +23,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'olympic-medals-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'olympic-medals-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'olympic-medals-world.geojson');
 
 const WIKI_URL = 'https://en.wikipedia.org/wiki/All-time_Olympic_Games_medal_table';

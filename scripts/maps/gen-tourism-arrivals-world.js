@@ -3,7 +3,7 @@
 // Genera data/maps/tourism-arrivals-world.geojson:
 //   coropleta mundial «Países que más reciben turistas internacionales».
 //
-// Datos: autopilot/strategy/data/tourism-arrivals-world/un-tourism-arrivals.json
+// Datos: data/sources/tourism-arrivals-world/un-tourism-arrivals.json
 //   (UN Tourism/OMT — base de datos de estadísticas de turismo, indicador
 //    INBD_TRIP_TOTL_TOTL_TOUR, descarga diciembre de 2025 + World Tourism
 //    Barometer 2023 para destinos principales; último dato 2019-2024).
@@ -20,7 +20,7 @@
 const fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const SRC_DATA = path.join(ROOT, 'autopilot', 'strategy', 'data', 'tourism-arrivals-world', 'un-tourism-arrivals.json');
+const SRC_DATA = path.join(ROOT, 'data', 'sources', 'tourism-arrivals-world', 'un-tourism-arrivals.json');
 const SRC_BASE = path.join(ROOT, 'data', 'maps', 'population-by-country.geojson');
 const OUT = path.join(ROOT, 'data', 'maps', 'tourism-arrivals-world.geojson');
 

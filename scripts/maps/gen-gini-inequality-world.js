@@ -20,7 +20,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'gini-inequality-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'gini-inequality-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'gini-inequality-world.geojson');
 
 // Our World in Data republica el indicador del Banco Mundial bajo este gráfico.

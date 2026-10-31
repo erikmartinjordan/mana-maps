@@ -20,7 +20,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'obesity-adults-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'obesity-adults-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'obesity-adults-world.geojson');
 
 const OWID_CSV_URL = 'https://ourworldindata.org/grapher/share-of-adults-defined-as-obese.csv?csvType=full';

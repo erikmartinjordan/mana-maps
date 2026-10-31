@@ -8,7 +8,7 @@
 //   porcentual anual del índice de precios al consumidor. Se usa el último año
 //   disponible por país (2025 para 169 de los 193 países con dato; 2011–2024
 //   para los demás). La API se descarga en la ejecución y se guarda un
-//   intermedio recortado en autopilot/strategy/data/inflation-world/.
+//   intermedio recortado en data/sources/inflation-world/.
 // Geometría: Natural Earth 110m + 50m (polígonos oficiales, mismo patrón que
 //   unemployment-world; microestados desde 50m).
 //
@@ -24,7 +24,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'inflation-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'inflation-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'inflation-world.geojson');
 
 const WB_INDICATOR_URL = 'https://api.worldbank.org/v2/country/all/indicator/FP.CPI.TOTL.ZG?format=json&per_page=20000';

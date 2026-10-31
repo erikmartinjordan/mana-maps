@@ -8,7 +8,7 @@
 //   (modeled ILO estimate)»). Se usa el último año disponible por país
 //   (2025 para 176 países representados, 2021–2023 para los cinco restantes).
 //   La API del Banco Mundial se descarga en la ejecución y se guarda un
-//   intermedio recortado en autopilot/strategy/data/unemployment-world/.
+//   intermedio recortado en data/sources/unemployment-world/.
 // Geometría: Natural Earth 110m + 50m (polígonos oficiales, mismo patrón que
 //   gini-inequality-world; microestados desde 50m).
 //
@@ -21,7 +21,7 @@
 const https = require('https'), fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RAW_DIR = path.join(ROOT, 'autopilot', 'strategy', 'data', 'unemployment-world');
+const RAW_DIR = path.join(ROOT, 'data', 'sources', 'unemployment-world');
 const OUT = path.join(ROOT, 'data', 'maps', 'unemployment-world.geojson');
 
 const WB_INDICATOR_URL = 'https://api.worldbank.org/v2/country/all/indicator/SL.UEM.TOTL.ZS?format=json&per_page=20000';
