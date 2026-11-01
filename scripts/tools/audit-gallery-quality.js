@@ -44,6 +44,12 @@
 //      8601 (YYYY o YYYY-MM-DD). Lista los fallos y falla (exit 1); las
 //      descripciones se recortan/amplían y dataDate se normaliza cuando hay
 //      una conversión inequívoca.
+//  14. coherencia de leyenda: un legendKey categórico (legendFormat
+//      'category'/'text') no debe convivir con una clave numérica de ≥3
+//      valores distintos (sería una rampa mejor); el legendKey debe tener al
+//      menos 3 valores distintos y legendTitle no puede faltar. Lista los
+//      mapas afectados y falla (exit 1). Es de solo lectura: la corrección
+//      implica elegir la clave y la rampa, y se hace a mano.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -1929,6 +1935,141 @@ function auditMetadataHygiene(maps) {
   return { issues, fixes, details, manual };
 }
 
+// ── Coherencia de leyenda (check 14) ──────────────────────────────
+// La leyenda del mapa destacado usa legendKey + legendTitle + legendFormat.
+// Tres incoherencias la dejan sin rango o con una rampa pobre:
+//   - legendFormat categórico ('category'/'text') cuando el mapa ya tiene una
+//     clave numérica con ≥3 valores distintos (casos biggest-earthquakes-world
+//     30-10 y submarine-fiber-cables 01-11: la leyenda pintaba dos swatches
+//     sueltos en vez de la rampa por magnitud/longitud);
+//   - legendKey con menos de 3 valores distintos (un único swatch no es una
+//     leyenda);
+//   - legendTitle ausente (la leyenda acaba mostrando la clave cruda).
+// Es de solo lectura: elegir la clave y la rampa correctas exige criterio, así
+// que el check lista los mapas afectados y sale con exit 1.
+
+const LEGEND_MIN_DISTINCT = 3;
+const LEGEND_CATEGORICAL_FORMATS = new Set(['category', 'text']);
+// Valor «numérico» con unidad opcional: "7,0", "45.000", "8.849 m", "-6,6 %".
+// Deliberadamente estricto: descarta fechas, nombres y descripciones con cifras.
+const LEGEND_NUMERIC_LIKE_RE = /^-?\d[\d.,\s]*(?:\s*[A-Za-zµ°%$€/²³]+)*$/;
+// Claves temporales: una fecha no es una variable con rampa de leyenda.
+function isLegendDateKey(key) {
+  const snake = String(key).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+  return /(^|_)(fecha|date|año|ano|year|timestamp)($|_)/.test(snake);
+}
+
+function isLegendNumericLike(value) {
+  if (value == null) return false;
+  const s = String(value).trim();
+  if (!s) return false;
+  if (!LEGEND_NUMERIC_LIKE_RE.test(s)) return false;
+  return isFinite(parseLegendNumber(s));
+}
+
+// Claves numéricas (no de estilo/internas) con ≥80 % de valores numéricos y
+// ≥3 valores distintos: candidatas a alimentar una rampa de leyenda.
+function legendNumericCandidates(geo, legendKey) {
+  const stats = new Map();
+  for (const feature of (geo && geo.features) || []) {
+    const props = feature && feature.properties;
+    if (!props) continue;
+    for (const [key, raw] of Object.entries(props)) {
+      if (key === legendKey) continue;
+      if (isDenyPopupKey(key)) continue;
+      if (isLegendDateKey(key)) continue;
+      if (raw == null || String(raw).trim() === '') continue;
+      if (!stats.has(key)) stats.set(key, { values: new Set(), numeric: 0, total: 0 });
+      const st = stats.get(key);
+      st.total++;
+      if (!isLegendNumericLike(raw)) continue;
+      st.numeric++;
+      st.values.add(parseLegendNumber(raw));
+    }
+  }
+  const out = [];
+  for (const [key, st] of stats) {
+    if (st.values.size < LEGEND_MIN_DISTINCT) continue;
+    if (st.total === 0 || st.numeric / st.total < 0.8) continue;
+    out.push({ key, distinct: st.values.size });
+  }
+  return out.sort((a, b) => b.distinct - a.distinct || a.key.localeCompare(b.key));
+}
+
+// Valores distintos del legendKey entre las features (vacíos y nulos fuera).
+function legendKeyDistinctValues(geo, legendKey) {
+  const values = new Set();
+  for (const feature of (geo && geo.features) || []) {
+    const props = feature && feature.properties;
+    if (!props || !(legendKey in props)) continue;
+    const raw = props[legendKey];
+    if (raw == null || String(raw).trim() === '') continue;
+    values.add(String(raw).trim());
+  }
+  return values;
+}
+
+// Audita la coherencia de leyenda de los mapas publicados. Devuelve:
+//   - issues: líneas legibles, una por incidencia
+//   - affected: slugs con al menos una incidencia
+//   - details: { slug: { legendKey, legendTitle, legendFormat, distinct,
+//     candidates, issues } } solo para los mapas con legendKey
+function auditLegendCoherence(maps) {
+  const issues = [];
+  const details = {};
+  const affected = new Set();
+  const list = (Array.isArray(maps) ? maps : [])
+    .filter(m => m && m.id)
+    .slice()
+    .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  for (const map of list) {
+    const legendKey = String(map.legendKey == null ? '' : map.legendKey).trim();
+    if (!legendKey) continue; // «sin legendKey» no es competencia de este check
+
+    const legendTitle = String(map.legendTitle == null ? '' : map.legendTitle).trim();
+    const legendFormat = String(map.legendFormat == null ? '' : map.legendFormat).trim().toLowerCase();
+    let geo = null;
+    try {
+      geo = map.geojsonText ? JSON.parse(map.geojsonText) : null;
+    } catch (_) {
+      geo = null; // geojson inválido: lo reporta auditMap
+    }
+
+    const localIssues = [];
+    let distinct = 0;
+    let candidates = [];
+    if (geo && Array.isArray(geo.features)) {
+      distinct = legendKeyDistinctValues(geo, legendKey).size;
+      if (LEGEND_CATEGORICAL_FORMATS.has(legendFormat)) {
+        candidates = legendNumericCandidates(geo, legendKey);
+        if (candidates.length) {
+          const top = candidates[0];
+          localIssues.push(
+            `legendKey categórico «${legendKey}» (legendFormat=${legendFormat || 'sin formato'}) ` +
+            `con clave numérica disponible «${top.key}» (${top.distinct} valores distintos)`
+          );
+        }
+      }
+      if (distinct < LEGEND_MIN_DISTINCT) {
+        localIssues.push(
+          `legendKey «${legendKey}» solo tiene ${distinct} valor(es) distinto(s) ` +
+          `(mínimo ${LEGEND_MIN_DISTINCT})`
+        );
+      }
+    }
+
+    if (!legendTitle) localIssues.push(`legendTitle ausente para legendKey «${legendKey}»`);
+
+    details[map.id] = { legendKey, legendTitle, legendFormat, distinct, candidates, issues: localIssues };
+    if (!localIssues.length) continue;
+    affected.add(map.id);
+    for (const issue of localIssues) issues.push(`${map.id}: ${issue}`);
+  }
+
+  return { issues, affected: [...affected].sort(), details };
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -1984,6 +2125,8 @@ async function main() {
         tags: extractField(doc, 'tags'),
         featureCount: extractField(doc, 'featureCount'),
         legendKey: extractField(doc, 'legendKey'),
+        legendTitle: extractField(doc, 'legendTitle'),
+        legendFormat: extractField(doc, 'legendFormat'),
         geojsonText: extractField(doc, 'geojsonText') || '',
         rawDoc: doc,
       };
@@ -2104,10 +2247,30 @@ async function main() {
   }
   if (DRY_RUN) hygieneErrors += hygieneFixSlugs.length;
 
+  // 14. Coherencia de leyenda (legendKey/legendTitle/legendFormat).
+  let legendCoherence = null;
+  try {
+    legendCoherence = auditLegendCoherence(published);
+  } catch (e) {
+    legendCoherence = {
+      issues: [`no se pudo auditar la coherencia de leyenda: ${e.message}`],
+      affected: [],
+      details: {},
+    };
+  }
+  console.log('LEYENDAS | ISSUES');
+  console.log('---------|-------');
+  if (legendCoherence.issues.length === 0) {
+    console.log(`OK: ${Object.keys(legendCoherence.details).length} leyendas con ≥${LEGEND_MIN_DISTINCT} valores distintos, legendTitle y formato coherente`);
+  } else {
+    for (const issue of legendCoherence.issues) console.log(`LEYENDA: ${issue}`);
+  }
+  console.log('');
+
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + hygieneErrors;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + hygieneErrors + legendCoherence.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -2240,6 +2403,7 @@ async function main() {
   console.log(`Cobertura landings/OG (check 11): ${coverage.issues.length === 0 ? 'OK' : `${coverage.issues.length} incidencias`}`);
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
+  console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -2307,6 +2471,12 @@ module.exports = {
   shortenDescription,
   expandDescription,
   auditMetadataHygiene,
+  LEGEND_MIN_DISTINCT,
+  LEGEND_CATEGORICAL_FORMATS,
+  isLegendNumericLike,
+  legendNumericCandidates,
+  legendKeyDistinctValues,
+  auditLegendCoherence,
   parseLegendNumber,
   hexToHsl,
   hslToHex,

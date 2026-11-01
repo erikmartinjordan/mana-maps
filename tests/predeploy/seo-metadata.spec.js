@@ -10,6 +10,9 @@ const {
   parseLandingMetadata,
   auditLandingMetadata,
   auditMetadataHygiene,
+  auditLegendCoherence,
+  legendNumericCandidates,
+  isLegendNumericLike,
   normalizeDataDate,
   isValidIsoDataDate,
   isValidDescription,
@@ -382,3 +385,114 @@ test('area-with-point detection ignores proper nouns that look like areas', () =
   expect(isAreaEntityName('Desierto del Sahara')).toBe(true);
   expect(isAreaEntityName('Océano Pacífico')).toBe(true);
 });
+
+// Regresión del check 14: coherencia de leyenda. La leyenda del mapa destacado
+// necesita un legendKey con ≥3 valores distintos, un legendTitle y un formato
+// que no sea categórico cuando el mapa ya tiene una clave numérica con rango
+// (casos biggest-earthquakes-world y submarine-fiber-cables).
+function legendMap(id, { legendKey, legendTitle, legendFormat, props }) {
+  return {
+    id,
+    legendKey,
+    legendTitle,
+    legendFormat,
+    geojsonText: JSON.stringify({
+      type: 'FeatureCollection',
+      features: props.map((p, i) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [i, i] },
+        properties: p,
+      })),
+    }),
+  };
+}
+
+test('legend coherence accepts numeric ramps with title and range', () => {
+  const result = auditLegendCoherence([
+    legendMap('magnitud-ok', {
+      legendKey: 'Magnitud',
+      legendTitle: 'Magnitud (escala de Richter)',
+      legendFormat: 'number',
+      props: [{ Magnitud: '7,0' }, { Magnitud: '7,5' }, { Magnitud: '8,2' }, { Magnitud: '9,5' }],
+    }),
+    legendMap('categorica-ok', {
+      legendKey: 'Tipo',
+      legendTitle: 'Tipo de instalación',
+      legendFormat: 'category',
+      props: [{ Tipo: 'Nuclear' }, { Tipo: 'Hidroeléctrica' }, { Tipo: 'Solar' }],
+    }),
+  ]);
+  expect(result.issues).toEqual([]);
+  expect(result.affected).toEqual([]);
+  expect(result.details['magnitud-ok'].distinct).toBe(4);
+});
+
+test('legend coherence flags categorical legend key when a numeric key has a range', () => {
+  // Caso biggest-earthquakes-world / submarine-fiber-cables: la leyenda
+  // categórica oculta la rampa de una clave numérica con muchos valores.
+  const result = auditLegendCoherence([
+    legendMap('categorica-con-rampa', {
+      legendKey: 'Tipo',
+      legendTitle: 'Tipo de evento',
+      legendFormat: 'category',
+      props: [
+        { Tipo: 'Histórico M≥8', Magnitud: '7,0' },
+        { Tipo: 'Histórico M≥8', Magnitud: '8,2' },
+        { Tipo: 'Histórico M≥8', Magnitud: '9,5' },
+      ],
+    }),
+  ]);
+  expect(result.affected).toEqual(['categorica-con-rampa']);
+  const issues = result.issues.join('\n');
+  expect(issues).toContain('categorica-con-rampa: legendKey categórico «Tipo»');
+  expect(issues).toContain('clave numérica disponible «Magnitud» (3 valores distintos)');
+  expect(result.details['categorica-con-rampa'].candidates[0].key).toBe('Magnitud');
+});
+
+test('legend coherence flags legend keys with fewer than three values and missing title', () => {
+  const result = auditLegendCoherence([
+    legendMap('pocos-valores', {
+      legendKey: 'Estado',
+      legendFormat: 'category',
+      props: [{ Estado: 'En servicio' }, { Estado: 'En servicio' }, { Estado: 'En proyecto' }],
+    }),
+    legendMap('sin-title', {
+      legendKey: 'Altitud',
+      legendTitle: '   ',
+      legendFormat: 'number',
+      props: [{ Altitud: '100 m' }, { Altitud: '200 m' }, { Altitud: '300 m' }],
+    }),
+  ]);
+  expect(result.affected).toEqual(['pocos-valores', 'sin-title']);
+  const issues = result.issues.join('\n');
+  expect(issues).toContain('pocos-valores: legendKey «Estado» solo tiene 2 valor(es) distinto(s)');
+  expect(issues).toContain('pocos-valores: legendTitle ausente');
+  expect(issues).toContain('sin-title: legendTitle ausente');
+  // El mapa sin legendKey no entra en este check (otra tarea lo cubre).
+  const noKey = auditLegendCoherence([legendMap('sin-key', { props: [{ Dato: '1' }] })]);
+  expect(noKey.issues).toEqual([]);
+  expect(noKey.details).toEqual({});
+});
+
+test('numeric legend candidates ignore text, dates and style keys', () => {
+  expect(isLegendNumericLike('8.849 m')).toBe(true);
+  expect(isLegendNumericLike('-6,6 %')).toBe(true);
+  expect(isLegendNumericLike('45.000')).toBe(true);
+  expect(isLegendNumericLike('Histórico M≥8')).toBe(false);
+  expect(isLegendNumericLike('2024-01-01')).toBe(false);
+  expect(isLegendNumericLike('El volcán de 5.000 m')).toBe(false);
+
+  const geo = JSON.parse(legendMap('candidatos', {
+    legendKey: 'Tipo',
+    legendTitle: 'Tipo',
+    legendFormat: 'category',
+    props: [
+      { Tipo: 'A', Altitud: '1.000 m', Fecha: '2020', Descripcion: 'Volcán de 1.000 m', _manaColor: '#ff0000' },
+      { Tipo: 'A', Altitud: '2.000 m', Fecha: '2021', Descripcion: 'Volcán de 2.000 m', _manaColor: '#00ff00' },
+      { Tipo: 'A', Altitud: '3.000 m', Fecha: '2022', Descripcion: 'Volcán de 3.000 m', _manaColor: '#0000ff' },
+    ],
+  }).geojsonText);
+  const candidates = legendNumericCandidates(geo, 'Tipo');
+  expect(candidates.map(c => c.key)).toEqual(['Altitud']);
+});
+
