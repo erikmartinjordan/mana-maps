@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-11-01",
+    "event": "La sonda Hera de la ESA llega el 4 de noviembre de 2026 al sistema binario Didymos para estudiar Dimorphos, el primer asteroide cuya órbita fue desviada por la humanidad con DART en 2022 (1 de noviembre de 2026)",
+    "mapSlug": "impact-craters-world",
+    "sourceUrls": [
+      "https://www.lavanguardia.com/ciencia/20261101/11670447/sonda-europea-hera-llega-primer-asteroide-desviado-humanidad.html",
+      "https://www.esa.int/Space_Safety/Hera/First_light_Hera_resolves_two_asteroids_instead_of_one",
+      "https://www.esa.int/Space_Safety/Hera",
+      "https://dart.jhuapl.edu/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "hera-llega-asteroide-dimorphos",
+        "url": "/news/hera-llega-asteroide-dimorphos/",
+        "title": "Hera llega el 4 de noviembre al asteroide que desvió la humanidad",
+        "description": "La sonda Hera llega el 4 de noviembre a Didymos para estudiar Dimorphos, el primer asteroide desviado. El mapa de cráteres de impacto da escala al riesgo."
+      },
+      "en": {
+        "slug": "hera-reaches-asteroid-dimorphos",
+        "url": "/en/news/hera-reaches-asteroid-dimorphos/",
+        "title": "Hera reaches the asteroid humanity deflected on 4 November",
+        "description": "ESA's Hera probe reaches Didymos on 4 November to survey Dimorphos, the first asteroid deflected by humans. The impact-crater map puts the risk in perspective."
+      }
+    }
+  },
+  {
     "date": "2026-10-31",
     "event": "La Guardia Civil y la Policía Nacional detienen a diez presuntos dinamizadores de Blocus en Barcelona, Valencia, Tenerife, Bilbao y Málaga antes de las convocatorias de Halloween; Barcelona cerró el 24-O con 133 detenidos, 89 menores (30-31 de octubre de 2026)",
     "mapSlug": "internet-users-world",
