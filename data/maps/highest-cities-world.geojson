@@ -1,0 +1,1055 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "La Rinconada",
+        "name": "La Rinconada",
+        "_manaColor": "#a03608",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 66,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Puno",
+        "Elevación": "5.100 m",
+        "Altitud": 5100,
+        "Población": "29.678 hab. (2024)",
+        "Población (hab.)": 29678,
+        "Año": 2024,
+        "Presión atmosférica": "53 % del nivel del mar",
+        "Hierve el agua a": "83 °C",
+        "Dato": "5.100 m · 29.678 hab. (2024) · agua a 83 °C",
+        "Description": "Núcleo minero de oro en los Andes peruanos y el asentamiento permanente más alto del planeta. A 5.100 m el aire contiene aproximadamente la mitad de oxígeno que al nivel del mar."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -69.446389,
+          -14.631667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "El Alto",
+        "name": "El Alto",
+        "_manaColor": "#a03608",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 48,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Bolivia",
+        "Región": "La Paz",
+        "Elevación": "4.150 m",
+        "Altitud": 4150,
+        "Población": "885.035 hab. (2024)",
+        "Población (hab.)": 885035,
+        "Año": 2024,
+        "Presión atmosférica": "60 % del nivel del mar",
+        "Hierve el agua a": "86 °C",
+        "Dato": "4.150 m · 885.035 hab. (2024) · agua a 86 °C",
+        "Description": "Ciudad satélite de La Paz y la única aglomeración de más de un millón de habitantes por encima de 4.000 m. Su aeropuerto internacional está a 4.058 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.163333,
+          -16.504722
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Potosí",
+        "name": "Potosí",
+        "_manaColor": "#c1440f",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 47,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Bolivia",
+        "Región": "Potosí",
+        "Elevación": "4.067 m",
+        "Altitud": 4067,
+        "Población": "267.907 hab. (2021)",
+        "Población (hab.)": 267907,
+        "Año": 2021,
+        "Presión atmosférica": "60 % del nivel del mar",
+        "Hierve el agua a": "86 °C",
+        "Dato": "4.067 m · 267.907 hab. (2021) · agua a 86 °C",
+        "Description": "Ciudad minera del Cerro Rico, declarada Patrimonio de la Humanidad. A 4.067 m el agua hierve a 85 °C."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.753333,
+          -19.589167
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Shigatse",
+        "name": "Shigatse",
+        "_manaColor": "#c1440f",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 42,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "China",
+        "Región": "Tíbet",
+        "Elevación": "3.836 m",
+        "Altitud": 3836,
+        "Población": "117.000 hab. (2013)",
+        "Población (hab.)": 117000,
+        "Año": 2013,
+        "Presión atmosférica": "62 % del nivel del mar",
+        "Hierve el agua a": "87 °C",
+        "Dato": "3.836 m · 117.000 hab. (2013) · agua a 87 °C",
+        "Description": "Segunda ciudad del Tíbet y sede tradicional del panchen lama, en plena meseta tibetana."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.88333,
+          29.25
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Puno",
+        "name": "Puno",
+        "_manaColor": "#c1440f",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 42,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Puno",
+        "Elevación": "3.830 m",
+        "Altitud": 3830,
+        "Población": "135.288 hab. (2017)",
+        "Población (hab.)": 135288,
+        "Año": 2017,
+        "Presión atmosférica": "62 % del nivel del mar",
+        "Hierve el agua a": "87 °C",
+        "Dato": "3.830 m · 135.288 hab. (2017) · agua a 87 °C",
+        "Description": "Capital del altiplano peruano a orillas del lago Titicaca, el lago navegable más alto del mundo."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.023611,
+          -15.843333
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Juliaca",
+        "name": "Juliaca",
+        "_manaColor": "#df5418",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 42,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Puno",
+        "Elevación": "3.825 m",
+        "Altitud": 3825,
+        "Población": "276.110 hab. (2017)",
+        "Población (hab.)": 276110,
+        "Año": 2017,
+        "Presión atmosférica": "62 % del nivel del mar",
+        "Hierve el agua a": "87 °C",
+        "Dato": "3.825 m · 276.110 hab. (2017) · agua a 87 °C",
+        "Description": "Nudo comercial y de transportes del sur andino, en la meseta del Collao."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.126944,
+          -15.490833
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Oruro",
+        "name": "Oruro",
+        "_manaColor": "#df5418",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 40,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Bolivia",
+        "Región": "Oruro",
+        "Elevación": "3.735 m",
+        "Altitud": 3735,
+        "Población": "298.350 hab. (2024)",
+        "Población (hab.)": 298350,
+        "Año": 2024,
+        "Presión atmosférica": "63 % del nivel del mar",
+        "Hierve el agua a": "87 °C",
+        "Dato": "3.735 m · 298.350 hab. (2024) · agua a 87 °C",
+        "Description": "Ciudad minera famosa por su carnaval, declarado Patrimonio de la Humanidad por la UNESCO."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.116667,
+          -17.966667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Lhasa",
+        "name": "Lhasa",
+        "_manaColor": "#df5418",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 39,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "China",
+        "Región": "Tíbet",
+        "Elevación": "3.656 m",
+        "Altitud": 3656,
+        "Población": "464.736 hab. (2020)",
+        "Población (hab.)": 464736,
+        "Año": 2020,
+        "Presión atmosférica": "64 % del nivel del mar",
+        "Hierve el agua a": "88 °C",
+        "Dato": "3.656 m · 464.736 hab. (2020) · agua a 88 °C",
+        "Description": "Capital del Tíbet y centro espiritual del budismo tibetano, a 3.656 m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1175,
+          29.6539
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "La Paz",
+        "name": "La Paz",
+        "_manaColor": "#e46d3a",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 39,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Bolivia",
+        "Región": "La Paz",
+        "Elevación": "3.650 m",
+        "Altitud": 3650,
+        "Población": "755.732 hab. (2024)",
+        "Población (hab.)": 755732,
+        "Año": 2024,
+        "Presión atmosférica": "64 % del nivel del mar",
+        "Hierve el agua a": "88 °C",
+        "Dato": "3.650 m · 755.732 hab. (2024) · agua a 88 °C",
+        "Description": "Sede de gobierno de Bolivia y la capital administrativa más alta del mundo."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.133333,
+          -16.495833
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Cusco",
+        "name": "Cusco",
+        "_manaColor": "#e46d3a",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 34,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Cusco",
+        "Elevación": "3.399 m",
+        "Altitud": 3399,
+        "Población": "428.450 hab. (2017)",
+        "Población (hab.)": 428450,
+        "Año": 2017,
+        "Presión atmosférica": "66 % del nivel del mar",
+        "Hierve el agua a": "88 °C",
+        "Dato": "3.399 m · 428.450 hab. (2017) · agua a 88 °C",
+        "Description": "Antigua capital del Imperio inca y principal puerta de entrada a Machu Picchu."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.978611,
+          -13.516944
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Huancayo",
+        "name": "Huancayo",
+        "_manaColor": "#e46d3a",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 31,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Junín",
+        "Elevación": "3.259 m",
+        "Altitud": 3259,
+        "Población": "456.250 hab. (2017)",
+        "Población (hab.)": 456250,
+        "Año": 2017,
+        "Presión atmosférica": "67 % del nivel del mar",
+        "Hierve el agua a": "89 °C",
+        "Dato": "3.259 m · 456.250 hab. (2017) · agua a 89 °C",
+        "Description": "Capital del valle del Mantaro, en la sierra central del Perú."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.216667,
+          -12.066667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Shangri-La",
+        "name": "Shangri-La",
+        "_manaColor": "#e58861",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 30,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "China",
+        "Región": "Yunnan",
+        "Elevación": "3.160 m",
+        "Altitud": 3160,
+        "Población": "186.412 hab. (2020)",
+        "Población (hab.)": 186412,
+        "Año": 2020,
+        "Presión atmosférica": "68 % del nivel del mar",
+        "Hierve el agua a": "89 °C",
+        "Dato": "3.160 m · 186.412 hab. (2020) · agua a 89 °C",
+        "Description": "Ciudad de Yunnan renombrada en 2001 a partir de la novela «Horizonte perdido»."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          99.7025,
+          27.825
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Huaraz",
+        "name": "Huaraz",
+        "_manaColor": "#e58861",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 28,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Áncash",
+        "Elevación": "3.052 m",
+        "Altitud": 3052,
+        "Población": "118.836 hab. (2017)",
+        "Población (hab.)": 118836,
+        "Año": 2017,
+        "Presión atmosférica": "69 % del nivel del mar",
+        "Hierve el agua a": "90 °C",
+        "Dato": "3.052 m · 118.836 hab. (2017) · agua a 90 °C",
+        "Description": "Capital de Áncash y base para explorar la Cordillera Blanca."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.533333,
+          -9.533333
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Ipiales",
+        "name": "Ipiales",
+        "_manaColor": "#e7a386",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 25,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Colombia",
+        "Región": "Nariño",
+        "Elevación": "2.898 m",
+        "Altitud": 2898,
+        "Población": "116.136 hab. (2018)",
+        "Población (hab.)": 116136,
+        "Año": 2018,
+        "Presión atmosférica": "70 % del nivel del mar",
+        "Hierve el agua a": "90 °C",
+        "Dato": "2.898 m · 116.136 hab. (2018) · agua a 90 °C",
+        "Description": "Ciudad fronteriza con Ecuador, conocida por el santuario de Las Lajas."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.640556,
+          0.828889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Quito",
+        "name": "Quito",
+        "_manaColor": "#e7a386",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 24,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Ecuador",
+        "Región": "Pichincha",
+        "Elevación": "2.850 m",
+        "Altitud": 2850,
+        "Población": "1.763.275 hab. (2022)",
+        "Población (hab.)": 1763275,
+        "Año": 2022,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "90 °C",
+        "Dato": "2.850 m · 1.763.275 hab. (2022) · agua a 90 °C",
+        "Description": "Capital de Ecuador, construida sobre un altiplano de la cordillera de los Andes."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.5125,
+          -0.22
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Debre Berhan",
+        "name": "Debre Berhan",
+        "_manaColor": "#e7a386",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 24,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Etiopía",
+        "Región": "Amhara",
+        "Elevación": "2.840 m",
+        "Altitud": 2840,
+        "Población": "160.408 hab. (2012)",
+        "Población (hab.)": 160408,
+        "Año": 2012,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "90 °C",
+        "Dato": "2.840 m · 160.408 hab. (2012) · agua a 90 °C",
+        "Description": "Ciudad de la región de Amhara que fue capital imperial en el siglo XV."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.533333,
+          9.678611
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Tunja",
+        "name": "Tunja",
+        "_manaColor": "#ebbda9",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 23,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Colombia",
+        "Región": "Boyacá",
+        "Elevación": "2.820 m",
+        "Altitud": 2820,
+        "Población": "179.205 hab. (2020)",
+        "Población (hab.)": 179205,
+        "Año": 2020,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "90 °C",
+        "Dato": "2.820 m · 179.205 hab. (2020) · agua a 90 °C",
+        "Description": "Capital del departamento de Boyacá, en la cordillera Oriental colombiana."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.361389,
+          5.540278
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Golmud",
+        "name": "Golmud",
+        "_manaColor": "#ebbda9",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 23,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "China",
+        "Región": "Qinghai",
+        "Elevación": "2.809 m",
+        "Altitud": 2809,
+        "Población": "221.863 hab. (2020)",
+        "Población (hab.)": 221863,
+        "Año": 2020,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "90 °C",
+        "Dato": "2.809 m · 221.863 hab. (2020) · agua a 90 °C",
+        "Description": "Ciudad-oasis de Qinghai y puerta del ferrocarril que cruza el Tíbet."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          94.904167,
+          36.402778
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Sucre",
+        "name": "Sucre",
+        "_manaColor": "#ebbda9",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 23,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Bolivia",
+        "Región": "Chuquisaca",
+        "Elevación": "2.790 m",
+        "Altitud": 2790,
+        "Población": "296.125 hab. (2024)",
+        "Población (hab.)": 296125,
+        "Año": 2024,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "91 °C",
+        "Dato": "2.790 m · 296.125 hab. (2024) · agua a 91 °C",
+        "Description": "Capital constitucional de Bolivia, con un centro histórico Patrimonio de la Humanidad."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.26,
+          -19.0475
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Ayacucho",
+        "name": "Ayacucho",
+        "_manaColor": "#f1d6cb",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Perú",
+        "Región": "Ayacucho",
+        "Elevación": "2.761 m",
+        "Altitud": 2761,
+        "Población": "180.766 hab. (2015)",
+        "Población (hab.)": 180766,
+        "Año": 2015,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "91 °C",
+        "Dato": "2.761 m · 180.766 hab. (2015) · agua a 91 °C",
+        "Description": "Ciudad andina conocida por sus iglesias coloniales y su Semana Santa."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.224444,
+          -13.163056
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Riobamba",
+        "name": "Riobamba",
+        "_manaColor": "#f1d6cb",
+        "_manaFillOpacity": 0.9,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#ffffff",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Ciudades de altura",
+        "_manaGroupId": 1,
+        "markerType": "emoji_mountain",
+        "_manaMarkerType": "emoji_mountain",
+        "_manaEmojiSize": 22,
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Mono, monospace",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "color": "#3b1a0c",
+          "haloColor": "#ffffff",
+          "haloWidth": 3,
+          "opacity": 1,
+          "offsetX": 0,
+          "offsetY": -30,
+          "placement": "auto"
+        },
+        "País": "Ecuador",
+        "Región": "Chimborazo",
+        "Elevación": "2.754 m",
+        "Altitud": 2754,
+        "Población": "177.213 hab. (2022)",
+        "Población (hab.)": 177213,
+        "Año": 2022,
+        "Presión atmosférica": "71 % del nivel del mar",
+        "Hierve el agua a": "91 °C",
+        "Dato": "2.754 m · 177.213 hab. (2022) · agua a 91 °C",
+        "Description": "Capital de Chimborazo, en el centro de los Andes ecuatorianos."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.648333,
+          -1.673056
+        ]
+      }
+    }
+  ]
+}

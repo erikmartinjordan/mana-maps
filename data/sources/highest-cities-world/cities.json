@@ -1,0 +1,240 @@
+{
+  "_source": "Wikipedia — List of highest large cities (ciudades de más de 100.000 habitantes por encima de 2.000 m), fichas de cada ciudad (elevación media) y censos nacionales: INEI 2017 (Perú), INE 2024 (Bolivia), DANE 2018 (Colombia), INEC 2022 (Ecuador), NBS 2020 (China), CSA 2007 (Etiopía). La Rinconada: INEI 2024. Presión y punto de ebullición calculados con la atmósfera estándar y la ecuación de Clausius-Clapeyron.",
+  "_date": "2026-11-01",
+  "fuente": "Wikipedia — List of highest large cities; fichas de ciudad y censos nacionales",
+  "fecha": "2026-11-01",
+  "nota": "Altitudes medias en metros sobre el nivel del mar. Población del núcleo urbano o municipio según la fuente indicada; año entre paréntesis. Una feature por ciudad.",
+  "ciudades": [
+    {
+      "nombre": "La Rinconada",
+      "pais": "Perú",
+      "region": "Puno",
+      "altitudM": 5100,
+      "poblacion": 29678,
+      "anioPoblacion": 2024,
+      "lng": -69.446389,
+      "lat": -14.631667,
+      "descripcion": "Núcleo minero de oro en los Andes peruanos y el asentamiento permanente más alto del planeta. A 5.100 m el aire contiene aproximadamente la mitad de oxígeno que al nivel del mar."
+    },
+    {
+      "nombre": "El Alto",
+      "pais": "Bolivia",
+      "region": "La Paz",
+      "altitudM": 4150,
+      "poblacion": 885035,
+      "anioPoblacion": 2024,
+      "lng": -68.163333,
+      "lat": -16.504722,
+      "descripcion": "Ciudad satélite de La Paz y la única aglomeración de más de un millón de habitantes por encima de 4.000 m. Su aeropuerto internacional está a 4.058 m."
+    },
+    {
+      "nombre": "Potosí",
+      "pais": "Bolivia",
+      "region": "Potosí",
+      "altitudM": 4067,
+      "poblacion": 267907,
+      "anioPoblacion": 2021,
+      "lng": -65.753333,
+      "lat": -19.589167,
+      "descripcion": "Ciudad minera del Cerro Rico, declarada Patrimonio de la Humanidad. A 4.067 m el agua hierve a 85 °C."
+    },
+    {
+      "nombre": "Shigatse",
+      "pais": "China",
+      "region": "Tíbet",
+      "altitudM": 3836,
+      "poblacion": 117000,
+      "anioPoblacion": 2013,
+      "lng": 88.88333,
+      "lat": 29.25,
+      "descripcion": "Segunda ciudad del Tíbet y sede tradicional del panchen lama, en plena meseta tibetana."
+    },
+    {
+      "nombre": "Puno",
+      "pais": "Perú",
+      "region": "Puno",
+      "altitudM": 3830,
+      "poblacion": 135288,
+      "anioPoblacion": 2017,
+      "lng": -70.023611,
+      "lat": -15.843333,
+      "descripcion": "Capital del altiplano peruano a orillas del lago Titicaca, el lago navegable más alto del mundo."
+    },
+    {
+      "nombre": "Juliaca",
+      "pais": "Perú",
+      "region": "Puno",
+      "altitudM": 3825,
+      "poblacion": 276110,
+      "anioPoblacion": 2017,
+      "lng": -70.126944,
+      "lat": -15.490833,
+      "descripcion": "Nudo comercial y de transportes del sur andino, en la meseta del Collao."
+    },
+    {
+      "nombre": "Oruro",
+      "pais": "Bolivia",
+      "region": "Oruro",
+      "altitudM": 3735,
+      "poblacion": 298350,
+      "anioPoblacion": 2024,
+      "lng": -67.116667,
+      "lat": -17.966667,
+      "descripcion": "Ciudad minera famosa por su carnaval, declarado Patrimonio de la Humanidad por la UNESCO."
+    },
+    {
+      "nombre": "Lhasa",
+      "pais": "China",
+      "region": "Tíbet",
+      "altitudM": 3656,
+      "poblacion": 464736,
+      "anioPoblacion": 2020,
+      "lng": 91.1175,
+      "lat": 29.6539,
+      "descripcion": "Capital del Tíbet y centro espiritual del budismo tibetano, a 3.656 m."
+    },
+    {
+      "nombre": "La Paz",
+      "pais": "Bolivia",
+      "region": "La Paz",
+      "altitudM": 3650,
+      "poblacion": 755732,
+      "anioPoblacion": 2024,
+      "lng": -68.133333,
+      "lat": -16.495833,
+      "descripcion": "Sede de gobierno de Bolivia y la capital administrativa más alta del mundo."
+    },
+    {
+      "nombre": "Cusco",
+      "pais": "Perú",
+      "region": "Cusco",
+      "altitudM": 3399,
+      "poblacion": 428450,
+      "anioPoblacion": 2017,
+      "lng": -71.978611,
+      "lat": -13.516944,
+      "descripcion": "Antigua capital del Imperio inca y principal puerta de entrada a Machu Picchu."
+    },
+    {
+      "nombre": "Huancayo",
+      "pais": "Perú",
+      "region": "Junín",
+      "altitudM": 3259,
+      "poblacion": 456250,
+      "anioPoblacion": 2017,
+      "lng": -75.216667,
+      "lat": -12.066667,
+      "descripcion": "Capital del valle del Mantaro, en la sierra central del Perú."
+    },
+    {
+      "nombre": "Shangri-La",
+      "pais": "China",
+      "region": "Yunnan",
+      "altitudM": 3160,
+      "poblacion": 186412,
+      "anioPoblacion": 2020,
+      "lng": 99.7025,
+      "lat": 27.825,
+      "descripcion": "Ciudad de Yunnan renombrada en 2001 a partir de la novela «Horizonte perdido»."
+    },
+    {
+      "nombre": "Huaraz",
+      "pais": "Perú",
+      "region": "Áncash",
+      "altitudM": 3052,
+      "poblacion": 118836,
+      "anioPoblacion": 2017,
+      "lng": -77.533333,
+      "lat": -9.533333,
+      "descripcion": "Capital de Áncash y base para explorar la Cordillera Blanca."
+    },
+    {
+      "nombre": "Ipiales",
+      "pais": "Colombia",
+      "region": "Nariño",
+      "altitudM": 2898,
+      "poblacion": 116136,
+      "anioPoblacion": 2018,
+      "lng": -77.640556,
+      "lat": 0.828889,
+      "descripcion": "Ciudad fronteriza con Ecuador, conocida por el santuario de Las Lajas."
+    },
+    {
+      "nombre": "Quito",
+      "pais": "Ecuador",
+      "region": "Pichincha",
+      "altitudM": 2850,
+      "poblacion": 1763275,
+      "anioPoblacion": 2022,
+      "lng": -78.5125,
+      "lat": -0.22,
+      "descripcion": "Capital de Ecuador, construida sobre un altiplano de la cordillera de los Andes."
+    },
+    {
+      "nombre": "Debre Berhan",
+      "pais": "Etiopía",
+      "region": "Amhara",
+      "altitudM": 2840,
+      "poblacion": 160408,
+      "anioPoblacion": 2012,
+      "lng": 39.533333,
+      "lat": 9.678611,
+      "descripcion": "Ciudad de la región de Amhara que fue capital imperial en el siglo XV."
+    },
+    {
+      "nombre": "Tunja",
+      "pais": "Colombia",
+      "region": "Boyacá",
+      "altitudM": 2820,
+      "poblacion": 179205,
+      "anioPoblacion": 2020,
+      "lng": -73.361389,
+      "lat": 5.540278,
+      "descripcion": "Capital del departamento de Boyacá, en la cordillera Oriental colombiana."
+    },
+    {
+      "nombre": "Golmud",
+      "pais": "China",
+      "region": "Qinghai",
+      "altitudM": 2809,
+      "poblacion": 221863,
+      "anioPoblacion": 2020,
+      "lng": 94.904167,
+      "lat": 36.402778,
+      "descripcion": "Ciudad-oasis de Qinghai y puerta del ferrocarril que cruza el Tíbet."
+    },
+    {
+      "nombre": "Sucre",
+      "pais": "Bolivia",
+      "region": "Chuquisaca",
+      "altitudM": 2790,
+      "poblacion": 296125,
+      "anioPoblacion": 2024,
+      "lng": -65.26,
+      "lat": -19.0475,
+      "descripcion": "Capital constitucional de Bolivia, con un centro histórico Patrimonio de la Humanidad."
+    },
+    {
+      "nombre": "Ayacucho",
+      "pais": "Perú",
+      "region": "Ayacucho",
+      "altitudM": 2761,
+      "poblacion": 180766,
+      "anioPoblacion": 2015,
+      "lng": -74.224444,
+      "lat": -13.163056,
+      "descripcion": "Ciudad andina conocida por sus iglesias coloniales y su Semana Santa."
+    },
+    {
+      "nombre": "Riobamba",
+      "pais": "Ecuador",
+      "region": "Chimborazo",
+      "altitudM": 2754,
+      "poblacion": 177213,
+      "anioPoblacion": 2022,
+      "lng": -78.648333,
+      "lat": -1.673056,
+      "descripcion": "Capital de Chimborazo, en el centro de los Andes ecuatorianos."
+    }
+  ]
+}
