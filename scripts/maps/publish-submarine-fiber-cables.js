@@ -2,9 +2,11 @@
 // ── publish-submarine-fiber-cables.js ─────────────────────────────────────
 // Actualiza el mapa `submarine-fiber-cables` en Firestore a partir de
 // data/maps/submarine-fiber-cables.geojson:
-//   · cables en servicio → azul (#1D4ED8)
-//   · Pan-Arctic Cable (en proyecto) → naranja (#EA580C)
-//   · leyenda categórica por «Estado»
+//   · cables en servicio → rampa secuencial azul claro→oscuro ordenada por
+//     «Longitud del cable (km)» (AGENTS.md §3)
+//   · Pan-Arctic Cable (en proyecto) → paso más claro de la rampa y
+//     `Estado: En proyecto` en el popup
+//   · leyenda numérica por «Longitud del cable (km)»
 // Fuente de los cables en servicio: TeleGeography / submarinecablemap.com.
 // Pan-Arctic Cable: Comisión Europea (20-10-2026), Euronews y heise online;
 // el trazado es indicativo porque la ruta no está fijada.
@@ -22,8 +24,11 @@ const ROOT = path.join(__dirname, '..', '..');
 const GEO_PATH = path.join(ROOT, 'data', 'maps', 'submarine-fiber-cables.geojson');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const COLOR_EXISTING = '#1D4ED8';
-const COLOR_PLANNED = '#EA580C';
+// Rampa secuencial monocromática (tono 217°) de claro a oscuro. El índice en
+// la rampa crece con la longitud del cable; el paso 0 (el más claro) queda para
+// el Pan-Arctic Cable, que todavía no tiene longitud asignada.
+const COLOR_RAMP = ['#b8cbea', '#96b4e4', '#729cde', '#4e83da', '#276bd8', '#1d59b9', '#144799', '#0d3677'];
+const LEGEND_KEY = 'Longitud del cable (km)';
 
 function httpsRequest(url, options, body) {
   return new Promise((resolve, reject) => {
@@ -164,10 +169,27 @@ function validate(geo) {
     names.add(p._manaName);
   }
   const colors = new Set(geo.features.map(f => f.properties._manaColor));
-  if (colors.size !== 2) errors.push(`se esperaban 2 colores, hay ${colors.size}`);
-  if (!colors.has(COLOR_EXISTING) || !colors.has(COLOR_PLANNED)) errors.push('faltan los colores existente/planificado');
+  for (const c of colors) {
+    if (!COLOR_RAMP.includes(c)) errors.push(`color fuera de la rampa azul: ${c}`);
+  }
+  if (colors.size < 3) errors.push(`se esperaban ≥3 pasos de rampa para la leyenda, hay ${colors.size}`);
   const planned = geo.features.filter(f => f.properties.Estado === 'En proyecto');
   if (planned.length !== 1) errors.push(`se esperaba 1 cable en proyecto, hay ${planned.length}`);
+  else if (planned[0].properties._manaColor !== COLOR_RAMP[0]) {
+    errors.push('el cable en proyecto debe usar el paso más claro de la rampa');
+  }
+  // Rampa ordenada por el dato: a más longitud, paso igual o más oscuro.
+  const servingSorted = geo.features
+    .filter(f => f.properties.Estado === 'En servicio')
+    .sort((a, b) => a.properties[LEGEND_KEY] - b.properties[LEGEND_KEY]);
+  let prevStep = -1;
+  for (const f of servingSorted) {
+    const len = f.properties[LEGEND_KEY];
+    if (!Number.isFinite(len) || len <= 0) { errors.push(`${f.properties._manaName}: longitud inválida`); continue; }
+    const step = COLOR_RAMP.indexOf(f.properties._manaColor);
+    if (step < prevStep) errors.push(`${f.properties._manaName}: rampa no ordenada por longitud`);
+    prevStep = step;
+  }
   return errors;
 }
 
@@ -192,19 +214,12 @@ async function main() {
     geojsonText: fsStr(geojsonText),
     geojsonChunked: fsNull(),
     featureCount: fsInt(geo.features.length),
-    description: fsStr('Cables troncales de fibra óptica submarina en servicio (azul) y el Pan-Arctic Cable en proyecto (naranja), con trazado indicativo entre Groenlandia y Europa. Cada cable en servicio sigue la curva del gran círculo entre puntos de aterrizaje; la ruta del cable en proyecto no está fijada por la Comisión Europea.'),
+    description: fsStr('Cables troncales de fibra óptica submarina en servicio, con una rampa azul ordenada por longitud (5.900–45.000 km), y el Pan-Arctic Cable en proyecto en el paso más claro, con trazado indicativo.'),
     dataSource: fsStr('TeleGeography / submarinecablemap.com (puntos de aterrizaje oficiales) — trazado interpolado por gran círculo; Comisión Europea (20-10-2026), Euronews y heise online para el Pan-Arctic Cable (trazado indicativo); GEBCO/NOAA para contexto oceánico'),
     dataDate: fsStr('2026-10-20'),
-    legendKey: fsStr('Estado'),
-    legendTitle: fsStr('Estado del cable'),
-    legendFormat: fsStr('category'),
-    legend: fsMap({
-      title: 'Estado del cable',
-      steps: [
-        { v: 1, c: COLOR_EXISTING, label: 'En servicio' },
-        { v: 2, c: COLOR_PLANNED, label: 'En proyecto' }
-      ]
-    }),
+    legendKey: fsStr(LEGEND_KEY),
+    legendTitle: fsStr(LEGEND_KEY),
+    legendFormat: fsStr('number'),
     mapPreview: fsMap({
       bbox: { arrayValue: { values: preview.bbox.map(v => fsNum(v)) } },
       kind: fsStr(preview.kind || 'geometry'),
@@ -247,6 +262,11 @@ async function main() {
     process.exit(1);
   }
   console.log('Documento actualizado.');
+
+  // Retira la leyenda categórica legada por «Estado»: un PATCH con la máscara
+  // sobre `legend` y documento vacío elimina el campo si aún existe.
+  const delRes = await firestoreRequest(token, 'PATCH', `/${COLLECTION}/${SLUG}?updateMask.fieldPaths=legend`, { fields: {} });
+  if (delRes.status >= 400) console.warn('No se pudo eliminar el campo legend legado', delRes.status);
 
   const verify = await firestoreRequest(token, 'GET', `/${COLLECTION}/${SLUG}`);
   if (verify.status === 200) {
