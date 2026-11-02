@@ -1,5 +1,31 @@
 [
   {
+    "date": "2026-11-02",
+    "event": "La COP31 abre el 9 de noviembre en Antalya con 85 jefes de Estado o Gobierno confirmados y el objetivo de elevar la electricidad al 35% del consumo energético mundial en 2035; España llega con las renovables como prioridad (2 de noviembre de 2026)",
+    "mapSlug": "renewable-energy-world",
+    "sourceUrls": [
+      "https://efeverde.com/turquia-se-prepara-cop31-antalya-capital-turismo-playa/",
+      "https://efeverde.com/cop31-turquia-promesas-hechos-crisis-climatica/",
+      "https://www.iberoeconomia.es/mercados/espana-prepara-su-posicion-ante-la-cop31-renovables-ciencia-y-cooperacion-internacional-centran-la-agenda-climatica/",
+      "https://efeverde.com/apuesta-por-renovables-entre-prioridades-de-espana-cop31/",
+      "https://unfccc.int/cop31"
+    ],
+    "translations": {
+      "es": {
+        "slug": "cop31-antalya-electrificacion-renovables",
+        "url": "/news/cop31-antalya-electrificacion-renovables/",
+        "title": "La COP31 llega a Antalya con la electrificación como meta",
+        "description": "La cumbre del clima abre el 9 de noviembre en Antalya con 85 jefes de Estado y el objetivo 35x35. El mapa de renovables muestra el punto de partida real."
+      },
+      "en": {
+        "slug": "cop31-antalya-electrification-goal",
+        "url": "/en/news/cop31-antalya-electrification-goal/",
+        "title": "COP31 arrives in Antalya with electrification as its goal",
+        "description": "The climate summit opens on 9 November in Antalya with 85 heads of state and the 35x35 goal. The renewable-energy map shows each country's starting point."
+      }
+    }
+  },
+  {
     "date": "2026-11-01",
     "event": "La sonda Hera de la ESA llega el 4 de noviembre de 2026 al sistema binario Didymos para estudiar Dimorphos, el primer asteroide cuya órbita fue desviada por la humanidad con DART en 2022 (1 de noviembre de 2026)",
     "mapSlug": "impact-craters-world",

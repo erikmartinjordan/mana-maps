@@ -226,6 +226,24 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/news/cop31-antalya-electrificacion-renovables/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/cop31-antalya-electrificacion-renovables/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/cop31-antalya-electrification-goal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/cop31-antalya-electrificacion-renovables/"/>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/news/cop31-antalya-electrification-goal/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/cop31-antalya-electrificacion-renovables/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/cop31-antalya-electrification-goal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/cop31-antalya-electrificacion-renovables/"/>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/news/hera-llega-asteroide-dimorphos/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/hera-llega-asteroide-dimorphos/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/hera-reaches-asteroid-dimorphos/"/>
