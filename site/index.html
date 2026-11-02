@@ -156,6 +156,10 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* El pie tiene margen inferior: sin flow-root ese margen colapsa fuera del
+   body y deja ver el fondo del html (banda clara) bajo el gradiente. */
+body { display: flow-root; }
+
 .frame {
   width: min(1120px, calc(100% - 40px));
   margin: 24px auto;
