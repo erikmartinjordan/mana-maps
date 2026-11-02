@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { buildRelatedIndex } = require('../../scripts/lib/related-maps');
+const { buildRelatedIndex, buildDiscoveryIndex } = require('../../scripts/lib/related-maps');
 const {
   auditSeoMetadata,
   parseCollectionLd,
@@ -209,6 +209,32 @@ test('buildRelatedIndex prioritizes shared tags and guarantees full coverage', (
   for (const map of maps) {
     expect(inbound.get(map.slug), `${map.slug} sin enlaces entrantes`).toBeGreaterThan(0);
   }
+});
+
+test('buildDiscoveryIndex links zero-view maps from the most visited landings', () => {
+  const maps = [
+    { slug: 'popular-eco', title: 'Economía', tags: ['Economía'], views: 50, createdAtMs: 1 },
+    { slug: 'popular-salud', title: 'Salud', tags: ['Salud'], views: 20, createdAtMs: 2 },
+    { slug: 'popular-cultura', title: 'Cultura', tags: ['Cultura'], views: 12, createdAtMs: 3 },
+    { slug: 'poco-visto', title: 'Poco visto', tags: ['Economía'], views: 5, createdAtMs: 4 },
+    { slug: 'cero-eco', title: 'Cero economía', tags: ['Economía'], views: 0, createdAtMs: 5 },
+    { slug: 'cero-salud', title: 'Cero salud', tags: ['Salud'], views: 0, createdAtMs: 6 },
+  ];
+  const index = buildDiscoveryIndex(maps, { minViews: 10, perHost: 1 });
+
+  // Cada mapa con cero visitas se enlaza desde el mapa más afín y con tráfico.
+  expect(index.get('popular-eco').map((m) => m.slug)).toEqual(['cero-eco']);
+  expect(index.get('popular-salud').map((m) => m.slug)).toEqual(['cero-salud']);
+  expect(index.has('popular-cultura')).toBe(false);
+
+  // Ningún host supera el límite y ningún mapa se enlaza a sí mismo.
+  for (const [host, targets] of index) {
+    expect(targets.length).toBeLessThanOrEqual(1);
+    for (const target of targets) expect(target.slug).not.toBe(host);
+  }
+
+  // Sin hosts con tráfico no se inventan enlaces.
+  expect(buildDiscoveryIndex(maps, { minViews: 100 }).size).toBe(0);
 });
 
 // Regresión del check 12: cada landing estática es una página SEO propia y

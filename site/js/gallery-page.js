@@ -88,7 +88,7 @@
       if (!key || seen[key]) return false;
       seen[key] = true;
       return true;
-    }).slice(0, 40);
+    });
   }
 
   async function remoteMaps() {

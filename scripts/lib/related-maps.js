@@ -9,6 +9,8 @@
 
 const DEFAULT_LIMIT = 4;
 const DEFAULT_MAX_LINKS = 5;
+const DEFAULT_DISCOVERY_MIN_VIEWS = 10;
+const DEFAULT_DISCOVERY_PER_HOST = 2;
 
 function slugOf(map) {
   return map && (map.slug || map.id) ? String(map.slug || map.id) : '';
@@ -20,6 +22,11 @@ function normTag(tag) {
 
 function tagsOf(map) {
   return (map && Array.isArray(map.tags) ? map.tags : []).map(normTag).filter(Boolean);
+}
+
+function viewsOf(map) {
+  const views = Number(map && map.views);
+  return isFinite(views) && views > 0 ? views : 0;
 }
 
 function createdMs(map) {
@@ -159,12 +166,63 @@ function buildRelatedIndex(maps, opts) {
   return index;
 }
 
-function relatedLinks(related, current) {
+// Mapas con cero visitas que deben ganar descubrimiento. Se enlazan desde las
+// landings con más tráfico (no desde cualquier mapa) y cada landing acepta como
+// máximo `perHost` enlaces extra para no diluir la sección «Más mapas».
+function buildDiscoveryIndex(maps, opts) {
+  const minViews = opts && Number.isFinite(opts.minViews)
+    ? opts.minViews
+    : DEFAULT_DISCOVERY_MIN_VIEWS;
+  const perHost = Math.max(1, (opts && opts.perHost) || DEFAULT_DISCOVERY_PER_HOST);
+  const list = (Array.isArray(maps) ? maps : [])
+    .filter((m) => slugOf(m))
+    .slice()
+    .sort(sortBySlug);
+  const index = new Map();
+  const stats = buildTagStats(list);
+  const hosts = list
+    .filter((m) => viewsOf(m) >= minViews)
+    .sort((a, b) => {
+      if (viewsOf(a) !== viewsOf(b)) return viewsOf(b) - viewsOf(a);
+      return sortBySlug(a, b);
+    });
+  if (!hosts.length) return index;
+
+  const targets = list
+    .filter((m) => viewsOf(m) === 0)
+    .sort((a, b) => {
+      if (createdMs(a) !== createdMs(b)) return createdMs(b) - createdMs(a);
+      return sortBySlug(a, b);
+    });
+
+  for (const target of targets) {
+    const targetSlug = slugOf(target);
+    const ranked = hosts
+      .filter((h) => slugOf(h) !== targetSlug && (index.get(slugOf(h)) || []).length < perHost)
+      .map((h) => ({ map: h, score: relatedScore(target, h, stats) }))
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (viewsOf(a.map) !== viewsOf(b.map)) return viewsOf(b.map) - viewsOf(a.map);
+        return sortBySlug(a.map, b.map);
+      });
+    const chosen = ranked[0];
+    if (!chosen) continue;
+    const hostSlug = slugOf(chosen.map);
+    if (!index.has(hostSlug)) index.set(hostSlug, []);
+    index.get(hostSlug).push(target);
+  }
+
+  return index;
+}
+
+function relatedLinks(related, current, opts) {
   const currentSlug = slugOf(current);
   const items = (Array.isArray(related) ? related : [])
     .filter((m) => slugOf(m) && slugOf(m) !== currentSlug);
   if (!items.length) return '';
-  return '<section class="related"><h2>Más mapas</h2><ul>' +
+  const title = (opts && opts.title) || 'Más mapas';
+  const className = (opts && opts.className) || 'related';
+  return '<section class="' + className + '"><h2>' + escapeHtml(title) + '</h2><ul>' +
     items.map((m) => '<li><a href="/gallery/' + encodeURIComponent(slugOf(m)) + '/">' +
       escapeHtml(m.title || m.name || 'Mapa') + '</a></li>').join('') +
     '</ul></section>';
@@ -180,8 +238,10 @@ module.exports = {
   DEFAULT_LIMIT,
   DEFAULT_MAX_LINKS,
   buildRelatedIndex,
+  buildDiscoveryIndex,
   relatedLinks,
   relatedScore,
   buildTagStats,
   slugOf,
+  viewsOf,
 };
