@@ -1720,6 +1720,60 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
   };
 }
 
+// ── Enlaces internos entre landings (check 15) ────────────────────
+// Cada mapa publicado debe recibir al menos un enlace desde el bloque «Más
+// mapas» de otra landing estática. Sin enlaces entrantes solo es alcanzable por
+// sitemap/JSON-LD y queda sin descubrimiento interno (el caso de los mapas con
+// cero visitas). La generación vive en scripts/lib/related-maps.js.
+
+function extractLandingLinks(html) {
+  const slugs = new Set();
+  const re = /\/gallery\/([^"'?#\s<>]+)\//g;
+  for (const match of String(html == null ? '' : html).matchAll(re)) {
+    try {
+      const slug = decodeURIComponent(match[1]);
+      if (slug) slugs.add(slug);
+    } catch (_) { /* enlace mal codificado: se ignora */ }
+  }
+  return slugs;
+}
+
+function auditInternalLinkCoverage(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } = {}) {
+  const pathMod = require('path');
+  const issues = [];
+  const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
+  const publishedSet = new Set(published);
+  const inbound = new Map(published.map((slug) => [slug, []]));
+
+  for (const source of published) {
+    let html = null;
+    try {
+      html = fs.readFileSync(pathMod.join(galleryDir, source, 'index.html'), 'utf8');
+    } catch (e) {
+      if (e.code !== 'ENOENT') {
+        issues.push(`no se pudo leer gallery/${source}/index.html para enlaces internos: ${e.message}`);
+      }
+      continue;
+    }
+    for (const target of extractLandingLinks(html)) {
+      if (target === source || !publishedSet.has(target)) continue;
+      inbound.get(target).push(source);
+    }
+  }
+
+  const details = {};
+  const orphans = [];
+  for (const slug of published) {
+    const sources = [...new Set(inbound.get(slug) || [])].sort();
+    details[slug] = sources;
+    if (!sources.length) orphans.push(slug);
+  }
+  if (orphans.length) {
+    issues.push(`${orphans.length} mapas sin enlaces entrantes desde otras landings (${orphans.join(', ')})`);
+  }
+  return { issues, published, details, orphans };
+}
+
 // ── Higiene de metadatos (check 13) ───────────────────────────────
 // La description alimenta la tarjeta y la landing de cada mapa, y dataDate se
 // muestra como fuente. Una descripción demasiado corta no aporta contexto, una
@@ -2189,6 +2243,22 @@ async function main() {
   }
   console.log('');
 
+  // 15. Enlaces internos entrantes entre landings estáticas.
+  let internalLinks = null;
+  try {
+    internalLinks = auditInternalLinkCoverage(published.map(m => m.id));
+  } catch (e) {
+    internalLinks = { issues: [`no se pudieron comprobar los enlaces internos: ${e.message}`] };
+  }
+  console.log('ENLACES INTERNOS | ISSUES');
+  console.log('-----------------|-------');
+  if (internalLinks.issues.length === 0) {
+    console.log(`OK: ${published.length} publicados con al menos un enlace entrante desde otra landing`);
+  } else {
+    for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);
+  }
+  console.log('');
+
   // 13. Higiene de metadatos: description 60–200 única y dataDate ISO 8601.
   let hygiene = null;
   try {
@@ -2270,7 +2340,7 @@ async function main() {
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + hygieneErrors + legendCoherence.issues.length;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + internalLinks.issues.length + hygieneErrors + legendCoherence.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -2404,6 +2474,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
+  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? 'OK' : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -2461,6 +2532,8 @@ module.exports = {
   hasDatasetType,
   GALLERY_DIR_PATH,
   OG_CARDS_DIR_PATH,
+  extractLandingLinks,
+  auditInternalLinkCoverage,
   DESCRIPTION_MIN_LEN,
   DESCRIPTION_MAX_LEN,
   textLength,

@@ -21,6 +21,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
+const { buildRelatedIndex, relatedLinks } = require('../lib/related-maps');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SITE_ROOT = path.join(ROOT, 'site');
@@ -126,19 +127,7 @@ function metaDate(m) {
   return d.toISOString().split('T')[0];
 }
 
-function relatedLinks(all, current) {
-  const others = all
-    .filter((m) => (m.slug || m.id) !== (current.slug || current.id))
-    .sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0))
-    .slice(0, 4);
-  if (!others.length) return '';
-  return '<section class="related"><h2>Más mapas</h2><ul>' +
-    others.map((m) => '<li><a href="/gallery/' + encodeURIComponent(m.slug || m.id) + '/">' +
-      esc(m.title || m.name || 'Mapa') + '</a></li>').join('') +
-    '</ul></section>';
-}
-
-function buildLandingHTML(m, all) {
+function buildLandingHTML(m, relatedIndex) {
   const slug = m.slug || m.id;
   const title = m.title || m.name || 'Mapa';
   const description = m.description || ('Mapa de ' + title + ' hecho con Maña Maps.');
@@ -257,7 +246,7 @@ function buildLandingHTML(m, all) {
       <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=${xText}&url=${xUrl}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
     </div>
     ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}
-    ${relatedLinks(all, m)}
+    ${relatedLinks(relatedIndex.get(slug) || [], m)}
   </main>
   <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
     <div class="site-footer__lead">
@@ -315,6 +304,7 @@ function buildLandingHTML(m, all) {
 
   console.log('Leyendo mapas publicados de Firestore…');
   const allMaps = await fetchPublishedMaps(cfg);
+  const relatedIndex = buildRelatedIndex(allMaps);
   const maps = SLUG_FILTER
     ? allMaps.filter((m) => (m.slug || m.id) === SLUG_FILTER)
     : allMaps;
@@ -354,7 +344,7 @@ function buildLandingHTML(m, all) {
       }
     }
 
-    const html = buildLandingHTML(m, allMaps);
+    const html = buildLandingHTML(m, relatedIndex);
     if (!DRY_RUN) {
       const dir = path.join(OUT_PAGES, slug);
       fs.mkdirSync(dir, { recursive: true });

@@ -2,11 +2,13 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { buildRelatedIndex } = require('../../scripts/lib/related-maps');
 const {
   auditSeoMetadata,
   parseCollectionLd,
   parseSitemapGallerySlugs,
   auditLandingCoverage,
+  auditInternalLinkCoverage,
   parseLandingMetadata,
   auditLandingMetadata,
   auditMetadataHygiene,
@@ -145,6 +147,68 @@ test('landing coverage check reports missing landings, OG cards, absent slugs an
   expect(issues).toContain('sobran 1 OG cards de mapas no publicados (huerfana)');
 
   fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+// Regresión del check 15: las landings estáticas deben enlazarse entre sí para
+// que ningún mapa publicado quede sin enlaces internos entrantes (prioridad de
+// distribución de noviembre: mapas con cero visitas).
+test('every published map receives internal links from another static landing', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const result = auditInternalLinkCoverage(published);
+  expect(result.issues).toEqual([]);
+  expect(result.orphans).toEqual([]);
+  for (const slug of published) {
+    expect(result.details[slug].length, `${slug} sin enlaces entrantes`).toBeGreaterThan(0);
+  }
+});
+
+test('internal link coverage ignores self links and reports orphan landings', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-internal-links-'));
+  const galleryDir = path.join(tmp, 'gallery');
+  const writeLanding = (slug, links) => {
+    fs.mkdirSync(path.join(galleryDir, slug), { recursive: true });
+    const anchors = links.map(l => `<li><a href="/gallery/${l}/">${l}</a></li>`).join('');
+    fs.writeFileSync(path.join(galleryDir, slug, 'index.html'), `<section class="related"><ul>${anchors}</ul></section>`);
+  };
+
+  writeLanding('a', ['b']);
+  writeLanding('b', ['b', 'c']);
+  writeLanding('c', ['c']);
+  writeLanding('sin-fichero', []);
+
+  const result = auditInternalLinkCoverage(['a', 'b', 'c', 'sin-fichero'], { galleryDir });
+  expect(result.details.a).toEqual(['b']);
+  expect(result.details.b).toEqual(['a']);
+  expect(result.details.c).toEqual(['b']);
+  expect(result.details['sin-fichero']).toEqual([]);
+  expect(result.orphans).toEqual(['sin-fichero']);
+  expect(result.issues.join('\n')).toContain('1 mapas sin enlaces entrantes desde otras landings (sin-fichero)');
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('buildRelatedIndex prioritizes shared tags and guarantees full coverage', () => {
+  const maps = [
+    { slug: 'economia-a', title: 'Economía A', tags: ['Economía'], createdAtMs: 1 },
+    { slug: 'economia-b', title: 'Economía B', tags: ['Economía'], createdAtMs: 2 },
+    { slug: 'salud-a', title: 'Salud A', tags: ['Salud'], createdAtMs: 3 },
+    { slug: 'salud-b', title: 'Salud B', tags: ['Salud'], createdAtMs: 4 },
+    { slug: 'raro', title: 'Raro', tags: ['Tema único'], createdAtMs: 5 },
+  ];
+  const index = buildRelatedIndex(maps, { limit: 1, maxLinks: 2 });
+  expect(index.get('economia-a')[0].slug).toBe('economia-b');
+  expect(index.get('salud-a')[0].slug).toBe('salud-b');
+
+  const inbound = new Map(maps.map(m => [m.slug, 0]));
+  for (const [source, related] of index) {
+    for (const map of related) {
+      expect(map.slug).not.toBe(source);
+      inbound.set(map.slug, inbound.get(map.slug) + 1);
+    }
+  }
+  for (const map of maps) {
+    expect(inbound.get(map.slug), `${map.slug} sin enlaces entrantes`).toBeGreaterThan(0);
+  }
 });
 
 // Regresión del check 12: cada landing estática es una página SEO propia y
