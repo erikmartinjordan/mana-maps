@@ -172,7 +172,7 @@ test('internal link coverage ignores self links and reports orphan landings', ()
   };
 
   writeLanding('a', ['b']);
-  writeLanding('b', ['b', 'c']);
+  writeLanding('b', ['a', 'b', 'c']);
   writeLanding('c', ['c']);
   writeLanding('sin-fichero', []);
 
