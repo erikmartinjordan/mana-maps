@@ -9,6 +9,8 @@ const {
   parseSitemapGallerySlugs,
   auditLandingCoverage,
   auditInternalLinkCoverage,
+  auditNewsLandingLinks,
+  extractPrimaryMapSlug,
   parseLandingMetadata,
   auditLandingMetadata,
   auditMetadataHygiene,
@@ -218,6 +220,43 @@ test('internal link coverage requires a traffic host for zero-view maps', () => 
   const legacy = auditInternalLinkCoverage(slugList, { galleryDir });
   expect(legacy.issues).toEqual([]);
   expect(legacy.undiscovered).toEqual([]);
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('every News article links to the static landing of its embedded map', () => {
+  // Regresión del check 16: el visor /map/?gallery= no es la landing
+  // indexable; cada artículo de News debe enlazar a /gallery/<slug>/.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const result = auditNewsLandingLinks(published, { newsDir: path.join(siteRoot, 'news') });
+
+  expect(result.issues).toEqual([]);
+  expect(result.articles.length).toBeGreaterThan(0);
+  for (const article of result.articles) {
+    expect(article.linked, `${article.article} → ${article.slug}`).toBe(true);
+  }
+});
+
+test('News landing link check reports missing links and unpublished maps', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-news-landings-'));
+  const writeArticle = (name, html) => {
+    fs.mkdirSync(path.join(tmp, name), { recursive: true });
+    fs.writeFileSync(path.join(tmp, name, 'index.html'), html);
+  };
+
+  writeArticle('ok', '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a>');
+  writeArticle('sin-enlace', '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe>');
+  writeArticle('no-publicado', '<iframe src="/map/?gallery=otro&embed=1"></iframe><a href="/gallery/otro/">ficha</a>');
+  writeArticle('sin-mapa', '<p>Estado mensual sin mapa embebido</p>');
+
+  expect(extractPrimaryMapSlug('<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe>')).toBe('publicado');
+  expect(extractPrimaryMapSlug('<p>Sin iframe</p>')).toBeNull();
+
+  const result = auditNewsLandingLinks(['publicado'], { newsDir: tmp });
+  expect(result.issues).toContain('sin-enlace: no enlaza a la landing del mapa /gallery/publicado/');
+  expect(result.issues).toContain('no-publicado: el mapa embebido «otro» no está publicado en Firestore');
+  expect(result.details['sin-mapa']).toBeNull();
+  expect(result.articles.map((a) => a.article)).toEqual(['no-publicado', 'ok', 'sin-enlace']);
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });

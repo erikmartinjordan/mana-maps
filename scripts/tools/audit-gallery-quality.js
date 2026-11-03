@@ -50,6 +50,14 @@
 //      menos 3 valores distintos y legendTitle no puede faltar. Lista los
 //      mapas afectados y falla (exit 1). Es de solo lectura: la corrección
 //      implica elegir la clave y la rampa, y se hace a mano.
+//  15. enlaces internos: cada landing publicada debe recibir al menos un
+//      enlace desde otra landing y, si el mapa tiene cero visitas, al menos
+//      uno debe venir de una landing con tráfico (≥DISCOVERY_MIN_HOST_VIEWS).
+//  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html
+//      que embebe un mapa (/map/?gallery=<slug>) debe enlazar también a su
+//      ficha estática /gallery/<slug>/ (title, description, canonical y
+//      Dataset); el visor no es la landing indexable. El mapa embebido debe
+//      estar publicado. Lista los artículos que fallan y sale con exit 1.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -1800,6 +1808,71 @@ function auditInternalLinkCoverage(publishedSlugs, {
   return { issues, published, details, orphans, zeroView, undiscovered, minHostViews };
 }
 
+// ── Enlaces News → landing del mapa (check 16) ────────────────────
+// Los artículos de News embeben el mapa con /map/?gallery=<slug>, que es el
+// visor y no la ficha indexable. Para que News distribuya tráfico y autoridad
+// a la landing estática /gallery/<slug>/ (title, description, canonical y
+// JSON-LD Dataset), el artículo debe incluir ese enlace explícito.
+
+const NEWS_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'news');
+
+function extractPrimaryMapSlug(html) {
+  const source = String(html == null ? '' : html);
+  const iframe = source.match(/<iframe\b[^>]*\bsrc\s*=\s*"([^"]*)"/i);
+  if (!iframe) return null;
+  const src = decodeHtmlEntities(iframe[1]);
+  const match = src.match(/[?&]gallery=([a-z0-9-]+)/i);
+  return match ? match[1] : null;
+}
+
+function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATH } = {}) {
+  const pathMod = require('path');
+  const issues = [];
+  const details = {};
+  const articles = [];
+  const publishedSet = new Set((publishedSlugs || []).filter(Boolean));
+
+  let entries = [];
+  try {
+    entries = fs.readdirSync(newsDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+  } catch (e) {
+    return { issues: [`no se pudo leer site/news: ${e.message}`], details, articles };
+  }
+
+  for (const article of entries) {
+    const file = pathMod.join(newsDir, article, 'index.html');
+    if (!fs.existsSync(file)) continue;
+    let html = '';
+    try {
+      html = fs.readFileSync(file, 'utf8');
+    } catch (e) {
+      issues.push(`${article}: no se pudo leer el artículo: ${e.message}`);
+      continue;
+    }
+    const slug = extractPrimaryMapSlug(html);
+    // Artículos sin mapa embebido (p. ej. el estado mensual) no aplican.
+    if (!slug) {
+      details[article] = null;
+      continue;
+    }
+    const landingHref = `/gallery/${slug}/`;
+    const hrefRe = new RegExp(`href="${landingHref.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`);
+    const linked = hrefRe.test(html);
+    details[article] = { slug, linked };
+    articles.push({ article, slug, linked });
+    if (!publishedSet.has(slug)) {
+      issues.push(`${article}: el mapa embebido «${slug}» no está publicado en Firestore`);
+    }
+    if (!linked) {
+      issues.push(`${article}: no enlaza a la landing del mapa ${landingHref}`);
+    }
+  }
+  return { issues, details, articles };
+}
+
 // ── Higiene de metadatos (check 13) ───────────────────────────────
 // La description alimenta la tarjeta y la landing de cada mapa, y dataDate se
 // muestra como fuente. Una descripción demasiado corta no aporta contexto, una
@@ -2293,6 +2366,22 @@ async function main() {
   }
   console.log('');
 
+  // 16. Enlaces desde News a la landing estática del mapa embebido.
+  let newsLinks = null;
+  try {
+    newsLinks = auditNewsLandingLinks(published.map((m) => m.id));
+  } catch (e) {
+    newsLinks = { issues: [`no se pudieron comprobar los enlaces de News: ${e.message}`], articles: [] };
+  }
+  console.log('NEWS → LANDING | ISSUES');
+  console.log('--------------|-------');
+  if (newsLinks.issues.length === 0) {
+    console.log(`OK: ${newsLinks.articles.length} artículos de News con mapa enlazan a su landing /gallery/<slug>/`);
+  } else {
+    for (const issue of newsLinks.issues) console.log(`NEWS: ${issue}`);
+  }
+  console.log('');
+
   // 13. Higiene de metadatos: description 60–200 única y dataDate ISO 8601.
   let hygiene = null;
   try {
@@ -2374,7 +2463,7 @@ async function main() {
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + internalLinks.issues.length + hygieneErrors + legendCoherence.issues.length;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + internalLinks.issues.length + newsLinks.issues.length + hygieneErrors + legendCoherence.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -2509,6 +2598,7 @@ async function main() {
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
   console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico`}`);
+  console.log(`News → landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -2568,6 +2658,9 @@ module.exports = {
   OG_CARDS_DIR_PATH,
   extractLandingLinks,
   auditInternalLinkCoverage,
+  NEWS_DIR_PATH,
+  extractPrimaryMapSlug,
+  auditNewsLandingLinks,
   DISCOVERY_MIN_HOST_VIEWS,
   DESCRIPTION_MIN_LEN,
   DESCRIPTION_MAX_LEN,
