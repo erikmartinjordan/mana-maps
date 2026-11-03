@@ -12,6 +12,11 @@ html {
   background-image: none;
 }
 
+/* Las páginas con marco (.frame) le dan margen inferior. Sin flow-root ese
+   margen colapsa fuera del body y asoma el fondo del html como una banda
+   clara bajo el gradiente de la página. */
+body:has(> .frame) { display: flow-root; }
+
 .site-footer {
   --sf-ink: #111827;
   --sf-text: #6b7280;
