@@ -1,26 +1,35 @@
 [
   {
     "date": "2026-11-03",
-    "event": "Estados Unidos celebra el 3 de noviembre sus elecciones de medio mandato con un récord de candidatas: 590 mujeres se presentaron a la Cámara, 26 son candidatas a gobernadora y 3.824 concurren a las legislaturas estatales (3 de noviembre de 2026)",
-    "mapSlug": "women-in-parliament-world",
+    "event": "Estados Unidos vota el 3 de noviembre unas midterms marcadas por la guerra con Irán y el coste de vida: más de 57 millones de votos anticipados, 11.000 millones en publicidad y la gasolina a 4,17 dólares (3 de noviembre de 2026)",
+    "mapSlug": "nuclear-energy-world",
     "sourceUrls": [
-      "https://time.com/article/2026/10/30/midterms-senate-governor-elections-race-gender-religion-history-nationwide-firsts/",
-      "https://www.rutgers.edu/news/will-midterms-bring-record-representation-women",
-      "https://www.kcrg.com/2026/10/26/why-record-number-women-are-running-office-2026",
-      "https://www.wandtv.com/2026/10/29/record-number-female-candidates-2026-midterms"
+      "https://apnews.com/article/midterm-election-house-senate-democrats-republicans-trump-f126e12e05b579a327b98481c0ae2226",
+      "https://www.cbsnews.com/live-updates/iran-war-us-trump-negotiations-midterms/",
+      "https://www.cbsnews.com/live-updates/2026-elections-monday-november-2/",
+      "https://www.reuters.com/business/aerospace-defense/israel-us-launch-strikes-iran-2026-02-28/",
+      "https://www.aljazeera.com/economy/2026/11/2/us-petrol-prices-dip-ahead-of-midterms-as-voters-eye-costs",
+      "https://www.nbcnews.com/business/energy/oil-prices-slide-trump-hope-iran-talks-rcna607107",
+      "https://www.dw.com/en/how-the-us-midterms-factor-into-donald-trumps-plans-for-the-iran-war/a-79831816",
+      "https://www.nbcnews.com/politics/2026-elections/midterms",
+      "https://www.unocha.org/news/todays-top-news-yemen-ukraine-sudan-occupied-palestinian-territory-insurance",
+      "https://www.theguardian.com/world/2026/nov/03/ukraine-war-briefing-us-to-mediate-talks-with-kyiv-and-moscow-in-abu-dhabi-next-week-says-witkoff",
+      "https://apnews.com/article/russia-ukraine-cyberattacks-emergency-apps-717372f7bbf4e8a805bc918f06f9730f",
+      "https://www.aljazeera.com/news/2026/11/1/at-least-eight-palestinians-killed-in-israeli-attacks-across-gaza",
+      "https://news.un.org/en/story/2026/09/1168331"
     ],
     "translations": {
       "es": {
-        "slug": "midterms-record-candidatas-congreso",
-        "url": "/news/midterms-record-candidatas-congreso/",
-        "title": "Midterms con récord de candidatas y un Congreso al 28,9% de mujeres",
-        "description": "EE UU vota el 3 de noviembre con un récord de candidatas. El mapa de mujeres en el parlamento sitúa el Congreso en el 28,9%, por debajo de México y España."
+        "slug": "midterms-eeuu-guerra-iran-conflictos-globales",
+        "url": "/news/midterms-eeuu-guerra-iran-conflictos-globales/",
+        "title": "Midterms en Estados Unidos: la guerra con Irán y el coste de vida deciden el Congreso",
+        "description": "EE UU vota el 3 de noviembre con más de 57 millones de votos anticipados, la guerra con Irán en su octavo mes y la gasolina a 4,17 dólares. El mapa de energía nuclear separa la nuclear civil del programa militar iraní."
       },
       "en": {
-        "slug": "midterms-record-women-congress",
-        "url": "/en/news/midterms-record-women-congress/",
-        "title": "Midterms with record women candidates and a 28.9% female Congress",
-        "description": "Americans vote on 3 November with a record number of women candidates. The women-in-parliament map puts Congress at 28.9%, behind Mexico and Spain."
+        "slug": "us-midterms-iran-war-global-conflicts",
+        "url": "/en/news/us-midterms-iran-war-global-conflicts/",
+        "title": "US midterms: the Iran war and the cost of living decide Congress",
+        "description": "Americans vote on 3 November with more than 57 million early ballots, the Iran war in its eighth month and petrol at $4.17 a gallon. The nuclear-energy map separates civil nuclear power from Iran's military programme."
       }
     }
   },
