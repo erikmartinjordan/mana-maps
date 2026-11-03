@@ -559,9 +559,10 @@
       defs + land + shelf + ocean + tint + '</svg>';
   }
 
-  function renderMapPreviewSVG(preview) {
+  function renderMapPreviewSVG(preview, opts) {
     if (!preview || !Array.isArray(preview.bbox)) return '';
     if (preview.flatWorld) return renderFlatWorldSVG(preview);
+    var simple = !!(opts && opts.simple);
     var bbox = preview.bbox;
     var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
     var canvas = previewCanvas(bbox);
@@ -667,10 +668,12 @@
       }
       if (landViewId) {
         var useOpen = '<use href="#' + landViewId + '"';
-        BASEMAP_SHELVES.forEach(function(s, i) {
-          land += useOpen + ' fill="none" stroke="' + s.color + '" stroke-width="' + s.width +
-            '" stroke-opacity="' + s.opacity + '" stroke-linejoin="round" filter="url(#mana-shelf-blur-' + i + ')"/>';
-        });
+        if (!simple) {
+          BASEMAP_SHELVES.forEach(function(s, i) {
+            land += useOpen + ' fill="none" stroke="' + s.color + '" stroke-width="' + s.width +
+              '" stroke-opacity="' + s.opacity + '" stroke-linejoin="round" filter="url(#mana-shelf-blur-' + i + ')"/>';
+          });
+        }
         land += useOpen + ' fill="' + BASEMAP_LAND_FILL + '" stroke="' + BASEMAP_LAND_STROKE +
           '" stroke-width="1.1" stroke-linejoin="round"/>';
         land += useOpen + ' fill="none" stroke="' + BASEMAP_FOAM +
@@ -795,8 +798,13 @@
             var emojiChar = entry.emoji || '';
             if (emojiChar) {
               var emojiSize = (7 * unit).toFixed(2);
-              var stickerId = stickerFilterId(stroke);
-              points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '" filter="url(#' + stickerId + ')">' + emojiChar + '</text>';
+              if (simple) {
+                points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (4.6 * unit).toFixed(2) + '" fill="#ffffff" fill-opacity="0.9"/>' +
+                  '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '">' + emojiChar + '</text>';
+              } else {
+                var stickerId = stickerFilterId(stroke);
+                points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize + '" filter="url(#' + stickerId + ')">' + emojiChar + '</text>';
+              }
             } else {
               points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.6 * unit).toFixed(2) +
                 '" fill="#ffffff" fill-opacity="0.9"/>' +
@@ -810,8 +818,13 @@
               var emojiChar2 = entry.emoji || '';
               if (emojiChar2) {
                 var emojiSize2 = (6.5 * unit).toFixed(2);
-                var stickerId2 = stickerFilterId(stroke);
-                points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize2 + '" filter="url(#' + stickerId2 + ')">' + emojiChar2 + '</text>';
+                if (simple) {
+                  points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (4.2 * unit).toFixed(2) + '" fill="#ffffff" fill-opacity="0.9"/>' +
+                    '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize2 + '">' + emojiChar2 + '</text>';
+                } else {
+                  var stickerId2 = stickerFilterId(stroke);
+                  points += '<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + emojiSize2 + '" filter="url(#' + stickerId2 + ')">' + emojiChar2 + '</text>';
+                }
               } else {
                 points += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (3.2 * unit).toFixed(2) +
                   '" fill="#ffffff" fill-opacity="0.9"/>' +
@@ -825,7 +838,7 @@
     }
 
     if (!body) return '';
-    var stickerDefs = Object.keys(stickerFilters).map(function (k) { return stickerFilters[k].def; }).join('');
+    var stickerDefs = simple ? '' : Object.keys(stickerFilters).map(function (k) { return stickerFilters[k].def; }).join('');
     return '<svg class="thumb-preview" viewBox="0 0 ' + viewW.toFixed(2) + ' ' + viewH.toFixed(2) +
       '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
       (stickerDefs ? '<defs>' + stickerDefs + '</defs>' : '') + body + '</svg>';
