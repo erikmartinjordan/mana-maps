@@ -3,7 +3,7 @@ month: 2026-11
 source: autopilot/reports/monthly/2026-10.md
 fallback: false
 status: active
-updated: 2026-11-01
+updated: 2026-11-03
 ---
 
 # Directiva mensual — 2026-11
@@ -31,8 +31,8 @@ updated: 2026-11-01
   cero visitas (metadata, leyenda, OG, enlaces internos) y corregir el único mapa
   sin `legendKey`; priorizar tareas de leyenda, metadata y coherencia de datos
   de mapas ya publicados.
-- **blogger:** máximo dos piezas semanales, cada una con un mapa ya publicado y
-  enlace a la galería. Priorizar ángulos de búsqueda y Reddit (Bing 38/56 y
+- **blogger:** una pieza diaria, siempre con un mapa ya publicado y enlace a la
+  galería. Priorizar ángulos de búsqueda y Reddit (Bing 38/56 y
   Reddit 23/30 son la única señal); no repetir mapas de los últimos 14 días ni
   usar el informe en la deduplicación.
 - **reviewer:** vigilar que ningún texto mezcle sesiones internas y externas,
