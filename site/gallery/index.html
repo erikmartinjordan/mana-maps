@@ -455,12 +455,15 @@
     }
     .grid .card-link{position:absolute;inset:0;display:block;text-decoration:none;color:#fff;z-index:1}
     .grid .thumb{position:absolute;inset:0;z-index:0;overflow:hidden;background:#111}
-    .grid .thumb-preview{
-      position:absolute;inset:0;z-index:1;width:100%;height:100%;
-      transform:scale(var(--cover-scale,1));transform-origin:center;
-      transition:transform .45s ease;
+    .grid .thumb-preview{position:absolute;z-index:1;width:100%;height:100%}
+    .grid .thumb-preview.cover-wide{
+      top:0;height:100%;width:calc(var(--cover-scale,1) * 100%);
+      left:calc((100% - var(--cover-scale,1) * 100%) / 2);
     }
-    .grid .card:hover .thumb-preview{transform:scale(calc(var(--cover-scale,1) * 1.025))}
+    .grid .thumb-preview.cover-tall{
+      left:0;width:100%;height:calc(var(--cover-scale,1) * 100%);
+      top:calc((100% - var(--cover-scale,1) * 100%) / 2);
+    }
     .grid .card-shade{
       position:absolute;inset:0;z-index:2;pointer-events:none;
       background:linear-gradient(180deg,rgba(0,0,0,0) 34%,rgba(0,0,0,.68) 100%);
@@ -900,7 +903,7 @@
   <script defer src="/js/auth.js?v=1792000000"></script>
   <script defer src="/js/user-maps.js"></script>
   <script defer src="/js/basemap-config.js"></script>
-  <script defer src="/js/gallery-page.js?v=1793700000"></script>
+  <script defer src="/js/gallery-page.js?v=1793700001"></script>
   <!-- MapLibre (image map for ?slug=) is loaded on demand by gallery-page.js -->
   <script>
     // Analytics/geo lookup is non-critical: run it once the page is idle.

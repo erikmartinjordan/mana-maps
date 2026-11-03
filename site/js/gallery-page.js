@@ -303,17 +303,19 @@
     // renderSVG usa `meet` (deja bandas), así que escalamos el SVG lo justo
     // para cubrir el marco; el overflow de la tarjeta recorta el sobrante.
     var coverScale = 1;
+    var coverClass = ' cover-wide';
     var vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
     if (vb) {
       var mapAspect = parseFloat(vb[1]) / parseFloat(vb[2]);
       var cardAspect = 3 / 2;
       if (isFinite(mapAspect) && mapAspect > 0) {
         coverScale = Math.max(1, mapAspect / cardAspect, cardAspect / mapAspect);
+        coverClass = mapAspect >= cardAspect ? ' cover-wide' : ' cover-tall';
       }
     }
     return svg.replace(
       '<svg class="thumb-preview"',
-      '<svg class="thumb-preview" style="--cover-scale:' + coverScale.toFixed(4) + '" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
+      '<svg class="thumb-preview' + coverClass + '" style="--cover-scale:' + coverScale.toFixed(4) + '" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
     );
   }
 
