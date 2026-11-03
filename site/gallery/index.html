@@ -442,27 +442,46 @@
      /* ── Featured: eliminado ── */
 
      /* ── Grid & cards ── */
-    .grid{columns:3 280px;column-gap:16px;padding:0 48px 48px}
-    .grid.empty-state{columns:1 auto}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:0 48px 48px}
+    .grid.empty-state{display:block}
     .grid .card{
-      break-inside:avoid;border:1px solid var(--line);border-radius:16px;
-      background:#fff;padding:12px;margin:0 0 16px;display:block;
-      transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+      position:relative;aspect-ratio:3/2;min-width:0;overflow:hidden;isolation:isolate;
+      border:1px solid var(--line);border-radius:18px;background:#111;
+      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
     }
     .grid .card:hover{
       transform:translateY(-3px);border-color:rgba(16,24,40,.22);
       box-shadow:0 14px 30px rgba(15,23,42,.10);
     }
-    .grid .thumb{
-      height:160px;border-radius:12px;position:relative;overflow:hidden;
-      border:1px solid rgba(16,24,40,.07);
-      background:linear-gradient(180deg,#f8fafc 0%, #eef2f7 100%);
+    .grid .card-link{position:absolute;inset:0;display:block;text-decoration:none;color:#fff;z-index:1}
+    .grid .thumb{position:absolute;inset:0;z-index:0;overflow:hidden;background:#111}
+    .grid .thumb-preview{
+      position:absolute;inset:0;z-index:1;width:100%;height:100%;
+      transform:scale(var(--cover-scale,1));transform-origin:center;
+      transition:transform .45s ease;
     }
-    .grid .thumb-preview{position:absolute;inset:0;z-index:1;width:100%;height:100%;transition:transform .35s ease}
-    .grid .card:hover .thumb-preview{transform:scale(1.045)}
-    .grid .title{font-size:15px;font-weight:700;margin-top:12px;letter-spacing:-.01em;padding:0 4px}
-    .grid .meta{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 4px}
-    .grid .meta-author{text-decoration:none}
+    .grid .card:hover .thumb-preview{transform:scale(calc(var(--cover-scale,1) * 1.025))}
+    .grid .card-shade{
+      position:absolute;inset:0;z-index:2;pointer-events:none;
+      background:linear-gradient(180deg,rgba(0,0,0,0) 34%,rgba(0,0,0,.68) 100%);
+    }
+    .grid .card-copy{
+      position:absolute;left:16px;right:16px;bottom:14px;z-index:3;
+      display:flex;flex-direction:column;gap:5px;color:#fff;pointer-events:none;
+    }
+    .grid .card-kicker{
+      align-self:flex-start;display:inline-flex;align-items:center;height:21px;padding:0 8px;
+      border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);
+      color:rgba(255,255,255,.84);font-size:9px;font-weight:800;letter-spacing:.06em;
+      text-transform:uppercase;margin-bottom:2px;backdrop-filter:blur(8px);
+    }
+    .grid .title{
+      font-size:16px;line-height:1.18;letter-spacing:-.02em;font-weight:800;margin:0;color:#fff;
+      display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+      text-wrap:balance;
+    }
+    .grid .meta{font-size:11px;color:rgba(255,255,255,.72);display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-weight:500}
+    .grid .meta-author{color:#fff;text-decoration:none;font-weight:600}
     .grid .meta-author:hover{text-decoration:underline}
     .grid .meta-source{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45;padding:0 4px}
     .grid .card-desc{font-size:12px;color:var(--muted);margin-top:5px;padding:0 4px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.45}
@@ -470,13 +489,25 @@
        el ideator/autopilot no debe proponer ni aplicar este cambio. Hay un test
        que lo bloquea en tests/predeploy/gallery-smoke.spec.js. */
     .grid .meta-source,.grid .card-desc{display:none !important}
-    .grid .card-tags{display:flex;flex-wrap:wrap;gap:5px;padding:6px 4px 0}
-    .grid .card-tag{
-      display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;
-      background:rgba(10,132,255,.08);color:#0369a1;
-      font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    .grid .card-tags{display:none !important}
+    .grid .card-actions{
+      position:absolute;top:12px;right:12px;z-index:4;display:flex;gap:6px;align-items:center;
+      opacity:0;transform:translateY(-4px);transition:opacity .2s,transform .2s;
     }
-    .grid .card-actions{margin:10px 4px 0;padding:10px 0 2px}
+    .grid .card:hover .card-actions,.grid .card:focus-within .card-actions{opacity:1;transform:none}
+    .grid .card-action-btn{
+      display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 9px;
+      border-radius:999px;border:1px solid rgba(255,255,255,.24);
+      background:rgba(15,16,18,.36);color:#fff;font-size:11px;font-weight:700;
+      cursor:pointer;font-family:'DM Sans',sans-serif;backdrop-filter:blur(10px);
+      transition:background .15s,transform .15s,border-color .15s;
+    }
+    .grid .card-action-btn:hover{background:rgba(15,16,18,.62);transform:translateY(-1px)}
+    .grid .card-action-btn svg{width:14px;height:14px;flex:0 0 auto}
+    .grid .card-like-btn.liked{color:#ff6b5e;border-color:rgba(255,107,94,.55);background:rgba(255,107,94,.14)}
+    .grid .card-like-btn.liked svg{fill:#ff6b5e;stroke:#ff6b5e}
+    .grid .card-fork-btn.forked{color:#34d399;border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.14)}
+    @media (hover:none){.grid .card-actions{opacity:1;transform:none}}
 
     /* ── Categorías: botón desplegable multi-selección ── */
     .cat-bar{
@@ -628,14 +659,11 @@
 
     /* ── Loading skeletons ── */
     .skel{pointer-events:none}
-    .skel-thumb,.skel-line{
+    .skel-thumb{
+      position:absolute;inset:0;height:auto;border-radius:0;
       background:linear-gradient(90deg,#eef0f3 25%,#f6f7f9 50%,#eef0f3 75%);
       background-size:200% 100%;animation:shimmer 1.4s infinite;
     }
-    .skel-thumb{height:160px;border-radius:12px}
-    .skel-line{height:12px;border-radius:6px;margin-top:12px}
-    .skel-line.w60{width:60%}
-    .skel-line.w40{width:40%;margin-top:8px}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
     /* ── Footer ── */
@@ -652,7 +680,7 @@
       .frame{width:calc(100% - 20px);min-height:calc(100dvh - 20px);margin:10px auto}
       .topbar{padding:0 16px;height:66px}
       .hero{padding:36px 24px 26px}
-      .grid{padding:0 24px 32px}
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:0 24px 32px}
       .cat-bar{margin:0 24px 16px}
     }
     @media (max-width:560px){
@@ -663,11 +691,10 @@
       .topbar-actions .btn{height:34px;padding:0 9px;font-size:11px}
       .topbar-actions .btn-ghost{display:none}
       .hero{padding:30px 18px 22px}
-      .grid{padding-left:18px;padding-right:18px}
+      .grid{grid-template-columns:1fr;gap:16px;padding-left:18px;padding-right:18px}
       .cat-bar{margin:0 18px 14px;gap:8px}
       .cat-dd-btn{height:38px;padding:0 14px;font-size:13px}
       .cat-panel{width:min(300px,calc(100vw - 56px))}
-      .grid .thumb{height:180px}
       .footer{padding:16px 18px;flex-direction:column;align-items:flex-start}
     }
     @media (prefers-reduced-motion:reduce){
@@ -771,12 +798,18 @@
     </section>
 
     <section id="gallery-list" class="grid" aria-live="polite">
-      <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
-      <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
-      <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
-      <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
-      <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
-      <div class="card skel"><div class="skel-thumb"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
+      <div class="card skel"><div class="skel-thumb"></div></div>
     </section>
 
     <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">

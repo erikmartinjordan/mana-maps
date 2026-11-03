@@ -299,9 +299,21 @@
     if (!window.ManaMapPreview) return '';
     var svg = window.ManaMapPreview.renderSVG(previewOf(item));
     if (!svg) return '';
+    // Las tarjetas usan un marco fijo 3:2 y el mapa debe llenarlo por completo.
+    // renderSVG usa `meet` (deja bandas), así que escalamos el SVG lo justo
+    // para cubrir el marco; el overflow de la tarjeta recorta el sobrante.
+    var coverScale = 1;
+    var vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    if (vb) {
+      var mapAspect = parseFloat(vb[1]) / parseFloat(vb[2]);
+      var cardAspect = 3 / 2;
+      if (isFinite(mapAspect) && mapAspect > 0) {
+        coverScale = Math.max(1, mapAspect / cardAspect, cardAspect / mapAspect);
+      }
+    }
     return svg.replace(
       '<svg class="thumb-preview"',
-      '<svg class="thumb-preview" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
+      '<svg class="thumb-preview" style="--cover-scale:' + coverScale.toFixed(4) + '" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
     );
   }
 
@@ -438,22 +450,23 @@
       var mode = item.shareMode || 'view';
       var likedClass = hasLiked(mapSlug) ? ' liked' : '';
       var tags = Array.isArray(item.tags) ? item.tags : [];
-      var tagsHtml = tags.length
-        ? '<div class="card-tags">' + tags.map(function(t) { return '<span class="card-tag">' + escHtml(t) + '</span>'; }).join('') + '</div>'
-        : '';
+      var title = item.title || item.name || 'Mapa sin título';
       return '' +
         '<div class="card">' +
           '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
             '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + thumb + '</div>' +
-            '<h3 class="title">' + escHtml(item.title || item.name || 'Mapa sin título') + '</h3>' +
+            '<div class="card-shade"></div>' +
+            '<div class="card-copy">' +
+              (tags.length ? '<span class="card-kicker">' + escHtml(tags[0]) + '</span>' : '') +
+              '<h3 class="title">' + escHtml(title) + '</h3>' +
+              '<div class="meta">' +
+                (authorHandle ? '<span class="meta-author">@' + escHtml(authorHandle) + '</span><span>·</span>' : '') +
+                '<span>' + (item.featureCount || 0) + ' elementos</span>' +
+                '<span>·</span>' +
+                '<span>' + safeDate(created) + '</span>' +
+              '</div>' +
+            '</div>' +
           '</a>' +
-          '<div class="meta">' +
-            (authorHandle ? '<a class="meta-author" href="/@' + encodeURIComponent(authorHandle) + '">@' + escHtml(authorHandle) + '</a><span>·</span>' : '') +
-            '<span>' + (item.featureCount || 0) + ' elementos</span>' +
-            '<span>·</span>' +
-            '<span>' + safeDate(created) + '</span>' +
-          '</div>' +
-          tagsHtml +
           '<div class="card-actions">' +
             '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
