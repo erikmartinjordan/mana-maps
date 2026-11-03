@@ -1723,8 +1723,13 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
 // ── Enlaces internos entre landings (check 15) ────────────────────
 // Cada mapa publicado debe recibir al menos un enlace desde el bloque «Más
 // mapas» de otra landing estática. Sin enlaces entrantes solo es alcanzable por
-// sitemap/JSON-LD y queda sin descubrimiento interno (el caso de los mapas con
-// cero visitas). La generación vive en scripts/lib/related-maps.js.
+// sitemap/JSON-LD y queda sin descubrimiento interno. Además, un mapa con cero
+// visitas debe recibir al menos un enlace desde una landing con tráfico
+// (≥ DISCOVERY_MIN_HOST_VIEWS): un enlace desde otro mapa igualmente invisible
+// no rompe el círculo de los cero visitas. La generación vive en
+// scripts/lib/related-maps.js (buildDiscoveryIndex).
+
+const DISCOVERY_MIN_HOST_VIEWS = 10;
 
 function extractLandingLinks(html) {
   const slugs = new Set();
@@ -1738,7 +1743,11 @@ function extractLandingLinks(html) {
   return slugs;
 }
 
-function auditInternalLinkCoverage(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } = {}) {
+function auditInternalLinkCoverage(publishedSlugs, {
+  galleryDir = GALLERY_DIR_PATH,
+  viewsBySlug = null,
+  minHostViews = DISCOVERY_MIN_HOST_VIEWS,
+} = {}) {
   const pathMod = require('path');
   const issues = [];
   const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
@@ -1763,15 +1772,32 @@ function auditInternalLinkCoverage(publishedSlugs, { galleryDir = GALLERY_DIR_PA
 
   const details = {};
   const orphans = [];
+  const zeroView = [];
+  const undiscovered = [];
   for (const slug of published) {
     const sources = [...new Set(inbound.get(slug) || [])].sort();
     details[slug] = sources;
     if (!sources.length) orphans.push(slug);
+    if (!viewsBySlug) continue;
+    const views = Number(viewsBySlug[slug]);
+    if (!isFinite(views) || views > 0) continue;
+    zeroView.push(slug);
+    const trafficHosts = sources.filter((source) => {
+      const hostViews = Number(viewsBySlug[source]);
+      return isFinite(hostViews) && hostViews >= minHostViews;
+    });
+    if (!trafficHosts.length) undiscovered.push(slug);
   }
   if (orphans.length) {
     issues.push(`${orphans.length} mapas sin enlaces entrantes desde otras landings (${orphans.join(', ')})`);
   }
-  return { issues, published, details, orphans };
+  if (undiscovered.length) {
+    issues.push(
+      `${undiscovered.length} mapas con cero visitas sin enlace desde landings con ≥${minHostViews} visitas ` +
+      `(${undiscovered.join(', ')})`
+    );
+  }
+  return { issues, published, details, orphans, zeroView, undiscovered, minHostViews };
 }
 
 // ── Higiene de metadatos (check 13) ───────────────────────────────
@@ -2178,6 +2204,7 @@ async function main() {
         description: extractField(doc, 'description'),
         tags: extractField(doc, 'tags'),
         featureCount: extractField(doc, 'featureCount'),
+        views: extractField(doc, 'views'),
         legendKey: extractField(doc, 'legendKey'),
         legendTitle: extractField(doc, 'legendTitle'),
         legendFormat: extractField(doc, 'legendFormat'),
@@ -2243,17 +2270,24 @@ async function main() {
   }
   console.log('');
 
-  // 15. Enlaces internos entrantes entre landings estáticas.
+  // 15. Enlaces internos entrantes entre landings estáticas y descubrimiento
+  // de los mapas con cero visitas desde landings con tráfico.
   let internalLinks = null;
   try {
-    internalLinks = auditInternalLinkCoverage(published.map(m => m.id));
+    const viewsBySlug = Object.fromEntries(
+      published.map((m) => [m.id, isFinite(Number(m.views)) ? Number(m.views) : 0])
+    );
+    internalLinks = auditInternalLinkCoverage(published.map(m => m.id), { viewsBySlug });
   } catch (e) {
     internalLinks = { issues: [`no se pudieron comprobar los enlaces internos: ${e.message}`] };
   }
   console.log('ENLACES INTERNOS | ISSUES');
   console.log('-----------------|-------');
   if (internalLinks.issues.length === 0) {
-    console.log(`OK: ${published.length} publicados con al menos un enlace entrante desde otra landing`);
+    console.log(
+      `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
+      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas` : '')
+    );
   } else {
     for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);
   }
@@ -2474,7 +2508,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
-  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? 'OK' : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes`}`);
+  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
@@ -2534,6 +2568,7 @@ module.exports = {
   OG_CARDS_DIR_PATH,
   extractLandingLinks,
   auditInternalLinkCoverage,
+  DISCOVERY_MIN_HOST_VIEWS,
   DESCRIPTION_MIN_LEN,
   DESCRIPTION_MAX_LEN,
   textLength,

@@ -61,6 +61,10 @@ function loadConfig() {
 function restGet(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
+      // Decodifica con StringDecoder: concatenar chunks con `data += chunk`
+      // parte los caracteres UTF-8 multibyte en la frontera y los convierte en
+      // U+FFFD (p. ej. «coroplético» → «coropl��tico»).
+      res.setEncoding('utf8');
       let data = '';
       res.on('data', (c) => data += c);
       res.on('end', () => {

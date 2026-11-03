@@ -187,6 +187,41 @@ test('internal link coverage ignores self links and reports orphan landings', ()
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
+test('internal link coverage requires a traffic host for zero-view maps', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-zero-view-links-'));
+  const galleryDir = path.join(tmp, 'gallery');
+  const writeLanding = (slug, links) => {
+    fs.mkdirSync(path.join(galleryDir, slug), { recursive: true });
+    const anchors = links.map(l => `<li><a href="/gallery/${l}/">${l}</a></li>`).join('');
+    fs.writeFileSync(path.join(galleryDir, slug, 'index.html'), `<section class="related"><ul>${anchors}</ul></section>`);
+  };
+
+  writeLanding('popular', ['cero-visible', 'minoritario']);
+  writeLanding('minoritario', ['cero-invisible', 'popular']);
+  writeLanding('cero-visible', []);
+  writeLanding('cero-invisible', []);
+
+  const slugList = ['popular', 'minoritario', 'cero-visible', 'cero-invisible'];
+  const viewsBySlug = { popular: 40, minoritario: 2, 'cero-visible': 0, 'cero-invisible': 0 };
+  const result = auditInternalLinkCoverage(slugList, { galleryDir, viewsBySlug, minHostViews: 10 });
+
+  // Ambos mapas con cero visitas tienen un enlace entrante, pero solo uno
+  // procede de una landing con tráfico suficiente.
+  expect(result.orphans).toEqual([]);
+  expect(result.zeroView).toEqual(['cero-invisible', 'cero-visible']);
+  expect(result.undiscovered).toEqual(['cero-invisible']);
+  expect(result.issues.join('\n')).toContain(
+    '1 mapas con cero visitas sin enlace desde landings con ≥10 visitas (cero-invisible)'
+  );
+
+  // Sin datos de visitas el check mantiene el comportamiento anterior.
+  const legacy = auditInternalLinkCoverage(slugList, { galleryDir });
+  expect(legacy.issues).toEqual([]);
+  expect(legacy.undiscovered).toEqual([]);
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
 test('buildRelatedIndex prioritizes shared tags and guarantees full coverage', () => {
   const maps = [
     { slug: 'economia-a', title: 'Economía A', tags: ['Economía'], createdAtMs: 1 },
