@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-11-03",
+    "event": "Estados Unidos celebra el 3 de noviembre sus elecciones de medio mandato con un récord de candidatas: 590 mujeres se presentaron a la Cámara, 26 son candidatas a gobernadora y 3.824 concurren a las legislaturas estatales (3 de noviembre de 2026)",
+    "mapSlug": "women-in-parliament-world",
+    "sourceUrls": [
+      "https://time.com/article/2026/10/30/midterms-senate-governor-elections-race-gender-religion-history-nationwide-firsts/",
+      "https://www.rutgers.edu/news/will-midterms-bring-record-representation-women",
+      "https://www.kcrg.com/2026/10/26/why-record-number-women-are-running-office-2026",
+      "https://www.wandtv.com/2026/10/29/record-number-female-candidates-2026-midterms"
+    ],
+    "translations": {
+      "es": {
+        "slug": "midterms-record-candidatas-congreso",
+        "url": "/news/midterms-record-candidatas-congreso/",
+        "title": "Midterms con récord de candidatas y un Congreso al 28,9% de mujeres",
+        "description": "EE UU vota el 3 de noviembre con un récord de candidatas. El mapa de mujeres en el parlamento sitúa el Congreso en el 28,9%, por debajo de México y España."
+      },
+      "en": {
+        "slug": "midterms-record-women-congress",
+        "url": "/en/news/midterms-record-women-congress/",
+        "title": "Midterms with record women candidates and a 28.9% female Congress",
+        "description": "Americans vote on 3 November with a record number of women candidates. The women-in-parliament map puts Congress at 28.9%, behind Mexico and Spain."
+      }
+    }
+  },
+  {
     "date": "2026-11-02",
     "event": "La COP31 abre el 9 de noviembre en Antalya con 85 jefes de Estado o Gobierno confirmados y el objetivo de elevar la electricidad al 35% del consumo energético mundial en 2035; España llega con las renovables como prioridad (2 de noviembre de 2026)",
     "mapSlug": "renewable-energy-world",
