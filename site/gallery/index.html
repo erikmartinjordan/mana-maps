@@ -446,13 +446,10 @@
     .grid.empty-state{display:block}
     .grid .card{
       position:relative;aspect-ratio:3/2;min-width:0;overflow:hidden;isolation:isolate;
-      border:1px solid var(--line);border-radius:18px;background:#111;
-      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+      border:0;border-radius:18px;background:#111;
+      transition:transform .18s ease,box-shadow .18s ease;
     }
-    .grid .card:hover{
-      transform:translateY(-3px);border-color:rgba(16,24,40,.22);
-      box-shadow:0 14px 30px rgba(15,23,42,.10);
-    }
+    .grid .card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.10)}
     .grid .card-link{position:absolute;inset:0;display:block;text-decoration:none;color:#fff;z-index:1}
     .grid .thumb{position:absolute;inset:0;z-index:0;overflow:hidden;background:#111}
     .grid .thumb-preview{position:absolute;z-index:1;width:100%;height:100%}
@@ -893,7 +890,7 @@
   </div>
 
   <script defer src="/js/world-land.js"></script>
-  <script defer src="/js/map-preview.js?v=1793700002"></script>
+  <script defer src="/js/map-preview.js?v=1793700003"></script>
   <script defer src="/js/share-card.js?v=4"></script>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/firebase.js"></script>

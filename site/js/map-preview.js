@@ -608,7 +608,7 @@
     var darkGlowId = null;
     function renderDarkBackground() {
       darkGlowId = 'mana-darkglow-' + (++_bgClipId);
-      var radius = Math.min(viewW, viewH) * 0.02;
+      var radius = simple ? 0 : Math.min(viewW, viewH) * 0.02;
       return '<defs>' +
         '<linearGradient id="' + darkGlowId + '-bg" x1="0" y1="0" x2="0" y2="1">' +
         '<stop offset="0" stop-color="#0c1a31"/><stop offset="1" stop-color="#16294b"/></linearGradient>' +
