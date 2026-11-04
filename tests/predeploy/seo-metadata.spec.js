@@ -11,6 +11,8 @@ const {
   auditInternalLinkCoverage,
   auditNewsLandingLinks,
   extractPrimaryMapSlug,
+  extractViewerMapSlugs,
+  extractFooterLinks,
   parseLandingMetadata,
   auditLandingMetadata,
   auditMetadataHygiene,
@@ -237,6 +239,22 @@ test('every News article links to the static landing of its embedded map', () =>
   }
 });
 
+test('News footer links point to static landings, not the viewer', () => {
+  // Los footer-links son enlaces rastreables dentro del artículo: deben
+  // repartir autoridad a la landing indexable, no al visor /map/.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const result = auditNewsLandingLinks(published, { newsDir: path.join(siteRoot, 'news') });
+
+  const withFooter = Object.entries(result.details)
+    .filter(([, detail]) => detail && detail.footerLinks && detail.footerLinks.length);
+  expect(withFooter.length).toBeGreaterThan(0);
+  for (const [article, detail] of withFooter) {
+    for (const href of detail.footerLinks) {
+      expect(href, `${article}: ${href}`).toMatch(/^\/gallery\/[a-z0-9-]+\/$/);
+    }
+  }
+});
+
 test('News landing link check reports missing links and unpublished maps', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-news-landings-'));
   const writeArticle = (name, html) => {
@@ -248,15 +266,25 @@ test('News landing link check reports missing links and unpublished maps', () =>
   writeArticle('sin-enlace', '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe>');
   writeArticle('no-publicado', '<iframe src="/map/?gallery=otro&embed=1"></iframe><a href="/gallery/otro/">ficha</a>');
   writeArticle('sin-mapa', '<p>Estado mensual sin mapa embebido</p>');
+  writeArticle('footer-viewer', '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a><ul class="footer-links"><li><a href="/map/?gallery=publicado">visor</a></li></ul>');
+  writeArticle('footer-no-publicado', '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a><ul class="footer-links"><li><a href="/gallery/otro/">otro</a></li></ul>');
+  writeArticle('visor-sin-landing', '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a><a href="/map/?gallery=secundario">otro visor</a>');
 
   expect(extractPrimaryMapSlug('<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe>')).toBe('publicado');
   expect(extractPrimaryMapSlug('<p>Sin iframe</p>')).toBeNull();
+  expect(extractViewerMapSlugs('<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="https://maña.com/map/?gallery=secundario">x</a>'))
+    .toEqual(['publicado', 'secundario']);
+  expect(extractFooterLinks('<ul class="footer-links"><li><a href="/gallery/publicado/">x</a></li></ul>'))
+    .toEqual(['/gallery/publicado/']);
 
-  const result = auditNewsLandingLinks(['publicado'], { newsDir: tmp });
+  const result = auditNewsLandingLinks(['publicado', 'secundario'], { newsDir: tmp });
   expect(result.issues).toContain('sin-enlace: no enlaza a la landing del mapa /gallery/publicado/');
   expect(result.issues).toContain('no-publicado: el mapa embebido «otro» no está publicado en Firestore');
+  expect(result.issues).toContain('footer-viewer: footer-links apunta al visor (/map/?gallery=publicado); usa /gallery/publicado/');
+  expect(result.issues).toContain('footer-no-publicado: footer-links enlaza a la landing no publicada /gallery/otro/');
+  expect(result.issues).toContain('visor-sin-landing: enlaza al visor de «secundario» sin enlazar su landing /gallery/secundario/');
   expect(result.details['sin-mapa']).toBeNull();
-  expect(result.articles.map((a) => a.article)).toEqual(['no-publicado', 'ok', 'sin-enlace']);
+  expect(result.articles.map((a) => a.article)).toEqual(['footer-no-publicado', 'footer-viewer', 'no-publicado', 'ok', 'sin-enlace', 'visor-sin-landing']);
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });
