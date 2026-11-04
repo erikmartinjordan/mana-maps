@@ -1,5 +1,29 @@
 [
   {
+    "date": "2026-11-04",
+    "event": "La OMS alerta del colapso del sistema sanitario en el norte de Etiopía tras los ataques con drones en Amhara y Tigray: al menos 15 muertos en el campamento de Jaari 2 y los combates reanudados desde septiembre (2-4 de noviembre de 2026)",
+    "mapSlug": "infant-mortality-world",
+    "sourceUrls": [
+      "https://news.un.org/en/story/2026/11/1168720",
+      "https://www.aljazeera.com/news/2026/11/2/violence-in-northern-ethiopia-pushing-health-system-towards-collapse-who",
+      "https://data.worldbank.org/indicator/SP.DYN.IMRT.IN"
+    ],
+    "translations": {
+      "es": {
+        "slug": "oms-alerta-colapso-sanitario-norte-etiopia",
+        "url": "/news/oms-alerta-colapso-sanitario-norte-etiopia/",
+        "title": "La OMS alerta del riesgo de colapso sanitario en el norte de Etiopía",
+        "description": "La OMS alerta del riesgo de colapso sanitario en el norte de Etiopía tras los ataques con drones. El mapa de mortalidad infantil muestra el punto de partida."
+      },
+      "en": {
+        "slug": "who-warns-northern-ethiopia-health-collapse",
+        "url": "/en/news/who-warns-northern-ethiopia-health-collapse/",
+        "title": "WHO warns northern Ethiopia's health system is near collapse",
+        "description": "The WHO warns that violence in northern Ethiopia is pushing a fragile health system towards collapse. The infant-mortality map shows the starting point."
+      }
+    }
+  },
+  {
     "date": "2026-11-03",
     "event": "Estados Unidos vota el 3 de noviembre unas midterms marcadas por la guerra con Irán y el coste de vida: más de 57 millones de votos anticipados, 11.000 millones en publicidad y la gasolina a 4,17 dólares (3 de noviembre de 2026)",
     "mapSlug": "nuclear-energy-world",
