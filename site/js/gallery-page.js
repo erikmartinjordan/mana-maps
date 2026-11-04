@@ -309,7 +309,9 @@
       var mapAspect = parseFloat(vb[1]) / parseFloat(vb[2]);
       var cardAspect = 3 / 2;
       if (isFinite(mapAspect) && mapAspect > 0) {
-        coverScale = Math.max(1, mapAspect / cardAspect, cardAspect / mapAspect);
+        // 1 % de sobre-escaneo: evita que el redondeo subpíxel del marco deje
+        // una línea del fondo asomando por los bordes de la tarjeta.
+        coverScale = Math.max(1, mapAspect / cardAspect, cardAspect / mapAspect) * 1.01;
         coverClass = mapAspect >= cardAspect ? ' cover-wide' : ' cover-tall';
       }
     }

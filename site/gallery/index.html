@@ -446,12 +446,12 @@
     .grid.empty-state{display:block}
     .grid .card{
       position:relative;aspect-ratio:3/2;min-width:0;overflow:hidden;isolation:isolate;
-      border:0;border-radius:18px;background:#111;
+      border:0;border-radius:18px;background:transparent;
       transition:transform .18s ease,box-shadow .18s ease;
     }
     .grid .card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.10)}
     .grid .card-link{position:absolute;inset:0;display:block;text-decoration:none;color:#fff;z-index:1}
-    .grid .thumb{position:absolute;inset:0;z-index:0;overflow:hidden;background:#111}
+    .grid .thumb{position:absolute;inset:0;z-index:0;overflow:hidden;background:transparent}
     .grid .thumb-preview{position:absolute;z-index:1;width:100%;height:100%}
     .grid .thumb-preview.cover-wide{
       top:0;height:100%;width:calc(var(--cover-scale,1) * 100%);
@@ -900,7 +900,7 @@
   <script defer src="/js/auth.js?v=1792000000"></script>
   <script defer src="/js/user-maps.js"></script>
   <script defer src="/js/basemap-config.js"></script>
-  <script defer src="/js/gallery-page.js?v=1793700002"></script>
+  <script defer src="/js/gallery-page.js?v=1793700003"></script>
   <!-- MapLibre (image map for ?slug=) is loaded on demand by gallery-page.js -->
   <script>
     // Analytics/geo lookup is non-critical: run it once the page is idle.
