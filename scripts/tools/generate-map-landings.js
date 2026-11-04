@@ -22,6 +22,7 @@ const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
+const { buildFactsSection } = require('../lib/map-landing-facts');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SITE_ROOT = path.join(ROOT, 'site');
@@ -131,7 +132,7 @@ function metaDate(m) {
   return d.toISOString().split('T')[0];
 }
 
-function buildLandingHTML(m, relatedIndex, discoveryIndex) {
+function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   const slug = m.slug || m.id;
   const title = m.title || m.name || 'Mapa';
   const description = m.description || ('Mapa de ' + title + ' hecho con Maña Maps.');
@@ -150,6 +151,12 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex) {
   const discoveryBlock = discovery.length
     ? '\n    ' + relatedLinks(discovery, m, { title: 'Descubre también', className: 'related related--discovery' })
     : '';
+  const facts = buildFactsSection(geo, {
+    legendKey: m.legendKey,
+    legendTitle: m.legendTitle,
+    legendFormat: m.legendFormat,
+  });
+  const factsBlock = facts ? '\n    ' + facts.html : '';
 
   const dataset = {
     '@context': 'https://schema.org',
@@ -215,11 +222,21 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex) {
   .btn-primary{background:var(--sky);color:#fff}
   .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
   .source{margin-top:22px;padding:14px 16px;background:#f9fafb;border:1px solid var(--line);border-radius:12px;font-size:14px;color:var(--muted)}
+  .facts{margin-top:22px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#f9fafb}
+  .facts h2{font-size:18px;margin:0 0 8px}
+  .facts-lede{margin:0 0 14px;font-size:15px;line-height:1.5}
+  .facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .facts-col h3{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .facts-col ol{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}
+  .facts-col li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:3px}
+  .facts-name{font-weight:600}
+  .facts-value{color:var(--muted);white-space:nowrap}
+  @media (max-width:560px){.facts-grid{grid-template-columns:1fr}}
   .related{margin-top:34px}
   .related h2{font-size:18px}
   .related ul{list-style:none;padding:0;display:grid;gap:8px}
   .related a{text-decoration:none;font-weight:600}${discovery.length ? '\n  .related--discovery{margin-top:18px}\n  .related--discovery h2{font-size:15px;color:var(--muted)}' : ''}
-  @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
+  @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
 </head>
@@ -256,7 +273,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex) {
       <a class="btn btn-ghost" href="${esc(interactive)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
       <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=${xText}&url=${xUrl}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
     </div>
-    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}
+    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}
     ${relatedLinks(related, m)}${discoveryBlock}
   </main>
   <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
@@ -356,7 +373,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex) {
       }
     }
 
-    const html = buildLandingHTML(m, relatedIndex, discoveryIndex);
+    const html = buildLandingHTML(m, relatedIndex, discoveryIndex, geo);
     if (!DRY_RUN) {
       const dir = path.join(OUT_PAGES, slug);
       fs.mkdirSync(dir, { recursive: true });

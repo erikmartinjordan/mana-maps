@@ -49,11 +49,21 @@
   .btn-primary{background:var(--sky);color:#fff}
   .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
   .source{margin-top:22px;padding:14px 16px;background:#f9fafb;border:1px solid var(--line);border-radius:12px;font-size:14px;color:var(--muted)}
+  .facts{margin-top:22px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#f9fafb}
+  .facts h2{font-size:18px;margin:0 0 8px}
+  .facts-lede{margin:0 0 14px;font-size:15px;line-height:1.5}
+  .facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .facts-col h3{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .facts-col ol{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}
+  .facts-col li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:3px}
+  .facts-name{font-weight:600}
+  .facts-value{color:var(--muted);white-space:nowrap}
+  @media (max-width:560px){.facts-grid{grid-template-columns:1fr}}
   .related{margin-top:34px}
   .related h2{font-size:18px}
   .related ul{list-style:none;padding:0;display:grid;gap:8px}
   .related a{text-decoration:none;font-weight:600}
-  @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
+  @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
 </head>
@@ -91,6 +101,14 @@
       <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=Los%2010%20r%C3%ADos%20m%C3%A1s%20largos%20del%20mundo%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Flongest-rivers-world%2F" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
     </div>
     <div class="source"><strong>Fuente de datos:</strong> Natural Earth 50m rivers_lake_centerlines (naturalearthdata.com) · 2024-12-01</div>
+    <section class="facts" aria-labelledby="datos-clave">
+      <h2 id="datos-clave">Datos clave</h2>
+      <p class="facts-lede">Según los datos del mapa, <strong>Nilo</strong> registra el valor más alto de longitud (6650 km) y <strong>Amur</strong> el más bajo (4444 km).</p>
+      <div class="facts-grid">
+        <div class="facts-col"><h3>Valores más altos</h3><ol><li><span class="facts-name">Nilo</span><span class="facts-value">6650 km</span></li><li><span class="facts-name">Amazonas</span><span class="facts-value">6400 km</span></li><li><span class="facts-name">Yangtsé</span><span class="facts-value">6300 km</span></li></ol></div>
+        <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">Amur</span><span class="facts-value">4444 km</span></li><li><span class="facts-name">Congo</span><span class="facts-value">4700 km</span></li><li><span class="facts-name">Paraná-Río de la Plata</span><span class="facts-value">4880 km</span></li></ol></div>
+      </div>
+    </section>
     <section class="related"><h2>Más mapas</h2><ul><li><a href="/gallery/tallest-waterfalls-world/">Las cascadas más altas del mundo</a></li><li><a href="/gallery/largest-islands-world/">Las islas más grandes del mundo</a></li><li><a href="/gallery/major-deserts-world/">Principales desiertos del mundo</a></li><li><a href="/gallery/oceans-and-seas-world/">Océanos y mares del mundo</a></li></ul></section>
   </main>
   <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">

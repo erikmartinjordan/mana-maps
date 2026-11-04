@@ -49,13 +49,23 @@
   .btn-primary{background:var(--sky);color:#fff}
   .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
   .source{margin-top:22px;padding:14px 16px;background:#f9fafb;border:1px solid var(--line);border-radius:12px;font-size:14px;color:var(--muted)}
+  .facts{margin-top:22px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#f9fafb}
+  .facts h2{font-size:18px;margin:0 0 8px}
+  .facts-lede{margin:0 0 14px;font-size:15px;line-height:1.5}
+  .facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .facts-col h3{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .facts-col ol{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}
+  .facts-col li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:3px}
+  .facts-name{font-weight:600}
+  .facts-value{color:var(--muted);white-space:nowrap}
+  @media (max-width:560px){.facts-grid{grid-template-columns:1fr}}
   .related{margin-top:34px}
   .related h2{font-size:18px}
   .related ul{list-style:none;padding:0;display:grid;gap:8px}
   .related a{text-decoration:none;font-weight:600}
   .related--discovery{margin-top:18px}
   .related--discovery h2{font-size:15px;color:var(--muted)}
-  @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
+  @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
 </head>
@@ -93,6 +103,14 @@
       <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=Los%20peores%20incendios%20forestales%20del%20mundo%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fworst-wildfires-world%2F" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
     </div>
     <div class="source"><strong>Fuente de datos:</strong> Global Fire Emissions Database (GFED4.1), NASA GSFC · 2024</div>
+    <section class="facts" aria-labelledby="datos-clave">
+      <h2 id="datos-clave">Datos clave</h2>
+      <p class="facts-lede">Según los datos del mapa, <strong>Incendios australianos de 2019-2020</strong> registra el valor más alto de superficie quemada (18.600.000 ha) y <strong>Incendios de Ática de 2018</strong> el más bajo (3000 ha).</p>
+      <div class="facts-grid">
+        <div class="facts-col"><h3>Valores más altos</h3><ol><li><span class="facts-name">Incendios australianos de 2019-2020</span><span class="facts-value">18.600.000 ha</span></li><li><span class="facts-name">Incendios canadienses de 2023</span><span class="facts-value">18.500.000 ha</span></li><li><span class="facts-name">Incendios siberianos de 2023</span><span class="facts-value">8.000.000 ha</span></li></ol></div>
+        <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">Incendios de Ática de 2018</span><span class="facts-value">3000 ha</span></li><li><span class="facts-name">Incendios de Maui de 2023</span><span class="facts-value">8600 ha</span></li><li><span class="facts-name">Incendios de Argelia de 2023</span><span class="facts-value">10.000 ha</span></li></ol></div>
+      </div>
+    </section>
     <section class="related"><h2>Más mapas</h2><ul><li><a href="/gallery/cobertura-forestal-por-pais/">Cobertura forestal por país</a></li><li><a href="/gallery/air-pollution-pm25-world/">Exposición a la contaminación del aire (PM2.5) por país</a></li><li><a href="/gallery/renewable-energy-world/">Energía renovable (% de electricidad) mundial por país</a></li><li><a href="/gallery/water-sanitation-access-world/">Acceso a agua potable y saneamiento por país</a></li></ul></section>
     <section class="related related--discovery"><h2>Descubre también</h2><ul><li><a href="/gallery/co2-total-emissions-world/">Países que más emiten CO2 (totales)</a></li></ul></section>
   </main>
