@@ -53,13 +53,14 @@
 //  15. enlaces internos: cada landing publicada debe recibir al menos un
 //      enlace desde otra landing y, si el mapa tiene cero visitas, al menos
 //      uno debe venir de una landing con tráfico (≥DISCOVERY_MIN_HOST_VIEWS).
-//  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html
-//      que embebe un mapa (/map/?gallery=<slug>) debe enlazar también a su
-//      ficha estática /gallery/<slug>/ (title, description, canonical y
-//      Dataset); el visor no es la landing indexable. Toda referencia al visor
-//      debe tener su landing en el mismo artículo y los `footer-links` deben
-//      apuntar a landings publicadas, no al visor. Lista los artículos que
-//      fallan y sale con exit 1.
+//  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html y
+//      site/en/news/<slug>/index.html que embebe un mapa
+//      (/map/?gallery=<slug>) debe enlazar también a su ficha estática
+//      /gallery/<slug>/ (title, description, canonical y Dataset); el visor no
+//      es la landing indexable. Toda referencia al visor debe tener su landing
+//      en el mismo artículo y los `footer-links` deben apuntar a landings
+//      publicadas, no al visor. Lista los artículos que fallan y sale con
+//      exit 1.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -1820,6 +1821,8 @@ function auditInternalLinkCoverage(publishedSlugs, {
 // para descubrir los mapas con menos visitas.
 
 const NEWS_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'news');
+const NEWS_EN_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'en', 'news');
+const NEWS_DIR_PATHS = [NEWS_DIR_PATH, NEWS_EN_DIR_PATH];
 
 function extractPrimaryMapSlug(html) {
   const source = String(html == null ? '' : html);
@@ -1853,85 +1856,104 @@ function extractFooterLinks(html) {
   return hrefs;
 }
 
-function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATH } = {}) {
+function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS } = {}) {
   const pathMod = require('path');
   const issues = [];
   const details = {};
   const articles = [];
+  const allFooterLinks = [];
   const publishedSet = new Set((publishedSlugs || []).filter(Boolean));
+  const newsDirs = (Array.isArray(newsDir) ? newsDir : [newsDir]).filter(Boolean);
 
-  let entries = [];
-  try {
-    entries = fs.readdirSync(newsDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort();
-  } catch (e) {
-    return { issues: [`no se pudo leer site/news: ${e.message}`], details, articles };
-  }
+  for (const dir of newsDirs) {
+    const resolvedDir = pathMod.resolve(dir);
+    // Los artículos EN viven en site/en/news; se etiquetan como en/<slug> para
+    // que las incidencias no se confundan con el artículo equivalente en ES.
+    const isEnglish = pathMod.basename(pathMod.dirname(resolvedDir)) === 'en';
+    const labelFor = (name) => (isEnglish ? `en/${name}` : name);
 
-  for (const article of entries) {
-    const file = pathMod.join(newsDir, article, 'index.html');
-    if (!fs.existsSync(file)) continue;
-    let html = '';
+    let entries = [];
     try {
-      html = fs.readFileSync(file, 'utf8');
+      entries = fs.readdirSync(dir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort();
     } catch (e) {
-      issues.push(`${article}: no se pudo leer el artículo: ${e.message}`);
+      issues.push(`no se pudo leer ${dir}: ${e.message}`);
       continue;
     }
-    const slug = extractPrimaryMapSlug(html);
-    const viewerSlugs = extractViewerMapSlugs(html);
-    const footerLinks = extractFooterLinks(html);
 
-    // Landings enlazadas desde el artículo (solo rutas estáticas relativas).
-    const linkedSlugs = new Set();
-    for (const match of html.matchAll(/href="\/gallery\/([a-z0-9-]+)\/"/gi)) {
-      linkedSlugs.add(match[1]);
-    }
-
-    // Los footer-links deben apuntar a la landing estática, no al visor.
-    for (const href of footerLinks) {
-      const viewer = href.match(/\/map\/\?(?:[^"'<>]*?[?&])?gallery=([a-z0-9-]+)/i);
-      if (viewer) {
-        issues.push(`${article}: footer-links apunta al visor (${href}); usa /gallery/${viewer[1]}/`);
+    for (const articleName of entries) {
+      const article = labelFor(articleName);
+      const file = pathMod.join(dir, articleName, 'index.html');
+      if (!fs.existsSync(file)) continue;
+      let html = '';
+      try {
+        html = fs.readFileSync(file, 'utf8');
+      } catch (e) {
+        issues.push(`${article}: no se pudo leer el artículo: ${e.message}`);
         continue;
       }
-      const landing = href.match(/^\/gallery\/([a-z0-9-]+)\/$/);
-      if (!landing) continue;
-      if (!publishedSet.has(landing[1])) {
-        issues.push(`${article}: footer-links enlaza a la landing no publicada ${href}`);
-      }
-    }
+      const slug = extractPrimaryMapSlug(html);
+      const viewerSlugs = extractViewerMapSlugs(html);
+      const footerLinks = extractFooterLinks(html);
+      allFooterLinks.push(...footerLinks);
 
-    // Toda referencia al visor debe tener su landing indexable en el mismo
-    // artículo. El mapa embebido se valida justo debajo.
-    for (const refSlug of viewerSlugs) {
-      if (refSlug === slug) continue;
-      if (!publishedSet.has(refSlug)) {
-        issues.push(`${article}: enlaza al visor del mapa «${refSlug}» no publicado`);
+      // Landings enlazadas desde el artículo (solo rutas estáticas relativas).
+      const linkedSlugs = new Set();
+      for (const match of html.matchAll(/href="\/gallery\/([a-z0-9-]+)\/"/gi)) {
+        linkedSlugs.add(match[1]);
       }
-      if (!linkedSlugs.has(refSlug)) {
-        issues.push(`${article}: enlaza al visor de «${refSlug}» sin enlazar su landing /gallery/${refSlug}/`);
-      }
-    }
 
-    // Artículos sin mapa embebido (p. ej. el estado mensual) no aplican.
-    if (!slug) {
-      details[article] = null;
-      continue;
-    }
-    const linked = linkedSlugs.has(slug);
-    details[article] = { slug, linked, footerLinks };
-    articles.push({ article, slug, linked });
-    if (!publishedSet.has(slug)) {
-      issues.push(`${article}: el mapa embebido «${slug}» no está publicado en Firestore`);
-    }
-    if (!linked) {
-      issues.push(`${article}: no enlaza a la landing del mapa /gallery/${slug}/`);
+      // Los footer-links deben apuntar a la landing estática, no al visor ni a
+      // otra ruta: son los enlaces que reparten autoridad a los mapas menos
+      // visitados.
+      for (const href of footerLinks) {
+        const viewer = href.match(/\/map\/\?(?:[^"'<>]*?[?&])?gallery=([a-z0-9-]+)/i);
+        if (viewer) {
+          issues.push(`${article}: footer-links apunta al visor (${href}); usa /gallery/${viewer[1]}/`);
+          continue;
+        }
+        const landing = href.match(/^\/gallery\/([a-z0-9-]+)\/$/);
+        if (!landing) {
+          issues.push(`${article}: footer-links no apunta a una landing /gallery/<slug>/ (${href})`);
+          continue;
+        }
+        if (!publishedSet.has(landing[1])) {
+          issues.push(`${article}: footer-links enlaza a la landing no publicada ${href}`);
+        }
+      }
+
+      // Toda referencia al visor debe tener su landing indexable en el mismo
+      // artículo. El mapa embebido se valida justo debajo.
+      for (const refSlug of viewerSlugs) {
+        if (refSlug === slug) continue;
+        if (!publishedSet.has(refSlug)) {
+          issues.push(`${article}: enlaza al visor del mapa «${refSlug}» no publicado`);
+        }
+        if (!linkedSlugs.has(refSlug)) {
+          issues.push(`${article}: enlaza al visor de «${refSlug}» sin enlazar su landing /gallery/${refSlug}/`);
+        }
+      }
+
+      // Artículos sin mapa embebido (p. ej. el estado mensual) no aplican al
+      // enlace de ficha, pero sus footer-links sí se auditan arriba.
+      if (!slug) {
+        details[article] = null;
+        continue;
+      }
+      const linked = linkedSlugs.has(slug);
+      details[article] = { slug, linked, footerLinks };
+      articles.push({ article, slug, linked });
+      if (!publishedSet.has(slug)) {
+        issues.push(`${article}: el mapa embebido «${slug}» no está publicado en Firestore`);
+      }
+      if (!linked) {
+        issues.push(`${article}: no enlaza a la landing del mapa /gallery/${slug}/`);
+      }
     }
   }
-  return { issues, details, articles };
+  return { issues, details, articles, footerLinks: allFooterLinks };
 }
 
 // ── Higiene de metadatos (check 13) ───────────────────────────────
@@ -2437,7 +2459,7 @@ async function main() {
   console.log('NEWS → LANDING | ISSUES');
   console.log('--------------|-------');
   if (newsLinks.issues.length === 0) {
-    console.log(`OK: ${newsLinks.articles.length} artículos de News con mapa enlazan a su landing /gallery/<slug>/`);
+    console.log(`OK: ${newsLinks.articles.length} artículos de News (ES+EN) con mapa enlazan a su landing /gallery/<slug>/`);
   } else {
     for (const issue of newsLinks.issues) console.log(`NEWS: ${issue}`);
   }
@@ -2720,6 +2742,8 @@ module.exports = {
   extractLandingLinks,
   auditInternalLinkCoverage,
   NEWS_DIR_PATH,
+  NEWS_EN_DIR_PATH,
+  NEWS_DIR_PATHS,
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
   extractFooterLinks,

@@ -228,12 +228,13 @@ test('internal link coverage requires a traffic host for zero-view maps', () => 
 
 test('every News article links to the static landing of its embedded map', () => {
   // Regresión del check 16: el visor /map/?gallery= no es la landing
-  // indexable; cada artículo de News debe enlazar a /gallery/<slug>/.
+  // indexable; cada artículo de News (ES y EN) debe enlazar a /gallery/<slug>/.
   const published = parseCollectionLd(galleryHtml).slugs;
-  const result = auditNewsLandingLinks(published, { newsDir: path.join(siteRoot, 'news') });
+  const result = auditNewsLandingLinks(published);
 
   expect(result.issues).toEqual([]);
   expect(result.articles.length).toBeGreaterThan(0);
+  expect(result.articles.some((article) => article.article.startsWith('en/'))).toBe(true);
   for (const article of result.articles) {
     expect(article.linked, `${article.article} → ${article.slug}`).toBe(true);
   }
@@ -243,7 +244,7 @@ test('News footer links point to static landings, not the viewer', () => {
   // Los footer-links son enlaces rastreables dentro del artículo: deben
   // repartir autoridad a la landing indexable, no al visor /map/.
   const published = parseCollectionLd(galleryHtml).slugs;
-  const result = auditNewsLandingLinks(published, { newsDir: path.join(siteRoot, 'news') });
+  const result = auditNewsLandingLinks(published);
 
   const withFooter = Object.entries(result.details)
     .filter(([, detail]) => detail && detail.footerLinks && detail.footerLinks.length);
@@ -252,6 +253,33 @@ test('News footer links point to static landings, not the viewer', () => {
     for (const href of detail.footerLinks) {
       expect(href, `${article}: ${href}`).toMatch(/^\/gallery\/[a-z0-9-]+\/$/);
     }
+  }
+  for (const href of result.footerLinks) {
+    expect(href, `footer-links global: ${href}`).toMatch(/^\/gallery\/[a-z0-9-]+\/$/);
+  }
+});
+
+test('News footers distribute the six zero-view maps from the October report', () => {
+  // La directiva de noviembre prioriza distribución: los mapas sin visitas del
+  // informe de octubre deben recibir al menos un enlace desde un footer de News.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const result = auditNewsLandingLinks(published);
+  const footerSlugs = new Set(
+    result.footerLinks
+      .map((href) => (href.match(/^\/gallery\/([a-z0-9-]+)\/$/) || [])[1])
+      .filter(Boolean)
+  );
+
+  const zeroView = [
+    'alcohol-consumption-world',
+    'co2-total-emissions-world',
+    'gdp-per-capita-world',
+    'literacy-rate-world',
+    'tallest-skyscrapers-world',
+    'tallest-statues-world',
+  ];
+  for (const slug of zeroView) {
+    expect(footerSlugs.has(slug), `${slug} sin enlace desde footer-links de News`).toBe(true);
   }
 });
 
@@ -285,6 +313,33 @@ test('News landing link check reports missing links and unpublished maps', () =>
   expect(result.issues).toContain('visor-sin-landing: enlaza al visor de «secundario» sin enlazar su landing /gallery/secundario/');
   expect(result.details['sin-mapa']).toBeNull();
   expect(result.articles.map((a) => a.article)).toEqual(['footer-no-publicado', 'footer-viewer', 'no-publicado', 'ok', 'sin-enlace', 'visor-sin-landing']);
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('News landing link check audits English articles and rejects non-landing footers', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-news-en-'));
+  const enNews = path.join(tmp, 'en', 'news');
+  const article = path.join(enNews, 'english-article');
+  fs.mkdirSync(article, { recursive: true });
+  fs.writeFileSync(
+    path.join(article, 'index.html'),
+    '<iframe src="/map/?gallery=publicado&amp;embed=1"></iframe>' +
+    '<a href="/gallery/publicado/">ficha</a>' +
+    '<ul class="footer-links">' +
+    '<li><a href="/gallery/otro/">otro</a></li>' +
+    '<li><a href="/news/otra/">news</a></li>' +
+    '</ul>'
+  );
+
+  const result = auditNewsLandingLinks(['publicado'], { newsDir: enNews });
+  expect(result.details['en/english-article'].slug).toBe('publicado');
+  expect(result.issues).toContain(
+    'en/english-article: footer-links enlaza a la landing no publicada /gallery/otro/'
+  );
+  expect(result.issues).toContain(
+    'en/english-article: footer-links no apunta a una landing /gallery/<slug>/ (/news/otra/)'
+  );
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });
