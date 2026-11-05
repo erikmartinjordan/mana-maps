@@ -1736,9 +1736,10 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
 // mapas» de otra landing estática. Sin enlaces entrantes solo es alcanzable por
 // sitemap/JSON-LD y queda sin descubrimiento interno. Además, un mapa con cero
 // visitas debe recibir al menos un enlace desde una landing con tráfico
-// (≥ DISCOVERY_MIN_HOST_VIEWS): un enlace desde otro mapa igualmente invisible
-// no rompe el círculo de los cero visitas. La generación vive en
-// scripts/lib/related-maps.js (buildDiscoveryIndex).
+// (≥ DISCOVERY_MIN_HOST_VIEWS) o desde una fuente de descubrimiento externa
+// (el índice de News, enlazado desde la navegación global): un enlace desde
+// otro mapa igualmente invisible no rompe el círculo de los cero visitas. La
+// generación vive en scripts/lib/related-maps.js (buildDiscoveryIndex).
 
 const DISCOVERY_MIN_HOST_VIEWS = 10;
 
@@ -1758,12 +1759,14 @@ function auditInternalLinkCoverage(publishedSlugs, {
   galleryDir = GALLERY_DIR_PATH,
   viewsBySlug = null,
   minHostViews = DISCOVERY_MIN_HOST_VIEWS,
+  discoverySources = [],
 } = {}) {
   const pathMod = require('path');
   const issues = [];
   const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
   const publishedSet = new Set(published);
   const inbound = new Map(published.map((slug) => [slug, []]));
+  const extraLinks = new Map();
 
   for (const source of published) {
     let html = null;
@@ -1781,10 +1784,25 @@ function auditInternalLinkCoverage(publishedSlugs, {
     }
   }
 
+  // Fuentes de descubrimiento externas a las landings (p. ej. el índice de
+  // News, enlazado desde la navegación global). Un enlace desde ellas rompe el
+  // círculo de mapas con cero visitas aunque no tengan tráfico propio.
+  for (const source of Array.isArray(discoverySources) ? discoverySources : []) {
+    if (!source || !source.html) continue;
+    const label = source.label || 'discovery-source';
+    const links = extractLandingLinks(source.html);
+    extraLinks.set(label, links);
+    for (const target of links) {
+      if (!publishedSet.has(target)) continue;
+      inbound.get(target).push(label);
+    }
+  }
+
   const details = {};
   const orphans = [];
   const zeroView = [];
   const undiscovered = [];
+  const discoveredFrom = {};
   for (const slug of published) {
     const sources = [...new Set(inbound.get(slug) || [])].sort();
     details[slug] = sources;
@@ -1797,7 +1815,11 @@ function auditInternalLinkCoverage(publishedSlugs, {
       const hostViews = Number(viewsBySlug[source]);
       return isFinite(hostViews) && hostViews >= minHostViews;
     });
-    if (!trafficHosts.length) undiscovered.push(slug);
+    const extraHosts = [...extraLinks.entries()]
+      .filter(([, links]) => links.has(slug))
+      .map(([label]) => label);
+    if (extraHosts.length) discoveredFrom[slug] = extraHosts.sort();
+    if (!trafficHosts.length && !extraHosts.length) undiscovered.push(slug);
   }
   if (orphans.length) {
     issues.push(`${orphans.length} mapas sin enlaces entrantes desde otras landings (${orphans.join(', ')})`);
@@ -1805,10 +1827,10 @@ function auditInternalLinkCoverage(publishedSlugs, {
   if (undiscovered.length) {
     issues.push(
       `${undiscovered.length} mapas con cero visitas sin enlace desde landings con ≥${minHostViews} visitas ` +
-      `(${undiscovered.join(', ')})`
+      `ni desde fuentes de descubrimiento (${undiscovered.join(', ')})`
     );
   }
-  return { issues, published, details, orphans, zeroView, undiscovered, minHostViews };
+  return { issues, published, details, orphans, zeroView, undiscovered, discoveredFrom, minHostViews };
 }
 
 // ── Enlaces News → landing del mapa (check 16) ────────────────────
@@ -1823,6 +1845,24 @@ function auditInternalLinkCoverage(publishedSlugs, {
 const NEWS_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'news');
 const NEWS_EN_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'en', 'news');
 const NEWS_DIR_PATHS = [NEWS_DIR_PATH, NEWS_EN_DIR_PATH];
+const NEWS_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'news', 'index.html');
+const NEWS_EN_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'en', 'news', 'index.html');
+
+// Índices de News como fuentes de descubrimiento interno: enlazan landings
+// desde una página con navegación global, útil para los mapas sin visitas.
+function readNewsDiscoverySources() {
+  const sources = [];
+  for (const [label, file] of [['news-index', NEWS_INDEX_PATH], ['en/news-index', NEWS_EN_INDEX_PATH]]) {
+    try {
+      sources.push({ label, html: fs.readFileSync(file, 'utf8') });
+    } catch (e) {
+      if (e.code !== 'ENOENT') {
+        sources.push({ label, html: '', error: e.message });
+      }
+    }
+  }
+  return sources;
+}
 
 function extractPrimaryMapSlug(html) {
   const source = String(html == null ? '' : html);
@@ -2433,7 +2473,10 @@ async function main() {
     const viewsBySlug = Object.fromEntries(
       published.map((m) => [m.id, isFinite(Number(m.views)) ? Number(m.views) : 0])
     );
-    internalLinks = auditInternalLinkCoverage(published.map(m => m.id), { viewsBySlug });
+    internalLinks = auditInternalLinkCoverage(published.map(m => m.id), {
+      viewsBySlug,
+      discoverySources: readNewsDiscoverySources(),
+    });
   } catch (e) {
     internalLinks = { issues: [`no se pudieron comprobar los enlaces internos: ${e.message}`] };
   }
@@ -2442,7 +2485,7 @@ async function main() {
   if (internalLinks.issues.length === 0) {
     console.log(
       `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
-      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas` : '')
+      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas o desde el índice de News` : '')
     );
   } else {
     for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);
@@ -2680,7 +2723,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
-  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico`}`);
+  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas o desde el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico ni desde News`}`);
   console.log(`News → landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
@@ -2744,6 +2787,8 @@ module.exports = {
   NEWS_DIR_PATH,
   NEWS_EN_DIR_PATH,
   NEWS_DIR_PATHS,
+  NEWS_INDEX_PATH,
+  NEWS_EN_INDEX_PATH,
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
   extractFooterLinks,
