@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-11-05",
+    "event": "El turismo británico cierra 2026 con un récord de gasto en la Comunidad Valenciana: 3,05 millones de visitantes y 3.350 millones de euros previstos, con estancias más cortas y pernoctaciones por debajo de 2019 (WTM de Londres, 3-5 de noviembre de 2026)",
+    "mapSlug": "tourism-arrivals-world",
+    "sourceUrls": [
+      "https://espana.ladevi.info/actualidad/turespana-wtm-asi-busca-reforzar-un-mercado-emisor-vital-espana-n108541",
+      "https://interdiario.es/2026/11/03/el-britanico-en-maximos-la-comunitat-valenciana-cerrara-2026-con-un-record-de-305-millones-de-turistas-y-3-350-millones-de-euros-de-gasto/",
+      "https://es.ibtimes.com/spain-tourism-wtm-london-british-market-102166",
+      "https://www.unwto.org/tourism-statistics"
+    ],
+    "translations": {
+      "es": {
+        "slug": "turismo-britanico-record-comunidad-valenciana",
+        "url": "/news/turismo-britanico-record-comunidad-valenciana/",
+        "title": "Récord de gasto del turismo británico en la Comunidad Valenciana",
+        "description": "La WTM cierra en Londres con el mercado británico en máximos y un récord de gasto previsto en la Comunidad Valenciana, aunque las estancias se acortan."
+      },
+      "en": {
+        "slug": "british-tourism-record-valencia-region",
+        "url": "/en/news/british-tourism-record-valencia-region/",
+        "title": "Record spending by British tourists in the Valencia region",
+        "description": "The WTM closes in London with the British market at a high and record spending expected in the Valencia region, even as stays get shorter."
+      }
+    }
+  },
+  {
     "date": "2026-11-04",
     "event": "La OMS alerta del colapso del sistema sanitario en el norte de Etiopía tras los ataques con drones en Amhara y Tigray: al menos 15 muertos en el campamento de Jaari 2 y los combates reanudados desde septiembre (2-4 de noviembre de 2026)",
     "mapSlug": "infant-mortality-world",
