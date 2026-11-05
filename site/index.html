@@ -371,35 +371,6 @@ h1 {
 }
 .usecase-card:hover .usecase-link { text-decoration: underline; }
 
-/* ── Maps to discover ── */
-.discover {
-  display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 14px; padding: 0 48px 52px;
-}
-.discover-card {
-  display: flex; flex-direction: column;
-  text-decoration: none; color: inherit;
-  border: 1px solid var(--line); border-radius: 16px;
-  background: rgba(255,255,255,.75); padding: 18px 20px;
-  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
-}
-.discover-card:hover {
-  transform: translateY(-2px); border-color: rgba(16,24,40,.22);
-  box-shadow: 0 10px 26px rgba(15,23,42,.08);
-}
-.discover-kicker {
-  font-size: 10px; font-weight: 800; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--blue); margin-bottom: 8px;
-}
-.discover-card h3 { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
-.discover-card p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
-.discover-link {
-  margin-top: auto;
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 13px; font-weight: 700; color: var(--blue);
-}
-.discover-card:hover .discover-link { text-decoration: underline; }
-
 /* ── CTA band ── */
 .cta-band {
   position: relative; overflow: hidden;
@@ -448,7 +419,6 @@ h1 {
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
   .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .usecases { padding: 0 24px 36px; grid-template-columns: 1fr; }
-  .discover { padding: 0 24px 36px; grid-template-columns: repeat(2, minmax(0,1fr)); }
   .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
   /* Keep the Cobe canvas square on narrow screens so the globe remains circular. */
   #globe {
@@ -486,8 +456,7 @@ h1 {
   .hero { padding: 36px 18px 24px; }
   .cta-row { width: 100%; gap: 8px; }
   .cta-row .btn { flex: 1 1 auto; justify-content: center; padding-inline: 12px; }
-  .section-head, .stats, .showcase, .usecases, .discover { padding-left: 18px; padding-right: 18px; }
-  .discover { grid-template-columns: 1fr; }
+  .section-head, .stats, .showcase, .usecases { padding-left: 18px; padding-right: 18px; }
   .cta-band { margin-left: 18px; margin-right: 18px; padding: 26px 18px; }
 }
 @media (max-width: 360px) {
@@ -738,52 +707,6 @@ h1 {
     </a>
   </section>
 
-  <div class="section-head reveal">
-    <div>
-      <h2 class="section-title" data-i18n="discover_title">Mapas para descubrir</h2>
-      <p class="section-sub" data-i18n="discover_sub">Seis mapas recientes que quiz&#225; te hayan pasado desapercibidos: datos citados, leyenda y vista interactiva.</p>
-    </div>
-    <a class="section-link" href="/gallery" data-i18n="showcase_link">Ver galer&#237;a &rarr;</a>
-  </div>
-  <section class="discover" aria-label="Mapas para descubrir" data-i18n-aria-label="discover_aria">
-    <a class="discover-card reveal" href="/gallery/alcohol-consumption-world/">
-      <span class="discover-kicker" data-i18n="discover1_tag">Salud</span>
-      <h3 data-i18n="discover1_t">Consumo de alcohol per c&#225;pita por pa&#237;s</h3>
-      <p data-i18n="discover1_d">De los 0 litros de Yemen o Somalia a los 17,1 de Ruman&#237;a, seg&#250;n la OMS.</p>
-      <span class="discover-link" data-i18n="discover_cta">Abrir ficha &rarr;</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/co2-total-emissions-world/" style="transition-delay:60ms">
-      <span class="discover-kicker" data-i18n="discover2_tag">Medio ambiente</span>
-      <h3 data-i18n="discover2_t">Pa&#237;ses que m&#225;s emiten CO2 (totales)</h3>
-      <p data-i18n="discover2_d">Las emisiones totales de CO2 f&#243;sil por pa&#237;s, con datos del Global Carbon Project 2024.</p>
-      <span class="discover-link" data-i18n="discover_cta">Abrir ficha &rarr;</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/gdp-per-capita-world/" style="transition-delay:120ms">
-      <span class="discover-kicker" data-i18n="discover3_tag">Econom&#237;a</span>
-      <h3 data-i18n="discover3_t">PIB per c&#225;pita mundial por pa&#237;s</h3>
-      <p data-i18n="discover3_d">La renta media por persona de cada pa&#237;s en una sola escala, seg&#250;n el Banco Mundial.</p>
-      <span class="discover-link" data-i18n="discover_cta">Abrir ficha &rarr;</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/literacy-rate-world/">
-      <span class="discover-kicker" data-i18n="discover4_tag">Educaci&#243;n</span>
-      <h3 data-i18n="discover4_t">Alfabetizaci&#243;n mundial por pa&#237;s</h3>
-      <p data-i18n="discover4_d">La tasa de alfabetizaci&#243;n adulta pa&#237;s a pa&#237;s, con datos de UNESCO y el Banco Mundial.</p>
-      <span class="discover-link" data-i18n="discover_cta">Abrir ficha &rarr;</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/tallest-skyscrapers-world/" style="transition-delay:60ms">
-      <span class="discover-kicker" data-i18n="discover5_tag">Arquitectura</span>
-      <h3 data-i18n="discover5_t">Los 50 rascacielos m&#225;s altos del mundo</h3>
-      <p data-i18n="discover5_d">El Burj Khalifa lidera con 828 m y China concentra 26 de los 50 edificios.</p>
-      <span class="discover-link" data-i18n="discover_cta">Abrir ficha &rarr;</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/tallest-statues-world/" style="transition-delay:120ms">
-      <span class="discover-kicker" data-i18n="discover6_tag">Cultura</span>
-      <h3 data-i18n="discover6_t">Las estatuas m&#225;s altas del mundo</h3>
-      <p data-i18n="discover6_d">La Estatua de la Unidad (182 m) casi duplica a la Estatua de la Libertad.</p>
-      <span class="discover-link" data-i18n="discover_cta">Abrir ficha &rarr;</span>
-    </a>
-  </section>
-
   <section class="cta-band reveal" aria-label="Llamada a la acción" data-i18n-aria-label="cta_aria">
     <div>
       <h2 data-i18n="cta_title">&#191;Listo para dise&#241;ar tu mapa?</h2>
@@ -872,28 +795,6 @@ var LANG = {
     usecase3_t:'Cables submarinos de fibra \u00f3ptica',
     usecase3_d:'La red f\u00edsica que conecta Internet en todo el mundo: rutas, longitudes y puntos de aterrizaje.',
     usecase3_l:'Abrir ejemplo \u2192',
-    discover_title:'Mapas para descubrir',
-    discover_sub:'Seis mapas recientes que quiz\u00e1 te hayan pasado desapercibidos: datos citados, leyenda y vista interactiva.',
-    discover_aria:'Mapas para descubrir',
-    discover_cta:'Abrir ficha \u2192',
-    discover1_tag:'Salud',
-    discover1_t:'Consumo de alcohol per c\u00e1pita por pa\u00eds',
-    discover1_d:'De los 0 litros de Yemen o Somalia a los 17,1 de Ruman\u00eda, seg\u00fan la OMS.',
-    discover2_tag:'Medio ambiente',
-    discover2_t:'Pa\u00edses que m\u00e1s emiten CO2 (totales)',
-    discover2_d:'Las emisiones totales de CO2 f\u00f3sil por pa\u00eds, con datos del Global Carbon Project 2024.',
-    discover3_tag:'Econom\u00eda',
-    discover3_t:'PIB per c\u00e1pita mundial por pa\u00eds',
-    discover3_d:'La renta media por persona de cada pa\u00eds en una sola escala, seg\u00fan el Banco Mundial.',
-    discover4_tag:'Educaci\u00f3n',
-    discover4_t:'Alfabetizaci\u00f3n mundial por pa\u00eds',
-    discover4_d:'La tasa de alfabetizaci\u00f3n adulta pa\u00eds a pa\u00eds, con datos de UNESCO y el Banco Mundial.',
-    discover5_tag:'Arquitectura',
-    discover5_t:'Los 50 rascacielos m\u00e1s altos del mundo',
-    discover5_d:'El Burj Khalifa lidera con 828 m y China concentra 26 de los 50 edificios.',
-    discover6_tag:'Cultura',
-    discover6_t:'Las estatuas m\u00e1s altas del mundo',
-    discover6_d:'La Estatua de la Unidad (182 m) casi duplica a la Estatua de la Libertad.',
     cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
     cta_aria:'Llamada a la acci\u00f3n',
     footer_made:'Hecho con \u2665 en Barcelona',
@@ -952,28 +853,6 @@ var LANG = {
     usecase3_t:'Submarine fiber-optic cables',
     usecase3_d:'The physical network behind the Internet: routes, lengths and landing points worldwide.',
     usecase3_l:'Open example \u2192',
-    discover_title:'Maps to discover',
-    discover_sub:'Six recent maps you may have missed: cited data, legend and an interactive view.',
-    discover_aria:'Maps to discover',
-    discover_cta:'Open map page \u2192',
-    discover1_tag:'Health',
-    discover1_t:'Alcohol consumption per capita by country',
-    discover1_d:'From 0 litres in Yemen or Somalia to 17.1 in Romania, according to the WHO.',
-    discover2_tag:'Environment',
-    discover2_t:'Countries with the highest total CO2 emissions',
-    discover2_d:'Total fossil CO2 emissions by country, with Global Carbon Project 2024 data.',
-    discover3_tag:'Economy',
-    discover3_t:'GDP per capita worldwide by country',
-    discover3_d:'Average income per person for every country on a single scale, according to the World Bank.',
-    discover4_tag:'Education',
-    discover4_t:'Literacy worldwide by country',
-    discover4_d:'Adult literacy rates country by country, with UNESCO and World Bank data.',
-    discover5_tag:'Architecture',
-    discover5_t:'The 50 tallest skyscrapers in the world',
-    discover5_d:'The Burj Khalifa leads at 828 m and China holds 26 of the 50 buildings.',
-    discover6_tag:'Culture',
-    discover6_t:'The tallest statues in the world',
-    discover6_d:'The Statue of Unity (182 m) is nearly twice the height of the Statue of Liberty.',
     cta_sub:'Free, no signup. Open the app and start in seconds.',
     cta_aria:'Call to action',
     footer_made:'Made with \u2665 in Barcelona',

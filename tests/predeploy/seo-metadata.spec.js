@@ -285,26 +285,6 @@ test('News index distributes the six zero-view maps with static landing links', 
   }
 });
 
-test('home page distributes the six zero-view maps with static landing links', () => {
-  // La portada es la página con más autoridad interna: debe enlazar las
-  // landings de los mapas sin visitas, no solo el índice de News.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const zeroView = [
-    'alcohol-consumption-world',
-    'co2-total-emissions-world',
-    'gdp-per-capita-world',
-    'literacy-rate-world',
-    'tallest-skyscrapers-world',
-    'tallest-statues-world',
-  ];
-  const html = fs.readFileSync(path.join(siteRoot, 'index.html'), 'utf8');
-  const links = extractLandingLinks(html);
-  for (const slug of zeroView) {
-    expect(published, `${slug} no está publicado`).toContain(slug);
-    expect(links.has(slug), `portada sin enlace a /gallery/${slug}/`).toBe(true);
-  }
-});
-
 test('home page is accepted as a discovery source for zero-view maps', () => {
   // El check 15 debe contar la portada, igual que los índices de News, para
   // que un mapa sin visitas no dependa del tráfico de otras landings.

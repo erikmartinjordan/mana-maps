@@ -302,6 +302,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
           <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
           <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
           <a href="/map/?tutorial=1">Tutorial</a>
+          <a href="/tasks/" data-i18n="footer_tasks">Tareas</a>
         </div>
       </section>
       <section class="site-footer__group site-footer__group--wide">
