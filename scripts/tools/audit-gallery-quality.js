@@ -1827,7 +1827,7 @@ function auditInternalLinkCoverage(publishedSlugs, {
   if (undiscovered.length) {
     issues.push(
       `${undiscovered.length} mapas con cero visitas sin enlace desde landings con ≥${minHostViews} visitas ` +
-      `ni desde fuentes de descubrimiento (${undiscovered.join(', ')})`
+      `ni desde la portada ni desde fuentes de descubrimiento (${undiscovered.join(', ')})`
     );
   }
   return { issues, published, details, orphans, zeroView, undiscovered, discoveredFrom, minHostViews };
@@ -1847,12 +1847,17 @@ const NEWS_EN_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'en
 const NEWS_DIR_PATHS = [NEWS_DIR_PATH, NEWS_EN_DIR_PATH];
 const NEWS_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'news', 'index.html');
 const NEWS_EN_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'en', 'news', 'index.html');
+const HOME_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'index.html');
 
-// Índices de News como fuentes de descubrimiento interno: enlazan landings
-// desde una página con navegación global, útil para los mapas sin visitas.
+// Portada e índices de News como fuentes de descubrimiento interno: enlazan
+// landings desde páginas con navegación global, útil para los mapas sin visitas.
 function readNewsDiscoverySources() {
   const sources = [];
-  for (const [label, file] of [['news-index', NEWS_INDEX_PATH], ['en/news-index', NEWS_EN_INDEX_PATH]]) {
+  for (const [label, file] of [
+    ['home', HOME_INDEX_PATH],
+    ['news-index', NEWS_INDEX_PATH],
+    ['en/news-index', NEWS_EN_INDEX_PATH],
+  ]) {
     try {
       sources.push({ label, html: fs.readFileSync(file, 'utf8') });
     } catch (e) {
@@ -2485,7 +2490,7 @@ async function main() {
   if (internalLinks.issues.length === 0) {
     console.log(
       `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
-      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas o desde el índice de News` : '')
+      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada o el índice de News` : '')
     );
   } else {
     for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);
@@ -2723,7 +2728,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
-  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas o desde el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico ni desde News`}`);
+  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada o el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico, la portada ni News`}`);
   console.log(`News → landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
@@ -2789,6 +2794,7 @@ module.exports = {
   NEWS_DIR_PATHS,
   NEWS_INDEX_PATH,
   NEWS_EN_INDEX_PATH,
+  HOME_INDEX_PATH,
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
   extractFooterLinks,

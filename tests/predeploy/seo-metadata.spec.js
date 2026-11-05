@@ -216,7 +216,7 @@ test('internal link coverage requires a traffic host for zero-view maps', () => 
   expect(result.zeroView).toEqual(['cero-invisible', 'cero-visible']);
   expect(result.undiscovered).toEqual(['cero-invisible']);
   expect(result.issues.join('\n')).toContain(
-    '1 mapas con cero visitas sin enlace desde landings con ≥10 visitas ni desde fuentes de descubrimiento (cero-invisible)'
+    '1 mapas con cero visitas sin enlace desde landings con ≥10 visitas ni desde la portada ni desde fuentes de descubrimiento (cero-invisible)'
   );
 
   // Sin datos de visitas el check mantiene el comportamiento anterior.
@@ -283,6 +283,53 @@ test('News index distributes the six zero-view maps with static landing links', 
       expect(links.has(slug), `${label} sin enlace a /gallery/${slug}/`).toBe(true);
     }
   }
+});
+
+test('home page distributes the six zero-view maps with static landing links', () => {
+  // La portada es la página con más autoridad interna: debe enlazar las
+  // landings de los mapas sin visitas, no solo el índice de News.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const zeroView = [
+    'alcohol-consumption-world',
+    'co2-total-emissions-world',
+    'gdp-per-capita-world',
+    'literacy-rate-world',
+    'tallest-skyscrapers-world',
+    'tallest-statues-world',
+  ];
+  const html = fs.readFileSync(path.join(siteRoot, 'index.html'), 'utf8');
+  const links = extractLandingLinks(html);
+  for (const slug of zeroView) {
+    expect(published, `${slug} no está publicado`).toContain(slug);
+    expect(links.has(slug), `portada sin enlace a /gallery/${slug}/`).toBe(true);
+  }
+});
+
+test('home page is accepted as a discovery source for zero-view maps', () => {
+  // El check 15 debe contar la portada, igual que los índices de News, para
+  // que un mapa sin visitas no dependa del tráfico de otras landings.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-home-discovery-'));
+  const galleryDir = path.join(tmp, 'gallery');
+  const writeLanding = (slug, anchors = []) => {
+    fs.mkdirSync(path.join(galleryDir, slug), { recursive: true });
+    fs.writeFileSync(
+      path.join(galleryDir, slug, 'index.html'),
+      `<section class="related"><ul>${anchors.map(a => `<a href="/gallery/${a}/">${a}</a>`).join('')}</ul></section>`
+    );
+  };
+  writeLanding('popular', ['oculto']);
+  writeLanding('oculto', ['popular']);
+
+  const result = auditInternalLinkCoverage(['popular', 'oculto'], {
+    galleryDir,
+    viewsBySlug: { popular: 40, oculto: 0 },
+    discoverySources: [{ label: 'home', html: '<a href="/gallery/oculto/">oculto</a>' }],
+  });
+  expect(result.issues).toEqual([]);
+  expect(result.undiscovered).toEqual([]);
+  expect(result.discoveredFrom.oculto).toEqual(['home']);
+
+  fs.rmSync(tmp, { recursive: true, force: true });
 });
 
 test('every News article links to the static landing of its embedded map', () => {
