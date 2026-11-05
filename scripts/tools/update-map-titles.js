@@ -32,7 +32,7 @@ const TITLES = {
   'largest-islands-world': 'Las islas más grandes del mundo',
   'life-expectancy-world': 'Esperanza de vida mundial por país',
   'literacy-rate-world': 'Alfabetización mundial por país',
-  'longest-rivers-world': 'Los 10 ríos más largos del mundo',
+  'longest-rivers-world': 'Los ríos más largos del mundo',
   'major-deserts-world': 'Principales desiertos del mundo',
   'minimum-wage-by-country': 'Salario mínimo por país',
   'nuclear-energy-world': 'Energía nuclear por país',
@@ -40,6 +40,8 @@ const TITLES = {
   'patrimonio-unesco-por-pais': 'Sitios patrimonio de la humanidad UNESCO por país',
   'population-by-country': 'Países por población total',
   'submarine-fiber-cables': 'Cables de fibra óptica submarina',
+  'tallest-skyscrapers-world': 'Los rascacielos más altos del mundo',
+  'tallest-statues-world': 'Las estatuas más altas del mundo',
   'world-happiness-world': 'Índice de felicidad mundial por país',
   'worst-wildfires-world': 'Los peores incendios forestales del mundo',
 };

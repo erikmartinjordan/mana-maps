@@ -239,8 +239,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
+<link rel="stylesheet" href="/css/public-theme.css">
 </head>
-<body>
+<body class="public-landing">
   <header class="site-navbar">
     <div class="site-navbar__inner">
       <a class="brand" href="/" aria-label="Maña Maps">

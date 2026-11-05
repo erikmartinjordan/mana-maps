@@ -95,7 +95,7 @@
       {
         "@type": "ListItem",
         "position": 6,
-        "name": "Los 10 ríos más largos del mundo",
+        "name": "Los ríos más largos del mundo",
         "url": "https://maña.com/gallery/?slug=longest-rivers-world"
       },
       {
@@ -281,7 +281,7 @@
       {
         "@type": "ListItem",
         "position": 37,
-        "name": "Los 50 rascacielos más altos del mundo",
+        "name": "Los rascacielos más altos del mundo",
         "url": "https://maña.com/gallery/?slug=tallest-skyscrapers-world"
       },
       {
@@ -365,7 +365,7 @@
       {
         "@type": "ListItem",
         "position": 51,
-        "name": "Las 17 estatuas más altas del mundo",
+        "name": "Las estatuas más altas del mundo",
         "url": "https://maña.com/gallery/?slug=tallest-statues-world"
       },
       {
@@ -733,8 +733,9 @@
     .auth-google-btn:active{transform:scale(.98)}
   </style>
   <link rel="stylesheet" href="/css/site-footer.css">
+  <link rel="stylesheet" href="/css/public-theme.css">
 </head>
-<body>
+<body class="public-gallery">
   <main class="frame">
     <header class="topbar">
       <a class="brand" href="/">
@@ -748,6 +749,14 @@
         <span class="brand-copy"><span class="brand-word">Ma&#241;a</span><span class="brand-sub">Maps</span></span>
       </a>
       <div class="topbar-actions">
+        <details class="topbar-more">
+          <summary>Menú</summary>
+          <div class="topbar-panel">
+            <a href="/">Inicio</a>
+            <a href="/my-maps/">Mis mapas</a>
+            <a href="/map/">Crear mapa</a>
+          </div>
+        </details>
         <a class="btn btn-ghost" href="/">Inicio</a>
         <a class="btn btn-ghost" href="/my-maps/">Mis mapas</a>
         <a class="btn btn-primary" href="/map/">Crear mapa</a>
@@ -836,7 +845,7 @@
         <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
         <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
         <a href="/map/?tutorial=1">Tutorial</a>
-      </div>
+      <a href="/tasks/" data-i18n="footer_tasks">Tareas</a></div>
     </section>
     <section class="site-footer__group site-footer__group--wide">
       <h2 data-i18n="footer_company">Compañía</h2>

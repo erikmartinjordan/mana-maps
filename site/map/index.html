@@ -97,7 +97,7 @@
 </script>
 
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#080909">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -116,13 +116,22 @@ try {
 try {
   if (new URLSearchParams(window.location.search).get('embed') === '1') {
     document.documentElement.classList.add('mana-editor-embed');
-    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+} catch (e) {}
+</script>
+<script>
+try {
+  if (!document.documentElement.classList.contains('mana-editor-embed')) {
+    var _manaDarkPref = localStorage.getItem('mana-dark');
+    document.documentElement.setAttribute('data-theme', _manaDarkPref === 'false' ? 'light' : 'dark');
   }
 } catch (e) {}
 </script>
 <link rel="stylesheet" href="/css/main.css?v=1793020900"/>
 <link rel="stylesheet" href="/css/auth-gallery.css"/>
 <link rel="stylesheet" href="/css/tutorial.css?v=1"/>
+<link rel="stylesheet" href="/css/editor-dark.css"/>
 
 </head>
 <body>
@@ -830,7 +839,7 @@ try {
 
 <!-- ═══ Módulos de la app (el orden importa) ═══ -->
 <script defer src="/js/i18n.js?v=20261027"></script>      <!-- i18n: must load first -->
-<script defer src="/js/basemap-config.js?v=1776927833"></script>
+<script defer src="/js/basemap-config.js?v=1794000000"></script>
 <script defer src="/js/world-land.js"></script>              <!-- silueta mundial simplificada (previews) -->
 <script defer src="/js/map-preview.js?v=1791708010"></script>          <!-- previews compartidos (galería, perfiles) -->
 <script defer src="/js/markers.js?v=1791708010"></script>      <!-- color y marcadores -->
@@ -1010,12 +1019,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Apply stored translations
   if (typeof applyTranslations === 'function') applyTranslations(LANG);
 
-  var darkPref = localStorage.getItem('mana-dark');
+  var isEmbed = document.documentElement.classList.contains('mana-editor-embed');
+  var darkPref = isEmbed ? 'true' : localStorage.getItem('mana-dark');
   var btn = document.getElementById('dark-toggle');
   if (darkPref === 'true') {
     document.documentElement.setAttribute('data-theme', 'dark');
   } else if (darkPref === 'false') {
-    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 
   var isDarkResolved =
@@ -1035,7 +1045,7 @@ function toggleDarkMode() {
     || (!rootTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   var btn = document.getElementById('dark-toggle');
   if (isDark) {
-    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.setAttribute('data-theme', 'dark');
     localStorage.setItem('mana-dark', 'false');
     if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
   } else {

@@ -3526,4 +3526,4 @@ html.mana-editor-embed #map-wrap{grid-column:1 / -1}
 html.mana-editor-embed #map-pillbar{display:block!important;bottom:calc(20px + env(safe-area-inset-bottom));
   box-shadow:0 6px 24px rgba(15,23,42,.16),0 1px 3px rgba(15,23,42,.10)}
 html.mana-editor-embed #map-pillbar .lg-tint{background:color-mix(in srgb,var(--surface) 86%,transparent)}
-html.mana-editor-embed #map-legend{bottom:calc(20px + env(safe-area-inset-bottom))}
+html.mana-editor-embed #map-legend{top:calc(16px + env(safe-area-inset-top));bottom:auto;left:16px}

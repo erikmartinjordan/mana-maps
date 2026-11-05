@@ -483,8 +483,8 @@ async function main() {
   const docFields = {
     id: fsStr(SLUG),
     slug: fsStr(SLUG),
-    title: fsStr('Los 10 ríos más largos del mundo'),
-    name: fsStr('Los 10 ríos más largos del mundo'),
+    title: fsStr('Los ríos más largos del mundo'),
+    name: fsStr('Los ríos más largos del mundo'),
     description: fsStr('Los diez ríos más extensos del planeta, con sus cursos reales obtenidos de Natural Earth. Cada río muestra longitud, nacimiento, desembocadura y países que atraviesa.'),
     lang: fsStr('es'),
     featureCount: fsInt(geojson.features.length),

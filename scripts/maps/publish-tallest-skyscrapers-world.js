@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ── publish-tallest-skyscrapers-world.js ─
-// Mapa puntual: Los 50 rascacielos más altos del mundo
+// Mapa puntual: Los rascacielos más altos del mundo
 // Fuente: Wikipedia, «List of tallest buildings», basada en el Council on Tall
 // Buildings and Urban Habitat (CTBUH) — Skyscraper Center, «The 100 Tallest
 // Completed Buildings in the World»; coordenadas verificadas en Wikipedia y
@@ -13,7 +13,7 @@ const fs = require('fs'), path = require('path');
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNull, fsMap } = require('../lib/publisher');
 
 const SLUG = 'tallest-skyscrapers-world';
-const TITLE = 'Los 50 rascacielos más altos del mundo';
+const TITLE = 'Los rascacielos más altos del mundo';
 const DRY_RUN = process.argv.includes('--dry-run');
 
 const PREVIEW_EMOJI = { emoji_building: '\uD83C\uDFE2' };

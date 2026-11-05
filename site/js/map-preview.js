@@ -101,7 +101,7 @@
   var EMOJI_MARKER_MAP = {
     emoji_home:'🏠', emoji_building:'🏢', emoji_hospital:'🏥', emoji_school:'🏫',
     emoji_library:'📚',
-    emoji_church:'⛪', emoji_museum:'🏛️', emoji_hotel:'🏨', emoji_store:'🏪',
+    emoji_church:'⛪', emoji_museum:'🏛️', emoji_moai:'🗿', emoji_hotel:'🏨', emoji_store:'🏪',
     emoji_bank:'🏦', emoji_factory:'🏭', emoji_restaurant:'🍽️', emoji_burger:'🍔',
     emoji_pizza:'🍕', emoji_coffee:'☕', emoji_beer:'🍺', emoji_wine:'🍷',
     emoji_cocktail:'🍹', emoji_sushi:'🍣', emoji_icecream:'🍦', emoji_tree:'🌲',

@@ -126,7 +126,7 @@
 </script>
 
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#f5f5f7">
+<meta name="theme-color" content="#080909">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://esm.sh" crossorigin>
@@ -506,12 +506,25 @@ h1 {
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
+  <link rel="stylesheet" href="/css/home-dark.css">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Saltar al contenido</a>
 <main class="frame">
-  <header class="site-navbar">
-  <div class="site-navbar__inner">
+  <header class="masthead" aria-label="Navegación principal">
+    <nav class="masthead__nav" aria-label="Secciones">
+      <a href="/news/" data-i18n="footer_news">News</a>
+      <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+      <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+    </nav>
+    <details class="masthead__more">
+      <summary data-i18n="nav_menu">Menú</summary>
+      <div class="masthead__panel">
+        <a href="/news/" data-i18n="footer_news">News</a>
+        <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+        <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      </div>
+    </details>
     <a class="brand" href="/" aria-label="Maña Maps">
       <span class="brand-logo"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
@@ -520,25 +533,110 @@ h1 {
         <g transform="translate(62.7889 133.0811) scale(0.04069010 -0.04069010)"><path fill="#fff" d="M1675 0H1303V987L1032 350H777L506 987V0H154V1489H585L915 754L1244 1489H1675Z"/><path fill="#fff" transform="translate(1530 -40)" d="M-186 2061Q-196 1894 -269.0 1816.5Q-342 1739 -472 1739Q-520 1739 -563.0 1758.5Q-606 1778 -637 1797Q-667 1816 -703.5 1835.5Q-740 1855 -765 1855Q-815 1855 -833.0 1823.5Q-851 1792 -855 1733H-1065Q-1059 1879 -983.0 1966.5Q-907 2054 -780 2054Q-732 2054 -691.0 2037.0Q-650 2020 -612 1998Q-582 1981 -546.0 1962.0Q-510 1943 -487 1943Q-439 1943 -418.5 1975.0Q-398 2007 -396 2061Z"/></g></svg></span>
       <span><span class="brand-word">Maña</span><span class="brand-sub">Maps</span></span>
     </a>
-    <nav class="site-navbar__actions" aria-label="Navegación principal">
-      <a class="site-navbar__link site-navbar__link--desktop" href="/news/" data-i18n="footer_news">News</a>
-      <a class="site-navbar__link site-navbar__link--desktop" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
-      <a class="site-navbar__link site-navbar__link--desktop" href="/pricing/" data-i18n="footer_pricing">Precios</a>
-      <details class="site-navbar__more">
-        <summary class="site-navbar__link site-navbar__menu" data-i18n="nav_menu">Menú</summary>
-        <div class="site-navbar__panel">
-          <a class="" href="/news/" data-i18n="footer_news">News</a>
-          <a class="" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
-          <a class="" href="/pricing/" data-i18n="footer_pricing">Precios</a>
-        </div>
-      </details>
-      <a class="site-navbar__link site-navbar__cta" href="/map/" data-i18n="nav_app">Abrir app</a>
-    </nav>
-  </div>
-</header>
+    <div class="masthead__actions">
+      <a class="masthead__cta" href="/map/" data-i18n="nav_app">Abrir app</a>
+    </div>
+  </header>
+<script>
+(function () {
+  var logo = document.querySelector('.masthead .brand-logo');
+  if (!logo) return;
+  var original = logo.querySelector('svg');
+  if (!original) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+
+  var clone = original.cloneNode(true);
+  clone.classList.add('logo-intro-svg');
+  clone.setAttribute('aria-hidden', 'true');
+  logo.classList.add('logo-intro-active');
+  logo.appendChild(clone);
+  original.style.opacity = '0';
+
+  var blob = clone.querySelector('path');
+  var mPaths = clone.querySelectorAll('g path');
+  var mPath = mPaths[0];
+  var tildePath = mPaths[1];
+  if (!blob || !mPath || !tildePath) {
+    clone.remove();
+    original.style.opacity = '';
+    logo.classList.remove('logo-intro-active');
+    return;
+  }
+
+  function drawStroke(path, color, width, duration, delay) {
+    var len = path.getTotalLength();
+    path.style.fillOpacity = '0';
+    path.style.stroke = color;
+    path.style.strokeWidth = width;
+    path.style.strokeLinecap = 'round';
+    path.style.strokeLinejoin = 'round';
+    path.style.strokeDasharray = len + ' ' + len;
+    path.style.strokeDashoffset = len;
+    path.animate([
+      { strokeDashoffset: len },
+      { strokeDashoffset: 0 }
+    ], { duration: duration, delay: delay, easing: 'ease-in-out', fill: 'forwards' });
+  }
+
+  drawStroke(blob, '#e8b86d', 4, 900, 0);
+  drawStroke(mPath, '#f0edf4', 100, 600, 900);
+  drawStroke(tildePath, '#f0edf4', 100, 450, 1350);
+
+  clone.animate([
+    { transform: 'scale(.84)', opacity: .55 },
+    { transform: 'scale(1)', opacity: 1 }
+  ], { duration: 620, easing: 'cubic-bezier(.2,.75,.15,1)', fill: 'both' });
+
+  var ns = 'http://www.w3.org/2000/svg';
+  var handles = [[16, 100], [100, 14], [184, 100], [100, 186]];
+  handles.forEach(function (pt, i) {
+    var r = document.createElementNS(ns, 'rect');
+    r.setAttribute('x', pt[0] - 8);
+    r.setAttribute('y', pt[1] - 8);
+    r.setAttribute('width', 16);
+    r.setAttribute('height', 16);
+    r.setAttribute('rx', 3);
+    r.setAttribute('fill', '#0b0c0c');
+    r.setAttribute('stroke', '#e8b86d');
+    r.setAttribute('stroke-width', 3);
+    r.style.opacity = '0';
+    clone.appendChild(r);
+    r.animate([
+      { opacity: 0, transform: 'scale(.5)' },
+      { opacity: 1, transform: 'scale(1)', offset: .35 },
+      { opacity: 1, offset: .78 },
+      { opacity: 0, transform: 'scale(.8)' }
+    ], { duration: 1450, delay: 160 + i * 120, easing: 'ease-out', fill: 'forwards' });
+  });
+
+  blob.animate([{ fillOpacity: 0 }, { fillOpacity: 1 }], { duration: 320, delay: 980, fill: 'forwards' });
+  mPath.animate([{ fillOpacity: 0 }, { fillOpacity: 1 }], { duration: 320, delay: 1550, fill: 'forwards' });
+  tildePath.animate([{ fillOpacity: 0 }, { fillOpacity: 1 }], { duration: 300, delay: 1640, fill: 'forwards' });
+
+  setTimeout(function () {
+    logo.classList.remove('logo-intro-active');
+    clone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, fill: 'forwards', easing: 'ease-out' });
+    original.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 360, fill: 'forwards', easing: 'ease-out' });
+    setTimeout(function () {
+      clone.remove();
+      original.style.opacity = '';
+    }, 380);
+  }, 2200);
+})();
+</script>
+
 
   <section class="hero" id="main-content" tabindex="-1">
-    <div class="reveal">
+    <div class="hero-stage reveal">
+      <div class="orbits" aria-hidden="true"><span></span><span></span><span class="orbit-dot"></span></div>
+      <div id="globe" class="hero-globe">
+        <canvas id="cobe-canvas" role="img" tabindex="0" aria-label="Globo 3D interactivo de Maña Maps" aria-describedby="globe-fallback" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown"></canvas>
+        <p id="globe-fallback" class="globe-fallback" role="status" aria-live="polite" data-i18n="globe_fallback">Globo 3D interactivo de Maña Maps. Arrastra o usa las flechas del teclado para girarlo.</p>
+        <noscript><p class="globe-noscript-fallback">Globo 3D de Maña Maps. Activa JavaScript para girarlo e interactuar con él.</p></noscript>
+      </div>
+    </div>
+    <div class="hero-copy reveal" style="transition-delay:120ms">
       <span class="eyebrow" data-i18n="eyebrow">Dise&#241;ado para foco total</span>
       <h1 data-i18n="headline">Mapas claros.<br>Decisiones r&#225;pidas.</h1>
       <p class="lead" data-i18n="lead">Ma&#241;a Maps convierte tareas geoespaciales en una experiencia simple: dibuja, importa y exporta en segundos con una interfaz limpia, intuitiva y sin ruido.</p>
@@ -546,11 +644,6 @@ h1 {
         <a class="btn btn-primary" href="/map" data-i18n="cta_start">Empieza gratis</a>
         <a class="btn" href="/changelog" data-i18n="cta_changelog">Ver novedades</a>
       </div>
-    </div>
-    <div id="globe" class="reveal" style="transition-delay:120ms">
-      <canvas id="cobe-canvas" role="img" tabindex="0" aria-label="Globo 3D interactivo de Maña Maps" aria-describedby="globe-fallback" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown"></canvas>
-      <p id="globe-fallback" class="globe-fallback" role="status" aria-live="polite" data-i18n="globe_fallback">Globo 3D interactivo de Maña Maps. Arrastra o usa las flechas del teclado para girarlo.</p>
-      <noscript><p class="globe-noscript-fallback">Globo 3D de Maña Maps. Activa JavaScript para girarlo e interactuar con él.</p></noscript>
     </div>
   </section>
 
@@ -575,7 +668,7 @@ h1 {
     </article>
   </section>
 
-  <div class="section-head reveal">
+  <div class="section-head section-head--wide reveal">
     <div>
       <h2 class="section-title" data-i18n="showcase_title">Crea. Publica. Inspira.</h2>
       <p class="section-sub" data-i18n="showcase_sub">Publica tus mapas en la galer&#237;a y deja que otros los abran y los adapten.</p>
@@ -729,6 +822,7 @@ h1 {
         <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
         <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
         <a href="/map/?tutorial=1">Tutorial</a>
+        <a href="/tasks/" data-i18n="footer_tasks">Tareas</a>
       </div>
     </section>
     <section class="site-footer__group site-footer__group--wide">
@@ -808,6 +902,7 @@ var LANG = {
     footer_create:'Crear mapa',
     footer_gallery:'Galer\u00eda',
     footer_resources:'Recursos',
+    footer_tasks:'Tareas',
     footer_news:'News',
     footer_company:'Compa\u00f1\u00eda',
     footer_github:'GitHub',
@@ -887,6 +982,7 @@ var LANG = {
     footer_create:'Create map',
     footer_gallery:'Gallery',
     footer_resources:'Resources',
+    footer_tasks:'Tasks',
     footer_news:'News',
     footer_company:'Company',
     footer_github:'GitHub',
@@ -998,7 +1094,7 @@ var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 var dayNight = null;
 try {
   var dayNightModule = await import('/js/globe-daynight.js?v=4');
-  dayNight = dayNightModule.createDayNightOverlay(wrapper, { scale: 1.05 });
+  dayNight = dayNightModule.createDayNightOverlay(wrapper, { scale: 1.05, opacity: 0.28 });
 } catch (overlayError) {
   console.warn('No se pudo cargar la capa de día y noche.', overlayError);
 }
@@ -1009,14 +1105,14 @@ var globe = createGlobe(canvas, {
   devicePixelRatio: dpr,
   phi: 0,
   theta: 0.25,
-  dark: 0,
+  dark: 1,
   diffuse: 1.2,
   mapSamples: 20000,
   mapBrightness: 5,
   mapBaseBrightness: 0,
-  baseColor: [0.96, 0.96, 0.97],
-  glowColor: [0.04, 0.52, 1],
-  markerColor: [0.04, 0.52, 1],
+  baseColor: [0.84, 0.82, 0.88],
+  glowColor: [0.91, 0.72, 0.43],
+  markerColor: [0.91, 0.72, 0.43],
   opacity: 1,
   scale: 1.05,
 });
@@ -1147,7 +1243,7 @@ animate();
 <script data-overscroll-bg="1">
 (function(){
   if(!document.querySelector('.frame')) return;
-  var root=document.documentElement, top='#ffffff', bottom='#fbfcfd';
+  var root=document.documentElement, top='#080909', bottom='#080909';
   function sync(){
     var y=window.scrollY||window.pageYOffset||0;
     var max=Math.max(0,root.scrollHeight-window.innerHeight);
@@ -1159,5 +1255,6 @@ animate();
   sync();
 })();
 </script>
+
 </body>
 </html>

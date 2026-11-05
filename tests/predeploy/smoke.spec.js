@@ -30,8 +30,8 @@ test('landing page and task navigation remain usable on mobile', async ({ page }
   await expect(page.getByRole('link', { name: /Empieza gratis/i }).first()).toBeVisible();
   expect(await page.locator('body').evaluate((body) => body.scrollWidth <= window.innerWidth)).toBe(true);
 
-  await page.goto('/tasks.html');
-  const actions = page.locator('.topbar-actions .btn');
+  await page.goto('/tasks/');
+  const actions = page.locator('.site-navbar__actions .site-navbar__more summary, .site-navbar__actions .site-navbar__cta');
   await expect(actions).toHaveCount(2);
   for (const action of await actions.all()) {
     await expect(action).toBeVisible();
@@ -61,7 +61,7 @@ test('public navigation bars stay inside the viewport on mobile', async ({ page 
   test.setTimeout(90_000);
   const routes = [
     '/open/', '/pricing/', '/about/', '/changelog/', '/gallery/',
-    '/my-maps/', '/profile/', '/tasks.html', '/404.html'
+    '/my-maps/', '/profile/', '/tasks/', '/404.html'
   ];
 
   for (const route of routes) {
@@ -140,7 +140,7 @@ test('site footer stays consistent and readable on mobile', async ({ page }) => 
   const footer = page.locator('.site-footer').first();
   await expect(footer).toBeVisible();
   await expect(footer.locator('.site-footer__group h2')).toHaveText(['Producto', 'Recursos', 'Compañía']);
-  await expect(footer.locator('.site-footer__group a')).toHaveCount(9);
+  await expect(footer.locator('.site-footer__group a')).toHaveCount(10);
 
   const firstLink = await footer.locator('.site-footer__group a').first().boundingBox();
   expect(firstLink.height).toBeGreaterThanOrEqual(44);
@@ -152,9 +152,9 @@ test('site footer stays consistent and readable on mobile', async ({ page }) => 
   expect(githubBox.y).toBeGreaterThanOrEqual(aboutBox.y + aboutBox.height - 1);
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(255, 255, 255)');
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(8, 9, 9)');
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(251, 252, 253)');
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(8, 9, 9)');
 });
 
 test('iPhone 16 Pro footer covers the screen edges on every page template', async ({ page }) => {
@@ -214,8 +214,8 @@ test('iPhone 16 Pro footer covers the screen edges on every page template', asyn
       expect(result.noHorizontalScroll, path).toBe(true);
       expect(result.gapBelowFooter, path).toBeLessThanOrEqual(1);
 
-      // El fondo del pie llega de borde a borde de la pantalla.
-      expect(result.footerBackground, path).toBe('rgb(251, 252, 253)');
+      // El fondo oscuro del pie llega de borde a borde de la pantalla.
+      expect(result.footerBackground, path).toBe('rgb(8, 9, 9)');
       expect(result.footerLeft, path).toBe(0);
       expect(result.footerWidth, path).toBe(result.viewportWidth);
 
@@ -228,14 +228,14 @@ test('iPhone 16 Pro footer covers the screen edges on every page template', asyn
         expect(result.frame.marginRight, path).toBe(0);
         expect(result.frame.width, path).toBe(result.viewportWidth);
 
-        // Al llegar al final el color de overscroll coincide con el fondo del pie,
-        // de modo que iOS no muestra una banda gris que parezca una sombra.
+        // Al llegar al final el color de overscroll coincide con el fondo oscuro del pie,
+        // de modo que iOS no muestra una banda clara que parezca una sombra.
         await expect
           .poll(async () => {
             await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
             return page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
           })
-          .toBe('rgb(251, 252, 253)');
+          .toBe('rgb(8, 9, 9)');
       }
     }
   }

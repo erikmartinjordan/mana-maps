@@ -59,7 +59,7 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
 :root{
   --bg:#ffffff;--bgBox:#f4f8fb;--primary:#30363b;--secondary:#555;
-  --third:#828c99;--blue:#0ea5e9;--border:rgba(30,30,30,0.1);
+  --third:#737179;--blue:#e8b86d;--border:rgba(30,30,30,0.1);
   --shadow:rgb(15 15 15/8%) 0 1px 3px,rgb(15 15 15/5%) 0 4px 12px;
   --green:#16a34a;--red:#dc2626;
   --mono:'DM Mono','SF Mono','Fira Code',monospace;
@@ -221,8 +221,9 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
   <link rel="stylesheet" href="/css/site-footer.css">
   <style>:root{--overscroll-bg:#fff}</style>
   <link rel="stylesheet" href="/css/site-navbar.css">
+  <link rel="stylesheet" href="/css/public-theme.css">
 </head>
-<body>
+<body class="public-open">
 <header class="site-navbar">
   <div class="site-navbar__inner">
     <a class="brand" href="/" aria-label="Maña Maps">
@@ -317,7 +318,7 @@ html,body{height:100%;background:var(--bg);color:var(--primary);}
         <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
         <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
         <a href="/map/?tutorial=1">Tutorial</a>
-      </div>
+      <a href="/tasks/" data-i18n="footer_tasks">Tareas</a></div>
     </section>
     <section class="site-footer__group site-footer__group--wide">
       <h2 data-i18n="footer_company">Compañía</h2>
@@ -342,7 +343,7 @@ var firebaseConfig=window.ManaFirebase&&window.ManaFirebase.getConfig();
 if(firebaseConfig&&!firebase.apps.length)firebase.initializeApp(firebaseConfig);
 if(typeof applyTranslations==='function')applyTranslations(LANG);
 var db=firebaseConfig?firebase.firestore():null;
-var EVENT_COLORS={sessionstart:'#0ea5e9',export:'#a78bfa',chatmessage:'#f59e0b',featuredrawn:'#16a34a',import:'#f472b6',basemapchange:'#6366f1',tooluse:'#14b8a6',default:'#828c99'};
+var EVENT_COLORS={sessionstart:'#e8b86d',export:'#a78bfa',chatmessage:'#f59e0b',featuredrawn:'#16a34a',import:'#f472b6',basemapchange:'#6366f1',tooluse:'#14b8a6',default:'#737179'};
 function fmtNum(n){if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+'k';return n.toLocaleString(LANG==='en'?'en-US':'es-ES');}
 function fmtDate(d){return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 function dayKey(date){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');}
@@ -351,9 +352,9 @@ function toDate(ts){return ts&&ts.toDate?ts.toDate():new Date(ts);}
 function renderSkeletonKPIs(){var labels=[t('open_kpi_sessions'),t('open_kpi_exports'),t('open_kpi_ai'),t('open_kpi_features'),t('open_kpi_news')];document.getElementById('kpiGrid').innerHTML=labels.map(function(l){return'<div class="kpi-card"><div class="kpi-label">'+l+'</div><div class="kpi-row"><div class="skeleton skeleton-value"></div><div class="skeleton skeleton-spark"></div></div><div class="skeleton skeleton-delta"></div></div>';}).join('');}
 function renderSkeletonBreakdowns(){['bdExport','bdTool','bdAI','bdNews'].forEach(function(id){document.getElementById(id).innerHTML=Array(4).fill(0).map(function(){return'<div class="skeleton skeleton-bar"></div>';}).join('');});}
 
-function buildSparkline(values,w,h){w=w||100;h=h||28;if(!values.length)return'';var max=Math.max.apply(null,values.concat([1]));var step=w/Math.max(values.length-1,1);var pts=values.map(function(v,i){return(i*step).toFixed(1)+','+(h-2-(v/max)*(h-4)).toFixed(1);}).join(' ');return'<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="'+pts+'" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';}
+function buildSparkline(values,w,h){w=w||100;h=h||28;if(!values.length)return'';var max=Math.max.apply(null,values.concat([1]));var step=w/Math.max(values.length-1,1);var pts=values.map(function(v,i){return(i*step).toFixed(1)+','+(h-2-(v/max)*(h-4)).toFixed(1);}).join(' ');return'<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="'+pts+'" stroke="#e8b86d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';}
 
-function buildBarChart(dailyData){var wrap=document.getElementById('chartWrap');if(!dailyData.length){wrap.innerHTML='<div style="text-align:center;padding:40px;color:var(--third)">'+t('open_no_data')+'</div>';return;}var cw=wrap.clientWidth-40;var ch=180;var gap=3;var n=dailyData.length;var bw=Math.max((cw-gap*(n-1))/n,2);var max=Math.max.apply(null,dailyData.map(function(d){return d.count;}).concat([1]));var bars='';dailyData.forEach(function(d,i){var bh=Math.max((d.count/max)*(ch-20),d.count>0?2:0);var x=i*(bw+gap);var y=ch-bh;bars+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="#0ea5e9" opacity="0.75" data-date="'+d.label+'" data-count="'+d.count+'" style="cursor:pointer" onmouseenter="showTip(event,this)" onmouseleave="hideTip()"/>';});var labels='';dailyData.forEach(function(d,i){var isLast=i===n-1;var isMod=i%7===0;if(isMod&&!isLast&&(n-1-i)<3)return;if(isMod||isLast){var x=i*(bw+gap)+bw/2;labels+='<text x="'+x.toFixed(1)+'" y="'+(ch+14)+'" text-anchor="middle" fill="#828c99" font-family="DM Mono,monospace" font-size="10">'+d.shortLabel+'</text>';}});wrap.innerHTML='<svg width="100%" height="'+(ch+20)+'" viewBox="0 0 '+cw.toFixed(0)+' '+(ch+20)+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">'+bars+labels+'</svg>';}
+function buildBarChart(dailyData){var wrap=document.getElementById('chartWrap');if(!dailyData.length){wrap.innerHTML='<div style="text-align:center;padding:40px;color:var(--third)">'+t('open_no_data')+'</div>';return;}var cw=wrap.clientWidth-40;var ch=180;var gap=3;var n=dailyData.length;var bw=Math.max((cw-gap*(n-1))/n,2);var max=Math.max.apply(null,dailyData.map(function(d){return d.count;}).concat([1]));var bars='';dailyData.forEach(function(d,i){var bh=Math.max((d.count/max)*(ch-20),d.count>0?2:0);var x=i*(bw+gap);var y=ch-bh;bars+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="#e8b86d" opacity="0.75" data-date="'+d.label+'" data-count="'+d.count+'" style="cursor:pointer" onmouseenter="showTip(event,this)" onmouseleave="hideTip()"/>';});var labels='';dailyData.forEach(function(d,i){var isLast=i===n-1;var isMod=i%7===0;if(isMod&&!isLast&&(n-1-i)<3)return;if(isMod||isLast){var x=i*(bw+gap)+bw/2;labels+='<text x="'+x.toFixed(1)+'" y="'+(ch+14)+'" text-anchor="middle" fill="#737179" font-family="DM Mono,monospace" font-size="10">'+d.shortLabel+'</text>';}});wrap.innerHTML='<svg width="100%" height="'+(ch+20)+'" viewBox="0 0 '+cw.toFixed(0)+' '+(ch+20)+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">'+bars+labels+'</svg>';}
 function showTip(e,el){var tip=document.getElementById('chartTooltip');tip.textContent=el.dataset.date+'  \u00b7  '+el.dataset.count+' '+t('open_events');tip.style.opacity='1';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-32)+'px';}
 function hideTip(){document.getElementById('chartTooltip').style.opacity='0';}
 
@@ -395,7 +396,7 @@ loadData();
     // Un marcador por grupo de conexiones, no por conexión: así las visitas
     // que comparten coordenadas (misma ciudad) no se apilan una encima de otra.
     return clusters.map(function(c, i) {
-      return { location: [c.lat, c.lng], size: 0.05, color: [1, 1, 1], id: 'u' + i };
+      return { location: [c.lat, c.lng], size: 0.05, color: [0.91, 0.72, 0.43], id: 'u' + i };
     });
   }
 
@@ -804,14 +805,14 @@ loadData();
       devicePixelRatio: dpr,
       phi: 0,
       theta: 0.25,
-      dark: 0,
+      dark: 1,
       diffuse: 1.2,
       mapSamples: 20000,
       mapBrightness: 5,
       mapBaseBrightness: 0,
-      baseColor: [0.96, 0.96, 0.97],
-      glowColor: [0.04, 0.52, 1],
-      markerColor: [0.04, 0.52, 1],
+      baseColor: [0.84, 0.82, 0.88],
+      glowColor: [0.91, 0.72, 0.43],
+      markerColor: [0.91, 0.72, 0.43],
       markerElevation: 0.03,
       markers: buildMarkers(),
       opacity: 1,

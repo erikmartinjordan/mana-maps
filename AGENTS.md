@@ -20,7 +20,7 @@ obligatoria para cualquier agente que trabaje aquí.
 ## Estructura del repositorio (obligatoria)
 
 - `site/`: **todo lo público que se despliega** en GitHub Pages (HTML, CSS, JS,
-  assets, landings, OG cards, News y `tasks.html`). El workflow sube solo esta
+  assets, landings, OG cards, News y `tasks/`). El workflow sube solo esta
   carpeta como artefacto de Pages.
 - `data/maps/<slug>.geojson`: GeoJSON publicable de cada mapa. Los crudos que
   sí se versionan van en `data/sources/`.

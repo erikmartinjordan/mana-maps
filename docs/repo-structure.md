@@ -38,7 +38,7 @@ site/
 ├── index.html  404.html  CNAME  robots.txt  sitemap.xml
 ├── manifest.webmanifest  sw.js  favicon.ico  favicon.svg
 ├── about/  changelog/  en/  gallery/  map/  my-maps/
-├── open/  pricing/  profile/  tasks.html
+├── open/  pricing/  profile/  tasks/
 ├── news/              # listado, posts.json y artículos ES (news/<slug>/)
 ├── blog/              # solo redirects legacy a /news/ (temporal)
 ├── en/                # rutas EN, incluido en/news/<slug>/
@@ -48,7 +48,7 @@ site/
 ├── icons/             # iconos PWA
 ├── js/                # aplicación del editor y la galería
 ├── og-cards/          # tarjetas OG por mapa
-└── docs/fabrica.html  # vista incrustada en tasks.html
+└── docs/fabrica.html  # vista incrustada en tasks/
 ```
 
 ## Qué no debe existir

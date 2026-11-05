@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // ── publish-tallest-statues-world.js ─
-// Mapa puntual: Las 17 estatuas más altas del mundo.
+// Mapa puntual: Las estatuas más altas del mundo.
 // Fuente: Wikipedia — List of tallest statues (consultado 30-10-2026), con
 // datos de Guinness World Records y fichas oficiales de cada monumento.
-// Una feature por estatua (17), emoji_star escalado por altura (log) y rampa
+// Una feature por estatua (17), emoji_moai escalado por altura (log) y rampa
 // mono ámbar ordenada por la altura de la figura.
 // Publica/actualiza el documento maps/tallest-statues-world en Firestore
 // (mana-maps-pro-f2177).
@@ -12,15 +12,15 @@ const fs = require('fs'), path = require('path');
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNull, fsMap } = require('../lib/publisher');
 
 const SLUG = 'tallest-statues-world';
-const TITLE = 'Las 17 estatuas más altas del mundo';
-const DESCRIPTION = 'Las 17 estatuas más altas del mundo: 16 están en Asia y la mayor, la Estatua de la Unidad (182 m), casi duplica a la Estatua de la Libertad.';
+const TITLE = 'Las estatuas más altas del mundo';
+const DESCRIPTION = 'Las estatuas más altas del mundo: 16 están en Asia y la mayor, la Estatua de la Unidad (182 m), casi duplica a la Estatua de la Libertad.';
 const DATA_SOURCE = 'Wikipedia — List of tallest statues (consultado 30-10-2026), con datos de Guinness World Records y fichas oficiales de cada monumento.';
 const DATA_DATE = '2026-10-30';
 const LEGEND_KEY = 'Altura';
 const LEGEND_TITLE = 'Altura de la estatua (m)';
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const PREVIEW_EMOJI = { emoji_star: '\u2B50\uFE0F' };
+const PREVIEW_EMOJI = { emoji_moai: '\uD83D\uDDFF' };
 
 function buildMapPreview(geo) {
   let bbox = [180, 90, -180, -90];
@@ -75,7 +75,7 @@ async function main() {
   });
   const names = new Set(geo.features.map(f => f.properties._manaName));
   const withData = geo.features.filter(f => f.properties[LEGEND_KEY] != null && f.properties['País'] != null).length;
-  const markerOk = geo.features.every(f => f.properties.markerType === 'emoji_star' && f.properties._manaMarkerType === 'emoji_star');
+  const markerOk = geo.features.every(f => f.properties.markerType === 'emoji_moai' && f.properties._manaMarkerType === 'emoji_moai');
   const scaleOk = geo.features.every(f => Number.isFinite(f.properties._manaEmojiSize) && f.properties._manaEmojiSize >= 22 && f.properties._manaEmojiSize <= 66);
   const sizes = new Set(geo.features.map(f => f.properties._manaEmojiSize));
   const esKeysOk = geo.features.every(f =>
@@ -85,7 +85,7 @@ async function main() {
   const geojsonText = JSON.stringify(geo);
   console.log(`features: ${geo.features.length} | with data: ${withData} | KB: ${(geojsonText.length / 1024).toFixed(1)}`);
   console.log(`hex: ${hexOk} | halo: ${haloOk} | coords: ${coordsOk} | uniqueNames: ${names.size === geo.features.length}`);
-  console.log(`marker emoji_star: ${markerOk} | escala por altura: ${scaleOk} (${sizes.size} tamaños) | props ES: ${esKeysOk} | grupo: ${groupOk}`);
+  console.log(`marker emoji_moai: ${markerOk} | escala por altura: ${scaleOk} (${sizes.size} tamaños) | props ES: ${esKeysOk} | grupo: ${groupOk}`);
   if (!hexOk || !haloOk || !coordsOk || names.size !== geo.features.length || !markerOk || !scaleOk || sizes.size < 3 || !esKeysOk || !groupOk) {
     console.error('VALIDATION FAILED'); process.exit(1);
   }

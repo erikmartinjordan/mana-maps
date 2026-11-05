@@ -8,11 +8,6 @@ function isDarkMapTheme() {
 }
 
 function getManaBasemapStyleUrl(isDark) {
-  // En modo embed usamos una variante neutra (agua gris, sin tinte azul) para
-  // que el mapa case con el diseño blanco/gris del artículo.
-  if (document.documentElement.classList.contains('mana-editor-embed')) {
-    return '/basemaps/mana-positron-neutral.json?v=1792000001';
-  }
   if (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getStyleUrl) {
     return window.MANA_BASEMAPS.getStyleUrl(isDark);
   }
@@ -526,6 +521,10 @@ function addLabelsToLayer(layer, features, labelStyle) {
   const target = _resolveLabelLayer(layer);
   if (!target) return [];
   const style = _normalizeLabelStyle(labelStyle || target.labelStyle);
+  if (document.documentElement.classList.contains('mana-editor-embed') && isDarkMapTheme()) {
+    style.color = '#f0edf4';
+    style.haloColor = '#080909';
+  }
   target.labelStyle = style;
   removeLabelsFromLayer(target);
   if (!style.enabled || !style.field) return [];
@@ -1078,7 +1077,7 @@ function getEnrichedGeoJSON() {
     }
     // Set color and name last (these are Maña-specific display properties)
     const isMarkerLayer = (l instanceof L.Marker);
-    const layerColor = l._manaColor || (l.options && l.options.color) || '#0ea5e9';
+    const layerColor = l._manaColor || (l.options && l.options.color) || '#e8b86d';
     f.properties.color = layerColor;
     f.properties._manaColor = layerColor;
     if (!isMarkerLayer && l.options && l.options.color) f.properties._manaBorderColor = l.options.color;
@@ -1115,7 +1114,7 @@ function getCurrentGeoJSON() {
   drawnItems.eachLayer(function(l) {
     const f = l.toGeoJSON();
     f.properties.name = l._manaName || f.properties.name || t('generic_element');
-    f.properties.color = (l instanceof L.Marker) ? (l._manaColor || '#0ea5e9') : (l.options.color || '#0ea5e9');
+    f.properties.color = (l instanceof L.Marker) ? (l._manaColor || '#e8b86d') : (l.options.color || '#e8b86d');
     features.push(f);
   });
   return { type: 'FeatureCollection', features: features };
@@ -1291,12 +1290,12 @@ function _onLocationUpdate(pos) {
 
   if (isFirst) {
     _locateAccuracy = L.circle([lat, lng], {
-      radius: acc, color: '#0ea5e9', weight: 1, opacity: 0.45,
-      fillColor: '#0ea5e9', fillOpacity: 0.12, interactive: false
+      radius: acc, color: '#e8b86d', weight: 1, opacity: 0.45,
+      fillColor: '#e8b86d', fillOpacity: 0.12, interactive: false
     }).addTo(map);
     _locateMarker = L.circleMarker([lat, lng], {
       radius: 7, color: '#ffffff', weight: 3,
-      fillColor: '#0ea5e9', fillOpacity: 1, interactive: false
+      fillColor: '#e8b86d', fillOpacity: 1, interactive: false
     }).addTo(map);
     _locateMarker.bringToFront();
     map.setView([lat, lng], Math.max(map.getZoom(), 15));
@@ -1316,7 +1315,7 @@ function _updateGlobeLocate(lat, lng) {
   if (typeof globeMap === 'undefined' || !globeMap || typeof maplibregl === 'undefined') return;
   try {
     if (!_globeLocateMarker) {
-      _globeLocateMarker = new maplibregl.Marker({ color: '#0ea5e9' })
+      _globeLocateMarker = new maplibregl.Marker({ color: '#e8b86d' })
         .setLngLat([lng, lat]).addTo(globeMap);
     } else {
       _globeLocateMarker.setLngLat([lng, lat]);
@@ -1791,7 +1790,7 @@ function renderLegend() {
     var catHtml = '<div class="map-legend-title">' + esc(li.legend.title || li.title || li.key || '') + '</div>';
     li.legend.steps.forEach(function(s) {
       var label = (s && (s.label || s.v)) || '';
-      var col = (s && (s.c || s.color)) || '#94a3b8';
+      var col = manaReadableColor((s && (s.c || s.color)) || '#94a3b8');
       if (!label) return;
       catHtml += '<div class="map-legend-item"><span class="map-legend-line" style="background:' + esc(col) + '"></span><span class="map-legend-label">' + esc(label) + '</span></div>';
     });
@@ -1834,7 +1833,7 @@ function renderLegend() {
       var rformat = li.format || 'number';
       var rh = '<div class="map-legend-title">' + rtitle + '</div>' +
         '<div class="map-legend-ramp"><div class="map-legend-ramp-steps">';
-      rsteps.forEach(function(s) { rh += '<span style="background:' + s.c + '"></span>'; });
+      rsteps.forEach(function(s) { rh += '<span style="background:' + manaReadableColor(s.c) + '"></span>'; });
       rh += '</div><div class="map-legend-ramp-scale"><span>' +
         _manaFormatLegendValue(ramp.min, rformat) + '</span><span>' +
         _manaFormatLegendValue(ramp.max, rformat) +
@@ -1849,7 +1848,7 @@ function renderLegend() {
   for (var gid2 in _manaGroupMeta) {
     var m = _manaGroupMeta[gid2];
     if (m.allLayers && m.allLayers.length) {
-      groups.push({ name: m.name, color: m.color });
+      groups.push({ name: m.name, color: m.color, geometryType: m.geometryType });
     }
   }
   // Ignore the "Legend" meta-group itself
@@ -1863,7 +1862,7 @@ function renderLegend() {
   var html = '<div class="map-legend-title">Legend</div>';
   groups.forEach(function(g) {
     html += '<div class="map-legend-item">' +
-      '<span class="map-legend-swatch" style="background:' + g.color + '"></span>' +
+      '<span class="map-legend-swatch" style="background:' + ((g.geometryType === 'line' || g.geometryType === 'LineString') ? manaReadableLineColor(g.color) : manaReadableColor(g.color)) + '"></span>' +
       '<span class="map-legend-label">' + g.name + '</span>' +
     '</div>';
     // Check if the group has features with Area attribute → show size legend
@@ -1939,7 +1938,7 @@ const ICON = {
 function esc(s) { return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 const MANA_STARTER_TEMPLATES = [
-  { id: 'trip', icon: '🧭', color: '#0ea5e9', titleKey: 'template_trip_title', descKey: 'template_trip_desc' },
+  { id: 'trip', icon: '🧭', color: '#e8b86d', titleKey: 'template_trip_title', descKey: 'template_trip_desc' },
   { id: 'sales', icon: '📍', color: '#f97316', titleKey: 'template_sales_title', descKey: 'template_sales_desc' },
   { id: 'survey', icon: '🌿', color: '#22c55e', titleKey: 'template_survey_title', descKey: 'template_survey_desc' },
   { id: 'event', icon: '🎪', color: '#8b5cf6', titleKey: 'template_event_title', descKey: 'template_event_desc' },
@@ -1978,7 +1977,7 @@ function _starterTemplateData(id) {
       layers: [
         {
           name: _starterTemplateLabel('Paradas', 'Stops'),
-          color: '#0ea5e9',
+          color: '#e8b86d',
           features: [
             _starterFeature('Point', [-3.7038, 40.4168], { name: _starterTemplateLabel('Punto de encuentro', 'Meeting point'), type: _starterTemplateLabel('Inicio', 'Start'), order: 1, markerType: 'flag' }),
             _starterFeature('Point', [-3.6921, 40.4138], { name: _starterTemplateLabel('Museo principal', 'Main museum'), type: _starterTemplateLabel('Visita', 'Visit'), order: 2, markerType: 'museum' }),

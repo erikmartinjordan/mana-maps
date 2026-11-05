@@ -3,7 +3,7 @@
 // Genera data/maps/tallest-statues-world.geojson a partir del extracto curado
 // data/sources/tallest-statues-world/statues.json (Wikipedia — List of tallest
 // statues, con datos de Guinness World Records y fichas oficiales).
-// Una feature Point por estatua real, markerType emoji_star, icono escalado por
+// Una feature Point por estatua real, markerType emoji_moai, icono escalado por
 // la altura de la figura (_manaEmojiSize, escala logarítmica 22-66 px) y rampa
 // monocromática ámbar ordenada por esa altura (AGENTS.md §3).
 // Props de popup en español: Representa, País, Lugar, Altura (numérica),
@@ -22,7 +22,7 @@ const OUT_PATH = path.join(__dirname, '..', '..', 'data', 'maps', `${SLUG}.geojs
 
 const GROUP_NAME = 'Estatuas más altas del mundo';
 const GROUP_ID = 1;
-const MARKER_TYPE = 'emoji_star';
+const MARKER_TYPE = 'emoji_moai';
 const LEGEND_KEY = 'Altura';
 
 function fmtEs(n, dec = 0) {

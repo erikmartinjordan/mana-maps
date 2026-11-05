@@ -5,6 +5,7 @@
 // Adding a new color: edit only this array.
 // ═══════════════════════════════════════════════════════════════
 const SWATCH_PALETTE = [
+  { hex: '#e8b86d', name: '\u00C1mbar' },
   { hex: '#0ea5e9', name: 'Azul' },
   { hex: '#6366f1', name: '\u00CDndigo' },
   { hex: '#10b981', name: 'Menta' },
@@ -20,7 +21,7 @@ const LAYER_CTX_PALETTE = SWATCH_PALETTE;
 
 // Extended palette for categorization
 const CTX_PALETTE = [
-  '#0ea5e9','#6366f1','#10b981','#f59e0b','#ef4444','#ec4899',
+  '#e8b86d','#0ea5e9','#6366f1','#10b981','#f59e0b','#ef4444','#ec4899',
   '#8b5cf6','#64748b','#f97316','#14b8a6','#a855f7','#84cc16',
   '#e11d48','#0284c7','#ca8a04','#7c3aed','#059669','#dc2626'
 ];
@@ -380,10 +381,10 @@ function ctxStyleGroup() {
   // Get current style from target layer
   let color, weight, opacity;
   if (ctxTargetLayer instanceof L.Marker) {
-    color = ctxTargetLayer._manaColor || '#0ea5e9';
+    color = ctxTargetLayer._manaColor || '#e8b86d';
     opacity = ctxTargetLayer.options.opacity || 1;
   } else {
-    color = ctxTargetLayer.options.color || '#0ea5e9';
+    color = ctxTargetLayer.options.color || '#e8b86d';
     weight = ctxTargetLayer.options.weight || 2;
     opacity = ctxTargetLayer.options.opacity || 1;
   }
@@ -457,7 +458,7 @@ function ctxMeasurePolygon() {
   for (var i = 0; i < ring.length; i++) {
     var a = ring[i], b = ring[(i + 1) % ring.length];
     var segLine = L.polyline([a, b], {
-      color: '#0ea5e9', weight: 2.5, dashArray: '6 5', opacity: 0.65
+      color: '#e8b86d', weight: 2.5, dashArray: '6 5', opacity: 0.65
     }).addTo(map);
     var segDist = a.distanceTo(b);
     segLine.bindTooltip(formatDist(segDist), {
@@ -1182,12 +1183,12 @@ function _propSelectElem(idx) {
   if (_propHighlight) { try { map.removeLayer(_propHighlight); } catch(e) {} }
   if (_propLayer instanceof L.Marker) {
     _propHighlight = L.circleMarker(_propLayer.getLatLng(), {
-      radius: 18, color: "#0ea5e9", weight: 3, fillOpacity: 0.15, dashArray: "4 4"
+      radius: 18, color: "#e8b86d", weight: 3, fillOpacity: 0.15, dashArray: "4 4"
     }).addTo(map);
   } else if (_propLayer.getLatLngs) {
     var C = (_propLayer instanceof L.Polygon) ? L.polygon : L.polyline;
     _propHighlight = C(_propLayer.getLatLngs(), {
-      color: "#0ea5e9", weight: 5, fillOpacity: 0.12, dashArray: "6 4"
+      color: "#e8b86d", weight: 5, fillOpacity: 0.12, dashArray: "6 4"
     }).addTo(map);
   }
   setTimeout(function() {

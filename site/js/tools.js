@@ -170,10 +170,10 @@ function drawRoutePreview(coords) {
   if (_routePreviewLine) map.removeLayer(_routePreviewLine);
   if (_routePreviewGlow) map.removeLayer(_routePreviewGlow);
   _routePreviewGlow = L.polyline(coords, {
-    color: '#67e8f9', weight: 10, opacity: 0.2, className: 'route-preview-glow'
+    color: '#f3d6a0', weight: 10, opacity: 0.2, className: 'route-preview-glow'
   }).addTo(map);
   _routePreviewLine = L.polyline(coords, {
-    color: '#0ea5e9', weight: 5, opacity: 0.95, dashArray: '14 10', className: 'route-preview-shine'
+    color: '#e8b86d', weight: 5, opacity: 0.95, dashArray: '14 10', className: 'route-preview-shine'
   }).addTo(map);
 }
 
@@ -362,7 +362,7 @@ function rulerClick(e) {
   if (rulerPreview) { map.removeLayer(rulerPreview); rulerPreview = null; }
   if (rulerPoints.length >= 2) {
     if (rulerLine) map.removeLayer(rulerLine);
-    rulerLine = L.polyline(rulerPoints, { color: '#0ea5e9', weight: 2.5 }).addTo(map);
+    rulerLine = L.polyline(rulerPoints, { color: '#e8b86d', weight: 2.5 }).addTo(map);
     rulerLine.bindTooltip(formatDist(getTotalDist(rulerPoints)), {
       permanent: true, direction: 'center', className: 'ruler-label'
     });
@@ -375,7 +375,7 @@ function rulerMove(e) {
   var last = rulerPoints[rulerPoints.length - 1];
   var previewPts = [last, e.latlng];
   rulerPreview = L.polyline(previewPts, {
-    color: '#0ea5e9', weight: 2.5, dashArray: '6 5', opacity: 0.65
+    color: '#e8b86d', weight: 2.5, dashArray: '6 5', opacity: 0.65
   }).addTo(map);
   rulerPreview.bindTooltip(formatDist(e.latlng.distanceTo(last)), {
     permanent: true, direction: 'center', className: 'ruler-label'

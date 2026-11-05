@@ -1,7 +1,67 @@
 // ── markers.js ─ 100-icon marker system ──
 
-let drawColor = '#0ea5e9';
+let drawColor = '#e8b86d';
 let markerType = 'circle';
+
+// Dark-map data colours need more lightness to stay readable. Keep the hue
+// and saturation, but lift dark greens/blues/greys used by older maps.
+function manaReadableColor(color) {
+  if (typeof isDarkMapTheme !== 'function' || !isDarkMapTheme()) return color;
+  var c = String(color || '').trim();
+  var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(c);
+  if (!m) return color;
+  var hex = m[1];
+  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  var r = parseInt(hex.slice(0, 2), 16) / 255;
+  var g = parseInt(hex.slice(2, 4), 16) / 255;
+  var b = parseInt(hex.slice(4, 6), 16) / 255;
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var l = (max + min) / 2;
+  if (l >= 0.48) return color;
+  var h = 0, s = 0, d = max - min;
+  if (d) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+  var nl = Math.min(0.72, Math.max(0.64, l));
+  function hue2rgb(p, q, t) {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  }
+  var q = nl < 0.5 ? nl * (1 + s) : nl + s - nl * s;
+  var p2 = 2 * nl - q;
+  r = Math.round(hue2rgb(p2, q, h + 1 / 3) * 255);
+  g = Math.round(hue2rgb(p2, q, h) * 255);
+  b = Math.round(hue2rgb(p2, q, h - 1 / 3) * 255);
+  function hx(v) { return ('0' + v.toString(16)).slice(-2); }
+  return '#' + hx(r) + hx(g) + hx(b);
+}
+
+// Dark neutral line colours disappear on the graphite basemap. Use the site
+// accent for those, while keeping vivid custom line colours.
+function manaReadableLineColor(color) {
+  if (typeof isDarkMapTheme !== 'function' || !isDarkMapTheme()) return color;
+  var c = String(color || '').trim();
+  var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(c);
+  if (!m) return color;
+  var hex = m[1];
+  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  var r = parseInt(hex.slice(0, 2), 16) / 255;
+  var g = parseInt(hex.slice(2, 4), 16) / 255;
+  var b = parseInt(hex.slice(4, 6), 16) / 255;
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var l = (max + min) / 2;
+  var d = max - min;
+  var sat = d ? (l > 0.5 ? d / (2 - max - min) : d / (max + min)) : 0;
+  if (l < 0.48 && sat < 0.24) return '#e8b86d';
+  return manaReadableColor(color);
+}
 
 function setDrawColor(color, el) {
   drawColor = color;
@@ -175,6 +235,7 @@ var MK = [
   { id:'emoji_school',      cat:'emoji', es:'Escuela 🏫',      en:'School 🏫',               e:'🏫',  emoji:true },
   { id:'emoji_church',      cat:'emoji', es:'Iglesia ⛪',       en:'Church ⛪',               e:'⛪',   emoji:true },
   { id:'emoji_museum',      cat:'emoji', es:'Museo 🏛️',        en:'Museum 🏛️',              e:'🏛️',  emoji:true },
+  { id:'emoji_moai',        cat:'emoji', es:'Estatua 🗿',       en:'Statue 🗿',               e:'🗿',  emoji:true },
   { id:'emoji_library',     cat:'emoji', es:'Biblioteca 📚',    en:'Library 📚',              e:'📚',  emoji:true },
   { id:'emoji_hotel',       cat:'emoji', es:'Hotel 🏨',        en:'Hotel 🏨',                e:'🏨',  emoji:true },
   { id:'emoji_store',       cat:'emoji', es:'Tienda 🏪',       en:'Store 🏪',                e:'🏪',  emoji:true },

@@ -148,12 +148,13 @@ function loadGeoJSON(geo, groupName) {
   const layer = L.geoJSON(null, {
     style: (f) => {
       const p = (f && f.properties) || {};
-      const c = (p._manaColor || p.color) ? String(p._manaColor || p.color) : importColor;
+      const rawColor = (p._manaColor || p.color) ? String(p._manaColor || p.color) : importColor;
       const geomType = f && f.geometry && f.geometry.type;
       const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+      const c = isLine ? manaReadableLineColor(rawColor) : manaReadableColor(rawColor);
       // En líneas el trazo ES el dato: usar _manaColor, no el borde blanco de
       // los polígonos (si no, los mapas de cables/rios se pintan invisibles).
-      const border = isLine ? c : (p._manaBorderColor ? String(p._manaBorderColor) : c);
+      const border = isLine ? c : manaReadableColor(p._manaBorderColor ? String(p._manaBorderColor) : c);
       const weight = (typeof p._manaWeight === 'number') ? p._manaWeight : 2;
       const fillOpacity = (typeof p._manaFillOpacity === 'number') ? p._manaFillOpacity : .18;
       return { color: border, weight: weight, fillColor: c, fillOpacity: isLine ? 0 : fillOpacity, bubblingMouseEvents: true };
@@ -165,7 +166,7 @@ function loadGeoJSON(geo, groupName) {
       const emojiSize = importedMarkerType.indexOf('emoji_') === 0 && f.properties
         ? (f.properties._manaEmojiSize || _emojiSizeFromArea(_parseArea(f.properties.Area)))
         : null;
-      const icon = makeMarkerIcon(importedColor, importedMarkerType, emojiSize);
+      const icon = makeMarkerIcon(manaReadableColor(importedColor), importedMarkerType, emojiSize);
       const m = L.marker(ll, { icon, bubblingMouseEvents: true });
       m._manaName = n; m._manaColor = importedColor;
       m._manaMarkerType = importedMarkerType;
