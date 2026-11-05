@@ -106,16 +106,19 @@ test('landing section labels follow the selected language', async ({ page }) => 
   const sections = {
     features: page.locator('.stats'),
     showcase: page.locator('.showcase'),
+    discover: page.locator('.discover'),
     cta: page.locator('.cta-band')
   };
   await expect(sections.features).toHaveAttribute('aria-label', 'Características');
   await expect(sections.showcase).toHaveAttribute('aria-label', 'Vista previa de la galería');
+  await expect(sections.discover).toHaveAttribute('aria-label', 'Mapas para descubrir');
   await expect(sections.cta).toHaveAttribute('aria-label', 'Llamada a la acción');
 
   await page.locator('#lang-btn').click();
 
   await expect(sections.features).toHaveAttribute('aria-label', 'Features');
   await expect(sections.showcase).toHaveAttribute('aria-label', 'Gallery preview');
+  await expect(sections.discover).toHaveAttribute('aria-label', 'Maps to discover');
   await expect(sections.cta).toHaveAttribute('aria-label', 'Call to action');
 });
 

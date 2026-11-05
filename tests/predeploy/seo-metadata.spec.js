@@ -312,6 +312,41 @@ test('home page is accepted as a discovery source for zero-view maps', () => {
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
+test('home page distributes the six zero-view maps with static landing links', () => {
+  // La portada es la página con más autoridad interna: su bloque «Mapas para
+  // descubrir» debe enlazar las landings de los mapas que siguen sin visitas y
+  // contar como fuente de descubrimiento en el check 15.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const zeroView = [
+    'alcohol-consumption-world',
+    'co2-total-emissions-world',
+    'gdp-per-capita-world',
+    'literacy-rate-world',
+    'tallest-skyscrapers-world',
+    'tallest-statues-world',
+  ];
+  const html = fs.readFileSync(path.join(siteRoot, 'index.html'), 'utf8');
+  const links = extractLandingLinks(html);
+
+  for (const slug of zeroView) {
+    expect(published, `${slug} no está publicado`).toContain(slug);
+    expect(links.has(slug), `la portada no enlaza /gallery/${slug}/`).toBe(true);
+  }
+
+  const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
+  for (const slug of zeroView) viewsBySlug[slug] = 0;
+  const result = auditInternalLinkCoverage(published, {
+    viewsBySlug,
+    discoverySources: [{ label: 'home', html }],
+  });
+
+  expect(result.issues).toEqual([]);
+  expect(result.zeroView).toEqual([...zeroView].sort());
+  for (const slug of zeroView) {
+    expect(result.discoveredFrom[slug], `${slug} no se descubre desde home`).toContain('home');
+  }
+});
+
 test('every News article links to the static landing of its embedded map', () => {
   // Regresión del check 16: el visor /map/?gallery= no es la landing
   // indexable; cada artículo de News (ES y EN) debe enlazar a /gallery/<slug>/.
