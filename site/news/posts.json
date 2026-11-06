@@ -1,6 +1,36 @@
 [
   {
     "date": "2026-11-06",
+    "event": "El S&P 500 cae un 4,4% el 5 de noviembre de 2026, su peor sesión desde abril de 2025, por el miedo a que la nueva mayoría demócrata frene los centros de datos de IA tras las midterms; el Nasdaq entra en corrección con una caída del 5,5% (5 de noviembre de 2026)",
+    "type": "news",
+    "mapSlug": null,
+    "sourceUrls": [
+      "https://apnews.com/article/wall-street-stocks-dow-nasdaq-afe254c608c3d1fe2ea792812ba9765a",
+      "https://apnews.com/article/stocks-markets-ai-midterm-oil-trump-7ee9c212805aa5e70cf34d25aab7a36e",
+      "https://www.cnbc.com/2026/11/05/stock-market-selloff-ai-fears.html",
+      "https://www.investing.com/news/economy-news/trading-day-a-november-5-market-bonfire-5005919",
+      "https://www.nbcnews.com/business/markets/tech-stocks-plunge-ai-midterms-rcna607650",
+      "https://www.theguardian.com/business/2026/nov/05/nasdaq-heading-for-worst-day-in-18-months-as-wall-street-sustains-widespread-losses",
+      "https://www.hartfordfunds.com/practice-management/client-conversations/managing-volatility/top-10-stock-market-drops-recoveries.html",
+      "https://finexus.net/insights/market/crash-ep11-pattern-20260320-134000.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "caida-sp500-5-noviembre-2026",
+        "url": "/news/caida-sp500-5-noviembre-2026/",
+        "title": "El S&P 500 cae un 4,4%, su peor día desde abril de 2025",
+        "description": "El S&P 500 pierde 334,89 puntos y cierra en 7.353,73 por el miedo a que la nueva mayoría demócrata frene los centros de datos de IA. El Nasdaq entra en corrección. Qué pasó en caídas similares y cuánto tardó el mercado en recuperarse."
+      },
+      "en": {
+        "slug": "sp500-selloff-ai-midterms-2026",
+        "url": "/en/news/sp500-selloff-ai-midterms-2026/",
+        "title": "S&P 500 falls 4.4%, its worst day since April 2025",
+        "description": "The S&P 500 loses 334.89 points to close at 7,353.73 on fears that the new Democratic majority will slow AI data centres. The Nasdaq enters correction. What happened in similar selloffs and how long recoveries took."
+      }
+    }
+  },
+  {
+    "date": "2026-11-06",
     "event": "La OCDE estima que sus países miembros emitirán en 2030 un 4% por encima de la trayectoria comprometida y que los socios se desviarán un 10%, mientras las emisiones mundiales de gases de efecto invernadero alcanzan un récord de 51 Gt en 2024 (Climate Action Monitor 2026, 5 de noviembre de 2026)",
     "mapSlug": "co2-total-emissions-world",
     "sourceUrls": [

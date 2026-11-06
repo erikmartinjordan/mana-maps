@@ -371,25 +371,6 @@ h1 {
 }
 .usecase-card:hover .usecase-link { text-decoration: underline; }
 
-/* ── Discover ── */
-.discover {
-  display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 12px; padding: 0 48px 52px;
-}
-.discover-card {
-  display: flex; flex-direction: column; gap: 4px;
-  text-decoration: none; color: inherit;
-  border: 1px solid var(--line); border-radius: 14px;
-  background: rgba(255,255,255,.75); padding: 16px 18px;
-  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
-}
-.discover-card:hover {
-  transform: translateY(-2px); border-color: rgba(16,24,40,.22);
-  box-shadow: 0 10px 26px rgba(15,23,42,.08);
-}
-.discover-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
-.discover-meta { font-size: 12px; color: var(--muted); line-height: 1.45; }
-
 /* ── CTA band ── */
 .cta-band {
   position: relative; overflow: hidden;
@@ -438,7 +419,6 @@ h1 {
   .stats { padding: 0 24px 32px; grid-template-columns: 1fr; }
   .showcase { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .usecases { padding: 0 24px 36px; grid-template-columns: 1fr; }
-  .discover { padding: 0 24px 36px; grid-template-columns: 1fr; }
   .cta-band { margin: 0 24px 36px; padding: 30px 24px; }
   /* Keep the Cobe canvas square on narrow screens so the globe remains circular. */
   #globe {
@@ -476,7 +456,7 @@ h1 {
   .hero { padding: 36px 18px 24px; }
   .cta-row { width: 100%; gap: 8px; }
   .cta-row .btn { flex: 1 1 auto; justify-content: center; padding-inline: 12px; }
-  .section-head, .stats, .showcase, .usecases, .discover { padding-left: 18px; padding-right: 18px; }
+  .section-head, .stats, .showcase, .usecases { padding-left: 18px; padding-right: 18px; }
   .cta-band { margin-left: 18px; margin-right: 18px; padding: 26px 18px; }
 }
 @media (max-width: 360px) {
@@ -489,7 +469,7 @@ h1 {
 }
 
 /* ── Focus visible ── */
-.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible, .usecase-card:focus-visible, .discover-card:focus-visible, #cobe-canvas:focus-visible {
+.btn:focus-visible, .lang-toggle:focus-visible, .section-link:focus-visible, .show-card:focus-visible, .usecase-card:focus-visible, #cobe-canvas:focus-visible {
   outline: 2px solid #0a84ff; outline-offset: 2px;
 }
 </style>
@@ -727,40 +707,6 @@ h1 {
     </a>
   </section>
 
-  <div class="section-head reveal">
-    <div>
-      <h2 class="section-title" data-i18n="discover_title">Mapas para descubrir</h2>
-      <p class="section-sub" data-i18n="discover_sub">Datos citados y mapas interactivos que quiz&#225; todav&#237;a no hayas explorado.</p>
-    </div>
-    <a class="section-link" href="/gallery" data-i18n="showcase_link">Ver galer&#237;a &rarr;</a>
-  </div>
-  <section class="discover" id="mapas-para-descubrir" aria-label="Mapas para descubrir" data-i18n-aria-label="discover_aria">
-    <a class="discover-card reveal" href="/gallery/alcohol-consumption-world/">
-      <span class="discover-title" data-i18n="discover1_t">Consumo de alcohol per c&#225;pita por pa&#237;s</span>
-      <span class="discover-meta" data-i18n="discover1_m">Litros de alcohol puro por persona y a&#241;o: Ruman&#237;a lidera y nueve pa&#237;ses no registran consumo.</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/co2-total-emissions-world/">
-      <span class="discover-title" data-i18n="discover2_t">Pa&#237;ses que m&#225;s emiten CO2 (totales)</span>
-      <span class="discover-meta" data-i18n="discover2_m">Emisiones totales de CO&#8322; por pa&#237;s, dominadas por China, Estados Unidos e India.</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/gdp-per-capita-world/">
-      <span class="discover-title" data-i18n="discover3_t">PIB per c&#225;pita mundial por pa&#237;s</span>
-      <span class="discover-meta" data-i18n="discover3_m">La renta media por habitante en d&#243;lares corrientes, del Luxemburgo m&#225;s rico a las econom&#237;as de bajos ingresos.</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/literacy-rate-world/">
-      <span class="discover-title" data-i18n="discover4_t">Alfabetizaci&#243;n mundial por pa&#237;s</span>
-      <span class="discover-meta" data-i18n="discover4_m">Tasa de alfabetizaci&#243;n de adultos y la brecha que persiste en &#193;frica subsahariana.</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/tallest-skyscrapers-world/">
-      <span class="discover-title" data-i18n="discover5_t">Los rascacielos m&#225;s altos del mundo</span>
-      <span class="discover-meta" data-i18n="discover5_m">Del Burj Khalifa a los megaproyectos chinos, con altura, plantas y a&#241;o de cada edificio.</span>
-    </a>
-    <a class="discover-card reveal" href="/gallery/tallest-statues-world/">
-      <span class="discover-title" data-i18n="discover6_t">Las 17 estatuas m&#225;s altas del mundo</span>
-      <span class="discover-meta" data-i18n="discover6_m">Monumentos gigantes de Asia y Am&#233;rica, con altura, ubicaci&#243;n y a&#241;o.</span>
-    </a>
-  </section>
-
   <section class="cta-band reveal" aria-label="Llamada a la acción" data-i18n-aria-label="cta_aria">
     <div>
       <h2 data-i18n="cta_title">&#191;Listo para dise&#241;ar tu mapa?</h2>
@@ -849,21 +795,6 @@ var LANG = {
     usecase3_t:'Cables submarinos de fibra \u00f3ptica',
     usecase3_d:'La red f\u00edsica que conecta Internet en todo el mundo: rutas, longitudes y puntos de aterrizaje.',
     usecase3_l:'Abrir ejemplo \u2192',
-    discover_title:'Mapas para descubrir',
-    discover_sub:'Datos citados y mapas interactivos que quiz\u00e1 todav\u00eda no hayas explorado.',
-    discover_aria:'Mapas para descubrir',
-    discover1_t:'Consumo de alcohol per c\u00e1pita por pa\u00eds',
-    discover1_m:'Litros de alcohol puro por persona y a\u00f1o: Ruman\u00eda lidera y nueve pa\u00edses no registran consumo.',
-    discover2_t:'Pa\u00edses que m\u00e1s emiten CO2 (totales)',
-    discover2_m:'Emisiones totales de CO\u2082 por pa\u00eds, dominadas por China, Estados Unidos e India.',
-    discover3_t:'PIB per c\u00e1pita mundial por pa\u00eds',
-    discover3_m:'La renta media por habitante en d\u00f3lares corrientes, del Luxemburgo m\u00e1s rico a las econom\u00edas de bajos ingresos.',
-    discover4_t:'Alfabetizaci\u00f3n mundial por pa\u00eds',
-    discover4_m:'Tasa de alfabetizaci\u00f3n de adultos y la brecha que persiste en \u00c1frica subsahariana.',
-    discover5_t:'Los rascacielos m\u00e1s altos del mundo',
-    discover5_m:'Del Burj Khalifa a los megaproyectos chinos, con altura, plantas y a\u00f1o de cada edificio.',
-    discover6_t:'Las 17 estatuas m\u00e1s altas del mundo',
-    discover6_m:'Monumentos gigantes de Asia y Am\u00e9rica, con altura, ubicaci\u00f3n y a\u00f1o.',
     cta_sub:'Gratis y sin registro. Abre la app y empieza en segundos.',
     cta_aria:'Llamada a la acci\u00f3n',
     footer_made:'Hecho con \u2665 en Barcelona',
@@ -922,21 +853,6 @@ var LANG = {
     usecase3_t:'Submarine fiber-optic cables',
     usecase3_d:'The physical network behind the Internet: routes, lengths and landing points worldwide.',
     usecase3_l:'Open example \u2192',
-    discover_title:'Maps to discover',
-    discover_sub:'Cited data and interactive maps you may not have explored yet.',
-    discover_aria:'Maps to discover',
-    discover1_t:'Alcohol consumption per capita by country',
-    discover1_m:'Litres of pure alcohol per person per year: Romania leads and nine countries record no consumption.',
-    discover2_t:'Countries with the highest total CO2 emissions',
-    discover2_m:'Total CO\u2082 emissions by country, dominated by China, the United States and India.',
-    discover3_t:'GDP per capita worldwide by country',
-    discover3_m:'Average income per person in current dollars, from Luxembourg to low-income economies.',
-    discover4_t:'Literacy worldwide by country',
-    discover4_m:'Adult literacy rates and the gap that persists across sub-Saharan Africa.',
-    discover5_t:'The tallest skyscrapers in the world',
-    discover5_m:'From the Burj Khalifa to Chinese megaprojects, with height, floors and year for each building.',
-    discover6_t:'The 17 tallest statues in the world',
-    discover6_m:'Giant monuments across Asia and the Americas, with height, location and year.',
     cta_sub:'Free, no signup. Open the app and start in seconds.',
     cta_aria:'Call to action',
     footer_made:'Made with \u2665 in Barcelona',

@@ -441,24 +441,6 @@
 
      /* ── Featured: eliminado ── */
 
-    /* ── Mapas para descubrir ── */
-    .discover{width:min(1080px,calc(100% - 48px));margin:0 auto;padding:0 0 36px}
-    .discover-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
-    .discover-title{font-size:18px;font-weight:500;letter-spacing:-.02em;color:var(--bright,#f0edf4)}
-    .discover-sub{color:var(--quiet,#737179);font-size:13.5px;line-height:1.5}
-    .discover-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .discover-card{
-      display:flex;flex-direction:column;gap:4px;padding:14px 16px;
-      border:1px solid var(--line-soft,rgba(255,255,255,.045));border-radius:14px;
-      background:var(--panel,#101111);text-decoration:none;color:var(--bright,#f0edf4);min-width:0;
-      transition:transform .15s ease,border-color .15s ease,background .15s ease;
-    }
-    .discover-card:hover{transform:translateY(-2px);border-color:rgba(232,184,109,.35);background:#121313}
-    .discover-card:focus-visible{outline:2px solid var(--accent,#e8b86d);outline-offset:2px}
-    .discover-card-title{font-size:14px;font-weight:500;letter-spacing:-.01em;line-height:1.3}
-    .discover-card-meta{font-size:12px;color:var(--quiet,#737179);line-height:1.45}
-    @media (max-width:600px){.discover{width:calc(100% - 40px)}}
-
      /* ── Grid & cards ── */
     .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:0 48px 48px}
     .grid.empty-state{display:block}
@@ -697,8 +679,6 @@
       .frame{width:calc(100% - 20px);min-height:calc(100dvh - 20px);margin:10px auto}
       .topbar{padding:0 16px;height:66px}
       .hero{padding:36px 24px 26px}
-      .discover{padding-bottom:30px}
-      .discover-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:0 24px 32px}
       .cat-bar{margin:0 24px 16px}
     }
@@ -710,9 +690,6 @@
       .topbar-actions .btn{height:34px;padding:0 9px;font-size:11px}
       .topbar-actions .btn-ghost{display:none}
       .hero{padding:30px 18px 22px}
-      .discover{width:calc(100% - 40px);padding-bottom:26px}
-      .discover-grid{grid-template-columns:1fr;gap:10px}
-      .discover-card{padding:12px 14px}
       .grid{grid-template-columns:1fr;gap:16px;padding-left:18px;padding-right:18px}
       .cat-bar{margin:0 18px 14px;gap:8px}
       .cat-dd-btn{height:38px;padding:0 14px;font-size:13px}
@@ -790,42 +767,6 @@
       <span class="eyebrow">Comunidad</span>
       <h1>Galería de mapas</h1>
       <p>Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.</p>
-    </section>
-
-    <!-- Distribución editorial (prioridad 1 de noviembre): enlaces estáticos y
-         rastreables a landings con pocas visitas. No son tarjetas dinámicas de
-         Firestore, así que funcionan también con la galería sin datos. -->
-    <section class="discover" id="mapas-para-descubrir" aria-labelledby="discover-title">
-      <div class="discover-head">
-        <h2 class="discover-title" id="discover-title">Mapas para descubrir</h2>
-        <p class="discover-sub">Datos citados y mapas interactivos que quizá todavía no hayas explorado.</p>
-      </div>
-      <div class="discover-grid">
-        <a class="discover-card" href="/gallery/alcohol-consumption-world/">
-          <span class="discover-card-title">Consumo de alcohol per cápita por país</span>
-          <span class="discover-card-meta">Litros de alcohol puro por persona y año: Rumanía lidera y nueve países no registran consumo.</span>
-        </a>
-        <a class="discover-card" href="/gallery/co2-total-emissions-world/">
-          <span class="discover-card-title">Países que más emiten CO2 (totales)</span>
-          <span class="discover-card-meta">Emisiones totales de CO₂ por país, dominadas por China, Estados Unidos e India.</span>
-        </a>
-        <a class="discover-card" href="/gallery/gdp-per-capita-world/">
-          <span class="discover-card-title">PIB per cápita mundial por país</span>
-          <span class="discover-card-meta">La renta media por habitante en dólares corrientes, del Luxemburgo más rico a las economías de bajos ingresos.</span>
-        </a>
-        <a class="discover-card" href="/gallery/literacy-rate-world/">
-          <span class="discover-card-title">Alfabetización mundial por país</span>
-          <span class="discover-card-meta">Tasa de alfabetización de adultos y la brecha que persiste en África subsahariana.</span>
-        </a>
-        <a class="discover-card" href="/gallery/tallest-skyscrapers-world/">
-          <span class="discover-card-title">Los rascacielos más altos del mundo</span>
-          <span class="discover-card-meta">Del Burj Khalifa a los megaproyectos chinos, con altura, plantas y año de cada edificio.</span>
-        </a>
-        <a class="discover-card" href="/gallery/tallest-statues-world/">
-          <span class="discover-card-title">Las 17 estatuas más altas del mundo</span>
-          <span class="discover-card-meta">Monumentos gigantes de Asia y América, con altura, ubicación y año.</span>
-        </a>
-      </div>
     </section>
 
     <div class="cat-bar" id="cat-bar" hidden>

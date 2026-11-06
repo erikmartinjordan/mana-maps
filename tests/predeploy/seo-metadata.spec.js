@@ -9,7 +9,6 @@ const {
   parseSitemapGallerySlugs,
   auditLandingCoverage,
   auditInternalLinkCoverage,
-  extractLandingLinks,
   auditNewsLandingLinks,
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
@@ -257,128 +256,21 @@ test('internal link coverage accepts trusted discovery sources for zero-view map
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
-test('News index distributes the six zero-view maps with static landing links', () => {
-  // El índice de News (ES y EN) es el bloque de descubrimiento que rompe el
-  // círculo de los mapas con cero visitas sin depender del tráfico de otras
-  // landings.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const zeroView = [
-    'alcohol-consumption-world',
-    'co2-total-emissions-world',
-    'gdp-per-capita-world',
-    'literacy-rate-world',
-    'tallest-skyscrapers-world',
-    'tallest-statues-world',
-  ];
-  const indexes = [
-    ['news-index', path.join(siteRoot, 'news', 'index.html')],
-    ['en/news-index', path.join(siteRoot, 'en', 'news', 'index.html')],
+test('home, gallery and News indexes do not render the Maps to discover block', () => {
+  // El bloque «Mapas para descubrir» se retiró por decisión editorial. Se
+  // mantiene una regresión para que no vuelva a colarse en las páginas de
+  // entrada del sitio.
+  const pages = [
+    ['home', path.join(siteRoot, 'index.html')],
+    ['gallery', path.join(siteRoot, 'gallery', 'index.html')],
+    ['news', path.join(siteRoot, 'news', 'index.html')],
+    ['en/news', path.join(siteRoot, 'en', 'news', 'index.html')],
   ];
 
-  for (const [label, file] of indexes) {
+  for (const [label, file] of pages) {
     const html = fs.readFileSync(file, 'utf8');
-    const links = extractLandingLinks(html);
-    for (const slug of zeroView) {
-      expect(published, `${slug} no está publicado`).toContain(slug);
-      expect(links.has(slug), `${label} sin enlace a /gallery/${slug}/`).toBe(true);
-    }
-  }
-});
-
-test('home page is accepted as a discovery source for zero-view maps', () => {
-  // El check 15 debe contar la portada, igual que los índices de News, para
-  // que un mapa sin visitas no dependa del tráfico de otras landings.
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-home-discovery-'));
-  const galleryDir = path.join(tmp, 'gallery');
-  const writeLanding = (slug, anchors = []) => {
-    fs.mkdirSync(path.join(galleryDir, slug), { recursive: true });
-    fs.writeFileSync(
-      path.join(galleryDir, slug, 'index.html'),
-      `<section class="related"><ul>${anchors.map(a => `<a href="/gallery/${a}/">${a}</a>`).join('')}</ul></section>`
-    );
-  };
-  writeLanding('popular', ['oculto']);
-  writeLanding('oculto', ['popular']);
-
-  const result = auditInternalLinkCoverage(['popular', 'oculto'], {
-    galleryDir,
-    viewsBySlug: { popular: 40, oculto: 0 },
-    discoverySources: [{ label: 'home', html: '<a href="/gallery/oculto/">oculto</a>' }],
-  });
-  expect(result.issues).toEqual([]);
-  expect(result.undiscovered).toEqual([]);
-  expect(result.discoveredFrom.oculto).toEqual(['home']);
-
-  fs.rmSync(tmp, { recursive: true, force: true });
-});
-
-test('home page distributes the six zero-view maps with static landing links', () => {
-  // La portada es la página con más autoridad interna: su bloque «Mapas para
-  // descubrir» debe enlazar las landings de los mapas que siguen sin visitas y
-  // contar como fuente de descubrimiento en el check 15.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const zeroView = [
-    'alcohol-consumption-world',
-    'co2-total-emissions-world',
-    'gdp-per-capita-world',
-    'literacy-rate-world',
-    'tallest-skyscrapers-world',
-    'tallest-statues-world',
-  ];
-  const html = fs.readFileSync(path.join(siteRoot, 'index.html'), 'utf8');
-  const links = extractLandingLinks(html);
-
-  for (const slug of zeroView) {
-    expect(published, `${slug} no está publicado`).toContain(slug);
-    expect(links.has(slug), `la portada no enlaza /gallery/${slug}/`).toBe(true);
-  }
-
-  const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
-  for (const slug of zeroView) viewsBySlug[slug] = 0;
-  const result = auditInternalLinkCoverage(published, {
-    viewsBySlug,
-    discoverySources: [{ label: 'home', html }],
-  });
-
-  expect(result.issues).toEqual([]);
-  expect(result.zeroView).toEqual([...zeroView].sort());
-  for (const slug of zeroView) {
-    expect(result.discoveredFrom[slug], `${slug} no se descubre desde home`).toContain('home');
-  }
-});
-
-test('gallery index distributes the six zero-view maps with static landing links', () => {
-  // La galería es la página de entrada al catálogo: su bloque editorial «Mapas
-  // para descubrir» debe enlazar las landings de los mapas que siguen sin
-  // visitas y contar como fuente de descubrimiento en el check 15. Los enlaces
-  // deben ser landings estáticas, no URLs del visor o de la galería dinámica.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const zeroView = [
-    'alcohol-consumption-world',
-    'co2-total-emissions-world',
-    'gdp-per-capita-world',
-    'literacy-rate-world',
-    'tallest-skyscrapers-world',
-    'tallest-statues-world',
-  ];
-  const links = extractLandingLinks(galleryHtml);
-
-  for (const slug of zeroView) {
-    expect(published, `${slug} no está publicado`).toContain(slug);
-    expect(links.has(slug), `la galería no enlaza /gallery/${slug}/`).toBe(true);
-  }
-
-  const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
-  for (const slug of zeroView) viewsBySlug[slug] = 0;
-  const result = auditInternalLinkCoverage(published, {
-    viewsBySlug,
-    discoverySources: [{ label: 'gallery-index', html: galleryHtml }],
-  });
-
-  expect(result.issues).toEqual([]);
-  expect(result.zeroView).toEqual([...zeroView].sort());
-  for (const slug of zeroView) {
-    expect(result.discoveredFrom[slug], `${slug} no se descubre desde la galería`).toContain('gallery-index');
+    expect(html, `${label} vuelve a incluir la sección de descubrimiento`)
+      .not.toMatch(/Mapas para descubrir|Maps to discover|id=["']mapas-para-descubrir["']/i);
   }
 });
 
