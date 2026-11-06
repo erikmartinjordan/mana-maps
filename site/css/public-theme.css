@@ -1239,6 +1239,76 @@ body.public-article .map-frame {
 body.public-article .map-credit,
 body.public-article .map-help { margin: 10px 8px 2px; color: var(--quiet); font-size: 11px; }
 
+body.public-article .chart {
+  margin: 32px 0 36px;
+  padding: 20px 20px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(232, 184, 109, .07), transparent 46%),
+    #101111;
+  box-shadow: none;
+}
+
+body.public-article .chart-head { margin: 0 2px 16px; }
+
+body.public-article .chart-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+body.public-article .chart-title {
+  margin: 0 0 4px;
+  color: var(--bright);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -.02em;
+}
+
+body.public-article .chart .chart-lede {
+  margin: 0;
+  color: var(--quiet);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+body.public-article .chart-scroll { overflow-x: auto; border-radius: 12px; }
+body.public-article .chart svg { display: block; width: 100%; min-width: 560px; height: auto; }
+body.public-article .chart text { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; }
+body.public-article .chart-label { fill: var(--copy); font-size: 12px; font-weight: 500; }
+body.public-article .chart-row--peak .chart-label { fill: var(--ink); }
+body.public-article .chart-value { fill: var(--bright); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+body.public-article .chart-value--peak { fill: var(--accent); }
+body.public-article .chart-track { fill: rgba(255, 255, 255, .045); }
+body.public-article .chart-bar { fill: var(--accent); opacity: .66; }
+body.public-article .chart-bar--peak { opacity: 1; }
+body.public-article .chart-row:hover .chart-bar { opacity: .9; }
+body.public-article .chart-row:hover .chart-bar--peak { opacity: 1; }
+body.public-article .chart-grid { stroke: rgba(255, 255, 255, .065); stroke-width: 1; stroke-dasharray: 2 5; }
+body.public-article .chart-axis { stroke: rgba(255, 255, 255, .14); stroke-width: 1; }
+body.public-article .chart-tick { fill: var(--quiet); font-size: 11px; }
+body.public-article .chart figcaption {
+  margin: 12px 2px 0;
+  color: var(--quiet);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  body.public-article .chart { padding: 16px 12px 12px; }
+  body.public-article .chart-head { margin-bottom: 12px; }
+  body.public-article .chart svg { min-width: 0; }
+  body.public-article .chart-label,
+  body.public-article .chart-value { font-size: 22px; }
+  body.public-article .chart-tick { font-size: 18px; }
+}
+
 body.public-article .post h2 {
   margin: 42px 0 14px;
   color: var(--bright);
