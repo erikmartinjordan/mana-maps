@@ -1,5 +1,30 @@
 [
   {
+    "date": "2026-11-06",
+    "event": "La OCDE estima que sus países miembros emitirán en 2030 un 4% por encima de la trayectoria comprometida y que los socios se desviarán un 10%, mientras las emisiones mundiales de gases de efecto invernadero alcanzan un récord de 51 Gt en 2024 (Climate Action Monitor 2026, 5 de noviembre de 2026)",
+    "mapSlug": "co2-total-emissions-world",
+    "sourceUrls": [
+      "https://www.oecd.org/en/publications/2026/11/the-climate-action-monitor-2026_47e7644c.html",
+      "https://www.infobae.com/america/agencias/2026/11/05/los-paises-de-la-ocde-se-alejan-de-las-metas-climaticas-y-el-planeta-toca-emisiones-record/",
+      "https://www.oecd.org/en/blogs/2026/11/has-global-co-operation-helped-curb-emissions-insights-from-trends-and-expert-views.html",
+      "https://www.oecd-events.org/e/cop31/session/8ae28b74-12bb-f111-a6a9-000d3a20bbba/the-climate-action-monitor-2026-information-for-evidence-based-policy-making"
+    ],
+    "translations": {
+      "es": {
+        "slug": "ocde-desvia-senda-climatica-2030",
+        "url": "/news/ocde-desvia-senda-climatica-2030/",
+        "title": "La OCDE se desvía un 4% de su senda climática de 2030",
+        "description": "Los países de la OCDE se quedan un 4% por encima de la trayectoria de 2030 con las políticas actuales y las emisiones globales marcan un récord de 51 Gt. El mapa de CO₂ total muestra dónde se concentran."
+      },
+      "en": {
+        "slug": "oecd-off-2030-climate-path",
+        "url": "/en/news/oecd-off-2030-climate-path/",
+        "title": "OECD countries are 4% off their 2030 climate path",
+        "description": "OECD countries are on course to stay 4% above the path required for 2030, while global emissions hit a record 51 Gt. The total CO₂ map shows where they concentrate."
+      }
+    }
+  },
+  {
     "date": "2026-11-05",
     "event": "El turismo británico cierra 2026 con un récord de gasto en la Comunidad Valenciana: 3,05 millones de visitantes y 3.350 millones de euros previstos, con estancias más cortas y pernoctaciones por debajo de 2019 (WTM de Londres, 3-5 de noviembre de 2026)",
     "mapSlug": "tourism-arrivals-world",

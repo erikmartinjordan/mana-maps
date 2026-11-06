@@ -46,6 +46,24 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/news/ocde-desvia-senda-climatica-2030/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/ocde-desvia-senda-climatica-2030/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/oecd-off-2030-climate-path/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/ocde-desvia-senda-climatica-2030/"/>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/news/oecd-off-2030-climate-path/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/ocde-desvia-senda-climatica-2030/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/oecd-off-2030-climate-path/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/ocde-desvia-senda-climatica-2030/"/>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/news/turismo-britanico-record-comunidad-valenciana/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/turismo-britanico-record-comunidad-valenciana/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/british-tourism-record-valencia-region/"/>
