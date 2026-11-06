@@ -52,7 +52,9 @@
 //      implica elegir la clave y la rampa, y se hace a mano.
 //  15. enlaces internos: cada landing publicada debe recibir al menos un
 //      enlace desde otra landing y, si el mapa tiene cero visitas, al menos
-//      uno debe venir de una landing con tráfico (≥DISCOVERY_MIN_HOST_VIEWS).
+//      uno debe venir de una landing con tráfico (≥DISCOVERY_MIN_HOST_VIEWS)
+//      o de una fuente de descubrimiento global (portada, galería e índices de
+//      News) que enlace la landing estática /gallery/<slug>/.
 //  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html y
 //      site/en/news/<slug>/index.html que embebe un mapa
 //      (/map/?gallery=<slug>) debe enlazar también a su ficha estática
@@ -1848,13 +1850,17 @@ const NEWS_DIR_PATHS = [NEWS_DIR_PATH, NEWS_EN_DIR_PATH];
 const NEWS_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'news', 'index.html');
 const NEWS_EN_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'en', 'news', 'index.html');
 const HOME_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'index.html');
+const GALLERY_INDEX_PATH = require('path').join(__dirname, '..', '..', 'site', 'gallery', 'index.html');
 
-// Portada e índices de News como fuentes de descubrimiento interno: enlazan
-// landings desde páginas con navegación global, útil para los mapas sin visitas.
-function readNewsDiscoverySources() {
+// Portada, índice de la galería e índices de News como fuentes de
+// descubrimiento interno: enlazan landings desde páginas con navegación global,
+// útil para los mapas sin visitas. La galería solo cuenta si sus enlaces usan
+// la landing estática (/gallery/<slug>/), no la URL del visor.
+function readDiscoverySources() {
   const sources = [];
   for (const [label, file] of [
     ['home', HOME_INDEX_PATH],
+    ['gallery-index', GALLERY_INDEX_PATH],
     ['news-index', NEWS_INDEX_PATH],
     ['en/news-index', NEWS_EN_INDEX_PATH],
   ]) {
@@ -2480,7 +2486,7 @@ async function main() {
     );
     internalLinks = auditInternalLinkCoverage(published.map(m => m.id), {
       viewsBySlug,
-      discoverySources: readNewsDiscoverySources(),
+      discoverySources: readDiscoverySources(),
     });
   } catch (e) {
     internalLinks = { issues: [`no se pudieron comprobar los enlaces internos: ${e.message}`] };
@@ -2490,7 +2496,7 @@ async function main() {
   if (internalLinks.issues.length === 0) {
     console.log(
       `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
-      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada o el índice de News` : '')
+      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News` : '')
     );
   } else {
     for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);
@@ -2728,7 +2734,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
-  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada o el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico, la portada ni News`}`);
+  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico, la portada, la galería ni News`}`);
   console.log(`News → landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
@@ -2795,6 +2801,7 @@ module.exports = {
   NEWS_INDEX_PATH,
   NEWS_EN_INDEX_PATH,
   HOME_INDEX_PATH,
+  GALLERY_INDEX_PATH,
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
   extractFooterLinks,

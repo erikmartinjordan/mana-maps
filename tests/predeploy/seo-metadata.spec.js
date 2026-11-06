@@ -347,6 +347,41 @@ test('home page distributes the six zero-view maps with static landing links', (
   }
 });
 
+test('gallery index distributes the six zero-view maps with static landing links', () => {
+  // La galería es la página de entrada al catálogo: su bloque editorial «Mapas
+  // para descubrir» debe enlazar las landings de los mapas que siguen sin
+  // visitas y contar como fuente de descubrimiento en el check 15. Los enlaces
+  // deben ser landings estáticas, no URLs del visor o de la galería dinámica.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const zeroView = [
+    'alcohol-consumption-world',
+    'co2-total-emissions-world',
+    'gdp-per-capita-world',
+    'literacy-rate-world',
+    'tallest-skyscrapers-world',
+    'tallest-statues-world',
+  ];
+  const links = extractLandingLinks(galleryHtml);
+
+  for (const slug of zeroView) {
+    expect(published, `${slug} no está publicado`).toContain(slug);
+    expect(links.has(slug), `la galería no enlaza /gallery/${slug}/`).toBe(true);
+  }
+
+  const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
+  for (const slug of zeroView) viewsBySlug[slug] = 0;
+  const result = auditInternalLinkCoverage(published, {
+    viewsBySlug,
+    discoverySources: [{ label: 'gallery-index', html: galleryHtml }],
+  });
+
+  expect(result.issues).toEqual([]);
+  expect(result.zeroView).toEqual([...zeroView].sort());
+  for (const slug of zeroView) {
+    expect(result.discoveredFrom[slug], `${slug} no se descubre desde la galería`).toContain('gallery-index');
+  }
+});
+
 test('every News article links to the static landing of its embedded map', () => {
   // Regresión del check 16: el visor /map/?gallery= no es la landing
   // indexable; cada artículo de News (ES y EN) debe enlazar a /gallery/<slug>/.
