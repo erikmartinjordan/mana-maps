@@ -297,7 +297,7 @@
 
   function renderThumb(item) {
     if (!window.ManaMapPreview) return '';
-    var svg = window.ManaMapPreview.renderSVG(previewOf(item), { simple: true });
+    var svg = window.ManaMapPreview.renderSVG(previewOf(item), { simple: true, theme: 'gallery-dark' });
     if (!svg) return '';
     // Las tarjetas usan un marco fijo 3:2 y el mapa debe llenarlo por completo.
     // renderSVG usa `meet` (deja bandas), así que escalamos el SVG lo justo

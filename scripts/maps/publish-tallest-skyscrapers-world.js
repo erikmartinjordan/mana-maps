@@ -125,6 +125,12 @@ async function main() {
   console.log(`Checking /maps/${SLUG}...`);
   const existing = await firestoreRequest(token, 'GET', `/${COLLECTION}/${SLUG}`);
   if (existing.status === 200) {
+    const f = existing.data.fields || {};
+    if (f.createdAtMs) fields.createdAtMs = f.createdAtMs;
+    if (f.createdAt) fields.createdAt = f.createdAt;
+    if (f.views) fields.views = f.views;
+    if (f.likes) fields.likes = f.likes;
+    if (f.authorHandle) fields.authorHandle = f.authorHandle;
     console.log('Updating document...');
     const fieldPaths = Object.keys(fields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res = await firestoreRequest(token, 'PATCH', `/${COLLECTION}/${SLUG}?${fieldPaths}`, { fields });

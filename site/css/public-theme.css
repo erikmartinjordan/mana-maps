@@ -711,38 +711,74 @@ body.public-gallery .grid {
   width: min(1080px, calc(100% - 48px));
   margin: 0 auto;
   padding: 0 0 72px;
-  gap: 16px;
+  gap: 20px;
 }
 
 body.public-gallery .grid .card {
+  aspect-ratio: auto;
+  height: 340px;
   border: 1px solid var(--line-soft);
-  border-radius: 22px;
+  border-radius: 18px;
   background: #101111;
   box-shadow: none;
   transition: transform .45s var(--ease), border-color .3s, box-shadow .3s;
 }
 
 body.public-gallery .grid .card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(232, 184, 109, .35);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+  transform: translateY(-3px);
+  border-color: rgba(232, 184, 109, .32);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .42);
+}
+
+body.public-gallery .grid .thumb {
+  inset: 0 0 39% 0;
+  background: #0b0c0c;
+}
+
+body.public-gallery .grid .thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(8, 9, 9, .02), rgba(8, 9, 9, .26));
+  pointer-events: none;
 }
 
 body.public-gallery .grid .card-shade {
+  inset: 0 0 39% 0;
   background: linear-gradient(180deg,
-    rgba(8, 9, 9, 0) 18%,
-    rgba(8, 9, 9, .32) 44%,
-    rgba(8, 9, 9, .88) 74%,
-    rgba(8, 9, 9, .98) 100%);
+    transparent 46%,
+    rgba(16, 17, 17, .62) 84%,
+    #101111 100%);
 }
 
-body.public-gallery .grid .title { font-weight: 500; }
+body.public-gallery .grid .card-copy {
+  left: 16px;
+  right: 16px;
+  top: auto;
+  bottom: 14px;
+  gap: 5px;
+}
+
 body.public-gallery .grid .card-kicker {
+  margin-bottom: 3px;
   border: 1px solid rgba(232, 184, 109, .3);
-  background: rgba(232, 184, 109, .12);
+  background: rgba(232, 184, 109, .1);
   color: var(--accent);
 }
-body.public-gallery .grid .meta { color: rgba(217, 213, 225, .7); }
+
+body.public-gallery .grid .title {
+  color: var(--bright);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  max-height: 2.4em;
+}
+
+body.public-gallery .grid .meta { color: #8d8a94; font-size: 11px; }
+body.public-gallery .grid .meta-author { color: var(--ink); }
+body.public-gallery .grid .card-actions { top: 12px; right: 12px; }
 
 body.public-gallery .grid .card-action-btn {
   border: 1px solid rgba(255, 255, 255, .18);

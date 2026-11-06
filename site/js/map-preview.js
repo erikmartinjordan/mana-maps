@@ -44,6 +44,10 @@
     { color: '#8fbfe0', width: 28, opacity: 0.60, blur: 6 },
     { color: '#74aed6', width: 12, opacity: 0.72, blur: 6 }
   ];
+  var GALLERY_DARK_OCEAN = ['#0a0e12', '#101820', '#17232b'];
+  var GALLERY_DARK_LAND_FILL = '#1b1e1b';
+  var GALLERY_DARK_LAND_STROKE = '#2b302b';
+  var GALLERY_DARK_FOAM = '#44514a';
   var SVG_NS = 'http://www.w3.org/2000/svg';
   var _bgClipId = 0;
   var _landViewCache = {};
@@ -512,7 +516,11 @@
   // Flat-world (equirectangular): full rectangle, land as background and water
   // regions on top. A single ocean gradient + a soft coastal halo + light tints
   // per sea avoids the harsh straight seams of the raw Natural Earth polygons.
-  function renderFlatWorldSVG(preview) {
+  function renderFlatWorldSVG(preview, opts) {
+    var galleryDark = !!(opts && opts.theme === 'gallery-dark');
+    var ocean = galleryDark ? GALLERY_DARK_OCEAN : ['#0a4a80', '#1466a1', '#1d74ad'];
+    var landFill = galleryDark ? GALLERY_DARK_LAND_FILL : '#f7f4ec';
+    var shelfFill = galleryDark ? '#17313f' : '#8fc4e5';
     var VW = 200, VH = 100;
     function px(lon) { return (lon + 180) / 360 * VW; }
     function py(lat) { return (90 - lat) / 180 * VH; }
@@ -547,22 +555,23 @@
     var id = ++_bgClipId;
     var defs = '<defs>' +
       '<linearGradient id="mfw-ocean-' + id + '" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#0a4a80"/><stop offset="0.5" stop-color="#1466a1"/><stop offset="1" stop-color="#1d74ad"/></linearGradient>' +
+      '<stop offset="0" stop-color="' + ocean[0] + '"/><stop offset="0.5" stop-color="' + ocean[1] + '"/><stop offset="1" stop-color="' + ocean[2] + '"/></linearGradient>' +
       '<filter id="mfw-shelf-' + id + '" x="-12%" y="-24%" width="124%" height="148%"><feGaussianBlur stdDeviation="1.5"/></filter>' +
       '</defs>';
-    var land = '<rect x="0" y="0" width="' + VW + '" height="' + VH + '" fill="#f7f4ec"/>';
-    var shelf = allD ? '<path d="' + allD + '" fill="#8fc4e5" filter="url(#mfw-shelf-' + id + ')" opacity="0.55"/>' : '';
-    var ocean = allD ? '<path d="' + allD + '" fill="url(#mfw-ocean-' + id + ')"/>' : '';
-    var tint = tints ? '<g opacity="0.38">' + tints + '</g>' : '';
+    var land = '<rect x="0" y="0" width="' + VW + '" height="' + VH + '" fill="' + landFill + '"/>';
+    var shelf = allD ? '<path d="' + allD + '" fill="' + shelfFill + '" filter="url(#mfw-shelf-' + id + ')" opacity="0.55"/>' : '';
+    var oceanFill = allD ? '<path d="' + allD + '" fill="url(#mfw-ocean-' + id + ')"/>' : '';
+    var tint = tints ? '<g opacity="' + (galleryDark ? '0.58' : '0.38') + '">' + tints + '</g>' : '';
 
     return '<svg class="thumb-preview" viewBox="0 0 ' + VW + ' ' + VH + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
-      defs + land + shelf + ocean + tint + '</svg>';
+      defs + land + shelf + oceanFill + tint + '</svg>';
   }
 
   function renderMapPreviewSVG(preview, opts) {
     if (!preview || !Array.isArray(preview.bbox)) return '';
-    if (preview.flatWorld) return renderFlatWorldSVG(preview);
+    if (preview.flatWorld) return renderFlatWorldSVG(preview, opts);
     var simple = !!(opts && opts.simple);
+    var galleryDark = !!(opts && opts.theme === 'gallery-dark');
     var bbox = preview.bbox;
     var minX = Number(bbox[0]); var minY = Number(bbox[1]); var maxX = Number(bbox[2]); var maxY = Number(bbox[3]);
     var canvas = previewCanvas(bbox);
@@ -646,9 +655,14 @@
     // Vector basemap rendered in Web Mercator so it aligns with the feature
     // projection. The ocean fill covers the entire visible box (bbox + breathing
     // room) so previews fill the card edge to edge.
-    function renderVectorBackground() {
+    function renderVectorBackground(darkBase) {
       var clipId = 'mana-preview-' + (++_bgClipId);
       var radius = Math.min(viewW, viewH) * 0.02;
+      var oceanStops = darkBase ? GALLERY_DARK_OCEAN : [BASEMAP_OCEAN_TOP, BASEMAP_OCEAN_MID, BASEMAP_OCEAN_BOTTOM];
+      var landFill = darkBase ? GALLERY_DARK_LAND_FILL : BASEMAP_LAND_FILL;
+      var landStroke = darkBase ? GALLERY_DARK_LAND_STROKE : BASEMAP_LAND_STROKE;
+      var foam = darkBase ? GALLERY_DARK_FOAM : BASEMAP_FOAM;
+      var foamOpacity = darkBase ? '0.28' : '0.75';
 
       // Affine map from canonical land coords → viewBox coords:
       //   toX(cx) = A*cx + B,  toY(cy) = C*cy + D   (cy = mercatorY*10000)
@@ -674,10 +688,10 @@
               '" stroke-opacity="' + s.opacity + '" stroke-linejoin="round" filter="url(#mana-shelf-blur-' + i + ')"/>';
           });
         }
-        land += useOpen + ' fill="' + BASEMAP_LAND_FILL + '" stroke="' + BASEMAP_LAND_STROKE +
+        land += useOpen + ' fill="' + landFill + '" stroke="' + landStroke +
           '" stroke-width="1.1" stroke-linejoin="round"/>';
-        land += useOpen + ' fill="none" stroke="' + BASEMAP_FOAM +
-          '" stroke-width="1.6" stroke-opacity="0.75" stroke-linejoin="round"/>';
+        land += useOpen + ' fill="none" stroke="' + foam +
+          '" stroke-width="1.6" stroke-opacity="' + foamOpacity + '" stroke-linejoin="round"/>';
       }
 
       return '<clipPath id="' + clipId + '"><rect x="0" y="0" width="' + viewW.toFixed(2) +
@@ -688,9 +702,9 @@
         land +
         '</g>' +
         '<defs><linearGradient id="' + clipId + '-ocean" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0" stop-color="' + BASEMAP_OCEAN_TOP + '"/>' +
-        '<stop offset="0.5" stop-color="' + BASEMAP_OCEAN_MID + '"/>' +
-        '<stop offset="1" stop-color="' + BASEMAP_OCEAN_BOTTOM + '"/></linearGradient></defs>';
+        '<stop offset="0" stop-color="' + oceanStops[0] + '"/>' +
+        '<stop offset="0.5" stop-color="' + oceanStops[1] + '"/>' +
+        '<stop offset="1" stop-color="' + oceanStops[2] + '"/></linearGradient></defs>';
     }
 
     function renderDensityCells() {
@@ -742,7 +756,7 @@
       return d ? d + (close ? ' Z' : '') : '';
     }
 
-    var body = (dark ? renderDarkBackground() : renderVectorBackground()) + renderDensityCells();
+    var body = (galleryDark ? renderVectorBackground(true) : dark ? renderDarkBackground() : renderVectorBackground()) + renderDensityCells();
 
     if (Array.isArray(preview.features)) {
       // Two passes: fills first, then lines, then points (proper layering).
