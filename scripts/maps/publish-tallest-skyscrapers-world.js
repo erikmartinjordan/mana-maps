@@ -73,7 +73,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Los 50 edificios más altos del mundo, cada uno en su ubicación real. China concentra 26 de los 50 (incluida Hong Kong) y Estados Unidos 8; el Burj Khalifa (828 m) sigue 149 m por encima del segundo, el Merdeka 118 de Kuala Lumpur (678,9 m). Nueva York es la ciudad con más representación (6), seguida de Dubái, Kuala Lumpur y Shenzhen (4 cada una). El tamaño de cada edificio crece con su altura y el color se oscurece con el puesto. Datos del CTBUH (Skyscraper Center) vía Wikipedia, con coordenadas verificadas en Wikipedia y Wikidata.'),
+    description: fsStr('Los 50 edificios más altos del mundo y su ubicación real. China concentra 26 (incluida Hong Kong) y Estados Unidos 8; el Burj Khalifa (828 m) supera en 149 m al Merdeka 118 (678,9 m).'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
@@ -93,7 +93,7 @@ async function main() {
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
     dataSource: fsStr('Wikipedia, «List of tallest buildings», basada en el Council on Tall Buildings and Urban Habitat (CTBUH) — Skyscraper Center, «The 100 Tallest Completed Buildings in the World»; coordenadas verificadas en Wikipedia y Wikidata.'),
-    dataDate: fsStr('2026-10'),
+    dataDate: fsStr('2026-10-01'),
     dataYear: fsInt(2026),
     tags: fsArr(['Arquitectura', 'Urbanismo', 'Geografía']),
     legendKey: fsStr('Altura (m)'),

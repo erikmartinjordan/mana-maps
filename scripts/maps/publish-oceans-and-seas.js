@@ -5,10 +5,11 @@
 // Uso: node scripts/maps/publish-oceans-and-seas.js [--dry-run]
 'use strict';
 const fs = require('fs'), path = require('path');
-const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt } = require('../lib/publisher');
+const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsMap } = require('../lib/publisher');
 
 const SLUG = 'oceans-and-seas-world';
 const TITLE = 'Océanos y mares del mundo';
+const DESCRIPTION = 'Los cinco océanos y los mares y golfos más extensos del planeta, dibujados sobre costas reales. El color identifica cada océano y agrupa mares y golfos; las etiquetas nombran cada masa de agua.';
 const DRY_RUN = process.argv.includes('--dry-run');
 
 async function main() {
@@ -28,11 +29,23 @@ async function main() {
   const fields = {
     title: fsStr(TITLE),
     name: fsStr(TITLE),
+    description: fsStr(DESCRIPTION),
     featureCount: fsInt(geo.features.length),
     geojsonText: fsStr(geojsonText),
     updatedAtMs: fsInt(Date.now()),
     dataSource: fsStr('Natural Earth 1:50m geography marine polys (dominio público); límites IHO S-23'),
     dataDate: fsStr('2024-01-01'),
+    legendKey: fsStr('Cuenca'),
+    legendTitle: fsStr('Océano o grupo'),
+    legendFormat: fsStr('category'),
+    legend: fsMap({ steps: [
+      { label: 'Ártico', c: '#5aa9d0' },
+      { label: 'Antártico', c: '#7fb8dd' },
+      { label: 'Atlántico', c: '#1d6ea6' },
+      { label: 'Pacífico', c: '#08306b' },
+      { label: 'Índico', c: '#2f86bd' },
+      { label: 'Mares y golfos', c: '#4f9fca' },
+    ] }),
   };
   if (DRY_RUN) { console.log('DRY RUN ->', Object.keys(fields).join(', ')); return; }
 
