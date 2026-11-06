@@ -241,7 +241,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
 <link rel="stylesheet" href="/css/site-navbar.css">
 <link rel="stylesheet" href="/css/public-theme.css">
 </head>
-<body class="public-landing">
+<body class="public-landing" data-map-slug="${esc(slug)}">
   <header class="site-navbar">
     <div class="site-navbar__inner">
       <a class="brand" href="/" aria-label="Maña Maps">
@@ -319,6 +319,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   </div></footer>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/tracking.js?v=1792742000"></script>
+  <script defer src="/js/landing-view.js"></script>
 </body>
 </html>
 `;
