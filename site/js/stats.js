@@ -233,7 +233,7 @@ function refreshStatsPanel() {
 
 // ═══ HACER STAT-PILLS CLICABLES ═══
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.stat-pill:not(.shortcuts-pill)').forEach(function(pill) {
+  document.querySelectorAll('.stat-pill:not(.shortcuts-pill):not(.tutorial-pill)').forEach(function(pill) {
     pill.style.cursor = 'pointer';
     pill.style.pointerEvents = 'auto';
     pill.addEventListener('click', toggleStatsPanel);
