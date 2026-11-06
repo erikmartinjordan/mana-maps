@@ -109,4 +109,10 @@ replicado en `site/js/vector-renderer.js` y `site/js/globe.js`), `_manaColor`,
   prohibido proponerlas o re-habilitarlas (ni en BACKLOG ni en código). Hay un
   test que lo bloquea: `tests/predeploy/gallery-smoke.spec.js`
   ("gallery cards keep descriptions and data source hidden").
+- **Bloque «Mapas para descubrir» / «Maps to discover»**: eliminado por decisión
+  de producto. Está prohibido recrearlo en la portada, la galería, los índices
+  de News o cualquier otra página pública, tanto en HTML estático como generado
+  por JavaScript. No proponer tareas de descubrimiento que lo reintroduzcan. Hay
+  un test que bloquea su vuelta: `tests/predeploy/seo-metadata.spec.js`
+  ("home, gallery and News indexes do not render the Maps to discover block").
 - Si una tarea del BACKLOG contradice esta sección, se descarta.
