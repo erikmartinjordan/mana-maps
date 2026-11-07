@@ -840,6 +840,16 @@ function viewCommitBodies(bodies) {
 
 test('static landing increments views once per session with source static_landing', async ({ page }) => {
   const bodies = [];
+  // En CI no existe site/js/firebase-config.local.js (se genera con secretos en
+  // el deploy). Inyectamos una config de prueba para ejercitar el envío REST.
+  await page.route('**/js/firebase-config.local.js', (route) => route.fulfill({
+    status: 404, contentType: 'text/javascript', body: '',
+  }));
+  await page.addInitScript(() => {
+    window.MANA_FIREBASE_CONFIGS = {
+      pre: { apiKey: 'test-key', projectId: 'mana-maps-test', authDomain: 'test.firebaseapp.com', appId: 'test-app' },
+    };
+  });
   await page.route('**/firestore.googleapis.com/**', async (route) => {
     const request = route.request();
     if (request.method() === 'POST') bodies.push(request.postData() || '');
@@ -866,6 +876,14 @@ test('static landing increments views once per session with source static_landin
 test('static landing respects the mana-notrack opt-out', async ({ browser }) => {
   const context = await browser.newContext();
   const bodies = [];
+  await context.route('**/js/firebase-config.local.js', (route) => route.fulfill({
+    status: 404, contentType: 'text/javascript', body: '',
+  }));
+  await context.addInitScript(() => {
+    window.MANA_FIREBASE_CONFIGS = {
+      pre: { apiKey: 'test-key', projectId: 'mana-maps-test', authDomain: 'test.firebaseapp.com', appId: 'test-app' },
+    };
+  });
   await context.route('**/firestore.googleapis.com/**', async (route) => {
     const request = route.request();
     if (request.method() === 'POST') bodies.push(request.postData() || '');
