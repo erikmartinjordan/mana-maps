@@ -45,6 +45,7 @@ test('gallery CollectionPage and sitemap stay internally consistent', () => {
   expect(collection.found, collection.error || '').toBe(true);
   expect(collection.numberOfItems).toBe(collection.itemCount);
   expect(collection.invalidItems).toBe(0);
+  expect(collection.queryUrls).toBe(0);
   expect(collection.duplicates).toEqual([]);
   expect(collection.positionsOk).toBe(true);
 
@@ -82,6 +83,22 @@ test('SEO drift check detects numberOfItems mismatches and accepts ?slug sitemap
     .join('') + '</urlset>';
   const queryResult = auditSeoMetadata(published, { galleryHtml, sitemapXml: querySitemap });
   expect(queryResult.issues).toEqual([]);
+});
+
+// Regresión: el catálogo estructurado debe apuntar a la landing canónica
+// /gallery/<slug>/ (donde vive el canonical, la OG y la medición de visitas),
+// no a la URL del visor /gallery/?slug=.
+test('CollectionPage must link map landings instead of viewer query URLs', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const firstSlug = published[0];
+  const withViewerUrl = galleryHtml.replace(
+    `"url": "https://maña.com/gallery/${firstSlug}/"`,
+    `"url": "https://maña.com/gallery/?slug=${firstSlug}"`
+  );
+  expect(withViewerUrl).not.toBe(galleryHtml);
+
+  const result = auditSeoMetadata(published, { galleryHtml: withViewerUrl, sitemapXml });
+  expect(result.issues.join('\n')).toContain('usan la URL del visor (?slug=) en vez de la landing canónica');
 });
 
 // Regresión del check 11: todo mapa publicado debe tener su landing estática

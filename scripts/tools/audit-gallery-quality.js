@@ -30,7 +30,10 @@
 //      coincidir exactamente con el itemListElement/numberOfItems del JSON-LD
 //      CollectionPage de gallery/index.html y con las URLs de mapa de
 //      sitemap.xml. Lista faltantes/sobrantes/duplicados y falla (exit 1) si
-//      hay desajuste. Acepta landings /gallery/<slug>/ y /gallery/?slug=<slug>.
+//      hay desajuste. Acepta landings /gallery/<slug>/ y /gallery/?slug=<slug>
+//      en el sitemap, pero el catálogo JSON-LD debe usar la landing canónica
+//      /gallery/<slug>/ (la URL que comparten canonical, OG y medición de
+//      visitas); las URLs del visor (?slug=) se reportan como fallo.
 //  11. cobertura de landings y OG cards: cada mapa isPublished debe tener
 //      gallery/<slug>/index.html (que además debe contener su slug) y
 //      og-cards/<slug>.png no vacío. Lista los faltantes y falla (exit 1).
@@ -1274,6 +1277,7 @@ function parseCollectionLd(html) {
     itemCount: 0,
     slugs: [],
     invalidItems: 0,
+    queryUrls: 0,
     duplicates: [],
     positionsOk: true,
   };
@@ -1300,8 +1304,12 @@ function parseCollectionLd(html) {
   result.itemCount = items.length;
   for (const it of items) {
     const slug = slugFromGalleryUrl(it && it.url);
-    if (slug) result.slugs.push(slug);
-    else result.invalidItems++;
+    if (slug) {
+      result.slugs.push(slug);
+      if (/\/gallery\/?\?(?:[^#]*&)?slug=/i.test(String(it && it.url))) {
+        result.queryUrls++;
+      }
+    } else result.invalidItems++;
   }
   const seen = new Set();
   const dup = new Set();
@@ -1372,6 +1380,11 @@ function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '' } 
     }
     if (collection.invalidItems) {
       issues.push(`JSON-LD CollectionPage: ${collection.invalidItems} itemListElement sin URL de mapa válida`);
+    }
+    if (collection.queryUrls) {
+      issues.push(
+        `JSON-LD CollectionPage: ${collection.queryUrls} itemListElement usan la URL del visor (?slug=) en vez de la landing canónica /gallery/<slug>/`
+      );
     }
     if (collection.duplicates.length) {
       issues.push(`JSON-LD CollectionPage: slugs duplicados (${collection.duplicates.join(', ')})`);
