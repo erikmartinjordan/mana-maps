@@ -1,0 +1,485 @@
+/* ── Galería — tarjetas de pergamino ────────────────────────────────────
+   Each gallery card is a sheet of torn parchment: deckled silhouette, warm
+   aged edge, a light map vignette and a clean editorial layout. Loaded after
+   public-theme.css and scoped to body.public-gallery, so the rest of the site
+   is untouched. */
+
+body.public-gallery {
+  --sheet-paper: #f4eee1;
+  --sheet-paper-deep: #ece4d3;
+  --sheet-ink: #232017;
+  --sheet-ink-soft: #5f5546;
+  --sheet-quiet: #8a7d6a;
+  --sheet-hair: rgba(35, 32, 23, .18);
+  --sheet-accent: #a9782f;
+  --tear1: polygon(0.00% 0.80%, 3.85% 0.77%, 7.69% 0.83%, 11.54% 1.12%, 15.38% 2.68%, 19.23% 2.27%, 23.08% 1.33%, 26.92% 1.23%, 30.77% 1.05%, 34.62% 0.95%, 38.46% 1.27%, 42.31% 1.32%, 46.15% 1.20%, 50.00% 1.24%, 53.85% 2.06%, 57.69% 2.75%, 61.54% 1.26%, 65.38% 1.34%, 69.23% 1.06%, 73.08% 1.20%, 76.92% 1.43%, 80.77% 1.19%, 84.62% 1.23%, 88.46% 0.85%, 92.31% 0.85%, 96.15% 0.79%, 100.00% 0.71%, 99.10% 3.13%, 99.30% 6.25%, 99.16% 9.38%, 99.28% 12.50%, 99.00% 15.63%, 98.92% 18.75%, 98.73% 21.88%, 98.88% 25.00%, 97.65% 28.13%, 97.03% 31.25%, 98.65% 34.38%, 98.79% 37.50%, 98.55% 40.63%, 98.71% 43.75%, 98.72% 46.88%, 98.83% 50.00%, 98.26% 53.13%, 97.72% 56.25%, 98.25% 59.38%, 98.63% 62.50%, 98.78% 65.63%, 98.90% 68.75%, 99.13% 71.88%, 98.96% 75.00%, 98.74% 78.13%, 98.78% 81.25%, 98.93% 84.38%, 98.88% 87.50%, 99.02% 90.63%, 99.06% 93.75%, 99.09% 96.88%, 99.19% 100.00%, 96.15% 99.23%, 92.31% 99.00%, 88.46% 99.04%, 84.62% 98.97%, 80.77% 99.00%, 76.92% 98.54%, 73.08% 98.36%, 69.23% 97.06%, 65.38% 97.67%, 61.54% 98.78%, 57.69% 97.77%, 53.85% 96.77%, 50.00% 97.97%, 46.15% 98.54%, 42.31% 98.76%, 38.46% 98.94%, 34.62% 98.91%, 30.77% 98.45%, 26.92% 98.85%, 23.08% 98.74%, 19.23% 98.73%, 15.38% 98.64%, 11.54% 98.85%, 7.69% 99.04%, 3.85% 99.20%, 0.00% 99.34%, 1.01% 96.88%, 0.92% 93.75%, 0.88% 90.63%, 0.83% 87.50%, 1.13% 84.38%, 1.18% 81.25%, 1.45% 78.13%, 1.41% 75.00%, 1.41% 71.88%, 1.11% 68.75%, 1.08% 65.63%, 1.04% 62.50%, 1.31% 59.38%, 1.63% 56.25%, 2.08% 53.13%, 2.11% 50.00%, 1.20% 46.88%, 1.56% 43.75%, 1.50% 40.63%, 1.78% 37.50%, 1.54% 34.38%, 1.33% 31.25%, 1.13% 28.13%, 1.46% 25.00%, 2.71% 21.88%, 1.44% 18.75%, 1.10% 15.63%, 1.09% 12.50%, 0.82% 9.38%, 0.85% 6.25%, 0.82% 3.13%);
+  --tear2: polygon(0.00% 0.80%, 3.85% 1.02%, 7.69% 0.94%, 11.54% 1.08%, 15.38% 0.92%, 19.23% 1.11%, 23.08% 1.22%, 26.92% 1.37%, 30.77% 1.25%, 34.62% 1.75%, 38.46% 2.60%, 42.31% 1.51%, 46.15% 1.71%, 50.00% 1.15%, 53.85% 0.99%, 57.69% 2.32%, 61.54% 1.18%, 65.38% 1.43%, 69.23% 1.02%, 73.08% 1.18%, 76.92% 1.32%, 80.77% 1.08%, 84.62% 1.22%, 88.46% 0.99%, 92.31% 1.57%, 96.15% 3.29%, 100.00% 2.34%, 99.15% 3.13%, 99.11% 6.25%, 99.28% 9.38%, 99.29% 12.50%, 99.15% 15.63%, 98.93% 18.75%, 98.63% 21.88%, 98.69% 25.00%, 98.61% 28.13%, 97.86% 31.25%, 96.63% 34.38%, 97.54% 37.50%, 98.12% 40.63%, 98.44% 43.75%, 98.75% 46.88%, 99.18% 50.00%, 99.27% 53.13%, 99.06% 56.25%, 98.79% 59.38%, 98.85% 62.50%, 98.64% 65.63%, 98.65% 68.75%, 98.92% 71.88%, 98.97% 75.00%, 98.91% 78.13%, 98.74% 81.25%, 98.92% 84.38%, 98.89% 87.50%, 99.13% 90.63%, 99.19% 93.75%, 99.15% 96.88%, 99.15% 100.00%, 96.15% 98.99%, 92.31% 98.92%, 88.46% 98.98%, 84.62% 99.14%, 80.77% 99.08%, 76.92% 98.95%, 73.08% 98.50%, 69.23% 98.56%, 65.38% 98.93%, 61.54% 98.29%, 57.69% 97.17%, 53.85% 97.98%, 50.00% 98.42%, 46.15% 98.54%, 42.31% 98.69%, 38.46% 98.58%, 34.62% 98.15%, 30.77% 98.72%, 26.92% 98.83%, 23.08% 98.34%, 19.23% 97.95%, 15.38% 98.55%, 11.54% 99.12%, 7.69% 98.99%, 3.85% 99.13%, 0.00% 99.11%, 0.85% 96.88%, 0.97% 93.75%, 1.09% 90.63%, 1.19% 87.50%, 1.17% 84.38%, 1.28% 81.25%, 1.16% 78.13%, 1.28% 75.00%, 1.22% 71.88%, 1.10% 68.75%, 0.92% 65.63%, 1.04% 62.50%, 1.24% 59.38%, 1.35% 56.25%, 2.05% 53.13%, 3.25% 50.00%, 2.90% 46.88%, 2.23% 43.75%, 1.41% 40.63%, 1.51% 37.50%, 1.37% 34.38%, 1.19% 31.25%, 1.47% 28.13%, 1.28% 25.00%, 1.19% 21.88%, 1.15% 18.75%, 1.11% 15.63%, 1.02% 12.50%, 0.83% 9.38%, 0.77% 6.25%, 0.66% 3.13%);
+  --tear3: polygon(0.00% 0.79%, 3.85% 0.70%, 7.69% 1.00%, 11.54% 1.14%, 15.38% 1.21%, 19.23% 1.05%, 23.08% 1.07%, 26.92% 1.12%, 30.77% 1.14%, 34.62% 1.55%, 38.46% 2.53%, 42.31% 2.03%, 46.15% 1.37%, 50.00% 1.67%, 53.85% 1.70%, 57.69% 1.56%, 61.54% 1.05%, 65.38% 0.95%, 69.23% 1.07%, 73.08% 0.99%, 76.92% 0.99%, 80.77% 1.02%, 84.62% 1.78%, 88.46% 1.91%, 92.31% 1.37%, 96.15% 1.07%, 100.00% 0.74%, 99.07% 3.13%, 99.09% 6.25%, 99.27% 9.38%, 99.18% 12.50%, 99.14% 15.63%, 98.91% 18.75%, 98.79% 21.88%, 98.32% 25.00%, 97.28% 28.13%, 98.50% 31.25%, 98.56% 34.38%, 98.78% 37.50%, 98.32% 40.63%, 97.60% 43.75%, 97.87% 46.88%, 98.67% 50.00%, 98.90% 53.13%, 98.74% 56.25%, 98.52% 59.38%, 98.87% 62.50%, 98.78% 65.63%, 98.66% 68.75%, 98.89% 71.88%, 98.88% 75.00%, 98.90% 78.13%, 98.69% 81.25%, 98.98% 84.38%, 98.92% 87.50%, 99.04% 90.63%, 98.93% 93.75%, 99.11% 96.88%, 99.10% 100.00%, 96.15% 99.08%, 92.31% 99.06%, 88.46% 98.70%, 84.62% 98.89%, 80.77% 98.80%, 76.92% 99.19%, 73.08% 98.86%, 69.23% 98.73%, 65.38% 98.34%, 61.54% 97.27%, 57.69% 97.80%, 53.85% 98.41%, 50.00% 98.99%, 46.15% 98.55%, 42.31% 98.01%, 38.46% 97.27%, 34.62% 97.24%, 30.77% 98.59%, 26.92% 98.25%, 23.08% 98.80%, 19.23% 98.82%, 15.38% 98.93%, 11.54% 99.16%, 7.69% 99.11%, 3.85% 99.14%, 0.00% 99.18%, 0.94% 96.88%, 0.91% 93.75%, 0.94% 90.63%, 0.98% 87.50%, 0.95% 84.38%, 1.09% 81.25%, 1.08% 78.13%, 1.09% 75.00%, 1.66% 71.88%, 2.81% 68.75%, 2.43% 65.63%, 1.50% 62.50%, 1.30% 59.38%, 1.28% 56.25%, 1.01% 53.13%, 1.05% 50.00%, 1.41% 46.88%, 1.40% 43.75%, 1.83% 40.63%, 1.42% 37.50%, 1.43% 34.38%, 1.03% 31.25%, 1.19% 28.13%, 1.15% 25.00%, 1.03% 21.88%, 2.11% 18.75%, 2.09% 15.63%, 1.10% 12.50%, 0.76% 9.38%, 0.89% 6.25%, 0.99% 3.13%);
+  --tear4: polygon(0.00% 0.76%, 3.85% 0.91%, 7.69% 0.92%, 11.54% 1.09%, 15.38% 1.10%, 19.23% 1.43%, 23.08% 1.18%, 26.92% 1.22%, 30.77% 2.69%, 34.62% 2.70%, 38.46% 1.65%, 42.31% 1.48%, 46.15% 1.27%, 50.00% 1.02%, 53.85% 1.07%, 57.69% 1.29%, 61.54% 1.31%, 65.38% 1.77%, 69.23% 3.02%, 73.08% 2.30%, 76.92% 1.43%, 80.77% 1.37%, 84.62% 1.14%, 88.46% 0.78%, 92.31% 1.38%, 96.15% 3.30%, 100.00% 2.26%, 99.17% 3.13%, 99.05% 6.25%, 99.09% 9.38%, 98.70% 12.50%, 97.99% 15.63%, 98.21% 18.75%, 98.72% 21.88%, 98.88% 25.00%, 98.71% 28.13%, 98.79% 31.25%, 98.77% 34.38%, 98.77% 37.50%, 98.42% 40.63%, 98.37% 43.75%, 98.22% 46.88%, 97.90% 50.00%, 98.31% 53.13%, 98.71% 56.25%, 98.77% 59.38%, 99.00% 62.50%, 98.70% 65.63%, 98.58% 68.75%, 98.89% 71.88%, 98.98% 75.00%, 98.85% 78.13%, 98.86% 81.25%, 98.68% 84.38%, 98.96% 87.50%, 99.14% 90.63%, 99.11% 93.75%, 99.16% 96.88%, 99.21% 100.00%, 96.15% 99.15%, 92.31% 99.11%, 88.46% 99.08%, 84.62% 98.99%, 80.77% 98.83%, 76.92% 98.60%, 73.08% 98.73%, 69.23% 99.06%, 65.38% 98.65%, 61.54% 98.60%, 57.69% 98.45%, 53.85% 98.37%, 50.00% 97.54%, 46.15% 98.36%, 42.31% 99.07%, 38.46% 98.72%, 34.62% 99.03%, 30.77% 99.07%, 26.92% 98.64%, 23.08% 98.55%, 19.23% 98.35%, 15.38% 97.20%, 11.54% 97.98%, 7.69% 99.17%, 3.85% 99.19%, 0.00% 99.15%, 0.71% 96.88%, 0.75% 93.75%, 0.78% 90.63%, 1.07% 87.50%, 1.29% 84.38%, 1.07% 81.25%, 1.08% 78.13%, 1.06% 75.00%, 1.13% 71.88%, 1.34% 68.75%, 1.50% 65.63%, 1.15% 62.50%, 1.84% 59.38%, 4.00% 56.25%, 3.39% 53.13%, 1.78% 50.00%, 1.55% 46.88%, 1.51% 43.75%, 1.34% 40.63%, 1.10% 37.50%, 0.74% 34.38%, 1.17% 31.25%, 1.28% 28.13%, 1.27% 25.00%, 1.27% 21.88%, 1.45% 18.75%, 1.06% 15.63%, 0.97% 12.50%, 1.04% 9.38%, 0.89% 6.25%, 0.86% 3.13%);
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+
+body.public-gallery .hero {
+  padding: 100px 0 34px;
+}
+
+body.public-gallery .hero p {
+  max-width: 540px;
+  color: var(--copy);
+  font-size: 17px;
+  line-height: 1.62;
+}
+
+body.public-gallery .eyebrow {
+  color: var(--accent);
+}
+
+body.public-gallery .eyebrow::before {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(232, 184, 109, .12);
+}
+
+body.public-gallery .hero-ledger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  color: var(--quiet);
+}
+
+body.public-gallery .hero-ledger::before {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232, 184, 109, .65));
+}
+
+body.public-gallery .hero-ledger strong {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+body.public-gallery .hero-ledger-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--quiet);
+  opacity: .7;
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────── */
+
+body.public-gallery .grid {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 8px 0 84px;
+  gap: 34px 26px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  overflow: visible;
+}
+
+body.public-gallery .grid.empty-state {
+  display: block;
+}
+
+/* ── La tarjeta ──────────────────────────────────────────────────────── */
+
+body.public-gallery .grid .card {
+  --tilt: 0deg;
+  position: relative;
+  aspect-ratio: auto;
+  height: auto;
+  min-width: 0;
+  overflow: visible;
+  isolation: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: rotate(var(--tilt));
+  transform-origin: 50% 58%;
+  filter:
+    drop-shadow(0 0 1px rgba(92, 68, 38, .55))
+    drop-shadow(0 18px 26px rgba(0, 0, 0, .5));
+  transition: transform .5s var(--ease), filter .5s var(--ease);
+}
+
+body.public-gallery .grid .card:nth-child(4n + 1) { --tilt: -.75deg; }
+body.public-gallery .grid .card:nth-child(4n + 2) { --tilt: .5deg; }
+body.public-gallery .grid .card:nth-child(4n + 3) { --tilt: -.35deg; }
+body.public-gallery .grid .card:nth-child(4n + 4) { --tilt: .8deg; }
+
+body.public-gallery .grid .card:hover,
+body.public-gallery .grid .card:focus-within {
+  transform: translateY(-9px) rotate(0deg);
+  filter:
+    drop-shadow(0 0 1px rgba(92, 68, 38, .55))
+    drop-shadow(0 30px 38px rgba(0, 0, 0, .58));
+  z-index: 5;
+}
+
+body.public-gallery .sheet-paper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 17px 17px 19px;
+  background-color: var(--sheet-paper);
+  background-image:
+    radial-gradient(120% 100% at 50% -12%, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 58%),
+    radial-gradient(130% 120% at 50% 112%, rgba(112, 82, 42, .09), rgba(112, 82, 42, 0) 62%),
+    radial-gradient(rgba(93, 73, 43, .055) .55px, transparent .75px);
+  background-size: 100% 100%, 100% 100%, 3px 3px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  border-radius: 1px;
+  clip-path: var(--tear1);
+  box-shadow:
+    inset 0 0 34px rgba(118, 85, 42, .22),
+    inset 0 0 6px rgba(90, 64, 32, .18);
+}
+
+/* Tear variants (classic parchment) */
+body.public-gallery .grid .card:nth-child(4n + 2) .sheet-paper { clip-path: var(--tear2); }
+body.public-gallery .grid .card:nth-child(4n + 3) .sheet-paper { clip-path: var(--tear3); }
+body.public-gallery .grid .card:nth-child(4n + 4) .sheet-paper { clip-path: var(--tear4); }
+
+/* Link wraps every visual layer so the whole card stays clickable. */
+body.public-gallery .grid .card-link {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Cabecera de la tarjeta ──────────────────────────────────────────── */
+
+body.public-gallery .sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1px 1px 8px;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sheet-quiet);
+}
+
+body.public-gallery .sheet-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+body.public-gallery .sheet-brand::before {
+  content: "";
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--sheet-accent);
+}
+
+
+/* ── Map vignette ─────────────────────────────────────────────────────── */
+
+body.public-gallery .sheet-art {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 1px solid rgba(35, 32, 23, .3);
+  background-color: #dfe8e4;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 21px, rgba(58, 78, 86, .11) 21px 22px),
+    repeating-linear-gradient(90deg, transparent 0 21px, rgba(58, 78, 86, .11) 21px 22px);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .45);
+}
+
+body.public-gallery .sheet-art .thumb {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+body.public-gallery .sheet-art .thumb-preview {
+  filter: sepia(.16) saturate(.82) contrast(.97) brightness(1.02);
+}
+
+body.public-gallery .sheet-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, .18), transparent 55%),
+    linear-gradient(180deg, rgba(35, 32, 23, 0) 62%, rgba(35, 32, 23, .09));
+}
+
+/* ── Caption ──────────────────────────────────────────────────────────── */
+
+body.public-gallery .sheet-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px 2px 0;
+}
+
+body.public-gallery .sheet-caption .card-kicker {
+  align-self: flex-start;
+  display: inline-block;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sheet-accent);
+}
+
+body.public-gallery .sheet-caption .title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.4em;
+  max-height: none;
+  margin: 0;
+  color: var(--sheet-ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+
+body.public-gallery .sheet-caption .meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+  min-height: 36px;
+  color: var(--sheet-quiet);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+body.public-gallery .sheet-caption .meta > span:not(.meta-author) {
+  white-space: nowrap;
+}
+
+body.public-gallery .sheet-caption .meta-author {
+  color: var(--sheet-ink-soft);
+  font-weight: 600;
+}
+
+/* ── Actions: little ink pills, revealed on hover ─────────────────────── */
+
+body.public-gallery .grid .card-actions {
+  top: 13px;
+  right: 13px;
+  gap: 5px;
+  z-index: 4;
+}
+
+body.public-gallery .grid .card-action-btn {
+  height: 26px;
+  padding: 0 8px;
+  gap: 4px;
+  border: 1px solid rgba(35, 32, 23, .25);
+  border-radius: 999px;
+  background: rgba(28, 25, 19, .82);
+  color: #f7f1e4;
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .22);
+}
+
+body.public-gallery .grid .card-action-btn:hover {
+  background: rgba(28, 25, 19, .94);
+  border-color: rgba(35, 32, 23, .42);
+}
+
+body.public-gallery .grid .card-action-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+body.public-gallery .grid .card-like-btn.liked {
+  color: #ffd9c9;
+  border-color: rgba(255, 150, 120, .5);
+  background: rgba(122, 46, 30, .85);
+}
+
+body.public-gallery .grid .card-like-btn.liked svg {
+  fill: #ff8f6b;
+  stroke: #ff8f6b;
+}
+
+body.public-gallery .grid .card-fork-btn.forked {
+  color: #d9f5e7;
+  border-color: rgba(120, 220, 170, .45);
+  background: rgba(30, 82, 58, .85);
+}
+
+/* ── Skeletons keep their own quiet paper look ────────────────────────── */
+
+body.public-gallery .grid .card.skel {
+  aspect-ratio: 1 / 1.17;
+  border: 1px dashed rgba(255, 255, 255, .12);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .025);
+  filter: none;
+  transform: none;
+}
+
+body.public-gallery .grid .card.skel .skel-thumb {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #121414 25%, #191c1c 50%, #121414 75%);
+  background-size: 200% 100%;
+  animation: sheetShimmer 1.4s infinite;
+}
+
+@keyframes sheetShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Empty state: an empty album page ─────────────────────────────────── */
+
+body.public-gallery .empty {
+  border: 1px dashed rgba(255, 255, 255, .14);
+  border-radius: 4px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(232, 184, 109, .07), transparent 58%),
+    #0d0e0e;
+  padding: 70px 24px;
+}
+
+body.public-gallery .empty-icon {
+  width: 54px;
+  height: 54px;
+  margin-bottom: 14px;
+  border: 1px dashed rgba(232, 184, 109, .45);
+  border-radius: 50%;
+  background: rgba(232, 184, 109, .1);
+  color: var(--accent);
+}
+
+body.public-gallery .empty-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+body.public-gallery .empty-title {
+  color: var(--bright);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+body.public-gallery .empty-sub {
+  max-width: 420px;
+  color: var(--quiet);
+  font-size: 13px;
+}
+
+body.public-gallery .empty .btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #171719;
+}
+
+/* ── Category bar sits closer to the sheet ────────────────────────────── */
+
+body.public-gallery .cat-bar {
+  margin-bottom: 18px;
+}
+
+body.public-gallery .filter-result-text {
+  padding-bottom: 10px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  body.public-gallery .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 920px) {
+  body.public-gallery .hero {
+    padding: 76px 0 28px;
+  }
+
+  body.public-gallery .grid {
+    width: calc(100% - 48px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+
+}
+
+@media (max-width: 560px) {
+  body.public-gallery .hero {
+    padding: 62px 0 24px;
+  }
+
+  body.public-gallery .grid {
+    width: calc(100% - 36px);
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  body.public-gallery .grid .card,
+  body.public-gallery .grid .card:hover,
+  body.public-gallery .grid .card:focus-within {
+    --tilt: 0deg;
+    transform: none;
+  }
+
+  body.public-gallery .sheet-paper {
+    padding: 15px 15px 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.public-gallery .grid .card,
+  body.public-gallery .grid .card:hover,
+  body.public-gallery .grid .card:focus-within {
+    transform: none;
+    transition: none;
+  }
+
+  body.public-gallery .grid .card.skel .skel-thumb {
+    animation: none;
+  }
+}

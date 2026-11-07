@@ -297,7 +297,9 @@
 
   function renderThumb(item) {
     if (!window.ManaMapPreview) return '';
-    var svg = window.ManaMapPreview.renderSVG(previewOf(item), { simple: true, theme: 'gallery-dark' });
+    // Light preview inside the parchment card: cartographic cream/blue reads
+    // like a printed map and the paper sepia is applied in gallery-parchment.css.
+    var svg = window.ManaMapPreview.renderSVG(previewOf(item), { simple: true });
     if (!svg) return '';
     // Las tarjetas usan un marco fijo 3:2 y el mapa debe llenarlo por completo.
     // renderSVG usa `meet` (deja bandas), así que escalamos el SVG lo justo
@@ -455,34 +457,41 @@
       var likedClass = hasLiked(mapSlug) ? ' liked' : '';
       var tags = Array.isArray(item.tags) ? item.tags : [];
       var title = item.title || item.name || 'Mapa sin título';
+      var tagLabel = tags.length ? getTagLabel(String(tags[0])) : '';
       return '' +
         '<div class="card">' +
-          '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
-            '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + thumb + '</div>' +
-            '<div class="card-shade"></div>' +
-            '<div class="card-copy">' +
-              (tags.length ? '<span class="card-kicker">' + escHtml(tags[0]) + '</span>' : '') +
-              '<h3 class="title">' + escHtml(title) + '</h3>' +
-              '<div class="meta">' +
-                (authorHandle ? '<span class="meta-author">@' + escHtml(authorHandle) + '</span><span>·</span>' : '') +
-                '<span>' + (item.featureCount || 0) + ' elementos</span>' +
-                '<span>·</span>' +
-                '<span>' + safeDate(created) + '</span>' +
+          '<div class="sheet-paper">' +
+            '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
+              '<div class="sheet-head">' +
+                '<span class="sheet-brand">Maña Maps</span>' +
               '</div>' +
+              '<div class="sheet-art">' +
+                '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + thumb + '</div>' +
+              '</div>' +
+              '<div class="sheet-caption">' +
+                '<span class="card-kicker">' + escHtml(tagLabel || 'Mapa') + '</span>' +
+                '<h3 class="title">' + escHtml(title) + '</h3>' +
+                '<div class="meta">' +
+                  (authorHandle ? '<span class="meta-author">@' + escHtml(authorHandle) + '</span><span>·</span>' : '') +
+                  '<span>' + (item.featureCount || 0) + ' elementos</span>' +
+                  '<span>·</span>' +
+                  '<span>' + safeDate(created) + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</a>' +
+            '<div class="card-actions">' +
+              '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + escAttr(mapSlug) + '" data-author="' + escAttr(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
+                '<span class="like-count">' + likes + '</span>' +
+              '</button>' +
+              '<button class="card-action-btn card-fork-btn" data-map-id="' + escAttr(mapSlug) + '" data-author="' + escAttr(authorHandle) + '" onclick="galleryFork(this)">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
+                '<span>Fork</span>' +
+              '</button>' +
+              '<button class="card-action-btn card-share-btn" data-map-id="' + escAttr(mapSlug) + '" data-title="' + escAttr(item.title || item.name || 'Mapa de Maña Maps') + '" onclick="galleryShareCard(this)" aria-label="Compartir">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
+              '</button>' +
             '</div>' +
-          '</a>' +
-          '<div class="card-actions">' +
-            '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
-              '<span class="like-count">' + likes + '</span>' +
-            '</button>' +
-            '<button class="card-action-btn card-fork-btn" data-map-id="' + mapSlug + '" data-author="' + escHtml(authorHandle) + '" onclick="galleryFork(this)">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
-              '<span>Fork</span>' +
-            '</button>' +
-            '<button class="card-action-btn card-share-btn" data-map-id="' + escAttr(mapSlug) + '" data-title="' + escAttr(item.title || item.name || 'Mapa de Maña Maps') + '" onclick="galleryShareCard(this)" aria-label="Compartir">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
-            '</button>' +
           '</div>' +
         '</div>';
   }
@@ -1978,6 +1987,8 @@
     renderCatBar(_allMaps);
     if (!_activeTags.length) renderCards(_allMaps);
     syncJsonLdCount(_allMaps.length);
+    var countEl = document.getElementById('map-count');
+    if (countEl) countEl.textContent = String(_allMaps.length);
     handleSlugLanding(_allMaps);
     renderSlugLandingMap(_allMaps);
   }
