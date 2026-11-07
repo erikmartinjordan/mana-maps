@@ -60,6 +60,20 @@ function formatFactNumber(value) {
   return new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(value);
 }
 
+// La frase empieza con el título del indicador en minúscula («consumo de
+// alcohol»), pero las siglas deben conservarse tal cual: «PIB per cápita» no
+// puede convertirse en «pIB per cápita». Solo se baja la primera letra cuando
+// la primera palabra no es una sigla (PIB, CO2, PM2.5, IDH, AVE…).
+function lowercaseIndicatorStart(title) {
+  const value = trimmed(title);
+  if (!value) return '';
+  const firstWord = value.split(/\s+/)[0] || '';
+  const letters = firstWord.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, '');
+  const isAcronym = letters.length >= 2 && letters === letters.toUpperCase();
+  if (isAcronym) return value;
+  return value.charAt(0).toLowerCase() + value.slice(1);
+}
+
 // Unidad a partir del paréntesis final del título: «Altura (m)» → « m».
 // Se descartan años («Pasajeros (2025)») y rangos («Visitantes (2024–2025)»).
 function unitFromLegendTitle(legendTitle, legendFormat) {
@@ -134,7 +148,7 @@ function buildFactsSection(geo, opts) {
   const title = trimmed(opts && opts.legendTitle);
   // En la frase sobra el paréntesis de la unidad: el valor ya la incluye.
   const shortTitle = title.replace(/\s*\([^)]*\)\s*$/, '').trim() || title;
-  const label = shortTitle ? shortTitle.charAt(0).toLowerCase() + shortTitle.slice(1) : 'este indicador';
+  const label = shortTitle ? lowercaseIndicatorStart(shortTitle) : 'este indicador';
 
   const list = (items) => '<ol>' + items.map((entry) =>
     '<li><span class="facts-name">' + escapeHtml(entry.name) + '</span>' +
@@ -160,6 +174,7 @@ module.exports = {
   DEFAULT_FACTS_LIMIT,
   collectFactEntries,
   buildFactsSection,
+  lowercaseIndicatorStart,
   unitFromLegendTitle,
   formatFactNumber,
   escapeHtml,

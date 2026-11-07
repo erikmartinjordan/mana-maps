@@ -27,6 +27,10 @@ const {
   DESCRIPTION_MAX_LEN,
   isAreaEntityName,
 } = require('../../scripts/tools/audit-gallery-quality');
+const {
+  buildFactsSection,
+  lowercaseIndicatorStart,
+} = require('../../scripts/lib/map-landing-facts');
 
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
@@ -791,3 +795,93 @@ test('numeric legend candidates ignore text, dates and style keys', () => {
   expect(candidates.map(c => c.key)).toEqual(['Altitud']);
 });
 
+// Regresión del bloque «Datos clave»: la frase empieza en minúscula, pero las
+// siglas del título deben conservarse («PIB per cápita», no «pIB per cápita»).
+test('landing key facts keep acronyms when lowercasing the indicator', () => {
+  expect(lowercaseIndicatorStart('PIB per cápita')).toBe('PIB per cápita');
+  expect(lowercaseIndicatorStart('CO2 por persona')).toBe('CO2 por persona');
+  expect(lowercaseIndicatorStart('PM2.5 media anual')).toBe('PM2.5 media anual');
+  expect(lowercaseIndicatorStart('Consumo de alcohol')).toBe('consumo de alcohol');
+  expect(lowercaseIndicatorStart('Altitud')).toBe('altitud');
+  expect(lowercaseIndicatorStart('   ')).toBe('');
+
+  const geo = {
+    type: 'FeatureCollection',
+    features: [
+      { type: 'Feature', properties: { _manaName: 'Singapur', 'PIB (num)': 139593 }, geometry: { type: 'Point', coordinates: [103.8, 1.35] } },
+      { type: 'Feature', properties: { _manaName: 'España', 'PIB (num)': 32000 }, geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
+      { type: 'Feature', properties: { _manaName: 'Brasil', 'PIB (num)': 9000 }, geometry: { type: 'Point', coordinates: [-47.9, -15.8] } },
+      { type: 'Feature', properties: { _manaName: 'Burundi', 'PIB (num)': 1067 }, geometry: { type: 'Point', coordinates: [29.9, -3.4] } },
+    ],
+  };
+  const section = buildFactsSection(geo, {
+    legendKey: 'PIB (num)',
+    legendTitle: 'PIB per cápita (USD corrientes)',
+    legendFormat: 'number',
+  });
+  expect(section.html).toContain('registra el valor más alto de PIB per cápita');
+  expect(section.html).not.toContain('pIB');
+
+  // La landing publicada se regenera con el generador; si alguien vuelve a
+  // bajar la primera letra sin mirar las siglas, este test lo detecta.
+  const gdpLanding = fs.readFileSync(
+    path.join(siteRoot, 'gallery', 'gdp-per-capita-world', 'index.html'), 'utf8');
+  expect(gdpLanding).toContain('valor más alto de PIB per cápita');
+  expect(gdpLanding).not.toContain('pIB per cápita');
+});
+
+// Regresión de la medición en landings estáticas: /gallery/<slug>/ es la URL
+// canónica indexada y debe incrementar maps.views una vez por sesión, con el
+// mismo opt-out que el visor. La petición se intercepta para no escribir en
+// Firestore real.
+function viewCommitBodies(bodies) {
+  return bodies.filter((body) => body.includes('"fieldPath":"views"'));
+}
+
+test('static landing increments views once per session with source static_landing', async ({ page }) => {
+  const bodies = [];
+  await page.route('**/firestore.googleapis.com/**', async (route) => {
+    const request = route.request();
+    if (request.method() === 'POST') bodies.push(request.postData() || '');
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"writeResults":[]}' });
+  });
+  await page.route('**/ipwho.is/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: '{"success":false}',
+  }));
+
+  await page.goto('/gallery/gdp-per-capita-world/');
+  await expect.poll(() => viewCommitBodies(bodies).length).toBe(1);
+
+  const [commit] = viewCommitBodies(bodies);
+  expect(commit).toContain('/documents/maps/gdp-per-capita-world');
+  expect(commit).toContain('"increment":{"integerValue":"1"}');
+  expect(bodies.some((body) => body.includes('"mapview"') && body.includes('static_landing'))).toBe(true);
+
+  // La misma sesión (recarga) no vuelve a contar la visita.
+  await page.reload();
+  await page.waitForTimeout(600);
+  expect(viewCommitBodies(bodies).length).toBe(1);
+});
+
+test('static landing respects the mana-notrack opt-out', async ({ browser }) => {
+  const context = await browser.newContext();
+  const bodies = [];
+  await context.route('**/firestore.googleapis.com/**', async (route) => {
+    const request = route.request();
+    if (request.method() === 'POST') bodies.push(request.postData() || '');
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"writeResults":[]}' });
+  });
+  await context.route('**/ipwho.is/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: '{"success":false}',
+  }));
+  await context.addInitScript(() => {
+    try { localStorage.setItem('mana-notrack', '1'); } catch (e) {}
+  });
+
+  const page = await context.newPage();
+  await page.goto('/gallery/gdp-per-capita-world/');
+  await page.waitForTimeout(800);
+  expect(viewCommitBodies(bodies)).toEqual([]);
+  expect(bodies.some((body) => body.includes('"mapview"'))).toBe(false);
+  await context.close();
+});
