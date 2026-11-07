@@ -336,7 +336,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   console.log('Leyendo mapas publicados de Firestore…');
   const allMaps = await fetchPublishedMaps(cfg);
   const relatedIndex = buildRelatedIndex(allMaps);
-  const discoveryIndex = buildDiscoveryIndex(allMaps);
+  // Cada mapa sin visitas se enlaza desde dos landings con tráfico: un único
+  // enlace puede quedar enterrado y no romper el círculo de cero visitas.
+  const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 2 });
   const maps = SLUG_FILTER
     ? allMaps.filter((m) => (m.slug || m.id) === SLUG_FILTER)
     : allMaps;

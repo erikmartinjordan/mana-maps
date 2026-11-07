@@ -55,9 +55,11 @@
 //      implica elegir la clave y la rampa, y se hace a mano.
 //  15. enlaces internos: cada landing publicada debe recibir al menos un
 //      enlace desde otra landing y, si el mapa tiene cero visitas, al menos
-//      uno debe venir de una landing con tráfico (≥DISCOVERY_MIN_HOST_VIEWS)
-//      o de una fuente de descubrimiento global (portada, galería e índices de
-//      News) que enlace la landing estática /gallery/<slug>/.
+//      dos deben venir de landings con tráfico (≥DISCOVERY_MIN_HOST_VIEWS) o
+//      de una fuente de descubrimiento global (portada, galería e índices de
+//      News) que enlace la landing estática /gallery/<slug>/. Dos hosts con
+//      tráfico evitan que el mapa sin visitas dependa de un único enlace que
+//      puede quedar enterrado.
 //  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html y
 //      site/en/news/<slug>/index.html que embebe un mapa
 //      (/map/?gallery=<slug>) debe enlazar también a su ficha estática
@@ -1750,11 +1752,12 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
 // Cada mapa publicado debe recibir al menos un enlace desde el bloque «Más
 // mapas» de otra landing estática. Sin enlaces entrantes solo es alcanzable por
 // sitemap/JSON-LD y queda sin descubrimiento interno. Además, un mapa con cero
-// visitas debe recibir al menos un enlace desde una landing con tráfico
+// visitas debe recibir enlaces desde al menos dos landings con tráfico
 // (≥ DISCOVERY_MIN_HOST_VIEWS) o desde una fuente de descubrimiento externa
-// (el índice de News, enlazado desde la navegación global): un enlace desde
-// otro mapa igualmente invisible no rompe el círculo de los cero visitas. La
-// generación vive en scripts/lib/related-maps.js (buildDiscoveryIndex).
+// (portada, galería o índice de News): un enlace desde otro mapa igualmente
+// invisible no rompe el círculo de los cero visitas, y un único host con
+// tráfico puede quedar enterrado. La generación vive en
+// scripts/lib/related-maps.js (buildDiscoveryIndex).
 
 const DISCOVERY_MIN_HOST_VIEWS = 10;
 
@@ -1774,6 +1777,7 @@ function auditInternalLinkCoverage(publishedSlugs, {
   galleryDir = GALLERY_DIR_PATH,
   viewsBySlug = null,
   minHostViews = DISCOVERY_MIN_HOST_VIEWS,
+  minTrafficHosts = 1,
   discoverySources = [],
 } = {}) {
   const pathMod = require('path');
@@ -1834,18 +1838,31 @@ function auditInternalLinkCoverage(publishedSlugs, {
       .filter(([, links]) => links.has(slug))
       .map(([label]) => label);
     if (extraHosts.length) discoveredFrom[slug] = extraHosts.sort();
-    if (!trafficHosts.length && !extraHosts.length) undiscovered.push(slug);
+    if (trafficHosts.length < minTrafficHosts && !extraHosts.length) undiscovered.push(slug);
   }
   if (orphans.length) {
     issues.push(`${orphans.length} mapas sin enlaces entrantes desde otras landings (${orphans.join(', ')})`);
   }
   if (undiscovered.length) {
+    const hostsText = minTrafficHosts === 1
+      ? `sin enlace desde landings con ≥${minHostViews} visitas`
+      : `sin enlaces desde al menos ${minTrafficHosts} landings con ≥${minHostViews} visitas`;
     issues.push(
-      `${undiscovered.length} mapas con cero visitas sin enlace desde landings con ≥${minHostViews} visitas ` +
+      `${undiscovered.length} mapas con cero visitas ${hostsText} ` +
       `ni desde la portada ni desde fuentes de descubrimiento (${undiscovered.join(', ')})`
     );
   }
-  return { issues, published, details, orphans, zeroView, undiscovered, discoveredFrom, minHostViews };
+  return {
+    issues,
+    published,
+    details,
+    orphans,
+    zeroView,
+    undiscovered,
+    discoveredFrom,
+    minHostViews,
+    minTrafficHosts,
+  };
 }
 
 // ── Enlaces News → landing del mapa (check 16) ────────────────────
@@ -2499,6 +2516,7 @@ async function main() {
     );
     internalLinks = auditInternalLinkCoverage(published.map(m => m.id), {
       viewsBySlug,
+      minTrafficHosts: 2,
       discoverySources: readDiscoverySources(),
     });
   } catch (e) {
@@ -2509,7 +2527,7 @@ async function main() {
   if (internalLinks.issues.length === 0) {
     console.log(
       `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
-      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News` : '')
+      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde ≥${internalLinks.minTrafficHosts || 1} landing(s) con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News` : '')
     );
   } else {
     for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);

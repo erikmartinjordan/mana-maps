@@ -187,6 +187,45 @@ test('every published map receives internal links from another static landing', 
   }
 });
 
+test('zero-view maps receive links from at least two traffic landings', () => {
+  // Prioridad de distribución de noviembre: un mapa sin visitas no debe
+  // depender de un único enlace que puede quedar enterrado en una landing.
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const zeroView = [
+    'alcohol-consumption-world',
+    'literacy-rate-world',
+    'tallest-skyscrapers-world',
+  ];
+  const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
+  // Landings con tráfico según el último corte de Firestore: el generador
+  // solo puede usar estas como hosts de descubrimiento (≥10 visitas).
+  for (const slug of [
+    'tourism-arrivals-world',
+    'gini-index-world',
+    'bibliotecas-barcelona',
+    'worst-wildfires-world',
+    'submarine-fiber-cables',
+    'linea-ave-madrid-sevilla-urda',
+    'biggest-earthquakes-world',
+    'minimum-wage-by-country',
+    'active-volcanoes-world',
+    'indice-desarrollo-humano-por-pais',
+    'inflation-world',
+    'tallest-waterfalls-world',
+  ]) {
+    if (slug in viewsBySlug) viewsBySlug[slug] = 50;
+  }
+  for (const slug of zeroView) viewsBySlug[slug] = 0;
+
+  const result = auditInternalLinkCoverage(published, {
+    viewsBySlug,
+    minHostViews: 10,
+    minTrafficHosts: 2,
+  });
+  expect(result.issues).toEqual([]);
+  expect(result.undiscovered).toEqual([]);
+});
+
 test('internal link coverage ignores self links and reports orphan landings', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-internal-links-'));
   const galleryDir = path.join(tmp, 'gallery');
@@ -243,6 +282,20 @@ test('internal link coverage requires a traffic host for zero-view maps', () => 
   const legacy = auditInternalLinkCoverage(slugList, { galleryDir });
   expect(legacy.issues).toEqual([]);
   expect(legacy.undiscovered).toEqual([]);
+
+  // Con dos hosts exigidos, `cero-visible` (un solo enlace con tráfico) deja
+  // de contar como descubierto: dos hosts evitan depender de un enlace único.
+  const twoHosts = auditInternalLinkCoverage(slugList, {
+    galleryDir,
+    viewsBySlug,
+    minHostViews: 10,
+    minTrafficHosts: 2,
+  });
+  expect(twoHosts.undiscovered).toEqual(['cero-invisible', 'cero-visible']);
+  expect(twoHosts.issues.join('\n')).toContain(
+    '2 mapas con cero visitas sin enlaces desde al menos 2 landings con ≥10 visitas ni desde la portada ni desde fuentes de descubrimiento'
+  );
+  expect(twoHosts.minTrafficHosts).toBe(2);
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });
@@ -461,6 +514,22 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
 
   // Sin hosts con tráfico no se inventan enlaces.
   expect(buildDiscoveryIndex(maps, { minViews: 100 }).size).toBe(0);
+
+  // `perTarget` reparte cada mapa sin visitas entre varias landings con
+  // tráfico: un único enlace puede quedar enterrado.
+  const spread = buildDiscoveryIndex(maps, { minViews: 10, perHost: 2, perTarget: 2 });
+  const hostsByTarget = new Map();
+  for (const [host, targets] of spread) {
+    for (const target of targets) {
+      hostsByTarget.set(target.slug, [...(hostsByTarget.get(target.slug) || []), host]);
+    }
+  }
+  expect(hostsByTarget.get('cero-eco')).toHaveLength(2);
+  expect(hostsByTarget.get('cero-salud')).toHaveLength(2);
+  for (const [host, targets] of spread) {
+    expect(targets.length, `${host} supera perHost`).toBeLessThanOrEqual(2);
+    for (const target of targets) expect(target.slug).not.toBe(host);
+  }
 });
 
 // Regresión del check 12: cada landing estática es una página SEO propia y

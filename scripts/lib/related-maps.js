@@ -11,6 +11,7 @@ const DEFAULT_LIMIT = 4;
 const DEFAULT_MAX_LINKS = 5;
 const DEFAULT_DISCOVERY_MIN_VIEWS = 10;
 const DEFAULT_DISCOVERY_PER_HOST = 2;
+const DEFAULT_DISCOVERY_PER_TARGET = 1;
 
 function slugOf(map) {
   return map && (map.slug || map.id) ? String(map.slug || map.id) : '';
@@ -169,11 +170,17 @@ function buildRelatedIndex(maps, opts) {
 // Mapas con cero visitas que deben ganar descubrimiento. Se enlazan desde las
 // landings con más tráfico (no desde cualquier mapa) y cada landing acepta como
 // máximo `perHost` enlaces extra para no diluir la sección «Más mapas».
+// `perTarget` reparte cada mapa sin visitas entre varias landings con tráfico:
+// un solo enlace desde una landing puede quedar enterrado y no generar visita.
 function buildDiscoveryIndex(maps, opts) {
   const minViews = opts && Number.isFinite(opts.minViews)
     ? opts.minViews
     : DEFAULT_DISCOVERY_MIN_VIEWS;
   const perHost = Math.max(1, (opts && opts.perHost) || DEFAULT_DISCOVERY_PER_HOST);
+  const perTarget = Math.max(
+    1,
+    opts && Number.isFinite(opts.perTarget) ? opts.perTarget : DEFAULT_DISCOVERY_PER_TARGET
+  );
   const list = (Array.isArray(maps) ? maps : [])
     .filter((m) => slugOf(m))
     .slice()
@@ -198,18 +205,24 @@ function buildDiscoveryIndex(maps, opts) {
   for (const target of targets) {
     const targetSlug = slugOf(target);
     const ranked = hosts
-      .filter((h) => slugOf(h) !== targetSlug && (index.get(slugOf(h)) || []).length < perHost)
+      .filter((h) => slugOf(h) !== targetSlug)
       .map((h) => ({ map: h, score: relatedScore(target, h, stats) }))
       .sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         if (viewsOf(a.map) !== viewsOf(b.map)) return viewsOf(b.map) - viewsOf(a.map);
         return sortBySlug(a.map, b.map);
       });
-    const chosen = ranked[0];
-    if (!chosen) continue;
-    const hostSlug = slugOf(chosen.map);
-    if (!index.has(hostSlug)) index.set(hostSlug, []);
-    index.get(hostSlug).push(target);
+    let placed = 0;
+    for (const chosen of ranked) {
+      if (placed >= perTarget) break;
+      const hostSlug = slugOf(chosen.map);
+      const bucket = index.get(hostSlug) || [];
+      if (bucket.length >= perHost) continue;
+      if (bucket.some((m) => slugOf(m) === targetSlug)) continue;
+      if (!index.has(hostSlug)) index.set(hostSlug, []);
+      index.get(hostSlug).push(target);
+      placed++;
+    }
   }
 
   return index;
@@ -237,6 +250,7 @@ function escapeHtml(str) {
 module.exports = {
   DEFAULT_LIMIT,
   DEFAULT_MAX_LINKS,
+  DEFAULT_DISCOVERY_PER_TARGET,
   buildRelatedIndex,
   buildDiscoveryIndex,
   relatedLinks,
