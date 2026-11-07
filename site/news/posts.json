@@ -1,5 +1,35 @@
 [
   {
+    "date": "2026-11-07",
+    "event": "The Decoder publica el 6 de noviembre de 2026 su Frontier Radar #5: 45 neolabs fundados por investigadores que han dejado OpenAI, Google DeepMind y Meta comparten la duda de que la receta actual de escalado no baste para llegar a la AGI; los mercados dan un 5,1% a que OpenAI anuncie la AGI antes de 2027 y un 71% antes de 2030 (6 de noviembre de 2026)",
+    "type": "news",
+    "mapSlug": "gdp-per-capita-world",
+    "sourceUrls": [
+      "https://the-decoder.com/frontier-radar-5-if-agi-is-so-close-why-is-everyone-leaving-the-neolabs-and-their-bets/",
+      "https://aiincontext.com/articles/45-ai-neolabs-billions-in-funding-and-a-shared-doubt-about-the-agi-recipe",
+      "https://fourweekmba.com/agi-timelines-tracker/",
+      "https://nextpredict.io/prediction-markets/technology/agi-timeline/",
+      "https://www.rand.org/pubs/research_reports/RRA4692-1.html",
+      "https://agitracker.io/blog/agi-always-four-years-away/",
+      "https://www.deeplearning.ai/the-batch/gemini-4-carbon-leads-the-intelligence-index",
+      "https://atlas.prashish.com/weeks/2026-11-02"
+    ],
+    "translations": {
+      "es": {
+        "slug": "agi-2026-predicciones",
+        "url": "/news/agi-2026-predicciones/",
+        "title": "AGI: un 5% para 2026 y 2029 en el horizonte",
+        "description": "Los mercados dan un 5,1% a que OpenAI anuncie la AGI antes de 2027 y un 71% antes de 2030. Los expertos apuntan a 2029, Metaculus a 2030 y 45 neolabs dudan de la receta actual. El mapa de PIB per cápita sitúa la base económica de la carrera."
+      },
+      "en": {
+        "slug": "agi-2026-predictions",
+        "url": "/en/news/agi-2026-predictions/",
+        "title": "AGI: 5% for 2026 and 2029 on the horizon",
+        "description": "Markets price a 5.1% chance that OpenAI announces AGI before 2027 and 71% before 2030. Experts point to 2029, Metaculus to 2030 and 45 neolabs doubt the current recipe. The GDP-per-capita map shows the economic base of the race."
+      }
+    }
+  },
+  {
     "date": "2026-11-06",
     "event": "El S&P 500 cae un 4,4% el 5 de noviembre de 2026, su peor sesión desde abril de 2025, por el miedo a que la nueva mayoría demócrata frene los centros de datos de IA tras las midterms; el Nasdaq entra en corrección con una caída del 5,5% (5 de noviembre de 2026)",
     "type": "news",
