@@ -320,6 +320,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/tracking.js?v=1792742000"></script>
   <script defer src="/js/landing-view.js"></script>
+  <script defer src="/js/mobile-menu.js"></script>
 </body>
 </html>
 `;

@@ -459,16 +459,57 @@ body.public-gallery .topbar-actions .btn-primary:hover { background: #e9e7ed; }
 
 body.public-gallery .topbar-more { display: none; position: relative; }
 body.public-gallery .topbar-more summary {
+  position: relative;
   list-style: none;
-  padding: 10px 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 0;
+  border-radius: 999px;
   color: var(--copy);
-  font-size: 13px;
-  font-weight: 500;
+  background: transparent;
   cursor: pointer;
+  transition: background-color .2s;
 }
+
+body.public-gallery .topbar-more summary::before,
+body.public-gallery .topbar-more summary::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translateX(-50%);
+  transition:
+    top .3s cubic-bezier(.22, 1, .36, 1),
+    transform .3s cubic-bezier(.22, 1, .36, 1) .05s;
+}
+
+body.public-gallery .topbar-more summary::before { top: 17px; }
+body.public-gallery .topbar-more summary::after { top: 21.5px; }
+
+body.public-gallery .topbar-more summary:hover {
+  background-color: rgba(255, 255, 255, .06);
+}
+
+body.public-gallery .topbar-more[open] summary::before,
+body.mana-menu-open body.public-gallery .topbar-more summary::before {
+  top: 19.25px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+body.public-gallery .topbar-more[open] summary::after,
+body.mana-menu-open body.public-gallery .topbar-more summary::after {
+  top: 19.25px;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
 body.public-gallery .topbar-more summary::-webkit-details-marker { display: none; }
 
-body.public-gallery .topbar-panel {
+@media (max-width: 600px) {
+  body.public-gallery .topbar-panel {
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
@@ -2796,3 +2837,160 @@ body.public-profile .profile-nav .btn-ghost:hover::after {
 
 .site-navbar .brand { transition: filter .4s; }
 .site-navbar .brand:hover { filter: drop-shadow(0 0 10px rgba(217, 213, 225, .3)); }
+
+/* ── Full-screen mobile menu (transitions.dev-style) ───────────────────── */
+body.mana-menu-open { overflow: hidden; }
+
+.mana-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(8, 9, 9, .9);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity .35s cubic-bezier(.22, 1, .36, 1),
+    visibility 0s linear .35s;
+}
+
+body.mana-menu-open .mana-menu-backdrop {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .4s cubic-bezier(.22, 1, .36, 1), visibility 0s;
+}
+
+body.mana-menu-closing .mana-menu-backdrop {
+  opacity: 0;
+  visibility: visible;
+  transition: opacity .25s cubic-bezier(.22, 1, .36, 1);
+}
+
+.mana-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 56;
+  display: flex;
+  flex-direction: column;
+  padding: 88px 30px calc(40px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear .4s;
+}
+
+body.mana-menu-open .mana-menu,
+body.mana-menu-closing .mana-menu {
+  visibility: visible;
+  transition: visibility 0s;
+}
+
+body.mana-menu-open .mana-menu { pointer-events: auto; }
+
+.mana-menu__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mana-menu__link {
+  display: inline-block;
+  width: fit-content;
+  color: var(--bright, #f0edf4);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(3px);
+  transition:
+    opacity .5s cubic-bezier(.22, 1, .36, 1) var(--mm-delay, 0ms),
+    transform .5s cubic-bezier(.22, 1, .36, 1) var(--mm-delay, 0ms),
+    filter .5s cubic-bezier(.22, 1, .36, 1) var(--mm-delay, 0ms),
+    color .2s ease;
+}
+
+.mana-menu__link:hover { color: #fff; }
+
+body.mana-menu-open .mana-menu__link {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+body.mana-menu-closing .mana-menu__link {
+  opacity: 0;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity .2s ease,
+    transform 0s linear,
+    filter 0s linear;
+  transition-delay: 0s;
+}
+
+.mana-menu__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  margin-top: auto;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, .06);
+  color: var(--bright, #f0edf4);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(3px);
+  transition:
+    opacity .5s cubic-bezier(.22, 1, .36, 1) var(--mm-delay, 0ms),
+    transform .5s cubic-bezier(.22, 1, .36, 1) var(--mm-delay, 0ms),
+    filter .5s cubic-bezier(.22, 1, .36, 1) var(--mm-delay, 0ms),
+    background .15s ease;
+}
+
+.mana-menu__cta:hover { background: rgba(255, 255, 255, .1); }
+
+body.mana-menu-open .mana-menu__cta {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+body.mana-menu-closing .mana-menu__cta {
+  opacity: 0;
+  transform: translateY(0);
+  filter: blur(0);
+  transition: opacity .2s ease;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mana-menu-backdrop,
+  .mana-menu,
+  .mana-menu__link,
+  .mana-menu__cta {
+    transition: none !important;
+  }
+}
+
+/* Keep the full-screen menu crisp and avoid a duplicate CTA. */
+body.mana-menu-open .site-navbar__cta,
+body.mana-menu-open .topbar-actions .btn-primary {
+  opacity: 0;
+  pointer-events: none;
+}
