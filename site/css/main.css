@@ -3527,3 +3527,34 @@ html.mana-editor-embed #map-pillbar{display:block!important;bottom:calc(20px + e
   box-shadow:0 6px 24px rgba(15,23,42,.16),0 1px 3px rgba(15,23,42,.10)}
 html.mana-editor-embed #map-pillbar .lg-tint{background:color-mix(in srgb,var(--surface) 86%,transparent)}
 html.mana-editor-embed #map-legend{top:calc(16px + env(safe-area-inset-top));bottom:auto;left:16px}
+
+/* Leyenda colapsable del mapa embebido: en móvil arranca plegada para no
+   tapar el mapa; el título actúa como botón para desplegarla. */
+#map-legend.is-collapsible .map-legend-title{
+  display:flex;align-items:center;gap:10px;margin-bottom:0;cursor:pointer;
+}
+#map-legend.is-collapsible .map-legend-title::after{
+  content:'+';margin-left:auto;font-size:14px;line-height:1;font-weight:700;color:var(--text-2);
+}
+#map-legend.is-collapsible:not(.is-collapsed) .map-legend-title{margin-bottom:6px;}
+#map-legend.is-collapsible:not(.is-collapsed) .map-legend-title::after{content:'−';}
+#map-legend.is-collapsible.is-collapsed > :not(.map-legend-title){display:none;}
+#map-legend.is-collapsible .map-legend-title:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--blue) 45%,transparent);outline-offset:2px;border-radius:4px;
+}
+
+@media (max-width:640px){
+  html.mana-editor-embed #map-legend{
+    top:calc(10px + env(safe-area-inset-top));left:10px;
+    max-width:min(200px,calc(100% - 20px));padding:8px 10px;border-radius:10px;
+    font-size:11px;max-height:44vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  }
+  html.mana-editor-embed #map-legend.is-collapsed{overflow:hidden;}
+  html.mana-editor-embed #map-legend .map-legend-title{font-size:10px;letter-spacing:.35px;line-height:1.35;}
+  html.mana-editor-embed #map-legend .map-legend-item{padding:2px 0;gap:6px;}
+  html.mana-editor-embed #map-legend .map-legend-swatch{width:12px;height:12px;}
+  html.mana-editor-embed #map-legend .map-legend-line{width:14px;}
+  html.mana-editor-embed #map-legend .map-legend-sizes{margin-left:16px;}
+  html.mana-editor-embed #map-legend .map-legend-size{font-size:10px;}
+  html.mana-editor-embed #map-legend .map-legend-ramp-scale{font-size:10px;}
+}

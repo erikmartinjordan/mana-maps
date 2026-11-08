@@ -1770,6 +1770,33 @@ function _manaLayerProp(l, key) {
   return props[key];
 }
 
+// En el mapa embebido de los artículos, la leyenda ocupa demasiado espacio en
+// pantallas pequeñas. La dejamos colapsada por defecto y se despliega al tocar
+// su título, sin alterar el comportamiento del editor ni de la vista pública.
+function _manaApplyLegendHtml(legend, html) {
+  legend.innerHTML = html;
+  legend.classList.remove('is-collapsible', 'is-collapsed');
+  if (!document.documentElement.classList.contains('mana-editor-embed')) return;
+  if (!window.matchMedia || !window.matchMedia('(max-width: 640px)').matches) return;
+  var title = legend.querySelector('.map-legend-title');
+  if (!title) return;
+  legend.classList.add('is-collapsible', 'is-collapsed');
+  title.setAttribute('role', 'button');
+  title.setAttribute('tabindex', '0');
+  title.setAttribute('aria-expanded', 'false');
+  var toggle = function() {
+    var collapsed = legend.classList.toggle('is-collapsed');
+    title.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  };
+  title.addEventListener('click', toggle);
+  title.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggle();
+    }
+  });
+}
+
 function renderLegend() {
   var container = document.getElementById('map-wrap') || document.getElementById('map');
   if (!container) return;
@@ -1795,7 +1822,7 @@ function renderLegend() {
       catHtml += '<div class="map-legend-item"><span class="map-legend-line" style="background:' + esc(col) + '"></span><span class="map-legend-label">' + esc(label) + '</span></div>';
     });
     legend.classList.remove('empty');
-    legend.innerHTML = catHtml;
+    _manaApplyLegendHtml(legend, catHtml);
     return;
   }
 
@@ -1839,7 +1866,7 @@ function renderLegend() {
         _manaFormatLegendValue(ramp.max, rformat) +
         '</span></div></div>';
       legend.classList.remove('empty');
-      legend.innerHTML = rh;
+      _manaApplyLegendHtml(legend, rh);
       return;
     }
   }
@@ -1877,7 +1904,7 @@ function renderLegend() {
       '</div>';
     }
   });
-  legend.innerHTML = html;
+  _manaApplyLegendHtml(legend, html);
 }
 
 // ── Track UI state ──
