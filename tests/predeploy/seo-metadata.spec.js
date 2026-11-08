@@ -362,49 +362,6 @@ test('every News article links to the static landing of its embedded map', () =>
   }
 });
 
-test('News footer links point to static landings, not the viewer', () => {
-  // Los footer-links son enlaces rastreables dentro del artículo: deben
-  // repartir autoridad a la landing indexable, no al visor /map/.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const result = auditNewsLandingLinks(published);
-
-  const withFooter = Object.entries(result.details)
-    .filter(([, detail]) => detail && detail.footerLinks && detail.footerLinks.length);
-  expect(withFooter.length).toBeGreaterThan(0);
-  for (const [article, detail] of withFooter) {
-    for (const href of detail.footerLinks) {
-      expect(href, `${article}: ${href}`).toMatch(/^\/gallery\/[a-z0-9-]+\/$/);
-    }
-  }
-  for (const href of result.footerLinks) {
-    expect(href, `footer-links global: ${href}`).toMatch(/^\/gallery\/[a-z0-9-]+\/$/);
-  }
-});
-
-test('News footers distribute the six zero-view maps from the October report', () => {
-  // La directiva de noviembre prioriza distribución: los mapas sin visitas del
-  // informe de octubre deben recibir al menos un enlace desde un footer de News.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const result = auditNewsLandingLinks(published);
-  const footerSlugs = new Set(
-    result.footerLinks
-      .map((href) => (href.match(/^\/gallery\/([a-z0-9-]+)\/$/) || [])[1])
-      .filter(Boolean)
-  );
-
-  const zeroView = [
-    'alcohol-consumption-world',
-    'co2-total-emissions-world',
-    'gdp-per-capita-world',
-    'literacy-rate-world',
-    'tallest-skyscrapers-world',
-    'tallest-statues-world',
-  ];
-  for (const slug of zeroView) {
-    expect(footerSlugs.has(slug), `${slug} sin enlace desde footer-links de News`).toBe(true);
-  }
-});
-
 test('News landing link check reports missing links and unpublished maps', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-news-landings-'));
   const writeArticle = (name, html) => {

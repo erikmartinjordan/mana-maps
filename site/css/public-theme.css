@@ -1504,28 +1504,10 @@ body.public-article .footer-cta-dark {
 }
 
 body.public-article .footer-cta-dark h2 { margin: 0 0 10px; color: var(--bright); font-size: 26px; }
+body.public-article .footer-cta-dark h2,
+body.public-article .footer-cta-dark h2 a,
+body.public-article .footer-cta-dark .btn { text-decoration: none !important; }
 body.public-article .footer-cta-dark p { margin: 0 auto 20px; max-width: 440px; color: var(--quiet); font-size: 14px; }
-
-body.public-article .footer-links {
-  margin: 20px 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0;
-}
-
-body.public-article .footer-links a {
-  display: flex;
-  align-items: center;
-  min-height: 52px;
-  padding: 0;
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--copy);
-  font-size: 14px;
-  text-decoration: none;
-}
-
-body.public-article .footer-links a:hover { color: #fff; }
 
 @media (max-width: 600px) {
   body.public-article .breadcrumb,
