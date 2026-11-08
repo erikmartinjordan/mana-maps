@@ -1,5 +1,31 @@
 [
   {
+    "date": "2026-11-08",
+    "event": "La OCDE publica el 4 de noviembre de 2026 su informe Pensions Outlook 2026: la pensión obligatoria no llegará al 70% del salario en 22 de los 30 países europeos analizados; la brecha de cotización va del 0,4% de Turquía al 20,7% de Lituania y España cumple el objetivo para hombres con salario medio (7 de noviembre de 2026)",
+    "type": "news",
+    "mapSlug": "life-expectancy-world",
+    "sourceUrls": [
+      "https://www.oecd.org/en/about/news/press-releases/2026/11/governments-need-to-make-greater-use-of-asset-backed-pensions-to-support-retirement-incomes-oecd-says.html",
+      "https://www.oecd.org/en/publications/oecd-pensions-outlook-2026_a51aa775-en.html",
+      "https://www.euronews.com/2026/11/07/are-europeans-saving-enough-for-retirement-here-is-how-much-more-they-need-to-put-aside",
+      "https://www.seg-social.es/wps/portal/wss/internet/Trabajadores/PrestacionesPensionesTrabajadores/10963/28393/28396/28472"
+    ],
+    "translations": {
+      "es": {
+        "slug": "ocde-pension-obligatoria-22-paises-europeos",
+        "url": "/news/ocde-pension-obligatoria-22-paises-europeos/",
+        "title": "La OCDE avisa: la pensión obligatoria no basta en 22 países europeos",
+        "description": "La OCDE calcula que la pensión obligatoria no llegará al 70% del salario en 22 de 30 países europeos. El mapa de esperanza de vida mide los años a cubrir."
+      },
+      "en": {
+        "slug": "oecd-mandatory-pensions-22-european-countries",
+        "url": "/en/news/oecd-mandatory-pensions-22-european-countries/",
+        "title": "OECD warns mandatory pensions fall short in 22 European countries",
+        "description": "The OECD estimates mandatory pensions will fall short of 70% of pay in 22 of 30 European countries. The life-expectancy map adds how many years they must cover."
+      }
+    }
+  },
+  {
     "date": "2026-11-07",
     "event": "The Decoder publica el 6 de noviembre de 2026 su Frontier Radar #5: 45 neolabs fundados por investigadores que han dejado OpenAI, Google DeepMind y Meta comparten la duda de que la receta actual de escalado no baste para llegar a la AGI; los mercados dan un 5,1% a que OpenAI anuncie la AGI antes de 2027 y un 71% antes de 2030 (6 de noviembre de 2026)",
     "type": "news",
