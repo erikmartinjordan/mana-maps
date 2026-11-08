@@ -144,6 +144,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   const date = metaDate(m);
   const xText = encodeURIComponent(title + ' — vía Maña Maps');
   const xUrl = encodeURIComponent(canonical);
+  // Reddit es el canal social con señal real (23 de 30 sesiones sociales del
+  // informe de octubre), así que la landing ofrece un envío directo además de X.
+  const redditUrl = 'https://www.reddit.com/submit?url=' + xUrl + '&title=' + encodeURIComponent(title);
 
   const sourceLine = [m.dataSource, m.dataDate || m.dataYear].filter(Boolean).join(' · ');
   const related = relatedIndex.get(slug) || [];
@@ -223,6 +226,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font-weight:700;text-decoration:none;font-size:15px;border:1px solid transparent;cursor:pointer}
   .btn-primary{background:var(--sky);color:#fff}
   .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+  .share-status{align-self:center;font-size:13px;color:var(--muted)}
   .source{margin-top:22px;padding:14px 16px;background:#f9fafb;border:1px solid var(--line);border-radius:12px;font-size:14px;color:var(--muted)}
   .facts{margin-top:22px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#f9fafb}
   .facts h2{font-size:18px;margin:0 0 8px}
@@ -275,6 +279,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
       <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'create_map',source:'static_map'})">Crea tu mapa gratis</a>
       <a class="btn btn-ghost" href="${esc(interactive)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
       <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=${xText}&url=${xUrl}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
+      <a class="btn btn-ghost" href="${esc(redditUrl)}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Compartir en Reddit</a>
+      <button type="button" class="btn btn-ghost" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
+      <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
     ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}
     ${relatedLinks(related, m)}${discoveryBlock}
@@ -321,6 +328,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   </div></footer>
   <script defer src="/js/firebase-config.local.js"></script>
   <script defer src="/js/tracking.js?v=1792742000"></script>
+  <script defer src="/js/landing-share.js"></script>
   <script defer src="/js/landing-view.js"></script>
   <script defer src="/js/mobile-menu.js"></script>
 </body>

@@ -996,3 +996,85 @@ test('map index block updates idempotently and escapes titles', () => {
   expect(missing.found).toBe(false);
   expect(missing.html).toBe('<main></main>');
 });
+
+// ── Compartir desde las landings estáticas ───────────────────────
+// Las landings son la URL canónica indexada y el único punto de entrada de
+// quien llega desde buscadores o Reddit. Ofrecen compartir nativo (Web Share
+// API con copia de enlace como fallback), Reddit (el canal social con señal
+// real en el informe de octubre) y X, siempre con la URL canónica para no
+// repartir autoridad entre /gallery/<slug>/ y el visor ?slug=.
+test('every map landing offers native and Reddit share with the canonical URL', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const shareScript = path.join(siteRoot, 'js', 'landing-share.js');
+  expect(fs.existsSync(shareScript), 'falta site/js/landing-share.js').toBe(true);
+
+  const missing = [];
+  for (const slug of published) {
+    const file = path.join(siteRoot, 'gallery', slug, 'index.html');
+    let html = '';
+    try { html = fs.readFileSync(file, 'utf8'); } catch (e) { missing.push(`${slug}: landing ausente`); continue; }
+    const canonical = `https://maña.com/gallery/${slug}/`;
+    const problems = [];
+    if (!html.includes('src="/js/landing-share.js"')) problems.push('sin landing-share.js');
+    if (!html.includes('data-share-native')) problems.push('sin compartir nativo');
+    if (!html.includes(`data-share-url="${canonical}"`)) problems.push('data-share-url no canónica');
+    if (!html.includes(`data-share-title="`)) problems.push('sin data-share-title');
+    if (!html.includes('Compartir en Reddit')) problems.push('sin botón de Reddit');
+    if (!html.includes(`reddit.com/submit?url=${encodeURIComponent(canonical)}`)) {
+      problems.push('Reddit no usa la URL canónica');
+    }
+    if (!html.includes('Compartir en X')) problems.push('sin botón de X');
+    if (problems.length) missing.push(`${slug}: ${problems.join(', ')}`);
+  }
+  expect(missing, `landings sin compartir completo:\n${missing.join('\n')}`).toEqual([]);
+});
+
+test('static landing native share tracks source static_map and falls back to copy', async ({ page }) => {
+  await page.route('**/js/firebase-config.local.js', (route) => route.fulfill({
+    status: 404, contentType: 'text/javascript', body: '',
+  }));
+  await page.addInitScript(() => {
+    window.__shared = null;
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: async (data) => { window.__shared = data; },
+    });
+  });
+  await page.route('**/firestore.googleapis.com/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: '{"writeResults":[]}',
+  }));
+  await page.route('**/ipwho.is/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: '{"success":false}',
+  }));
+
+  await page.goto('/gallery/gdp-per-capita-world/');
+  await page.evaluate(() => {
+    window.__shares = [];
+    window.trackEvent = (name, params) => window.__shares.push([name, params]);
+  });
+
+  const canonical = 'https://maña.com/gallery/gdp-per-capita-world/';
+  await page.click('[data-share-native]');
+  await expect.poll(() => page.evaluate(() => window.__shared && window.__shared.url)).toBe(canonical);
+  expect(await page.evaluate(() => window.__shares)).toEqual([['share', { network: 'native', source: 'static_map' }]]);
+  await expect(page.locator('#share-status')).toHaveText('Mapa compartido');
+
+  // Sin Web Share API (escritorio) el botón copia el enlace canónico.
+  await page.addInitScript(() => {
+    delete navigator.share;
+    window.__copied = null;
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: async (text) => { window.__copied = text; } },
+    });
+  });
+  await page.reload();
+  await page.evaluate(() => {
+    window.__shares = [];
+    window.trackEvent = (name, params) => window.__shares.push([name, params]);
+  });
+  await page.click('[data-share-native]');
+  await expect.poll(() => page.evaluate(() => window.__copied)).toBe(canonical);
+  expect(await page.evaluate(() => window.__shares)).toEqual([['share', { network: 'copy_link', source: 'static_map' }]]);
+  await expect(page.locator('#share-status')).toHaveText('Enlace copiado');
+});
