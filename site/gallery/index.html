@@ -585,6 +585,17 @@
     .cat-clear-inline:hover{color:var(--text)}
     .filter-result-text{font-size:13px;color:var(--muted);padding:0 48px 4px;margin-top:-8px}
 
+    /* ── Índice estático de mapas (enlaces HTML rastreables) ── */
+    .map-index{margin:0 48px 48px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.6);padding:14px 18px}
+    .map-index__summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--text);letter-spacing:.01em}
+    .map-index__count{color:var(--muted);font-weight:600}
+    .map-index__list{list-style:none;margin:14px 0 0;padding:0;columns:3;column-gap:28px;font-size:13px;line-height:1.9}
+    .map-index__list li{break-inside:avoid}
+    .map-index__list a{color:var(--muted);text-decoration:none}
+    .map-index__list a:hover{color:var(--text);text-decoration:underline}
+    @media (max-width:920px){.map-index__list{columns:2}}
+    @media (max-width:560px){.map-index{margin:0 20px 32px}.map-index__list{columns:1}}
+
     /* ── Mapa + leyenda de la landing /gallery/?slug= ── */
     #slug-map-wrap{margin:0 48px 24px;border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:20px;padding:16px}
     #slug-map-wrap[hidden]{display:none}
@@ -825,6 +836,66 @@
       <div class="card skel"><div class="skel-thumb"></div></div>
       <div class="card skel"><div class="skel-thumb"></div></div>
     </section>
+
+    <!-- map-index:start -->
+    <details class="map-index" id="map-index">
+      <summary class="map-index__summary"><span class="map-index__title">Índice de mapas</span> <span class="map-index__count">(52)</span></summary>
+      <ul class="map-index__list">
+        <li><a href="/gallery/water-sanitation-access-world/">Acceso a agua potable y saneamiento por país</a></li>
+        <li><a href="/gallery/electricity-access-world/">Acceso a electricidad mundial</a></li>
+        <li><a href="/gallery/literacy-rate-world/">Alfabetización mundial por país</a></li>
+        <li><a href="/gallery/bibliotecas-barcelona/">Bibliotecas públicas de Barcelona</a></li>
+        <li><a href="/gallery/submarine-fiber-cables/">Cables de fibra óptica submarina</a></li>
+        <li><a href="/gallery/most-populated-cities-world/">Ciudades más pobladas del mundo</a></li>
+        <li><a href="/gallery/cobertura-forestal-por-pais/">Cobertura forestal por país</a></li>
+        <li><a href="/gallery/alcohol-consumption-world/">Consumo de alcohol per cápita por país</a></li>
+        <li><a href="/gallery/meat-consumption-world/">Consumo de carne per cápita por país</a></li>
+        <li><a href="/gallery/gini-index-world/">Desigualdad de ingresos (índice Gini) mundial por país</a></li>
+        <li><a href="/gallery/rainy-days-by-city-world/">Días de lluvia medios al año por ciudad</a></li>
+        <li><a href="/gallery/co2-per-capita-world/">Emisiones de CO2 per cápita por país</a></li>
+        <li><a href="/gallery/nuclear-energy-world/">Energía nuclear por país</a></li>
+        <li><a href="/gallery/renewable-energy-world/">Energía renovable (% de electricidad) mundial por país</a></li>
+        <li><a href="/gallery/life-expectancy-world/">Esperanza de vida mundial por país</a></li>
+        <li><a href="/gallery/air-pollution-pm25-world/">Exposición a la contaminación del aire (PM2.5) por país</a></li>
+        <li><a href="/gallery/indice-desarrollo-humano-por-pais/">Índice de desarrollo humano (IDH) por país</a></li>
+        <li><a href="/gallery/happiness-index-world/">Índice de felicidad mundial por país</a></li>
+        <li><a href="/gallery/inflation-world/">Inflación anual por país</a></li>
+        <li><a href="/gallery/linea-ave-madrid-sevilla-urda/">La línea de alta velocidad Madrid-Sevilla y el accidente de Urda</a></li>
+        <li><a href="/gallery/tallest-waterfalls-world/">Las cascadas más altas del mundo</a></li>
+        <li><a href="/gallery/tallest-statues-world/">Las estatuas más altas del mundo</a></li>
+        <li><a href="/gallery/largest-islands-world/">Las islas más grandes del mundo</a></li>
+        <li><a href="/gallery/largest-hydro-dams-world/">Las presas hidroeléctricas más potentes del mundo</a></li>
+        <li><a href="/gallery/airports-world/">Los aeropuertos más transitados del mundo</a></li>
+        <li><a href="/gallery/impact-craters-world/">Los cráteres de impacto más grandes de la Tierra</a></li>
+        <li><a href="/gallery/most-visited-museums-world/">Los museos más visitados del mundo</a></li>
+        <li><a href="/gallery/olympic-medals-world/">Los países con más medallas olímpicas de la historia</a></li>
+        <li><a href="/gallery/worst-wildfires-world/">Los peores incendios forestales del mundo</a></li>
+        <li><a href="/gallery/busiest-ports-world/">Los puertos más transitados del mundo</a></li>
+        <li><a href="/gallery/tallest-skyscrapers-world/">Los rascacielos más altos del mundo</a></li>
+        <li><a href="/gallery/nuclear-reactors-world/">Los reactores nucleares del mundo</a></li>
+        <li><a href="/gallery/longest-rivers-world/">Los ríos más largos del mundo</a></li>
+        <li><a href="/gallery/biggest-earthquakes-world/">Los terremotos más potentes de la historia</a></li>
+        <li><a href="/gallery/infant-mortality-world/">Mortalidad infantil mundial por país</a></li>
+        <li><a href="/gallery/women-in-parliament-world/">Mujeres en el parlamento mundial por país</a></li>
+        <li><a href="/gallery/obesity-adults-world/">Obesidad adulta mundial por país</a></li>
+        <li><a href="/gallery/oceans-and-seas-world/">Océanos y mares del mundo</a></li>
+        <li><a href="/gallery/population-by-country/">Países por población total</a></li>
+        <li><a href="/gallery/co2-total-emissions-world/">Países que más emiten CO2 (totales)</a></li>
+        <li><a href="/gallery/tourism-arrivals-world/">Países que más reciben turistas internacionales</a></li>
+        <li><a href="/gallery/daily-steps-world/">Pasos medios diarios por país</a></li>
+        <li><a href="/gallery/gdp-per-capita-world/">PIB per cápita mundial por país</a></li>
+        <li><a href="/gallery/urban-population-world/">Población urbana (% del total) mundial por país</a></li>
+        <li><a href="/gallery/major-deserts-world/">Principales desiertos del mundo</a></li>
+        <li><a href="/gallery/highest-peaks-per-continent/">Punto más alto de cada continente</a></li>
+        <li><a href="/gallery/minimum-wage-by-country/">Salario mínimo por país</a></li>
+        <li><a href="/gallery/patrimonio-unesco-por-pais/">Sitios patrimonio de la humanidad UNESCO por país</a></li>
+        <li><a href="/gallery/unemployment-world/">Tasa de desempleo mundial por país</a></li>
+        <li><a href="/gallery/fertility-rate-world/">Tasa de fertilidad mundial</a></li>
+        <li><a href="/gallery/internet-users-world/">Usuarios de internet mundial por país</a></li>
+        <li><a href="/gallery/active-volcanoes-world/">Volcanes activos del mundo</a></li>
+      </ul>
+    </details>
+    <!-- map-index:end -->
 
     <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
   <div class="site-footer__lead">

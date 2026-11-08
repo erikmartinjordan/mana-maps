@@ -22,6 +22,7 @@ const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
+const { updateMapIndexBlock } = require('../lib/map-index');
 const { buildFactsSection } = require('../lib/map-landing-facts');
 
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -32,6 +33,7 @@ const COLLECTION = 'maps';
 const SITE_BASE = 'https://maña.com';
 const OUT_CARDS = path.join(SITE_ROOT, 'og-cards');
 const OUT_PAGES = path.join(SITE_ROOT, 'gallery');
+const GALLERY_INDEX_PATH = path.join(OUT_PAGES, 'index.html');
 const DRY_RUN = process.argv.includes('--dry-run');
 const NO_IMAGES = process.argv.includes('--no-images');
 const SLUG_FILTER = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
@@ -326,6 +328,32 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
 `;
 }
 
+// ── Índice estático de /gallery/ ────────────────────────────────
+// Las tarjetas del grid se pintan con JS; este bloque deja un enlace HTML
+// rastreable por cada mapa publicado para que el hub de la galería reparta
+// enlaces internos hacia todas las landings (incluidas las de menos visitas).
+function updateGalleryIndex(maps) {
+  if (DRY_RUN) return;
+  let html;
+  try {
+    html = fs.readFileSync(GALLERY_INDEX_PATH, 'utf8');
+  } catch (e) {
+    console.warn('  index SKIP: no se pudo leer site/gallery/index.html —', e.message);
+    return;
+  }
+  const result = updateMapIndexBlock(html, maps);
+  if (!result.found) {
+    console.warn('  index SKIP: site/gallery/index.html no tiene los marcadores map-index');
+    return;
+  }
+  if (!result.changed) {
+    console.log(`Índice de mapas sin cambios (${result.count} enlaces).`);
+    return;
+  }
+  fs.writeFileSync(GALLERY_INDEX_PATH, result.html, 'utf8');
+  console.log(`Índice de mapas actualizado (${result.count} enlaces).`);
+}
+
 // ── Main ────────────────────────────────────────────────────────
 (async () => {
   const cfg = loadConfig();
@@ -414,6 +442,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   }
 
   console.log(`${DRY_RUN ? '[dry-run] ' : ''}Landings: ${pages} · OG cards: ${cards} · eliminadas: ${skipped} · OG eliminadas: ${cardsSkipped}`);
+  updateGalleryIndex(allMaps);
   if (page) console.log('Hecho.');
 })().catch((e) => { console.error(e); process.exit(1); });
 

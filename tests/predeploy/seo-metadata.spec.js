@@ -31,6 +31,11 @@ const {
   buildFactsSection,
   lowercaseIndicatorStart,
 } = require('../../scripts/lib/map-landing-facts');
+const {
+  START_MARKER,
+  END_MARKER,
+  updateMapIndexBlock,
+} = require('../../scripts/lib/map-index');
 
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
@@ -945,4 +950,49 @@ test('static landing respects the mana-notrack opt-out', async ({ browser }) => 
   expect(viewCommitBodies(bodies)).toEqual([]);
   expect(bodies.some((body) => body.includes('"mapview"'))).toBe(false);
   await context.close();
+});
+
+// El grid de /gallery/ se pinta con JS, así que el HTML servido no tenía
+// enlaces a las landings. El índice estático deja un enlace rastreable por mapa
+// y debe seguir sincronizado con el JSON-LD CollectionPage.
+test('gallery static HTML links every published map landing', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const start = galleryHtml.indexOf(START_MARKER);
+  const end = galleryHtml.indexOf(END_MARKER);
+  expect(start, 'falta el marcador map-index:start').toBeGreaterThan(-1);
+  expect(end, 'falta el marcador map-index:end').toBeGreaterThan(start);
+
+  const block = galleryHtml.slice(start, end);
+  const linked = [...block.matchAll(/href="\/gallery\/([^/"]+)\/"/g)].map((m) => m[1]);
+  expect(new Set(linked).size, 'el índice repite mapas').toBe(linked.length);
+  expect(linked.sort()).toEqual([...published].sort());
+  expect(block).toContain(`(${published.length})`);
+});
+
+test('map index block updates idempotently and escapes titles', () => {
+  const page = `<main>\n    ${START_MARKER}\n    ${END_MARKER}\n</main>`;
+  const maps = [
+    { slug: 'b-map', title: 'Beta <script> & compañía' },
+    { slug: 'a-map', title: 'Alfa' },
+    { slug: 'a-map', title: 'duplicado' },
+  ];
+
+  const first = updateMapIndexBlock(page, maps);
+  expect(first.found).toBe(true);
+  expect(first.changed).toBe(true);
+  expect(first.count).toBe(2);
+  expect(first.html).toContain('href="/gallery/a-map/"');
+  expect(first.html).toContain('href="/gallery/b-map/"');
+  expect(first.html).toContain('Beta &lt;script&gt; &amp; compañía');
+  expect(first.html).not.toContain('<script>');
+  // Ordenado por título en español: «Alfa» antes que «Beta».
+  expect(first.html.indexOf('Alfa')).toBeLessThan(first.html.indexOf('Beta'));
+
+  const second = updateMapIndexBlock(first.html, maps);
+  expect(second.changed).toBe(false);
+  expect(second.html).toBe(first.html);
+
+  const missing = updateMapIndexBlock('<main></main>', maps);
+  expect(missing.found).toBe(false);
+  expect(missing.html).toBe('<main></main>');
 });
