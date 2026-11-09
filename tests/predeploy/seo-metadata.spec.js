@@ -497,15 +497,40 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
 });
 
 // Regresión del check 12: cada landing estática es una página SEO propia y
-// debe tener <title> propio, meta description no vacía, canonical con su slug
-// y JSON-LD Dataset.
-function landingDoc({ title, description, canonical, dataset }) {
+// debe tener <title> propio, meta description no vacía, canonical con su slug,
+// JSON-LD Dataset, BreadcrumbList y hreflang es/x-default.
+function breadcrumbLd(canonical, { positions = [1, 2, 3], lastUrl = canonical } = {}) {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: positions[0], name: 'Inicio', item: 'https://maña.com/' },
+      { '@type': 'ListItem', position: positions[1], name: 'Galería', item: 'https://maña.com/gallery/' },
+      { '@type': 'ListItem', position: positions[2], name: 'Mapa', item: lastUrl },
+    ],
+  });
+}
+
+function landingDoc({
+  title, description, canonical, dataset,
+  breadcrumb = undefined, hreflang = true, hreflangHref, breadcrumbUrl,
+}) {
+  const lastUrl = breadcrumbUrl || canonical;
+  const breadcrumbScript = breadcrumb === false
+    ? ''
+    : `<script type="application/ld+json">${breadcrumb != null ? breadcrumb : breadcrumbLd(lastUrl)}</script>`;
+  const hreflangLinks = hreflang && lastUrl
+    ? `\n<link rel="alternate" hreflang="es" href="${hreflangHref || lastUrl}">` +
+      `\n<link rel="alternate" hreflang="x-default" href="${hreflangHref || lastUrl}">`
+    : '';
   return [
     '<!DOCTYPE html><html lang="es"><head>',
     title === undefined ? '' : `<title>${title}</title>`,
     description === undefined ? '' : `<meta name="description" content="${description}">`,
     canonical === undefined ? '' : `<link rel="canonical" href="${canonical}">`,
+    hreflangLinks,
     dataset === undefined ? '' : `<script type="application/ld+json">${dataset}</script>`,
+    breadcrumbScript,
     '</head><body></body></html>',
   ].join('\n');
 }
@@ -523,9 +548,20 @@ test('landing metadata is complete for every published map', () => {
   expect(result.wrongCanonical).toEqual([]);
   expect(result.missingDataset).toEqual([]);
   expect(result.invalidJsonLd).toEqual([]);
+  expect(result.missingBreadcrumb).toEqual([]);
+  expect(result.invalidBreadcrumb).toEqual([]);
+  expect(result.missingHreflang).toEqual([]);
+  expect(result.wrongHreflang).toEqual([]);
   for (const slug of published) {
-    expect(result.details[slug].title, slug).toBeTruthy();
-    expect(result.details[slug].dataset, slug).toBe(true);
+    const meta = result.details[slug];
+    expect(meta.title, slug).toBeTruthy();
+    expect(meta.dataset, slug).toBe(true);
+    expect(meta.breadcrumb, slug).toHaveLength(3);
+    expect(meta.breadcrumb[0].item, slug).toBe('https://maña.com/');
+    expect(meta.breadcrumb[1].item, slug).toBe('https://maña.com/gallery/');
+    expect(meta.breadcrumb[2].item, slug).toBe(`https://maña.com/gallery/${slug}/`);
+    expect(meta.hreflangs.map(h => h.hreflang).sort(), slug).toEqual(['es', 'x-default']);
+    for (const alt of meta.hreflangs) expect(alt.href, slug).toBe(`https://maña.com/gallery/${slug}/`);
   }
 });
 
@@ -579,6 +615,8 @@ test('landing metadata check parses and reports missing, generic or wrong metada
     title: 'Sin canonical — Maña Maps',
     description: 'Descripción',
     dataset: validDataset,
+    breadcrumbUrl: 'https://maña.com/gallery/sin-canonical/',
+    hreflangHref: 'https://maña.com/gallery/sin-canonical/',
   }));
   write('canonical-ajeno', landingDoc({
     title: 'Canonical ajeno — Maña Maps',
@@ -598,11 +636,40 @@ test('landing metadata check parses and reports missing, generic or wrong metada
     canonical: 'https://maña.com/gallery/dataset-invalido/',
     dataset: '{no es json}',
   }));
+  write('sin-breadcrumb', landingDoc({
+    title: 'Sin breadcrumb — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/sin-breadcrumb/',
+    dataset: validDataset,
+    breadcrumb: false,
+  }));
+  write('breadcrumb-invalido', landingDoc({
+    title: 'Breadcrumb inválido — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/breadcrumb-invalido/',
+    dataset: validDataset,
+    breadcrumb: breadcrumbLd('https://maña.com/gallery/breadcrumb-invalido/', { positions: [1, 3, 4] }),
+  }));
+  write('sin-hreflang', landingDoc({
+    title: 'Sin hreflang — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/sin-hreflang/',
+    dataset: validDataset,
+    hreflang: false,
+  }));
+  write('hreflang-ajeno', landingDoc({
+    title: 'Hreflang ajeno — Maña Maps',
+    description: 'Descripción',
+    canonical: 'https://maña.com/gallery/hreflang-ajeno/',
+    dataset: validDataset,
+    hreflangHref: 'https://maña.com/gallery/otro-mapa/',
+  }));
 
   const slugs = [
     'ok-map', 'sin-title', 'titulo-generico', 'titulo-repetido-a',
     'titulo-repetido-b', 'sin-description', 'sin-canonical',
     'canonical-ajeno', 'sin-dataset', 'dataset-invalido', 'sin-landing',
+    'sin-breadcrumb', 'breadcrumb-invalido', 'sin-hreflang', 'hreflang-ajeno',
   ];
   const result = auditLandingMetadata(slugs, { galleryDir });
 
@@ -620,6 +687,17 @@ test('landing metadata check parses and reports missing, generic or wrong metada
   expect(result.invalidJsonLd).toHaveLength(1);
   expect(result.invalidJsonLd[0].slug).toBe('dataset-invalido');
   expect(result.missingDataset).toEqual(['dataset-invalido', 'sin-dataset']);
+  expect(result.missingBreadcrumb).toEqual(['sin-breadcrumb']);
+  expect(result.invalidBreadcrumb).toEqual([
+    { slug: 'breadcrumb-invalido', error: 'posición 2 incorrecta' },
+  ]);
+  expect(result.missingHreflang).toEqual([
+    { slug: 'sin-hreflang', missing: ['es', 'x-default'] },
+  ]);
+  expect(result.wrongHreflang).toEqual([
+    { slug: 'hreflang-ajeno', hreflang: 'es', href: 'https://maña.com/gallery/otro-mapa/' },
+    { slug: 'hreflang-ajeno', hreflang: 'x-default', href: 'https://maña.com/gallery/otro-mapa/' },
+  ]);
 
   const issues = result.issues.join('\n');
   expect(issues).toContain('faltan 1 landings gallery/<slug>/index.html (sin-landing)');
@@ -631,16 +709,25 @@ test('landing metadata check parses and reports missing, generic or wrong metada
   expect(issues).toContain('canonical incorrecto en canonical-ajeno');
   expect(issues).toContain('JSON-LD inválido en dataset-invalido');
   expect(issues).toContain('2 landings sin JSON-LD Dataset (dataset-invalido, sin-dataset)');
+  expect(issues).toContain('1 landings sin JSON-LD BreadcrumbList (sin-breadcrumb)');
+  expect(issues).toContain('BreadcrumbList inválido en breadcrumb-invalido (posición 2 incorrecta)');
+  expect(issues).toContain('1 landings sin hreflang es/x-default (sin-hreflang: es/x-default)');
+  expect(issues).toContain('hreflang es incorrecto en hreflang-ajeno');
+  expect(issues).toContain('hreflang x-default incorrecto en hreflang-ajeno');
 
   // El parser tolera el orden de atributos y decodifica entidades.
   const parsed = parseLandingMetadata(
     '<title>Mapa &amp; datos — Maña Maps</title>' +
     '<meta content="A &quot;b&quot; c" name="description">' +
-    '<link href="https://maña.com/gallery/orden/?" rel="canonical">'
+    '<link href="https://maña.com/gallery/orden/?" rel="canonical">' +
+    '<link href="https://maña.com/gallery/orden/" hreflang="ES" rel="alternate">' +
+    '<script type="application/ld+json">' + breadcrumbLd('https://maña.com/gallery/orden/') + '</script>'
   );
   expect(parsed.title).toBe('Mapa & datos — Maña Maps');
   expect(parsed.description).toBe('A "b" c');
   expect(parsed.canonical).toBe('https://maña.com/gallery/orden/?');
+  expect(parsed.hreflangs).toEqual([{ hreflang: 'es', href: 'https://maña.com/gallery/orden/' }]);
+  expect(parsed.breadcrumb).toHaveLength(3);
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });

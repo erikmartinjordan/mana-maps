@@ -176,6 +176,19 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   if (date) dataset.dateModified = date;
   if (Array.isArray(m.tags) && m.tags.length) dataset.keywords = m.tags;
 
+  // Migas de pan: la landing es una ficha dentro de la galería y el breadcrumb
+  // da a Google una jerarquía explícita (Inicio › Galería › mapa) que puede
+  // mostrarse en el resultado de búsqueda y reparte enlaces internos.
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE_BASE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Galería', item: `${SITE_BASE}/gallery/` },
+      { '@type': 'ListItem', position: 3, name: title, item: canonical }
+    ]
+  };
+
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -184,6 +197,8 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
 <title>${esc(title)} — Maña Maps</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${esc(canonical)}">
+<link rel="alternate" hreflang="es" href="${esc(canonical)}">
+<link rel="alternate" hreflang="x-default" href="${esc(canonical)}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="${esc(canonical)}">
 <meta property="og:title" content="${esc(title)}">
@@ -204,6 +219,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
 <link rel="stylesheet" href="/css/site-footer.css">
 <style>:root{--overscroll-bg:#fff}@media (prefers-color-scheme: dark){:root{--overscroll-bg:#0b0f14}}</style>
 <script type="application/ld+json">${JSON.stringify(dataset)}</script>
+<script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
   *{box-sizing:border-box}
@@ -217,6 +233,11 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   .brand-sub{font-size:11px;color:var(--muted);margin-left:3px;font-weight:600;vertical-align:super}
   .nav a{margin-left:16px;text-decoration:none;font-weight:600;font-size:14px;color:var(--muted)}
   .wrap{max-width:880px;margin:0 auto;padding:28px 22px 60px}
+  .breadcrumb ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;padding:0;font-size:13px;color:var(--muted)}
+  .breadcrumb li+li::before{content:"›";margin-right:6px;color:var(--muted)}
+  .breadcrumb a{color:var(--muted);text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+  .breadcrumb [aria-current="page"]{color:var(--ink);font-weight:600}
   h1{font-size:clamp(26px,4vw,40px);letter-spacing:-1px;margin:6px 0 8px}
   .lede{color:var(--muted);font-size:17px;margin:0 0 20px}
   .shot{border:1px solid var(--line);border-radius:16px;overflow:hidden;display:block}
@@ -271,6 +292,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
     </div>
   </header>
   <main class="wrap">
+    <nav class="breadcrumb" aria-label="Migas de pan"><ol><li><a href="/">Inicio</a></li><li><a href="/gallery/">Galería</a></li><li aria-current="page">${esc(title)}</li></ol></nav>
     <h1>${esc(title)}</h1>
     <p class="lede">${esc(description)}</p>
     <a class="shot" href="${esc(interactive)}"><img src="/og-cards/${encodeURIComponent(slug)}.png" alt="${esc(title)}" width="1200" height="630"></a>

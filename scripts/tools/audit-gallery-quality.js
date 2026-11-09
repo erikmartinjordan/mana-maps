@@ -1585,10 +1585,47 @@ function hasDatasetType(value) {
   return false;
 }
 
+// Devuelve el nodo BreadcrumbList de un JSON-LD (@graph, array o raíz).
+function findBreadcrumbList(value) {
+  if (!value) return null;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findBreadcrumbList(item);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (typeof value !== 'object') return null;
+  const type = value['@type'];
+  const isBreadcrumb = type === 'BreadcrumbList' ||
+    (Array.isArray(type) && type.includes('BreadcrumbList'));
+  if (isBreadcrumb) return value;
+  if (Array.isArray(value['@graph'])) return findBreadcrumbList(value['@graph']);
+  return null;
+}
+
+// Valida una lista de migas: al menos 3 pasos, posiciones consecutivas, nombre
+// y URL absoluta en cada uno, y último paso apuntando al canonical de la página.
+function validateBreadcrumbItems(items, canonical) {
+  if (!Array.isArray(items) || items.length < 3) return 'faltan pasos (mínimo 3)';
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i] || {};
+    if (Number(item.position) !== i + 1) return `posición ${i + 1} incorrecta`;
+    if (!String(item.name == null ? '' : item.name).trim()) return `paso ${i + 1} sin name`;
+    if (!/^https?:\/\//i.test(String(item.item || ''))) return `paso ${i + 1} sin URL absoluta`;
+  }
+  const last = items[items.length - 1].item;
+  if (canonical && last !== canonical) return `el último paso no apunta al canonical (${last})`;
+  return null;
+}
+
 // Extrae los metadatos SEO de una landing: { title, description, canonical,
-// dataset, jsonLdErrors }.
+// dataset, breadcrumb, hreflangs, jsonLdErrors }.
 function parseLandingMetadata(html) {
-  const out = { title: '', description: '', canonical: '', dataset: false, jsonLdErrors: [] };
+  const out = {
+    title: '', description: '', canonical: '', dataset: false,
+    breadcrumb: null, hreflangs: [], jsonLdErrors: [],
+  };
   if (!html || typeof html !== 'string') return out;
 
   const titleMatch = html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
@@ -1604,9 +1641,11 @@ function parseLandingMetadata(html) {
   for (const m of html.matchAll(/<link\b[^>]*>/gi)) {
     const attrs = parseHtmlAttrs(m[0]);
     const rels = String(attrs.rel || '').toLowerCase().split(/\s+/);
-    if (rels.includes('canonical')) {
+    if (rels.includes('canonical') && !out.canonical) {
       out.canonical = attrs.href || '';
-      break;
+    }
+    if (rels.includes('alternate') && attrs.hreflang) {
+      out.hreflangs.push({ hreflang: attrs.hreflang.toLowerCase(), href: attrs.href || '' });
     }
   }
 
@@ -1619,6 +1658,10 @@ function parseLandingMetadata(html) {
       continue;
     }
     if (hasDatasetType(json)) out.dataset = true;
+    const breadcrumb = findBreadcrumbList(json);
+    if (breadcrumb && Array.isArray(breadcrumb.itemListElement)) {
+      out.breadcrumb = breadcrumb.itemListElement;
+    }
   }
 
   return out;
@@ -1646,6 +1689,10 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
   const wrongCanonical = [];
   const missingDataset = [];
   const invalidJsonLd = [];
+  const missingBreadcrumb = [];
+  const invalidBreadcrumb = [];
+  const missingHreflang = [];
+  const wrongHreflang = [];
   const titlesBySlug = new Map();
 
   for (const slug of published) {
@@ -1685,6 +1732,26 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
     }
     if (meta.jsonLdErrors.length) invalidJsonLd.push({ slug, errors: meta.jsonLdErrors });
     if (!meta.dataset) missingDataset.push(slug);
+
+    // Migas de pan y alternates: jerarquía explícita para buscadores y una
+    // única variante lingüística declarada (es + x-default).
+    if (!meta.breadcrumb) {
+      missingBreadcrumb.push(slug);
+    } else {
+      const error = validateBreadcrumbItems(meta.breadcrumb, meta.canonical);
+      if (error) invalidBreadcrumb.push({ slug, error });
+    }
+    const hreflangByCode = new Map(meta.hreflangs.map(h => [h.hreflang, h.href]));
+    const missingCodes = ['es', 'x-default'].filter(code => !hreflangByCode.has(code));
+    if (missingCodes.length) {
+      missingHreflang.push({ slug, missing: missingCodes });
+    }
+    for (const code of ['es', 'x-default']) {
+      if (!hreflangByCode.has(code)) continue;
+      if (meta.canonical && hreflangByCode.get(code) !== meta.canonical) {
+        wrongHreflang.push({ slug, hreflang: code, href: hreflangByCode.get(code) });
+      }
+    }
   }
 
   // Títulos repetidos entre landings: no son «propios» aunque no sean genéricos.
@@ -1731,6 +1798,19 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
   if (missingDataset.length) {
     issues.push(`${missingDataset.length} landings sin JSON-LD Dataset (${missingDataset.join(', ')})`);
   }
+  if (missingBreadcrumb.length) {
+    issues.push(`${missingBreadcrumb.length} landings sin JSON-LD BreadcrumbList (${missingBreadcrumb.join(', ')})`);
+  }
+  for (const b of invalidBreadcrumb) {
+    issues.push(`BreadcrumbList inválido en ${b.slug} (${b.error})`);
+  }
+  if (missingHreflang.length) {
+    const detail = missingHreflang.map(h => `${h.slug}: ${h.missing.join('/')}`).join(', ');
+    issues.push(`${missingHreflang.length} landings sin hreflang es/x-default (${detail})`);
+  }
+  for (const h of wrongHreflang) {
+    issues.push(`hreflang ${h.hreflang} incorrecto en ${h.slug} (${h.href})`);
+  }
 
   return {
     issues,
@@ -1745,6 +1825,10 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
     wrongCanonical,
     missingDataset,
     invalidJsonLd,
+    missingBreadcrumb,
+    invalidBreadcrumb,
+    missingHreflang,
+    wrongHreflang,
   };
 }
 
@@ -2501,7 +2585,7 @@ async function main() {
   console.log('LANDING META | ISSUES');
   console.log('-------------|-------');
   if (landingMeta.issues.length === 0) {
-    console.log(`OK: ${published.length} landings con title propio, meta description, canonical y JSON-LD Dataset`);
+    console.log(`OK: ${published.length} landings con title propio, meta description, canonical, hreflang es/x-default y JSON-LD Dataset + BreadcrumbList`);
   } else {
     for (const issue of landingMeta.issues) console.log(`META: ${issue}`);
   }
