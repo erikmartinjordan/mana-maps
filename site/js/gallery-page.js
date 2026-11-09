@@ -862,6 +862,48 @@
     doLike();
   };
 
+  // Save the featured ?slug= map into the user's collection. Unlike the grid
+  // card fork button, this CTA lives in the public landing metadata and is the
+  // strongest map→account step (priority 3: activation funnel).
+  window.gallerySaveSlug = function(btn) {
+    var mapId = btn.getAttribute('data-map-id');
+    var author = btn.getAttribute('data-author') || '';
+    if (!mapId) return;
+    var label = btn.querySelector('span') || btn;
+    var original = label.textContent;
+
+    track('cta_click', { target: 'save_map', source: 'gallery_slug' });
+
+    var doSave = async function() {
+      btn.disabled = true;
+      label.textContent = 'Guardando…';
+      try {
+        if (window.manaMaps && typeof window.manaMaps.forkMap === 'function') {
+          await window.manaMaps.forkMap(mapId, author);
+          label.textContent = '✓ Guardado';
+          btn.classList.add('saved');
+          track('map_saved', { source: 'gallery_slug' });
+          galleryToast('Mapa guardado en tu espacio', { linkUrl: '/my-maps/', linkLabel: 'Abrir Mis mapas', duration: 5200 });
+          return;
+        }
+        throw new Error('fork-unavailable');
+      } catch (e) {
+        console.warn('save slug failed:', e);
+        label.textContent = original;
+        btn.disabled = false;
+        galleryToast('No se pudo guardar el mapa. Inténtalo de nuevo.');
+      }
+    };
+
+    // Auth gate: anonymous visitors get the signup/login modal and the save
+    // resumes automatically once the account is ready.
+    if (window.manaAuth && typeof window.manaAuth.requireAuth === 'function') {
+      window.manaAuth.requireAuth(doSave);
+      return;
+    }
+    doSave();
+  };
+
   window.galleryFork = function(btn) {
     var mapId = btn.getAttribute('data-map-id');
     var author = btn.getAttribute('data-author') || '';
@@ -1204,6 +1246,8 @@
         (item.featureCount || 0) + ' elementos · ' + safeDate(created) + '</div>' +
       '<div class="slug-cta">' +
         '<a class="slug-cta-btn" href="/map/" onclick="galleryTrackCta()">Crea tu mapa gratis</a>' +
+        '<button type="button" class="slug-save-btn" data-map-id="' + escAttr(slug) + '" data-author="' + escAttr(item.authorHandle || '') + '" onclick="gallerySaveSlug(this)">' +
+          '<span>Guardar en mi espacio</span></button>' +
         '<button type="button" class="slug-share-btn" data-url="' + escAttr(url) + '" data-title="' + escAttr(title) + '" onclick="galleryShareSlug(this)">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
           'Compartir</button>' +
@@ -1233,9 +1277,13 @@
       '.slug-meta-line{font-size:13px;color:#6b7280;margin:10px 0 0}' +
       '.slug-author{color:#0ea5e9;text-decoration:none;font-weight:600}' +
       '.slug-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}' +
-      '.slug-cta-btn,.slug-share-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;border:1px solid transparent;font-family:inherit}' +
+      '.slug-cta-btn,.slug-save-btn,.slug-share-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;border:1px solid transparent;font-family:inherit}' +
       '.slug-cta-btn{background:#0ea5e9;color:#fff}' +
       '.slug-cta-btn:hover{background:#0284c7}' +
+      '.slug-save-btn{background:#111214;color:#fff}' +
+      '.slug-save-btn:hover{background:#000}' +
+      '.slug-save-btn[disabled]{opacity:.7;cursor:default}' +
+      '.slug-save-btn.saved{background:#15803d}' +
       '.slug-share-btn{background:transparent;color:#374151;border-color:#d1d5db}' +
       '.slug-share-btn:hover{background:#f3f4f6}' +
       '.slug-watermark{margin-top:10px;font-size:12px;color:#9ca3af}' +

@@ -175,5 +175,33 @@ test('slug landing renders related maps block with crawlable HTML links', async 
   await expect(slugCta).toHaveAttribute('href', '/map/');
   await expect(page.locator('#slug-map-meta .slug-share-btn').first()).toBeVisible();
 
+  // Activación: la vista destacada ofrece guardar el mapa en la cuenta. El
+  // clic anónimo debe pasar por el gate de auth y reanudar el fork después.
+  const saveBtn = page.locator('#slug-map-meta .slug-save-btn');
+  await expect(saveBtn).toBeVisible();
+  await expect(saveBtn).toHaveAttribute('data-map-id', 'oceany-mares-world');
+
+  await page.evaluate(() => {
+    window.__forkCalls = [];
+    window.__ctaEvents = [];
+    window.__pendingSave = null;
+    window.trackEvent = (name, params) => window.__ctaEvents.push([name, params]);
+    window.manaAuth = {
+      requireAuth: (cb) => { window.__authRequired = true; window.__pendingSave = cb; },
+    };
+    window.manaMaps = {
+      forkMap: async (id, author) => { window.__forkCalls.push([id, author]); return { mapId: 'copy' }; },
+    };
+  });
+
+  await saveBtn.click();
+  expect(await page.evaluate(() => window.__authRequired)).toBe(true);
+  expect(await page.evaluate(() => window.__forkCalls), 'sin sesión no se guarda nada').toEqual([]);
+
+  await page.evaluate(() => window.__pendingSave());
+  await expect.poll(() => page.evaluate(() => window.__forkCalls)).toEqual([['oceany-mares-world', '']]);
+  await expect(saveBtn).toContainText('Guardado');
+  expect(await page.evaluate(() => window.__ctaEvents[0])).toEqual(['cta_click', { target: 'save_map', source: 'gallery_slug' }]);
+
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
