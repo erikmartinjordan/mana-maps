@@ -48,7 +48,7 @@ site/
 ├── icons/             # iconos PWA
 ├── js/                # aplicación del editor y la galería
 ├── og-cards/          # tarjetas OG por mapa
-└── docs/fabrica.html  # vista incrustada en tasks/
+└── docs/              # fabrica.html (redirige) + fabrica-voxel.html (fábrica 3D en tasks/)
 ```
 
 ## Qué no debe existir
