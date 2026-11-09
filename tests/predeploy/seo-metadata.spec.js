@@ -196,9 +196,11 @@ test('zero-view maps receive links from at least two traffic landings', () => {
   // Prioridad de distribución de noviembre: un mapa sin visitas no debe
   // depender de un único enlace que puede quedar enterrado en una landing.
   const published = parseCollectionLd(galleryHtml).slugs;
+  // Corte de visitas 09-11: literacy-rate-world ya registra 1 visita y deja de
+  // ser objetivo de descubrimiento; los dos mapas que siguen a cero se
+  // mantienen enlazados desde dos landings con tráfico.
   const zeroView = [
     'alcohol-consumption-world',
-    'literacy-rate-world',
     'tallest-skyscrapers-world',
   ];
   const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
