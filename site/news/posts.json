@@ -1,5 +1,35 @@
 [
   {
+    "date": "2026-11-09",
+    "event": "Análisis propio: los 23 cables submarinos en servicio del mapa suman 343.486 km; Estados Unidos aparece en 12 (44% de la longitud) y Egipto en 4 (30,3%). LS Cable cierra el tercer trimestre con una cartera récord de 9,8522 billones de wones (+20,2%) y PISCES sumará 3.125 km en 2028, mientras The Guardian documenta 49 proyectos de centros de datos paralizados en Tailandia por falta de energía y agua (9 de noviembre de 2026)",
+    "type": "news",
+    "format": "analisis",
+    "topic": "tech",
+    "mapSlug": "submarine-fiber-cables",
+    "sourceUrls": [
+      "https://en.fnnews.com/news/202611061703015936",
+      "https://www.orange.com/en/press-release/equitix-mdm-and-orange-form-a-joint-venture-to-deliver-the-pisces-subsea-cable-system-with-the-financial-support-of-the-european-union-507274",
+      "https://www.submarinenetworks.com/en/systems/intra-europe/pisces",
+      "https://cincodias.elpais.com/companias/2026-10-17/orange-equitix-y-mdm-desplegaran-un-cable-submarino-entre-irlanda-y-espana.html",
+      "https://www.theguardian.com/technology/2026/nov/07/datacentres-southeast-asia",
+      "https://www.eleconomista.com.mx/mercados/wall-street-cerro-semana-baja-tecnologicas-20261108-842841.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "cables-submarinos-infraestructura-fisica-ia",
+        "url": "/news/cables-submarinos-infraestructura-fisica-ia/",
+        "title": "La IA no flota: 343.486 km de cables bajo el mar",
+        "description": "Análisis de 24 cables submarinos: los 23 en servicio suman 343.486 km, con Estados Unidos, Francia y Egipto en el centro y pedidos récord ligados a la IA."
+      },
+      "en": {
+        "slug": "subsea-cables-physical-ai-infrastructure",
+        "url": "/en/news/subsea-cables-physical-ai-infrastructure/",
+        "title": "AI does not float: 343,486 km of cables under the sea",
+        "description": "An analysis of 24 subsea cables: the 23 in service add up to 343,486 km, with the United States, France and Egypt at the centre and record AI-driven orders."
+      }
+    }
+  },
+  {
     "date": "2026-11-08",
     "event": "La OCDE publica el 4 de noviembre de 2026 su informe Pensions Outlook 2026: la pensión obligatoria no llegará al 70% del salario en 22 de los 30 países europeos analizados; la brecha de cotización va del 0,4% de Turquía al 20,7% de Lituania y España cumple el objetivo para hombres con salario medio (7 de noviembre de 2026)",
     "type": "news",
