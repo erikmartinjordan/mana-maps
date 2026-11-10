@@ -339,82 +339,40 @@ function geoBounds(geo) {
   return [[minLat, minLng], [maxLat, maxLng]];
 }
 
-function decodeFirestoreRestValue(v) {
-  if (v == null) return null;
-  if (typeof v !== 'object') return v;
-  if ('nullValue' in v) return null;
-  if ('stringValue' in v) return v.stringValue;
-  if ('integerValue' in v) return Number(v.integerValue);
-  if ('doubleValue' in v) return Number(v.doubleValue);
-  if ('booleanValue' in v) return v.booleanValue;
-  if ('arrayValue' in v) return (v.arrayValue.values || []).map(decodeFirestoreRestValue);
-  if ('mapValue' in v) {
-    var o = {};
-    var fields = v.mapValue.fields || {};
-    for (var k in fields) o[k] = decodeFirestoreRestValue(fields[k]);
-    return o;
-  }
-  return null;
+function showMapLoading() {
+  if (typeof document === 'undefined' || document.getElementById('mana-map-loading')) return;
+  var el = document.createElement('div');
+  el.id = 'mana-map-loading';
+  el.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:900;display:flex;align-items:center;gap:10px;padding:11px 17px;border-radius:999px;background:rgba(11,15,20,0.82);color:#e5e7eb;font:600 13px system-ui,-apple-system,sans-serif;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:opacity .3s ease';
+  el.innerHTML = '<span style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;display:inline-block;animation:mana-spin .8s linear infinite"></span><span>Cargando mapa…</span>';
+  var style = document.createElement('style');
+  style.textContent = '@keyframes mana-spin{to{transform:rotate(360deg)}}';
+  el.appendChild(style);
+  document.body.appendChild(el);
 }
 
-function fetchFastMapPreview(slug) {
-  try {
-    var cfg = window.ManaFirebase && window.ManaFirebase.getConfig ? window.ManaFirebase.getConfig() : null;
-    if (!cfg || !cfg.projectId || !cfg.apiKey || !slug) return Promise.resolve(null);
-    var url = 'https://firestore.googleapis.com/v1/projects/' + encodeURIComponent(cfg.projectId) +
-      '/databases/(default)/documents/maps/' + encodeURIComponent(slug) +
-      '?key=' + encodeURIComponent(cfg.apiKey) + '&mask.fieldPaths=mapPreview';
-    return fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (doc) {
-      var raw = doc && doc.fields && doc.fields.mapPreview;
-      return raw ? decodeFirestoreRestValue(raw) : null;
-    }).catch(function () { return null; });
-  } catch (e) {
-    return Promise.resolve(null);
-  }
-}
-
-function showFastMapPreview(payload) {
-  if (!payload || !payload.mapPreview || !window.ManaMapPreview || typeof document === 'undefined') return null;
-  var el = document.getElementById('mana-fast-preview');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'mana-fast-preview';
-    el.style.cssText = 'position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(11,15,20,0.92);transition:opacity .35s ease;pointer-events:none;padding:24px';
-    document.body.appendChild(el);
-  }
-  try {
-    el.innerHTML = window.ManaMapPreview.renderSVG(payload.mapPreview, { simple: true });
-    var svg = el.querySelector('svg');
-    if (svg) { svg.style.maxWidth = 'min(900px, 86vw)'; svg.style.maxHeight = '70vh'; svg.style.width = 'auto'; svg.style.height = 'auto'; }
-  } catch (e) {
-    return null;
-  }
-  if (el._manaHideTimer) clearTimeout(el._manaHideTimer);
-  el._manaHideTimer = setTimeout(function () { hideFastMapPreview(el); }, 15000);
-  return el;
-}
-
-function hideFastMapPreview(el) {
+function hideMapLoading() {
+  var el = document.getElementById('mana-map-loading');
   if (!el) return;
   el.style.opacity = '0';
-  setTimeout(function () { if (el.parentNode) el.remove(); }, 400);
+  setTimeout(function () { if (el.parentNode) el.remove(); }, 350);
 }
 
-function waitForFastClusters(previewEl) {
+function waitForMapLoaded() {
   var tries = 0;
   var timer = setInterval(function () {
     tries++;
     try {
       var gl = (typeof tileMap !== 'undefined' && tileMap && tileMap.getMaplibreMap) ? tileMap.getMaplibreMap() : null;
-      if (gl && gl.getLayer && gl.getLayer('mana-dp-clusters') && gl.queryRenderedFeatures({ layers: ['mana-dp-clusters'] }).length) {
+      if (gl && gl.getSource && gl.getSource('mana-dp') && (!gl.isSourceLoaded || gl.isSourceLoaded('mana-dp'))) {
         clearInterval(timer);
-        hideFastMapPreview(previewEl);
+        hideMapLoading();
         return;
       }
     } catch (e) {}
-    if (tries > 120) {
+    if (tries > 150) {
       clearInterval(timer);
-      hideFastMapPreview(previewEl);
+      hideMapLoading();
     }
   }, 100);
 }
@@ -422,15 +380,11 @@ function waitForFastClusters(previewEl) {
 async function restoreFromURL() {
   window.MANA_EXTERNAL_POINT_COUNT = 0;
   try {
-    // Vista previa inmediata: pide solo mapPreview (unos KB) por REST mientras
-    // Firebase y los chunks completos se cargan en paralelo.
+    // Indicador mínimo mientras Firebase/MapLibre cargan el mapa compartido.
     try {
       const earlySearch = new URLSearchParams(window.location.search || '');
-      const earlySlug = earlySearch.get('gallery') || earlySearch.get('slug');
-      if (earlySlug) {
-        fetchFastMapPreview(earlySlug).then(function (preview) {
-          if (preview) showFastMapPreview({ mapPreview: preview });
-        });
+      if (earlySearch.get('gallery') || earlySearch.get('slug') || earlySearch.get('map') || earlySearch.get('load')) {
+        showMapLoading();
       }
     } catch (e) {}
     async function readChunkedPublishedGeo(db, slug, payload) {
@@ -513,6 +467,7 @@ async function restoreFromURL() {
         if (personalMap && personalMap.geojson && personalMap.geojson.features && personalMap.geojson.features.length) {
           await _importRestoredGeoJSON(personalMap.geojson);
           syncEditorRenderer();
+          waitForMapLoaded();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -549,9 +504,8 @@ async function restoreFromURL() {
           // Vista de solo lectura con muchos puntos: alimentar directamente
           // el clustering de MapLibre sin crear miles de marcadores Leaflet.
           if (accessMode !== 'edit' && countGeoPoints(galleryGeo) >= 1200 && typeof window.manaSetClusterGeoJSON === 'function') {
-            var fastPreviewEl = showFastMapPreview(galleryPayload);
             window.manaSetClusterGeoJSON(galleryGeo);
-            waitForFastClusters(fastPreviewEl);
+            waitForMapLoaded();
             requestAnimationFrame(function() {
               try {
                 var initialView = galleryPayload.initialView;
@@ -578,6 +532,7 @@ async function restoreFromURL() {
           }
           await _importRestoredGeoJSON(galleryGeo);
           syncEditorRenderer();
+          waitForMapLoaded();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try {
@@ -609,6 +564,7 @@ async function restoreFromURL() {
         if (legacyPayload && legacyPayload.geojson && legacyPayload.geojson.features && legacyPayload.geojson.features.length) {
           await _importRestoredGeoJSON(legacyPayload.geojson);
           syncEditorRenderer();
+          waitForMapLoaded();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -628,6 +584,7 @@ async function restoreFromURL() {
         if (payload && payload.geojson && payload.geojson.features && payload.geojson.features.length) {
           await _importRestoredGeoJSON(payload.geojson);
           syncEditorRenderer();
+          waitForMapLoaded();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -652,6 +609,7 @@ async function restoreFromURL() {
         if (geo && geo.features && geo.features.length) {
           await _importRestoredGeoJSON(geo);
           syncEditorRenderer();
+          waitForMapLoaded();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -680,6 +638,8 @@ async function replaceMapWithGeoJSON(geo) {
   await _importRestoredGeoJSON(geo);
 
   syncEditorRenderer();
+
+  waitForMapLoaded();
   if (typeof renderLayers === 'function') renderLayers();
   if (typeof saveState === 'function') saveState();
 }
