@@ -24,6 +24,7 @@ const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-ca
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
 const { updateMapIndexBlock } = require('../lib/map-index');
 const { buildFactsSection } = require('../lib/map-landing-facts');
+const { buildNewsMapIndex, newsLinksBlock, readNewsArticles } = require('../lib/news-map-links');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SITE_ROOT = path.join(ROOT, 'site');
@@ -134,7 +135,7 @@ function metaDate(m) {
   return d.toISOString().split('T')[0];
 }
 
-function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
+function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   const slug = m.slug || m.id;
   const title = m.title || m.name || 'Mapa';
   const description = m.description || ('Mapa de ' + title + ' hecho con Maña Maps.');
@@ -162,6 +163,10 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
     legendFormat: m.legendFormat,
   });
   const factsBlock = facts ? '\n    ' + facts.html : '';
+  // News ya enlaza la landing desde cada artículo; el enlace inverso cierra el
+  // circuito interno y da a los crawlers una ruta landing → artículo → landing.
+  const news = (newsIndex && newsIndex.get(slug)) || [];
+  const newsBlock = newsLinksBlock(news, { title: 'En las noticias' });
 
   const dataset = {
     '@context': 'https://schema.org',
@@ -262,7 +267,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
   .related{margin-top:34px}
   .related h2{font-size:18px}
   .related ul{list-style:none;padding:0;display:grid;gap:8px}
-  .related a{text-decoration:none;font-weight:600}${discovery.length ? '\n  .related--discovery{margin-top:18px}\n  .related--discovery h2{font-size:15px;color:var(--muted)}' : ''}
+  .related a{text-decoration:none;font-weight:600}
+  .related--news{margin-top:18px}
+  .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}${discovery.length ? '\n  .related--discovery{margin-top:18px}\n  .related--discovery h2{font-size:15px;color:var(--muted)}' : ''}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
@@ -305,7 +312,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo) {
       <button type="button" class="btn btn-ghost" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
-    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}
+    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}${newsBlock ? '\n    ' + newsBlock : ''}
     ${relatedLinks(related, m)}${discoveryBlock}
   </main>
   <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
@@ -398,6 +405,9 @@ function updateGalleryIndex(maps) {
   // Cada mapa sin visitas se enlaza desde dos landings con tráfico: un único
   // enlace puede quedar enterrado y no romper el círculo de cero visitas.
   const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 2 });
+  // News → landing ya existe artículo a artículo; la landing devuelve el enlace
+  // a los artículos que embeben el mapa para cerrar el circuito interno.
+  const newsIndex = buildNewsMapIndex(readNewsArticles(SITE_ROOT));
   const maps = SLUG_FILTER
     ? allMaps.filter((m) => (m.slug || m.id) === SLUG_FILTER)
     : allMaps;
@@ -437,7 +447,7 @@ function updateGalleryIndex(maps) {
       }
     }
 
-    const html = buildLandingHTML(m, relatedIndex, discoveryIndex, geo);
+    const html = buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex);
     if (!DRY_RUN) {
       const dir = path.join(OUT_PAGES, slug);
       fs.mkdirSync(dir, { recursive: true });

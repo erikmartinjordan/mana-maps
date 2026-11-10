@@ -36,6 +36,14 @@ const {
   END_MARKER,
   updateMapIndexBlock,
 } = require('../../scripts/lib/map-index');
+const {
+  buildNewsMapIndex,
+  newsLinksBlock,
+  extractArticleTitle,
+  extractEmbeddedMapSlug,
+  extractPublishedTime,
+  readNewsArticles,
+} = require('../../scripts/lib/news-map-links');
 
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
@@ -369,6 +377,75 @@ test('every News article links to the static landing of its embedded map', () =>
   }
 });
 
+test('every map landing links back to the News articles that embed it', () => {
+  // El circuito internal linking es bidireccional: News → landing (check 16) y
+  // landing → «En las noticias». Cada artículo embebido debe aparecer en la
+  // landing de su mapa con la ruta pública que le corresponde (ES o EN).
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const result = auditNewsLandingLinks(published);
+
+  expect(result.issues).toEqual([]);
+  expect(result.reverseLinks).toBe(result.articles.length);
+  const bySlug = new Map();
+  for (const article of result.articles) {
+    const list = bySlug.get(article.slug) || [];
+    list.push(article);
+    bySlug.set(article.slug, list);
+  }
+  expect(bySlug.size).toBeGreaterThan(10);
+  for (const [slug, articles] of bySlug) {
+    const landing = fs.readFileSync(path.join(siteRoot, 'gallery', slug, 'index.html'), 'utf8');
+    expect(landing, `${slug} sin bloque de noticias`).toContain('<h2>En las noticias</h2>');
+    for (const article of articles) {
+      const href = (article.lang === 'en' ? '/en/news/' : '/news/') + article.name + '/';
+      expect(landing, `${slug} → ${href}`).toContain(`href="${href}"`);
+    }
+  }
+});
+
+test('news map index parses titles, dates, languages and renders the landing block', () => {
+  const html = [
+    '<meta property="article:published_time" content="2026-11-08T08:00:00+01:00">',
+    '<h1>Los <em>precios</em> &amp; el empleo</h1>',
+    '<iframe src="/map/?embed=1&amp;gallery=gini-index-world&amp;v=1"></iframe>',
+  ].join('');
+  const oldHtml = [
+    '<meta property="article:published_time" content="2026-10-01T08:00:00+01:00">',
+    '<h1>Titular antiguo</h1>',
+    '<iframe src="/map/?embed=1&amp;gallery=gini-index-world"></iframe>',
+  ].join('');
+
+  expect(extractEmbeddedMapSlug(html)).toBe('gini-index-world');
+  expect(extractEmbeddedMapSlug('<p>sin iframe</p>')).toBeNull();
+  expect(extractArticleTitle(html)).toBe('Los precios & el empleo');
+  expect(extractPublishedTime(html)).toBe('2026-11-08T07:00:00.000Z');
+
+  const index = buildNewsMapIndex([
+    { article: 'viejo', name: 'viejo', lang: 'es', href: '/news/viejo/', title: 'Viejo', date: '2026-10-01T07:00:00.000Z', slug: 'gini-index-world' },
+    { article: 'nuevo', name: 'nuevo', lang: 'es', href: '/news/nuevo/', title: 'Nuevo & <raro>', date: '2026-11-08T07:00:00.000Z', slug: 'gini-index-world' },
+    { article: 'sin-mapa', name: 'sin-mapa', lang: 'es', href: '/news/sin-mapa/', title: 'Sin mapa', date: '', slug: null },
+  ]);
+  expect([...index.keys()]).toEqual(['gini-index-world']);
+  expect(index.get('gini-index-world').map((a) => a.name)).toEqual(['nuevo', 'viejo']);
+
+  const block = newsLinksBlock(index.get('gini-index-world'), { title: 'En las noticias' });
+  expect(block).toContain('<h2>En las noticias</h2>');
+  expect(block).toContain('href="/news/nuevo/"');
+  expect(block).toContain('Nuevo &amp; &lt;raro&gt;');
+  expect(block).not.toContain('hreflang=');
+  expect(newsLinksBlock([], { title: 'En las noticias' })).toBe('');
+
+  const en = newsLinksBlock([{ article: 'en-test', name: 'en-test', lang: 'en', href: '/en/news/en-test/', title: 'English', date: '' }]);
+  expect(en).toContain('href="/en/news/en-test/" lang="en"');
+  expect(en).toContain('class="news-lang"');
+
+  // Los artículos reales del repo alimentan el índice sin duplicar slugs.
+  const real = readNewsArticles(siteRoot);
+  expect(real.length).toBeGreaterThan(0);
+  expect(real.some((a) => a.lang === 'en')).toBe(true);
+  expect(real.every((a) => a.href.startsWith('/news/') || a.href.startsWith('/en/news/'))).toBe(true);
+});
+
 test('News landing link check reports missing links and unpublished maps', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-news-landings-'));
   const writeArticle = (name, html) => {
@@ -426,6 +503,41 @@ test('News landing link check audits English articles and rejects non-landing fo
   expect(result.issues).toContain(
     'en/english-article: footer-links no apunta a una landing /gallery/<slug>/ (/news/otra/)'
   );
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('News landing link check reports landings without the reverse News link', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-news-reverse-'));
+  const newsDir = path.join(tmp, 'news');
+  const landingDir = path.join(tmp, 'gallery');
+  fs.mkdirSync(path.join(newsDir, 'noticia-es'), { recursive: true });
+  fs.writeFileSync(
+    path.join(newsDir, 'noticia-es', 'index.html'),
+    '<h1>Noticia</h1><iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a>'
+  );
+  fs.mkdirSync(path.join(landingDir, 'publicado'), { recursive: true });
+  fs.writeFileSync(path.join(landingDir, 'publicado', 'index.html'), '<section class="related"><h2>Más mapas</h2></section>');
+
+  const missing = auditNewsLandingLinks(['publicado'], { newsDir, landingDir });
+  expect(missing.issues).toContain(
+    'noticia-es: la landing /gallery/publicado/ no enlaza de vuelta el artículo /news/noticia-es/'
+  );
+  expect(missing.reverseLinks).toBe(1);
+
+  fs.writeFileSync(
+    path.join(landingDir, 'publicado', 'index.html'),
+    '<section class="related related--news"><h2>En las noticias</h2><ul><li><a href="/news/noticia-es/">Noticia</a></li></ul></section>'
+  );
+  const ok = auditNewsLandingLinks(['publicado'], { newsDir, landingDir });
+  expect(ok.issues).toEqual([]);
+  expect(ok.reverseLinks).toBe(1);
+
+  // Las landings ausentes se omiten aquí: las reporta el check 11.
+  fs.rmSync(path.join(landingDir, 'publicado'), { recursive: true, force: true });
+  const noLanding = auditNewsLandingLinks(['publicado'], { newsDir, landingDir });
+  expect(noLanding.issues).toEqual([]);
+  expect(noLanding.reverseLinks).toBe(0);
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });

@@ -66,8 +66,10 @@
 //      /gallery/<slug>/ (title, description, canonical y Dataset); el visor no
 //      es la landing indexable. Toda referencia al visor debe tener su landing
 //      en el mismo artículo y los `footer-links` deben apuntar a landings
-//      publicadas, no al visor. Lista los artículos que fallan y sale con
-//      exit 1.
+//      publicadas, no al visor. Además, la landing debe devolver el enlace a
+//      cada artículo que embebe el mapa («En las noticias»), para que
+//      landing ↔ noticia quede cerrado a dos saltos. Lista los artículos que
+//      fallan y sale con exit 1.
 //
 // Correcciones automáticas seguras:
 //   - lang distinto de 'es' o ausente → 'es'
@@ -100,6 +102,7 @@
 const fs = require('fs');
 
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsArr } = require('../lib/publisher');
+const { extractEmbeddedMapSlug } = require('../lib/news-map-links');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const VERBOSE = process.argv.includes('--verbose');
@@ -1949,14 +1952,15 @@ function auditInternalLinkCoverage(publishedSlugs, {
   };
 }
 
-// ── Enlaces News → landing del mapa (check 16) ────────────────────
+// ── Enlaces News ↔ landing del mapa (check 16) ────────────────────
 // Los artículos de News embeben el mapa con /map/?gallery=<slug>, que es el
 // visor y no la ficha indexable. Para que News distribuya tráfico y autoridad
 // a la landing estática /gallery/<slug>/ (title, description, canonical y
 // JSON-LD Dataset), el artículo debe incluir ese enlace explícito.
 // Además, los `footer-links` de cada artículo deben apuntar a la landing y no
 // al visor: así cada enlace de News pasa autoridad a una URL indexable y sirve
-// para descubrir los mapas con menos visitas.
+// para descubrir los mapas con menos visitas. En sentido inverso, la landing
+// debe enlazar los artículos que la embeben en el bloque «En las noticias».
 
 const NEWS_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'news');
 const NEWS_EN_DIR_PATH = require('path').join(__dirname, '..', '..', 'site', 'en', 'news');
@@ -1989,13 +1993,10 @@ function readDiscoverySources() {
   return sources;
 }
 
+// Comparte parser con el generador de landings (scripts/lib/news-map-links.js)
+// para que artículo → landing y landing → artículo no diverjan.
 function extractPrimaryMapSlug(html) {
-  const source = String(html == null ? '' : html);
-  const iframe = source.match(/<iframe\b[^>]*\bsrc\s*=\s*"([^"]*)"/i);
-  if (!iframe) return null;
-  const src = decodeHtmlEntities(iframe[1]);
-  const match = src.match(/[?&]gallery=([a-z0-9-]+)/i);
-  return match ? match[1] : null;
+  return extractEmbeddedMapSlug(html);
 }
 
 // Todos los slugs del visor referenciados en el artículo (iframe, enlaces
@@ -2021,7 +2022,7 @@ function extractFooterLinks(html) {
   return hrefs;
 }
 
-function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS } = {}) {
+function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS, landingDir = GALLERY_DIR_PATH } = {}) {
   const pathMod = require('path');
   const issues = [];
   const details = {};
@@ -2109,7 +2110,7 @@ function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS } = {}
       }
       const linked = linkedSlugs.has(slug);
       details[article] = { slug, linked, footerLinks };
-      articles.push({ article, slug, linked });
+      articles.push({ article, name: articleName, lang: isEnglish ? 'en' : 'es', slug, linked });
       if (!publishedSet.has(slug)) {
         issues.push(`${article}: el mapa embebido «${slug}» no está publicado en Firestore`);
       }
@@ -2118,7 +2119,38 @@ function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS } = {}
       }
     }
   }
-  return { issues, details, articles, footerLinks: allFooterLinks };
+  // Enlace inverso: la landing del mapa debe enlazar los artículos que lo
+  // embeben. Así landing → noticia → landing forma un circuito interno con dos
+  // saltos como máximo y las landings no quedan como hojas sin salida hacia el
+  // contenido editorial. Se omiten las landings ausentes (las cubre el check 11).
+  const bySlug = new Map();
+  for (const article of articles) {
+    if (!article.slug) continue;
+    const list = bySlug.get(article.slug) || [];
+    list.push(article);
+    bySlug.set(article.slug, list);
+  }
+  let reverseChecked = 0;
+  for (const [slug, list] of bySlug) {
+    const landingFile = require('path').join(landingDir, slug, 'index.html');
+    if (!fs.existsSync(landingFile)) continue;
+    let landing = '';
+    try {
+      landing = fs.readFileSync(landingFile, 'utf8');
+    } catch (e) {
+      issues.push(`${slug}: no se pudo leer la landing para comprobar el enlace a News: ${e.message}`);
+      continue;
+    }
+    for (const item of list) {
+      const href = (item.lang === 'en' ? '/en/news/' : '/news/') + item.name + '/';
+      reverseChecked++;
+      if (!landing.includes(`href="${href}"`)) {
+        issues.push(`${item.article}: la landing /gallery/${slug}/ no enlaza de vuelta el artículo ${href}`);
+      }
+    }
+  }
+
+  return { issues, details, articles, footerLinks: allFooterLinks, reverseLinks: reverseChecked };
 }
 
 // ── Higiene de metadatos (check 13) ───────────────────────────────
@@ -2625,10 +2657,10 @@ async function main() {
   } catch (e) {
     newsLinks = { issues: [`no se pudieron comprobar los enlaces de News: ${e.message}`], articles: [] };
   }
-  console.log('NEWS → LANDING | ISSUES');
+  console.log('NEWS ↔ LANDING | ISSUES');
   console.log('--------------|-------');
   if (newsLinks.issues.length === 0) {
-    console.log(`OK: ${newsLinks.articles.length} artículos de News (ES+EN) con mapa enlazan a su landing /gallery/<slug>/`);
+    console.log(`OK: ${newsLinks.articles.length} artículos de News (ES+EN) con mapa enlazan a su landing /gallery/<slug>/ y ${newsLinks.reverseLinks} enlaces inversos landing → noticia`);
   } else {
     for (const issue of newsLinks.issues) console.log(`NEWS: ${issue}`);
   }
@@ -2850,7 +2882,7 @@ async function main() {
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
   console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico, la portada, la galería ni News`}`);
-  console.log(`News → landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha)` : `${newsLinks.issues.length} incidencia(s)`}`);
+  console.log(`News ↔ landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha y ${newsLinks.reverseLinks || 0} enlaces inversos)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);
