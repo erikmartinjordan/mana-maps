@@ -11,6 +11,12 @@
   var SRC = 'mana-dp';
   var LAYER_CIRCLE = 'mana-dp-circle';
   var LAYER_EMOJI = 'mana-dp-emoji';
+  var LAYER_CLUSTERS = 'mana-dp-clusters';
+  var LAYER_CLUSTER_COUNT = 'mana-dp-cluster-count';
+  var CLUSTER_ICON = 'mana-cluster-blob';
+  var CLUSTER_MAX_ZOOM = 12;
+  var CLUSTER_RADIUS = 50;
+  var MANA_BLOB_PATH = 'M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z';
 
   var _emojiMap = {
     emoji_fire:'\uD83D\uDD25', emoji_collision:'\uD83D\uDCA5', emoji_water:'\uD83C\uDF0A', emoji_star:'\u2B50', emoji_heart:'\u2764\uFE0F', emoji_diamond:'\uD83D\uDC8E',
@@ -71,7 +77,7 @@
   function _bootstrap() {
     var gl = _getGl();
     if (!gl) {
-      if (_bootstrapRetries++ < 20) setTimeout(_bootstrap, 200);
+      if (_bootstrapRetries++ < 300) setTimeout(_bootstrap, 200);
       return;
     }
     _bootstrapRetries = 0;
@@ -86,7 +92,7 @@
       (function waitStyle(){
         if (done) return;
         if (gl.isStyleLoaded()) { done = true; try { _setup(gl); } catch (e) {} return; }
-        if (poll++ < 25) setTimeout(waitStyle, 200);
+        if (poll++ < 300) setTimeout(waitStyle, 200);
       })();
       setTimeout(function(){ if (!done && gl.isStyleLoaded()) onLoad(); }, 1200);
     }
@@ -104,13 +110,22 @@
     _gl = gl;
     _removeLayers(gl);
 
-    gl.addSource(SRC, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    gl.addSource(SRC, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      cluster: true,
+      clusterMaxZoom: CLUSTER_MAX_ZOOM,
+      clusterRadius: CLUSTER_RADIUS,
+    });
 
     gl.addLayer({
       id: LAYER_CIRCLE,
       type: 'circle',
       source: SRC,
-      filter: ['all', ['==', ['geometry-type'], 'Point'], ['!', ['in', ['get', 'markerType'], ['literal', _emojiKeys]]]],
+      filter: ['all',
+        ['==', ['geometry-type'], 'Point'],
+        ['!', ['in', ['get', 'markerType'], ['literal', _emojiKeys]]],
+        ['!', ['has', 'point_count']]],
       paint: {
         'circle-radius': 7,
         'circle-color': ['get', 'color'],
@@ -128,7 +143,9 @@
       id: LAYER_EMOJI,
       type: 'symbol',
       source: SRC,
-      filter: ['in', ['get', 'markerType'], ['literal', _emojiKeys]],
+      filter: ['all',
+        ['in', ['get', 'markerType'], ['literal', _emojiKeys]],
+        ['!', ['has', 'point_count']]],
       layout: {
         'icon-image': ['get', 'emojiIcon'],
         'icon-size': ['interpolate', ['linear'], ['coalesce', ['get', 'emojiSize'], 34], 22, 0.38, 34, 0.52, 50, 0.72, 66, 0.92],
@@ -138,8 +155,84 @@
       },
     });
 
+    _addClusterLayers(gl);
     _hideAll();
     _sync();
+  }
+
+  // Cluster genérico con la silueta y el color del logo de Maña.
+  function _ensureClusterIcon(gl) {
+    if (gl.hasImage(CLUSTER_ICON)) return true;
+    try {
+      if (typeof Path2D !== 'function') return false;
+      var size = 128;
+      var canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext('2d');
+      var path = new Path2D(MANA_BLOB_PATH);
+      ctx.translate(size / 2, size / 2);
+      ctx.scale(size / 200, size / 200);
+      ctx.fillStyle = '#30363B';
+      ctx.fill(path);
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(1,1,1,0.35)';
+      ctx.stroke(path);
+      gl.addImage(CLUSTER_ICON, ctx.getImageData(0, 0, size, size));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _addClusterLayers(gl) {
+    if (!_ensureClusterIcon(gl)) return;
+    if (!gl.getLayer(LAYER_CLUSTERS)) {
+      gl.addLayer({
+        id: LAYER_CLUSTERS,
+        type: 'symbol',
+        source: SRC,
+        filter: ['has', 'point_count'],
+        layout: {
+          'icon-image': CLUSTER_ICON,
+          'icon-size': ['interpolate', ['linear'], ['get', 'point_count'], 2, 0.22, 10, 0.27, 50, 0.34, 200, 0.42, 1000, 0.52],
+          'icon-anchor': 'center',
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        },
+      });
+    }
+    if (!gl.getLayer(LAYER_CLUSTER_COUNT)) {
+      gl.addLayer({
+        id: LAYER_CLUSTER_COUNT,
+        type: 'symbol',
+        source: SRC,
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['get', 'point_count'], 2, 10, 10, 11, 50, 13, 200, 15, 1000, 17],
+          'text-anchor': 'center',
+          'text-offset': [0, 0],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: { 'text-color': '#ffffff' },
+      });
+    }
+    if (!gl._manaClusterClickBound) {
+      gl._manaClusterClickBound = true;
+      gl.on('click', LAYER_CLUSTERS, function(e) {
+        var f = e.features && e.features[0];
+        if (!f || !f.properties || !gl.getSource(SRC)) return;
+        gl.getSource(SRC).getClusterExpansionZoom(f.properties.cluster_id, function(err, zoom) {
+          if (err) return;
+          gl.easeTo({ center: f.geometry.coordinates, zoom: zoom });
+        });
+      });
+      gl.on('mouseenter', LAYER_CLUSTERS, function() { gl.getCanvas().style.cursor = 'pointer'; });
+      gl.on('mouseleave', LAYER_CLUSTERS, function() { gl.getCanvas().style.cursor = ''; });
+    }
   }
 
   function _teardown() {
@@ -151,9 +244,12 @@
 
   function _removeLayers(gl) {
     if (!gl) return;
+    try { if (gl.getLayer(LAYER_CLUSTER_COUNT)) gl.removeLayer(LAYER_CLUSTER_COUNT); } catch (e) {}
+    try { if (gl.getLayer(LAYER_CLUSTERS)) gl.removeLayer(LAYER_CLUSTERS); } catch (e) {}
     try { if (gl.getLayer(LAYER_EMOJI)) gl.removeLayer(LAYER_EMOJI); } catch (e) {}
     try { if (gl.getLayer(LAYER_CIRCLE)) gl.removeLayer(LAYER_CIRCLE); } catch (e) {}
     try { if (gl.getSource(SRC)) gl.removeSource(SRC); } catch (e) {}
+    gl._manaClusterClickBound = false;
   }
 
   // ── Hide Leaflet markers (keep invisible for interaction) ──
@@ -167,23 +263,33 @@
     if (m._shadow) m._shadow.style.display = 'none';
   }
 
+  // Recorre también los L.FeatureGroup de MultiPoint: L.geoJSON agrupa los
+  // puntos de una feature MultiPoint y el vector-renderer debe encontrarlos.
+  function _eachMarker(layer, fn) {
+    if (!layer) return;
+    if (layer instanceof L.Marker) { fn(layer); return; }
+    if (typeof layer.eachLayer === 'function') {
+      layer.eachLayer(function (child) { _eachMarker(child, fn); });
+    }
+  }
+
   function _hideAll() {
     if (typeof drawnItems === 'undefined') return;
-    drawnItems.eachLayer(function (l) {
-      if (l instanceof L.Marker) _markerInvisible(l);
-    });
+    drawnItems.eachLayer(function (l) { _eachMarker(l, _markerInvisible); });
+  }
+
+  function _showMarker(m) {
+    if (!m || !m._manaInvisible) return;
+    m._manaInvisible = false;
+    m.setIcon(m._manaOrigIcon);
+    m._manaOrigIcon = null;
+    if (m._icon) m._icon.style.opacity = '';
+    if (m._shadow) m._shadow.style.display = '';
   }
 
   function _showAll() {
     if (typeof drawnItems === 'undefined') return;
-    drawnItems.eachLayer(function (l) {
-      if (!(l instanceof L.Marker) || !l._manaInvisible) return;
-      l._manaInvisible = false;
-      l.setIcon(l._manaOrigIcon);
-      l._manaOrigIcon = null;
-      if (l._icon) l._icon.style.opacity = '';
-      if (l._shadow) l._shadow.style.display = '';
-    });
+    drawnItems.eachLayer(function (l) { _eachMarker(l, _showMarker); });
   }
 
   // ── Emoji images (outline tinted with the feature color so the legend matches) ──
@@ -256,33 +362,34 @@
     if (!_gl || !_gl.getSource(SRC)) return;
 
     var features = [];
-    drawnItems.eachLayer(function (l) {
-      if (!(l instanceof L.Marker)) return;
-      var ll = l.getLatLng();
-      var lng = ((ll.lng + 180) % 360 + 360) % 360 - 180;
-      var mt = l._manaMarkerType || 'circle';
-      var emoji = _emojiMap[mt] || '';
-      var emojiSize = 0;
-      var emojiIcon = '';
-      if (emoji) {
-        // reuse size from marker icon or compute from Area
-        if (l._manaEmojiSize) emojiSize = l._manaEmojiSize;
-        else if (typeof _emojiSizeFromArea === 'function' && l._manaProperties && l._manaProperties.Area) {
-          emojiSize = _emojiSizeFromArea(_parseArea(l._manaProperties.Area));
-        } else emojiSize = 34;
-        emojiIcon = _ensureEmojiImage(_gl, mt, _emojiOutlineColor(l));
-      }
-      features.push({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [lng, ll.lat] },
-        properties: {
-          name: l._manaName || '',
-          color: l._manaColor || '#0ea5e9',
-          markerType: mt,
-          emoji: emoji,
-          emojiIcon: emojiIcon,
-          emojiSize: emojiSize,
-        },
+    drawnItems.eachLayer(function (layer) {
+      _eachMarker(layer, function (l) {
+        var ll = l.getLatLng();
+        var lng = ((ll.lng + 180) % 360 + 360) % 360 - 180;
+        var mt = l._manaMarkerType || 'circle';
+        var emoji = _emojiMap[mt] || '';
+        var emojiSize = 0;
+        var emojiIcon = '';
+        if (emoji) {
+          // reuse size from marker icon or compute from Area
+          if (l._manaEmojiSize) emojiSize = l._manaEmojiSize;
+          else if (typeof _emojiSizeFromArea === 'function' && l._manaProperties && l._manaProperties.Area) {
+            emojiSize = _emojiSizeFromArea(_parseArea(l._manaProperties.Area));
+          } else emojiSize = 34;
+          emojiIcon = _ensureEmojiImage(_gl, mt, _emojiOutlineColor(l));
+        }
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [lng, ll.lat] },
+          properties: {
+            name: l._manaName || '',
+            color: l._manaColor || '#0ea5e9',
+            markerType: mt,
+            emoji: emoji,
+            emojiIcon: emojiIcon,
+            emojiSize: emojiSize,
+          },
+        });
       });
     });
 

@@ -301,6 +301,12 @@ async function waitForPersonalMaps(timeoutMs) {
 // ═══════════════════════════════════════════════════════════════
 // RESTORE FROM URL (shared map links)
 // ═══════════════════════════════════════════════════════════════
+function syncEditorRenderer() {
+  if (typeof window.syncVectorRenderer === 'function') {
+    try { window.syncVectorRenderer(); } catch (e) {}
+  }
+}
+
 async function restoreFromURL() {
   try {
     async function readChunkedPublishedGeo(db, slug, payload) {
@@ -378,6 +384,7 @@ async function restoreFromURL() {
         const personalMap = await window.manaMaps.getMap(personalMapId);
         if (personalMap && personalMap.geojson && personalMap.geojson.features && personalMap.geojson.features.length) {
           await _importRestoredGeoJSON(personalMap.geojson);
+          syncEditorRenderer();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -412,6 +419,7 @@ async function restoreFromURL() {
           const accessMode = getRequestedShareMode(galleryPayload);
           setSharedMapAccess(accessMode, galleryPayload);
           await _importRestoredGeoJSON(galleryGeo);
+          syncEditorRenderer();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try {
@@ -442,6 +450,7 @@ async function restoreFromURL() {
         const legacyPayload = legacyDoc && legacyDoc.exists ? legacyDoc.data() : null;
         if (legacyPayload && legacyPayload.geojson && legacyPayload.geojson.features && legacyPayload.geojson.features.length) {
           await _importRestoredGeoJSON(legacyPayload.geojson);
+          syncEditorRenderer();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -460,6 +469,7 @@ async function restoreFromURL() {
         const payload = doc && doc.exists ? doc.data() : null;
         if (payload && payload.geojson && payload.geojson.features && payload.geojson.features.length) {
           await _importRestoredGeoJSON(payload.geojson);
+          syncEditorRenderer();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -483,6 +493,7 @@ async function restoreFromURL() {
         const geo = JSON.parse(decodeURIComponent(encoded));
         if (geo && geo.features && geo.features.length) {
           await _importRestoredGeoJSON(geo);
+          syncEditorRenderer();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {
             requestAnimationFrame(function() {
               try { map.fitBounds(drawnItems.getBounds(), { padding: [28, 28], maxZoom: 12, animate: false }); } catch(e) {}
@@ -509,6 +520,8 @@ async function replaceMapWithGeoJSON(geo) {
   _manaLayerNameCounter = 0;
 
   await _importRestoredGeoJSON(geo);
+
+  syncEditorRenderer();
   if (typeof renderLayers === 'function') renderLayers();
   if (typeof saveState === 'function') saveState();
 }
