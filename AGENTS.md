@@ -115,4 +115,17 @@ replicado en `site/js/vector-renderer.js` y `site/js/globe.js`), `_manaColor`,
   por JavaScript. No proponer tareas de descubrimiento que lo reintroduzcan. Hay
   un test que bloquea su vuelta: `tests/predeploy/seo-metadata.spec.js`
   ("home, gallery and News indexes do not render the Maps to discover block").
+- **Pie de los artículos de News**: el bloque `footer-cta-dark` («Convierte tus
+  datos en un mapa» / «Turn your data into a map») debe contener **solo** el
+  CTA. Está prohibido añadir dentro o después `footer-links`, listas de mapas
+  relacionados, secciones extra o cualquier otro contenido. Hay un test que lo
+  bloquea: `tests/predeploy/seo-metadata.spec.js`
+  ("News article footers keep only the CTA without related links or extra sections").
+- **Índice de mapas de la galería**: el bloque plegable «Índice de mapas» que
+  listaba todas las landings en `/gallery/` fue eliminado por decisión de
+  producto (duplicaba el grid de tarjetas). Está prohibido recrearlo, en HTML
+  estático o generado por JavaScript, y también cualquier script que lo regenere
+  (p. ej. `scripts/lib/map-index.js`). Hay un test que lo bloquea:
+  `tests/predeploy/seo-metadata.spec.js`
+  ("gallery does not render the map index block").
 - Si una tarea del BACKLOG contradice esta sección, se descarta.

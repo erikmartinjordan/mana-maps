@@ -176,12 +176,11 @@
     return normalizePreview(decodeFirestoreValue(raw));
   }
 
-  async function readChunkedPublishedGeo(db, item) {
-    if (!db || !item || !item.geojsonChunked || !item.geojsonChunked.chunkCount) return null;
+  async function readChunkedCollection(db, mapId, chunkMeta) {
+    if (!db || !mapId || !chunkMeta || !chunkMeta.chunkCount) return null;
     try {
-      const chunkMeta = item.geojsonChunked;
       const chunkSnap = await db.collection(MAPS_COLLECTION)
-        .doc(item.slug || item.id)
+        .doc(chunkMeta.doc || mapId)
         .collection(chunkMeta.collection || 'geoChunks')
         .orderBy('index', 'asc')
         .limit(chunkMeta.chunkCount)
@@ -199,6 +198,11 @@
       console.warn('gallery read chunked geo failed:', e);
       return null;
     }
+  }
+
+  async function readChunkedPublishedGeo(db, item) {
+    if (!item) return null;
+    return readChunkedCollection(db, item.slug || item.id, item.geojsonChunked);
   }
 
   function getPublishedGeo(item) {
@@ -1643,7 +1647,201 @@
     return [[minX, minY], [maxX, maxY]];
   }
 
+  var MANA_CLUSTER_ICON = 'mana-cluster-blob';
+  var MANA_CLUSTER_MIN_POINTS = 120;
+  var MANA_CLUSTER_MAX_ZOOM = 12;
+  var MANA_CLUSTER_RADIUS = 55;
+  var MANA_BLOB_PATH = 'M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z';
+
+  // Genera la imagen del cluster con la silueta y el color del logo de Maña.
+  function ensureManaClusterIcon(map, cb) {
+    if (map.hasImage(MANA_CLUSTER_ICON)) { cb(); return; }
+    try {
+      if (typeof Path2D !== 'function') { cb(new Error('Path2D no disponible')); return; }
+      var size = 128;
+      var canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext('2d');
+      var path = new Path2D(MANA_BLOB_PATH);
+      ctx.translate(size / 2, size / 2);
+      ctx.scale(size / 200, size / 200);
+      ctx.fillStyle = '#30363B';
+      ctx.fill(path);
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(1,1,1,0.35)';
+      ctx.stroke(path);
+      if (typeof createImageBitmap === 'function') {
+        createImageBitmap(canvas).then(function(image) {
+          try {
+            if (!map.hasImage(MANA_CLUSTER_ICON)) map.addImage(MANA_CLUSTER_ICON, image);
+            cb();
+          } catch (e) { cb(e); }
+        }).catch(function(e) { cb(e); });
+      } else {
+        try {
+          if (!map.hasImage(MANA_CLUSTER_ICON)) {
+            map.addImage(MANA_CLUSTER_ICON, ctx.getImageData(0, 0, size, size));
+          }
+          cb();
+        } catch (e) { cb(e); }
+      }
+    } catch (e) { cb(e); }
+  }
+
+  // Convierte cualquier capa de puntos (Point o MultiPoint) en Features Point
+  // para que MapLibre pueda clusterizarlas. No modifica el GeoJSON original.
+  function collectPointFeatures(features) {
+    var out = [];
+    for (var i = 0; i < features.length; i++) {
+      var f = features[i];
+      var g = f && f.geometry;
+      if (!g) continue;
+      if (g.type === 'Point') {
+        out.push({ type: 'Feature', properties: f.properties || {}, geometry: { type: 'Point', coordinates: g.coordinates } });
+      } else if (g.type === 'MultiPoint') {
+        var props = f.properties || {};
+        var exploded = Object.assign({}, props, {
+          _manaExploded: true,
+          _manaAggregate: props._manaAggregate === true
+        });
+        for (var j = 0; j < g.coordinates.length; j++) {
+          out.push({ type: 'Feature', properties: exploded, geometry: { type: 'Point', coordinates: g.coordinates[j] } });
+        }
+      }
+    }
+    return out;
+  }
+
+  // Clustering genérico para mapas de puntos. El icono del grupo es el blob
+  // del logo de Maña (#30363B) con el contador en blanco.
+  function addClusteredPointLayers(map, pointFeatures, colorExpr) {
+    var sourceId = 'slug-cluster-data';
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: pointFeatures },
+        cluster: true,
+        clusterMaxZoom: MANA_CLUSTER_MAX_ZOOM,
+        clusterRadius: MANA_CLUSTER_RADIUS
+      });
+    }
+
+    function addPointLayerAndInteractions() {
+      if (map.getLayer('slug-clusters')) return;
+      map.addLayer({
+        id: 'slug-clusters', type: 'symbol', source: sourceId,
+        filter: ['has', 'point_count'],
+        layout: {
+          'icon-image': MANA_CLUSTER_ICON,
+          'icon-size': ['interpolate', ['linear'], ['get', 'point_count'], 2, 0.22, 10, 0.27, 50, 0.34, 200, 0.42, 1000, 0.52],
+          'icon-anchor': 'center',
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true
+        }
+      });
+      map.addLayer({
+        id: 'slug-cluster-count', type: 'symbol', source: sourceId,
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['get', 'point_count'], 2, 10, 10, 11, 50, 13, 200, 15, 1000, 17],
+          'text-anchor': 'center',
+          'text-offset': [0, 0],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true
+        },
+        paint: { 'text-color': '#ffffff' }
+      });
+      map.addLayer({
+        id: 'slug-points', type: 'circle', source: sourceId,
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-radius': 6,
+          'circle-color': colorExpr,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': ['coalesce', ['get', '_manaOpacity'], 0.95]
+        }
+      });
+      map.on('click', 'slug-clusters', function(e) {
+        var f = e.features && e.features[0];
+        if (!f) return;
+        map.getSource(sourceId).getClusterExpansionZoom(f.properties.cluster_id, function(err, zoom) {
+          if (err) return;
+          map.easeTo({ center: f.geometry.coordinates, zoom: zoom });
+        });
+      });
+      map.on('mouseenter', 'slug-clusters', function() { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'slug-clusters', function() { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'slug-points', function() { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'slug-points', function() { map.getCanvas().style.cursor = ''; });
+    }
+
+    function addFallbackClusters() {
+      if (map.getLayer('slug-clusters')) return;
+      map.addLayer({
+        id: 'slug-clusters', type: 'circle', source: sourceId,
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#30363B',
+          'circle-radius': ['interpolate', ['linear'], ['get', 'point_count'], 2, 13, 10, 17, 50, 22, 200, 28, 1000, 36],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': 0.92
+        }
+      });
+      map.addLayer({
+        id: 'slug-cluster-count', type: 'symbol', source: sourceId,
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': 12,
+          'text-anchor': 'center',
+          'text-offset': [0, 0],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true
+        },
+        paint: { 'text-color': '#ffffff' }
+      });
+      map.addLayer({
+        id: 'slug-points', type: 'circle', source: sourceId,
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-radius': 6,
+          'circle-color': colorExpr,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': ['coalesce', ['get', '_manaOpacity'], 0.95]
+        }
+      });
+      map.on('click', 'slug-clusters', function(e) {
+        var f = e.features && e.features[0];
+        if (!f) return;
+        map.getSource(sourceId).getClusterExpansionZoom(f.properties.cluster_id, function(err, zoom) {
+          if (err) return;
+          map.easeTo({ center: f.geometry.coordinates, zoom: zoom });
+        });
+      });
+      map.on('mouseenter', 'slug-clusters', function() { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'slug-clusters', function() { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'slug-points', function() { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'slug-points', function() { map.getCanvas().style.cursor = ''; });
+    }
+
+    ensureManaClusterIcon(map, function(err) {
+      if (err) { addFallbackClusters(); return; }
+      addPointLayerAndInteractions();
+    });
+  }
+
   function addSlugMapLayers(map, geo) {
+    var features = (geo && geo.features) || [];
+    var pointFeatures = collectPointFeatures(features);
+    var useClusters = pointFeatures.length >= MANA_CLUSTER_MIN_POINTS;
+
     if (!map.getSource('slug-data')) {
       map.addSource('slug-data', { type: 'geojson', data: geo });
     } else {
@@ -1682,7 +1880,10 @@
         }
       });
     }
-    if (!map.getLayer('slug-points')) {
+
+    if (useClusters) {
+      addClusteredPointLayers(map, pointFeatures, colorExpr);
+    } else if (!map.getLayer('slug-points')) {
       map.addLayer({
         id: 'slug-points', type: 'circle', source: 'slug-data', filter: isPoint,
         paint: {
@@ -1731,9 +1932,12 @@
     var html = '<div class="slug-popup"><div class="slug-popup-title">' + escHtml(name) + '</div>';
     if (props.Description) html += '<div class="slug-popup-desc">' + escHtml(props.Description) + '</div>';
     var shown = 0;
+    var skipAggregate = props._manaExploded && props._manaAggregate;
+    var aggregateKeys = { Antenas: 1, Municipios: 1, Dato: 1 };
     Object.keys(props).forEach(function(k) {
       if (shown >= 8) return;
       if (k.charAt(0) === '_' || SLUG_POPUP_SKIP[k]) return;
+      if (skipAggregate && aggregateKeys[k]) return;
       var v = props[k];
       if (v == null || v === '') return;
       html += '<div class="slug-popup-row"><span>' + escHtml(k) + '</span><b>' + escHtml(v) + '</b></div>';
@@ -1743,6 +1947,8 @@
   }
 
   function showSlugPopup(map, e, item) {
+    // Un clic sobre un cluster expande el grupo; no abre el popup de un punto.
+    if (map.getLayer('slug-clusters') && map.queryRenderedFeatures(e.point, { layers: ['slug-clusters'] }).length) return;
     var layers = SLUG_FEATURE_LAYERS.filter(function(l) { return map.getLayer(l); });
     if (!layers.length) return;
     var feats = map.queryRenderedFeatures(e.point, { layers: layers });
@@ -1756,6 +1962,10 @@
   function wireSlugPopups(map, item) {
     map.on('click', function(e) { showSlugPopup(map, e, item); });
     map.on('mousemove', function(e) {
+      if (map.getLayer('slug-clusters') && map.queryRenderedFeatures(e.point, { layers: ['slug-clusters'] }).length) {
+        map.getCanvas().style.cursor = 'pointer';
+        return;
+      }
       var layers = SLUG_FEATURE_LAYERS.filter(function(l) { return map.getLayer(l); });
       if (!layers.length) return;
       var hit = map.queryRenderedFeatures(e.point, { layers: layers });

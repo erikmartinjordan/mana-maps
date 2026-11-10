@@ -442,6 +442,13 @@ const SEMANTIC_COLOR_BY_SLUG = {
   'ciudades-perdidas-y-ruinas-arqueologicas-fascinantes-3072026-1785391217436': '#b45309',
 };
 
+// Mapas cuya paleta es categórica con semántica propia (no un arcoíris
+// arbitrario): el color identifica marcas reales y está justificado por el
+// tema. El check de arcoíris no debe recolorearlos a un único tono.
+const CATEGORICAL_BRAND_SLUGS = new Set([
+  'antenas-moviles-espana',
+]);
+
 // Umbrales §3
 const PALETTE = {
   MIN_PAIRS: 5,            // pares (valor, color) no grises para evaluar coropleta
@@ -731,7 +738,7 @@ function auditSemanticPalette(map, geo) {
   // Arcoíris = varios tonos saturados distintos (bins de 15°) con span amplio.
   // Un solo tono (o dos categóricos) no es arcoíris.
   const isRainbow = satHueCount >= PALETTE.RAINBOW_MIN_HUES && span > PALETTE.RAINBOW_MIN_SPAN;
-  if (isRainbow) {
+  if (isRainbow && !CATEGORICAL_BRAND_SLUGS.has(map.id)) {
     const fixColor = SEMANTIC_COLOR_BY_SLUG[map.id];
     issues.push(`§3 paleta arcoíris (${satHueCount} tonos saturados, span ${span.toFixed(1)}°)`);
     if (fixColor) {

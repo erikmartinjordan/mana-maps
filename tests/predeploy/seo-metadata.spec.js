@@ -32,11 +32,6 @@ const {
   lowercaseIndicatorStart,
 } = require('../../scripts/lib/map-landing-facts');
 const {
-  START_MARKER,
-  END_MARKER,
-  updateMapIndexBlock,
-} = require('../../scripts/lib/map-index');
-const {
   buildNewsMapIndex,
   newsLinksBlock,
   extractArticleTitle,
@@ -44,7 +39,6 @@ const {
   extractPublishedTime,
   readNewsArticles,
 } = require('../../scripts/lib/news-map-links');
-
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
 // seguir sincronizados con los mapas publicados en Firestore.
@@ -209,6 +203,7 @@ test('zero-view maps receive links from at least two traffic landings', () => {
   // mantienen enlazados desde dos landings con tráfico.
   const zeroView = [
     'alcohol-consumption-world',
+    'antenas-moviles-espana',
     'tallest-skyscrapers-world',
   ];
   const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
@@ -360,6 +355,35 @@ test('home, gallery and News indexes do not render the Maps to discover block', 
     const html = fs.readFileSync(file, 'utf8');
     expect(html, `${label} vuelve a incluir la sección de descubrimiento`)
       .not.toMatch(/Mapas para descubrir|Maps to discover|id=["']mapas-para-descubrir["']/i);
+  }
+});
+
+test('News article footers keep only the CTA without related links or extra sections', () => {
+  // El pie «Convierte tus datos en un mapa» debe contener solo el CTA. Varias
+  // ejecuciones del blogger añadieron listas de mapas relacionados dentro o
+  // junto al bloque; se bloquea para que no vuelva a ocurrir.
+  const roots = [path.join(siteRoot, 'news'), path.join(siteRoot, 'en', 'news')];
+  const articles = [];
+  for (const root of roots) {
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const file = path.join(root, entry.name, 'index.html');
+      if (fs.existsSync(file)) articles.push(file);
+    }
+  }
+
+  expect(articles.length).toBeGreaterThan(0);
+  for (const file of articles) {
+    const html = fs.readFileSync(file, 'utf8');
+    const rel = path.relative(siteRoot, file);
+    expect(html, `${rel} incluye la lista footer-links`).not.toMatch(/footer-links/);
+
+    const footer = html.match(/<section class="post-footer"[\s\S]*?<\/section>/i);
+    expect(footer, `${rel} no tiene pie de artículo`).not.toBeNull();
+    const footerInner = footer[0]
+      .replace(/^<section\b[^>]*>/i, '')
+      .replace(/<\/section>\s*$/i, '');
+    expect(footerInner, `${rel} añade una lista o sección extra al pie`).not.toMatch(/<(ul|ol|nav|section|aside)\b/i);
   }
 });
 
@@ -1153,49 +1177,21 @@ test('static landing respects the mana-notrack opt-out', async ({ browser }) => 
   await context.close();
 });
 
-// El grid de /gallery/ se pinta con JS, así que el HTML servido no tenía
-// enlaces a las landings. El índice estático deja un enlace rastreable por mapa
-// y debe seguir sincronizado con el JSON-LD CollectionPage.
-test('gallery static HTML links every published map landing', () => {
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const start = galleryHtml.indexOf(START_MARKER);
-  const end = galleryHtml.indexOf(END_MARKER);
-  expect(start, 'falta el marcador map-index:start').toBeGreaterThan(-1);
-  expect(end, 'falta el marcador map-index:end').toBeGreaterThan(start);
+// El «Índice de mapas» de la galería se retiró por decisión de producto:
+// duplicaba el grid de tarjetas y el agente automático volvía a generarlo. Se
+// bloquea cualquier rastro del bloque o de su generador para que no reaparezca.
+test('gallery does not render the map index block', () => {
+  expect(galleryHtml).not.toMatch(/map-index|Índice de mapas/i);
 
-  const block = galleryHtml.slice(start, end);
-  const linked = [...block.matchAll(/href="\/gallery\/([^/"]+)\/"/g)].map((m) => m[1]);
-  expect(new Set(linked).size, 'el índice repite mapas').toBe(linked.length);
-  expect(linked.sort()).toEqual([...published].sort());
-  expect(block).toContain(`(${published.length})`);
-});
-
-test('map index block updates idempotently and escapes titles', () => {
-  const page = `<main>\n    ${START_MARKER}\n    ${END_MARKER}\n</main>`;
-  const maps = [
-    { slug: 'b-map', title: 'Beta <script> & compañía' },
-    { slug: 'a-map', title: 'Alfa' },
-    { slug: 'a-map', title: 'duplicado' },
-  ];
-
-  const first = updateMapIndexBlock(page, maps);
-  expect(first.found).toBe(true);
-  expect(first.changed).toBe(true);
-  expect(first.count).toBe(2);
-  expect(first.html).toContain('href="/gallery/a-map/"');
-  expect(first.html).toContain('href="/gallery/b-map/"');
-  expect(first.html).toContain('Beta &lt;script&gt; &amp; compañía');
-  expect(first.html).not.toContain('<script>');
-  // Ordenado por título en español: «Alfa» antes que «Beta».
-  expect(first.html.indexOf('Alfa')).toBeLessThan(first.html.indexOf('Beta'));
-
-  const second = updateMapIndexBlock(first.html, maps);
-  expect(second.changed).toBe(false);
-  expect(second.html).toBe(first.html);
-
-  const missing = updateMapIndexBlock('<main></main>', maps);
-  expect(missing.found).toBe(false);
-  expect(missing.html).toBe('<main></main>');
+  const generator = fs.readFileSync(
+    path.join(repoRoot, 'scripts', 'tools', 'generate-map-landings.js'),
+    'utf8'
+  );
+  expect(generator).not.toMatch(/map-index|Índice de mapas/i);
+  expect(
+    fs.existsSync(path.join(repoRoot, 'scripts', 'lib', 'map-index.js')),
+    'el generador del índice de mapas no debe existir'
+  ).toBe(false);
 });
 
 // ── Compartir desde las landings estáticas ───────────────────────
