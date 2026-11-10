@@ -111,10 +111,11 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
   `site/en/news/revolts-europe/index.html` como plantillas visuales
   canónicas; `site/news/index.html` y `site/en/news/index.html` como plantillas de los
   listados.
-- Pie **Opción C** en ambos idiomas: bloque negro `footer-cta-dark` con el CTA
-  y nada más. **Prohibido** añadir dentro o después del bloque enlaces a mapas
-  relacionados, listas (`footer-links`, `<ul>`), secciones extra o cualquier
-  otro contenido. Nada de selector de variantes en el archivo final.
+- Pie en ambos idiomas: barra fina `cta-bar` con copy corto y el CTA, y nada
+  más. **Prohibido** volver a la tarjeta `footer-cta-dark` o añadir dentro o
+  después del bloque enlaces a mapas relacionados, listas (`footer-links`,
+  `<ul>`), secciones extra o cualquier otro contenido. Nada de selector de
+  variantes en el archivo final.
 - **Tracking:** incluye antes de `</body>` en las cuatro páginas
   `<script defer src="/js/firebase-config.local.js"></script>` y
   `<script defer src="/js/tracking.js?v=1792741000"></script>`. El evento
@@ -404,8 +405,9 @@ curl -s -X POST \
 - Cita textualmente solo lo que aparezca entrecomillado en la fuente, con
   atribución. No inventes declaraciones.
 - Enlaza siempre al mapa a pantalla completa y a la galería.
-- El pie Opción C va en ambos idiomas: solo `footer-cta-dark` con el CTA. No
-  añadas `footer-links`, mapas relacionados ni secciones adicionales en el pie.
+- El pie va en ambos idiomas: solo la barra `cta-bar` con el CTA. No añadas
+  `footer-cta-dark`, `footer-links`, mapas relacionados ni secciones
+  adicionales en el pie.
 
 ### 4. Crear los archivos
 
