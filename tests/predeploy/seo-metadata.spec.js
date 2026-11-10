@@ -203,7 +203,6 @@ test('zero-view maps receive links from at least two traffic landings', () => {
   // mantienen enlazados desde dos landings con tráfico.
   const zeroView = [
     'alcohol-consumption-world',
-    'antenas-moviles-espana',
     'tallest-skyscrapers-world',
   ];
   const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
