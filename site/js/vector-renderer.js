@@ -82,30 +82,89 @@
       var g = f && f.geometry;
       if (!g) continue;
       var props = f.properties || {};
-      var propsJson = JSON.stringify(props);
+      var info = props._manaPointInfo;
       var base = {
         name: props._manaName || props.name || '',
         color: props._manaColor || props.color || '#0ea5e9',
         markerType: 'circle',
         emoji: '',
         emojiIcon: '',
-        emojiSize: 0,
-        props: propsJson
+        emojiSize: 0
       };
+      function pointPropsAt(idx) {
+        if (!info || !info.p || !info.m) return Object.assign({}, base, { props: JSON.stringify(props) });
+        var d = info.p[idx];
+        if (!d) return Object.assign({}, base, { props: JSON.stringify(props) });
+        var muni = info.m[d[2]] || '';
+        var fullDir = (d[1] || '') + (muni ? ', ' + muni : '') + (props.Provincia ? ', ' + props.Provincia : '');
+        var p = {
+          _manaName: (props.Operador || '') + (muni ? ' · ' + muni : ''),
+          name: (props.Operador || '') + (muni ? ' · ' + muni : ''),
+          Operador: props.Operador || '',
+          'Código': d[0] || '',
+          'Dirección': fullDir,
+          Municipio: muni,
+          Provincia: props.Provincia || '',
+          Tipo: 'Estación de telefonía móvil',
+          Description: 'Estación de ' + (props.Operador || '') + ' en ' + muni + ' (' + (props.Provincia || '') + '). Fuente: Infoantenas.'
+        };
+        return Object.assign({}, base, { props: JSON.stringify(p) });
+      }
       if (g.type === 'Point') {
-        out.push({ type: 'Feature', properties: base, geometry: { type: 'Point', coordinates: g.coordinates } });
+        out.push({ type: 'Feature', properties: pointPropsAt(0), geometry: { type: 'Point', coordinates: g.coordinates } });
       } else if (g.type === 'MultiPoint') {
         for (var j = 0; j < g.coordinates.length; j++) {
-          out.push({ type: 'Feature', properties: base, geometry: { type: 'Point', coordinates: g.coordinates[j] } });
+          out.push({ type: 'Feature', properties: pointPropsAt(j), geometry: { type: 'Point', coordinates: g.coordinates[j] } });
         }
       }
     }
     return out;
   }
 
+  // En el editor el mapa MapLibre va dentro de Leaflet y no recibe clics;
+  // se gestionan desde el mapa Leaflet consultando las capas GL.
+  function _bindExternalClicks() {
+    if (typeof map === 'undefined' || !map || map._manaExternalClickBound) return;
+    map._manaExternalClickBound = true;
+    map.on('click', function (e) {
+      if (!_externalFeatures || !_gl) return;
+      var oe = e.originalEvent || e;
+      var rect = _gl.getContainer().getBoundingClientRect();
+      var pt = map.latLngToContainerPoint(e.latlng);
+      var x = (oe.clientX != null ? oe.clientX : rect.left + pt.x) - rect.left;
+      var y = (oe.clientY != null ? oe.clientY : rect.top + pt.y) - rect.top;
+      var clusterFeats = [];
+      var pointFeats = [];
+      try {
+        clusterFeats = _gl.queryRenderedFeatures([x, y], { layers: [LAYER_CLUSTERS] });
+        pointFeats = _gl.queryRenderedFeatures([x, y], { layers: [LAYER_CIRCLE] });
+      } catch (err) { return; }
+
+      if (clusterFeats.length) {
+        var cf = clusterFeats[0];
+        var coords = cf.geometry.coordinates;
+        var target = Math.min(13, map.getZoom() + 1);
+        map.setView([coords[1], coords[0]], target, { animate: true });
+        return;
+      }
+
+      if (!pointFeats.length) return;
+      var f = pointFeats[0];
+      if (typeof buildAttrPopup !== 'function') return;
+      var p = {};
+      try { p = JSON.parse((f.properties && f.properties.props) || '{}'); } catch (err) {}
+      if (!Object.keys(p).length) p = { name: (f.properties && f.properties.name) || '' };
+      L.popup({ maxWidth: 360, className: 'attr-popup-wrapper' })
+        .setLatLng(e.latlng)
+        .setContent(buildAttrPopup(p, 'Point'))
+        .openOn(map);
+    });
+  }
+
   window.manaSetClusterGeoJSON = function (geo) {
     _externalFeatures = _explodeExternalGeo(geo);
     window.MANA_EXTERNAL_POINT_COUNT = _externalFeatures.length;
+    _bindExternalClicks();
     if (typeof stats === 'function') { try { stats(); } catch (e) {} }
     if (!_gl) { _bootstrap(); return; }
     if (_gl.getSource(SRC)) {

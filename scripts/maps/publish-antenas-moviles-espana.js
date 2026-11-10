@@ -89,6 +89,7 @@ function compactGeo(geo, decimals) {
       const props = Object.assign({}, f.properties);
       delete props.Antenas;
       delete props.Municipios;
+      delete props._manaPointInfo;
       return { type: 'Feature', properties: props, geometry };
     }),
   };

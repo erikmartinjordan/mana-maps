@@ -262,6 +262,19 @@ function municipalityOf(addr) {
   return (comma >= 0 ? tail.slice(0, comma) : tail).trim();
 }
 
+function addressParts(addr) {
+  const s = String(addr || '').trim();
+  const lastDot = s.lastIndexOf('. ');
+  const head = lastDot >= 0 ? s.slice(0, lastDot).trim() : s;
+  const tail = lastDot >= 0 ? s.slice(lastDot + 2) : s;
+  const parts = tail.split(',').map((p) => p.trim()).filter(Boolean);
+  return {
+    street: head,
+    municipality: parts[0] || '',
+    province: parts.length ? parts[parts.length - 1] : '',
+  };
+}
+
 // ── Construcción del GeoJSON ─────────────────────────────────────
 
 function buildGeo(rows) {
@@ -289,18 +302,25 @@ function buildGeo(rows) {
       .filter((g) => g.brand === brand)
       .sort((a, b) => a.prov.localeCompare(b.prov, 'es'));
     for (const g of items) {
-      const seen = new Set();
       const coords = [];
       const munis = new Set();
+      const muniList = [];
+      const muniIndex = new Map();
+      const pointInfo = [];
       for (const r of g.rows) {
-        const muni = municipalityOf(r.addr);
-        if (muni) munis.add(muni.toUpperCase());
-        const x = round(r.lng, 4);
-        const y = round(r.lat, 4);
-        const k = x + ',' + y;
-        if (seen.has(k)) continue;
-        seen.add(k);
-        coords.push([x, y]);
+        const parts = addressParts(r.addr);
+        const muniKey = parts.municipality || '';
+        if (muniKey && !muniIndex.has(muniKey)) {
+          muniIndex.set(muniKey, muniList.length);
+          muniList.push(muniKey);
+        }
+        if (muniKey) munis.add(muniKey.toUpperCase());
+        coords.push([round(r.lng, 4), round(r.lat, 4)]);
+        pointInfo.push([
+          String(r.id || ''),
+          parts.street || '',
+          muniKey && muniIndex.has(muniKey) ? muniIndex.get(muniKey) : -1,
+        ]);
       }
       const n = g.rows.length;
       features.push({
@@ -321,6 +341,9 @@ function buildGeo(rows) {
           // clustering; esta marca permite ocultar los totales provinciales
           // en el popup de una antena concreta.
           _manaAggregate: true,
+          // Información por estación (paralela a geometry.coordinates): el
+          // visor la usa para el popup de cada antena individual.
+          _manaPointInfo: { m: muniList, p: pointInfo },
           Operador: brand,
           Provincia: g.prov,
           Antenas: n,
@@ -393,8 +416,8 @@ function main() {
   const text = JSON.stringify(geo);
   const bytes = Buffer.byteLength(text, 'utf8');
   console.log(`GeoJSON: ${(bytes / 1024).toFixed(0)} KB (${bytes} bytes) · ${SLUG}`);
-  if (bytes > 5 * 1024 * 1024) {
-    console.error('ERROR: GeoJSON demasiado grande (>5 MiB).');
+  if (bytes > 6 * 1024 * 1024) {
+    console.error('ERROR: GeoJSON demasiado grande (>6 MiB).');
     process.exit(1);
   }
 

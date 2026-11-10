@@ -11,7 +11,10 @@ const path = require('path');
 
 const MAX_FILE_BYTES = 3 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 35 * 1024 * 1024;
-const ALLOWED_LARGE = new Set([]);
+const ALLOWED_LARGE = new Set([
+  // Dataset nacional con información individual de cada estación.
+  'data/maps/antenas-moviles-espana.geojson',
+]);
 
 function listTracked() {
   const raw = execFileSync('git', ['ls-files', '-z'], { encoding: 'buffer' });

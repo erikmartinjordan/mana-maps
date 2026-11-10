@@ -1697,16 +1697,37 @@
       var f = features[i];
       var g = f && f.geometry;
       if (!g) continue;
-      if (g.type === 'Point') {
-        out.push({ type: 'Feature', properties: f.properties || {}, geometry: { type: 'Point', coordinates: g.coordinates } });
-      } else if (g.type === 'MultiPoint') {
-        var props = f.properties || {};
-        var exploded = Object.assign({}, props, {
+      var props = f.properties || {};
+      var info = props._manaPointInfo;
+      function pointPropsAt(idx) {
+        if (info && info.p && info.m) {
+          var d = info.p[idx];
+          if (d) {
+            var muni = info.m[d[2]] || '';
+            var fullDir = (d[1] || '') + (muni ? ', ' + muni : '') + (props.Provincia ? ', ' + props.Provincia : '');
+            return {
+              _manaName: (props.Operador || '') + (muni ? ' · ' + muni : ''),
+              name: (props.Operador || '') + (muni ? ' · ' + muni : ''),
+              Operador: props.Operador || '',
+              'Código': d[0] || '',
+              'Dirección': fullDir,
+              Municipio: muni,
+              Provincia: props.Provincia || '',
+              Tipo: 'Estación de telefonía móvil',
+              Description: 'Estación de ' + (props.Operador || '') + ' en ' + muni + ' (' + (props.Provincia || '') + '). Fuente: Infoantenas.'
+            };
+          }
+        }
+        return Object.assign({}, props, {
           _manaExploded: true,
           _manaAggregate: props._manaAggregate === true
         });
+      }
+      if (g.type === 'Point') {
+        out.push({ type: 'Feature', properties: pointPropsAt(0), geometry: { type: 'Point', coordinates: g.coordinates } });
+      } else if (g.type === 'MultiPoint') {
         for (var j = 0; j < g.coordinates.length; j++) {
-          out.push({ type: 'Feature', properties: exploded, geometry: { type: 'Point', coordinates: g.coordinates[j] } });
+          out.push({ type: 'Feature', properties: pointPropsAt(j), geometry: { type: 'Point', coordinates: g.coordinates[j] } });
         }
       }
     }
