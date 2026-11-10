@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-11-10",
+    "event": "El Brent cae un 5,85% hasta 92,57 dólares y Wall Street rebota (S&P 500 +2,35%, Nasdaq +2,74%) antes del IPC de octubre de EE. UU.; Nvidia cae un 4,2% por la investigación a su CEO y el mercado mantiene por encima del 80% la probabilidad de una subida de tipos en diciembre (9-10 de noviembre de 2026)",
+    "type": "news",
+    "format": "explicador",
+    "topic": "bolsa",
+    "mapSlug": "inflation-world",
+    "sourceUrls": [
+      "https://www.streetinsider.com/General+News/Wall+St+rallies+after+last+weeks+AI+rout%3B+Nvidia+falls/27310155.html",
+      "https://efe.com/economia/2026-11-09/wall-street-recuperacion-dow-jones-nasdaq-inteligencia-artificial-elecciones/",
+      "https://cincodias.elpais.com/mercados-financieros/2026-11-09/la-bolsa-y-el-ibex-35.html",
+      "https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG"
+    ],
+    "translations": {
+      "es": {
+        "slug": "petroleo-bolsa-tipos-inflacion",
+        "url": "/news/petroleo-bolsa-tipos-inflacion/",
+        "title": "Petróleo, bolsa y tipos: la inflación no es un solo número",
+        "description": "El Brent cae un 5,85% y Wall Street rebota mientras espera el IPC de octubre de EE. UU. El mapa de inflación muestra 187 regímenes de precios muy distintos."
+      },
+      "en": {
+        "slug": "oil-stocks-rates-inflation",
+        "url": "/en/news/oil-stocks-rates-inflation/",
+        "title": "Oil, stocks and rates: inflation is not one number",
+        "description": "Brent falls 5.85% and Wall Street rebounds ahead of US October CPI. The inflation map shows 187 different annual inflation regimes behind one headline number."
+      }
+    }
+  },
+  {
     "date": "2026-11-09",
     "event": "Análisis propio: los 23 cables submarinos en servicio del mapa suman 343.486 km; Estados Unidos aparece en 12 (44% de la longitud) y Egipto en 4 (30,3%). LS Cable cierra el tercer trimestre con una cartera récord de 9,8522 billones de wones (+20,2%) y PISCES sumará 3.125 km en 2028, mientras The Guardian documenta 49 proyectos de centros de datos paralizados en Tailandia por falta de energía y agua (9 de noviembre de 2026)",
     "type": "news",
