@@ -481,10 +481,78 @@ function extractLibraryBatchPlaces(rawText) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// SMALL TALK — natural replies with zero API cost and zero network
+// ═══════════════════════════════════════════════════════════════
+function pickReply(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function matchSmallTalk(raw) {
+  const en = typeof LANG !== 'undefined' && LANG === 'en';
+  const c = String(raw).trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[¡!¿?.,;:()"'“”]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const say = (es, eng) => pickReply(en ? eng : es);
+
+  if (!c) return null;
+
+  if (/^(hola|holi|buenas|buenos dias|buenas tardes|buenas noches|hey|hi|hello|que tal|saludos|ey)$/.test(c)) {
+    return say(
+      ['¡Hola! 👋 ¿Qué te apetece hacer en el mapa?', '¡Buenas! 😊 Dime qué quieres dibujar o buscar.', '¡Hola! ¿Te ayudo con el mapa?'],
+      ['Hi! 👋 What would you like to do on the map?', 'Hey! 😊 Tell me what to draw or search for.', 'Hello! Need a hand with the map?']
+    );
+  }
+  if (/^(como estas|como andas|que tal estas|how are you|hows it going|how are things)$/.test(c)) {
+    return say(
+      ['¡Muy bien, gracias! 😊 ¿Y tú? ¿Qué miramos en el mapa?', '¡Todo bien por aquí! ¿Qué quieres hacer?'],
+      ['Doing great, thanks! 😊 How about you? What are we mapping?', 'All good here! What do you want to do?']
+    );
+  }
+  if (/^(gracias|muchas gracias|te lo agradezco|thanks|thank you|thx)$/.test(c)) {
+    return say(
+      ['¡De nada! 😊', '¡A mandar! 🙌', 'Un placer.'],
+      ['You’re welcome! 😊', 'Anytime! 🙌', 'My pleasure.']
+    );
+  }
+  if (/^(adios|hasta luego|nos vemos|chao|bye|goodbye|see you)$/.test(c)) {
+    return say(['¡Hasta luego! 👋', '¡Nos vemos! 😊'], ['See you! 👋', 'Bye! 😊']);
+  }
+  if (/^(quien eres|quien sos|que eres|who are you|what are you)$/.test(c)) {
+    return say(
+      ['Soy Maña AI, tu asistente de mapas 😊 Puedo añadir puntos, trazar rutas, medir distancias y cambiar el estilo del mapa. ¿Qué necesitas?'],
+      ['I’m Maña AI, your map assistant 😊 I can add points, draw routes, measure distances and change the map style. What do you need?']
+    );
+  }
+  if (/^(que puedes hacer|que sabes hacer|para que sirves|what can you do)$/.test(c)) {
+    return say(
+      ['Puedo añadir puntos y rutas, buscar lugares, medir distancias, cambiar a satélite o globo 3D y exportar el mapa. Prueba: «añade un punto en Barcelona».'],
+      ['I can add points and routes, search places, measure distances, switch to satellite or 3D globe, and export the map. Try: “add a point in Barcelona”.']
+    );
+  }
+  if (/^(eres real|eres una persona|eres un bot|are you real|are you human|are you a bot)$/.test(c)) {
+    return say(
+      ['Soy una IA, pero intento ayudarte como lo haría una persona 😊 ¿Qué necesitas?'],
+      ['I’m an AI, but I try to help like a person would 😊 What do you need?']
+    );
+  }
+
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ENHANCED REGEX FALLBACK (when no API key)
 // ═══════════════════════════════════════════════════════════════
 async function processRegex(cmd) {
   const c = cmd.toLowerCase().trim();
+
+  // Conversational intents first: never geocode a greeting like "hola"
+  const smallTalk = matchSmallTalk(cmd);
+  if (smallTalk) {
+    await new Promise(r => setTimeout(r, 350 + Math.random() * 450));
+    return { ok: true, msg: smallTalk };
+  }
 
   // Batch import: libraries list to map
   if (/representa .*bibliotecas?.*mapa/i.test(cmd) || /bibliotecas?.*mapa/i.test(cmd)) {
@@ -587,7 +655,7 @@ async function processAI(userText) {
 
   // P1.3: Update system prompt with current map state
   const mapContext = typeof getCurrentGeoJSON === 'function' ? JSON.stringify(getCurrentGeoJSON()) : '{}';
-  const dynamicSystem = SYSTEM_PROMPT + '\n\n' + window.t('ai_map_context') + mapContext + '. Pots fer refer\u00E8ncia a elements existents.';
+  const dynamicSystem = SYSTEM_PROMPT + '\n\n' + window.t('ai_tone_persona') + '\n\n' + window.t('ai_map_context') + mapContext + '. Pots fer refer\u00E8ncia a elements existents.';
   chatHistory[0] = { role: 'system', content: dynamicSystem };
 
   chatHistory.push({ role: 'user', content: userText });
