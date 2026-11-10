@@ -1708,6 +1708,7 @@ function stats() {
     else if (l instanceof L.Polygon) pols++;
     else if (l instanceof L.Polyline) lns++;
   });
+  pts += Number(window.MANA_EXTERNAL_POINT_COUNT || 0);
   document.getElementById('cnt-points').textContent = pts;
   document.getElementById('cnt-lines').textContent = lns;
   document.getElementById('cnt-polygons').textContent = pols;

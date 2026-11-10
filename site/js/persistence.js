@@ -307,7 +307,40 @@ function syncEditorRenderer() {
   }
 }
 
+function countGeoPoints(geo) {
+  var n = 0;
+  (geo && geo.features || []).forEach(function (f) {
+    var g = f && f.geometry;
+    if (!g) return;
+    if (g.type === 'Point') n++;
+    else if (g.type === 'MultiPoint' && Array.isArray(g.coordinates)) n += g.coordinates.length;
+  });
+  return n;
+}
+
+function geoBounds(geo) {
+  var minLat = Infinity, minLng = Infinity, maxLat = -Infinity, maxLng = -Infinity;
+  function walk(c) {
+    if (!Array.isArray(c)) return;
+    if (typeof c[0] === 'number' && typeof c[1] === 'number') {
+      var lng = c[0], lat = c[1];
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+      return;
+    }
+    c.forEach(walk);
+  }
+  (geo && geo.features || []).forEach(function (f) {
+    if (f && f.geometry && Array.isArray(f.geometry.coordinates)) walk(f.geometry.coordinates);
+  });
+  if (!isFinite(minLat) || !isFinite(maxLat)) return null;
+  return [[minLat, minLng], [maxLat, maxLng]];
+}
+
 async function restoreFromURL() {
+  window.MANA_EXTERNAL_POINT_COUNT = 0;
   try {
     async function readChunkedPublishedGeo(db, slug, payload) {
       if (!db || !slug || !payload || !payload.geojsonChunked || !payload.geojsonChunked.chunkCount) return null;
@@ -361,6 +394,10 @@ async function restoreFromURL() {
       if (!payload) return null;
       if (payload.mapData && payload.mapData.features) return payload.mapData;
       if (payload.geojson && payload.geojson.features) return payload.geojson;
+      // Preferir los chunks completos (puntos reales) frente al geojsonText
+      // simplificado que se usa para landings/SEO.
+      const chunked = await readChunkedPublishedGeo(db, slug, payload);
+      if (chunked && chunked.features) return chunked;
       const raw = payload.mapDataText || payload.geojsonText;
       if (typeof raw === 'string' && raw) {
         try {
@@ -370,7 +407,7 @@ async function restoreFromURL() {
           console.warn('restoreFromURL parse published geo failed:', e);
         }
       }
-      return readChunkedPublishedGeo(db, slug, payload);
+      return null;
     }
 
     const search = new URLSearchParams(window.location.search || '');
@@ -418,6 +455,34 @@ async function restoreFromURL() {
         if (galleryPayload && galleryPayload.isPublished && galleryGeo && galleryGeo.features && galleryGeo.features.length) {
           const accessMode = getRequestedShareMode(galleryPayload);
           setSharedMapAccess(accessMode, galleryPayload);
+          // Vista de solo lectura con muchos puntos: alimentar directamente
+          // el clustering de MapLibre sin crear miles de marcadores Leaflet.
+          if (accessMode !== 'edit' && countGeoPoints(galleryGeo) >= 1200 && typeof window.manaSetClusterGeoJSON === 'function') {
+            window.manaSetClusterGeoJSON(galleryGeo);
+            requestAnimationFrame(function() {
+              try {
+                var initialView = galleryPayload.initialView;
+                if (initialView && Array.isArray(initialView.center) && initialView.center.length === 2) {
+                  var vLng = Number(initialView.center[0]);
+                  var vLat = Number(initialView.center[1]);
+                  var vZoom = Number(initialView.zoom);
+                  if (!isFinite(vZoom)) vZoom = 3;
+                  if (initialView.mode === '2d' && typeof setBaseLayer === 'function') {
+                    try { setBaseLayer('map'); } catch(e) {}
+                  }
+                  map.setView([vLat, vLng], vZoom, { animate: false });
+                } else {
+                  var b = geoBounds(galleryGeo);
+                  if (b) map.fitBounds(b, { padding: [28, 28], maxZoom: 12, animate: false });
+                }
+              } catch(e) {}
+            });
+            incrementPublishedMapView(db, gallerySlug, galleryPayload);
+            const inputFast = document.getElementById('project-name-input');
+            if (inputFast) inputFast.value = galleryPayload.title || galleryPayload.name || '';
+            if (window.setCurrentPrivateMapId) window.setCurrentPrivateMapId('');
+            return true;
+          }
           await _importRestoredGeoJSON(galleryGeo);
           syncEditorRenderer();
           if (typeof drawnItems !== 'undefined' && drawnItems.getLayers().length) {

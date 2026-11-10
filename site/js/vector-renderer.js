@@ -7,6 +7,7 @@
   var _gl = null;
   var _ready = false;
   var _syncTimer = null;
+  var _externalFeatures = null;
 
   var SRC = 'mana-dp';
   var LAYER_CIRCLE = 'mana-dp-circle';
@@ -70,6 +71,50 @@
   }
 
   window.syncVectorRenderer = _fullSync;
+
+  // Carga directa de puntos para el modo vista: evita crear decenas de miles
+  // de marcadores Leaflet y alimenta el clustering de MapLibre al instante.
+  function _explodeExternalGeo(geo) {
+    var out = [];
+    if (!geo || !geo.features) return out;
+    for (var i = 0; i < geo.features.length; i++) {
+      var f = geo.features[i];
+      var g = f && f.geometry;
+      if (!g) continue;
+      var props = f.properties || {};
+      var propsJson = JSON.stringify(props);
+      var base = {
+        name: props._manaName || props.name || '',
+        color: props._manaColor || props.color || '#0ea5e9',
+        markerType: 'circle',
+        emoji: '',
+        emojiIcon: '',
+        emojiSize: 0,
+        props: propsJson
+      };
+      if (g.type === 'Point') {
+        out.push({ type: 'Feature', properties: base, geometry: { type: 'Point', coordinates: g.coordinates } });
+      } else if (g.type === 'MultiPoint') {
+        for (var j = 0; j < g.coordinates.length; j++) {
+          out.push({ type: 'Feature', properties: base, geometry: { type: 'Point', coordinates: g.coordinates[j] } });
+        }
+      }
+    }
+    return out;
+  }
+
+  window.manaSetClusterGeoJSON = function (geo) {
+    _externalFeatures = _explodeExternalGeo(geo);
+    window.MANA_EXTERNAL_POINT_COUNT = _externalFeatures.length;
+    if (typeof stats === 'function') { try { stats(); } catch (e) {} }
+    if (!_gl) { _bootstrap(); return; }
+    if (_gl.getSource(SRC)) {
+      try { _hideAll(); } catch (e) {}
+      _gl.getSource(SRC).setData({ type: 'FeatureCollection', features: _externalFeatures });
+    } else {
+      _bootstrap();
+    }
+  };
 
   // ── Bootstrap: wait for GL map + style ──
   var _bootstrapRetries = 0;
@@ -233,6 +278,21 @@
       gl.on('mouseenter', LAYER_CLUSTERS, function() { gl.getCanvas().style.cursor = 'pointer'; });
       gl.on('mouseleave', LAYER_CLUSTERS, function() { gl.getCanvas().style.cursor = ''; });
     }
+    if (!gl._manaPointClickBound) {
+      gl._manaPointClickBound = true;
+      gl.on('click', LAYER_CIRCLE, function(e) {
+        if (!_externalFeatures) return;
+        var f = e.features && e.features[0];
+        if (!f || typeof buildAttrPopup !== 'function') return;
+        var p = {};
+        try { p = JSON.parse((f.properties && f.properties.props) || '{}'); } catch (_) {}
+        if (!Object.keys(p).length) p = { name: (f.properties && f.properties.name) || '' };
+        new maplibregl.Popup({ maxWidth: '360px', className: 'attr-popup-wrapper' })
+          .setLngLat(e.lngLat)
+          .setHTML(buildAttrPopup(p, 'Point'))
+          .addTo(gl);
+      });
+    }
   }
 
   function _teardown() {
@@ -360,6 +420,11 @@
 
   function _sync() {
     if (!_gl || !_gl.getSource(SRC)) return;
+
+    if (_externalFeatures) {
+      _gl.getSource(SRC).setData({ type: 'FeatureCollection', features: _externalFeatures });
+      return;
+    }
 
     var features = [];
     drawnItems.eachLayer(function (layer) {
