@@ -158,6 +158,10 @@
   .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
   .btn-light{background:#fff;color:var(--cta);border-color:#fff}
   .btn-light:hover{opacity:.9}
+  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
+  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .use-case p{margin:0 0 12px;font-size:16px}
+  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -253,6 +257,12 @@
         <p>Arrival is scheduled for 4 November. ESA expects to publish the first detailed images of Dimorphos on 25 November, when the spacecraft is closer. The science phase will then begin: mapping the surface, measuring the gravitational field and analysing the composition.</p>
         <p>Between mid-January and early February 2027, Hera will release two CubeSats. Juventas carries a radar to probe Dimorphos's interior and establish whether it is a compact body or a loosely bound pile of debris. Milani will study the mineral composition and the dust particles around the asteroid. At the end of their operations, both will attempt to land on it.</p>
         <p>ESA's nominal plan ends on 2 June 2027. The agency has not yet decided how it will close the mission: move the spacecraft away from the system or attempt a landing on Didymos. In no scenario will Hera return to Earth.</p>
+
+        <aside class="use-case" data-use-case aria-label="Use case">
+          <p class="use-case-kicker">Use case</p>
+          <p>A science writer can compare the map’s 28 craters (30–160 km) with the 151 m Dimorphos and mark impacts in their own region as a layer.</p>
+          <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Build your own version</a>
+        </aside>
 
         <section class="sources">
           <h2>Sources</h2>

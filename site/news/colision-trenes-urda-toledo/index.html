@@ -157,6 +157,10 @@
   .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
   .btn-light{background:#fff;color:var(--cta);border-color:#fff}
   .btn-light:hover{opacity:.9}
+  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
+  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .use-case p{margin:0 0 12px;font-size:16px}
+  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -238,6 +242,12 @@
       <h2>Qué viene</h2>
       <p>Los equipos de la Guardia Civil y de la Unidad Militar de Emergencias siguen retirando restos con drones, perros y maquinaria pesada para comprobar que no quedan víctimas entre los vagones. La identificación de los fallecidos se hará con huellas, registros dentales y ADN. La Guardia Civil ha habilitado oficinas en Madrid, Toledo, Sevilla y Córdoba para que los familiares de primer grado denuncien desapariciones y faciliten muestras genéticas. El Instituto de Medicina Legal de Toledo ha activado el protocolo de grandes catástrofes y el Centro de Integración de Datos coordina la información. El instituto ha recibido 52 cuerpos y ha practicado ocho autopsias, según los datos del jueves por la mañana.</p>
       <p>La circulación entre Madrid, Ciudad Real y Andalucía sigue suspendida. Renfe ha paralizado la venta de billetes hasta diciembre y ha habilitado el teléfono 900 10 10 20 y el servicio de emergencias de Castilla-La Mancha el 900 122 112 para atender a las familias; Iryo, el 900 001 403. No hay una fecha confirmada para la reapertura de la línea ni para la conclusión de la investigación. El Gobierno no ha anunciado dimisiones. La investigación sigue bajo secreto de sumario.</p>
+
+      <aside class="use-case" data-use-case aria-label="Caso de uso">
+        <p class="use-case-kicker">Caso de uso</p>
+        <p>Un vecino o una redacción local puede situar Urda entre las cuatro paradas del mapa y añadir sus propios datos de tráfico o incidencias para seguir la investigación.</p>
+        <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Crea tu propia versión</a>
+      </aside>
 
       <section class="sources">
         <h2>Fuentes</h2>

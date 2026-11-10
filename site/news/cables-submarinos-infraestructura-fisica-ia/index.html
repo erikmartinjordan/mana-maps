@@ -164,6 +164,10 @@
     .table-wrap th,.table-wrap td{padding:9px 8px}
     .table-wrap caption{font-size:11px;padding:10px 10px 0}
   }
+  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
+  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .use-case p{margin:0 0 12px;font-size:16px}
+  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -260,6 +264,12 @@
 
       <h2>Método y datos</h2>
       <p>El cálculo usa el GeoJSON publicado del mapa, consultado el 9 de noviembre de 2026. Contiene 24 features: 23 cables con longitud y el Pan-Arctic, en proyecto y sin longitud, que queda fuera. La longitud total es la suma del campo «Longitud del cable (km)»; la mediana, 14.530 km. Los recuentos por país cuentan los cables cuyo campo «Países» incluye ese país; un cable puede contar en varios, de ahí que los porcentajes no sumen 100. n = 23. Es una muestra de rutas troncales, no un censo, y no incluye proyectos que aún no están en servicio, como PISCES. Los datos de pedidos y centros de datos proceden de las fuentes citadas; el análisis no establece causalidad.</p>
+
+      <aside class="use-case" data-use-case aria-label="Caso de uso">
+        <p class="use-case-kicker">Caso de uso</p>
+        <p>Un analista de infraestructura puede aislar los 12 cables de la muestra que tocan Estados Unidos y medir el 30,3% de longitud que pasa por Egipto, con su propia capa de puntos de aterrizaje.</p>
+        <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Crea tu propia versión</a>
+      </aside>
 
       <section class="sources">
         <h2>Fuentes</h2>

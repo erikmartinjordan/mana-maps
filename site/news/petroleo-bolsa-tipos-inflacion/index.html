@@ -164,6 +164,10 @@
     .table-wrap th,.table-wrap td{padding:9px 8px}
     .table-wrap caption{font-size:11px;padding:10px 10px 0}
   }
+  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
+  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .use-case p{margin:0 0 12px;font-size:16px}
+  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -247,6 +251,12 @@
       <h2>Qué mirar esta semana</h2>
       <p>El IPC del martes y el de producción del viernes pueden mover tipos y bolsa. Nvidia presenta resultados el 17 de noviembre y varias tecnológicas ligadas a la IA rinden cuentas esta semana. En el crudo, la clave sigue en Irán: cualquier incidente en Ormuz devuelve el barril a la parte alta de la tabla.</p>
       <p>La lectura útil del lunes no es que la bolsa rebotara, sino que lo hizo con el petróleo a la baja y los tipos al alza en el horizonte. Esa combinación solo funciona mientras la inflación acompañe.</p>
+
+      <aside class="use-case" data-use-case aria-label="Caso de uso">
+        <p class="use-case-kicker">Caso de uso</p>
+        <p>Un inversor puede contrastar la inflación de Estados Unidos (2,95%) con la mediana del 3,2% de los 187 países del mapa y publicar su cartera geolocalizada.</p>
+        <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Crea tu propia versión</a>
+      </aside>
 
       <section class="sources">
         <h2>Fuentes</h2>

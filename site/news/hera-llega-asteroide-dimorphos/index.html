@@ -158,6 +158,10 @@
   .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
   .btn-light{background:#fff;color:var(--cta);border-color:#fff}
   .btn-light:hover{opacity:.9}
+  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
+  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .use-case p{margin:0 0 12px;font-size:16px}
+  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -253,6 +257,12 @@
         <p>La llegada está prevista para el 4 de noviembre. La ESA espera publicar las primeras imágenes detalladas de Dimorphos el 25 de noviembre, cuando la nave esté más cerca. A partir de ahí empezará la fase científica: cartografía de la superficie, medición del campo gravitatorio y análisis de la composición.</p>
         <p>Entre mediados de enero y principios de febrero de 2027, Hera liberará dos CubeSats. Juventas llevará un radar para explorar el interior de Dimorphos y comprobar si es un cuerpo compacto o una acumulación de fragmentos poco cohesionados. Milani estudiará la composición mineral y las partículas de polvo que rodean el asteroide. Al final de sus operaciones, ambos intentarán descender sobre él.</p>
         <p>El plan nominal de la ESA termina el 2 de junio de 2027. La agencia aún no ha decidido cómo cerrará la misión: alejar la nave del sistema o intentar un aterrizaje sobre Didymos. En ningún caso Hera volverá a la Tierra.</p>
+
+        <aside class="use-case" data-use-case aria-label="Caso de uso">
+          <p class="use-case-kicker">Caso de uso</p>
+          <p>Un divulgador puede comparar los 28 cráteres del mapa (30–160 km) con el Dimorphos de 151 m y marcar en una capa propia los impactos de su región.</p>
+          <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Crea tu propia versión</a>
+        </aside>
 
         <section class="sources">
           <h2>Fuentes</h2>

@@ -158,6 +158,10 @@
   .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
   .btn-light{background:#fff;color:var(--cta);border-color:#fff}
   .btn-light:hover{opacity:.9}
+  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
+  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .use-case p{margin:0 0 12px;font-size:16px}
+  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -251,6 +255,12 @@
       <h2>Qué viene</h2>
       <p>El sistema de alerta temprana prevé AQI «pobre» del 26 al 28 de octubre y «pobre» o «moderado» después, según su <a href="https://ews.tropmet.res.in/" target="_blank" rel="noopener">boletín del 25 de octubre</a>. La altura de mezcla bajará de 2.200 a 1.300 metros y el índice de ventilación caerá de 11.000 a 3.800 m²/s; por debajo de 6.000 y con vientos inferiores a 10 km/h, la dispersión es desfavorable.</p>
       <p>La fase 1 del GRAP se aplica cuando el AQI está en «pobre»; el marco prevé más restricciones si entra en «muy pobre» (301-400).</p>
+
+      <aside class="use-case" data-use-case aria-label="Caso de uso">
+        <p class="use-case-kicker">Caso de uso</p>
+        <p>Una redacción de salud puede comparar el PM2.5 de su ciudad con los 195 países con dato del mapa y la guía de 5 µg/m³ de la OMS, y publicar un seguimiento diario en una capa propia.</p>
+        <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Crea tu propia versión</a>
+      </aside>
 
       <section class="sources">
         <h2>Fuentes</h2>

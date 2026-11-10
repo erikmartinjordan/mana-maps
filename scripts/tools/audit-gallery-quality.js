@@ -2029,6 +2029,28 @@ function extractFooterLinks(html) {
   return hrefs;
 }
 
+// Bloque «Caso de uso» de una pieza de News (prioridad 3 de noviembre): cada
+// artículo con mapa embebido debe explicar un uso concreto del mapa con una CTA
+// rastreada hacia el editor, que es el paso del embudo mapa → cuenta.
+const USE_CASE_MIN_LEN = 120;
+
+function extractUseCase(html) {
+  const source = String(html == null ? '' : html);
+  const block = source.match(/<aside\b[^>]*\bdata-use-case\b[^>]*>([\s\S]*?)<\/aside>/i);
+  if (!block) return { present: false, text: '', length: 0, cta: false, tracked: false };
+  const inner = block[1];
+  const text = decodeHtmlEntities(inner.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
+  const ctaMatch = inner.match(/<a\b[^>]*href\s*=\s*"\/map\/"[^>]*>/i);
+  const cta = Boolean(ctaMatch);
+  return {
+    present: true,
+    text,
+    length: textLength(text),
+    cta,
+    tracked: Boolean(ctaMatch && /cta_click/.test(ctaMatch[0]) && /use_case/.test(ctaMatch[0])),
+  };
+}
+
 function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS, landingDir = GALLERY_DIR_PATH } = {}) {
   const pathMod = require('path');
   const issues = [];
@@ -2070,6 +2092,7 @@ function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS, landi
       const slug = extractPrimaryMapSlug(html);
       const viewerSlugs = extractViewerMapSlugs(html);
       const footerLinks = extractFooterLinks(html);
+      const useCase = extractUseCase(html);
       allFooterLinks.push(...footerLinks);
 
       // Landings enlazadas desde el artículo (solo rutas estáticas relativas).
@@ -2116,13 +2139,27 @@ function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS, landi
         continue;
       }
       const linked = linkedSlugs.has(slug);
-      details[article] = { slug, linked, footerLinks };
-      articles.push({ article, name: articleName, lang: isEnglish ? 'en' : 'es', slug, linked });
+      details[article] = { slug, linked, footerLinks, useCase };
+      articles.push({ article, name: articleName, lang: isEnglish ? 'en' : 'es', slug, linked, useCase });
       if (!publishedSet.has(slug)) {
         issues.push(`${article}: el mapa embebido «${slug}» no está publicado en Firestore`);
       }
       if (!linked) {
         issues.push(`${article}: no enlaza a la landing del mapa /gallery/${slug}/`);
+      }
+      // Cada pieza con mapa explica un caso de uso concreto y ofrece la CTA al
+      // editor: es el paso del embudo mapa → cuenta que mide la prioridad 3.
+      if (!useCase.present) {
+        issues.push(`${article}: no incluye bloque «Caso de uso» (data-use-case)`);
+      } else {
+        if (useCase.length < USE_CASE_MIN_LEN) {
+          issues.push(`${article}: el caso de uso tiene ${useCase.length} caracteres (mínimo ${USE_CASE_MIN_LEN})`);
+        }
+        if (!useCase.cta) {
+          issues.push(`${article}: el caso de uso no enlaza a /map/`);
+        } else if (!useCase.tracked) {
+          issues.push(`${article}: la CTA del caso de uso no registra cta_click con target use_case`);
+        }
       }
     }
   }
@@ -2157,7 +2194,8 @@ function auditNewsLandingLinks(publishedSlugs, { newsDir = NEWS_DIR_PATHS, landi
     }
   }
 
-  return { issues, details, articles, footerLinks: allFooterLinks, reverseLinks: reverseChecked };
+  const useCases = articles.filter((a) => a.useCase && a.useCase.present).length;
+  return { issues, details, articles, footerLinks: allFooterLinks, reverseLinks: reverseChecked, useCases };
 }
 
 // ── Higiene de metadatos (check 13) ───────────────────────────────
@@ -2667,7 +2705,7 @@ async function main() {
   console.log('NEWS ↔ LANDING | ISSUES');
   console.log('--------------|-------');
   if (newsLinks.issues.length === 0) {
-    console.log(`OK: ${newsLinks.articles.length} artículos de News (ES+EN) con mapa enlazan a su landing /gallery/<slug>/ y ${newsLinks.reverseLinks} enlaces inversos landing → noticia`);
+    console.log(`OK: ${newsLinks.articles.length} artículos de News (ES+EN) con mapa enlazan a su landing /gallery/<slug>/, ${newsLinks.useCases} incluyen caso de uso con CTA al editor y ${newsLinks.reverseLinks} enlaces inversos landing → noticia`);
   } else {
     for (const issue of newsLinks.issues) console.log(`NEWS: ${issue}`);
   }
@@ -2959,6 +2997,8 @@ module.exports = {
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
   extractFooterLinks,
+  extractUseCase,
+  USE_CASE_MIN_LEN,
   auditNewsLandingLinks,
   DISCOVERY_MIN_HOST_VIEWS,
   DESCRIPTION_MIN_LEN,
