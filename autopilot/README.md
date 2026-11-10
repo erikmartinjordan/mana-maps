@@ -19,7 +19,7 @@ El loop del iMac sincroniza los prompts de `agents/*.md` a
 `~/autopilot/agents/` y `~/.config/opencode/agents/` al inicio de cada
 ejecución. El **sistema que ejecuta esos agentes vive únicamente en el iMac**,
 en `~/autopilot` (no es un repo): loop, configuración real, scripts, panel, bot
-de WhatsApp y datos crudos. Nada de eso se versiona aquí.
+de Telegram y datos crudos. Nada de eso se versiona aquí.
 
 ## Agentes
 
@@ -66,7 +66,7 @@ No hay runner ni LaunchAgent propios del blog. Instrucciones completas en
 
 ## Configuración (en el iMac)
 
-La configuración real —modelo, intervalos y `whatsapp.ownerNumber`— está en
-`~/autopilot/config.json` del iMac y **no se versiona** (contiene datos
-personales). El modelo se define **solo** ahí; el loop lo lee y lo pasa a todos
-los agentes con `--model`.
+La configuración real —modelo, intervalos y `telegram.botToken` /
+`telegram.ownerChatId`— está en `~/autopilot/config.json` del iMac y **no se
+versiona** (contiene datos personales). El modelo se define **solo** ahí; el
+loop lo lee y lo pasa a todos los agentes con `--model`.

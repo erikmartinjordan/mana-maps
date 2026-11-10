@@ -767,7 +767,7 @@ box(chatBubble, 0.11, 0.11, 0.06, -0.13, 0, 0.08, glowMat('#ffffff', 1.6), { cas
 box(chatBubble, 0.11, 0.11, 0.06, 0.13, 0, 0.08, glowMat('#ffffff', 1.6), { cast: false });
 chatBubble.position.set(6.9, 3.18, 22.9);
 scene.add(chatBubble);
-const chatLabel = makeTextSprite('Chat', { badge: 'A4', sub: '24 / 7 · WhatsApp', accent: COLORS.green, w: 3.3 });
+const chatLabel = makeTextSprite('Chat', { badge: 'A4', sub: '24 / 7 · Telegram', accent: COLORS.green, w: 3.3 });
 chatLabel.position.set(7.6, 4.45, 22.1);
 labelGroup.add(chatLabel);
 markInfo(chatBot, 'chat');
@@ -1522,7 +1522,7 @@ function trySpawn(byErik) {
   if (byErik) {
     pulseStation('backlog', 1);
     popText('+1 idea', COLORS.amber, 5.2, 3.4, 14);
-    popText('vía WhatsApp', '#25D366', 5.2, 3.9, 14);
+    popText('vía Telegram', '#229ED9', 5.2, 3.9, 14);
   } else {
     pulseStation('backlog', 0.7);
     popText('+1 tarea', COLORS.cyan, 5.2, 3.4, 14);
@@ -1880,13 +1880,13 @@ const INFO = {
   },
   erik: {
     num: 'E', kicker: 'Dirección', title: 'Erik', accent: '#d9d5e1',
-    body: 'Dirección humana: abre tareas a mano, lanza ideas directas y también habla con el equipo por WhatsApp. El Ideador y el Chat trabajan a su lado.',
-    chips: ['humano', 'ideas directas', 'WhatsApp']
+    body: 'Dirección humana: abre tareas a mano, lanza ideas directas y también habla con el equipo por Telegram. El Ideador y el Chat trabajan a su lado.',
+    chips: ['humano', 'ideas directas', 'Telegram']
   },
   chat: {
     num: 'A4', kicker: 'Siempre activo', title: 'Chat', accent: COLORS.green,
     body: 'Asistente 24/7 junto a Erik. Resuelve dudas, deja notas y avisa de lo que ocurre en la fábrica.',
-    chips: ['24 / 7', 'notas', 'WhatsApp']
+    chips: ['24 / 7', 'notas', 'Telegram']
   },
   blogger: {
     num: 'A5', kicker: 'Salida', title: 'Blogger', accent: COLORS.rose,
