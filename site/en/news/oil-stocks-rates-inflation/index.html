@@ -151,6 +151,12 @@
 
   .lang-switch{max-width:760px;margin:0 auto 10px;text-align:right;font-size:12px}
   .lang-switch a{color:var(--muted);text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
+  .post-footer{border-top:1px solid var(--line);margin-top:38px;padding-top:22px}
+  .footer-cta-dark{background:var(--cta);color:#fff;border-radius:20px;padding:24px}
+  .footer-cta-dark h2{color:#fff;margin:0 0 8px}
+  .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
+  .btn-light{background:#fff;color:var(--cta);border-color:#fff}
+  .btn-light:hover{opacity:.9}
 
 
   @media(max-width:560px){
@@ -251,13 +257,13 @@
           <li><a href="https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG" target="_blank" rel="noopener">World Bank, World Development Indicators: annual consumer price inflation (FP.CPI.TOTL.ZG)</a>, updated 8 October 2026.</li>
           <li><a href="https://maña.com/map/?gallery=inflation-world" target="_blank" rel="noopener">Interactive map: annual inflation by country</a>. Own calculation on the published GeoJSON (205 polygons, 187 with data).</li>
         </ul>
-        <p class="map-help">Sources and data consulted on 10 November 2026.</p>
       </section>
 
       <section class="post-footer" aria-label="Article footer">
-        <div class="cta-bar">
-          <p><strong>Got data?</strong> Turn a spreadsheet into a shareable map.</p>
-          <a class="btn btn-primary btn-sm" href="/map/">Create a free map →</a>
+        <div class="footer-cta-dark">
+          <h2>Turn your data into a map</h2>
+          <p>Import a spreadsheet or draw directly on the map. Share it with a link.</p>
+          <a class="btn btn-light" href="/map/">Create a free map</a>
         </div>
       </section>
       </article>

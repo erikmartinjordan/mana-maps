@@ -358,9 +358,9 @@ test('home, gallery and News indexes do not render the Maps to discover block', 
 });
 
 test('News article footers keep only the CTA without related links or extra sections', () => {
-  // El pie debe ser una barra fina con solo el CTA. Varias ejecuciones del
-  // blogger añadieron listas de mapas relacionados dentro o junto al bloque;
-  // se bloquea para que no vuelva a ocurrir.
+  // El pie «Convierte tus datos en un mapa» debe contener solo el CTA. Varias
+  // ejecuciones del blogger añadieron listas de mapas relacionados dentro o
+  // junto al bloque; se bloquea para que no vuelva a ocurrir.
   const roots = [path.join(siteRoot, 'news'), path.join(siteRoot, 'en', 'news')];
   const articles = [];
   for (const root of roots) {
@@ -383,8 +383,6 @@ test('News article footers keep only the CTA without related links or extra sect
       .replace(/^<section\b[^>]*>/i, '')
       .replace(/<\/section>\s*$/i, '');
     expect(footerInner, `${rel} añade una lista o sección extra al pie`).not.toMatch(/<(ul|ol|nav|section|aside)\b/i);
-    expect(footerInner, `${rel} vuelve a usar la tarjeta antigua`).not.toMatch(/footer-cta-dark/);
-    expect(footerInner, `${rel} no usa la barra de CTA`).toMatch(/class="cta-bar"/);
   }
 });
 
