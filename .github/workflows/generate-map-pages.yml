@@ -10,6 +10,7 @@ on:
     paths:
       - 'scripts/tools/generate-map-landings.js'
       - 'scripts/lib/map-card.js'
+      - 'scripts/lib/firestore-retry.js'
       - '.github/workflows/generate-map-pages.yml'
 
 permissions:
@@ -33,10 +34,21 @@ jobs:
         with:
           node-version: '20'
 
+      # La descarga de navegadores y `apt-get` de las dependencias del sistema
+      # fallan de vez en cuando por red en el runner. El job es programado, así
+      # que se reintenta hasta 3 veces antes de darlo por roto.
       - name: Install Playwright + Chromium
         run: |
-          npm install --save-dev playwright-core@latest
-          npx playwright-core install --with-deps chromium
+          for attempt in 1 2 3; do
+            if npm install --save-dev playwright-core@latest \
+              && npx playwright-core install --with-deps chromium; then
+              exit 0
+            fi
+            echo "::warning::Intento ${attempt} de instalar Playwright y Chromium falló; reintentando."
+            sleep $((attempt * 15))
+          done
+          echo "::error::No se pudo instalar Playwright y Chromium tras 3 intentos."
+          exit 1
 
       - name: Generate Firebase runtime config
         env:
@@ -56,6 +68,16 @@ jobs:
             echo "Sin cambios en landings/OG"
           else
             git commit -m "chore: generar landings estaticas y OG cards de mapas"
-            git push
-            echo "Landings y OG commiteadas"
+            # Otro push (bot del changelog o landings) puede adelantar main
+            # mientras corre el job: se rebasa y se reintenta el push.
+            for attempt in 1 2 3; do
+              if git pull --rebase --autostash origin main && git push; then
+                echo "Landings y OG commiteadas"
+                exit 0
+              fi
+              echo "::warning::Push de landings/OG falló (intento ${attempt}); reintentando."
+              sleep $((attempt * 5))
+            done
+            echo "::error::No se pudieron pushear las landings y OG cards."
+            exit 1
           fi

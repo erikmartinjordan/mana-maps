@@ -24,6 +24,7 @@ const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-ca
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
 const { buildFactsSection } = require('../lib/map-landing-facts');
 const { buildNewsMapIndex, newsLinksBlock, readNewsArticles } = require('../lib/news-map-links');
+const { withRetries, isQuotaExhausted } = require('../lib/firestore-retry');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SITE_ROOT = path.join(ROOT, 'site');
@@ -60,7 +61,7 @@ function loadConfig() {
 }
 
 // ── Firestore REST ──────────────────────────────────────────────
-function restGet(url) {
+function restGetOnce(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       // Decodifica con StringDecoder: concatenar chunks con `data += chunk`
@@ -70,11 +71,21 @@ function restGet(url) {
       let data = '';
       res.on('data', (c) => data += c);
       res.on('end', () => {
-        if (res.statusCode !== 200) return reject(new Error('HTTP ' + res.statusCode + ': ' + data.slice(0, 200)));
+        if (res.statusCode !== 200) {
+          const error = new Error('HTTP ' + res.statusCode + ': ' + data.slice(0, 200));
+          error.status = res.statusCode;
+          return reject(error);
+        }
         try { resolve(JSON.parse(data)); } catch (e) { reject(e); }
       });
     }).on('error', reject);
   });
+}
+
+// 429/5xx y cortes de red se reintentan con backoff: el job es programado y no
+// hay nada que corregir en el contenido cuando Firestore está saturado.
+function restGet(url) {
+  return withRetries(() => restGetOnce(url));
 }
 
 function fromValue(v) {
@@ -373,7 +384,19 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   }
 
   console.log('Leyendo mapas publicados de Firestore…');
-  const allMaps = await fetchPublishedMaps(cfg);
+  let allMaps;
+  try {
+    allMaps = await fetchPublishedMaps(cfg);
+  } catch (e) {
+    if (isQuotaExhausted(e)) {
+      // La cuota de Firestore es externa al repo: las landings y OG cards ya
+      // commiteadas siguen siendo válidas, así que se omite esta regeneración
+      // (con aviso visible en Actions) en lugar de romper el workflow diario.
+      console.warn('::warning::Firestore devolvió 429 RESOURCE_EXHAUSTED (cuota agotada). Se omite la regeneración de landings y OG cards en esta ejecución; se reintentará en la próxima programada.');
+      return;
+    }
+    throw e;
+  }
   const relatedIndex = buildRelatedIndex(allMaps);
   // Cada mapa sin visitas se enlaza desde dos landings con tráfico: un único
   // enlace puede quedar enterrado y no romper el círculo de cero visitas.
