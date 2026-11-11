@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-11-11",
+    "event": "Primera huelga general en España en 14 años, convocada por CCOO, UGT y otras organizaciones bajo el lema «Salarios. Vivienda. Precios», con 2.591.200 parados en la EPA del 3T de 2026 (10,18%) y unos 19 millones de asalariados llamados al paro (11 de noviembre de 2026)",
+    "type": "news",
+    "format": "comparativa",
+    "topic": "economia",
+    "mapSlug": "unemployment-world",
+    "sourceUrls": [
+      "https://elpais.com/economia/2026-11-10/los-sindicatos-llaman-a-espana-a-una-huelga-general-por-primera-vez-en-14-anos.html",
+      "https://www.rtve.es/noticias/20261110/huelga-general-11n-motivos-trabajadores-manifestaciones/17307420.shtml",
+      "https://www.elconfidencial.com/espana/2026-11-10/sindicatos-huelga-subidas-porcentaje-1qrt-1cntxt_4461939/",
+      "https://www.ine.es/dyngs/INEbase/es/operacion.htm?c=Estadistica_C&cid=1254736176918&menu=ultiDatos&idp=1254735976595"
+    ],
+    "translations": {
+      "es": {
+        "slug": "huelga-general-paro-mas-alto-union-europea",
+        "url": "/news/huelga-general-paro-mas-alto-union-europea/",
+        "title": "Huelga general con el paro más alto de la Unión Europea",
+        "description": "La primera huelga general en 14 años para España llega con 2,59 millones de parados. El mapa de la OIT sitúa el paro en el 10,4%, el más alto de la UE."
+      },
+      "en": {
+        "slug": "general-strike-eu-highest-unemployment",
+        "url": "/en/news/general-strike-eu-highest-unemployment/",
+        "title": "A general strike with the EU's highest unemployment rate",
+        "description": "Spain's first general strike in 14 years arrives with 2.59 million unemployed. The ILO map puts Spain at 10.4%, the EU's highest, against Germany's 3.7%."
+      }
+    }
+  },
+  {
     "date": "2026-11-10",
     "event": "El Brent cae un 5,85% hasta 92,57 dólares y Wall Street rebota (S&P 500 +2,35%, Nasdaq +2,74%) antes del IPC de octubre de EE. UU.; Nvidia cae un 4,2% por la investigación a su CEO y el mercado mantiene por encima del 80% la probabilidad de una subida de tipos en diciembre (9-10 de noviembre de 2026)",
     "type": "news",
