@@ -13,8 +13,7 @@ const {
   extractPrimaryMapSlug,
   extractViewerMapSlugs,
   extractFooterLinks,
-  extractUseCase,
-  USE_CASE_MIN_LEN,
+  hasUseCaseBlock,
   parseLandingMetadata,
   auditLandingMetadata,
   auditMetadataHygiene,
@@ -402,72 +401,47 @@ test('every News article links to the static landing of its embedded map', () =>
   }
 });
 
-test('every News article with a map ships a concrete use case and an editor CTA', () => {
-  // Prioridad 3 de noviembre: cada pieza de News explica un caso de uso del
-  // mapa embebido y ofrece la CTA al editor, que es el paso del embudo
-  // mapa → cuenta. El check 16 lo valida junto a los enlaces de landing.
-  const published = parseCollectionLd(galleryHtml).slugs;
-  const result = auditNewsLandingLinks(published);
-
-  expect(result.issues).toEqual([]);
-  expect(result.useCases).toBe(result.articles.length);
-  for (const article of result.articles) {
-    const useCase = article.useCase;
-    expect(useCase.present, `${article.article} sin caso de uso`).toBe(true);
-    expect(useCase.length, `${article.article} caso de uso demasiado corto`).toBeGreaterThanOrEqual(USE_CASE_MIN_LEN);
-    expect(useCase.cta, `${article.article} sin CTA a /map/`).toBe(true);
-    expect(useCase.tracked, `${article.article} sin tracking cta_click/use_case`).toBe(true);
-  }
+test('News articles do not render the removed use-case block', () => {
+  // El bloque «Caso de uso» se retiró de las piezas de News por decisión de
+  // producto (ver AGENTS.md). Si alguien lo reintroduce, este test lo bloquea.
+  const roots = [
+    path.join(__dirname, '..', '..', 'site', 'news'),
+    path.join(__dirname, '..', '..', 'site', 'en', 'news'),
+  ];
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return walk(full);
+    return entry.name === 'index.html' ? [full] : [];
+  });
+  const articles = roots.flatMap(walk);
+  expect(articles.length).toBeGreaterThan(0);
+  const offenders = articles.filter((file) => {
+    const html = fs.readFileSync(file, 'utf8');
+    return /data-use-case|use-case-kicker|class="use-case"/.test(html);
+  });
+  expect(offenders, `Bloque «Caso de uso» reintroducido en: ${offenders.join(', ')}`).toEqual([]);
 });
 
-test('a News article without a use case or with an untracked CTA fails the audit', () => {
-  // Regresión sintética: el bloque debe estar presente, tener texto propio y
-  // una CTA rastreada; si falta cualquiera de las tres condiciones, el check 16
-  // lo denuncia en lugar de dar por bueno el artículo.
+test('the News landing audit flags a reintroduced use-case block', () => {
+  // Regresión sintética: cualquier artículo que vuelva a incluir el aside
+  // retirado debe denunciarse aunque el resto de enlaces sea correcto.
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-usecase-'));
   const newsDir = path.join(tmp, 'news');
-  const landingDir = path.join(tmp, 'gallery');
-  const slug = 'gini-index-world';
-
-  const writeArticle = (name, extra) => {
-    const dir = path.join(newsDir, name);
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), [
-      '<h1>Titular</h1>',
-      '<iframe src="/map/?embed=1&gallery=gini-index-world"></iframe>',
-      `<a href="/gallery/${slug}/">Ficha</a>`,
-      extra,
-    ].join(''), 'utf8');
-  };
-  const names = ['sin-bloque', 'sin-cta', 'cta-sin-tracking', 'corto', 'correcto'];
-  fs.mkdirSync(path.join(landingDir, slug), { recursive: true });
+  const articleDir = path.join(newsDir, 'con-bloque');
+  fs.mkdirSync(articleDir, { recursive: true });
   fs.writeFileSync(
-    path.join(landingDir, slug, 'index.html'),
-    names.map((name) => `<a href="/news/${name}/">${name}</a>`).join(''),
+    path.join(articleDir, 'index.html'),
+    '<h1>Titular</h1>' +
+    '<iframe src="/map/?embed=1&gallery=publicado"></iframe>' +
+    '<a href="/gallery/publicado/">Ficha</a>' +
+    '<aside class="use-case" data-use-case><p>Texto de ejemplo suficientemente largo para el bloque retirado.</p><a href="/map/">Crea</a></aside>',
     'utf8'
   );
 
-  const valid = [
-    '<aside class="use-case" data-use-case>',
-    '<p>Un analista puede comparar el índice Gini de su país con los 205 del mapa y subir su propio indicador local para comparar.</p>',
-    '<a class="btn" href="/map/" onclick="trackEvent(\'cta_click\',{target:\'use_case\'})">Crea</a>',
-    '</aside>',
-  ].join('');
-
-  writeArticle('sin-bloque', '');
-  writeArticle('sin-cta', '<aside data-use-case><p>Un analista puede comparar el índice Gini de su país con los 205 del mapa y subir su propio indicador local.</p></aside>');
-  writeArticle('cta-sin-tracking', '<aside data-use-case><p>Un analista puede comparar el índice Gini de su país con los 205 del mapa y subir su propio indicador local.</p><a href="/map/">Crea</a></aside>');
-  writeArticle('corto', '<aside data-use-case><p>Compara tu país.</p><a href="/map/" onclick="trackEvent(\'cta_click\',{target:\'use_case\'})">Crea</a></aside>');
-  writeArticle('correcto', valid);
-
-  expect(extractUseCase(valid)).toMatchObject({ present: true, cta: true, tracked: true });
-  expect(extractUseCase('<p>sin bloque</p>').present).toBe(false);
-  const detached = auditNewsLandingLinks([slug], { newsDir, landingDir });  const issuesOf = (name) => detached.issues.filter((issue) => issue.startsWith(name + ':'));
-  expect(issuesOf('sin-bloque').join(' ')).toContain('no incluye bloque «Caso de uso»');
-  expect(issuesOf('sin-cta').join(' ')).toContain('no enlaza a /map/');
-  expect(issuesOf('cta-sin-tracking').join(' ')).toContain('no registra cta_click');
-  expect(issuesOf('corto').join(' ')).toContain('caracteres (mínimo');
-  expect(issuesOf('correcto')).toEqual([]);
+  expect(hasUseCaseBlock('<aside data-use-case>x</aside>')).toBe(true);
+  expect(hasUseCaseBlock('<p>sin bloque</p>')).toBe(false);
+  const result = auditNewsLandingLinks(['publicado'], { newsDir });
+  expect(result.issues).toContain('con-bloque: incluye el bloque «Caso de uso» retirado por decisión de producto');
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });
@@ -587,8 +561,7 @@ test('News landing link check audits English articles and rejects non-landing fo
     '<ul class="footer-links">' +
     '<li><a href="/gallery/otro/">otro</a></li>' +
     '<li><a href="/news/otra/">news</a></li>' +
-    '</ul>' +
-    '<aside data-use-case><p>An analyst can compare the indicator for their country with the 205 in the map and add their own local record for contrast.</p><a href="/map/" onclick="trackEvent(\'cta_click\',{target:\'use_case\'})">Build</a></aside>'
+    '</ul>'
   );
 
   const result = auditNewsLandingLinks(['publicado'], { newsDir: enNews });
@@ -610,8 +583,7 @@ test('News landing link check reports landings without the reverse News link', (
   fs.mkdirSync(path.join(newsDir, 'noticia-es'), { recursive: true });
   fs.writeFileSync(
     path.join(newsDir, 'noticia-es', 'index.html'),
-    '<h1>Noticia</h1><iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a>' +
-    '<aside data-use-case><p>Un analista puede comparar el indicador de su país con los 205 del mapa y subir su propio registro local para contrastarlo.</p><a href="/map/" onclick="trackEvent(\'cta_click\',{target:\'use_case\'})">Crea</a></aside>'
+    '<h1>Noticia</h1><iframe src="/map/?gallery=publicado&amp;embed=1"></iframe><a href="/gallery/publicado/">ficha</a>'
   );
   fs.mkdirSync(path.join(landingDir, 'publicado'), { recursive: true });
   fs.writeFileSync(path.join(landingDir, 'publicado', 'index.html'), '<section class="related"><h2>Más mapas</h2></section>');

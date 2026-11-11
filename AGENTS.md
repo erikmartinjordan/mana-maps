@@ -121,6 +121,12 @@ replicado en `site/js/vector-renderer.js` y `site/js/globe.js`), `_manaColor`,
   relacionados, secciones extra o cualquier otro contenido. Hay un test que lo
   bloquea: `tests/predeploy/seo-metadata.spec.js`
   ("News article footers keep only the CTA without related links or extra sections").
+- **Bloque «Caso de uso» / «Use case» de los artículos de News**: eliminado por
+  decisión de producto. Está prohibido reintroducirlo (`<aside data-use-case>`,
+  `use-case-kicker`, estilos `.use-case`) en cualquier artículo ES o EN. Hay un
+  test que lo bloquea: `tests/predeploy/seo-metadata.spec.js`
+  ("News articles do not render the removed use-case block"), y la auditoría
+  `auditNewsLandingLinks` lo denuncia como incidencia.
 - **Índice de mapas de la galería**: el bloque plegable «Índice de mapas» que
   listaba todas las landings en `/gallery/` fue eliminado por decisión de
   producto (duplicaba el grid de tarjetas). Está prohibido recrearlo, en HTML

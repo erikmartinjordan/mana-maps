@@ -164,10 +164,6 @@
     .table-wrap th,.table-wrap td{padding:9px 8px}
     .table-wrap caption{font-size:11px;padding:10px 10px 0}
   }
-  .use-case{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--cta);border-radius:14px;background:var(--soft)}
-  .use-case-kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-  .use-case p{margin:0 0 12px;font-size:16px}
-  .use-case .btn{height:auto;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
 </style>
   <link rel="stylesheet" href="/css/site-footer.css">
   <link rel="stylesheet" href="/css/site-navbar.css">
@@ -264,12 +260,6 @@
 
       <h2>Method and data</h2>
       <p>The calculation uses the published GeoJSON of the map, consulted on 9 November 2026. It contains 24 features: 23 cables with a length and the Pan-Arctic, still planned and without a length, which is excluded. Total length is the sum of the 'Longitud del cable (km)' field; the median is 14,530 km. Country counts count the cables whose 'Países' field includes that country; a cable can count in several, which is why the percentages do not add up to 100. n = 23. This is a sample of trunk routes, not a census, and it does not include projects that are not yet in service, such as PISCES. The order and data-centre figures come from the sources cited; the analysis does not establish causality.</p>
-
-      <aside class="use-case" data-use-case aria-label="Use case">
-        <p class="use-case-kicker">Use case</p>
-        <p>An infrastructure analyst can isolate the 12 cables in the sample that touch the United States and measure the 30.3% of total length crossing Egypt, with their own landing-point layer.</p>
-        <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'use_case',source:'news_article'})">Build your own version</a>
-      </aside>
 
       <section class="sources">
         <h2>Sources</h2>
