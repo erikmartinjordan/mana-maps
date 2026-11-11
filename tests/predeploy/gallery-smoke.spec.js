@@ -28,6 +28,30 @@ test('gallery loads without errors and shows empty state when Firebase is unavai
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
 
+test('gallery language selector translates static and empty-state UI', async ({ page }) => {
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
+  await page.addInitScript(() => {
+    delete window.MANA_FIREBASE_CONFIGS;
+    localStorage.removeItem('mana-lang');
+    localStorage.removeItem('mana-landing-lang');
+  });
+
+  await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
+
+  const langBtn = page.locator('#lang-btn');
+  await expect(page.locator('h1')).toHaveText('Galería de mapas');
+  await expect(page.locator('.empty-title')).toHaveText('Todavía no hay mapas publicados');
+  await expect(langBtn).toHaveAttribute('aria-label', /Idioma actual: español/i);
+
+  await langBtn.click();
+
+  await expect(langBtn).toHaveAttribute('aria-label', /Current language: English.*Switch to Spanish/i);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('h1')).toHaveText('Map gallery');
+  await expect(page.locator('.empty-title')).toHaveText('No published maps yet');
+  await expect(page.locator('.empty .btn-primary')).toHaveText('Create map');
+});
+
 test('gallery cards keep descriptions and data source hidden (product decision)', async ({ page }) => {
   // Guard de producto: las descripciones (.card-desc) y la fuente (.meta-source)
   // de las tarjetas de la galería deben permanecer ocultas. Este test bloquea

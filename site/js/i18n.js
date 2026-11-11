@@ -544,6 +544,30 @@ const I18N = {
     pricing_plans_label: "Planes de precios",
     pricing_faq_actions_label: "Elige un plan",
     pricing_cta_label: "Llamada a la acción",
+    // ── Gallery ──
+    gallery_menu: "Menú",
+    gallery_home: "Inicio",
+    gallery_my_maps: "Mis mapas",
+    gallery_title: "Galería de mapas",
+    gallery_subtitle: "Descubre mapas creados y compartidos por la comunidad: ábrelos, márcalos como favoritos o haz un fork para adaptarlos a tu flujo de trabajo.",
+    gallery_eyebrow: "Comunidad",
+    gallery_published_maps: "mapas publicados",
+    gallery_edition: "Edición 2026",
+    gallery_categories: "Categorías",
+    gallery_choose_categories: "Elegir categorías",
+    gallery_search_category: "Buscar categoría…",
+    gallery_category_options: "Opciones de categoría",
+    gallery_clear: "Limpiar",
+    gallery_apply: "Aplicar",
+    gallery_published_map: "Mapa publicado",
+    gallery_map: "Mapa",
+    gallery_related_maps: "Mapas relacionados",
+    gallery_footer: "Pie de página",
+    gallery_footer_links: "Enlaces del pie",
+    gallery_auth_subtitle: "Guarda, comparte y da me gusta a los mapas.",
+    gallery_close: "Cerrar",
+    gallery_email_placeholder: "tu@email.com",
+    gallery_auth_or: "o",
     // ── Nav (shared) ──
     nav_open_map: "Abrir mapa",
     lang_toggle_aria: "Cambiar idioma. Idioma actual: español. Cambiar a inglés",
@@ -1113,6 +1137,30 @@ const I18N = {
     pricing_plans_label: "Pricing plans",
     pricing_faq_actions_label: "Choose a plan",
     pricing_cta_label: "Call to action",
+    // ── Gallery ──
+    gallery_menu: "Menu",
+    gallery_home: "Home",
+    gallery_my_maps: "My maps",
+    gallery_title: "Map gallery",
+    gallery_subtitle: "Discover maps created and shared by the community: open them, save them as favorites or fork them to adapt them to your workflow.",
+    gallery_eyebrow: "Community",
+    gallery_published_maps: "published maps",
+    gallery_edition: "2026 edition",
+    gallery_categories: "Categories",
+    gallery_choose_categories: "Choose categories",
+    gallery_search_category: "Search category…",
+    gallery_category_options: "Category options",
+    gallery_clear: "Clear",
+    gallery_apply: "Apply",
+    gallery_published_map: "Published map",
+    gallery_map: "Map",
+    gallery_related_maps: "Related maps",
+    gallery_footer: "Footer",
+    gallery_footer_links: "Footer links",
+    gallery_auth_subtitle: "Save, share and like maps.",
+    gallery_close: "Close",
+    gallery_email_placeholder: "you@email.com",
+    gallery_auth_or: "or",
     // ── Nav (shared) ──
     nav_open_map: "Open map",
     lang_toggle_aria: "Change language. Current language: English. Switch to Spanish",
@@ -1249,6 +1297,12 @@ function applyTranslations(lang) {
 
   // Update HTML lang attribute
   document.documentElement.lang = LANG === 'en' ? 'en' : 'es';
+
+  // Allow pages with dynamically rendered content (e.g. the gallery) to
+  // refresh their own strings when the language changes.
+  try {
+    document.dispatchEvent(new CustomEvent('mana:langchange', { detail: { lang: LANG } }));
+  } catch (e) {}
 
   // Allow modules that render translated text dynamically to refresh their UI.
   if (window.manaAuth && typeof window.manaAuth.refreshTranslations === 'function') {

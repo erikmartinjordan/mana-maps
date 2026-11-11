@@ -35,12 +35,21 @@
       .replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  function isEn() {
+    return typeof LANG !== 'undefined' && LANG === 'en';
+  }
+
+  function tr(es, en) {
+    return isEn() ? en : es;
+  }
+
   function safeDate(tsMs) {
-    if (!tsMs) return 'Sin fecha';
+    var noDate = tr('Sin fecha', 'No date');
+    if (!tsMs) return noDate;
     try {
-      return new Date(tsMs).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(tsMs).toLocaleDateString(isEn() ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
     } catch (_) {
-      return 'Sin fecha';
+      return noDate;
     }
   }
 
@@ -292,11 +301,12 @@
   // ═══════════════════════════════════════════════════════════════
 
   function thumbAccessibleLabel(item) {
-    var title = item && (item.title || item.name) || 'Mapa sin título';
+    var title = item && (item.title || item.name) || tr('Mapa sin título', 'Untitled map');
     var mapId = item && (item.slug || item.id);
     // Include the stable map identifier so two maps with the same title still
     // expose different names to assistive technology.
-    return 'Vista previa del mapa «' + title + '»' + (mapId ? ' (' + mapId + ')' : '');
+    return tr('Vista previa del mapa «' + title + '»', 'Map preview “' + title + '”') +
+      (mapId ? ' (' + mapId + ')' : '');
   }
 
   function renderThumb(item) {
@@ -440,9 +450,9 @@
       list.classList.add('empty-state');
       list.innerHTML = '<div class="empty">' +
         '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>' +
-        '<div class="empty-title">Todavía no hay mapas publicados</div>' +
-        '<div class="empty-sub">Sé el primero: crea un mapa y compártelo desde el botón "Compartir" del editor.</div>' +
-        '<a class="btn btn-primary" href="/map/">Crear mapa</a>' +
+        '<div class="empty-title">' + escHtml(tr('Todavía no hay mapas publicados', 'No published maps yet')) + '</div>' +
+        '<div class="empty-sub">' + escHtml(tr('Sé el primero: crea un mapa y compártelo desde el botón "Compartir" del editor.', 'Be the first: create a map and share it from the "Share" button in the editor.')) + '</div>' +
+        '<a class="btn btn-primary" href="/map/">' + escHtml(tr('Crear mapa', 'Create map')) + '</a>' +
       '</div>';
       return;
     }
@@ -460,7 +470,7 @@
       var mode = item.shareMode || 'view';
       var likedClass = hasLiked(mapSlug) ? ' liked' : '';
       var tags = Array.isArray(item.tags) ? item.tags : [];
-      var title = item.title || item.name || 'Mapa sin título';
+      var title = item.title || item.name || tr('Mapa sin título', 'Untitled map');
       var tagLabel = tags.length ? getTagLabel(String(tags[0])) : '';
       return '' +
         '<div class="card">' +
@@ -473,18 +483,18 @@
                 '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + thumb + '</div>' +
               '</div>' +
               '<div class="sheet-caption">' +
-                '<span class="card-kicker">' + escHtml(tagLabel || 'Mapa') + '</span>' +
+                '<span class="card-kicker">' + escHtml(tagLabel || tr('Mapa', 'Map')) + '</span>' +
                 '<h3 class="title">' + escHtml(title) + '</h3>' +
                 '<div class="meta">' +
                   (authorHandle ? '<span class="meta-author">@' + escHtml(authorHandle) + '</span><span>·</span>' : '') +
-                  '<span>' + (item.featureCount || 0) + ' elementos</span>' +
+                  '<span>' + (item.featureCount || 0) + ' ' + escHtml(tr('elementos', 'features')) + '</span>' +
                   '<span>·</span>' +
                   '<span>' + safeDate(created) + '</span>' +
                 '</div>' +
               '</div>' +
             '</a>' +
             '<div class="card-actions">' +
-              '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + escAttr(mapSlug) + '" data-author="' + escAttr(authorHandle) + '" onclick="galleryLike(this)" aria-label="Me gusta">' +
+              '<button class="card-action-btn card-like-btn' + likedClass + '" data-map-id="' + escAttr(mapSlug) + '" data-author="' + escAttr(authorHandle) + '" onclick="galleryLike(this)" aria-label="' + escAttr(tr('Me gusta', 'Like')) + '">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>' +
                 '<span class="like-count">' + likes + '</span>' +
               '</button>' +
@@ -492,7 +502,7 @@
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9"/><line x1="12" y1="12" x2="12" y2="15"/></svg>' +
                 '<span>Fork</span>' +
               '</button>' +
-              '<button class="card-action-btn card-share-btn" data-map-id="' + escAttr(mapSlug) + '" data-title="' + escAttr(item.title || item.name || 'Mapa de Maña Maps') + '" onclick="galleryShareCard(this)" aria-label="Compartir">' +
+              '<button class="card-action-btn card-share-btn" data-map-id="' + escAttr(mapSlug) + '" data-title="' + escAttr(item.title || item.name || tr('Mapa de Maña Maps', 'A Maña Maps map')) + '" onclick="galleryShareCard(this)" aria-label="' + escAttr(tr('Compartir', 'Share')) + '">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
               '</button>' +
             '</div>' +
@@ -669,7 +679,7 @@
     var opts = document.getElementById('cat-opts');
     if (!opts) return;
     if (!_allTags.length) {
-      opts.innerHTML = '<div class="cat-opt-empty">Sin categorías</div>';
+      opts.innerHTML = '<div class="cat-opt-empty">' + escHtml(tr('Sin categorías', 'No categories')) + '</div>';
       return;
     }
     opts.innerHTML = _allTags.map(function(tag) {
@@ -697,9 +707,9 @@
     el.innerHTML = _activeTags.map(function(tag) {
       var label = escHtml(getTagLabel(tag));
       return '<span class="cat-chip">' + label +
-        '<button type="button" data-tag="' + escHtml(tag) + '" aria-label="Quitar ' + label + '">&times;</button></span>';
+        '<button type="button" data-tag="' + escHtml(tag) + '" aria-label="' + escAttr(tr('Quitar ' + label, 'Remove ' + label)) + '">&times;</button></span>';
     }).join('') +
-      (_activeTags.length > 1 ? '<button class="cat-clear-inline" type="button" id="cat-clear-inline">Limpiar todo</button>' : '');
+      (_activeTags.length > 1 ? '<button class="cat-clear-inline" type="button" id="cat-clear-inline">' + escHtml(tr('Limpiar todo', 'Clear all')) + '</button>' : '');
     el.querySelectorAll('.cat-chip button').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var tag = btn.getAttribute('data-tag');
@@ -812,9 +822,13 @@
     if (statusEl) {
       if (_activeTags.length) {
         var names = _activeTags.map(function(t) { return '«' + getTagLabel(t) + '»'; }).join(', ');
-        statusEl.textContent = 'Mostrando ' + filtered.length + ' mapa' + (filtered.length !== 1 ? 's' : '') + ' en ' + names + '.';
+        var template = filtered.length === 1
+          ? tr('Mostrando 1 mapa en {names}.', 'Showing 1 map in {names}.')
+          : tr('Mostrando {count} mapas en {names}.', 'Showing {count} maps in {names}.');
+        statusEl.textContent = template.replace('{count}', filtered.length).replace('{names}', names);
       } else {
-        statusEl.textContent = 'Mostrando todos los mapas (' + filtered.length + ').';
+        statusEl.textContent = tr('Mostrando todos los mapas ({count}).', 'Showing all maps ({count}).')
+          .replace('{count}', filtered.length);
       }
     }
   }
@@ -831,7 +845,7 @@
     var doLike = async function() {
       // One like per map per browser: Firestore rules only allow +1 increments.
       if (hasLiked(mapId)) {
-        galleryToast('Ya has marcado este mapa como favorito');
+        galleryToast(tr('Ya has marcado este mapa como favorito', 'You already liked this map'));
         btn.classList.add('liked');
         return;
       }
@@ -852,7 +866,7 @@
           countEl.textContent = current; // rollback
           btn.classList.remove('liked');
           unmarkLiked(mapId);
-          galleryToast('No se pudo guardar tu like. Inténtalo de nuevo.');
+          galleryToast(tr('No se pudo guardar tu like. Inténtalo de nuevo.', 'Could not save your like. Try again.'));
         }
       }
     };
@@ -880,14 +894,14 @@
 
     var doSave = async function() {
       btn.disabled = true;
-      label.textContent = 'Guardando…';
+      label.textContent = tr('Guardando…', 'Saving…');
       try {
         if (window.manaMaps && typeof window.manaMaps.forkMap === 'function') {
           await window.manaMaps.forkMap(mapId, author);
-          label.textContent = '✓ Guardado';
+          label.textContent = tr('✓ Guardado', '✓ Saved');
           btn.classList.add('saved');
           track('map_saved', { source: 'gallery_slug' });
-          galleryToast('Mapa guardado en tu espacio', { linkUrl: '/my-maps/', linkLabel: 'Abrir Mis mapas', duration: 5200 });
+          galleryToast(tr('Mapa guardado en tu espacio', 'Map saved to your space'), { linkUrl: '/my-maps/', linkLabel: tr('Abrir Mis mapas', 'Open My maps'), duration: 5200 });
           return;
         }
         throw new Error('fork-unavailable');
@@ -895,7 +909,7 @@
         console.warn('save slug failed:', e);
         label.textContent = original;
         btn.disabled = false;
-        galleryToast('No se pudo guardar el mapa. Inténtalo de nuevo.');
+        galleryToast(tr('No se pudo guardar el mapa. Inténtalo de nuevo.', 'Could not save the map. Try again.'));
       }
     };
 
@@ -922,7 +936,7 @@
           await window.manaMaps.forkMap(mapId, author);
           btn.querySelector('span').textContent = '✓';
           btn.classList.add('forked');
-          galleryToast('Fork guardado en tus mapas', { linkUrl: '/my-maps/', linkLabel: 'Abrir Mis mapas', duration: 5200 });
+          galleryToast(tr('Fork guardado en tus mapas', 'Fork saved to your maps'), { linkUrl: '/my-maps/', linkLabel: tr('Abrir Mis mapas', 'Open My maps'), duration: 5200 });
           return;
         }
         throw new Error('fork-unavailable');
@@ -930,7 +944,7 @@
         console.warn('fork failed:', e);
         btn.querySelector('span').textContent = 'Fork';
         btn.disabled = false;
-        galleryToast('No se pudo hacer fork de este mapa.');
+        galleryToast(tr('No se pudo hacer fork de este mapa.', 'Could not fork this map.'));
       }
     };
 
@@ -986,9 +1000,9 @@
       return;
     }
     copyToClipboard(url).then(function() {
-      galleryToast('Enlace copiado al portapapeles');
+      galleryToast(tr('Enlace copiado al portapapeles', 'Link copied to clipboard'));
     }).catch(function() {
-      galleryToast('No se pudo copiar el enlace.');
+      galleryToast(tr('No se pudo copiar el enlace.', 'Could not copy the link.'));
     });
   }
 
@@ -996,7 +1010,7 @@
   window.galleryShareCard = function(btn) {
     var slug = btn.getAttribute('data-map-id');
     if (!slug) return;
-    var title = btn.getAttribute('data-title') || 'Mapa de Maña Maps';
+    var title = btn.getAttribute('data-title') || tr('Mapa de Maña Maps', 'A Maña Maps map');
     track('share', { source: 'gallery_card' });
     var item = (typeof findMapByKey === 'function' ? findMapByKey(slug) : null) || { slug: slug, title: title };
     openShareImageModal({ slug: slug, title: title, item: item });
@@ -1021,9 +1035,9 @@
   }
   window.manaShareImage = function(btn) {
     var d = window.__manaShareMap;
-    if (!d || !d.geo || !d.geo.features) { galleryToast('El mapa aún se está cargando.'); return; }
+    if (!d || !d.geo || !d.geo.features) { galleryToast(tr('El mapa aún se está cargando.', 'The map is still loading.')); return; }
     var item = d.item || {};
-    openShareImageModal({ slug: item.slug || item.id, title: item.title || item.name || 'Mapa', item: item, geo: d.geo });
+    openShareImageModal({ slug: item.slug || item.id, title: item.title || item.name || tr('Mapa', 'Map'), item: item, geo: d.geo });
   };
 
   // ── Menú contextual (clic derecho) sobre un mapa: generar imagen ──
@@ -1063,15 +1077,15 @@
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideCtxMenu(); });
 
   function shareImageForItem(item) {
-    if (!item) { galleryToast('No se pudo cargar el mapa.'); return; }
+    if (!item) { galleryToast(tr('No se pudo cargar el mapa.', 'Could not load the map.')); return; }
     return Promise.resolve(getPublishedGeo(item) || getPublishedGeoAsync(item)).then(function(geo) {
-      if (!geo || !geo.features) { galleryToast('No se pudo cargar el mapa.'); return; }
+      if (!geo || !geo.features) { galleryToast(tr('No se pudo cargar el mapa.', 'Could not load the map.')); return; }
       var src = shortSource(item.dataSource);
       track('share', { source: 'context_image' });
       return window.ManaShareCard.share({
-        title: item.title || item.name || 'Mapa de Maña Maps',
+        title: item.title || item.name || tr('Mapa de Maña Maps', 'A Maña Maps map'),
         subtitle: item.legendTitle || '',
-        source: src ? ('Fuente: ' + src) : '',
+        source: src ? (tr('Fuente: ', 'Source: ') + src) : '',
         geojson: geo
       });
     }).catch(function() {});
@@ -1092,19 +1106,19 @@
     else if (thumb) item = findMapByKey(thumb.getAttribute('data-map-id')) || { slug: thumb.getAttribute('data-map-id') };
     var slug = (item && (item.slug || item.id)) || (thumb && thumb.getAttribute('data-map-id'));
     if (!slug) return;
-    var title = (item && (item.title || item.name)) || 'Mapa de Maña Maps';
+    var title = (item && (item.title || item.name)) || tr('Mapa de Maña Maps', 'A Maña Maps map');
     var url = shareUrlFor(slug);
     ensureCtxMenuStyles();
     showCtxMenu(e.clientX, e.clientY, [
-      { label: 'Compartir imagen', icon: ICON_IMG, act: function() {
+      { label: tr('Compartir imagen', 'Share image'), icon: ICON_IMG, act: function() {
           var geo = (featured && window.__manaShareMap) ? window.__manaShareMap.geo : null;
           openShareImageModal({ slug: slug, title: title, item: item, geo: geo });
         } },
-      { label: 'Copiar enlace', icon: ICON_LINK, act: function() {
-          copyToClipboard(url).then(function() { galleryToast('Enlace copiado al portapapeles'); });
+      { label: tr('Copiar enlace', 'Copy link'), icon: ICON_LINK, act: function() {
+          copyToClipboard(url).then(function() { galleryToast(tr('Enlace copiado al portapapeles', 'Link copied to clipboard')); });
         } },
-      { label: 'Compartir en X', icon: ICON_X, act: function() {
-          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — vía Maña Maps') + '&url=' + encodeURIComponent(url), '_blank');
+      { label: tr('Compartir en X', 'Share on X'), icon: ICON_X, act: function() {
+          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — ' + tr('vía Maña Maps', 'via Maña Maps')) + '&url=' + encodeURIComponent(url), '_blank');
           track('share', { network: 'x', source: 'context' });
         } }
     ]);
@@ -1151,40 +1165,40 @@
       m.id = 'mana-share-img';
       m.className = 'mi-modal';
       m.setAttribute('aria-hidden', 'true');
-      m.innerHTML =
-        '<div class="mi-box" role="dialog" aria-modal="true" aria-label="Compartir mapa">' +
-          '<button class="mi-close" type="button" aria-label="Cerrar">&times;</button>' +
-          '<h3 class="mi-title">Compartir</h3>' +
-          '<p class="mi-sub"></p>' +
-          '<div class="mi-preview">Generando imagen…</div>' +
-          '<div class="mi-actions">' +
-            '<button type="button" class="mi-btn primary" data-a="img" disabled><span class="mt">Compartir imagen</span><span class="md">Tarjeta cuadrada lista para publicar.</span></button>' +
-            '<button type="button" class="mi-btn" data-a="link"><span class="mt">Copiar enlace</span><span class="md">Enlace público del mapa.</span></button>' +
-            '<button type="button" class="mi-btn" data-a="x"><span class="mt">Compartir en X</span><span class="md">Abrir un tuit con el mapa.</span></button>' +
-            '<button type="button" class="mi-btn" data-a="dl" disabled><span class="mt">Descargar PNG</span><span class="md">Guardar la imagen en el dispositivo.</span></button>' +
-          '</div>' +
-        '</div>';
       document.body.appendChild(m);
       m.addEventListener('click', function(e) {
         if (e.target === m || e.target.closest('.mi-close')) { closeShareImageModal(); return; }
         var b = e.target.closest('[data-a]'); if (!b) return;
         var a = b.getAttribute('data-a'), c = _shareImgCtx || {}, opts = _shareImgOpts;
-        if (a === 'link') { copyToClipboard(shareUrlFor(c.slug)).then(function() { galleryToast('Enlace copiado al portapapeles'); }); return; }
-        if (a === 'x') { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent((c.title || 'Mapa') + ' — vía Maña Maps') + '&url=' + encodeURIComponent(shareUrlFor(c.slug)), '_blank'); track('share', { network: 'x', source: 'share_modal' }); return; }
-        if (!window.ManaShareCard) { galleryToast('Función no disponible en este navegador.'); return; }
-        if (!opts || !_shareImgBlob) { galleryToast('La imagen aún se está generando…'); return; }
-        var fname = window.ManaShareCard.filename(c.title || 'Mapa');
+        if (a === 'link') { copyToClipboard(shareUrlFor(c.slug)).then(function() { galleryToast(tr('Enlace copiado al portapapeles', 'Link copied to clipboard')); }); return; }
+        if (a === 'x') { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent((c.title || tr('Mapa', 'Map')) + ' — ' + tr('vía Maña Maps', 'via Maña Maps')) + '&url=' + encodeURIComponent(shareUrlFor(c.slug)), '_blank'); track('share', { network: 'x', source: 'share_modal' }); return; }
+        if (!window.ManaShareCard) { galleryToast(tr('Función no disponible en este navegador.', 'Feature not available in this browser.')); return; }
+        if (!opts || !_shareImgBlob) { galleryToast(tr('La imagen aún se está generando…', 'The image is still generating…')); return; }
+        var fname = window.ManaShareCard.filename(c.title || tr('Mapa', 'Map'));
         if (a === 'dl') { window.ManaShareCard.downloadBlob(_shareImgBlob, fname); return; }
         if (a === 'img') {
           track('share', { source: 'share_modal_image' });
-          window.ManaShareCard.shareBlob(_shareImgBlob, c.title || 'Mapa');
+          window.ManaShareCard.shareBlob(_shareImgBlob, c.title || tr('Mapa', 'Map'));
         }
       });
       _shareImgModal = m;
     }
+    m.innerHTML =
+      '<div class="mi-box" role="dialog" aria-modal="true" aria-label="' + escAttr(tr('Compartir mapa', 'Share map')) + '">' +
+        '<button class="mi-close" type="button" aria-label="' + escAttr(tr('Cerrar', 'Close')) + '">&times;</button>' +
+        '<h3 class="mi-title">' + escHtml(tr('Compartir', 'Share')) + '</h3>' +
+        '<p class="mi-sub"></p>' +
+        '<div class="mi-preview">' + escHtml(tr('Generando imagen…', 'Generating image…')) + '</div>' +
+        '<div class="mi-actions">' +
+          '<button type="button" class="mi-btn primary" data-a="img" disabled><span class="mt">' + escHtml(tr('Compartir imagen', 'Share image')) + '</span><span class="md">' + escHtml(tr('Tarjeta cuadrada lista para publicar.', 'Square card ready to publish.')) + '</span></button>' +
+          '<button type="button" class="mi-btn" data-a="link"><span class="mt">' + escHtml(tr('Copiar enlace', 'Copy link')) + '</span><span class="md">' + escHtml(tr('Enlace público del mapa.', 'Public link to the map.')) + '</span></button>' +
+          '<button type="button" class="mi-btn" data-a="x"><span class="mt">' + escHtml(tr('Compartir en X', 'Share on X')) + '</span><span class="md">' + escHtml(tr('Abrir un tuit con el mapa.', 'Open a post with the map.')) + '</span></button>' +
+          '<button type="button" class="mi-btn" data-a="dl" disabled><span class="mt">' + escHtml(tr('Descargar PNG', 'Download PNG')) + '</span><span class="md">' + escHtml(tr('Guardar la imagen en el dispositivo.', 'Save the image to your device.')) + '</span></button>' +
+        '</div>' +
+      '</div>';
     m.querySelector('.mi-sub').textContent = ctx.title || '';
     var prev = m.querySelector('.mi-preview');
-    prev.textContent = 'Generando imagen…';
+    prev.textContent = tr('Generando imagen…', 'Generating image…');
     var imgBtn = m.querySelector('[data-a="img"]'), dlBtn = m.querySelector('[data-a="dl"]');
     if (imgBtn) imgBtn.disabled = true;
     if (dlBtn) dlBtn.disabled = true;
@@ -1193,18 +1207,18 @@
     m.setAttribute('aria-hidden', 'false');
     var build = ctx.geo ? Promise.resolve(ctx.geo) : Promise.resolve(getPublishedGeo(ctx.item) || getPublishedGeoAsync(ctx.item));
     Promise.resolve(build).then(function(geo) {
-      if (!geo || !geo.features || !window.ManaShareCard) { prev.textContent = 'No se pudo generar la imagen.'; return; }
+      if (!geo || !geo.features || !window.ManaShareCard) { prev.textContent = tr('No se pudo generar la imagen.', 'Could not generate the image.'); return; }
       var src = shortSource(ctx.item && ctx.item.dataSource);
       var opts = {
-        title: ctx.title || 'Mapa',
+        title: ctx.title || tr('Mapa', 'Map'),
         subtitle: (ctx.item && ctx.item.legendTitle) || '',
-        source: src ? ('Fuente: ' + src) : '',
+        source: src ? (tr('Fuente: ', 'Source: ') + src) : '',
         geojson: geo,
         valueKey: ctx.item && ctx.item.legendKey,
         legendFormat: ctx.item && ctx.item.legendFormat
       };
       var svg;
-      try { svg = window.ManaShareCard.build(opts); } catch (e) { prev.textContent = 'No se pudo generar la imagen.'; return; }
+      try { svg = window.ManaShareCard.build(opts); } catch (e) { prev.textContent = tr('No se pudo generar la imagen.', 'Could not generate the image.'); return; }
       prev.innerHTML = svg;
       _shareImgOpts = opts;
       _shareImgBlob = null;
@@ -1215,8 +1229,8 @@
         m.setAttribute('data-ready', '1');
       }).catch(function () {});
     }).catch(function() {
-      prev.textContent = 'No se pudo generar la imagen.';
-      galleryToast('No se pudo generar la imagen del mapa.');
+      prev.textContent = tr('No se pudo generar la imagen.', 'Could not generate the image.');
+      galleryToast(tr('No se pudo generar la imagen del mapa.', 'Could not generate the map image.'));
     });
   }
   function closeShareImageModal() {
@@ -1243,33 +1257,33 @@
 
   function slugCtaHtml(item) {
     var slug = item.slug || item.id;
-    var title = item.title || item.name || 'Mapa de Maña Maps';
+    var title = item.title || item.name || tr('Mapa de Maña Maps', 'A Maña Maps map');
     var url = shareUrlFor(slug);
-    var xHref = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — vía Maña Maps') + '&url=' + encodeURIComponent(url);
+    var xHref = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — ' + tr('vía Maña Maps', 'via Maña Maps')) + '&url=' + encodeURIComponent(url);
     var redditHref = 'https://www.reddit.com/submit?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(title);
     var author = item.authorHandle
       ? '<a class="slug-author" href="/@' + encodeURIComponent(item.authorHandle) + '">@' + escHtml(item.authorHandle) + '</a> · '
       : '';
     var created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
     return '<div class="slug-meta-line">' + author +
-        (item.featureCount || 0) + ' elementos · ' + safeDate(created) + '</div>' +
+        (item.featureCount || 0) + ' ' + escHtml(tr('elementos', 'features')) + ' · ' + safeDate(created) + '</div>' +
       '<div class="slug-cta">' +
-        '<a class="slug-cta-btn" href="/map/" onclick="galleryTrackCta()">Crea tu mapa gratis</a>' +
+        '<a class="slug-cta-btn" href="/map/" onclick="galleryTrackCta()">' + escHtml(tr('Crea tu mapa gratis', 'Create your map for free')) + '</a>' +
         '<button type="button" class="slug-save-btn" data-map-id="' + escAttr(slug) + '" data-author="' + escAttr(item.authorHandle || '') + '" onclick="gallerySaveSlug(this)">' +
-          '<span>Guardar en mi espacio</span></button>' +
+          '<span>' + escHtml(tr('Guardar en mi espacio', 'Save to my space')) + '</span></button>' +
         '<button type="button" class="slug-share-btn" data-url="' + escAttr(url) + '" data-title="' + escAttr(title) + '" onclick="galleryShareSlug(this)">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
-          'Compartir</button>' +
-        '<a class="slug-share-btn" href="' + escAttr(xHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'x\')" aria-label="Compartir en X">' +
+          escHtml(tr('Compartir', 'Share')) + '</button>' +
+        '<a class="slug-share-btn" href="' + escAttr(xHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'x\')" aria-label="' + escAttr(tr('Compartir en X', 'Share on X')) + '">' +
           '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>' +
           'X</a>' +
-        '<a class="slug-share-btn" href="' + escAttr(redditHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'reddit\')" aria-label="Compartir en Reddit">' +
+        '<a class="slug-share-btn" href="' + escAttr(redditHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'reddit\')" aria-label="' + escAttr(tr('Compartir en Reddit', 'Share on Reddit')) + '">' +
           'Reddit</a>' +
-        '<button type="button" class="slug-share-btn" onclick="manaShareImage(this)" aria-label="Crear imagen para compartir">' +
+        '<button type="button" class="slug-share-btn" onclick="manaShareImage(this)" aria-label="' + escAttr(tr('Crear imagen para compartir', 'Create an image to share')) + '">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="M21 16l-4.7-4.7L6 21"/></svg>' +
-          'Imagen</button>' +
+          escHtml(tr('Imagen', 'Image')) + '</button>' +
       '</div>' +
-      '<div class="slug-watermark">Hecho con <strong>Maña Maps</strong> · <a href="/map/" onclick="galleryTrackCta()">Crea el tuyo gratis</a></div>';
+      '<div class="slug-watermark">' + escHtml(tr('Hecho con', 'Made with')) + ' <strong>Maña Maps</strong> · <a href="/map/" onclick="galleryTrackCta()">' + escHtml(tr('Crea el tuyo gratis', 'Create yours for free')) + '</a></div>';
   }
 
   window.galleryTrackCta = function() {
@@ -1341,7 +1355,7 @@
   function injectDatasetJsonLd(item) {
     if (!item) return;
     var slug = item.slug || item.id;
-    var title = item.title || item.name || 'Mapa sin título';
+    var title = item.title || item.name || tr('Mapa sin título', 'Untitled map');
     var description = item.description || title;
     var canonicalUrl = 'https://maña.com/gallery/' + encodeURIComponent(slug) + '/';
     var ogImage = 'https://maña.com/og-cards/' + encodeURIComponent(slug) + '.png';
@@ -1468,19 +1482,21 @@
   }
 
   function formatLegendValue(v, fmt) {
-    if (fmt === 'year') return String(Math.round(v));
-    if (fmt === 'meters') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' m';
-    if (fmt === 'usd') return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' $';
-    if (fmt === 'percent') {
-      var p = Math.round(v * 10) / 10;
-      var parts = String(p).split('.');
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      return parts.join(',') + '%';
+    var locale = isEn() ? 'en-US' : 'es-ES';
+    function fmtNum(value, decimals) {
+      var n = Number(value);
+      if (!isFinite(n)) return String(value);
+      try {
+        return n.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: decimals });
+      } catch (e) {
+        return String(n);
+      }
     }
-    var rounded = Math.round(v * 100) / 100;
-    var parts2 = String(rounded).split('.');
-    parts2[0] = parts2[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    return parts2.join(',');
+    if (fmt === 'year') return String(Math.round(v));
+    if (fmt === 'meters') return fmtNum(Math.round(v), 0) + ' m';
+    if (fmt === 'usd') return fmtNum(Math.round(v), 0) + ' $';
+    if (fmt === 'percent') return fmtNum(Math.round(v * 10) / 10, 1) + '%';
+    return fmtNum(Math.round(v * 100) / 100, 2);
   }
 
   // Leyenda numérica declarada en el documento Firestore (legendKey).
@@ -1521,7 +1537,7 @@
       var catItems = catSteps.map(function(s) {
         return '<span class="featured-legend-item"><i style="background:' + s.c + '"></i>' + escHtml(String(s.label)) + '</span>';
       }).join('');
-      return '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
+      return '<div class="featured-legend" role="img" aria-label="' + escAttr(tr('Leyenda: ', 'Legend: ') + title) + '">' +
         '<div class="featured-legend-title">' + escHtml(title) + '</div>' +
         '<div class="featured-legend-items">' + catItems + '</div>' +
         '</div>';
@@ -1531,7 +1547,7 @@
     (geo.features || []).forEach(function(f) {
       var p = f && f.properties;
       if (!p) return;
-      var gname = p._manaGroupName || 'Datos';
+      var gname = p._manaGroupName || tr('Datos', 'Data');
       if (!p._manaColor) return;
       var v = parseLegendNumber(p[key]);
       // 0 / no numérico = «sin dato»: fuera de la rampa y del rango.
@@ -1563,7 +1579,7 @@
     } else {
       stepsHtml = steps.map(function(s) { return '<span style="background:' + s.c + '"></span>'; }).join('');
     }
-    var html = '<div class="featured-legend" role="img" aria-label="Leyenda: ' + escHtml(title) + '">' +
+    var html = '<div class="featured-legend" role="img" aria-label="' + escAttr(tr('Leyenda: ', 'Legend: ') + title) + '">' +
       '<div class="featured-legend-title">' + escHtml(title) + '</div>' +
       '<div class="' + stepsClass + '">' + stepsHtml + '</div>' +
       '<div class="featured-legend-scale"><span>' + escHtml(formatLegendValue(ramp.min, fmt)) + '</span>' +
@@ -1956,7 +1972,7 @@
   function buildSlugPopupHtml(props, item) {
     props = props || {};
     var name = props._manaName || props.name || props.Nombre || props['País'] || props['Pais'] ||
-      (item && (item.title || item.name)) || 'Dato';
+      (item && (item.title || item.name)) || tr('Dato', 'Data');
     var html = '<div class="slug-popup"><div class="slug-popup-title">' + escHtml(name) + '</div>';
     if (props.Description) html += '<div class="slug-popup-desc">' + escHtml(props.Description) + '</div>';
     var shown = 0;
@@ -2043,7 +2059,7 @@
     var maplibreReady = ensureMapLibre();
     var geo = await getPublishedGeoAsync(item);
     window.__manaShareMap = { item: item, geo: geo };
-    if (titleEl) titleEl.textContent = item.title || item.name || 'Mapa';
+    if (titleEl) titleEl.textContent = item.title || item.name || tr('Mapa', 'Map');
     wrap.hidden = false;
 
     if (_slugMap) {
@@ -2056,7 +2072,7 @@
     if (!geo || !geo.features || !geo.features.length || !window.maplibregl) {
       var fallbackSvg = (window.ManaMapPreview && renderThumb) ? renderThumb(item) : '';
       target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';
-      if (meta) meta.innerHTML = '<div class="slug-meta-line">Vista previa estática del mapa.</div>' + slugCtaHtml(item);
+      if (meta) meta.innerHTML = '<div class="slug-meta-line">' + escHtml(tr('Vista previa estática del mapa.', 'Static map preview.')) + '</div>' + slugCtaHtml(item);
       return;
     }
 
@@ -2248,7 +2264,7 @@
     }
     list.innerHTML = related.map(function(m) {
       var slug = m.slug || m.id;
-      var title = m.title || m.name || 'Mapa sin título';
+      var title = m.title || m.name || tr('Mapa sin título', 'Untitled map');
       var href = '/gallery/?slug=' + encodeURIComponent(slug);
       return '<li class="related-map-item">' +
         '<a class="related-map-link" href="' + href + '">' + escHtml(title) + '</a>' +
@@ -2311,6 +2327,36 @@
     if (item) await showSlugMap(item);
     else renderRelatedMaps(null, maps || _allMaps);
   }
+
+  function refreshGalleryLanguage() {
+    if (_allMaps && _allMaps.length) {
+      renderCatBar(_allMaps);
+      applyFilter();
+    } else {
+      renderCards([]);
+    }
+
+    var featured = window.__manaShareMap;
+    if (featured && featured.item) {
+      var titleEl = document.getElementById('slug-map-title');
+      if (titleEl) titleEl.textContent = featured.item.title || featured.item.name || tr('Mapa', 'Map');
+      var meta = document.getElementById('slug-map-meta');
+      if (meta) {
+        var staticPreview = _slugMap
+          ? ''
+          : '<div class="slug-meta-line">' + escHtml(tr('Vista previa estática del mapa.', 'Static map preview.')) + '</div>';
+        meta.innerHTML = staticPreview + slugCtaHtml(featured.item);
+      }
+      renderRelatedMaps(featured.item, _allMaps);
+    }
+
+    var countEl = document.getElementById('map-count');
+    if (countEl) countEl.textContent = String((_allMaps || []).length);
+  }
+
+  document.addEventListener('mana:langchange', function() {
+    try { refreshGalleryLanguage(); } catch (e) { console.warn('gallery language refresh failed:', e); }
+  });
 
   init();
 
