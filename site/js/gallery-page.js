@@ -953,7 +953,11 @@
   }
 
   function shareUrlFor(slug) {
-    return 'https://maña.com/gallery/?slug=' + encodeURIComponent(slug);
+    // La URL canónica indexada es la landing estática /gallery/<slug>/, no el
+    // visor ?slug=. Compartir el visor dispersa enlaces y pierde la medición de
+    // visitas de la landing (landing-view.js), así que todos los botones de
+    // compartir de la galería apuntan a la ficha canónica.
+    return 'https://maña.com/gallery/' + encodeURIComponent(slug) + '/';
   }
 
   function copyToClipboard(text) {
@@ -1242,6 +1246,7 @@
     var title = item.title || item.name || 'Mapa de Maña Maps';
     var url = shareUrlFor(slug);
     var xHref = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title + ' — vía Maña Maps') + '&url=' + encodeURIComponent(url);
+    var redditHref = 'https://www.reddit.com/submit?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(title);
     var author = item.authorHandle
       ? '<a class="slug-author" href="/@' + encodeURIComponent(item.authorHandle) + '">@' + escHtml(item.authorHandle) + '</a> · '
       : '';
@@ -1258,6 +1263,8 @@
         '<a class="slug-share-btn" href="' + escAttr(xHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'x\')" aria-label="Compartir en X">' +
           '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>' +
           'X</a>' +
+        '<a class="slug-share-btn" href="' + escAttr(redditHref) + '" target="_blank" rel="noopener" onclick="galleryTrackShare(\'reddit\')" aria-label="Compartir en Reddit">' +
+          'Reddit</a>' +
         '<button type="button" class="slug-share-btn" onclick="manaShareImage(this)" aria-label="Crear imagen para compartir">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="M21 16l-4.7-4.7L6 21"/></svg>' +
           'Imagen</button>' +

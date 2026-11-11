@@ -175,6 +175,20 @@ test('slug landing renders related maps block with crawlable HTML links', async 
   await expect(slugCta).toHaveAttribute('href', '/map/');
   await expect(page.locator('#slug-map-meta .slug-share-btn').first()).toBeVisible();
 
+  // Distribución canónica (prioridad 1): compartir debe llevar a la landing
+  // estática /gallery/<slug>/, que es la URL indexada y la que mide visitas,
+  // no al visor /gallery/?slug=. Reddit es el canal social con señal real.
+  const canonicalShare = 'https://maña.com/gallery/oceany-mares-world/';
+  const redditShare = page.locator('#slug-map-meta .slug-share-btn[aria-label="Compartir en Reddit"]');
+  await expect(redditShare).toBeVisible();
+  expect(await redditShare.getAttribute('href')).toBe(
+    'https://www.reddit.com/submit?url=' + encodeURIComponent(canonicalShare) +
+    '&title=' + encodeURIComponent('Océanos y mares del mundo')
+  );
+  const xShare = page.locator('#slug-map-meta .slug-share-btn[aria-label="Compartir en X"]');
+  await expect(xShare).toBeVisible();
+  expect(await xShare.getAttribute('href')).toContain('url=' + encodeURIComponent(canonicalShare));
+
   // Activación: la vista destacada ofrece guardar el mapa en la cuenta. El
   // clic anónimo debe pasar por el gate de auth y reanudar el fork después.
   const saveBtn = page.locator('#slug-map-meta .slug-save-btn');
