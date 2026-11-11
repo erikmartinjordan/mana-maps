@@ -1320,3 +1320,114 @@ test('static landing native share tracks source static_map and falls back to cop
   expect(await page.evaluate(() => window.__shares)).toEqual([['share', { network: 'copy_link', source: 'static_map' }]]);
   await expect(page.locator('#share-status')).toHaveText('Enlace copiado');
 });
+
+// ── Distribución interna y gancho de datos (prioridad 1 de noviembre) ──
+// Los mapas que siguen con cero visitas ya reciben enlaces desde landings con
+// tráfico, pero no había forma de saber qué colocación genera la visita ni de
+// cuánto pesa el texto al compartir. Estas regresiones cubren las dos cosas.
+test('every map landing loads the discovery click tracker', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const script = path.join(siteRoot, 'js', 'landing-discovery.js');
+  expect(fs.existsSync(script), 'falta site/js/landing-discovery.js').toBe(true);
+
+  const missing = [];
+  for (const slug of published) {
+    const file = path.join(siteRoot, 'gallery', slug, 'index.html');
+    let html = '';
+    try { html = fs.readFileSync(file, 'utf8'); } catch (e) { missing.push(`${slug}: landing ausente`); continue; }
+    if (!html.includes('src="/js/landing-discovery.js"')) missing.push(`${slug}: sin landing-discovery.js`);
+  }
+  expect(missing, `landings sin medición de descubrimiento:\n${missing.join('\n')}`).toEqual([]);
+});
+
+async function stubLandingNetwork(page) {
+  await page.route('**/js/firebase-config.local.js', (route) => route.fulfill({
+    status: 404, contentType: 'text/javascript', body: '',
+  }));
+  await page.route('**/firestore.googleapis.com/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: '{"writeResults":[]}',
+  }));
+  await page.route('**/ipwho.is/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: '{"success":false}',
+  }));
+}
+
+test('static landings attribute internal discovery clicks by placement', async ({ page }) => {
+  await stubLandingNetwork(page);
+  await page.goto('/gallery/gdp-per-capita-world/');
+  await page.evaluate(() => {
+    window.__events = [];
+    window.trackEvent = (name, params) => window.__events.push([name, params]);
+    // Sin navegación para poder inspeccionar el evento registrado.
+    document.addEventListener('click', (event) => event.preventDefault(), true);
+  });
+
+  const relatedSlug = await page.evaluate(() => {
+    const anchor = document.querySelector('.related a[href^="/gallery/"]');
+    return decodeURIComponent(anchor.getAttribute('href').split('/')[2]);
+  });
+  await page.click('.related a[href^="/gallery/"]');
+  await expect.poll(() => page.evaluate(() => window.__events)).toEqual([
+    ['discovery_click', { source: 'gdp-per-capita-world', target: relatedSlug, placement: 'related' }],
+  ]);
+
+  // Un enlace externo (compartir en Reddit) no es descubrimiento interno.
+  await page.evaluate(() => { window.__events = []; });
+  await page.click('.cta a[href*="reddit.com/submit"]');
+  const external = await page.evaluate(() => window.__events.filter((event) => event[0] === 'discovery_click'));
+  expect(external).toEqual([]);
+});
+
+test('static landings mark discovery blocks apart and respect the tracking opt-out', async ({ page }) => {
+  await stubLandingNetwork(page);
+  await page.goto('/gallery/gini-index-world/');
+  const discoverySlug = await page.evaluate(() => {
+    const anchor = document.querySelector('.related--discovery a[href^="/gallery/"]');
+    return decodeURIComponent(anchor.getAttribute('href').split('/')[2]);
+  });
+
+  await page.evaluate(() => {
+    window.__events = [];
+    window.trackEvent = (name, params) => window.__events.push([name, params]);
+    document.addEventListener('click', (event) => event.preventDefault(), true);
+  });
+  await page.click('.related--discovery a');
+  await expect.poll(() => page.evaluate(() => window.__events)).toEqual([
+    ['discovery_click', { source: 'gini-index-world', target: discoverySlug, placement: 'discovery' }],
+  ]);
+
+  // Con mana-notrack (tráfico interno/QA) no se registra nada.
+  await page.addInitScript(() => localStorage.setItem('mana-notrack', '1'));
+  await page.goto('/gallery/gini-index-world/');
+  await page.evaluate(() => {
+    window.__events = [];
+    window.trackEvent = (name, params) => window.__events.push([name, params]);
+    document.addEventListener('click', (event) => event.preventDefault(), true);
+  });
+  await page.click('.related--discovery a');
+  expect(await page.evaluate(() => window.__events)).toEqual([]);
+});
+
+test('static landings share the data hook instead of only the map title', async ({ page }) => {
+  await stubLandingNetwork(page);
+  await page.goto('/gallery/gini-index-world/');
+  const title = (await page.locator('main h1').textContent()).trim();
+
+  const xText = await page.evaluate(() => {
+    const anchor = document.querySelector('a[href*="twitter.com/intent/tweet"]');
+    return new URL(anchor.href).searchParams.get('text');
+  });
+  expect(xText.startsWith(title + ': '), `X no lleva el gancho: ${xText}`).toBe(true);
+  expect(xText.length).toBeGreaterThan(title.length + 20);
+
+  const reddit = await page.evaluate(() => {
+    const anchor = document.querySelector('a[href*="reddit.com/submit"]');
+    const url = new URL(anchor.href);
+    return { url: url.searchParams.get('url'), title: url.searchParams.get('title') };
+  });
+  expect(reddit.url).toBe('https://maña.com/gallery/gini-index-world/');
+  expect(reddit.title).toBe(xText);
+
+  const nativeText = await page.locator('[data-share-native]').getAttribute('data-share-text');
+  expect(nativeText).toBe(xText);
+});
