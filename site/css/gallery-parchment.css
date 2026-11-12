@@ -483,3 +483,375 @@ body.public-gallery .filter-result-text {
     animation: none;
   }
 }
+
+/* ── Tarjetas plegables ─────────────────────────────────────────────────
+   The parchment sheet becomes a folded map: four vertical panels, an
+   irregular outer edge and a flat copy that appears once the unfold (hover
+   / keyboard focus) has finished. The map preview is used as a CSS
+   background so it is painted once and inherited by every panel. */
+
+body.public-gallery .grid .card .sheet-paper {
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  clip-path: none !important;
+  box-shadow: none;
+}
+
+body.public-gallery .grid .card .card-link {
+  position: relative;
+  height: 100%;
+}
+
+body.public-gallery .grid .sheet-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+body.public-gallery .grid .sheet-measure {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+body.public-gallery .grid .sheet-art .thumb {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body.public-gallery .grid .sheet-art .thumb-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: sepia(.03) saturate(1.22) contrast(1.07) brightness(1.03);
+}
+
+/* Fold layers */
+
+body.public-gallery .grid .foldcard {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  cursor: inherit;
+}
+
+body.public-gallery .grid .fold-body {
+  position: absolute;
+  inset: 0;
+  clip-path: var(--zig);
+  -webkit-clip-path: var(--zig);
+  transition: clip-path .72s var(--ease), -webkit-clip-path .72s var(--ease);
+}
+
+body.public-gallery .grid .fold-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  perspective: 3200px;
+  perspective-origin: 50% 50%;
+}
+
+body.public-gallery .grid .fold-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  backface-visibility: hidden;
+  transition: transform .95s var(--ease), filter .95s var(--ease);
+  will-change: transform;
+}
+
+body.public-gallery .grid .fold-slice {
+  position: absolute;
+  top: calc(var(--hy, 0) * -100%);
+  height: 200%;
+  width: calc(var(--n, 4) * 100% - 2px * var(--n, 4));
+  left: calc(1px + 2px * var(--i, 0) - 100% * var(--i, 0));
+  display: flex;
+  flex-direction: column;
+  background-color: var(--sheet-paper);
+  background-image:
+    radial-gradient(120% 100% at 50% -12%, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 58%),
+    radial-gradient(130% 120% at 50% 112%, rgba(112, 82, 42, .09), rgba(112, 82, 42, 0) 62%),
+    radial-gradient(rgba(93, 73, 43, .055) .55px, transparent .75px);
+  background-size: 100% 100%, 100% 100%, 3px 3px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  box-shadow:
+    inset 0 0 34px rgba(118, 85, 42, .22),
+    inset 0 0 6px rgba(90, 64, 32, .18);
+}
+
+body.public-gallery .grid .fold-half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  transform-style: preserve-3d;
+  transition: transform .95s var(--ease);
+  will-change: transform;
+  background-color: var(--sheet-paper);
+  background-image: radial-gradient(rgba(93, 73, 43, .055) .55px, transparent .75px);
+  background-size: 3px 3px;
+}
+
+body.public-gallery .grid .fold-half.top {
+  top: -16px;
+  height: calc(50% + 16px);
+  transform-origin: 50% 100%;
+}
+
+body.public-gallery .grid .fold-half.bottom {
+  top: 50%;
+  height: calc(50% + 16px);
+  transform-origin: 50% 0%;
+}
+
+body.public-gallery .grid .fold-window {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  overflow: hidden;
+}
+
+body.public-gallery .grid .fold-half.top .fold-window {
+  top: 16px;
+  bottom: 0;
+}
+
+body.public-gallery .grid .fold-half.bottom .fold-window {
+  top: 0;
+  bottom: 16px;
+}
+
+body.public-gallery .grid .foldcard .fold-half.top { transform: rotateX(-2.6deg); }
+body.public-gallery .grid .foldcard .fold-half.bottom { transform: rotateX(2.6deg); }
+
+body.public-gallery .grid .foldcard .fold-panel:nth-child(odd) {
+  transform-origin: 100% 50%;
+  transform: rotateY(-4deg) scaleX(1.03) skewY(var(--shear, 3.4deg));
+}
+
+body.public-gallery .grid .foldcard .fold-panel:nth-child(even) {
+  transform-origin: 0% 50%;
+  transform: rotateY(4deg) scaleX(1.03) skewY(calc(-1 * var(--shear, 3.4deg)));
+}
+
+body.public-gallery .grid .fold-panel:nth-child(1) { transition-delay: 0ms; }
+body.public-gallery .grid .fold-panel:nth-child(2) { transition-delay: 55ms; }
+body.public-gallery .grid .fold-panel:nth-child(3) { transition-delay: 110ms; }
+body.public-gallery .grid .fold-panel:nth-child(4) { transition-delay: 165ms; }
+
+body.public-gallery .grid .fold-half::before,
+body.public-gallery .grid .fold-half::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  transition: opacity .95s var(--ease);
+}
+
+body.public-gallery .grid .fold-half::before {
+  inset: 0;
+  z-index: 3;
+}
+
+body.public-gallery .grid .fold-half.top::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 46%, rgba(35, 24, 8, .045));
+}
+
+body.public-gallery .grid .fold-half.bottom::before {
+  background: linear-gradient(180deg, rgba(35, 24, 8, .05), rgba(35, 24, 8, 0) 40%, rgba(255, 255, 255, .03));
+}
+
+body.public-gallery .grid .fold-half::after {
+  z-index: 5;
+  height: 30px;
+}
+
+body.public-gallery .grid .fold-half.top::after {
+  bottom: 0;
+  height: 24px;
+  background: linear-gradient(0deg, rgba(35, 24, 8, .15) 0, rgba(35, 24, 8, .05) 7px, rgba(255, 255, 255, .04) 11px, transparent 24px);
+}
+
+body.public-gallery .grid .fold-half.bottom::after {
+  top: 0;
+  height: 30px;
+  background: linear-gradient(180deg, rgba(35, 24, 8, .15), rgba(35, 24, 8, .05) 9px, transparent 28px);
+}
+
+body.public-gallery .grid .fold-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: opacity .22s var(--ease);
+  background: linear-gradient(90deg, rgba(28, 19, 6, .12), rgba(28, 19, 6, .015) 17%, rgba(255, 255, 255, .07) 50%, rgba(28, 19, 6, .015) 83%, rgba(28, 19, 6, .12));
+}
+
+body.public-gallery .grid .fold-creases {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+  transition: opacity .22s var(--ease);
+}
+
+body.public-gallery .grid .crease {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(35, 24, 8, .07) 26%, rgba(35, 24, 8, .16) 50%, rgba(255, 255, 255, .07) 68%, transparent);
+}
+
+body.public-gallery .grid .crease::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(35, 24, 8, .22);
+  filter: blur(.4px);
+}
+
+body.public-gallery .grid .flat-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--sheet-paper);
+  background-image:
+    radial-gradient(120% 100% at 50% -12%, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 58%),
+    radial-gradient(130% 120% at 50% 112%, rgba(112, 82, 42, .09), rgba(112, 82, 42, 0) 62%),
+    radial-gradient(rgba(93, 73, 43, .055) .55px, transparent .75px);
+  background-size: 100% 100%, 100% 100%, 3px 3px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  box-shadow:
+    inset 0 0 34px rgba(118, 85, 42, .22),
+    inset 0 0 6px rgba(90, 64, 32, .18);
+  transition: opacity .14s var(--ease);
+}
+
+/* Unfold on hover / keyboard focus */
+
+body.public-gallery .grid .card:hover .fold-body,
+body.public-gallery .grid .card:focus-within .fold-body {
+  clip-path: var(--flat);
+  -webkit-clip-path: var(--flat);
+}
+
+body.public-gallery .grid .card:hover .fold-half,
+body.public-gallery .grid .card:focus-within .fold-half {
+  transform: rotateX(0deg);
+}
+
+body.public-gallery .grid .card:hover .fold-panel,
+body.public-gallery .grid .card:focus-within .fold-panel {
+  transform: rotateY(0deg) scaleX(1) skewY(0deg);
+}
+
+body.public-gallery .grid .card:hover .fold-shade,
+body.public-gallery .grid .card:focus-within .fold-shade,
+body.public-gallery .grid .card:hover .fold-creases,
+body.public-gallery .grid .card:focus-within .fold-creases {
+  opacity: 0;
+}
+
+body.public-gallery .grid .card:hover .flat-sheet,
+body.public-gallery .grid .card:focus-within .flat-sheet {
+  opacity: 1;
+  transition: opacity .2s var(--ease) .92s;
+}
+
+/* Map vignette: the preview is a background image shared by all panels */
+
+body.public-gallery .grid .sheet-art {
+  aspect-ratio: 21 / 9;
+  border: 7px solid #debb7e;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 82, 34, .42),
+    inset 0 0 0 2px rgba(255, 255, 255, .2);
+  background-color: #dfe8e4;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 21px, rgba(58, 78, 86, .11) 21px 22px),
+    repeating-linear-gradient(90deg, transparent 0 21px, rgba(58, 78, 86, .11) 21px 22px);
+}
+
+body.public-gallery .grid .sheet-art::after {
+  z-index: 3;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, .08), transparent 55%),
+    linear-gradient(180deg, rgba(35, 32, 23, 0) 66%, rgba(35, 32, 23, .07));
+}
+
+body.public-gallery .grid .sheet-head {
+  padding: 15px 17px 8px;
+}
+
+body.public-gallery .grid .sheet-caption {
+  gap: 5px;
+  padding: 11px 17px 19px;
+}
+
+body.public-gallery .grid .sheet-caption .meta {
+  min-height: 30px;
+}
+
+body.public-gallery .grid .card-actions {
+  z-index: 10;
+}
+
+@media (max-width: 980px) {
+  body.public-gallery .grid .sheet-art { aspect-ratio: 16 / 9; }
+}
+
+@media (max-width: 720px) {
+  body.public-gallery .grid .sheet-art { aspect-ratio: 4 / 3; }
+
+  body.public-gallery .grid .card:not(:hover):not(:focus-within) .fold-panel:nth-child(odd) {
+    transform: rotateY(-3.5deg) scaleX(1.03) skewY(var(--shear, 3.4deg));
+  }
+
+  body.public-gallery .grid .card:not(:hover):not(:focus-within) .fold-panel:nth-child(even) {
+    transform: rotateY(3.5deg) scaleX(1.03) skewY(calc(-1 * var(--shear, 3.4deg)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.public-gallery .grid .fold-body {
+    clip-path: var(--flat) !important;
+    -webkit-clip-path: var(--flat) !important;
+    transition: none;
+  }
+
+  body.public-gallery .grid .foldcard .fold-panel,
+  body.public-gallery .grid .foldcard .fold-half {
+    transition: none;
+    transform: none !important;
+  }
+
+  body.public-gallery .grid .flat-sheet {
+    opacity: 1;
+    transition: none;
+  }
+}

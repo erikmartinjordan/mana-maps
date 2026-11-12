@@ -315,26 +315,14 @@
     // like a printed map and the paper sepia is applied in gallery-parchment.css.
     var svg = window.ManaMapPreview.renderSVG(previewOf(item), { simple: true });
     if (!svg) return '';
-    // Las tarjetas usan un marco fijo 3:2 y el mapa debe llenarlo por completo.
-    // renderSVG usa `meet` (deja bandas), así que escalamos el SVG lo justo
-    // para cubrir el marco; el overflow de la tarjeta recorta el sobrante.
-    var coverScale = 1;
-    var coverClass = ' cover-wide';
-    var vb = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
-    if (vb) {
-      var mapAspect = parseFloat(vb[1]) / parseFloat(vb[2]);
-      var cardAspect = 3 / 2;
-      if (isFinite(mapAspect) && mapAspect > 0) {
-        // 1 % de sobre-escaneo: evita que el redondeo subpíxel del marco deje
-        // una línea del fondo asomando por los bordes de la tarjeta.
-        coverScale = Math.max(1, mapAspect / cardAspect, cardAspect / mapAspect) * 1.01;
-        coverClass = mapAspect >= cardAspect ? ' cover-wide' : ' cover-tall';
-      }
-    }
-    return svg.replace(
-      '<svg class="thumb-preview"',
-      '<svg class="thumb-preview' + coverClass + '" style="--cover-scale:' + coverScale.toFixed(4) + '" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
-    );
+    // The folded sheet fills its frame with `slice`; the four panels share the
+    // same preview, so the SVG is repeated inside each fold surface.
+    return svg
+      .replace('preserveAspectRatio="xMidYMid meet"', 'preserveAspectRatio="xMidYMid slice"')
+      .replace(
+        '<svg class="thumb-preview"',
+        '<svg class="thumb-preview" role="img" aria-label="' + escHtml(thumbAccessibleLabel(item)) + '"'
+      );
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -378,6 +366,52 @@
 
   // Keep JSON-LD numberOfItems in sync with the actual map count so search
   // engines always see the correct collection size.
+  // ═══════════════════════════════════════════════════════════════
+  // FOLDED CARDS (four vertical panels, unfold on hover / focus)
+  // ═══════════════════════════════════════════════════════════════
+
+  var FOLD_PANELS = 4;
+
+  function foldClips(panels) {
+    var amp = 2.6;
+    var zig = [];
+    var flat = [];
+    for (var t = 0; t <= panels; t++) {
+      var x = (t / panels * 100).toFixed(4);
+      zig.push(x + '% ' + (t % 2 === 1 ? amp : 0).toFixed(4) + '%');
+      flat.push(x + '% 0%');
+    }
+    for (var u = panels; u >= 0; u--) {
+      var bx = (u / panels * 100).toFixed(4);
+      zig.push(bx + '% ' + (u % 2 === 1 ? 100 - amp : 100).toFixed(4) + '%');
+      flat.push(bx + '% 100%');
+    }
+    return { zig: 'polygon(' + zig.join(',') + ')', flat: 'polygon(' + flat.join(',') + ')' };
+  }
+
+  function foldSurface(item, opts) {
+    opts = opts || {};
+    var mapSlug = item.slug || item.id;
+    var created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
+    var authorHandle = item.authorHandle || '';
+    var tags = Array.isArray(item.tags) ? item.tags : [];
+    var title = item.title || item.name || tr('Mapa sin título', 'Untitled map');
+    var tagLabel = tags.length ? getTagLabel(String(tags[0])) : '';
+    var head = '<div class="sheet-head"><span class="sheet-brand">Maña Maps</span></div>';
+    var art = '<div class="sheet-art"><div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + (opts.thumbHtml || '') + '</div></div>';
+    var cap = '<div class="sheet-caption">' +
+      '<span class="card-kicker">' + escHtml(tagLabel || tr('Mapa', 'Map')) + '</span>' +
+      '<h3 class="title">' + escHtml(title) + '</h3>' +
+      '<div class="meta">' +
+        (authorHandle ? '<span class="meta-author">@' + escHtml(authorHandle) + '</span><span>·</span>' : '') +
+        '<span>' + (item.featureCount || 0) + ' ' + escHtml(tr('elementos', 'features')) + '</span>' +
+        '<span>·</span>' +
+        '<span>' + safeDate(created) + '</span>' +
+      '</div>' +
+    '</div>';
+    return head + art + cap;
+  }
+
   function syncJsonLdCount(count) {
     var el = document.getElementById('ld-collection');
     if (!el) return;
@@ -462,34 +496,39 @@
   }
 
   function cardHtml(item) {
-      const created = item.createdAtMs || (item.createdAt && item.createdAt.toMillis ? item.createdAt.toMillis() : 0);
       const thumb = renderThumb(item);
       const likes = item.likes || 0;
       const authorHandle = item.authorHandle || '';
       const mapSlug = item.slug || item.id;
       var mode = item.shareMode || 'view';
       var likedClass = hasLiked(mapSlug) ? ' liked' : '';
-      var tags = Array.isArray(item.tags) ? item.tags : [];
       var title = item.title || item.name || tr('Mapa sin título', 'Untitled map');
-      var tagLabel = tags.length ? getTagLabel(String(tags[0])) : '';
+      var clips = foldClips(FOLD_PANELS);
+      var surface = foldSurface(item, { thumbHtml: thumb });
+      var measure = surface;
+      var panelHtml = '';
+      for (var i = 0; i < FOLD_PANELS; i++) {
+        panelHtml += '<div class="fold-panel">' +
+          '<div class="fold-half top"><div class="fold-window"><div class="fold-slice" style="--i:' + i + ';--n:' + FOLD_PANELS + ';--hy:0">' + surface + '</div></div><span class="fold-shade"></span></div>' +
+          '<div class="fold-half bottom"><div class="fold-window"><div class="fold-slice" style="--i:' + i + ';--n:' + FOLD_PANELS + ';--hy:1">' + surface + '</div></div><span class="fold-shade"></span></div>' +
+        '</div>';
+      }
+      var creases = '';
+      for (var c = 1; c < FOLD_PANELS; c++) {
+        creases += '<span class="crease" style="left:' + (c / FOLD_PANELS * 100) + '%"></span>';
+      }
       return '' +
         '<div class="card">' +
           '<div class="sheet-paper">' +
-            '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '">' +
-              '<div class="sheet-head">' +
-                '<span class="sheet-brand">Maña Maps</span>' +
-              '</div>' +
-              '<div class="sheet-art">' +
-                '<div class="thumb" data-map-id="' + escAttr(mapSlug) + '">' + thumb + '</div>' +
-              '</div>' +
-              '<div class="sheet-caption">' +
-                '<span class="card-kicker">' + escHtml(tagLabel || tr('Mapa', 'Map')) + '</span>' +
-                '<h3 class="title">' + escHtml(title) + '</h3>' +
-                '<div class="meta">' +
-                  (authorHandle ? '<span class="meta-author">@' + escHtml(authorHandle) + '</span><span>·</span>' : '') +
-                  '<span>' + (item.featureCount || 0) + ' ' + escHtml(tr('elementos', 'features')) + '</span>' +
-                  '<span>·</span>' +
-                  '<span>' + safeDate(created) + '</span>' +
+            '<a class="card-link" href="/map/index.html?gallery=' + encodeURIComponent(mapSlug) + '&map=' + encodeURIComponent(mapSlug) + '&room=' + encodeURIComponent(mapSlug) + '&mode=' + encodeURIComponent(mode) + '" aria-label="' + escAttr(title) + '">' +
+              '<div class="sheet-inner">' +
+                '<div class="sheet-measure" aria-hidden="true">' + measure + '</div>' +
+                '<div class="foldcard" aria-hidden="true" style="--zig:' + clips.zig + ';--flat:' + clips.flat + ';--shear:3.4deg">' +
+                  '<div class="fold-body">' +
+                    '<div class="fold-stage" aria-hidden="true">' + panelHtml + '</div>' +
+                    '<div class="flat-sheet" aria-hidden="true">' + surface + '</div>' +
+                    '<div class="fold-creases">' + creases + '</div>' +
+                  '</div>' +
                 '</div>' +
               '</div>' +
             '</a>' +
@@ -562,7 +601,8 @@
     Array.prototype.forEach.call(thumbs, function(thumb) {
       if (thumb.getAttribute('data-preview-observed')) return;
       var item = findMapByKey(thumb.getAttribute('data-map-id'));
-      if (!item || previewOf(item)) return;
+      if (!item) return;
+      if (previewOf(item)) { patchCardPreview(item); return; }
       thumb.setAttribute('data-preview-observed', '1');
       if (observer) observer.observe(thumb);
       else enqueuePreview(item);
@@ -617,7 +657,10 @@
       if (!thumb && el.getAttribute('data-map-id') === key) thumb = el;
     });
     if (!thumb) return;
-    thumb.innerHTML = renderThumb(item);
+    var svg = renderThumb(item);
+    Array.prototype.forEach.call(thumbs, function(el) {
+      if (el.getAttribute('data-map-id') === key) el.innerHTML = svg;
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════
