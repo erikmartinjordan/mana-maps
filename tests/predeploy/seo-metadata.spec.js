@@ -7,6 +7,7 @@ const {
   auditSeoMetadata,
   parseCollectionLd,
   parseSitemapGallerySlugs,
+  parseSitemapGalleryEntries,
   auditLandingCoverage,
   auditInternalLinkCoverage,
   auditNewsLandingLinks,
@@ -80,6 +81,74 @@ test('SEO drift check reports missing and extra published maps', () => {
   expect(removedIssues).toContain(`sobran 1 no publicados o inexistentes (${published[0]})`);
 });
 
+// Regresión del check 10: cada landing del sitemap debe declarar un <lastmod>
+// ISO igual al dateModified del Dataset de su propia ficha, para que Google y
+// Bing sepan cuándo recrawlear las landings con menos visitas.
+test('sitemap declares an ISO lastmod per map landing matching its Dataset', () => {
+  const entries = parseSitemapGalleryEntries(sitemapXml);
+  const published = parseCollectionLd(galleryHtml).slugs;
+  expect(entries.length).toBe(published.length);
+
+  for (const entry of entries) {
+    expect(entry.lastmod, `${entry.slug} sin <lastmod>`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const landing = fs.readFileSync(path.join(siteRoot, 'gallery', entry.slug, 'index.html'), 'utf8');
+    const dataset = [...landing.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+      .map((m) => {
+        try { return JSON.parse(m[1]); } catch (_) { return null; }
+      })
+      .find((json) => json && json['@type'] === 'Dataset');
+    expect(dataset, `${entry.slug} sin Dataset JSON-LD`).toBeTruthy();
+    expect(entry.lastmod).toBe(dataset.dateModified);
+  }
+});
+
+test('SEO drift check fails on missing, stale or invalid sitemap lastmod', () => {
+  const published = parseCollectionLd(galleryHtml).slugs;
+  const dates = Object.fromEntries(
+    published.map((slug, i) => [slug, `2026-11-${String((i % 28) + 1).padStart(2, '0')}`])
+  );
+  const buildSitemap = (lastmodBySlug) => '<urlset>' + published
+    .map((slug) => {
+      const lastmod = lastmodBySlug[slug];
+      return `<url><loc>https://maña.com/gallery/${slug}/</loc>` +
+        (lastmod ? `<lastmod>${lastmod}</lastmod>` : '') +
+        '<changefreq>weekly</changefreq><priority>0.6</priority></url>';
+    })
+    .join('') + '</urlset>';
+
+  const ok = auditSeoMetadata(published, {
+    galleryHtml,
+    sitemapXml: buildSitemap(dates),
+    lastmodBySlug: dates,
+  });
+  expect(ok.issues).toEqual([]);
+
+  const missing = { ...dates };
+  delete missing[published[0]];
+  const missingIssues = auditSeoMetadata(published, {
+    galleryHtml,
+    sitemapXml: buildSitemap(missing),
+    lastmodBySlug: dates,
+  }).issues.join('\n');
+  expect(missingIssues).toContain(`sin <lastmod> (${published[0]})`);
+
+  const stale = { ...dates, [published[1]]: '2020-01-01' };
+  const staleIssues = auditSeoMetadata(published, {
+    galleryHtml,
+    sitemapXml: buildSitemap(stale),
+    lastmodBySlug: dates,
+  }).issues.join('\n');
+  expect(staleIssues).toContain(`<lastmod> desactualizado en 1 entrada(s): ${published[1]}`);
+
+  const invalid = { ...dates, [published[2]]: '2026-13-40' };
+  const invalidIssues = auditSeoMetadata(published, {
+    galleryHtml,
+    sitemapXml: buildSitemap(invalid),
+    lastmodBySlug: dates,
+  }).issues.join('\n');
+  expect(invalidIssues).toContain('<lastmod> no ISO 8601 en 1 entrada(s)');
+});
+
 test('SEO drift check detects numberOfItems mismatches and accepts ?slug sitemap URLs', () => {
   const published = parseCollectionLd(galleryHtml).slugs;
 
@@ -88,7 +157,7 @@ test('SEO drift check detects numberOfItems mismatches and accepts ?slug sitemap
   expect(drift.issues.join('\n')).toContain('numberOfItems=0');
 
   const querySitemap = '<urlset>' + published
-    .map(slug => `<loc>https://maña.com/gallery/?slug=${slug}</loc>`)
+    .map(slug => `<url><loc>https://maña.com/gallery/?slug=${slug}</loc></url>`)
     .join('') + '</urlset>';
   const queryResult = auditSeoMetadata(published, { galleryHtml, sitemapXml: querySitemap });
   expect(queryResult.issues).toEqual([]);

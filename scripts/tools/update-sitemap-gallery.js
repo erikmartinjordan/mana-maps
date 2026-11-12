@@ -168,19 +168,33 @@ function extractField(doc, fieldName) {
 
 // ─── Sitemap XML helpers ────────────────────────────────────────
 
-/** Build a <url> entry for a gallery map */
-function buildMapUrlEntry(slug) {
-  return [
+/** Fecha ISO (YYYY-MM-DD) a partir de un timestamp en milisegundos */
+function isoDate(ms) {
+  const n = Number(ms);
+  if (!Number.isFinite(n) || n <= 0) return '';
+  const d = new Date(n);
+  return isFinite(d.getTime()) ? d.toISOString().split('T')[0] : '';
+}
+
+/** Build a <url> entry for a gallery map. `lastmod` es la fecha del documento
+ * (updatedAtMs/createdAtMs), la misma que usa la landing como dateModified. */
+function buildMapUrlEntry(slug, lastmod) {
+  const lines = [
     '  <url>',
     `    <loc>${SITE_BASE}/gallery/${slug}/</loc>`,
+  ];
+  if (lastmod) lines.push(`    <lastmod>${lastmod}</lastmod>`);
+  lines.push(
     '    <changefreq>weekly</changefreq>',
     '    <priority>0.6</priority>',
     '  </url>'
-  ].join('\n');
+  );
+  return lines.join('\n');
 }
 
-/** Regex to match a gallery map <url> block in the sitemap (legacy ?slug= or static) */
-const MAP_URL_REGEX = /  <url>\n    <loc>https:\/\/xn--maa-8ma\.com\/gallery\/(?:\?slug=)?[^<]+<\/loc>\n    <changefreq>[^<]*<\/changefreq>\n    <priority>[^<]*<\/priority>\n  <\/url>\n?/g;
+/** Regex to match a gallery map <url> block in the sitemap (legacy ?slug= or static,
+ * con o sin <lastmod>) */
+const MAP_URL_REGEX = /  <url>\n    <loc>https:\/\/xn--maa-8ma\.com\/gallery\/(?:\?slug=)?[^<]+<\/loc>\n(?:    <lastmod>[^<]*<\/lastmod>\n)?    <changefreq>[^<]*<\/changefreq>\n    <priority>[^<]*<\/priority>\n  <\/url>\n?/g;
 
 // ─── Main ────────────────────────────────────────────────────────
 async function main() {
@@ -191,6 +205,7 @@ async function main() {
   console.log('Access token obtained.');
 
   const publishedSlugs = [];
+  const lastmodBySlug = {};
   let pageToken = null;
   let pageNum = 0;
   do {
@@ -204,6 +219,8 @@ async function main() {
       const isPublished = extractField(doc, 'isPublished');
       if (isPublished === true && !publishedSlugs.includes(id)) {
         publishedSlugs.push(id);
+        const lastmod = isoDate(extractField(doc, 'updatedAtMs') || extractField(doc, 'createdAtMs'));
+        if (lastmod) lastmodBySlug[id] = lastmod;
       }
     }
     pageToken = res.data.nextPageToken || null;
@@ -224,7 +241,13 @@ async function main() {
   const cleaned = sitemap.replace(MAP_URL_REGEX, '');
 
   // 4. Build new map entries
-  const newEntries = publishedSlugs.map(buildMapUrlEntry).join('\n');
+  const missingDates = publishedSlugs.filter((slug) => !lastmodBySlug[slug]);
+  if (missingDates.length) {
+    console.warn(`WARN: ${missingDates.length} mapa(s) sin updatedAtMs/createdAtMs; se omitirá su <lastmod>: ${missingDates.join(', ')}`);
+  }
+  const newEntries = publishedSlugs
+    .map((slug) => buildMapUrlEntry(slug, lastmodBySlug[slug]))
+    .join('\n');
 
   // 5. Insert new entries before </urlset>
   const updated = cleaned.replace('</urlset>', newEntries + '\n</urlset>');

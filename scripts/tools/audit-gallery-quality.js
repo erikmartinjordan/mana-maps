@@ -1334,16 +1334,28 @@ function parseCollectionLd(html) {
   return result;
 }
 
+// Extrae las entradas de mapa de sitemap.xml (landings /gallery/<slug>/ o
+// /gallery/?slug=<slug>) con su <lastmod> opcional, ignorando la URL raíz
+// /gallery/. Devuelve [{ slug, lastmod }].
+function parseSitemapGalleryEntries(xml) {
+  const entries = [];
+  if (!xml || typeof xml !== 'string') return entries;
+  for (const block of xml.matchAll(/<url>([\s\S]*?)<\/url>/gi)) {
+    const body = block[1];
+    const loc = body.match(/<loc>\s*([^<]+?)\s*<\/loc>/i);
+    if (!loc) continue;
+    const slug = slugFromGalleryUrl(loc[1]);
+    if (!slug) continue;
+    const lastmod = body.match(/<lastmod>\s*([^<]+?)\s*<\/lastmod>/i);
+    entries.push({ slug, lastmod: lastmod ? lastmod[1].trim() : null });
+  }
+  return entries;
+}
+
 // Extrae los slugs de mapa de sitemap.xml (landings /gallery/<slug>/ o
 // /gallery/?slug=<slug>), ignorando la URL raíz /gallery/.
 function parseSitemapGallerySlugs(xml) {
-  const slugs = [];
-  if (!xml || typeof xml !== 'string') return slugs;
-  for (const m of xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)) {
-    const slug = slugFromGalleryUrl(m[1]);
-    if (slug) slugs.push(slug);
-  }
-  return slugs;
+  return parseSitemapGalleryEntries(xml).map((entry) => entry.slug);
 }
 
 function diffSlugs(expected, actual) {
@@ -1368,13 +1380,18 @@ function duplicatesOf(list) {
 // Compara la lista de slugs publicados (Firestore) con el JSON-LD y el
 // sitemap. Devuelve { issues, published, collection, sitemap } donde cada
 // issue es una línea legible; cualquier issue hace fallar la auditoría.
-function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '' } = {}) {
+// `lastmodBySlug` (slug -> YYYY-MM-DD) activa la validación de frescura: cada
+// entrada de mapa del sitemap debe declarar <lastmod> ISO y coincidir con la
+// fecha del documento en Firestore.
+function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '', lastmodBySlug = null } = {}) {
   const issues = [];
   const published = [...new Set((publishedSlugs || []).filter(Boolean))].sort();
   const collection = parseCollectionLd(galleryHtml);
-  const sitemapSlugs = parseSitemapGallerySlugs(sitemapXml);
+  const sitemapEntries = parseSitemapGalleryEntries(sitemapXml);
+  const sitemapSlugs = sitemapEntries.map((entry) => entry.slug);
   const sitemap = {
     slugs: sitemapSlugs,
+    entries: sitemapEntries,
     duplicates: duplicatesOf(sitemapSlugs),
   };
 
@@ -1426,6 +1443,37 @@ function auditSeoMetadata(publishedSlugs, { galleryHtml = '', sitemapXml = '' } 
     }
     if (d.extra.length) {
       issues.push(`sitemap.xml: sobran ${d.extra.length} no publicados o inexistentes (${d.extra.join(', ')})`);
+    }
+    if (lastmodBySlug) {
+      const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+      const missingLastmod = [];
+      const invalidLastmod = [];
+      const staleLastmod = [];
+      for (const entry of sitemapEntries) {
+        if (!entry.lastmod) {
+          missingLastmod.push(entry.slug);
+          continue;
+        }
+        if (!ISO_DATE.test(entry.lastmod) || Number.isNaN(Date.parse(entry.lastmod))) {
+          invalidLastmod.push(`${entry.slug}=${entry.lastmod}`);
+          continue;
+        }
+        const expected = lastmodBySlug instanceof Map
+          ? lastmodBySlug.get(entry.slug)
+          : lastmodBySlug[entry.slug];
+        if (expected && expected !== entry.lastmod) {
+          staleLastmod.push(`${entry.slug} (sitemap ${entry.lastmod} ≠ doc ${expected})`);
+        }
+      }
+      if (missingLastmod.length) {
+        issues.push(`sitemap.xml: ${missingLastmod.length} entradas de mapa sin <lastmod> (${missingLastmod.join(', ')})`);
+      }
+      if (invalidLastmod.length) {
+        issues.push(`sitemap.xml: <lastmod> no ISO 8601 en ${invalidLastmod.length} entrada(s) (${invalidLastmod.join(', ')})`);
+      }
+      if (staleLastmod.length) {
+        issues.push(`sitemap.xml: <lastmod> desactualizado en ${staleLastmod.length} entrada(s): ${staleLastmod.join(', ')}`);
+      }
     }
   }
 
@@ -2576,6 +2624,8 @@ async function main() {
         tags: extractField(doc, 'tags'),
         featureCount: extractField(doc, 'featureCount'),
         views: extractField(doc, 'views'),
+        updatedAtMs: extractField(doc, 'updatedAtMs'),
+        createdAtMs: extractField(doc, 'createdAtMs'),
         legendKey: extractField(doc, 'legendKey'),
         legendTitle: extractField(doc, 'legendTitle'),
         legendFormat: extractField(doc, 'legendFormat'),
@@ -2593,9 +2643,16 @@ async function main() {
   let seo = null;
   try {
     const fsMod = require('fs');
+    const lastmodBySlug = {};
+    for (const m of published) {
+      const ms = Number(m.updatedAtMs || m.createdAtMs || 0);
+      const d = new Date(ms);
+      if (isFinite(d.getTime()) && ms > 0) lastmodBySlug[m.id] = d.toISOString().split('T')[0];
+    }
     seo = auditSeoMetadata(published.map(m => m.id), {
       galleryHtml: fsMod.readFileSync(GALLERY_HTML_PATH, 'utf8'),
       sitemapXml: fsMod.readFileSync(SITEMAP_XML_PATH, 'utf8'),
+      lastmodBySlug,
     });
   } catch (e) {
     seo = { issues: [`no se pudieron leer gallery/index.html o sitemap.xml: ${e.message}`] };
@@ -2945,6 +3002,7 @@ module.exports = {
   slugFromGalleryUrl,
   parseCollectionLd,
   parseSitemapGallerySlugs,
+  parseSitemapGalleryEntries,
   diffSlugs,
   duplicatesOf,
   auditSeoMetadata,
