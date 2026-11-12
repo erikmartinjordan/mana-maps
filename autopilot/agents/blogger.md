@@ -98,7 +98,8 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
   1120 px y 28 px de radio, topbar de 72 px, botones negros/ghost redondeados
   y footer del sitio.
 - Tipografía DM Sans. Títulos 800 con `letter-spacing` negativo; entradilla de
-  19 px; cuerpo de 17 px con `line-height` 1.75.
+  19 px; cuerpo de 17 px con `line-height` 1.75. La única excepción es el pie
+  del mapa, en Courier Prime.
 - **El primer visual es el mapa interactivo**, justo después de la entradilla y
   la firma. Prohibido poner una imagen estática (`site/og-cards`) como cabecera.
   La imagen OG solo puede ir en `<meta>` para redes sociales.
@@ -120,12 +121,19 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
   `<script defer src="/js/tracking.js?v=1792741000"></script>`. El evento
   `sessionstart` añade `contentType=news`, `slug` y `mapSlug`; no dupliques
   eventos ni añadas analítica externa.
-- **No menciones la marca en la prosa.** La única mención visible en el cuerpo
-  es el crédito del mapa, debajo del iframe:
-  `Mapa interactivo: Maña Maps · Datos: <fuente y año>` en español y
-  `Interactive map: Maña Maps · Data: <source and year>` en inglés.
-- Nada de “Maña Maps publica…”, “el mapa de Maña Maps…”, “en Maña Maps…” en
-  titulares, entradilla, cuerpo, secciones o pies de foto.
+- **Crédito del mapa (obligatorio).** Debajo del iframe va un pie breve en
+  Courier Prime, con dos líneas y sin rótulos ni adornos. Español:
+  `<p class="map-credit">Mapa interactivo de <strong>Maña Maps</strong>.<span class="map-credit__source">Fuente: <fuente y año>.</span></p>`
+  y `<p class="map-help"><a href="https://maña.com/map/?gallery=<mapSlug>" target="_blank" rel="noopener">Pantalla completa</a><a href="/gallery/<mapSlug>/">Ficha del mapa</a></p>`.
+  Inglés: `Interactive map by <strong>Maña Maps</strong>.` + `Source: <source and year>.`
+  y los enlaces `Full screen` / `Map details`.
+  La fuente del pie debe ser corta: organismo y año. La metodología y las
+  referencias completas van en la sección «Fuentes» del artículo y en la ficha
+  del mapa. Prohibido añadir `//`, filetes laterales, flechas `↗`, píldoras,
+  «Si el mapa no carga» o cualquier otro texto alrededor del pie.
+- **No menciones la marca en la prosa** fuera de ese crédito: nada de “Maña Maps
+  publica…”, “el mapa de Maña Maps…”, “en Maña Maps…” en titulares, entradilla,
+  cuerpo, secciones o pies de foto.
 
 ## IDIOMAS Y RUTAS (OBLIGATORIO)
 

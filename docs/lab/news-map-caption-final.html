@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="es" data-theme="dark" data-view="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pie de mapa · Opción B final · Maña Maps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#080909;
+    --panel:#101111;
+    --panel-2:#191a19;
+    --ink:#d9d5e1;
+    --bright:#f0edf4;
+    --copy:#9c9aa2;
+    --quiet:#737179;
+    --line:rgba(255,255,255,.08);
+    --line-soft:rgba(255,255,255,.045);
+    --accent:#e8b86d;
+    --sans:'DM Sans',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+    --mono:'Courier Prime','Courier New',Courier,monospace;
+  }
+
+  html[data-theme="light"]{
+    --ground:#f5f5f7;
+    --panel:#ffffff;
+    --panel-2:#efeff1;
+    --ink:#2a2b2f;
+    --bright:#111214;
+    --copy:#4b5058;
+    --quiet:#6f747c;
+    --line:rgba(16,24,40,.12);
+    --line-soft:rgba(16,24,40,.07);
+    --accent:#a5681f;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(900px 520px at 18% -10%, rgba(232,184,109,.06), transparent 62%),
+      var(--ground);
+    color:var(--copy);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 18px 80px;
+    transition:background .2s,color .2s;
+  }
+  a{color:inherit}
+
+  .bar{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    width:min(1080px,100%);margin:0 auto 26px;
+    padding:14px 18px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:var(--panel);
+  }
+  .bar-lead{display:flex;align-items:center;gap:10px;min-width:0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  .bar-kicker{
+    font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--quiet);
+  }
+  .bar strong{
+    display:block;
+    font-size:13px;font-weight:600;color:var(--ink);
+    white-space:nowrap;
+  }
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .seg{
+    display:inline-flex;gap:2px;padding:3px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:var(--ground);
+  }
+  .seg button{
+    height:28px;padding:0 12px;
+    border:0;border-radius:999px;
+    background:transparent;color:var(--quiet);
+    font-family:var(--sans);font-size:11px;font-weight:700;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+  }
+  .seg button:hover{color:var(--ink)}
+  .seg button.active{background:var(--panel-2);color:var(--bright);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
+  .stage{
+    display:flex;justify-content:center;
+    width:100%;
+  }
+  .article{
+    width:min(680px,100%);
+    transition:width .25s ease;
+  }
+  html[data-view="mobile"] .article{width:min(390px,100%)}
+  html[data-view="mobile"] .article h1{font-size:31px;letter-spacing:-1.2px}
+  html[data-view="mobile"] .article .standfirst{font-size:16px}
+  html[data-view="mobile"] .map-frame{height:258px}
+  html[data-view="mobile"] .map-legend{transform:scale(.9);transform-origin:top left}
+  html[data-view="mobile"] .map-embed{margin-left:0;margin-right:0}
+
+  .article .kicker{
+    margin:0 0 12px;
+    font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);
+  }
+  .article h1{
+    margin:0 0 16px;
+    font-size:clamp(32px,4.4vw,44px);
+    font-weight:500;
+    line-height:1.08;
+    letter-spacing:-.04em;
+    color:var(--bright);
+    transition:font-size .25s;
+  }
+  .article .standfirst{
+    margin:0 0 14px;
+    font-size:17px;line-height:1.55;
+    color:var(--copy);
+  }
+  .article .byline{
+    margin:0 0 26px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--line-soft);
+    font-size:12px;color:var(--quiet);
+  }
+  .article > p{
+    margin:0 0 16px;
+    font-size:16px;line-height:1.7;
+    color:var(--copy);
+  }
+
+  .map-embed{
+    margin:0 0 26px;
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:24px;
+    background:var(--panel);
+    transition:margin .25s;
+  }
+  .map-embed h2{
+    margin:8px 8px 8px;
+    font-size:17px;font-weight:500;letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .map-embed .intro{
+    margin:0 8px 12px;
+    font-size:13px;line-height:1.55;
+    color:var(--quiet);
+  }
+
+  /* ── Mapa ── */
+  .map-frame{
+    position:relative;
+    height:330px;
+    border:1px solid var(--line-soft);
+    border-radius:16px;
+    overflow:hidden;
+    background:#0a0c0d;
+    transition:height .25s;
+  }
+  .map-frame svg{position:absolute;inset:0;width:100%;height:100%}
+  .map-legend{
+    position:absolute;top:16px;left:16px;
+    min-width:148px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:10px;
+    background:rgba(12,14,15,.84);
+    backdrop-filter:blur(8px);
+    transition:transform .25s;
+  }
+  .map-legend h4{
+    margin-bottom:6px;
+    font-family:var(--sans);
+    font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:#8d8a90;
+  }
+  .map-legend ul{list-style:none;display:grid;gap:3px}
+  .map-legend li{
+    display:flex;align-items:center;gap:7px;
+    font-family:var(--sans);font-size:9.5px;color:#a9a6ae;
+  }
+  .map-legend i{width:12px;height:2px;border-radius:2px;flex-shrink:0}
+  .map-controls{
+    position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:2px;
+    height:34px;padding:0 4px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:999px;
+    background:rgba(12,14,15,.9);
+    color:#d7d3dc;
+    font-family:var(--sans);font-size:11px;
+  }
+  .map-controls span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%}
+  .map-controls .wide{width:auto;padding:0 10px;gap:5px;display:flex;align-items:center}
+
+  /* ── Pie de mapa · Opción B final ── */
+  .map-caption{
+    margin:12px 8px 0;
+    padding:4px 0 0;
+    font-family:var(--mono);
+    font-size:12.5px;
+    font-style:italic;
+    line-height:1.72;
+    color:var(--copy);
+  }
+  .map-caption strong{
+    color:var(--ink);
+    font-style:normal;
+    font-weight:700;
+  }
+  .map-caption__source{
+    display:block;
+    margin-top:3px;
+    font-style:normal;
+    color:var(--quiet);
+  }
+  .map-caption__links{
+    display:flex;flex-wrap:wrap;gap:3px 16px;
+    margin-top:8px;
+    font-style:normal;
+    font-size:11.5px;
+  }
+  .map-caption__links a{
+    color:var(--quiet);
+    text-decoration:underline;
+    text-decoration-color:rgba(255,255,255,.16);
+    text-underline-offset:3px;
+  }
+  .map-caption__links a:hover{color:var(--accent);text-decoration-color:currentColor}
+
+  @media (max-width:720px){
+    body{padding:16px 12px 60px}
+    .bar{border-radius:14px;padding:12px 14px}
+    .bar strong{white-space:normal}
+    .map-legend{transform:scale(.9);transform-origin:top left}
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-lead">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <span class="bar-kicker">Opción B · final</span>
+        <strong>Pie de mapa sin filete lateral</strong>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="seg" aria-label="Tema">
+        <button type="button" data-theme-btn="dark" class="active">Oscuro</button>
+        <button type="button" data-theme-btn="light">Claro</button>
+      </div>
+      <div class="seg" aria-label="Ancho">
+        <button type="button" data-view-btn="desktop" class="active">Escritorio</button>
+        <button type="button" data-view-btn="mobile">Móvil</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="stage">
+    <article class="article">
+      <p class="kicker">Explicador · Telecomunicaciones</p>
+      <h1>La España de las antenas: 69.785 puntos y cuatro operadores</h1>
+      <p class="standfirst">El mapa registra cada antena de telefonía móvil autorizada en España. El color identifica al operador; el tamaño del punto, el volumen de instalaciones de cada zona.</p>
+      <p class="byline">Redacción · 9 de noviembre de 2026 · 4 min de lectura</p>
+
+      <section class="map-embed" aria-labelledby="mapa-title">
+        <h2 id="mapa-title">Explora el mapa en 3D</h2>
+        <p class="intro">Aleja el zoom para que el mapa se convierta en un globo terráqueo en 3D; con el botón 2D/3D vuelves al plano. Cada punto es una antena registrada; al pasar el cursor o tocar una provincia se ve el desglose por operador.</p>
+
+        <div class="map-frame" aria-hidden="true">
+          <svg viewBox="0 0 640 330" preserveAspectRatio="xMidYMid slice">
+            <rect width="640" height="330" fill="#0a0c0d"/>
+            <g fill="#0e1112" stroke="#1b1e20" stroke-width="1">
+              <path d="M250 36 316 24 362 58 348 112 300 138 262 112 236 74Z"/>
+              <path d="M300 138 366 122 402 160 388 222 330 250 286 214 274 172Z"/>
+              <path d="M370 250 430 236 470 272 456 318 388 330 352 300Z"/>
+              <path d="M470 120 532 108 566 150 548 202 494 214 462 172Z"/>
+            </g>
+            <g stroke="#1f2325" stroke-width=".8" fill="none" opacity=".8">
+              <path d="M120 250 200 190 290 210 360 150 470 170 580 120"/>
+              <path d="M90 120 180 80 270 110 350 70 460 90 600 50"/>
+              <path d="M150 40 190 130 170 220 210 300"/>
+              <path d="M420 40 400 130 440 210 420 300"/>
+            </g>
+            <g font-family="DM Sans,sans-serif" font-size="9.5" text-anchor="middle">
+              <g fill="#0f1214" stroke="#25292c"><circle cx="292" cy="88" r="18"/><circle cx="330" cy="76" r="15"/><circle cx="392" cy="70" r="14"/><circle cx="438" cy="104" r="16"/><circle cx="500" cy="92" r="15"/></g>
+              <g fill="#0f1214" stroke="#25292c"><circle cx="352" cy="132" r="16"/><circle cx="414" cy="148" r="17"/><circle cx="472" cy="132" r="14"/><circle cx="306" cy="152" r="11"/><circle cx="388" cy="188" r="16"/><circle cx="330" cy="196" r="13"/></g>
+              <g fill="#d9d5e1"><text x="292" y="91">4.5k</text><text x="330" y="79">2.7k</text><text x="392" y="73">8k</text><text x="438" y="107">1.9k</text><text x="500" y="95">10k</text></g>
+              <g fill="#d9d5e1"><text x="352" y="135">13k</text><text x="414" y="151">7.3k</text><text x="472" y="135">1.7k</text><text x="306" y="155">57</text><text x="388" y="191">9.6k</text><text x="330" y="199">8.2k</text></g>
+            </g>
+            <g fill="#0f1214" stroke="#25292c"><circle cx="178" cy="252" r="12"/><circle cx="210" cy="238" r="7"/><circle cx="420" cy="268" r="10"/></g>
+            <g fill="#d9d5e1" font-family="DM Sans,sans-serif" font-size="9" text-anchor="middle"><text x="178" y="255">3.1k</text><text x="210" y="241">4</text><text x="420" y="271">48</text></g>
+          </svg>
+
+          <div class="map-legend">
+            <h4>Operador</h4>
+            <ul>
+              <li><i style="background:#e05a5a"></i>Vodafone · 25.192</li>
+              <li><i style="background:#4f8fe0"></i>Movistar · 23.058</li>
+              <li><i style="background:#e09a3e"></i>Orange · 19.021</li>
+              <li><i style="background:#6fbf73"></i>Digi · 2.065</li>
+              <li><i style="background:#a677d6"></i>Yoigo · 443</li>
+              <li><i style="background:#9aa0a6"></i>Otros · 6</li>
+            </ul>
+          </div>
+
+          <div class="map-controls">
+            <span>−</span><span>+</span><span>◎</span><span class="wide">◇ 2D</span>
+          </div>
+        </div>
+
+        <div class="map-caption">
+          Mapa interactivo de <strong>Maña Maps</strong>. Cada punto, una antena; el color, el operador.
+          <span class="map-caption__source">Fuente: Infoantenas (VCTEL) · consulta 9 nov 2026.</span>
+          <span class="map-caption__links">
+            <a href="https://maña.com/map/?gallery=antenas-moviles-espana" target="_blank" rel="noopener">pantalla completa</a>
+            <a href="/gallery/antenas-moviles-espana/">ficha del mapa</a>
+          </span>
+        </div>
+      </section>
+
+      <p>España cerró 2025 con 69.785 antenas de telefonía móvil registradas, repartidas de forma desigual entre provincias y operadores. Vodafone y Movistar concentran casi dos tercios de las instalaciones, mientras que Digi y Yoigo ocupan posiciones minoritarias pero estratégicas en las áreas metropolitanas.</p>
+      <p>El mapa permite comparar la densidad de infraestructura por provincia y comprobar cómo cambia el desglose al tocar cada punto. La lectura no es solo de cobertura: también refleja la historia de las fusiones y los despliegues de cada compañía.</p>
+    </article>
+  </main>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+
+    document.querySelectorAll('[data-theme-btn]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var theme = btn.dataset.themeBtn;
+        root.dataset.theme = theme;
+        document.querySelectorAll('[data-theme-btn]').forEach(function(b){
+          b.classList.toggle('active', b === btn);
+        });
+      });
+    });
+
+    document.querySelectorAll('[data-view-btn]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        root.dataset.view = btn.dataset.viewBtn;
+        document.querySelectorAll('[data-view-btn]').forEach(function(b){
+          b.classList.toggle('active', b === btn);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
