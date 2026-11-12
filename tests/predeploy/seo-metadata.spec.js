@@ -196,17 +196,13 @@ test('every published map receives internal links from another static landing', 
   }
 });
 
-test('zero-view maps receive links from at least two traffic landings', () => {
+test('zero-view maps receive links from at least three traffic landings', () => {
   // Prioridad de distribución de noviembre: un mapa sin visitas no debe
-  // depender de un único enlace que puede quedar enterrado en una landing.
+  // depender de un par de enlaces que pueden quedar enterrados. El corte real
+  // de Firestore (12-11) deja alcohol-consumption-world como único mapa a cero;
+  // el resto ya suma al menos una visita.
   const published = parseCollectionLd(galleryHtml).slugs;
-  // Corte de visitas 09-11: literacy-rate-world ya registra 1 visita y deja de
-  // ser objetivo de descubrimiento; los dos mapas que siguen a cero se
-  // mantienen enlazados desde dos landings con tráfico.
-  const zeroView = [
-    'alcohol-consumption-world',
-    'tallest-skyscrapers-world',
-  ];
+  const zeroView = ['alcohol-consumption-world'];
   const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
   // Landings con tráfico según el último corte de Firestore: el generador
   // solo puede usar estas como hosts de descubrimiento (≥10 visitas).
@@ -231,10 +227,32 @@ test('zero-view maps receive links from at least two traffic landings', () => {
   const result = auditInternalLinkCoverage(published, {
     viewsBySlug,
     minHostViews: 10,
-    minTrafficHosts: 2,
+    minTrafficHosts: 3,
   });
   expect(result.issues).toEqual([]);
   expect(result.undiscovered).toEqual([]);
+});
+
+test('discovery links to zero-view maps are rendered before FAQ and related blocks', () => {
+  // El bloque «Descubre también» deja de estar al final de la landing: se pinta
+  // después de «Datos clave» para que el mapa sin visitas gane visibilidad
+  // frente al resto de enlaces internos.
+  const host = fs.readFileSync(
+    path.join(siteRoot, 'gallery', 'tourism-arrivals-world', 'index.html'),
+    'utf8'
+  );
+  const discovery = host.indexOf('<section class="related related--discovery">');
+  expect(discovery).toBeGreaterThan(-1);
+  expect(host).toContain('/gallery/alcohol-consumption-world/');
+  for (const marker of [
+    '<section class="faq"',
+    '<section class="related related--news"',
+    '<section class="related">',
+  ]) {
+    const at = host.indexOf(marker);
+    expect(at, marker).toBeGreaterThan(-1);
+    expect(discovery, `${marker} debe ir después de «Descubre también»`).toBeLessThan(at);
+  }
 });
 
 test('internal link coverage ignores self links and reports orphan landings', () => {

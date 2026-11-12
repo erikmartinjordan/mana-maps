@@ -163,6 +163,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   const relatedSlugs = new Set(related.map(slugOf));
   const discovery = ((discoveryIndex && discoveryIndex.get(slug)) || [])
     .filter((item) => !relatedSlugs.has(slugOf(item)));
+  // Los mapas sin visitas necesitan algo más que un enlace enterrado al final
+  // de la página: el bloque se pinta justo después de «Datos clave» (antes de
+  // FAQ, News y «Más mapas») y con un estilo de aviso para que se vea.
   const discoveryBlock = discovery.length
     ? '\n    ' + relatedLinks(discovery, m, { title: 'Descubre también', className: 'related related--discovery' })
     : '';
@@ -292,7 +295,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   .related ul{list-style:none;padding:0;display:grid;gap:8px}
   .related a{text-decoration:none;font-weight:600}
   .related--news{margin-top:18px}
-  .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}${discovery.length ? '\n  .related--discovery{margin-top:18px}\n  .related--discovery h2{font-size:15px;color:var(--muted)}' : ''}
+  .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}${discovery.length ? '\\n  .related--discovery{margin-top:18px;padding:14px 16px;border:1px solid #bae6fd;border-radius:14px;background:#f0f9ff}\\n  .related--discovery h2{font-size:15px;margin:0 0 6px;color:#0c4a6e}\\n  @media (prefers-color-scheme: dark){.related--discovery{background:#082f49;border-color:#0c4a6e}.related--discovery h2{color:#bae6fd}}' : ''}
   .faq{margin-top:22px}
   .faq h2{font-size:18px;margin:0 0 10px}
   .faq-list{display:grid;gap:8px;margin:0}
@@ -341,8 +344,8 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
       <button type="button" class="btn btn-ghost" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
-    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}${faqBlock}${newsBlock ? '\n    ' + newsBlock : ''}
-    ${relatedLinks(related, m)}${discoveryBlock}
+    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}${discoveryBlock}${faqBlock}${newsBlock ? '\n    ' + newsBlock : ''}
+    ${relatedLinks(related, m)}
   </main>
   <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
     <div class="site-footer__lead">
@@ -418,9 +421,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
-  // Cada mapa sin visitas se enlaza desde dos landings con tráfico: un único
+  // Cada mapa sin visitas se enlaza desde tres landings con tráfico: un único
   // enlace puede quedar enterrado y no romper el círculo de cero visitas.
-  const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 2 });
+  const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 3 });
   // News → landing ya existe artículo a artículo; la landing devuelve el enlace
   // a los artículos que embeben el mapa para cerrar el circuito interno.
   const newsIndex = buildNewsMapIndex(readNewsArticles(SITE_ROOT));

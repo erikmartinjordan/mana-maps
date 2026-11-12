@@ -55,11 +55,11 @@
 //      implica elegir la clave y la rampa, y se hace a mano.
 //  15. enlaces internos: cada landing publicada debe recibir al menos un
 //      enlace desde otra landing y, si el mapa tiene cero visitas, al menos
-//      dos deben venir de landings con tráfico (≥DISCOVERY_MIN_HOST_VIEWS) o
+//      tres deben venir de landings con tráfico (≥DISCOVERY_MIN_HOST_VIEWS) o
 //      de una fuente de descubrimiento global (portada, galería e índices de
-//      News) que enlace la landing estática /gallery/<slug>/. Dos hosts con
-//      tráfico evitan que el mapa sin visitas dependa de un único enlace que
-//      puede quedar enterrado.
+//      News) que enlace la landing estática /gallery/<slug>/. Tres hosts con
+//      tráfico evitan que el mapa sin visitas dependa de un par de enlaces que
+//      pueden quedar enterrados.
 //  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html y
 //      site/en/news/<slug>/index.html que embebe un mapa
 //      (/map/?gallery=<slug>) debe enlazar también a su ficha estática
@@ -2650,7 +2650,7 @@ async function main() {
     );
     internalLinks = auditInternalLinkCoverage(published.map(m => m.id), {
       viewsBySlug,
-      minTrafficHosts: 2,
+      minTrafficHosts: 3,
       discoverySources: readDiscoverySources(),
     });
   } catch (e) {
