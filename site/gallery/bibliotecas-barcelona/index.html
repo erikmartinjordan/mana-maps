@@ -29,6 +29,7 @@
 <style>:root{--overscroll-bg:#fff}@media (prefers-color-scheme: dark){:root{--overscroll-bg:#0b0f14}}</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Bibliotecas públicas de Barcelona","description":"Mapa de las 41 bibliotecas públicas de la red municipal de Barcelona (Biblioteques de Barcelona) sobre los 10 distritos, pintados en coropletas según el número de bibliotecas.","url":"https://maña.com/gallery/bibliotecas-barcelona/","spatialCoverage":{"@type":"Place","name":"Mundo"},"creator":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"source":"Ajuntament de Barcelona — Opèndata: Dades de la xarxa de biblioteques de la ciutat de Barcelona (dades-xarxa-biblioteques-catalunya, 2025). Direcciones cruzadas con el inventario «Espais amb biblioteca o sala d'estudi i museístics» (culturailleure-bibliotequesimuseus). · 2026-09-29","dateModified":"2026-09-29","keywords":["Cultura","Educación","Barcelona"]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://maña.com/"},{"@type":"ListItem","position":2,"name":"Galería","item":"https://maña.com/gallery/"},{"@type":"ListItem","position":3,"name":"Bibliotecas públicas de Barcelona","item":"https://maña.com/gallery/bibliotecas-barcelona/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Qué lugar registra el valor más alto de bibliotecas por distrito?","acceptedAnswer":{"@type":"Answer","text":"Sant Martí, con 6."}},{"@type":"Question","name":"¿Qué lugar registra el valor más bajo de bibliotecas por distrito?","acceptedAnswer":{"@type":"Answer","text":"Les Corts, con 2."}},{"@type":"Question","name":"¿De dónde salen los datos del mapa?","acceptedAnswer":{"@type":"Answer","text":"Los datos proceden de Ajuntament de Barcelona — Opèndata: Dades de la xarxa de biblioteques de la ciutat de Barcelona (dades-xarxa-biblioteques-catalunya, 2025). Direcciones cruzadas con el inventario «Espais amb biblioteca o sala d'estudi i museístics» (culturailleure-bibliotequesimuseus). · 2026-09-29. El mapa incluye 52 elementos."}}]}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
   *{box-sizing:border-box}
@@ -74,6 +75,12 @@
   .related a{text-decoration:none;font-weight:600}
   .related--news{margin-top:18px}
   .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}
+  .faq{margin-top:22px}
+  .faq h2{font-size:18px;margin:0 0 10px}
+  .faq-list{display:grid;gap:8px;margin:0}
+  .faq-item{padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+  .faq-item dt{font-weight:700;font-size:14px}
+  .faq-item dd{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
@@ -124,6 +131,10 @@
         <div class="facts-col"><h3>Valores más altos</h3><ol><li><span class="facts-name">Sant Martí</span><span class="facts-value">6</span></li><li><span class="facts-name">Eixample</span><span class="facts-value">6</span></li><li><span class="facts-name">Nou Barris</span><span class="facts-value">5</span></li></ol></div>
         <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">Les Corts</span><span class="facts-value">2</span></li><li><span class="facts-name">Gràcia</span><span class="facts-value">3</span></li><li><span class="facts-name">Sants-Montjuïc</span><span class="facts-value">3</span></li></ol></div>
       </div>
+    </section>
+    <section class="faq" aria-labelledby="preguntas-frecuentes">
+      <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>
+      <dl class="faq-list"><div class="faq-item"><dt>¿Qué lugar registra el valor más alto de bibliotecas por distrito?</dt><dd>Sant Martí, con 6.</dd></div><div class="faq-item"><dt>¿Qué lugar registra el valor más bajo de bibliotecas por distrito?</dt><dd>Les Corts, con 2.</dd></div><div class="faq-item"><dt>¿De dónde salen los datos del mapa?</dt><dd>Los datos proceden de Ajuntament de Barcelona — Opèndata: Dades de la xarxa de biblioteques de la ciutat de Barcelona (dades-xarxa-biblioteques-catalunya, 2025). Direcciones cruzadas con el inventario «Espais amb biblioteca o sala d&#39;estudi i museístics» (culturailleure-bibliotequesimuseus). · 2026-09-29. El mapa incluye 52 elementos.</dd></div></dl>
     </section>
     <section class="related"><h2>Más mapas</h2><ul><li><a href="/gallery/literacy-rate-world/">Alfabetización mundial por país</a></li><li><a href="/gallery/tallest-statues-world/">Las estatuas más altas del mundo</a></li><li><a href="/gallery/most-visited-museums-world/">Los museos más visitados del mundo</a></li><li><a href="/gallery/patrimonio-unesco-por-pais/">Sitios patrimonio de la humanidad UNESCO por país</a></li></ul></section>
   </main>

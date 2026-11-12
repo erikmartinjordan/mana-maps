@@ -30,6 +30,7 @@ const {
 } = require('../../scripts/tools/audit-gallery-quality');
 const {
   buildFactsSection,
+  buildFaqSection,
   lowercaseIndicatorStart,
 } = require('../../scripts/lib/map-landing-facts');
 const {
@@ -1146,6 +1147,84 @@ test('landing key facts keep acronyms when lowercasing the indicator', () => {
     path.join(siteRoot, 'gallery', 'gdp-per-capita-world', 'index.html'), 'utf8');
   expect(gdpLanding).toContain('valor más alto de PIB per cápita');
   expect(gdpLanding).not.toContain('pIB per cápita');
+});
+
+// Regresión del FAQPage de las landings (prioridad 2 de noviembre: capturar
+// búsqueda en Bing/fuentes con señal). Las preguntas se derivan de «Datos
+// clave» y no pueden inventar cifras ni quedarse sin la fuente.
+test('landing FAQ derives questions from key facts and emits FAQPage JSON-LD', () => {
+  const geo = {
+    type: 'FeatureCollection',
+    features: [
+      { type: 'Feature', properties: { _manaName: 'Singapur', 'PIB (num)': 139593 }, geometry: { type: 'Point', coordinates: [103.8, 1.35] } },
+      { type: 'Feature', properties: { _manaName: 'España', 'PIB (num)': 32000 }, geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
+      { type: 'Feature', properties: { _manaName: 'Brasil', 'PIB (num)': 9000 }, geometry: { type: 'Point', coordinates: [-47.9, -15.8] } },
+      { type: 'Feature', properties: { _manaName: 'Burundi', 'PIB (num)': 1067 }, geometry: { type: 'Point', coordinates: [29.9, -3.4] } },
+    ],
+  };
+  const facts = buildFactsSection(geo, {
+    legendKey: 'PIB (num)',
+    legendTitle: 'PIB per cápita (USD corrientes)',
+    legendFormat: 'number',
+  });
+  const faq = buildFaqSection({
+    title: 'PIB per cápita mundial por país',
+    label: facts.label,
+    max: facts.max,
+    min: facts.min,
+    sourceLine: 'Banco Mundial · 2025',
+    featureCount: 4,
+  });
+  expect(faq.questions).toHaveLength(3);
+  expect(faq.questions[0].question).toContain('valor más alto de PIB per cápita');
+  expect(faq.questions[0].answer).toContain('Singapur');
+  expect(faq.questions[1].question).toContain('valor más bajo de PIB per cápita');
+  expect(faq.questions[1].answer).toContain('Burundi');
+  expect(faq.questions[2].answer).toContain('Banco Mundial');
+  expect(faq.html).toContain('<section class="faq"');
+  expect(faq.ld).toMatchObject({ '@type': 'FAQPage' });
+  expect(faq.ld.mainEntity).toHaveLength(3);
+  expect(faq.ld.mainEntity[0].acceptedAnswer).toEqual({ '@type': 'Answer', text: faq.questions[0].answer });
+
+  // Sin datos suficientes no se inventa un FAQ.
+  expect(buildFaqSection({})).toBeNull();
+  expect(buildFaqSection({ title: 'Mapa', label: 'altura', max: { name: 'A', display: '1 m' } })).toBeNull();
+  // Sin fuente se mantienen las dos preguntas de datos y se omite la tercera.
+  const noSource = buildFaqSection({
+    title: 'Mapa', label: 'altura',
+    max: { name: 'A', display: '1 m' }, min: { name: 'B', display: '0 m' },
+  });
+  expect(noSource.questions).toHaveLength(2);
+});
+
+// Todas las landings regeneradas con el generador deben publicar el FAQ visible
+// y el JSON-LD cuando tienen «Datos clave»; los 3 mapas sin variable numérica
+// (línea AVE, antenas y océanos) quedan fuera.
+test('every landing with key facts publishes a visible FAQ and FAQPage JSON-LD', () => {
+  const galleryDir = path.join(siteRoot, 'gallery');
+  const slugs = fs.readdirSync(galleryDir)
+    .filter((slug) => fs.existsSync(path.join(galleryDir, slug, 'index.html')));
+  let withFacts = 0;
+  for (const slug of slugs) {
+    const html = fs.readFileSync(path.join(galleryDir, slug, 'index.html'), 'utf8');
+    if (!html.includes('class="facts-lede"')) continue;
+    withFacts++;
+    expect(html, slug).toContain('<section class="faq" aria-labelledby="preguntas-frecuentes">');
+    expect(html, slug).toContain('"@type":"FAQPage"');
+    const scripts = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((match) => JSON.parse(match[1]));
+    const faq = scripts.find((item) => item['@type'] === 'FAQPage');
+    expect(faq, slug).toBeTruthy();
+    expect(faq.mainEntity.length, slug).toBeGreaterThanOrEqual(2);
+    expect(faq.mainEntity.length, slug).toBeLessThanOrEqual(3);
+    for (const item of faq.mainEntity) {
+      expect(item['@type'], slug).toBe('Question');
+      expect(item.name, slug).toBeTruthy();
+      expect(item.acceptedAnswer && item.acceptedAnswer.text, slug).toBeTruthy();
+    }
+    expect((html.match(/id="preguntas-frecuentes"/g) || []), slug).toHaveLength(1);
+  }
+  expect(withFacts).toBeGreaterThanOrEqual(50);
 });
 
 // Regresión de la medición en landings estáticas: /gallery/<slug>/ es la URL

@@ -29,6 +29,7 @@
 <style>:root{--overscroll-bg:#fff}@media (prefers-color-scheme: dark){:root{--overscroll-bg:#0b0f14}}</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Consumo de carne per cápita por país","description":"Mapa coroplético mundial del consumo de carne per cápita, medido como suministro de carne disponible para consumo en kilogramos por persona y año (excluye pescado y no corrige el desperdicio).","url":"https://maña.com/gallery/meat-consumption-world/","spatialCoverage":{"@type":"Place","name":"Mundo"},"creator":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"source":"FAO — Food Balances (2025), vía Our World in Data (ourworldindata.org/grapher/meat-supply-per-person): suministro de carne disponible para consumo, kg por persona y año; excluye pescado y no corrige el desperdicio doméstico. Geometrías: Natural Earth, vía population-by-country. · 2023-12-31","dateModified":"2026-10-21","keywords":["Alimentación","Agricultura","Salud","Geografía"]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://maña.com/"},{"@type":"ListItem","position":2,"name":"Galería","item":"https://maña.com/gallery/"},{"@type":"ListItem","position":3,"name":"Consumo de carne per cápita por país","item":"https://maña.com/gallery/meat-consumption-world/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Qué lugar registra el valor más alto de consumo de carne?","acceptedAnswer":{"@type":"Answer","text":"Tonga, con 156,9 kg/persona/año."}},{"@type":"Question","name":"¿Qué lugar registra el valor más bajo de consumo de carne?","acceptedAnswer":{"@type":"Answer","text":"República Democrática del Congo, con 3,5 kg/persona/año."}},{"@type":"Question","name":"¿De dónde salen los datos del mapa?","acceptedAnswer":{"@type":"Answer","text":"Los datos proceden de FAO — Food Balances (2025), vía Our World in Data (ourworldindata.org/grapher/meat-supply-per-person): suministro de carne disponible para consumo, kg por persona y año; excluye pescado y no corrige el desperdicio doméstico. Geometrías: Natural Earth, vía population-by-country. · 2023-12-31. El mapa incluye 205 elementos."}}]}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
   *{box-sizing:border-box}
@@ -74,6 +75,12 @@
   .related a{text-decoration:none;font-weight:600}
   .related--news{margin-top:18px}
   .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}
+  .faq{margin-top:22px}
+  .faq h2{font-size:18px;margin:0 0 10px}
+  .faq-list{display:grid;gap:8px;margin:0}
+  .faq-item{padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+  .faq-item dt{font-weight:700;font-size:14px}
+  .faq-item dd{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
@@ -124,6 +131,10 @@
         <div class="facts-col"><h3>Valores más altos</h3><ol><li><span class="facts-name">Tonga</span><span class="facts-value">156,9 kg/persona/año</span></li><li><span class="facts-name">Mongolia</span><span class="facts-value">136,1 kg/persona/año</span></li><li><span class="facts-name">Islas Marshall</span><span class="facts-value">125,6 kg/persona/año</span></li></ol></div>
         <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">República Democrática del Congo</span><span class="facts-value">3,5 kg/persona/año</span></li><li><span class="facts-name">Burundi</span><span class="facts-value">3,6 kg/persona/año</span></li><li><span class="facts-name">Bangladés</span><span class="facts-value">4,5 kg/persona/año</span></li></ol></div>
       </div>
+    </section>
+    <section class="faq" aria-labelledby="preguntas-frecuentes">
+      <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>
+      <dl class="faq-list"><div class="faq-item"><dt>¿Qué lugar registra el valor más alto de consumo de carne?</dt><dd>Tonga, con 156,9 kg/persona/año.</dd></div><div class="faq-item"><dt>¿Qué lugar registra el valor más bajo de consumo de carne?</dt><dd>República Democrática del Congo, con 3,5 kg/persona/año.</dd></div><div class="faq-item"><dt>¿De dónde salen los datos del mapa?</dt><dd>Los datos proceden de FAO — Food Balances (2025), vía Our World in Data (ourworldindata.org/grapher/meat-supply-per-person): suministro de carne disponible para consumo, kg por persona y año; excluye pescado y no corrige el desperdicio doméstico. Geometrías: Natural Earth, vía population-by-country. · 2023-12-31. El mapa incluye 205 elementos.</dd></div></dl>
     </section>
     <section class="related"><h2>Más mapas</h2><ul><li><a href="/gallery/obesity-adults-world/">Obesidad adulta mundial por país</a></li><li><a href="/gallery/alcohol-consumption-world/">Consumo de alcohol per cápita por país</a></li><li><a href="/gallery/air-pollution-pm25-world/">Exposición a la contaminación del aire (PM2.5) por país</a></li><li><a href="/gallery/daily-steps-world/">Pasos medios diarios por país</a></li></ul></section>
   </main>

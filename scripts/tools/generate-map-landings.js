@@ -22,7 +22,7 @@ const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
-const { buildFactsSection } = require('../lib/map-landing-facts');
+const { buildFactsSection, buildFaqSection } = require('../lib/map-landing-facts');
 const { buildNewsMapIndex, newsLinksBlock, readNewsArticles } = require('../lib/news-map-links');
 const { withRetries, isQuotaExhausted } = require('../lib/firestore-retry');
 
@@ -172,6 +172,20 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     legendFormat: m.legendFormat,
   });
   const factsBlock = facts ? '\n    ' + facts.html : '';
+  // FAQPage a partir del máximo y el mínimo de «Datos clave»: convierte el dato
+  // ya publicado en una pregunta long-tail («¿qué país registra…?») que Bing
+  // puede responder sin inventar cifras.
+  const faq = facts
+    ? buildFaqSection({
+        title,
+        label: facts.label,
+        max: facts.max,
+        min: facts.min,
+        sourceLine,
+        featureCount: m.featureCount,
+      })
+    : null;
+  const faqBlock = faq ? '\n    ' + faq.html : '';
   // News ya enlaza la landing desde cada artículo; el enlace inverso cierra el
   // circuito interno y da a los crawlers una ruta landing → artículo → landing.
   const news = (newsIndex && newsIndex.get(slug)) || [];
@@ -233,7 +247,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
 <link rel="stylesheet" href="/css/site-footer.css">
 <style>:root{--overscroll-bg:#fff}@media (prefers-color-scheme: dark){:root{--overscroll-bg:#0b0f14}}</style>
 <script type="application/ld+json">${JSON.stringify(dataset)}</script>
-<script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>
+<script type="application/ld+json">${JSON.stringify(breadcrumb)}</script>${faq ? `\n<script type="application/ld+json">${JSON.stringify(faq.ld)}</script>` : ''}
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
   *{box-sizing:border-box}
@@ -279,6 +293,12 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   .related a{text-decoration:none;font-weight:600}
   .related--news{margin-top:18px}
   .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}${discovery.length ? '\n  .related--discovery{margin-top:18px}\n  .related--discovery h2{font-size:15px;color:var(--muted)}' : ''}
+  .faq{margin-top:22px}
+  .faq h2{font-size:18px;margin:0 0 10px}
+  .faq-list{display:grid;gap:8px;margin:0}
+  .faq-item{padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+  .faq-item dt{font-weight:700;font-size:14px}
+  .faq-item dd{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
@@ -321,7 +341,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
       <button type="button" class="btn btn-ghost" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
-    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}${newsBlock ? '\n    ' + newsBlock : ''}
+    ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}${faqBlock}${newsBlock ? '\n    ' + newsBlock : ''}
     ${relatedLinks(related, m)}${discoveryBlock}
   </main>
   <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">

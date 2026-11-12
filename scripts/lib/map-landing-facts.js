@@ -166,7 +166,69 @@ function buildFactsSection(geo, opts) {
     '      </div>\n' +
     '    </section>';
 
-  return { html, entries, top, bottom, max, min, legendTitle: title };
+  return { html, entries, top, bottom, max, min, label, legendTitle: title };
+}
+
+// Preguntas frecuentes derivadas de «Datos clave» (directiva 2026-11,
+// prioridad 2: capturar búsqueda). La landing ya publica el máximo y el mínimo
+// del indicador; convertirlos en preguntas explícitas («¿qué país registra el
+// valor más alto de…?») da contenido long-tail verificable y un FAQPage que
+// Bing —la fuente de búsqueda con señal real (38/56)— puede usar en respuestas
+// enriquecidas. No inventa datos: reutiliza max/min y la fuente ya citada.
+function buildFaqSection(input) {
+  const title = trimmed(input && input.title);
+  const label = trimmed(input && input.label);
+  const max = input && input.max;
+  const min = input && input.min;
+  const maxName = trimmed(max && max.name);
+  const minName = trimmed(min && min.name);
+  if (!title || !label || !maxName || !minName) return null;
+
+  const displayMax = trimmed(max && max.display);
+  const displayMin = trimmed(min && min.display);
+  const questions = [
+    {
+      question: `¿Qué lugar registra el valor más alto de ${label}?`,
+      answer: `${maxName}${displayMax ? ', con ' + displayMax : ''}.`,
+    },
+    {
+      question: `¿Qué lugar registra el valor más bajo de ${label}?`,
+      answer: `${minName}${displayMin ? ', con ' + displayMin : ''}.`,
+    },
+  ];
+
+  const sourceLine = trimmed(input && input.sourceLine);
+  const featureCount = Number(input && input.featureCount);
+  if (sourceLine) {
+    const parts = [`Los datos proceden de ${sourceLine}.`];
+    if (isFinite(featureCount) && featureCount > 0) {
+      parts.push(`El mapa incluye ${formatFactNumber(featureCount)} elementos.`);
+    }
+    questions.push({
+      question: '¿De dónde salen los datos del mapa?',
+      answer: parts.join(' '),
+    });
+  }
+
+  const html = '<section class="faq" aria-labelledby="preguntas-frecuentes">\n' +
+    '      <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>\n' +
+    '      <dl class="faq-list">' + questions.map((item) =>
+      '<div class="faq-item"><dt>' + escapeHtml(item.question) + '</dt>' +
+      '<dd>' + escapeHtml(item.answer) + '</dd></div>'
+    ).join('') + '</dl>\n' +
+    '    </section>';
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: questions.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
+
+  return { html, ld, questions };
 }
 
 module.exports = {
@@ -174,6 +236,7 @@ module.exports = {
   DEFAULT_FACTS_LIMIT,
   collectFactEntries,
   buildFactsSection,
+  buildFaqSection,
   lowercaseIndicatorStart,
   unitFromLegendTitle,
   formatFactNumber,

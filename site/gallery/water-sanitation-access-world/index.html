@@ -29,6 +29,7 @@
 <style>:root{--overscroll-bg:#fff}@media (prefers-color-scheme: dark){:root{--overscroll-bg:#0b0f14}}</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Acceso a agua potable y saneamiento por país","description":"Mapa coroplético mundial del acceso a agua potable y saneamiento por país con datos del World Bank (SH.H2O.BASW.ZS y SH.STA.BASS.ZS).","url":"https://maña.com/gallery/water-sanitation-access-world/","spatialCoverage":{"@type":"Place","name":"Mundo"},"creator":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"source":"World Bank — People using at least basic drinking water services (% of population). Indicator SH.H2O.BASW.ZS; People using at least basic sanitation services (% of population). Indicator SH.STA.BASS.ZS. Datos WHO/UNICEF JMP vía World Bank. https://data.worldbank.org/indicator/SH.H2O.BASW.ZS · 2024-12-31","dateModified":"2026-10-04","keywords":["Salud","Medio Ambiente","Desarrollo"]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://maña.com/"},{"@type":"ListItem","position":2,"name":"Galería","item":"https://maña.com/gallery/"},{"@type":"ListItem","position":3,"name":"Acceso a agua potable y saneamiento por país","item":"https://maña.com/gallery/water-sanitation-access-world/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Qué lugar registra el valor más alto de acceso a agua potable y saneamiento básico?","acceptedAnswer":{"@type":"Answer","text":"Suiza, con 100,0%."}},{"@type":"Question","name":"¿Qué lugar registra el valor más bajo de acceso a agua potable y saneamiento básico?","acceptedAnswer":{"@type":"Answer","text":"República Centroafricana, con 25,3%."}},{"@type":"Question","name":"¿De dónde salen los datos del mapa?","acceptedAnswer":{"@type":"Answer","text":"Los datos proceden de World Bank — People using at least basic drinking water services (% of population). Indicator SH.H2O.BASW.ZS; People using at least basic sanitation services (% of population). Indicator SH.STA.BASS.ZS. Datos WHO/UNICEF JMP vía World Bank. https://data.worldbank.org/indicator/SH.H2O.BASW.ZS · 2024-12-31. El mapa incluye 205 elementos."}}]}</script>
 <style>
   :root{--sky:#0ea5e9;--ink:#111827;--muted:#6b7280;--line:#e5e7eb}
   *{box-sizing:border-box}
@@ -74,6 +75,12 @@
   .related a{text-decoration:none;font-weight:600}
   .related--news{margin-top:18px}
   .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}
+  .faq{margin-top:22px}
+  .faq h2{font-size:18px;margin:0 0 10px}
+  .faq-list{display:grid;gap:8px;margin:0}
+  .faq-item{padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+  .faq-item dt{font-weight:700;font-size:14px}
+  .faq-item dd{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
   @media (prefers-color-scheme: dark){:root{--ink:#f3f4f6;--muted:#9ca3af;--line:#374151}body{background:#0b0f14}.source{background:#111827}.facts{background:#111827}.btn-ghost{background:#111827;color:var(--ink)}}
 </style>
 <link rel="stylesheet" href="/css/site-navbar.css">
@@ -124,6 +131,10 @@
         <div class="facts-col"><h3>Valores más altos</h3><ol><li><span class="facts-name">Suiza</span><span class="facts-value">100,0%</span></li><li><span class="facts-name">Singapur</span><span class="facts-value">100,0%</span></li><li><span class="facts-name">San Marino</span><span class="facts-value">100,0%</span></li></ol></div>
         <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">República Centroafricana</span><span class="facts-value">25,3%</span></li><li><span class="facts-name">República Democrática del Congo</span><span class="facts-value">26,0%</span></li><li><span class="facts-name">Sudán del Sur</span><span class="facts-value">27,1%</span></li></ol></div>
       </div>
+    </section>
+    <section class="faq" aria-labelledby="preguntas-frecuentes">
+      <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>
+      <dl class="faq-list"><div class="faq-item"><dt>¿Qué lugar registra el valor más alto de acceso a agua potable y saneamiento básico?</dt><dd>Suiza, con 100,0%.</dd></div><div class="faq-item"><dt>¿Qué lugar registra el valor más bajo de acceso a agua potable y saneamiento básico?</dt><dd>República Centroafricana, con 25,3%.</dd></div><div class="faq-item"><dt>¿De dónde salen los datos del mapa?</dt><dd>Los datos proceden de World Bank — People using at least basic drinking water services (% of population). Indicator SH.H2O.BASW.ZS; People using at least basic sanitation services (% of population). Indicator SH.STA.BASS.ZS. Datos WHO/UNICEF JMP vía World Bank. https://data.worldbank.org/indicator/SH.H2O.BASW.ZS · 2024-12-31. El mapa incluye 205 elementos.</dd></div></dl>
     </section>
     <section class="related"><h2>Más mapas</h2><ul><li><a href="/gallery/air-pollution-pm25-world/">Exposición a la contaminación del aire (PM2.5) por país</a></li><li><a href="/gallery/gdp-per-capita-world/">PIB per cápita mundial por país</a></li><li><a href="/gallery/internet-users-world/">Usuarios de internet mundial por país</a></li><li><a href="/gallery/literacy-rate-world/">Alfabetización mundial por país</a></li></ul></section>
   </main>
