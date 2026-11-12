@@ -114,12 +114,15 @@ jobs:
           REPO: erikmartinjordan/mana-maps
         run: python .github/scripts/generate_changelog.py
 
+      - name: Sync tasks page
+        run: node scripts/tools/sync-tasks-page.js
+
       - name: Commit changelog
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site/changelog/index.html
+          git add site/changelog/index.html site/tasks/index.html
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -166,6 +169,9 @@ jobs:
           FIREBASE_PRE_CONFIG_JSON: ${{ secrets.FIREBASE_PRE_CONFIG_JSON }}
           FIREBASE_PRO_CONFIG_JSON: ${{ secrets.FIREBASE_PRO_CONFIG_JSON }}
         run: node .github/scripts/generate-firebase-config.js
+
+      - name: Sync tasks page
+        run: node scripts/tools/sync-tasks-page.js
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
