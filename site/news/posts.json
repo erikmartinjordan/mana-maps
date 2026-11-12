@@ -1,5 +1,32 @@
 [
   {
+    "date": "2026-11-12",
+    "event": "Análisis propio: el registro de Infoantenas consultado el 9 de noviembre de 2026 suma 69.785 antenas de telefonía móvil en España; Vodafone (25.192, 36,1%) supera a Movistar (23.058, 33,0%) en 30 de las 52 provincias y Orange (19.021, 27,3%) solo lidera en Salamanca y Palencia; Digi declara 2.065 antenas en 50 provincias (12 de noviembre de 2026)",
+    "type": "news",
+    "format": "analisis",
+    "topic": "tech",
+    "mapSlug": "antenas-moviles-espana",
+    "sourceUrls": [
+      "https://geoportal.minetur.gob.es/VCTEL/vcne.do",
+      "https://www.zegona.com/~/media/Files/Z/Zegona/press-release/2024/vodafone-spain-completion-announcement-30-05-2024.pdf",
+      "https://cincodias.elpais.com/companias/2026-11-10/vodafone-eleva-previsiones-pese-a-registrar-perdidas-de-3597-millones-por-ajustes-contables.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "vodafone-supera-movistar-antenas-moviles",
+        "url": "/news/vodafone-supera-movistar-antenas-moviles/",
+        "title": "Vodafone supera a Movistar en antenas móviles en 30 provincias",
+        "description": "El registro de Infoantenas suma 69.785 antenas móviles en España: Vodafone lidera en 30 provincias, Movistar en 20 y Orange en 2. Análisis de los datos de 2026."
+      },
+      "en": {
+        "slug": "vodafone-overtakes-movistar-mobile-masts",
+        "url": "/en/news/vodafone-overtakes-movistar-mobile-masts/",
+        "title": "Vodafone overtakes Movistar in mobile masts in 30 provinces",
+        "description": "Infoantenas records 69,785 mobile masts in Spain: Vodafone leads in 30 provinces, Movistar in 20 and Orange in 2. An own analysis of the November 2026 data."
+      }
+    }
+  },
+  {
     "date": "2026-11-11",
     "event": "Primera huelga general en España en 14 años, convocada por CCOO, UGT y otras organizaciones bajo el lema «Salarios. Vivienda. Precios», con 2.591.200 parados en la EPA del 3T de 2026 (10,18%) y unos 19 millones de asalariados llamados al paro (11 de noviembre de 2026)",
     "type": "news",
