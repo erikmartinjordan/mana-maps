@@ -8,11 +8,13 @@
   // The grid only needs lightweight card data; `mapPreview` is fetched lazily
   // per visible card (see schedulePreviews) and the featured ?slug= map fetches
   // its own full document on demand. `geojsonText` is never listed. We also
-  // drop fields the cards never render (description, dataDate, views…): the
-  // product hides descriptions/data source on cards and the featured landing
-  // re-reads the full doc, so shipping them in the list only wastes bytes.
+  // drop fields the cards never render (description, dataDate…): the product
+  // hides descriptions/data source on cards and the featured landing re-reads
+  // the full doc, so shipping them in the list only wastes bytes. `views` sí se
+  // proyecta (un entero por mapa): «Mapas relacionados» reserva una plaza para
+  // los mapas con menos visitas, igual que las landings estáticas.
   const GALLERY_LIST_FIELDS = [
-    'title', 'name', 'slug', 'tags', 'likes',
+    'title', 'name', 'slug', 'tags', 'likes', 'views',
     'authorHandle', 'shareMode', 'featureCount', 'createdAt', 'createdAtMs',
     'legendKey', 'legendTitle', 'legendFormat', 'dataSource'
   ];
@@ -2184,11 +2186,18 @@
   // ═══════════════════════════════════════════════════════════════
   // MAPAS RELACIONADOS — bloque SEO en landings /gallery/?slug=
   // ═══════════════════════════════════════════════════════════════
-  // Enlaces HTML rastreables a 3-4 mapas temáticamente afines.
+  // Enlaces HTML rastreables a 3-4 mapas temáticamente afines, siempre a la
+  // landing canónica /gallery/<slug>/ (la URL indexada: sitemap, canonical,
+  // JSON-LD y medición de visitas). Una de las plazas se reserva para un mapa
+  // con pocas visitas pero afinidad real, la misma palanca de distribución que
+  // buildDiscoveryIndex usa en las landings estáticas.
   // Afinidad: tags compartidos con peso IDF + clústeres temáticos
   // + tokens de título/slug. Fallback: mapas más recientes.
 
   var RELATED_LIMIT = 4;
+  // Espejo de DEFAULT_DISCOVERY_MAX_TARGET_VIEWS en scripts/lib/related-maps.js:
+  // por debajo de 10 visitas un mapa sigue siendo prácticamente invisible.
+  var RELATED_DISCOVERY_MAX_VIEWS = 10;
 
   // Clústeres temáticos (tokens en minúscula, sin acentos) para emparejar
   // mapas aunque sus tags sean distintos (p. ej. «Océanos» ↔ «Arrecifes»).
@@ -2260,7 +2269,15 @@
     return (m && m.createdAtMs) || (m && m.createdAt && m.createdAt.toMillis ? m.createdAt.toMillis() : 0);
   }
 
-  // Devuelve 3-4 mapas afines al actual (excluido él mismo).
+  function mapViews(m) {
+    var views = Number(m && m.views);
+    return isFinite(views) && views > 0 ? views : 0;
+  }
+
+  // Devuelve 3-4 mapas afines al actual (excluido él mismo). Las primeras
+  // plazas van a la mayor afinidad temática y una queda para el mapa con menos
+  // visitas que comparta temas: los mapas invisibles reciben enlaces desde una
+  // ficha que sí tiene tráfico, sin romper la coherencia del bloque.
   function pickRelatedMaps(current, allMaps, limit) {
     limit = limit || RELATED_LIMIT;
     var currentSlug = current && (current.slug || current.id);
@@ -2297,19 +2314,48 @@
       return b.created - a.created;
     });
 
-    var picked = scored.slice(0, limit).map(function(x) { return x.map; });
+    var seen = {};
+    var picked = [];
+    function take(map) {
+      var key = map && (map.slug || map.id);
+      if (!key || seen[key]) return false;
+      seen[key] = true;
+      picked.push(map);
+      return true;
+    }
 
-    // Fallback: completar con los mapas más recientes aún no elegidos.
+    // 1) Afinidad temática, dejando la última plaza para el descubrimiento.
+    var thematicSlots = limit > 1 ? limit - 1 : limit;
+    for (var i = 0; i < scored.length && picked.length < thematicSlots; i++) {
+      take(scored[i].map);
+    }
+
+    // 2) Plaza de descubrimiento: el mapa con menos visitas de entre los
+    // afines (ya descartados los elegidos). Si todos los afines tienen tráfico
+    // suficiente, la plaza vuelve al orden temático.
     if (picked.length < limit) {
-      var seen = {};
-      picked.forEach(function(m) { seen[m.slug || m.id] = true; });
+      var discoveryPool = scored.slice().sort(function(a, b) {
+        var va = mapViews(a.map);
+        var vb = mapViews(b.map);
+        if (va !== vb) return va - vb;
+        if (b.score !== a.score) return b.score - a.score;
+        return b.created - a.created;
+      });
+      for (var d = 0; d < discoveryPool.length; d++) {
+        if (mapViews(discoveryPool[d].map) >= RELATED_DISCOVERY_MAX_VIEWS) break;
+        if (take(discoveryPool[d].map)) break;
+      }
+    }
+
+    // 3) Completar con el resto de afinidades y, si hace falta, con los mapas
+    // más recientes aún no elegidos.
+    for (var j = 0; j < scored.length && picked.length < limit; j++) {
+      take(scored[j].map);
+    }
+    if (picked.length < limit) {
       var byRecency = others.slice().sort(function(a, b) { return mapCreatedMs(b) - mapCreatedMs(a); });
-      for (var i = 0; i < byRecency.length && picked.length < limit; i++) {
-        var key = byRecency[i].slug || byRecency[i].id;
-        if (!seen[key]) {
-          picked.push(byRecency[i]);
-          seen[key] = true;
-        }
+      for (var k = 0; k < byRecency.length && picked.length < limit; k++) {
+        take(byRecency[k]);
       }
     }
     return picked;
@@ -2334,7 +2380,10 @@
     list.innerHTML = related.map(function(m) {
       var slug = m.slug || m.id;
       var title = m.title || m.name || tr('Mapa sin título', 'Untitled map');
-      var href = '/gallery/?slug=' + encodeURIComponent(slug);
+      // Landing canónica: es la URL indexada (sitemap, canonical, JSON-LD) y la
+      // que mide la visita; /gallery/?slug= es una vista del visor que
+      // duplicaba la ficha y repartía el enlazado interno entre dos URLs.
+      var href = '/gallery/' + encodeURIComponent(slug) + '/';
       return '<li class="related-map-item">' +
         '<a class="related-map-link" href="' + href + '">' + escHtml(title) + '</a>' +
         '</li>';
@@ -2346,7 +2395,8 @@
   window.ManaGalleryRelated = {
     pickRelatedMaps: pickRelatedMaps,
     renderRelatedMaps: renderRelatedMaps,
-    RELATED_LIMIT: RELATED_LIMIT
+    RELATED_LIMIT: RELATED_LIMIT,
+    RELATED_DISCOVERY_MAX_VIEWS: RELATED_DISCOVERY_MAX_VIEWS
   };
 
   // ═══════════════════════════════════════════════════════════════

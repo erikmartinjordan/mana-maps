@@ -184,7 +184,7 @@ test('slug landing renders related maps block with crawlable HTML links', async 
 
   const hrefs = await links.evaluateAll((as) => as.map((a) => a.getAttribute('href')));
   hrefs.forEach((href) => {
-    expect(href, 'Cada relación debe ser un enlace HTML rastreable /gallery/?slug=').toMatch(/^\/gallery\/\?slug=.+$/);
+    expect(href, 'Cada relación debe apuntar a la landing canónica /gallery/<slug>/').toMatch(/^\/gallery\/[^/?#]+\/$/);
     expect(href, 'No debe auto-relacionarse consigo mismo').not.toContain('oceany-mares-world');
   });
 
@@ -242,4 +242,85 @@ test('slug landing renders related maps block with crawlable HTML links', async 
   expect(await page.evaluate(() => window.__ctaEvents[0])).toEqual(['cta_click', { target: 'save_map', source: 'gallery_slug' }]);
 
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
+});
+
+test('related maps use canonical landings and reserve a slot for the least-viewed thematic map', async ({ page }) => {
+  // Distribución (prioridad 1): el bloque «Mapas relacionados» del visor debe
+  // enlazar la landing canónica /gallery/<slug>/ y dejar una plaza a los mapas
+  // con menos de 10 visitas, igual que buildDiscoveryIndex en las landings.
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
+
+  const MOCK_MAPS = [
+    { slug: 'oceany-mares-world', title: 'Océanos y mares del mundo', tags: ['Geografía', 'Naturaleza'], isPublished: true, createdAtMs: 1000, views: 500 },
+    { slug: 'arrecifes-coral', title: 'Arrecifes de coral', tags: ['Naturaleza', 'Océanos'], isPublished: true, createdAtMs: 2000, views: 80 },
+    { slug: 'islas-grandes', title: 'Islas más grandes del mundo', tags: ['Geografía', 'Naturaleza'], isPublished: true, createdAtMs: 3000, views: 60 },
+    { slug: 'rios-largos', title: 'Ríos más largos del mundo', tags: ['Geografía', 'Hidrografía'], isPublished: true, createdAtMs: 4000, views: 40 },
+    { slug: 'desiertos-mundo', title: 'Desiertos del mundo', tags: ['Geografía', 'Naturaleza', 'Clima'], isPublished: true, createdAtMs: 5000, views: 30 },
+    { slug: 'salario-minimo', title: 'Salario mínimo por país', tags: ['Economía', 'Geografía'], isPublished: true, createdAtMs: 500, views: 1 },
+  ];
+
+  await page.addInitScript((maps) => {
+    delete window.MANA_FIREBASE_CONFIGS;
+    const docSnap = (data) => ({ id: data.slug, exists: true, data: () => data });
+    const listSnap = {
+      docs: maps.map(docSnap),
+      empty: maps.length === 0,
+      forEach: (fn) => maps.forEach((m) => fn(docSnap(m))),
+    };
+    const query = {
+      where: () => query,
+      orderBy: () => query,
+      limit: () => query,
+      get: async () => listSnap,
+      onSnapshot: (cb) => {
+        if (typeof cb === 'function') cb(listSnap);
+        return () => {};
+      },
+    };
+    const mockAuth = () => ({
+      currentUser: null,
+      onAuthStateChanged: (cb) => {
+        if (typeof cb === 'function') cb(null);
+        return () => {};
+      },
+      signInWithEmailAndPassword: async () => { throw new Error('mock-auth'); },
+      createUserWithEmailAndPassword: async () => { throw new Error('mock-auth'); },
+      signInAnonymously: async () => { throw new Error('mock-auth'); },
+      signInWithPopup: async () => { throw new Error('mock-auth'); },
+      signOut: async () => {},
+    });
+    mockAuth.GoogleAuthProvider = function GoogleAuthProvider() {};
+    window.firebase = {
+      apps: [{}],
+      initializeApp: () => ({}),
+      auth: mockAuth,
+      firestore: () => ({
+        collection: () => ({
+          where: () => query,
+          doc: (id) => ({
+            get: async () => {
+              const m = maps.find((x) => x.slug === id || x.id === id);
+              return m ? docSnap(m) : { exists: false, data: () => null };
+            },
+          }),
+        }),
+      }),
+    };
+  }, MOCK_MAPS);
+
+  await page.goto('/gallery/?slug=oceany-mares-world', { waitUntil: 'domcontentloaded' });
+
+  const links = page.locator('#related-maps .related-map-link');
+  await expect(page.locator('#related-maps')).toBeVisible({ timeout: 20_000 });
+  expect(await links.count()).toBe(4);
+
+  const hrefs = await links.evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  hrefs.forEach((href) => {
+    expect(href, 'Toda relación debe usar la landing canónica, no el visor ?slug=').toMatch(/^\/gallery\/[^/?#]+\/$/);
+  });
+  expect(hrefs, 'La plaza de descubrimiento debe ir al mapa con menos visitas').toContain('/gallery/salario-minimo/');
+  expect(hrefs, 'No debe repetirse ningún mapa').toEqual([...new Set(hrefs)]);
+
+  const discoveryMax = await page.evaluate(() => window.ManaGalleryRelated.RELATED_DISCOVERY_MAX_VIEWS);
+  expect(discoveryMax).toBe(10);
 });
