@@ -926,14 +926,16 @@
   // Save the featured ?slug= map into the user's collection. Unlike the grid
   // card fork button, this CTA lives in the public landing metadata and is the
   // strongest map→account step (priority 3: activation funnel).
-  window.gallerySaveSlug = function(btn) {
+  window.gallerySaveSlug = function(btn, options) {
+    var opts = options || {};
+    var source = opts.source || 'gallery_slug';
     var mapId = btn.getAttribute('data-map-id');
     var author = btn.getAttribute('data-author') || '';
     if (!mapId) return;
     var label = btn.querySelector('span') || btn;
     var original = label.textContent;
 
-    track('cta_click', { target: 'save_map', source: 'gallery_slug' });
+    if (opts.trackClick !== false) track('cta_click', { target: 'save_map', source: source });
 
     var doSave = async function() {
       btn.disabled = true;
@@ -943,7 +945,7 @@
           await window.manaMaps.forkMap(mapId, author);
           label.textContent = tr('✓ Guardado', '✓ Saved');
           btn.classList.add('saved');
-          track('map_saved', { source: 'gallery_slug' });
+          track('map_saved', { source: source });
           galleryToast(tr('Mapa guardado en tu espacio', 'Map saved to your space'), { linkUrl: '/my-maps/', linkLabel: tr('Abrir Mis mapas', 'Open My maps'), duration: 5200 });
           return;
         }
@@ -964,6 +966,28 @@
     }
     doSave();
   };
+
+  // El CTA «Guardar en mi espacio» de la landing estática (la URL canónica
+  // indexada) llega al visor como ?slug=<id>&intent=save. Aquí se consume una
+  // sola vez: limpia el parámetro para que un refresco o un cambio de idioma
+  // no repita el gate de auth, y reutiliza el mismo flujo de guardado. El clic
+  // ya se midió en la landing (source: static_map), así que no se duplica.
+  function runSaveIntent() {
+    if (typeof window.gallerySaveSlug !== 'function') return;
+    var params;
+    try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
+    if (params.get('intent') !== 'save') return;
+    var btn = document.querySelector('#slug-map-meta .slug-save-btn');
+    if (!btn) return;
+    try {
+      params.delete('intent');
+      var qs = params.toString();
+      window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+    } catch (e) {}
+    window.gallerySaveSlug(btn, { source: 'static_map', trackClick: false });
+  }
+
+  window.ManaGallerySaveIntent = { run: runSaveIntent };
 
   window.galleryFork = function(btn) {
     var mapId = btn.getAttribute('data-map-id');
@@ -2116,6 +2140,7 @@
       var fallbackSvg = (window.ManaMapPreview && renderThumb) ? renderThumb(item) : '';
       target.innerHTML = '<div class="featured-static">' + fallbackSvg + '</div>';
       if (meta) meta.innerHTML = '<div class="slug-meta-line">' + escHtml(tr('Vista previa estática del mapa.', 'Static map preview.')) + '</div>' + slugCtaHtml(item);
+      runSaveIntent();
       return;
     }
 
@@ -2153,6 +2178,7 @@
     });
 
     if (meta) meta.innerHTML = slugCtaHtml(item);
+    runSaveIntent();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -2389,6 +2415,7 @@
           ? ''
           : '<div class="slug-meta-line">' + escHtml(tr('Vista previa estática del mapa.', 'Static map preview.')) + '</div>';
         meta.innerHTML = staticPreview + slugCtaHtml(featured.item);
+        runSaveIntent();
       }
       renderRelatedMaps(featured.item, _allMaps);
     }

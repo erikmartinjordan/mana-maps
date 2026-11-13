@@ -151,6 +151,10 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   const canonical = `${SITE_BASE}/gallery/${encodeURIComponent(slug)}/`;
   const image = `${SITE_BASE}/og-cards/${encodeURIComponent(slug)}.png`;
   const interactive = `/gallery/?slug=${encodeURIComponent(slug)}`;
+  // Embudo mapa→cuenta (prioridad 3): la landing es la URL canónica indexada,
+  // así que ofrece el guardado directamente. El visor consume `intent=save`
+  // para abrir el gate de auth y reanudar el fork sin pasos intermedios.
+  const saveIntent = `${interactive}&intent=save`;
   const date = metaDate(m);
   const xText = encodeURIComponent(title + ' — vía Maña Maps');
   const xUrl = encodeURIComponent(canonical);
@@ -339,6 +343,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     <div class="cta">
       <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'create_map',source:'static_map'})">Crea tu mapa gratis</a>
       <a class="btn btn-ghost" href="${esc(interactive)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
+      <a class="btn btn-ghost" data-save-map="${esc(slug)}" href="${esc(saveIntent)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
       <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=${xText}&url=${xUrl}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
       <a class="btn btn-ghost" href="${esc(redditUrl)}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Compartir en Reddit</a>
       <button type="button" class="btn btn-ghost" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
