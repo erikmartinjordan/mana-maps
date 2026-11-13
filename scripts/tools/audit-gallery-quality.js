@@ -33,7 +33,12 @@
 //      hay desajuste. Acepta landings /gallery/<slug>/ y /gallery/?slug=<slug>
 //      en el sitemap, pero el catálogo JSON-LD debe usar la landing canónica
 //      /gallery/<slug>/ (la URL que comparten canonical, OG y medición de
-//      visitas); las URLs del visor (?slug=) se reportan como fallo.
+//      visitas); las URLs del visor (?slug=) se reportan como fallo. Exige
+//      además un <lastmod> ISO (YYYY-MM-DD) en cada entrada de mapa igual a la
+//      fecha del documento en Firestore (updatedAtMs/createdAtMs), la misma
+//      que declara el Dataset de la landing como dateModified; entradas sin
+//      <lastmod>, con formato inválido o desactualizadas se reportan como
+//      deriva. Regenerar con `node scripts/tools/update-sitemap-gallery.js`.
 //  11. cobertura de landings y OG cards: cada mapa isPublished debe tener
 //      gallery/<slug>/index.html (que además debe contener su slug) y
 //      og-cards/<slug>.png no vacío. Lista los faltantes y falla (exit 1).
