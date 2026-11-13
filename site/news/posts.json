@@ -1,5 +1,34 @@
 [
   {
+    "date": "2026-11-13",
+    "event": "La Planificación de la red de transporte eléctrico a 2030 reserva 9.300 MW a centros de datos, el 42% de los 22.000 MW que aspiraba el sector, frente a 14.900 MW para industria y 12.400 para hidrógeno; inversión de 17.142 millones y 47.400 MW de nueva demanda (12 de noviembre de 2026)",
+    "type": "news",
+    "format": "noticia",
+    "topic": "economia",
+    "mapSlug": "renewable-energy-world",
+    "sourceUrls": [
+      "https://www.miteco.gob.es/es/prensa/ultimas-noticias/2026/noviembre/sara-aagesen-somete-al-congreso-la-planificacion-de-electricidad.html",
+      "https://www.expansion.com/tecnologia/2026/11/13/gobierno-limita-mitad-licencias-data-center.html",
+      "https://www.europapress.es/economia/energia-00341/noticia-aagesen-defiende-megaplan-17142-millones-redes-impulsar-mas-47-gw-nueva-demanda-20261112141517.html",
+      "https://elpais.com/economia/2026-11-12/aagesen-da-el-ultimo-paso-para-aprobar-la-planificacion-de-las-redes-electricas-hasta-2030.html",
+      "https://www.elespanol.com/invertia/empresas/energia/20261111/rd-limitar-centros-datos-espana-incluira-objeciones-esenciales-pasar-consejo/1003744452957_0.html"
+    ],
+    "translations": {
+      "es": {
+        "slug": "plan-electrico-centros-datos-42-por-ciento",
+        "url": "/news/plan-electrico-centros-datos-42-por-ciento/",
+        "title": "El plan eléctrico deja a los centros de datos con el 42% de lo pedido",
+        "description": "La planificación de la red a 2030 reserva 9.300 MW a los centros de datos, el 42% de los 22.000 pedidos. El mapa de renovables pone el listón del 80%."
+      },
+      "en": {
+        "slug": "grid-plan-data-centres-42-per-cent",
+        "url": "/en/news/grid-plan-data-centres-42-per-cent/",
+        "title": "Grid plan leaves data centres with 42% of the power they sought",
+        "description": "Spain’s 2030 grid plan allocates 9,300 MW to data centres, 42% of the 22,000 MW the sector sought. The renewables map puts the 80% threshold in context."
+      }
+    }
+  },
+  {
     "date": "2026-11-12",
     "event": "Análisis propio: el registro de Infoantenas consultado el 9 de noviembre de 2026 suma 69.785 antenas de telefonía móvil en España; Vodafone (25.192, 36,1%) supera a Movistar (23.058, 33,0%) en 30 de las 52 provincias y Orange (19.021, 27,3%) solo lidera en Salamanca y Palencia; Digi declara 2.065 antenas en 50 provincias (12 de noviembre de 2026)",
     "type": "news",
