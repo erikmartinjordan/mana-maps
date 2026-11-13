@@ -223,6 +223,11 @@ test('slug landing renders related maps block with crawlable HTML links', async 
     window.__forkCalls = [];
     window.__ctaEvents = [];
     window.__pendingSave = null;
+    // La galería inyecta /js/tracking.js en window.load + requestIdleCallback
+    // (medición no crítica). tracking.js reemplaza window.trackEvent al
+    // ejecutarse, así que fijamos su guardia para que no pise el stub: si no,
+    // el test depende de que el clic ocurra antes de que cargue el tracker.
+    window.__manaTrackingLoaded = true;
     window.trackEvent = (name, params) => window.__ctaEvents.push([name, params]);
     window.manaAuth = {
       requireAuth: (cb) => { window.__authRequired = true; window.__pendingSave = cb; },

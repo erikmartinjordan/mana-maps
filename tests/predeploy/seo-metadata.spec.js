@@ -1495,8 +1495,12 @@ test('static landing native share tracks source static_map and falls back to cop
   await expect(page.locator('#share-status')).toHaveText('Mapa compartido');
 
   // Sin Web Share API (escritorio) el botón copia el enlace canónico.
+  // Ojo: `delete navigator.share` solo quita la propiedad propia del init
+  // script anterior y deja al descubierto la implementación nativa del
+  // navegador (Chrome ya soporta Web Share en escritorio), lo que abre la hoja
+  // nativa y bloquea la página. Hay que anularla explícitamente.
   await page.addInitScript(() => {
-    delete navigator.share;
+    Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     window.__copied = null;
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
