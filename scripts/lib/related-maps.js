@@ -10,6 +10,7 @@
 const DEFAULT_LIMIT = 4;
 const DEFAULT_MAX_LINKS = 5;
 const DEFAULT_DISCOVERY_MIN_VIEWS = 10;
+const DEFAULT_DISCOVERY_MAX_TARGET_VIEWS = 10;
 const DEFAULT_DISCOVERY_PER_HOST = 2;
 const DEFAULT_DISCOVERY_PER_TARGET = 1;
 
@@ -167,15 +168,21 @@ function buildRelatedIndex(maps, opts) {
   return index;
 }
 
-// Mapas con cero visitas que deben ganar descubrimiento. Se enlazan desde las
+// Mapas con pocas visitas que deben ganar descubrimiento. Se enlazan desde las
 // landings con más tráfico (no desde cualquier mapa) y cada landing acepta como
 // máximo `perHost` enlaces extra para no diluir la sección «Más mapas».
-// `perTarget` reparte cada mapa sin visitas entre varias landings con tráfico:
+// `perTarget` reparte cada mapa poco visto entre varias landings con tráfico:
 // un solo enlace desde una landing puede quedar enterrado y no generar visita.
+// `maxTargetViews` (10 por defecto) marca el corte: las visitas suben con el uso
+// real, así que un mapa con 1 visita sigue siendo prácticamente invisible y no
+// debe quedarse sin bloque al pasar de 0 a 1.
 function buildDiscoveryIndex(maps, opts) {
   const minViews = opts && Number.isFinite(opts.minViews)
     ? opts.minViews
     : DEFAULT_DISCOVERY_MIN_VIEWS;
+  const maxTargetViews = opts && Number.isFinite(opts.maxTargetViews)
+    ? opts.maxTargetViews
+    : DEFAULT_DISCOVERY_MAX_TARGET_VIEWS;
   const perHost = Math.max(1, (opts && opts.perHost) || DEFAULT_DISCOVERY_PER_HOST);
   const perTarget = Math.max(
     1,
@@ -196,7 +203,7 @@ function buildDiscoveryIndex(maps, opts) {
   if (!hosts.length) return index;
 
   const targets = list
-    .filter((m) => viewsOf(m) === 0)
+    .filter((m) => viewsOf(m) < maxTargetViews)
     .sort((a, b) => {
       if (createdMs(a) !== createdMs(b)) return createdMs(b) - createdMs(a);
       return sortBySlug(a, b);

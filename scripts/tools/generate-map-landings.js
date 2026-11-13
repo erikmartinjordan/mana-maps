@@ -426,8 +426,8 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
-  // Cada mapa sin visitas se enlaza desde tres landings con tráfico: un único
-  // enlace puede quedar enterrado y no romper el círculo de cero visitas.
+  // Cada mapa con pocas visitas (<10) se enlaza desde tres landings con
+  // tráfico: un único enlace puede quedar enterrado y no romper el círculo.
   const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 3 });
   // News → landing ya existe artículo a artículo; la landing devuelve el enlace
   // a los artículos que embeben el mapa para cerrar el circuito interno.

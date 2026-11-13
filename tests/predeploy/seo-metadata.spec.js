@@ -302,26 +302,32 @@ test('zero-view maps receive links from at least three traffic landings', () => 
   expect(result.undiscovered).toEqual([]);
 });
 
-test('discovery links to zero-view maps are rendered before FAQ and related blocks', () => {
+test('discovery links to low-view maps are rendered before FAQ and related blocks', () => {
   // El bloque «Descubre también» deja de estar al final de la landing: se pinta
-  // después de «Datos clave» para que el mapa sin visitas gane visibilidad
-  // frente al resto de enlaces internos.
-  const host = fs.readFileSync(
-    path.join(siteRoot, 'gallery', 'tourism-arrivals-world', 'index.html'),
-    'utf8'
-  );
-  const discovery = host.indexOf('<section class="related related--discovery">');
-  expect(discovery).toBeGreaterThan(-1);
-  expect(host).toContain('/gallery/alcohol-consumption-world/');
-  for (const marker of [
-    '<section class="faq"',
-    '<section class="related related--news"',
-    '<section class="related">',
-  ]) {
-    const at = host.indexOf(marker);
-    expect(at, marker).toBeGreaterThan(-1);
-    expect(discovery, `${marker} debe ir después de «Descubre también»`).toBeLessThan(at);
+  // después de «Datos clave» para que el mapa poco visto gane visibilidad
+  // frente al resto de enlaces internos. Se comprueba en todas las landings
+  // que lo tengan: el reparto depende de las visitas reales de Firestore.
+  const galleryDir = path.join(siteRoot, 'gallery');
+  const marker = '<section class="related related--discovery">';
+  let checked = 0;
+  for (const slug of fs.readdirSync(galleryDir)) {
+    const file = path.join(galleryDir, slug, 'index.html');
+    let host;
+    try { host = fs.readFileSync(file, 'utf8'); } catch (e) { continue; }
+    const discovery = host.indexOf(marker);
+    if (discovery === -1) continue;
+    checked++;
+    for (const sectionMarker of [
+      '<section class="faq"',
+      '<section class="related related--news"',
+      '<section class="related">',
+    ]) {
+      const at = host.indexOf(sectionMarker);
+      if (at === -1) continue;
+      expect(discovery, `${slug}: ${sectionMarker} debe ir después de «Descubre también»`).toBeLessThan(at);
+    }
   }
+  expect(checked, 'ninguna landing incluye el bloque «Descubre también»').toBeGreaterThan(0);
 });
 
 test('internal link coverage ignores self links and reports orphan landings', () => {
@@ -732,7 +738,7 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
     { slug: 'cero-eco', title: 'Cero economía', tags: ['Economía'], views: 0, createdAtMs: 5 },
     { slug: 'cero-salud', title: 'Cero salud', tags: ['Salud'], views: 0, createdAtMs: 6 },
   ];
-  const index = buildDiscoveryIndex(maps, { minViews: 10, perHost: 1 });
+  const index = buildDiscoveryIndex(maps, { minViews: 10, perHost: 1, maxTargetViews: 1 });
 
   // Cada mapa con cero visitas se enlaza desde el mapa más afín y con tráfico.
   expect(index.get('popular-eco').map((m) => m.slug)).toEqual(['cero-eco']);
@@ -750,7 +756,9 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
 
   // `perTarget` reparte cada mapa sin visitas entre varias landings con
   // tráfico: un único enlace puede quedar enterrado.
-  const spread = buildDiscoveryIndex(maps, { minViews: 10, perHost: 2, perTarget: 2 });
+  const spread = buildDiscoveryIndex(maps, {
+    minViews: 10, perHost: 2, perTarget: 2, maxTargetViews: 1,
+  });
   const hostsByTarget = new Map();
   for (const [host, targets] of spread) {
     for (const target of targets) {
@@ -763,6 +771,25 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
     expect(targets.length, `${host} supera perHost`).toBeLessThanOrEqual(2);
     for (const target of targets) expect(target.slug).not.toBe(host);
   }
+});
+
+test('buildDiscoveryIndex treats barely-seen maps as discovery targets', () => {
+  // Las visitas suben con el uso real: un mapa que pasa de 0 a 1 visita sigue
+  // siendo prácticamente invisible y debe mantener el bloque «Descubre también».
+  const index = buildDiscoveryIndex([
+    { slug: 'popular', title: 'Popular', tags: ['Economía'], views: 30, createdAtMs: 1 },
+    { slug: 'casi-invisible', title: 'Casi invisible', tags: ['Economía'], views: 1, createdAtMs: 2 },
+    { slug: 'visible', title: 'Visible', tags: ['Salud'], views: 12, createdAtMs: 3 },
+  ], { perHost: 1, perTarget: 1 });
+  expect(index.get('popular').map((m) => m.slug)).toEqual(['casi-invisible']);
+  expect(index.has('visible')).toBe(false);
+
+  // El corte es exclusivo: 10 visitas ya cuenta como host, no como target.
+  const atCut = buildDiscoveryIndex([
+    { slug: 'host', title: 'Host', tags: ['X'], views: 10 },
+    { slug: 'diez', title: 'Diez', tags: ['X'], views: 10 },
+  ]);
+  expect(atCut.size).toBe(0);
 });
 
 // Regresión del check 12: cada landing estática es una página SEO propia y
@@ -1545,13 +1572,25 @@ test('static landings attribute internal discovery clicks by placement', async (
 });
 
 test('static landings mark discovery blocks apart and respect the tracking opt-out', async ({ page }) => {
+  // Fixture determinista: el reparto real de «Descubre también» depende de las
+  // visitas de Firestore, así que aquí se prueba el script de medición con un
+  // bloque de descubrimiento servido por la propia web.
   await stubLandingNetwork(page);
-  await page.goto('/gallery/gini-index-world/');
-  const discoverySlug = await page.evaluate(() => {
-    const anchor = document.querySelector('.related--discovery a[href^="/gallery/"]');
-    return decodeURIComponent(anchor.getAttribute('href').split('/')[2]);
-  });
+  const fixture = [
+    '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Fixture</title></head>',
+    '<body data-map-slug="origen-world">',
+    '<section class="related related--discovery"><h2>Descubre también</h2><ul>',
+    '<li><a href="/gallery/destino-world/">Destino</a></li></ul></section>',
+    '<section class="related"><h2>Más mapas</h2><ul>',
+    '<li><a href="/gallery/otro-world/">Otro</a></li></ul></section>',
+    '<script src="/js/landing-discovery.js"></script>',
+    '</body></html>',
+  ].join('');
+  await page.route('**/__discovery-fixture/**', (route) => route.fulfill({
+    status: 200, contentType: 'text/html', body: fixture,
+  }));
 
+  await page.goto('/__discovery-fixture/');
   await page.evaluate(() => {
     window.__events = [];
     window.trackEvent = (name, params) => window.__events.push([name, params]);
@@ -1559,12 +1598,19 @@ test('static landings mark discovery blocks apart and respect the tracking opt-o
   });
   await page.click('.related--discovery a');
   await expect.poll(() => page.evaluate(() => window.__events)).toEqual([
-    ['discovery_click', { source: 'gini-index-world', target: discoverySlug, placement: 'discovery' }],
+    ['discovery_click', { source: 'origen-world', target: 'destino-world', placement: 'discovery' }],
+  ]);
+
+  // El bloque «Más mapas» se atribuye como related, no como discovery.
+  await page.evaluate(() => { window.__events = []; });
+  await page.click('.related:not(.related--discovery) a');
+  await expect.poll(() => page.evaluate(() => window.__events)).toEqual([
+    ['discovery_click', { source: 'origen-world', target: 'otro-world', placement: 'related' }],
   ]);
 
   // Con mana-notrack (tráfico interno/QA) no se registra nada.
   await page.addInitScript(() => localStorage.setItem('mana-notrack', '1'));
-  await page.goto('/gallery/gini-index-world/');
+  await page.goto('/__discovery-fixture/');
   await page.evaluate(() => {
     window.__events = [];
     window.trackEvent = (name, params) => window.__events.push([name, params]);
