@@ -299,7 +299,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   .related ul{list-style:none;padding:0;display:grid;gap:8px}
   .related a{text-decoration:none;font-weight:600}
   .related--news{margin-top:18px}
-  .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}${discovery.length ? '\\n  .related--discovery{margin-top:18px;padding:14px 16px;border:1px solid #bae6fd;border-radius:14px;background:#f0f9ff}\\n  .related--discovery h2{font-size:15px;margin:0 0 6px;color:#0c4a6e}\\n  @media (prefers-color-scheme: dark){.related--discovery{background:#082f49;border-color:#0c4a6e}.related--discovery h2{color:#bae6fd}}' : ''}
+  .news-lang{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px}${discovery.length ? '\n  .related--discovery{margin-top:18px;padding:14px 16px;border:1px solid #bae6fd;border-radius:14px;background:#f0f9ff}\n  .related--discovery h2{font-size:15px;margin:0 0 6px;color:#0c4a6e}\n  @media (prefers-color-scheme: dark){.related--discovery{background:#082f49;border-color:#0c4a6e}.related--discovery h2{color:#bae6fd}}' : ''}
   .faq{margin-top:22px}
   .faq h2{font-size:18px;margin:0 0 10px}
   .faq-list{display:grid;gap:8px;margin:0}
@@ -426,11 +426,14 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
-  // Cada mapa con pocas visitas (<10) se enlaza desde dos landings con tráfico.
-  // Dos enlaces bastan para romper el círculo y, con `perHost` = 2, el
-  // presupuesto alcanza a todos los mapas con 1–2 visitas (con 3 por mapa los
-  // huecos se agotaban antes de llegar a los últimos).
-  const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 2 });
+  // Los mapas con menos visitas (<10) se enlazan desde tres landings con
+  // tráfico: un único enlace (o un par) puede quedar enterrado. El presupuesto
+  // es `perHost` × hosts con ≥10 visitas; con 3 enlaces por host (15 hosts × 3
+  // = 45 plazas) alcanza para dar tres hosts a los 15 mapas con 1–2 visitas.
+  // Con `perHost` = 2 (30 plazas) los últimos targets se quedaban sin enlaces,
+  // y bajar `perTarget` a 2 rompía la garantía de 3 hosts para los mapas con
+  // cero visitas.
+  const discoveryIndex = buildDiscoveryIndex(allMaps, { perHost: 3, perTarget: 3 });
   // News → landing ya existe artículo a artículo; la landing devuelve el enlace
   // a los artículos que embeben el mapa para cerrar el circuito interno.
   const newsIndex = buildNewsMapIndex(readNewsArticles(SITE_ROOT));

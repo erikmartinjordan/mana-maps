@@ -413,11 +413,13 @@ test('internal link coverage also protects maps with a handful of views', () => 
     fs.writeFileSync(path.join(galleryDir, slug, 'index.html'), `<section class="related"><ul>${anchors}</ul></section>`);
   };
 
+  // Los hosts también necesitan enlaces entrantes: el check 15 marca huérfana
+  // cualquier landing sin enlaces, no solo las de pocas visitas.
   writeLanding('popular', ['apenas-dos', 'apenas-uno', 'tres-visible']);
   writeLanding('segundo', ['apenas-dos']);
-  writeLanding('apenas-dos', []);
+  writeLanding('apenas-dos', ['popular']);
   writeLanding('apenas-uno', []);
-  writeLanding('tres-visible', []);
+  writeLanding('tres-visible', ['segundo']);
 
   const slugList = ['popular', 'segundo', 'apenas-dos', 'apenas-uno', 'tres-visible'];
   const viewsBySlug = { popular: 40, segundo: 30, 'apenas-dos': 1, 'apenas-uno': 2, 'tres-visible': 3 };
