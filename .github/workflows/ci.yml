@@ -148,7 +148,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     permissions:
       contents: read
       pages: write
@@ -174,10 +174,25 @@ jobs:
         run: node scripts/tools/sync-tasks-page.js
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
+      # `actions/deploy-pages` puede fallar con «No artifacts named
+      # "github-pages" were found for this workflow run» aunque el paso de
+      # subida haya terminado bien (el índice de artefactos del run tarda un
+      # poco en reflejarlo). Un reintento tras una espera corta evita que ese
+      # fallo transitorio deje el deploy en rojo y abra una tarea falsa.
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Wait before retrying Pages deployment
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 15
+
+      - name: Deploy to GitHub Pages (retry)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v5
