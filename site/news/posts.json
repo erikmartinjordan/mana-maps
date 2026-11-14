@@ -1,5 +1,32 @@
 [
   {
+    "date": "2026-11-14",
+    "event": "Narendra Modi pide más inversión nuclear para sostener la IA y los centros de datos, que añadirán unos 26,3 GW de carga eléctrica en la India hasta el ejercicio fiscal 2032 (8-10 GW de capacidad de centros de datos en 2030); la India opera 7.730 MW nucleares en 23 reactores y 7 centrales, 3,4 veces menos que la nueva carga, frente a los 96.952 MW de Estados Unidos y los 63.000 de Francia; en el mundo hay 78 reactores en construcción y la UE-27 suma 98 (13-14 de noviembre de 2026)",
+    "type": "news",
+    "format": "comparativa",
+    "topic": "ia",
+    "mapSlug": "nuclear-reactors-world",
+    "sourceUrls": [
+      "https://www.thehindubusinessline.com/news/pm-modi-calls-for-greater-nuclear-investment-as-ai-data-centres-drive-power-demand/article71698428.ece",
+      "https://www.elespanol.com/invertia/empresas/energia/20261114/resurgimiento-nuclear-europa-centros-datos-ayudas-ue-cambian-estrategia-empresas/1003744457050_0.html",
+      "https://pris.iaea.org/PRIS/home.aspx"
+    ],
+    "translations": {
+      "es": {
+        "slug": "india-ia-26-gw-parque-nuclear",
+        "url": "/news/india-ia-26-gw-parque-nuclear/",
+        "title": "La IA sumará 26,3 GW en la India: 3,4 veces su parque nuclear",
+        "description": "La IA y los centros de datos añadirán 26,3 GW de carga en la India hasta 2032, 3,4 veces su parque nuclear. El mapa de las 170 centrales pone la escala."
+      },
+      "en": {
+        "slug": "india-ai-26-gw-nuclear-fleet",
+        "url": "/en/news/india-ai-26-gw-nuclear-fleet/",
+        "title": "AI will add 26.3 GW in India: 3.4 times its nuclear fleet",
+        "description": "AI and data centres will add 26.3 GW of electricity load in India by 2032, 3.4 times its operating nuclear fleet. The map of 170 plants sets the scale."
+      }
+    }
+  },
+  {
     "date": "2026-11-13",
     "event": "La Planificación de la red de transporte eléctrico a 2030 reserva 9.300 MW a centros de datos, el 42% de los 22.000 MW que aspiraba el sector, frente a 14.900 MW para industria y 12.400 para hidrógeno; inversión de 17.142 millones y 47.400 MW de nueva demanda (12 de noviembre de 2026)",
     "type": "news",
