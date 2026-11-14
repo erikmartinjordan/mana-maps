@@ -426,9 +426,11 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
-  // Cada mapa con pocas visitas (<10) se enlaza desde tres landings con
-  // tráfico: un único enlace puede quedar enterrado y no romper el círculo.
-  const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 3 });
+  // Cada mapa con pocas visitas (<10) se enlaza desde dos landings con tráfico.
+  // Dos enlaces bastan para romper el círculo y, con `perHost` = 2, el
+  // presupuesto alcanza a todos los mapas con 1–2 visitas (con 3 por mapa los
+  // huecos se agotaban antes de llegar a los últimos).
+  const discoveryIndex = buildDiscoveryIndex(allMaps, { perTarget: 2 });
   // News → landing ya existe artículo a artículo; la landing devuelve el enlace
   // a los artículos que embeben el mapa para cerrar el circuito interno.
   const newsIndex = buildNewsMapIndex(readNewsArticles(SITE_ROOT));

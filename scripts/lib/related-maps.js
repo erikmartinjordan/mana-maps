@@ -202,10 +202,15 @@ function buildDiscoveryIndex(maps, opts) {
     });
   if (!hosts.length) return index;
 
+  // Los targets se ordenan por visitas ascendentes: con un presupuesto de
+  // enlaces limitado (perHost × hosts con tráfico), atender primero a los mapas
+  // menos vistos evita que los recién creados consuman todos los huecos y dejen
+  // a los invisibles otra vez sin enlaces de landings con tráfico.
   const targets = list
     .filter((m) => viewsOf(m) < maxTargetViews)
     .sort((a, b) => {
-      if (createdMs(a) !== createdMs(b)) return createdMs(b) - createdMs(a);
+      if (viewsOf(a) !== viewsOf(b)) return viewsOf(a) - viewsOf(b);
+      if (createdMs(a) !== createdMs(b)) return createdMs(a) - createdMs(b);
       return sortBySlug(a, b);
     });
 

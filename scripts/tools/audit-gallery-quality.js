@@ -1903,8 +1903,10 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
 // (≥ DISCOVERY_MIN_HOST_VIEWS) o desde una fuente de descubrimiento externa
 // (portada, galería o índice de News): un enlace desde otro mapa igualmente
 // invisible no rompe el círculo de los cero visitas, y un único host con
-// tráfico puede quedar enterrado. La generación vive en
-// scripts/lib/related-maps.js (buildDiscoveryIndex).
+// tráfico puede quedar enterrado. Con `lowViewMax` el mismo requisito se aplica
+// a los mapas apenas vistos (por ejemplo ≤2 visitas), que siguen siendo
+// prácticamente invisibles aunque ya no estén a cero.
+// La generación vive en scripts/lib/related-maps.js (buildDiscoveryIndex).
 
 const DISCOVERY_MIN_HOST_VIEWS = 10;
 
@@ -1925,6 +1927,8 @@ function auditInternalLinkCoverage(publishedSlugs, {
   viewsBySlug = null,
   minHostViews = DISCOVERY_MIN_HOST_VIEWS,
   minTrafficHosts = 1,
+  lowViewMax = 0,
+  lowViewMinTrafficHosts = null,
   discoverySources = [],
 } = {}) {
   const pathMod = require('path');
@@ -1967,16 +1971,27 @@ function auditInternalLinkCoverage(publishedSlugs, {
   const details = {};
   const orphans = [];
   const zeroView = [];
+  const lowView = [];
   const undiscovered = [];
+  const lowViewUndiscovered = [];
   const discoveredFrom = {};
+  const maxLowViews = isFinite(Number(lowViewMax)) ? Number(lowViewMax) : 0;
+  const requiredLowHosts = isFinite(Number(lowViewMinTrafficHosts))
+    ? Number(lowViewMinTrafficHosts)
+    : minTrafficHosts;
   for (const slug of published) {
     const sources = [...new Set(inbound.get(slug) || [])].sort();
     details[slug] = sources;
     if (!sources.length) orphans.push(slug);
     if (!viewsBySlug) continue;
     const views = Number(viewsBySlug[slug]);
-    if (!isFinite(views) || views > 0) continue;
-    zeroView.push(slug);
+    if (!isFinite(views)) continue;
+    const isZero = views <= 0;
+    const isLow = !isZero && maxLowViews > 0 && views <= maxLowViews;
+    if (!isZero && !isLow) continue;
+    if (isZero) zeroView.push(slug);
+    else lowView.push(slug);
+    const requiredHosts = isZero ? minTrafficHosts : requiredLowHosts;
     const trafficHosts = sources.filter((source) => {
       const hostViews = Number(viewsBySlug[source]);
       return isFinite(hostViews) && hostViews >= minHostViews;
@@ -1985,7 +2000,10 @@ function auditInternalLinkCoverage(publishedSlugs, {
       .filter(([, links]) => links.has(slug))
       .map(([label]) => label);
     if (extraHosts.length) discoveredFrom[slug] = extraHosts.sort();
-    if (trafficHosts.length < minTrafficHosts && !extraHosts.length) undiscovered.push(slug);
+    if (trafficHosts.length < requiredHosts && !extraHosts.length) {
+      if (isZero) undiscovered.push(slug);
+      else lowViewUndiscovered.push(slug);
+    }
   }
   if (orphans.length) {
     issues.push(`${orphans.length} mapas sin enlaces entrantes desde otras landings (${orphans.join(', ')})`);
@@ -1999,16 +2017,29 @@ function auditInternalLinkCoverage(publishedSlugs, {
       `ni desde la portada ni desde fuentes de descubrimiento (${undiscovered.join(', ')})`
     );
   }
+  if (lowViewUndiscovered.length) {
+    const hostsText = requiredLowHosts === 1
+      ? `sin enlace desde landings con ≥${minHostViews} visitas`
+      : `sin enlaces desde al menos ${requiredLowHosts} landings con ≥${minHostViews} visitas`;
+    issues.push(
+      `${lowViewUndiscovered.length} mapas con ≤${maxLowViews} visitas ${hostsText} ` +
+      `ni desde la portada ni desde fuentes de descubrimiento (${lowViewUndiscovered.join(', ')})`
+    );
+  }
   return {
     issues,
     published,
     details,
     orphans,
     zeroView,
+    lowView,
     undiscovered,
+    lowViewUndiscovered,
     discoveredFrom,
     minHostViews,
     minTrafficHosts,
+    lowViewMax: maxLowViews,
+    lowViewMinTrafficHosts: requiredLowHosts,
   };
 }
 
@@ -2704,7 +2735,8 @@ async function main() {
   console.log('');
 
   // 15. Enlaces internos entrantes entre landings estáticas y descubrimiento
-  // de los mapas con cero visitas desde landings con tráfico.
+  // de los mapas con cero visitas o apenas vistos (≤2) desde landings con
+  // tráfico.
   let internalLinks = null;
   try {
     const viewsBySlug = Object.fromEntries(
@@ -2713,6 +2745,8 @@ async function main() {
     internalLinks = auditInternalLinkCoverage(published.map(m => m.id), {
       viewsBySlug,
       minTrafficHosts: 3,
+      lowViewMax: 2,
+      lowViewMinTrafficHosts: 2,
       discoverySources: readDiscoverySources(),
     });
   } catch (e) {
@@ -2725,6 +2759,12 @@ async function main() {
       `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
       (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde ≥${internalLinks.minTrafficHosts || 1} landing(s) con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News` : '')
     );
+    if (internalLinks.lowView && internalLinks.lowViewMax) {
+      console.log(
+        `OK: ${internalLinks.lowView.length} mapas con ≤${internalLinks.lowViewMax} visitas ` +
+        `enlazados desde ≥${internalLinks.lowViewMinTrafficHosts} landing(s) con ≥${internalLinks.minHostViews} visitas`
+      );
+    }
   } else {
     for (const issue of internalLinks.issues) console.log(`ENLACE: ${issue}`);
   }
@@ -2961,7 +3001,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
-  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas sin enlace desde landings con tráfico, la portada, la galería ni News`}`);
+  console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News)` : ''}${internalLinks.lowView && internalLinks.lowViewMax ? ` (${internalLinks.lowView.length} con ≤${internalLinks.lowViewMax} visitas enlazados desde ≥${internalLinks.lowViewMinTrafficHosts} landings con ≥${internalLinks.minHostViews} visitas)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas y ${internalLinks.lowViewUndiscovered ? internalLinks.lowViewUndiscovered.length : '?'} apenas vistos sin enlace desde landings con tráfico, la portada, la galería ni News`}`);
   console.log(`News ↔ landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha y ${newsLinks.reverseLinks || 0} enlaces inversos)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {

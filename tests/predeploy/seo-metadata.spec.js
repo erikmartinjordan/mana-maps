@@ -404,6 +404,55 @@ test('internal link coverage requires a traffic host for zero-view maps', () => 
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
+test('internal link coverage also protects maps with a handful of views', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-low-view-links-'));
+  const galleryDir = path.join(tmp, 'gallery');
+  const writeLanding = (slug, links) => {
+    fs.mkdirSync(path.join(galleryDir, slug), { recursive: true });
+    const anchors = links.map(l => `<li><a href="/gallery/${l}/">${l}</a></li>`).join('');
+    fs.writeFileSync(path.join(galleryDir, slug, 'index.html'), `<section class="related"><ul>${anchors}</ul></section>`);
+  };
+
+  writeLanding('popular', ['apenas-dos', 'apenas-uno', 'tres-visible']);
+  writeLanding('segundo', ['apenas-dos']);
+  writeLanding('apenas-dos', []);
+  writeLanding('apenas-uno', []);
+  writeLanding('tres-visible', []);
+
+  const slugList = ['popular', 'segundo', 'apenas-dos', 'apenas-uno', 'tres-visible'];
+  const viewsBySlug = { popular: 40, segundo: 30, 'apenas-dos': 1, 'apenas-uno': 2, 'tres-visible': 3 };
+
+  // Solo `apenas-dos` llega desde dos landings con tráfico: `apenas-uno`, con
+  // una sola visita, sigue siendo invisible aunque ya no esté a cero.
+  const result = auditInternalLinkCoverage(slugList, {
+    galleryDir,
+    viewsBySlug,
+    minHostViews: 10,
+    lowViewMax: 2,
+    lowViewMinTrafficHosts: 2,
+  });
+  expect(result.zeroView).toEqual([]);
+  expect(result.lowView).toEqual(['apenas-dos', 'apenas-uno']);
+  expect(result.lowViewUndiscovered).toEqual(['apenas-uno']);
+  expect(result.issues.join('\n')).toContain(
+    '1 mapas con ≤2 visitas sin enlaces desde al menos 2 landings con ≥10 visitas'
+  );
+
+  // Sin `lowViewMax` el check mantiene el comportamiento anterior y solo mira
+  // los mapas con cero visitas.
+  const legacy = auditInternalLinkCoverage(slugList, {
+    galleryDir,
+    viewsBySlug,
+    minHostViews: 10,
+    minTrafficHosts: 2,
+  });
+  expect(legacy.lowView).toEqual([]);
+  expect(legacy.lowViewUndiscovered).toEqual([]);
+  expect(legacy.issues).toEqual([]);
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
 test('internal link coverage accepts trusted discovery sources for zero-view maps', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-discovery-sources-'));
   const galleryDir = path.join(tmp, 'gallery');
@@ -771,6 +820,17 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
     expect(targets.length, `${host} supera perHost`).toBeLessThanOrEqual(2);
     for (const target of targets) expect(target.slug).not.toBe(host);
   }
+});
+
+test('buildDiscoveryIndex serves the least visited maps first', () => {
+  // Con plazas limitadas, un mapa con 5 visitas no debe consumir el hueco que
+  // necesita otro con 1: los targets se ordenan por visitas ascendentes.
+  const index = buildDiscoveryIndex([
+    { slug: 'host', title: 'Host', tags: ['Economía'], views: 50, createdAtMs: 1 },
+    { slug: 'cinco-visitas', title: 'Cinco', tags: ['Economía'], views: 5, createdAtMs: 3 },
+    { slug: 'una-visita', title: 'Una', tags: ['Economía'], views: 1, createdAtMs: 2 },
+  ], { perHost: 1, perTarget: 1, maxTargetViews: 10 });
+  expect(index.get('host').map((m) => m.slug)).toEqual(['una-visita']);
 });
 
 test('buildDiscoveryIndex treats barely-seen maps as discovery targets', () => {
