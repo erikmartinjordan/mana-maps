@@ -1647,3 +1647,35 @@ test('static landings share the data hook instead of only the map title', async 
   const nativeText = await page.locator('[data-share-native]').getAttribute('data-share-text');
   expect(nativeText).toBe(xText);
 });
+
+// ── Retirada de mapas de comunidad no editoriales ────────────────
+// `scripts/tools/unpublish-map.js` pone isPublished=false sin borrar el
+// documento. Su salvaguarda evita retirar por error mapas del catálogo: si el
+// mapa tiene título real, dataSource, dataDate y tags, exige --force.
+test('unpublish-map only retires maps that do not look editorial', () => {
+  const { isBlank, looksEditorial } = require('../../scripts/tools/unpublish-map');
+  const doc = (fields) => ({
+    fields: Object.fromEntries(Object.entries(fields).map(([key, value]) => {
+      if (Array.isArray(value)) return [key, { arrayValue: { values: value.map(v => ({ stringValue: v })) } }];
+      return [key, { stringValue: value }];
+    })),
+  });
+
+  const community = doc({ title: 'Mapa sin título', dataSource: '', dataDate: '', tags: [] });
+  expect(looksEditorial(community)).toBe(false);
+
+  const untitled = doc({ title: '   ', dataSource: 'IGN', dataDate: '2025', tags: ['Geografía'] });
+  expect(looksEditorial(untitled)).toBe(false);
+
+  const editorial = doc({
+    title: 'Desigualdad de ingresos (índice Gini) mundial por país',
+    dataSource: 'World Bank (SI.POV.GINI)',
+    dataDate: '2024',
+    tags: ['Economía', 'Geografía'],
+  });
+  expect(looksEditorial(editorial)).toBe(true);
+
+  const missingTags = doc({ title: 'Mapa real', dataSource: 'IGN', dataDate: '2025', tags: [] });
+  expect(isBlank(missingTags.fields.tags.arrayValue.values)).toBe(true);
+  expect(looksEditorial(missingTags)).toBe(false);
+});

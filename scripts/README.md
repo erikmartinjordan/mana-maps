@@ -47,6 +47,7 @@ node scripts/tools/check-local-assets.js
 node scripts/tools/check-repo-hygiene.js
 node scripts/tools/generate-map-landings.js
 node scripts/tools/update-sitemap-gallery.js
+node scripts/tools/unpublish-map.js --slug <slug> --dry-run
 node scripts/tools/monthly-report-metrics.js --month 2026-10
 ```
 
@@ -60,6 +61,11 @@ node scripts/tools/monthly-report-metrics.js --month 2026-10
 - Antes de publicar: `--dry-run`, validar GeoJSON, colores, etiquetas y
   coordenadas, y dejar Playwright en verde.
 - `scripts/lib/publisher.js` es la única puerta de autenticación con Firestore.
+- Un mapa de comunidad que llegue a la galería sin título, fuente, fecha ni tags
+  rompe la auditoría y la experiencia de la galería: se retira con
+  `scripts/tools/unpublish-map.js --slug <slug>` (pone `isPublished:false` y
+  conserva el documento del autor, así que es reversible). El script exige
+  `--force` si el mapa parece editorial.
 - `scripts/tools/monthly-report-metrics.js` genera las métricas del informe
   mensual de News desde Firestore (sesiones externas, fuentes, mercados,
   catálogo y eventos de producto). Es la entrada determinista del agente
