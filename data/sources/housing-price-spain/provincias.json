@@ -1,0 +1,538 @@
+{
+  "source": "Ministerio de Vivienda y Agenda Urbana — Estadística de Valor Tasado de la Vivienda (ETDP), Boletín estadístico, Tabla 1 «Valor tasado medio de vivienda libre» (euros/m²)",
+  "sourceUrl": "https://apps.fomento.gob.es/BoletinOnline2/sedal/35101000.XLS",
+  "extractedAt": "2026-11-15",
+  "period": "2026-T2",
+  "periodLabel": "2026, segundo trimestre",
+  "unit": "euros/m²",
+  "notes": "Valor tasado medio de vivienda libre por provincia y ciudad autónoma. La variación anual es la publicada en la columna «Variación anual» del boletín. Las geometrías provinciales proceden de Eurostat GISCO NUTS-3 2021 (1:3M).",
+  "provinces": [
+    {
+      "code": "01",
+      "name": "Araba/Álava",
+      "nuts": [
+        "ES211"
+      ],
+      "ccaa": "País Vasco",
+      "value": 2531.3,
+      "variation": 7.7
+    },
+    {
+      "code": "02",
+      "name": "Albacete",
+      "nuts": [
+        "ES421"
+      ],
+      "ccaa": "Castilla-La Mancha",
+      "value": 1236.2,
+      "variation": 13.8
+    },
+    {
+      "code": "03",
+      "name": "Alicante/Alacant",
+      "nuts": [
+        "ES521"
+      ],
+      "ccaa": "Comunitat Valenciana",
+      "value": 2020.7,
+      "variation": 14.1
+    },
+    {
+      "code": "04",
+      "name": "Almería",
+      "nuts": [
+        "ES611"
+      ],
+      "ccaa": "Andalucía",
+      "value": 1492.6,
+      "variation": 13.9
+    },
+    {
+      "code": "05",
+      "name": "Ávila",
+      "nuts": [
+        "ES411"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1167,
+      "variation": 14.3
+    },
+    {
+      "code": "06",
+      "name": "Badajoz",
+      "nuts": [
+        "ES431"
+      ],
+      "ccaa": "Extremadura",
+      "value": 1029,
+      "variation": 9.3
+    },
+    {
+      "code": "07",
+      "name": "Illes Balears",
+      "nuts": [
+        "ES531",
+        "ES532",
+        "ES533"
+      ],
+      "ccaa": "Illes Balears",
+      "value": 3980.8,
+      "variation": 13.1
+    },
+    {
+      "code": "08",
+      "name": "Barcelona",
+      "nuts": [
+        "ES511"
+      ],
+      "ccaa": "Cataluña",
+      "value": 3204.2,
+      "variation": 9.7
+    },
+    {
+      "code": "09",
+      "name": "Burgos",
+      "nuts": [
+        "ES412"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1500.1,
+      "variation": 16.8
+    },
+    {
+      "code": "10",
+      "name": "Cáceres",
+      "nuts": [
+        "ES432"
+      ],
+      "ccaa": "Extremadura",
+      "value": 950.5,
+      "variation": 6.7
+    },
+    {
+      "code": "11",
+      "name": "Cádiz",
+      "nuts": [
+        "ES612"
+      ],
+      "ccaa": "Andalucía",
+      "value": 2043,
+      "variation": 15.7
+    },
+    {
+      "code": "12",
+      "name": "Castellón/Castelló",
+      "nuts": [
+        "ES522"
+      ],
+      "ccaa": "Comunitat Valenciana",
+      "value": 1464.5,
+      "variation": 14.6
+    },
+    {
+      "code": "13",
+      "name": "Ciudad Real",
+      "nuts": [
+        "ES422"
+      ],
+      "ccaa": "Castilla-La Mancha",
+      "value": 854.2,
+      "variation": 14.3
+    },
+    {
+      "code": "14",
+      "name": "Córdoba",
+      "nuts": [
+        "ES613"
+      ],
+      "ccaa": "Andalucía",
+      "value": 1307.1,
+      "variation": 10.5
+    },
+    {
+      "code": "15",
+      "name": "A Coruña",
+      "nuts": [
+        "ES111"
+      ],
+      "ccaa": "Galicia",
+      "value": 1749.5,
+      "variation": 11.9
+    },
+    {
+      "code": "16",
+      "name": "Cuenca",
+      "nuts": [
+        "ES423"
+      ],
+      "ccaa": "Castilla-La Mancha",
+      "value": 950.3,
+      "variation": 9.7
+    },
+    {
+      "code": "17",
+      "name": "Girona",
+      "nuts": [
+        "ES512"
+      ],
+      "ccaa": "Cataluña",
+      "value": 2162.8,
+      "variation": 9.9
+    },
+    {
+      "code": "18",
+      "name": "Granada",
+      "nuts": [
+        "ES614"
+      ],
+      "ccaa": "Andalucía",
+      "value": 1673.3,
+      "variation": 13.1
+    },
+    {
+      "code": "19",
+      "name": "Guadalajara",
+      "nuts": [
+        "ES424"
+      ],
+      "ccaa": "Castilla-La Mancha",
+      "value": 1755.3,
+      "variation": 15.8
+    },
+    {
+      "code": "20",
+      "name": "Gipuzkoa",
+      "nuts": [
+        "ES212"
+      ],
+      "ccaa": "País Vasco",
+      "value": 3514.6,
+      "variation": 12.8
+    },
+    {
+      "code": "21",
+      "name": "Huelva",
+      "nuts": [
+        "ES615"
+      ],
+      "ccaa": "Andalucía",
+      "value": 1567.2,
+      "variation": 15.9
+    },
+    {
+      "code": "22",
+      "name": "Huesca",
+      "nuts": [
+        "ES241"
+      ],
+      "ccaa": "Aragón",
+      "value": 1492.9,
+      "variation": 15.2
+    },
+    {
+      "code": "23",
+      "name": "Jaén",
+      "nuts": [
+        "ES616"
+      ],
+      "ccaa": "Andalucía",
+      "value": 912.7,
+      "variation": 8.6
+    },
+    {
+      "code": "24",
+      "name": "León",
+      "nuts": [
+        "ES413"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1086.7,
+      "variation": 13.3
+    },
+    {
+      "code": "25",
+      "name": "Lleida",
+      "nuts": [
+        "ES513"
+      ],
+      "ccaa": "Cataluña",
+      "value": 1276.5,
+      "variation": 6.8
+    },
+    {
+      "code": "26",
+      "name": "La Rioja",
+      "nuts": [
+        "ES230"
+      ],
+      "ccaa": "La Rioja",
+      "value": 1476.8,
+      "variation": 12.1
+    },
+    {
+      "code": "27",
+      "name": "Lugo",
+      "nuts": [
+        "ES112"
+      ],
+      "ccaa": "Galicia",
+      "value": 1173.4,
+      "variation": 9.2
+    },
+    {
+      "code": "28",
+      "name": "Madrid",
+      "nuts": [
+        "ES300"
+      ],
+      "ccaa": "Comunidad de Madrid",
+      "value": 4089.6,
+      "variation": 12.6
+    },
+    {
+      "code": "29",
+      "name": "Málaga",
+      "nuts": [
+        "ES617"
+      ],
+      "ccaa": "Andalucía",
+      "value": 3083.5,
+      "variation": 13.8
+    },
+    {
+      "code": "30",
+      "name": "Murcia",
+      "nuts": [
+        "ES620"
+      ],
+      "ccaa": "Región de Murcia",
+      "value": 1350.1,
+      "variation": 13.9
+    },
+    {
+      "code": "31",
+      "name": "Navarra",
+      "nuts": [
+        "ES220"
+      ],
+      "ccaa": "Comunidad Foral de Navarra",
+      "value": 1936.4,
+      "variation": 8.5
+    },
+    {
+      "code": "32",
+      "name": "Ourense",
+      "nuts": [
+        "ES113"
+      ],
+      "ccaa": "Galicia",
+      "value": 1070.3,
+      "variation": 5.6
+    },
+    {
+      "code": "33",
+      "name": "Asturias",
+      "nuts": [
+        "ES120"
+      ],
+      "ccaa": "Principado de Asturias",
+      "value": 1798.5,
+      "variation": 14
+    },
+    {
+      "code": "34",
+      "name": "Palencia",
+      "nuts": [
+        "ES414"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1127.6,
+      "variation": 14
+    },
+    {
+      "code": "35",
+      "name": "Las Palmas",
+      "nuts": [
+        "ES704",
+        "ES705",
+        "ES708"
+      ],
+      "ccaa": "Canarias",
+      "value": 2263,
+      "variation": 13.1
+    },
+    {
+      "code": "36",
+      "name": "Pontevedra",
+      "nuts": [
+        "ES114"
+      ],
+      "ccaa": "Galicia",
+      "value": 1825.8,
+      "variation": 12.7
+    },
+    {
+      "code": "37",
+      "name": "Salamanca",
+      "nuts": [
+        "ES415"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1503.5,
+      "variation": 13.6
+    },
+    {
+      "code": "38",
+      "name": "Santa Cruz de Tenerife",
+      "nuts": [
+        "ES703",
+        "ES706",
+        "ES707",
+        "ES709"
+      ],
+      "ccaa": "Canarias",
+      "value": 2296.6,
+      "variation": 15.2
+    },
+    {
+      "code": "39",
+      "name": "Cantabria",
+      "nuts": [
+        "ES130"
+      ],
+      "ccaa": "Cantabria",
+      "value": 2122,
+      "variation": 14.6
+    },
+    {
+      "code": "40",
+      "name": "Segovia",
+      "nuts": [
+        "ES416"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1530.1,
+      "variation": 18.1
+    },
+    {
+      "code": "41",
+      "name": "Sevilla",
+      "nuts": [
+        "ES618"
+      ],
+      "ccaa": "Andalucía",
+      "value": 1889.8,
+      "variation": 12.9
+    },
+    {
+      "code": "42",
+      "name": "Soria",
+      "nuts": [
+        "ES417"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1192.6,
+      "variation": 16.1
+    },
+    {
+      "code": "43",
+      "name": "Tarragona",
+      "nuts": [
+        "ES514"
+      ],
+      "ccaa": "Cataluña",
+      "value": 1817.9,
+      "variation": 13
+    },
+    {
+      "code": "44",
+      "name": "Teruel",
+      "nuts": [
+        "ES242"
+      ],
+      "ccaa": "Aragón",
+      "value": 1052.3,
+      "variation": 14.2
+    },
+    {
+      "code": "45",
+      "name": "Toledo",
+      "nuts": [
+        "ES425"
+      ],
+      "ccaa": "Castilla-La Mancha",
+      "value": 1261.3,
+      "variation": 17.3
+    },
+    {
+      "code": "46",
+      "name": "Valencia/València",
+      "nuts": [
+        "ES523"
+      ],
+      "ccaa": "Comunitat Valenciana",
+      "value": 1980.1,
+      "variation": 17.6
+    },
+    {
+      "code": "47",
+      "name": "Valladolid",
+      "nuts": [
+        "ES418"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1658.4,
+      "variation": 15.6
+    },
+    {
+      "code": "48",
+      "name": "Bizkaia",
+      "nuts": [
+        "ES213"
+      ],
+      "ccaa": "País Vasco",
+      "value": 3024.7,
+      "variation": 10.8
+    },
+    {
+      "code": "49",
+      "name": "Zamora",
+      "nuts": [
+        "ES419"
+      ],
+      "ccaa": "Castilla y León",
+      "value": 1005.7,
+      "variation": 14
+    },
+    {
+      "code": "50",
+      "name": "Zaragoza",
+      "nuts": [
+        "ES243"
+      ],
+      "ccaa": "Aragón",
+      "value": 1944.3,
+      "variation": 14.4
+    },
+    {
+      "code": "51",
+      "name": "Ceuta",
+      "nuts": [
+        "ES630"
+      ],
+      "ccaa": "Ciudad autónoma de Ceuta",
+      "value": 2214.9,
+      "variation": 6.5
+    },
+    {
+      "code": "52",
+      "name": "Melilla",
+      "nuts": [
+        "ES640"
+      ],
+      "ccaa": "Ciudad autónoma de Melilla",
+      "value": 2164.5,
+      "variation": 8.6
+    }
+  ]
+}
