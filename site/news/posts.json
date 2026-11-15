@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-11-15",
+    "event": "Anthropic fija el precio de su salida a bolsa el 18 de noviembre y empieza a cotizar el 19 en el Nasdaq (símbolo ANT) con 825 millones de acciones entre 70 y 78 dólares, hasta 64.350 millones de recaudación y 1,405 billones de valoración totalmente diluida; la demanda sextuplica la oferta y siete tecnológicas suscriben 26.000 millones en acciones clase N; facturación anualizada de unos 81.000 millones a finales de octubre. Análisis propio con el mapa de usuarios de internet: en los 182 países con datos, el 72,7% de 7.883 millones de personas está conectado y 2.155 millones no (Banco Mundial, 2024)",
+    "type": "news",
+    "format": "analisis",
+    "topic": "bolsa",
+    "mapSlug": "internet-users-world",
+    "sourceUrls": [
+      "https://www.cnbc.com/2026/11/10/anthropic-sets-price-range-of-70-to-78-in-upcoming-ipo.html",
+      "https://finance.yahoo.com/technology/ai/article/anthropic-ipo-what-we-know-143321078.html",
+      "https://the-decoder.com/anthropics-ipo-is-six-times-oversubscribed-and-on-track-to-become-the-largest-public-offering-in-history/",
+      "https://api.worldbank.org/v2/country/all/indicator/IT.NET.USER.ZS?format=json&date=2024"
+    ],
+    "translations": {
+      "es": {
+        "slug": "anthropic-bolsa-millones-sin-internet",
+        "url": "/news/anthropic-bolsa-millones-sin-internet/",
+        "title": "La salida a bolsa de Anthropic y los 2.155 millones sin internet",
+        "description": "Anthropic debuta en el Nasdaq valorada en hasta 1,4 billones con 81.000 millones de facturación anualizada. El mapa de usuarios de internet mide su mercado."
+      },
+      "en": {
+        "slug": "anthropic-ipo-billion-people-offline",
+        "url": "/en/news/anthropic-ipo-billion-people-offline/",
+        "title": "Anthropic's IPO and the 2.155 billion people still offline",
+        "description": "Anthropic lists on Nasdaq at up to $1.4tn, with revenue running at $81bn. The map of internet users by country sets the floor of its addressable market."
+      }
+    }
+  },
+  {
     "date": "2026-11-14",
     "event": "Narendra Modi pide más inversión nuclear para sostener la IA y los centros de datos, que añadirán unos 26,3 GW de carga eléctrica en la India hasta el ejercicio fiscal 2032 (8-10 GW de capacidad de centros de datos en 2030); la India opera 7.730 MW nucleares en 23 reactores y 7 centrales, 3,4 veces menos que la nueva carga, frente a los 96.952 MW de Estados Unidos y los 63.000 de Francia; en el mundo hay 78 reactores en construcción y la UE-27 suma 98 (13-14 de noviembre de 2026)",
     "type": "news",
