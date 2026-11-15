@@ -57,7 +57,9 @@ function humanValue(props, legendKey) {
 
 function formatFactNumber(value) {
   if (!isFinite(value)) return '';
-  return new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(value);
+  // useGrouping:'always' evita que es-ES deje sin separador de miles los
+  // números de 4 dígitos (4089,6 → «4.089,6»), como pide la regla de medir.
+  return new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2, useGrouping: 'always' }).format(value);
 }
 
 // La frase empieza con el título del indicador en minúscula («consumo de

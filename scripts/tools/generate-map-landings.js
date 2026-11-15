@@ -18,6 +18,7 @@
 
 const https = require('https');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
@@ -37,6 +38,12 @@ const OUT_PAGES = path.join(SITE_ROOT, 'gallery');
 const DRY_RUN = process.argv.includes('--dry-run');
 const NO_IMAGES = process.argv.includes('--no-images');
 const SLUG_FILTER = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
+
+// En macOS 10.15 (Catalina) Playwright ya no publica chromium-headless-shell:
+// se usa el Chrome instalado, igual que hace tests/predeploy/playwright.config.js.
+const LEGACY_CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME_PATH = process.env.PLAYWRIGHT_CHROME_PATH ||
+  ((process.platform === 'darwin' && os.release().startsWith('19.') && fs.existsSync(LEGACY_CHROME)) ? LEGACY_CHROME : '');
 
 // ── Logo unificado (mismo SVG vectorial que el resto del sitio) ──
 // Blob oscuro + M̃ vectorial (sin dependencia de fuente) + wordmark.
@@ -450,7 +457,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   let page = null;
   if (!NO_IMAGES && !DRY_RUN) {
     fs.mkdirSync(OUT_CARDS, { recursive: true });
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ headless: true, ...(CHROME_PATH ? { executablePath: CHROME_PATH } : {}) });
     page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
   }
   const worldLandPath = loadWorldLandPath(SITE_ROOT);
