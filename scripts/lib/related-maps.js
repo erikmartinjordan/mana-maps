@@ -13,6 +13,12 @@ const DEFAULT_DISCOVERY_MIN_VIEWS = 10;
 const DEFAULT_DISCOVERY_MAX_TARGET_VIEWS = 10;
 const DEFAULT_DISCOVERY_PER_HOST = 2;
 const DEFAULT_DISCOVERY_PER_TARGET = 1;
+// Un mapa con cero visitas no sale del círculo con enlaces desde landings que
+// también están casi invisibles (≥10 visitas basta para «tener tráfico», pero
+// dos hosts con ≥30 son los que de verdad mueven sesiones: el corte de
+// noviembre deja solo seis landings por encima de esa cifra).
+const DEFAULT_DISCOVERY_ZERO_VIEW_MIN_VIEWS = 30;
+const DEFAULT_DISCOVERY_ZERO_VIEW_HOSTS = 2;
 
 function slugOf(map) {
   return map && (map.slug || map.id) ? String(map.slug || map.id) : '';
@@ -176,6 +182,13 @@ function buildRelatedIndex(maps, opts) {
 // `maxTargetViews` (10 por defecto) marca el corte: las visitas suben con el uso
 // real, así que un mapa con 1 visita sigue siendo prácticamente invisible y no
 // debe quedarse sin bloque al pasar de 0 a 1.
+//
+// Los mapas con cero visitas reciben un trato más exigente: se enlazan desde
+// `zeroViewMinHosts` (2 por defecto) landings con al menos `zeroViewMinViews`
+// (30 por defecto) visitas, siempre que existan suficientes hosts así. Un
+// enlace desde una landing de 12 visitas no rompe el círculo de invisibilidad;
+// el check 15 de la auditoría aplica el mismo umbral para no dar por resuelto
+// lo que la generación no garantiza.
 function buildDiscoveryIndex(maps, opts) {
   const minViews = opts && Number.isFinite(opts.minViews)
     ? opts.minViews
@@ -187,6 +200,18 @@ function buildDiscoveryIndex(maps, opts) {
   const perTarget = Math.max(
     1,
     opts && Number.isFinite(opts.perTarget) ? opts.perTarget : DEFAULT_DISCOVERY_PER_TARGET
+  );
+  const zeroViewMinViews = Math.max(
+    minViews,
+    opts && Number.isFinite(opts.zeroViewMinViews)
+      ? opts.zeroViewMinViews
+      : DEFAULT_DISCOVERY_ZERO_VIEW_MIN_VIEWS
+  );
+  const zeroViewMinHosts = Math.max(
+    1,
+    opts && Number.isFinite(opts.zeroViewMinHosts)
+      ? opts.zeroViewMinHosts
+      : DEFAULT_DISCOVERY_ZERO_VIEW_HOSTS
   );
   const list = (Array.isArray(maps) ? maps : [])
     .filter((m) => slugOf(m))
@@ -216,7 +241,19 @@ function buildDiscoveryIndex(maps, opts) {
 
   for (const target of targets) {
     const targetSlug = slugOf(target);
-    const ranked = hosts
+    // Un mapa a cero solo rompe el círculo si lo enlazan landings que de
+    // verdad reciben sesiones. Si no hay suficientes hosts con ≥30 visitas
+    // (proyecto recién arrancado), se mantiene el comportamiento anterior: es
+    // mejor un enlace desde una landing de 10 visitas que ninguno.
+    const isZeroView = viewsOf(target) <= 0;
+    const strongHosts = isZeroView
+      ? hosts.filter((h) => viewsOf(h) >= zeroViewMinViews)
+      : [];
+    const enoughStrongHosts = isZeroView && strongHosts.length >= zeroViewMinHosts;
+    const placementsRequired = enoughStrongHosts
+      ? Math.max(perTarget, zeroViewMinHosts)
+      : perTarget;
+    const ranked = (enoughStrongHosts ? strongHosts : hosts)
       .filter((h) => slugOf(h) !== targetSlug)
       .map((h) => ({ map: h, score: relatedScore(target, h, stats) }))
       .sort((a, b) => {
@@ -226,7 +263,7 @@ function buildDiscoveryIndex(maps, opts) {
       });
     let placed = 0;
     for (const chosen of ranked) {
-      if (placed >= perTarget) break;
+      if (placed >= placementsRequired) break;
       const hostSlug = slugOf(chosen.map);
       const bucket = index.get(hostSlug) || [];
       if (bucket.length >= perHost) continue;
@@ -263,6 +300,8 @@ module.exports = {
   DEFAULT_LIMIT,
   DEFAULT_MAX_LINKS,
   DEFAULT_DISCOVERY_PER_TARGET,
+  DEFAULT_DISCOVERY_ZERO_VIEW_MIN_VIEWS,
+  DEFAULT_DISCOVERY_ZERO_VIEW_HOSTS,
   buildRelatedIndex,
   buildDiscoveryIndex,
   relatedLinks,

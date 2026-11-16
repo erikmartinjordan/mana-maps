@@ -265,41 +265,38 @@ test('every published map receives internal links from another static landing', 
   }
 });
 
-test('zero-view maps receive links from at least three traffic landings', () => {
-  // Prioridad de distribución de noviembre: un mapa sin visitas no debe
-  // depender de un par de enlaces que pueden quedar enterrados. El corte real
-  // de Firestore (12-11) deja alcohol-consumption-world como único mapa a cero;
-  // el resto ya suma al menos una visita.
+test('zero-view maps receive links from at least two landings with 30+ views', () => {
+  // Prioridad de distribución de noviembre: un mapa sin visitas solo sale del
+  // círculo si lo enlazan landings que de verdad reciben sesiones. El corte de
+  // Firestore (16-11) deja largest-observatories-world como único mapa a cero;
+  // los demás ya suman al menos una visita.
   const published = parseCollectionLd(galleryHtml).slugs;
-  const zeroView = ['alcohol-consumption-world'];
+  const zeroView = ['largest-observatories-world'];
   const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
-  // Landings con tráfico según el último corte de Firestore: el generador
-  // solo puede usar estas como hosts de descubrimiento (≥10 visitas).
+  // Landings con ≥30 visitas según el último corte de Firestore: son los
+  // únicos hosts que rompen el círculo de los cero visitas.
   for (const slug of [
     'tourism-arrivals-world',
     'gini-index-world',
     'bibliotecas-barcelona',
-    'worst-wildfires-world',
     'submarine-fiber-cables',
+    'worst-wildfires-world',
     'linea-ave-madrid-sevilla-urda',
-    'biggest-earthquakes-world',
-    'minimum-wage-by-country',
-    'active-volcanoes-world',
-    'indice-desarrollo-humano-por-pais',
-    'inflation-world',
-    'tallest-waterfalls-world',
   ]) {
-    if (slug in viewsBySlug) viewsBySlug[slug] = 50;
+    if (slug in viewsBySlug) viewsBySlug[slug] = 40;
   }
   for (const slug of zeroView) viewsBySlug[slug] = 0;
 
   const result = auditInternalLinkCoverage(published, {
     viewsBySlug,
     minHostViews: 10,
-    minTrafficHosts: 3,
+    zeroViewMinHostViews: 30,
+    minTrafficHosts: 2,
   });
   expect(result.issues).toEqual([]);
   expect(result.undiscovered).toEqual([]);
+  expect(result.zeroViewMinHostViews).toBe(30);
+  expect(result.zeroView).toEqual(zeroView);
 });
 
 test('discovery links to low-view maps are rendered before FAQ and related blocks', () => {
@@ -400,6 +397,44 @@ test('internal link coverage requires a traffic host for zero-view maps', () => 
     '2 mapas con cero visitas sin enlaces desde al menos 2 landings con ≥10 visitas ni desde la portada ni desde fuentes de descubrimiento'
   );
   expect(twoHosts.minTrafficHosts).toBe(2);
+
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('internal link coverage demands 30+ view hosts for zero-view maps', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mana-zero-strong-hosts-'));
+  const galleryDir = path.join(tmp, 'gallery');
+  const writeLanding = (slug, links) => {
+    fs.mkdirSync(path.join(galleryDir, slug), { recursive: true });
+    const anchors = links.map(l => `<li><a href="/gallery/${l}/">${l}</a></li>`).join('');
+    fs.writeFileSync(path.join(galleryDir, slug, 'index.html'), `<section class="related"><ul>${anchors}</ul></section>`);
+  };
+
+  writeLanding('popular', ['medio', 'cero']);
+  writeLanding('medio', ['popular', 'cero']);
+  writeLanding('cero', ['popular']);
+
+  const slugList = ['popular', 'medio', 'cero'];
+  const viewsBySlug = { popular: 40, medio: 20, cero: 0 };
+
+  // Con el umbral suave (≥10) los dos hosts rompen el círculo.
+  const soft = auditInternalLinkCoverage(slugList, { galleryDir, viewsBySlug, minHostViews: 10, minTrafficHosts: 2 });
+  expect(soft.issues).toEqual([]);
+
+  // Endurecido: un host de 20 visitas no cuenta como tráfico real para un mapa
+  // a cero; hacen falta dos landings con ≥30.
+  const hardened = auditInternalLinkCoverage(slugList, {
+    galleryDir,
+    viewsBySlug,
+    minHostViews: 10,
+    zeroViewMinHostViews: 30,
+    minTrafficHosts: 2,
+  });
+  expect(hardened.undiscovered).toEqual(['cero']);
+  expect(hardened.zeroViewMinHostViews).toBe(30);
+  expect(hardened.issues.join('\n')).toContain(
+    'sin enlaces desde al menos 2 landings con ≥30 visitas'
+  );
 
   fs.rmSync(tmp, { recursive: true, force: true });
 });
@@ -822,6 +857,24 @@ test('buildDiscoveryIndex links zero-view maps from the most visited landings', 
     expect(targets.length, `${host} supera perHost`).toBeLessThanOrEqual(2);
     for (const target of targets) expect(target.slug).not.toBe(host);
   }
+});
+
+test('buildDiscoveryIndex links zero-view maps from 30+ view hosts', () => {
+  // El check 15 endurecido exige dos landings con ≥30 visitas para los mapas a
+  // cero; el generador debe cumplirlo, no solo el mapa más afín.
+  const maps = [
+    { slug: 'fuerte', title: 'Fuerte', tags: ['Economía'], views: 50, createdAtMs: 1 },
+    { slug: 'fuerte-dos', title: 'Fuerte dos', tags: ['Economía'], views: 35, createdAtMs: 2 },
+    { slug: 'medio', title: 'Medio', tags: ['Economía'], views: 20, createdAtMs: 3 },
+    { slug: 'cero', title: 'Cero', tags: ['Economía'], views: 0, createdAtMs: 4 },
+  ];
+  const index = buildDiscoveryIndex(maps, { perHost: 2, perTarget: 2, maxTargetViews: 1 });
+  const hostSlugs = [];
+  for (const [host, targets] of index) {
+    if (targets.some((m) => m.slug === 'cero')) hostSlugs.push(host);
+  }
+  expect(hostSlugs).toEqual(['fuerte', 'fuerte-dos']);
+  expect(hostSlugs).not.toContain('medio');
 });
 
 test('buildDiscoveryIndex serves the least visited maps first', () => {

@@ -60,11 +60,13 @@
 //      implica elegir la clave y la rampa, y se hace a mano.
 //  15. enlaces internos: cada landing publicada debe recibir al menos un
 //      enlace desde otra landing y, si el mapa tiene cero visitas, al menos
-//      tres deben venir de landings con tráfico (≥DISCOVERY_MIN_HOST_VIEWS) o
-//      de una fuente de descubrimiento global (portada, galería e índices de
-//      News) que enlace la landing estática /gallery/<slug>/. Tres hosts con
-//      tráfico evitan que el mapa sin visitas dependa de un par de enlaces que
-//      pueden quedar enterrados.
+//      dos deben venir de landings con tráfico real
+//      (≥DISCOVERY_ZERO_VIEW_MIN_HOST_VIEWS = 30) o de una fuente de
+//      descubrimiento global (portada, galería e índices de News) que enlace
+//      la landing estática /gallery/<slug>/. Un enlace desde una landing de 10
+//      visitas no rompe el círculo de invisibilidad: el corte de noviembre deja
+//      seis hosts por encima de 30. Los mapas apenas vistos (≤2 visitas)
+//      mantienen el umbral de ≥10 para no exigir seis hosts a la vez.
 //  16. enlaces News → landing: cada artículo de site/news/<slug>/index.html y
 //      site/en/news/<slug>/index.html que embebe un mapa
 //      (/map/?gallery=<slug>) debe enlazar también a su ficha estática
@@ -1921,16 +1923,20 @@ function auditLandingMetadata(publishedSlugs, { galleryDir = GALLERY_DIR_PATH } 
 // Cada mapa publicado debe recibir al menos un enlace desde el bloque «Más
 // mapas» de otra landing estática. Sin enlaces entrantes solo es alcanzable por
 // sitemap/JSON-LD y queda sin descubrimiento interno. Además, un mapa con cero
-// visitas debe recibir enlaces desde al menos dos landings con tráfico
-// (≥ DISCOVERY_MIN_HOST_VIEWS) o desde una fuente de descubrimiento externa
+// visitas debe recibir enlaces desde al menos dos landings con tráfico real
+// (≥ DISCOVERY_ZERO_VIEW_MIN_HOST_VIEWS = 30, no los 10 mínimos que solo
+// indican «algo de tráfico») o desde una fuente de descubrimiento externa
 // (portada, galería o índice de News): un enlace desde otro mapa igualmente
-// invisible no rompe el círculo de los cero visitas, y un único host con
-// tráfico puede quedar enterrado. Con `lowViewMax` el mismo requisito se aplica
-// a los mapas apenas vistos (por ejemplo ≤2 visitas), que siguen siendo
-// prácticamente invisibles aunque ya no estén a cero.
+// invisible no rompe el círculo de los cero visitas, y un host con 10-29
+// visitas tampoco mueve sesiones suficientes. Con `lowViewMax` el mismo
+// requisito se aplica a los mapas apenas vistos (por ejemplo ≤2 visitas), que
+// siguen siendo prácticamente invisibles aunque ya no estén a cero, pero con
+// el umbral suave (≥ DISCOVERY_MIN_HOST_VIEWS): el censo de hosts con ≥30 es
+// corto y no puede sostener a todos los mapas de 1-2 visitas a la vez.
 // La generación vive en scripts/lib/related-maps.js (buildDiscoveryIndex).
 
 const DISCOVERY_MIN_HOST_VIEWS = 10;
+const DISCOVERY_ZERO_VIEW_MIN_HOST_VIEWS = 30;
 
 function extractLandingLinks(html) {
   const slugs = new Set();
@@ -1948,6 +1954,7 @@ function auditInternalLinkCoverage(publishedSlugs, {
   galleryDir = GALLERY_DIR_PATH,
   viewsBySlug = null,
   minHostViews = DISCOVERY_MIN_HOST_VIEWS,
+  zeroViewMinHostViews = minHostViews,
   minTrafficHosts = 1,
   lowViewMax = 0,
   lowViewMinTrafficHosts = null,
@@ -2001,6 +2008,9 @@ function auditInternalLinkCoverage(publishedSlugs, {
   const requiredLowHosts = isFinite(Number(lowViewMinTrafficHosts))
     ? Number(lowViewMinTrafficHosts)
     : minTrafficHosts;
+  const zeroHostViews = isFinite(Number(zeroViewMinHostViews))
+    ? Number(zeroViewMinHostViews)
+    : minHostViews;
   for (const slug of published) {
     const sources = [...new Set(inbound.get(slug) || [])].sort();
     details[slug] = sources;
@@ -2014,9 +2024,10 @@ function auditInternalLinkCoverage(publishedSlugs, {
     if (isZero) zeroView.push(slug);
     else lowView.push(slug);
     const requiredHosts = isZero ? minTrafficHosts : requiredLowHosts;
+    const requiredHostViews = isZero ? zeroHostViews : minHostViews;
     const trafficHosts = sources.filter((source) => {
       const hostViews = Number(viewsBySlug[source]);
-      return isFinite(hostViews) && hostViews >= minHostViews;
+      return isFinite(hostViews) && hostViews >= requiredHostViews;
     });
     const extraHosts = [...extraLinks.entries()]
       .filter(([, links]) => links.has(slug))
@@ -2032,8 +2043,8 @@ function auditInternalLinkCoverage(publishedSlugs, {
   }
   if (undiscovered.length) {
     const hostsText = minTrafficHosts === 1
-      ? `sin enlace desde landings con ≥${minHostViews} visitas`
-      : `sin enlaces desde al menos ${minTrafficHosts} landings con ≥${minHostViews} visitas`;
+      ? `sin enlace desde landings con ≥${zeroHostViews} visitas`
+      : `sin enlaces desde al menos ${minTrafficHosts} landings con ≥${zeroHostViews} visitas`;
     issues.push(
       `${undiscovered.length} mapas con cero visitas ${hostsText} ` +
       `ni desde la portada ni desde fuentes de descubrimiento (${undiscovered.join(', ')})`
@@ -2059,6 +2070,7 @@ function auditInternalLinkCoverage(publishedSlugs, {
     lowViewUndiscovered,
     discoveredFrom,
     minHostViews,
+    zeroViewMinHostViews: zeroHostViews,
     minTrafficHosts,
     lowViewMax: maxLowViews,
     lowViewMinTrafficHosts: requiredLowHosts,
@@ -2766,7 +2778,9 @@ async function main() {
     );
     internalLinks = auditInternalLinkCoverage(published.map(m => m.id), {
       viewsBySlug,
-      minTrafficHosts: 3,
+      minHostViews: DISCOVERY_MIN_HOST_VIEWS,
+      zeroViewMinHostViews: DISCOVERY_ZERO_VIEW_MIN_HOST_VIEWS,
+      minTrafficHosts: 2,
       lowViewMax: 2,
       lowViewMinTrafficHosts: 2,
       discoverySources: readDiscoverySources(),
@@ -2779,7 +2793,7 @@ async function main() {
   if (internalLinks.issues.length === 0) {
     console.log(
       `OK: ${published.length} publicados con al menos un enlace entrante desde otra landing` +
-      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde ≥${internalLinks.minTrafficHosts || 1} landing(s) con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News` : '')
+      (internalLinks.zeroView ? `; ${internalLinks.zeroView.length} con cero visitas enlazados desde ≥${internalLinks.minTrafficHosts || 1} landing(s) con ≥${internalLinks.zeroViewMinHostViews || internalLinks.minHostViews} visitas, la portada, la galería o el índice de News` : '')
     );
     if (internalLinks.lowView && internalLinks.lowViewMax) {
       console.log(

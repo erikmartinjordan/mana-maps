@@ -467,13 +467,12 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
-  // Los mapas con menos visitas (<10) se enlazan desde tres landings con
-  // tráfico: un único enlace (o un par) puede quedar enterrado. El presupuesto
-  // es `perHost` × hosts con ≥10 visitas; con 3 enlaces por host (15 hosts × 3
-  // = 45 plazas) alcanza para dar tres hosts a los 15 mapas con 1–2 visitas.
-  // Con `perHost` = 2 (30 plazas) los últimos targets se quedaban sin enlaces,
-  // y bajar `perTarget` a 2 rompía la garantía de 3 hosts para los mapas con
-  // cero visitas.
+  // Los mapas con menos visitas (<10) se enlazan desde varias landings con
+  // tráfico: un único enlace puede quedar enterrado. El presupuesto es
+  // `perHost` × hosts con ≥10 visitas; con 3 enlaces por host alcanza para dar
+  // tres hosts a los 15 mapas con 1–2 visitas. Los que siguen a cero exigen
+  // además hosts de ≥30 visitas (check 15): buildDiscoveryIndex los coloca
+  // primero y solo usa hosts flojos si no existen dos con tráfico real.
   const discoveryIndex = buildDiscoveryIndex(allMaps, { perHost: 3, perTarget: 3 });
   // News → landing ya existe artículo a artículo; la landing devuelve el enlace
   // a los artículos que embeben el mapa para cerrar el circuito interno.
