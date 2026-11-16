@@ -529,7 +529,10 @@ async function main() {
   const geojsonText = JSON.stringify(geo);
   console.log(`\n✓ 15 features válidas | ${(Buffer.byteLength(geojsonText, 'utf8') / 1024).toFixed(1)} KiB`);
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
-  fs.writeFileSync(OUT_PATH, JSON.stringify(geo, null, 1) + '\n');
+  // Sin indentación: el GeoJSON es dato de máquina (igual que el resto de
+  // data/maps/*.geojson). La indentación de 1 espacio añadía ~350 KB de
+  // espacios y hacía saltar la guardia de peso del repo (35 MB).
+  fs.writeFileSync(OUT_PATH, JSON.stringify(geo) + '\n');
   console.log(`✓ escrito ${path.relative(process.cwd(), OUT_PATH)}`);
 }
 
