@@ -1180,6 +1180,26 @@ test('area-with-point detection ignores proper nouns that look like areas', () =
   expect(isAreaEntityName('Océano Pacífico')).toBe(true);
 });
 
+// Regresión del falso positivo «Observatorio de Tokio en Atacama (TAO)»: un
+// nombre que empieza por una entidad puntual real (observatorio, telescopio,
+// estación, presa, central, puerto, aeropuerto, volcán, cumbre) es un punto
+// aunque cite un topónimo de área; el área misma sigue detectándose.
+test('area-with-point detection ignores point entities that cite an area toponym', () => {
+  expect(isAreaEntityName('Observatorio de Tokio en Atacama (TAO)')).toBe(false);
+  expect(isAreaEntityName('Observatorio del Teide')).toBe(false);
+  expect(isAreaEntityName('Telescopio de Arecibo')).toBe(false);
+  expect(isAreaEntityName('Estación Espacial Internacional')).toBe(false);
+  expect(isAreaEntityName('Presa de las Tres Gargantas')).toBe(false);
+  expect(isAreaEntityName('Central nuclear de Prairie Island')).toBe(false);
+  expect(isAreaEntityName('Aeropuerto de Barajas')).toBe(false);
+  expect(isAreaEntityName('Volcán de Fuego')).toBe(false);
+  expect(isAreaEntityName('Cumbre del Everest')).toBe(false);
+  expect(isAreaEntityName('Desierto de Atacama')).toBe(true);
+  expect(isAreaEntityName('Región de Atacama')).toBe(true);
+  // «Puerto Rico» es un territorio, no una instalación portuaria.
+  expect(isAreaEntityName('Puerto Rico')).toBe(true);
+});
+
 // Regresión del check 14: coherencia de leyenda. La leyenda del mapa destacado
 // necesita un legendKey con ≥3 valores distintos, un legendTitle y un formato
 // que no sea categórico cuando el mapa ya tiene una clave numérica con rango

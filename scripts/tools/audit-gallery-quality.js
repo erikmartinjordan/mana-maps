@@ -816,13 +816,35 @@ const AREA_ENTITY_NAME_RE = new RegExp(
 // el primer token, así que la excepción cubre variantes con sufijo.
 const AREA_ENTITY_NAME_EXCEPTIONS = new Set(['lagos', 'prairie']);
 
+// Nombres que empiezan por una entidad puntual real (instalaciones y formas
+// del relieve puntuales): «Observatorio de Tokio en Atacama (TAO)» es un punto
+// aunque cite el desierto de Atacama. El topónimo de área dentro del nombre no
+// convierte la feature en área; solo lo hace cuando el nombre describe el área
+// misma.
+const POINT_ENTITY_PREFIX_RE = new RegExp(
+  '^(?:' +
+    'observatorios?|observatories?|telescopios?|telescopes?|' +
+    'estaci[oó]n|estaciones|stations?|' +
+    'presas?|dams?|central(?:es)?|' +
+    'puertos?|ports?|aeropuertos?|airports?|' +
+    'volc[aá]n|volcanes|volcanoes?|' +
+    'cumbre|cumbres|summits?' +
+  ')\\b', 'i');
+
+// Homónimos de área que empiezan por una entidad puntual: «Puerto Rico» es un
+// territorio, no una instalación portuaria.
+const AREA_ENTITY_NAME_PREFIX_GUARDS = /^puerto rico\b/i;
+
 function isAreaEntityName(name) {
   if (!name || typeof name !== 'string') return false;
+  const trimmed = name.trim();
   // Excepciones: topónimos reales homónimos de un área (p. ej. «Lagos», la
   // ciudad de Nigeria, que coincide con el plural de «lago»). Se compara el
   // primer token para cubrir variantes como «Lagos (Nigeria)».
-  const first = name.trim().split(/[\s(,]/)[0].toLowerCase();
+  const first = trimmed.split(/[\s(,]/)[0].toLowerCase();
   if (AREA_ENTITY_NAME_EXCEPTIONS.has(first)) return false;
+  if (AREA_ENTITY_NAME_PREFIX_GUARDS.test(trimmed)) return true;
+  if (POINT_ENTITY_PREFIX_RE.test(trimmed)) return false;
   return AREA_ENTITY_NAME_RE.test(name);
 }
 
