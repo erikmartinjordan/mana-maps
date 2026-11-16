@@ -46,6 +46,24 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/news/vivienda-supera-salarios-17-paises-ue/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/vivienda-supera-salarios-17-paises-ue/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/house-prices-outpace-wages-17-eu-countries/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/vivienda-supera-salarios-17-paises-ue/"/>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/news/house-prices-outpace-wages-17-eu-countries/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/vivienda-supera-salarios-17-paises-ue/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/house-prices-outpace-wages-17-eu-countries/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/vivienda-supera-salarios-17-paises-ue/"/>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/news/anthropic-bolsa-millones-sin-internet/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/anthropic-bolsa-millones-sin-internet/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/anthropic-ipo-billion-people-offline/"/>

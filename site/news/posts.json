@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-11-16",
+    "event": "El indicador de precio de la vivienda sobre la renta de Eurostat (serie tipsho60, actualizada el 3 de noviembre de 2026) empeora entre 2015 y 2025 en 17 de los 27 países de la UE: Portugal +60,8%, Países Bajos +34,3%, Hungría +26,5%, Chequia +25,8% y España +24,5%, frente a Rumanía −42,8% o Finlandia −25,2%. Análisis propio con el mapa provincial del valor tasado del Ministerio de Vivienda (2026 T2): ninguna de las 52 provincias baja, la media sube un 12,7%, Madrid marca 4.089,6 €/m² y Ciudad Real 854,2, y la correlación entre nivel de precio y variación anual es −0,01. En Portugal, miles de personas se manifiestan el 14 de noviembre en una treintena de ciudades y una acampada se mantiene en los Restauradores de Lisboa.",
+    "type": "news",
+    "format": "noticia",
+    "topic": "economia",
+    "mapSlug": "housing-price-spain",
+    "sourceUrls": [
+      "https://ec.europa.eu/eurostat/databrowser/view/tipsho60/default/table?lang=en",
+      "https://www.vozpopuli.com/economia/inmobiliario/espana-es-la-gran-economia-de-la-ue-con-la-mayor-brecha-entre-los-ingresos-y-el-precio-de-la-vivienda.html",
+      "https://www.publico.pt/2026/11/14/sociedade/noticia/pagar-renda-comer-milhares-exigem-respostas-crise-habitacao-2195005",
+      "https://apps.fomento.gob.es/BoletinOnline2/sedal/35101000.XLS"
+    ],
+    "translations": {
+      "es": {
+        "slug": "vivienda-supera-salarios-17-paises-ue",
+        "url": "/news/vivienda-supera-salarios-17-paises-ue/",
+        "title": "La vivienda sube más que los salarios en 17 países de la UE",
+        "description": "La vivienda ha subido más que las rentas en 17 de los 27 países de la UE desde 2015. España empeora un 24,5% y el mapa provincial sitúa el precio de 2026."
+      },
+      "en": {
+        "slug": "house-prices-outpace-wages-17-eu-countries",
+        "url": "/en/news/house-prices-outpace-wages-17-eu-countries/",
+        "title": "House prices outpace wages in 17 EU countries",
+        "description": "House prices have outgrown incomes in 17 of the EU's 27 countries since 2015. Spain is 24.5% worse off, and the provincial map shows 2026 prices."
+      }
+    }
+  },
+  {
     "date": "2026-11-15",
     "event": "Anthropic fija el precio de su salida a bolsa el 18 de noviembre y empieza a cotizar el 19 en el Nasdaq (símbolo ANT) con 825 millones de acciones entre 70 y 78 dólares, hasta 64.350 millones de recaudación y 1,405 billones de valoración totalmente diluida; la demanda sextuplica la oferta y siete tecnológicas suscriben 26.000 millones en acciones clase N; facturación anualizada de unos 81.000 millones a finales de octubre. Análisis propio con el mapa de usuarios de internet: en los 182 países con datos, el 72,7% de 7.883 millones de personas está conectado y 2.155 millones no (Banco Mundial, 2024)",
     "type": "news",
