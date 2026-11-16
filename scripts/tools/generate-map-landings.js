@@ -51,6 +51,40 @@ const LOGO_BLOB = 'M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,
 const LOGO_M = '<g transform="translate(62.7889 133.0811) scale(0.04069010 -0.04069010)"><path fill="#fff" d="M1675 0H1303V987L1032 350H777L506 987V0H154V1489H585L915 754L1244 1489H1675Z"/><path fill="#fff" transform="translate(1530 -40)" d="M-186 2061Q-196 1894 -269.0 1816.5Q-342 1739 -472 1739Q-520 1739 -563.0 1758.5Q-606 1778 -637 1797Q-667 1816 -703.5 1835.5Q-740 1855 -765 1855Q-815 1855 -833.0 1823.5Q-851 1792 -855 1733H-1065Q-1059 1879 -983.0 1966.5Q-907 2054 -780 2054Q-732 2054 -691.0 2037.0Q-650 2020 -612 1998Q-582 1981 -546.0 1962.0Q-510 1943 -487 1943Q-439 1943 -418.5 1975.0Q-398 2007 -396 2061Z"/></g>';
 const LOGO_SVG = `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1" d="${LOGO_BLOB}" transform="translate(100 100)"/>${LOGO_M}</svg>`;
 
+// ── Tarjetas OG optimizadas ─────────────────────────────────────
+// La captura de Playwright es un PNG de 32 bits (~180 KB por tarjeta); con 55
+// mapas eso son ~7 MB trackeados y `check-repo-hygiene.js` (límite total de
+// 35 MB) falla. Se cuantiza a paleta sin cambiar píxeles visibles: la misma
+// tarjeta baja a ~15-50 KB. Si `sharp` no está instalado se escribe la captura
+// original para no romper la generación.
+let sharpEncoder = null;
+let sharpChecked = false;
+function getSharp() {
+  if (!sharpChecked) {
+    sharpChecked = true;
+    try { sharpEncoder = require('sharp'); } catch (e) { sharpEncoder = null; }
+  }
+  return sharpEncoder;
+}
+
+async function writeCardImage(file, buffer) {
+  const sharp = getSharp();
+  if (!sharp) {
+    console.warn('  aviso: `sharp` no instalado; la tarjeta OG se guarda sin optimizar');
+    fs.writeFileSync(file, buffer);
+    return;
+  }
+  try {
+    const optimized = await sharp(buffer)
+      .png({ palette: true, quality: 92, compressionLevel: 9, effort: 10, dither: 0.8 })
+      .toBuffer();
+    fs.writeFileSync(file, optimized.length < buffer.length ? optimized : buffer);
+  } catch (e) {
+    console.warn('  aviso: no se pudo optimizar la tarjeta OG', path.basename(file), e.message);
+    fs.writeFileSync(file, buffer);
+  }
+}
+
 // ── Config ──────────────────────────────────────────────────────
 function loadConfig() {
   if (process.env.MANA_FIREBASE_PRO_CONFIG_JSON) {
@@ -476,7 +510,8 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
         await page.setContent(html, { waitUntil: 'load' });
         await page.waitForFunction(() => window.__renderReady === true, null, { timeout: 15000 });
         await page.waitForTimeout(200);
-        await page.screenshot({ path: path.join(OUT_CARDS, slug + '.png'), clip: { x: 0, y: 0, width: 1200, height: 630 } });
+        const shot = await page.screenshot({ clip: { x: 0, y: 0, width: 1200, height: 630 } });
+        await writeCardImage(path.join(OUT_CARDS, slug + '.png'), shot);
         cards++;
       } catch (e) {
         console.warn('  card FAIL', slug, e.message);

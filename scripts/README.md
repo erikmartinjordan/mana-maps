@@ -57,6 +57,10 @@ node scripts/tools/monthly-report-metrics.js --month 2026-10
   Firestore.
 - Los GeoJSON publicables viven en `data/maps/`; los crudos en `data/sources/`.
 - No guardar temporales (`*.tmp.js`, `.DS_Store`, logs) en el repo.
+- Las OG cards se guardan cuantizadas a paleta con `sharp` (devDependency):
+  una captura de Playwright pesa ~180 KB y 55 tarjetas dejaban el repo en el
+  límite de 35 MB de `check-repo-hygiene.js`. No sustituir el paso por un
+  `page.screenshot({ path })` directo.
 - Los scripts de mapas no van en la raíz de `scripts/`.
 - Antes de publicar: `--dry-run`, validar GeoJSON, colores, etiquetas y
   coordenadas, y dejar Playwright en verde.
