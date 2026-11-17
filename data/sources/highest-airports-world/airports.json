@@ -1,0 +1,163 @@
+{
+  "_source": "Wikipedia — List of highest airports (consultado 17-11-2026) para el censo, la altitud y los códigos IATA; OurAirports (airports.csv y runways.csv, consultado 17-11-2026) para coordenadas y longitud de pista; fichas de Wikipedia de cada aeropuerto para pista y apertura cuando OurAirports no la recoge.",
+  "_date": "2026-11-17",
+  "_criterio": "Aeropuertos con vuelos regulares de pasajeros (scheduled_service=yes en OurAirports) situados a 3.000 m o más de altitud. Quedan fuera los aeródromos sin servicio regular (Vicco, Syangboche, Manang, Potosí, Leadville) y los cerrados (Tulcán, viejo Juana Azurduy).",
+  "aeropuertos": [
+    {
+      "iata": "DCY", "nombre": "Daocheng Yading", "nombreCompleto": "Aeropuerto de Daocheng Yading",
+      "ciudad": "Daocheng", "region": "Sichuan", "pais": "China", "continente": "Asia",
+      "altitud": 4411, "pista": 4200, "lat": 29.31632, "lng": 100.060317,
+      "description": "El aeropuerto más alto del mundo. Su pista de 4.200 m compensa el aire enrarecido de la meseta tibetana, donde los aviones necesitan más velocidad para despegar."
+    },
+    {
+      "iata": "BPX", "nombre": "Qamdo Bamda", "nombreCompleto": "Aeropuerto de Qamdo Bamda",
+      "ciudad": "Qamdo", "region": "Tíbet", "pais": "China", "continente": "Asia",
+      "altitud": 4334, "pista": 4500, "lat": 30.5536, "lng": 97.1083,
+      "description": "Uno de los pocos aeropuertos del planeta con pista de 4,5 km. Está en el Tíbet oriental, en un valle a 4.334 m de altitud."
+    },
+    {
+      "iata": "DDR", "nombre": "Shigatse Tingri", "nombreCompleto": "Aeropuerto de Shigatse Tingri",
+      "ciudad": "Tingri", "region": "Tíbet", "pais": "China", "continente": "Asia",
+      "altitud": 4316, "pista": 4500, "lat": 28.604567, "lng": 86.798,
+      "description": "Abierto en diciembre de 2022 en el condado de Tingri, en la ruta norte del Everest. Su pista de 4.500 m es de las más largas del mundo."
+    },
+    {
+      "iata": "KGT", "nombre": "Kangding", "nombreCompleto": "Aeropuerto de Garzê Kangding",
+      "ciudad": "Kangding", "region": "Sichuan", "pais": "China", "continente": "Asia",
+      "altitud": 4280, "pista": 4000, "lat": 30.142464, "lng": 101.73872,
+      "description": "En el borde oriental de la meseta tibetana. Abrió en 2009 con una pista de 4.000 m para poder operar a 4.280 m."
+    },
+    {
+      "iata": "NGQ", "nombre": "Ngari Gunsa", "nombreCompleto": "Aeropuerto de Ngari Gunsa",
+      "ciudad": "Shiquanhe", "region": "Tíbet", "pais": "China", "continente": "Asia",
+      "altitud": 4274, "pista": 4500, "lat": 32.09794, "lng": 80.053971,
+      "description": "Sirve a la prefectura de Ngari, junto al monte Kailash y el lago Manasarovar. Pista de 4.500 m a 4.274 m de altitud."
+    },
+    {
+      "iata": "GZG", "nombre": "Garze Gesar", "nombreCompleto": "Aeropuerto de Garze Gesar",
+      "ciudad": "Garzê", "region": "Sichuan", "pais": "China", "continente": "Asia",
+      "altitud": 4068, "pista": 4000, "lat": 31.7575, "lng": 99.554167,
+      "description": "Inaugurado en 2019 en la prefectura de Garzê. Es el quinto aeropuerto chino por encima de los 4.000 m."
+    },
+    {
+      "iata": "LPB", "nombre": "El Alto", "nombreCompleto": "Aeropuerto Internacional El Alto",
+      "ciudad": "La Paz", "region": "La Paz", "pais": "Bolivia", "continente": "América",
+      "altitud": 4061, "pista": 4000, "lat": -16.510272, "lng": -68.189416,
+      "description": "El aeropuerto internacional más alto del mundo. Volar desde La Paz obliga a aligerar carga y combustible por la baja densidad del aire."
+    },
+    {
+      "iata": "LGZ", "nombre": "Shannan Longzi", "nombreCompleto": "Aeropuerto de Shannan Longzi",
+      "ciudad": "Longzi", "region": "Tíbet", "pais": "China", "continente": "Asia",
+      "altitud": 3980, "pista": 4500, "lat": 28.422422, "lng": 92.348082,
+      "description": "Uso civil y militar, a 11 km de Longzi y a 45 km de la frontera con Arunachal Pradesh. Primer vuelo en enero de 2023; pista de 4.500 m."
+    },
+    {
+      "iata": "YUS", "nombre": "Yushu Batang", "nombreCompleto": "Aeropuerto de Yushu Batang",
+      "ciudad": "Yushu", "region": "Qinghai", "pais": "China", "continente": "Asia",
+      "altitud": 3890, "pista": 3800, "lat": 32.836389, "lng": 97.036389,
+      "description": "En la meseta tibetana de Qinghai, a 3.890 m. Abrió en 2009 y su pista mide 3.800 m."
+    },
+    {
+      "iata": "JUL", "nombre": "Juliaca", "nombreCompleto": "Aeropuerto Internacional Inca Manco Cápac",
+      "ciudad": "Juliaca y Puno", "region": "Puno", "pais": "Perú", "continente": "América",
+      "altitud": 3826, "pista": 4200, "lat": -15.467689, "lng": -70.15653,
+      "description": "La puerta de entrada al lago Titicaca. A 3.826 m necesita una pista de 4.200 m, una de las más largas de Sudamérica."
+    },
+    {
+      "iata": "GMQ", "nombre": "Golog Maqên", "nombreCompleto": "Aeropuerto de Golog Maqên",
+      "ciudad": "Golog", "region": "Qinghai", "pais": "China", "continente": "Asia",
+      "altitud": 3788, "pista": 3800, "lat": 34.418066, "lng": 100.301144,
+      "description": "Abrió en 2016 en la prefectura autónoma tibetana de Golog, a 3.788 m de altitud."
+    },
+    {
+      "iata": "RKZ", "nombre": "Shigatse Peace", "nombreCompleto": "Aeropuerto de Shigatse Peace",
+      "ciudad": "Shigatse", "region": "Tíbet", "pais": "China", "continente": "Asia",
+      "altitud": 3782, "pista": 5000, "lat": 29.350876, "lng": 89.299157,
+      "description": "Base aérea y aeropuerto civil de Shigatse. Su pista, de unos 5 km, es una de las más largas del mundo."
+    },
+    {
+      "iata": "ORU", "nombre": "Oruro", "nombreCompleto": "Aeropuerto Juan Mendoza",
+      "ciudad": "Oruro", "region": "Oruro", "pais": "Bolivia", "continente": "América",
+      "altitud": 3702, "pista": 2461, "lat": -17.956151, "lng": -67.075829,
+      "description": "En el altiplano boliviano, a orillas del lago Uru Uru. Su pista de 2.461 m es la más corta de este grupo."
+    },
+    {
+      "iata": "UYU", "nombre": "Joya Andina", "nombreCompleto": "Aeropuerto Joya Andina (Uyuni)",
+      "ciudad": "Uyuni", "region": "Potosí", "pais": "Bolivia", "continente": "América",
+      "altitud": 3665, "pista": 4000, "lat": -20.441304, "lng": -66.857553,
+      "description": "El aeropuerto del salar de Uyuni, el mayor del mundo. Abrió en 2011 y opera a 3.665 m de altitud."
+    },
+    {
+      "iata": "LXA", "nombre": "Lhasa Gonggar", "nombreCompleto": "Aeropuerto Internacional de Lhasa Gonggar",
+      "ciudad": "Lhasa", "region": "Tíbet", "pais": "China", "continente": "Asia",
+      "altitud": 3570, "pista": 4000, "lat": 29.298001, "lng": 90.911951,
+      "description": "El aeropuerto de altura con más tráfico del mundo: unos 4,8 millones de pasajeros al año a 3.570 m."
+    },
+    {
+      "iata": "JZH", "nombre": "Jiuzhai Huanglong", "nombreCompleto": "Aeropuerto de Jiuzhai Huanglong",
+      "ciudad": "Jiuzhaigou", "region": "Sichuan", "pais": "China", "continente": "Asia",
+      "altitud": 3448, "pista": 3200, "lat": 32.853333, "lng": 103.682222,
+      "description": "La puerta aérea del valle de Jiuzhaigou, en el norte de Sichuan, a 3.448 m."
+    },
+    {
+      "iata": "ANS", "nombre": "Andahuaylas", "nombreCompleto": "Aeropuerto de Andahuaylas",
+      "ciudad": "Andahuaylas", "region": "Apurímac", "pais": "Perú", "continente": "América",
+      "altitud": 3444, "pista": 2500, "lat": -13.7064, "lng": -73.3504,
+      "description": "En plena sierra peruana, a 3.444 m. Su pista de 2.500 m es corta para la altitud y solo operan aviones pequeños."
+    },
+    {
+      "iata": "JAU", "nombre": "Jauja", "nombreCompleto": "Aeropuerto Francisco Carle",
+      "ciudad": "Jauja", "region": "Junín", "pais": "Perú", "continente": "América",
+      "altitud": 3363, "pista": 2810, "lat": -11.7831, "lng": -75.4734,
+      "description": "Aeropuerto del valle del Mantaro, a 3.363 m. Fue la alternativa aérea a Lima durante el cierre de pistas de 2023."
+    },
+    {
+      "iata": "CUZ", "nombre": "Cusco", "nombreCompleto": "Aeropuerto Internacional Alejandro Velasco Astete",
+      "ciudad": "Cusco", "region": "Cusco", "pais": "Perú", "continente": "América",
+      "altitud": 3310, "pista": 3397, "lat": -13.5357, "lng": -71.9388,
+      "description": "La puerta aérea de Machu Picchu, con más de 3 millones de pasajeros al año a 3.310 m de altitud."
+    },
+    {
+      "iata": "NLH", "nombre": "Ninglang Luguhu", "nombreCompleto": "Aeropuerto de Ninglang Luguhu",
+      "ciudad": "Ninglang", "region": "Yunnan", "pais": "China", "continente": "Asia",
+      "altitud": 3293, "pista": 3400, "lat": 27.5403, "lng": 100.7593,
+      "description": "Junto al lago Lugu, en la frontera entre Yunnan y Sichuan, a 3.293 m. Abrió en 2015."
+    },
+    {
+      "iata": "DIG", "nombre": "Shangri-La", "nombreCompleto": "Aeropuerto de Diqing Shangri-La",
+      "ciudad": "Shangri-La", "region": "Yunnan", "pais": "China", "continente": "Asia",
+      "altitud": 3280, "pista": 3550, "lat": 27.7936, "lng": 99.6772,
+      "description": "En la frontera tibetana de Yunnan, a 3.280 m. Sirve a la prefectura de Diqing, en el sureste del Himalaya."
+    },
+    {
+      "iata": "HQL", "nombre": "Tashkurgan", "nombreCompleto": "Aeropuerto de Tashkurgan Khunjerab",
+      "ciudad": "Tashkurgan", "region": "Xinjiang", "pais": "China", "continente": "Asia",
+      "altitud": 3258, "pista": 3800, "lat": 37.661333, "lng": 75.288877,
+      "description": "Primer aeropuerto de la meseta de Xinjiang, abierto en diciembre de 2022 junto a la frontera con Pakistán."
+    },
+    {
+      "iata": "IXL", "nombre": "Leh", "nombreCompleto": "Aeropuerto de Leh Kushok Bakula Rimpochee",
+      "ciudad": "Leh", "region": "Ladakh", "pais": "India", "continente": "Asia",
+      "altitud": 3256, "pista": 2755, "lat": 34.135899, "lng": 77.546501,
+      "description": "Base militar y puerta turística del Ladakh, a 3.256 m. Más de un millón de pasajeros al año en una pista de 2.755 m."
+    },
+    {
+      "iata": "GXH", "nombre": "Xiahe", "nombreCompleto": "Aeropuerto de Gannan Xiahe",
+      "ciudad": "Xiahe", "region": "Gansu", "pais": "China", "continente": "Asia",
+      "altitud": 3203, "pista": 3200, "lat": 34.819014, "lng": 102.622261,
+      "description": "Abrió en 2013 para servir al monasterio de Labrang y a la región tibetana de Gansu, a 3.203 m."
+    },
+    {
+      "iata": "HBQ", "nombre": "Qilian", "nombreCompleto": "Aeropuerto de Haibei Qilian",
+      "ciudad": "Qilian", "region": "Qinghai", "pais": "China", "continente": "Asia",
+      "altitud": 3163, "pista": 3400, "lat": 38.008068, "lng": 100.645065,
+      "description": "A 3.163 m en las montañas Qilian, Qinghai. Es el aeropuerto con menos tráfico de la lista: unos 3.600 pasajeros al año."
+    },
+    {
+      "iata": "SRE", "nombre": "Sucre (Alcantarí)", "nombreCompleto": "Aeropuerto Internacional Alcantarí",
+      "ciudad": "Sucre", "region": "Chuquisaca", "pais": "Bolivia", "continente": "América",
+      "altitud": 3112, "pista": 3600, "lat": -19.246835, "lng": -65.149611,
+      "description": "Sustituyó en 2016 al antiguo aeropuerto de Sucre, encajado en la ciudad. Opera a 3.112 m con pista de 3.600 m."
+    }
+  ]
+}

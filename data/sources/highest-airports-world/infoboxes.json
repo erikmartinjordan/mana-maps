@@ -1,0 +1,167 @@
+[
+ {
+  "title": "Daocheng Yading Airport",
+  "resolved": "Daocheng Yading Airport",
+  "elevation_m": "4,411",
+  "runway_m": "4200",
+  "opened_raw": "{{start date and age|2013|09|16|df=y|p=n|br=n}}"
+ },
+ {
+  "title": "Qamdo Bamda Airport",
+  "resolved": "Qamdo Bamda Airport",
+  "elevation_m": "4,334",
+  "runway_m": "<s>5,500</s>",
+  "opened_raw": "{{start date and age|1994|10|22|df=y|p=n|br=n}}"
+ },
+ {
+  "title": "Shigatse Tingri Airport",
+  "resolved": "Shigatse Tingri Airport",
+  "elevation_m": "4,316",
+  "runway_m": "4500",
+  "opened_raw": "24 December 2022"
+ },
+ {
+  "title": "Garze Kangding Airport",
+  "resolved": "Garze Kangding Airport",
+  "elevation_m": "4,280",
+  "runway_m": "4,000",
+  "opened_raw": "{{start date and age|2009|04|26|df=y|p=n|br=n}}"
+ },
+ {
+  "title": "Ngari Gunsa Airport",
+  "resolved": "Ngari Gunsa Airport",
+  "elevation_m": "4,274",
+  "runway_m": "4,500",
+  "opened_raw": null
+ },
+ {
+  "title": "Garze Gesar Airport",
+  "resolved": "Garze Gesar Airport",
+  "elevation_m": "4068",
+  "runway_m": "4,000",
+  "opened_raw": "{{start date and age|2019|09|16|df=y|p=n|br=n}}"
+ },
+ {
+  "title": "El Alto International Airport",
+  "resolved": "El Alto International Airport",
+  "elevation_m": "4,061.5",
+  "runway_m": "4,000",
+  "opened_raw": "{{start date and age|1965|06|18|df=yes}}"
+ },
+ {
+  "title": "Shannan Longzi Airport",
+  "resolved": "Shannan Longzi Airport",
+  "elevation_m": "3980",
+  "runway_m": "4500",
+  "opened_raw": null
+ },
+ {
+  "title": "Yushu Batang Airport",
+  "resolved": "Yushu Batang Airport",
+  "elevation_m": "3,890",
+  "runway_m": "3,800",
+  "opened_raw": null
+ },
+ {
+  "title": "Inca Manco Capac International Airport",
+  "resolved": "Inca Manco Cápac International Airport",
+  "elevation_m": "| coordinates     = {{Coord|15|28|00|S|70|09|30|W|type:airport|display=inline,title}}",
+  "runway_m": "4200",
+  "opened_raw": null
+ },
+ {
+  "title": "Golog Maqên Airport",
+  "missing": true
+ },
+ {
+  "title": "Shigatse Peace Airport",
+  "missing": true
+ },
+ {
+  "title": "Juan Mendoza Airport",
+  "resolved": "Juan Mendoza Airport",
+  "elevation_m": "| coordinates            = {{coord|17|57|45|S|67|04|34|W|region:BO_type:airport|display=inline,title}}",
+  "runway_m": "4000",
+  "opened_raw": null
+ },
+ {
+  "title": "Joya Andina International Airport",
+  "missing": true
+ },
+ {
+  "title": "Lhasa Gonggar Airport",
+  "resolved": "Lhasa Gonggar International Airport",
+  "elevation_m": "3570",
+  "runway_m": "4,000",
+  "opened_raw": null
+ },
+ {
+  "title": "Jiuzhai Huanglong Airport",
+  "resolved": "Jiuzhai Huanglong Airport",
+  "elevation_m": "3448",
+  "runway_m": "3,200",
+  "opened_raw": null
+ },
+ {
+  "title": "Andahuaylas Airport",
+  "resolved": "Andahuaylas Airport",
+  "elevation_m": "| coordinates      = {{coord|13|42|30|S|73|21|05|W|display=inline,title}}",
+  "runway_m": "2500",
+  "opened_raw": null
+ },
+ {
+  "title": "Francisco Carle Airport",
+  "resolved": "Francisco Carle Airport",
+  "elevation_m": "| coordinates     = {{Coord|11|47|00|S|75|28|25|W|type:airport|display=inline,title}}",
+  "runway_m": "2810",
+  "opened_raw": null
+ },
+ {
+  "title": "Alejandro Velasco Astete International Airport",
+  "resolved": "Alejandro Velasco Astete International Airport",
+  "elevation_m": "3,310",
+  "runway_m": "3,397",
+  "opened_raw": "{{start date and age|1964|12||df=yes}}"
+ },
+ {
+  "title": "Ninglang Luguhu Airport",
+  "resolved": "Ninglang Luguhu Airport",
+  "elevation_m": "3293",
+  "runway_m": "3,400",
+  "opened_raw": "12 October 2015"
+ },
+ {
+  "title": "Diqing Shangri-La Airport",
+  "resolved": "Diqing Shangri-La Airport",
+  "elevation_m": "3280",
+  "runway_m": "3,600",
+  "opened_raw": null
+ },
+ {
+  "title": "Tashkurgan Khunjerab Airport",
+  "resolved": "Tashkurgan Khunjerab Airport",
+  "elevation_m": "3,200",
+  "runway_m": "3,800",
+  "opened_raw": "{{start date and age|2022|12|23|df=yes|p=n|br=n}}"
+ },
+ {
+  "title": "Kushok Bakula Rimpochee Airport",
+  "missing": true
+ },
+ {
+  "title": "Gannan Xiahe Airport",
+  "missing": true
+ },
+ {
+  "title": "Haibei Qilian Airport",
+  "missing": true
+ },
+ {
+  "title": "Alcantarí International Airport",
+  "missing": true
+ },
+ {
+  "title": "Uyuni Airport",
+  "missing": true
+ }
+]
