@@ -168,8 +168,18 @@ const CURRENCY_INFO={
   AF:{code:'AFN',name:'Afgani'}, AL:{code:'ALL',name:'Lek'}, DZ:{code:'DZD',name:'Dinar argelino'}, AO:{code:'AOA',name:'Kwanza'}, AR:{code:'ARS',name:'Peso argentino'}, AM:{code:'AMD',name:'Dram'}, AU:{code:'AUD',name:'Dólar australiano'}, AT:{code:'EUR',name:'Euro'}, AZ:{code:'AZN',name:'Manat'}, BS:{code:'BSD',name:'Dólar bahameño'}, BH:{code:'BHD',name:'Dinar bahreiní'}, BD:{code:'BDT',name:'Taka'}, BB:{code:'BBD',name:'Dólar barbadense'}, BY:{code:'BYN',name:'Rublo bielorruso'}, BE:{code:'EUR',name:'Euro'}, BZ:{code:'BZD',name:'Dólar beliceño'}, BJ:{code:'XOF',name:'Franco CFA'}, BT:{code:'BTN',name:'Ngultrum'}, BO:{code:'BOB',name:'Boliviano'}, BA:{code:'BAM',name:'Marco convertible'}, BW:{code:'BWP',name:'Pula'}, BR:{code:'BRL',name:'Real brasileño'}, BN:{code:'BND',name:'Dólar de Brunéi'}, BG:{code:'BGN',name:'Lev'}, BF:{code:'XOF',name:'Franco CFA'}, BI:{code:'BIF',name:'Franco burundés'}, KH:{code:'KHR',name:'Riel'}, CM:{code:'XAF',name:'Franco CFA'}, CA:{code:'CAD',name:'Dólar canadiense'}, CV:{code:'CVE',name:'Escudo caboverdiano'}, CF:{code:'XAF',name:'Franco CFA'}, TD:{code:'XAF',name:'Franco CFA'}, CL:{code:'CLP',name:'Peso chileno'}, CN:{code:'CNY',name:'Yuan'}, CO:{code:'COP',name:'Peso colombiano'}, KM:{code:'KMF',name:'Franco comorense'}, CG:{code:'XAF',name:'Franco CFA'}, CD:{code:'CDF',name:'Franco congoleño'}, CR:{code:'CRC',name:'Colón costarricense'}, HR:{code:'EUR',name:'Euro'}, CU:{code:'CUP',name:'Peso cubano'}, CY:{code:'EUR',name:'Euro'}, CZ:{code:'CZK',name:'Corona checa'}, DK:{code:'DKK',name:'Corona danesa'}, DJ:{code:'DJF',name:'Franco yibutiano'}, DM:{code:'XCD',name:'Dólar del Caribe'}, DO:{code:'DOP',name:'Peso dominicano'}, EG:{code:'EGP',name:'Libra egipcia'}, GQ:{code:'XAF',name:'Franco CFA'}, ER:{code:'ERN',name:'Nakfa'}, EE:{code:'EUR',name:'Euro'}, SZ:{code:'SZL',name:'Lilangeni'}, ET:{code:'ETB',name:'Birr'}, FJ:{code:'FJD',name:'Dólar fiyiano'}, FI:{code:'EUR',name:'Euro'}, FR:{code:'EUR',name:'Euro'}, GA:{code:'XAF',name:'Franco CFA'}, GM:{code:'GMD',name:'Dalasi'}, GE:{code:'GEL',name:'Lari'}, DE:{code:'EUR',name:'Euro'}, GH:{code:'GHS',name:'Cedi'}, GR:{code:'EUR',name:'Euro'}, GD:{code:'XCD',name:'Dólar del Caribe'}, GT:{code:'GTQ',name:'Quetzal'}, GN:{code:'GNF',name:'Franco guineano'}, GW:{code:'XOF',name:'Franco CFA'}, GY:{code:'GYD',name:'Dólar guyanés'}, HT:{code:'HTG',name:'Gourde'}, HN:{code:'HNL',name:'Lempira'}, HU:{code:'HUF',name:'Forinto'}, IS:{code:'ISK',name:'Corona islandesa'}, IN:{code:'INR',name:'Rupia india'}, ID:{code:'IDR',name:'Rupia indonesia'}, IR:{code:'IRR',name:'Rial iraní'}, IQ:{code:'IQD',name:'Dinar iraquí'}, IE:{code:'EUR',name:'Euro'}, IL:{code:'ILS',name:'Séquel'}, IT:{code:'EUR',name:'Euro'}, JM:{code:'JMD',name:'Dólar jamaiquino'}, JP:{code:'JPY',name:'Yen'}, JO:{code:'JOD',name:'Dinar jordano'}, KZ:{code:'KZT',name:'Tenge'}, KE:{code:'KES',name:'Chelín keniano'}, KI:{code:'AUD',name:'Dólar australiano'}, KP:{code:'KPW',name:'Won norcoreano'}, KR:{code:'KRW',name:'Won surcoreano'}, KW:{code:'KWD',name:'Dinar kuwaití'}, KG:{code:'KGS',name:'Som'}, LA:{code:'LAK',name:'Kip'}, LV:{code:'EUR',name:'Euro'}, LB:{code:'LBP',name:'Libra libanesa'}, LS:{code:'LSL',name:'Loti'}, LR:{code:'LRD',name:'Dólar liberiano'}, LY:{code:'LYD',name:'Dinar libio'}, LI:{code:'CHF',name:'Franco suizo'}, LT:{code:'EUR',name:'Euro'}, LU:{code:'EUR',name:'Euro'}, MG:{code:'MGA',name:'Ariary'}, MW:{code:'MWK',name:'Kwacha malauí'}, MY:{code:'MYR',name:'Ringgit'}, MV:{code:'MVR',name:'Rufiyaa'}, ML:{code:'XOF',name:'Franco CFA'}, MT:{code:'EUR',name:'Euro'}, MH:{code:'USD',name:'Dólar'}, MR:{code:'MRU',name:'Uguiya'}, MU:{code:'MUR',name:'Rupia mauriciana'}, MX:{code:'MXN',name:'Peso mexicano'}, FM:{code:'USD',name:'Dólar'}, MD:{code:'MDL',name:'Leu moldavo'}, MC:{code:'EUR',name:'Euro'}, MN:{code:'MNT',name:'Tugrik'}, ME:{code:'EUR',name:'Euro'}, MA:{code:'MAD',name:'Dírham'}, MZ:{code:'MZN',name:'Metical'}, MM:{code:'MMK',name:'Kiat'}, NA:{code:'NAD',name:'Dólar namibio'}, NR:{code:'AUD',name:'Dólar australiano'}, NP:{code:'NPR',name:'Rupia nepalí'}, NL:{code:'EUR',name:'Euro'}, NZ:{code:'NZD',name:'Dólar neozelandés'}, NI:{code:'NIO',name:'Córdoba'}, NE:{code:'XOF',name:'Franco CFA'}, NG:{code:'NGN',name:'Naira'}, MK:{code:'MKD',name:'Denar'}, NO:{code:'NOK',name:'Corona noruega'}, OM:{code:'OMR',name:'Rial omaní'}, PK:{code:'PKR',name:'Rupia pakistaní'}, PW:{code:'USD',name:'Dólar'}, PS:{code:'ILS',name:'Séquel'}, PG:{code:'PGK',name:'Kina'}, PY:{code:'PYG',name:'Guaraní'}, PE:{code:'PEN',name:'Sol'}, PH:{code:'PHP',name:'Peso filipino'}, PL:{code:'PLN',name:'Zloty'}, PT:{code:'EUR',name:'Euro'}, QA:{code:'QAR',name:'Rial catarí'}, RO:{code:'RON',name:'Leu rumano'}, RU:{code:'RUB',name:'Rublo ruso'}, RW:{code:'RWF',name:'Franco ruandés'}, KN:{code:'XCD',name:'Dólar del Caribe'}, LC:{code:'XCD',name:'Dólar del Caribe'}, VC:{code:'XCD',name:'Dólar del Caribe'}, WS:{code:'WST',name:'Tala'}, SM:{code:'EUR',name:'Euro'}, ST:{code:'STN',name:'Dobra'}, SA:{code:'SAR',name:'Rial saudí'}, SN:{code:'XOF',name:'Franco CFA'}, RS:{code:'RSD',name:'Dinar serbio'}, SC:{code:'SCR',name:'Rupia seychelense'}, SL:{code:'SLE',name:'Leone'}, SG:{code:'SGD',name:'Dólar de Singapur'}, SK:{code:'EUR',name:'Euro'}, SI:{code:'EUR',name:'Euro'}, SB:{code:'SBD',name:'Dólar salomonense'}, SO:{code:'SOS',name:'Chelín somalí'}, ZA:{code:'ZAR',name:'Rand'}, SS:{code:'SSP',name:'Libra sursudanesa'}, ES:{code:'EUR',name:'Euro'}, LK:{code:'LKR',name:'Rupia esrilanquesa'}, SD:{code:'SDG',name:'Libra sudanesa'}, SR:{code:'SRD',name:'Dólar surinamés'}, SE:{code:'SEK',name:'Corona sueca'}, CH:{code:'CHF',name:'Franco suizo'}, SY:{code:'SYP',name:'Libra siria'}, TW:{code:'TWD',name:'Dólar taiwanés'}, TJ:{code:'TJS',name:'Somoni'}, TZ:{code:'TZS',name:'Chelín tanzano'}, TH:{code:'THB',name:'Baht'}, TL:{code:'USD',name:'Dólar'}, TG:{code:'XOF',name:'Franco CFA'}, TO:{code:'TOP',name:'Paanga'}, TT:{code:'TTD',name:'Dólar trinitense'}, TN:{code:'TND',name:'Dinar tunecino'}, TR:{code:'TRY',name:'Lira turca'}, TM:{code:'TMT',name:'Manat turcomano'}, TV:{code:'AUD',name:'Dólar australiano'}, UG:{code:'UGX',name:'Chelín ugandés'}, UA:{code:'UAH',name:'Grivna'}, AE:{code:'AED',name:'Dírham EAU'}, GB:{code:'GBP',name:'Libra esterlina'}, UY:{code:'UYU',name:'Peso uruguayo'}, UZ:{code:'UZS',name:'Som uzbeko'}, VU:{code:'VUV',name:'Vatu'}, VA:{code:'EUR',name:'Euro'}, VE:{code:'VES',name:'Bolívar'}, VN:{code:'VND',name:'Dong'}, YE:{code:'YER',name:'Rial yemení'}, ZM:{code:'ZMW',name:'Kwacha zambiano'}, ZW:{code:'ZWL',name:'Dólar zimbabuense'}, US:{code:'USD',name:'Dólar'}, EC:{code:'USD',name:'Dólar'}, PA:{code:'USD',name:'Dólar'}, SV:{code:'USD',name:'Dólar'}
 };
 
-// Wage annual USD 2024 (ILOSTAT + WageIndicator 2024). Null = sin salario mínimo nacional.
+// Kosovo usa el euro aunque Natural Earth no le dé ISO_A2 propio.
+RATES_2024.XK = 0.924;
+CURRENCY_INFO.XK = { code:'EUR', name:'Euro' };
+
+// Wage annual USD 2024 (ILOSTAT + WageIndicator 2024). Null = sin salario mínimo
+// legal estatutario (se fija por convenio colectivo) o sin dato verificado.
 // Valores basados en statutory nominal gross monthly minimum wage ILOSTAT Dec 2024 x12.
+// Auditoría 17-11: Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia,
+// Austria y Suiza no tienen salario mínimo legal nacional; sus cifras antiguas
+// eran estimaciones de convenio y se retiran (null). Francia deja de heredar el
+// valor de EE. UU. (ISO_A2 -99 en Natural Earth) y usa su SMIC de 1.801,80
+// EUR/mes: 21.621,60 EUR/año ÷ 0,924 = 23.400 USD/año.
 const WAGE_ANNUAL_USD={
   // Afghanistan 5500 AFN/mes
   AF:858,
@@ -178,7 +188,7 @@ const WAGE_ANNUAL_USD={
   BW:1450, BR:3186, BN:null, BG:6200, BF:750, BI:25, KH:2448, CM:620, CA:24128, CV:2700,
   CF:620, TD:720, CL:6358, CN:3260, CO:4148, KM:1150, CG:720, CD:1050, CR:8354, HR:9700, CU:2500,
   CY:14400, CZ:8100, DK:null, DJ:null, DM:3600, DO:3600, EG:null, GQ:1500, ER:null, EE:9700, SZ:1550,
-  ET:null, FJ:2600, FI:null, FR:25572, GA:720, GM:230, GE:88, DE:26400, GH:850, GR:13738, GD:3600,
+  ET:null, FJ:2600, FI:null, FR:23400, GA:720, GM:230, GE:88, DE:26400, GH:850, GR:13738, GD:3600,
   GT:4100, GN:null, GW:720, GY:3200, HT:1200, HN:3600, HU:7700, IS:null, IN:664, ID:2100, IR:2400,
   IQ:3500, IE:37801, IL:23940, IT:null, JM:2800, JP:19388, JO:3700, KZ:2100, KE:1400, KI:2400, KP:null,
   KR:20990, KW:9000, KG:350, LA:1700, LV:8300, LB:5400, LS:1450, LR:900, LY:800, LI:null, LT:9700,
@@ -188,7 +198,7 @@ const WAGE_ANNUAL_USD={
   PG:1700, PY:4300, PE:3800, PH:2200, PL:14941, PT:12900, QA:null, RO:7400, RU:2700, RW:null, KN:3600,
   LC:2800, VC:2800, WS:3600, SM:15000, ST:1100, SA:9600, SN:850, RS:6200, SC:5400, SL:720, SG:null,
   SK:8800, SI:17079, SB:1600, SO:null, ZA:2800, SS:null, ES:17457, LK:720, SD:500, SR:3600, SE:null,
-  CH:55000, SY:300, TW:10800, TJ:750, TZ:700, TH:4300, TL:2100, TG:700, TO:null, TT:4300, TN:1800,
+  CH:null, SY:300, TW:10800, TJ:750, TZ:700, TH:4300, TL:2100, TG:700, TO:null, TT:4300, TN:1800,
   TR:6600, TM:3600, TV:null, UG:0, UA:2390, AE:null, GB:36215, US:15080, UY:5300, UZ:1100,
   VU:2200, VA:null, VE:180, VN:2300, YE:null, ZM:1100, ZW:null
 };
@@ -201,8 +211,27 @@ const ADMIN_TO_ISO2={
   'Republic of Moldova':'MD','Syria':'SY','Laos':'LA','Vietnam':'VN','Brunei':'BN','Cape Verde':'CV','Cabo Verde':'CV',
   'Democratic Republic of the Congo':'CD','Republic of Congo':'CG','Central African Republic':'CF','Ivory Coast':'CI',
   "Côte d'Ivoire":'CI', 'Tanzania':'TZ','Palestine':'PS','Taiwan':'TW','Vatican':'VA','South Sudan':'SS','The Gambia':'GM',
-  'Guinea-Bissau':'GW','Timor-Leste':'TL','East Timor':'TL','Myanmar':'MM','Republic of the Congo':'CG'
+  'Guinea-Bissau':'GW','Timor-Leste':'TL','East Timor':'TL','Myanmar':'MM','Republic of the Congo':'CG',
+  'Somaliland':'SO'
 };
+
+// Natural Earth deja ISO_A2 en -99 para Francia, Noruega, Kosovo y Somaliland.
+// Antes se caía a 'US' y estos territorios heredaban el salario mínimo
+// estadounidense; ahora se resuelve por ADM0_A3. Chipre del Norte no se mapea a
+// Chipre: tiene su propia normativa salarial en liras turcas y queda sin dato.
+const ADM0_A3_TO_ISO2={
+  FRA:'FR', NOR:'NO', KOS:'XK', SOL:'SO', SAH:'EH'
+};
+
+// Países y territorios sin salario mínimo legal estatutario: los salarios se
+// fijan por convenio colectivo (o no hay norma). Se pintan en gris y quedan
+// fuera de la rampa; el popup y la descripción lo explican.
+const NO_STATUTORY = new Set(['DK','SE','FI','IS','NO','IT','AT','CH','LI','BN','SG','AE','SO']);
+
+// Subconjunto cuyo salario se negocia en convenios colectivos (países
+// nórdicos, Islandia, Italia, Austria y Suiza). El resto de NO_STATUTORY
+// simplemente carece de salario mínimo legal.
+const COLLECTIVE_BARGAINING = new Set(['DK','SE','FI','IS','NO','IT','AT','CH']);
 
 const CONTINENT_ES={Africa:'África',Asia:'Asia',Europe:'Europa','North America':'América del Norte','South America':'América del Sur',Oceania:'Oceanía',Antarctica:'Antártida','Seven seas (open ocean)':'Océano'};
 
@@ -226,16 +255,16 @@ function formatMoney(n){
   if(n==null) return '—';
   return n.toLocaleString('es-ES', {maximumFractionDigits:0});
 }
-function formatLocal(annualUSD, iso2){
-  if(annualUSD==null || annualUSD===0) return 'Sin salario mínimo nacional';
+function formatLocal(annualUSD, iso2, fallback){
+  if(annualUSD==null || annualUSD===0) return fallback || 'Sin dato';
   const rate=RATES_2024[iso2]||1;
   const cur=CURRENCY_INFO[iso2]||{code:'USD',name:'Dólar'};
   const monthlyLocal=Math.round((annualUSD/12)*rate);
   const annualLocal=Math.round(annualUSD*rate);
   return `${formatMoney(monthlyLocal)} ${cur.code}/mes · ${formatMoney(annualLocal)} ${cur.code}/año`;
 }
-function formatUSD(annualUSD){
-  if(annualUSD==null || annualUSD===0) return 'Sin dato';
+function formatUSD(annualUSD, fallback){
+  if(annualUSD==null || annualUSD===0) return fallback || 'Sin dato';
   const monthly=Math.round(annualUSD/12);
   return `${formatMoney(monthly)} USD/mes · ${formatMoney(annualUSD)} USD/año`;
 }
@@ -290,33 +319,31 @@ async function buildGeoJSON(){
   for(const raw of finalFeatures){
     const propsRaw=raw.properties;
     let admin=propsRaw.ADMIN;
-    // ISO2 resolution
-    let iso2=propsRaw.ISO_A2;
-    if(!iso2 || iso2==='-99' || iso2.length!==2){
-      iso2=ADMIN_TO_ISO2[admin] || null;
-      if(!iso2){
-        // try ADM0_A3 -> map via known
-        const a3=propsRaw.ADM0_A3||propsRaw.ISO_A3;
-        // fallback: guess from WAGE keys
-        iso2=Object.keys(WAGE_ANNUAL_USD).find(k=>k===a3)?a3:null;
-      }
+    // ISO2 resolution: ISO_A2_EH cubre los -99 de Natural Earth (Francia,
+    // Noruega, Kosovo…). Nunca se cae a 'US': sin ISO fiable el país queda
+    // como «sin dato» en gris.
+    let iso2='';
+    for(const candidate of [propsRaw.ISO_A2_EH, propsRaw.ISO_A2]){
+      if(typeof candidate==='string' && candidate!=='-99' && candidate.length===2){ iso2=candidate; break; }
     }
-    if(iso2) iso2=iso2.toUpperCase();
-    // fallback for territories like Greenland still has DK iso but wage DK null
-    if(!iso2 || iso2==='-99') iso2='US';
+    if(!iso2) iso2=ADMIN_TO_ISO2[admin] || ADM0_A3_TO_ISO2[propsRaw.ADM0_A3] || '';
+    iso2=iso2.toUpperCase();
+    if(!iso2) console.warn(`AVISO: sin ISO2 para «${admin}»; se marcará sin dato.`);
 
-    const annualUSD= WAGE_ANNUAL_USD[iso2];
+    const annualUSD= iso2 ? WAGE_ANNUAL_USD[iso2] : null;
+    const noStatutory = NO_STATUTORY.has(iso2);
+    const statusLabel = noStatutory ? 'Sin salario mínimo legal' : 'Sin dato';
     // Spanish name: prefer NAME_ES, else NAME, else ADMIN
     let esName=propsRaw.NAME_ES;
     if(!esName || esName==='-99') esName=propsRaw.NAME||admin;
     // Normalize: ensure Spanish continent
     const continentEn=propsRaw.CONTINENT||'';
     const continente=CONTINENT_ES[continentEn] || continentEn || '—';
-    const curInfo=CURRENCY_INFO[iso2]||{code:'USD',name:'Dólar'};
-    const moneda=`${curInfo.name} (${curInfo.code})`;
+    const curInfo=(!iso2)?null:(CURRENCY_INFO[iso2]||{code:'USD',name:'Dólar'});
+    const moneda=curInfo?`${curInfo.name} (${curInfo.code})`:'No disponible';
 
-    const salarioLocal=formatLocal(annualUSD, iso2);
-    const salarioUSD=formatUSD(annualUSD);
+    const salarioLocal=formatLocal(annualUSD, iso2, statusLabel);
+    const salarioUSD=formatUSD(annualUSD, statusLabel);
     const color=colorForWage(annualUSD);
     const opacity=(annualUSD==null||annualUSD===0)?0.45:0.82;
     if(annualUSD!=null && annualUSD!==0) withWage++; else withoutWage++;
@@ -340,7 +367,11 @@ async function buildGeoJSON(){
     const hasWage=annualUSD!=null && annualUSD!==0;
     const description=hasWage
       ? `${uniqueEs} — salario mínimo ${salarioLocal} — ${salarioUSD} — ${continente}`
-      : `${uniqueEs} — ${salarioLocal} — ${continente}`;
+      : noStatutory
+        ? (COLLECTIVE_BARGAINING.has(iso2)
+          ? `${uniqueEs} — sin salario mínimo legal estatutario: los salarios se fijan por convenio colectivo — ${continente}`
+          : `${uniqueEs} — sin salario mínimo legal estatutario — ${continente}`)
+        : `${uniqueEs} — sin dato de salario mínimo en 2024 — ${continente}`;
 
     const feature={
       type:'Feature',
@@ -365,9 +396,10 @@ async function buildGeoJSON(){
         'Tipo de cambio (LCU/USD 2024)': RATES_2024[iso2]||1,
         'Año': 2024,
         'Fuente': 'OIT/ILOSTAT + WageIndicator 2024 + Banco Mundial PA.NUS.FCRF 2024',
+        'Estado': hasWage ? 'Salario mínimo legal' : statusLabel,
         'Description': description,
         'Superficie': continente,
-        'Dato': salarioUSD
+        'Dato': hasWage ? salarioUSD : statusLabel
       },
       geometry: simplifiedGeom
     };
@@ -431,18 +463,29 @@ async function main(){
   console.log('coords within ±180/±90', coordsOk);
   const dupNames=new Set(geo.features.map(f=>f.properties._manaName));
   console.log('unique names', dupNames.size===geo.features.length);
+  // Los países sin salario mínimo legal no pueden llevar cifra ni color de rampa.
+  const noStat=geo.features.filter(f=>f.properties['Estado']==='Sin salario mínimo legal');
+  console.log('sin salario mínimo legal', noStat.length+':', noStat.map(f=>f.properties['País']).join(', '));
+  const noStatOk=noStat.every(f=>f.properties['Salario mínimo USD anual']===null && f.properties._manaColor==='#d9d9d9');
+  console.log('sin mínimo legal en gris y sin cifra', noStatOk);
+  const noData=geo.features.filter(f=>f.properties['Estado']==='Sin dato');
+  console.log('sin dato', noData.length);
   // rampa ordenable
   const wages=geo.features.filter(f=>f.properties['Salario mínimo USD anual']!=null).map(f=>f.properties['Salario mínimo USD anual']);
   console.log('wage min', Math.min(...wages), 'max', Math.max(...wages));
+  const usWage=geo.features.find(f=>f.properties['País (EN)']==='United States of America');
+  const sharedWithUS=usWage?geo.features.filter(f=>f.properties['Salario mínimo USD anual']===usWage.properties['Salario mínimo USD anual']).map(f=>f.properties['País']):[];
+  console.log('países con el valor de EE. UU. (', usWage && usWage.properties['Salario mínimo USD anual'], '):', sharedWithUS.join(', '));
+  if(!noStatOk || !usWage || sharedWithUS.length!==1){ console.error('ERROR: datos inconsistentes'); process.exit(1); }
 
   const preview=buildMapPreview(geo);
   const now=Date.now();
   const serverNow={timestampValue:new Date().toISOString()};
   const docFields={
     id:fsStr(SLUG), slug:fsStr(SLUG),
-    title:fsStr('Salario Mínimo por País'),
-    name:fsStr('Salario Mínimo por País'),
-    description:fsStr('Salario mínimo mensual y anual por país en 2024 — en moneda local y convertido a dólares con el tipo de cambio oficial del Banco Mundial (PA.NUS.FCRF). Colores de claro a oscuro según USD. Datos OIT/ILOSTAT y WageIndicator.'),
+    title:fsStr('Salario mínimo por país'),
+    name:fsStr('Salario mínimo por país'),
+    description:fsStr('Salario mínimo legal mensual y anual por país en 2024, en moneda local y en dólares (PA.NUS.FCRF). Los países sin mínimo estatutario —nórdicos, Italia, Austria y Suiza— van en gris.'),
     lang:fsStr('es'),
     featureCount:fsInt(geo.features.length),
     mapPreview:fsMap({
@@ -459,10 +502,10 @@ async function main(){
     visibility:fsStr('public'), shareMode:fsStr('view'), allowPublicEdit:fsBool(false), isPublished:fsBool(true),
     shareUrl:fsStr(`https://maña.com/gallery/?slug=${SLUG}`),
     geojsonText:fsStr(geojsonText), geojsonChunked:fsNull(),
-    dataSource:fsStr('OIT/ILOSTAT (statutory nominal gross monthly minimum wage, Dec 2024) + WageIndicator Minimum Wage Database Dec 2024 (193 ONU + 14 territorios; 500+ fuentes oficiales) + Banco Mundial WDI PA.NUS.FCRF tipo de cambio oficial 2024 (LCU/USD)'),
+    dataSource:fsStr('OIT/ILOSTAT statutory nominal gross monthly minimum wage (dic. 2024) + WageIndicator Minimum Wage Database + Banco Mundial WDI PA.NUS.FCRF 2024 (LCU/USD); los países sin salario mínimo legal estatutario (Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia, Austria y Suiza) se marcan en gris porque se rigen por convenio colectivo'),
     dataDate:fsStr('2024-12-01'),
     dataYear:fsInt(2024),
-    tags:fsArr(['Economía','Trabajo','Países']),
+    tags:fsArr(['Economía','Trabajo','Salarios','Geografía']),
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,
     views:fsInt(0), likes:fsInt(0)
@@ -482,6 +525,11 @@ async function main(){
   const existing=await firestoreRequest(token,'GET',`/${COLLECTION}/${SLUG}`);
   if(existing.status===200){
     console.log('Updating document...');
+    // No pisar métricas ni autoría: la republicación solo cambia catálogo y datos.
+    const ef=existing.data.fields||{};
+    for(const key of ['views','likes','createdAtMs','createdAt','createdBy','ownerUid','authorHandle']){
+      if(ef[key]!==undefined) docFields[key]=ef[key];
+    }
     const fieldPaths=Object.keys(docFields).map(f=>`updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res=await firestoreRequest(token,'PATCH',`/${COLLECTION}/${SLUG}?${fieldPaths}`,{fields:docFields});
     if(res.status>=400){console.error('Update failed',res.status, JSON.stringify(res.data).slice(0,600)); process.exit(1);}
