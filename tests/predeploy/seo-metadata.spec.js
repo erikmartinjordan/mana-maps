@@ -265,38 +265,46 @@ test('every published map receives internal links from another static landing', 
   }
 });
 
-test('zero-view maps receive links from at least two landings with 30+ views', () => {
+test('zero-view and barely-seen maps stay discoverable with the generation views', () => {
   // Prioridad de distribución de noviembre: un mapa sin visitas solo sale del
-  // círculo si lo enlazan landings que de verdad reciben sesiones. El corte de
-  // Firestore (16-11) deja largest-observatories-world como único mapa a cero;
-  // los demás ya suman al menos una visita.
+  // círculo si lo enlazan landings que de verdad reciben sesiones, y uno apenas
+  // visto (≤2 visitas) necesita dos hosts con tráfico mínimo. El reparto de
+  // «Descubre también» depende de `views` en Firestore, que sube a diario: el
+  // 16-11 largest-observatories-world estaba a cero y el 18-11 ya sumaba una
+  // visita. Por eso el generador versiona el corte exacto con el que construyó
+  // las landings (data/sources/landing-views.json) y la comprobación usa ese
+  // mismo corte en lugar de un fixture a mano que envejece.
+  const snapshotPath = path.join(repoRoot, 'data', 'sources', 'landing-views.json');
+  const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
+  expect(snapshot.source).toBe('Firestore maps.views');
+  expect(snapshot.views && typeof snapshot.views).toBe('object');
+
   const published = parseCollectionLd(galleryHtml).slugs;
-  const zeroView = ['largest-observatories-world'];
-  const viewsBySlug = Object.fromEntries(published.map((slug) => [slug, 1]));
-  // Landings con ≥30 visitas según el último corte de Firestore: son los
-  // únicos hosts que rompen el círculo de los cero visitas.
-  for (const slug of [
-    'tourism-arrivals-world',
-    'gini-index-world',
-    'bibliotecas-barcelona',
-    'submarine-fiber-cables',
-    'worst-wildfires-world',
-    'linea-ave-madrid-sevilla-urda',
-  ]) {
-    if (slug in viewsBySlug) viewsBySlug[slug] = 40;
-  }
-  for (const slug of zeroView) viewsBySlug[slug] = 0;
+  const viewsBySlug = Object.fromEntries(
+    published.map((slug) => [slug, Number(snapshot.views[slug]) || 0])
+  );
 
   const result = auditInternalLinkCoverage(published, {
     viewsBySlug,
     minHostViews: 10,
     zeroViewMinHostViews: 30,
     minTrafficHosts: 2,
+    lowViewMax: 2,
+    lowViewMinTrafficHosts: 2,
   });
   expect(result.issues).toEqual([]);
   expect(result.undiscovered).toEqual([]);
+  expect(result.lowViewUndiscovered).toEqual([]);
   expect(result.zeroViewMinHostViews).toBe(30);
-  expect(result.zeroView).toEqual(zeroView);
+  expect(result.lowViewMinTrafficHosts).toBe(2);
+
+  // Cada mapa de pocas visitas que el corte marca como casi invisible debe
+  // llegar desde al menos dos landings con ≥10 visitas (los cero desde ≥30).
+  for (const slug of [...result.zeroView, ...result.lowView]) {
+    const requiredHostViews = result.zeroView.includes(slug) ? 30 : 10;
+    const hosts = result.details[slug].filter((source) => Number(viewsBySlug[source]) >= requiredHostViews);
+    expect(hosts.length, `${slug} sin hosts suficientes`).toBeGreaterThanOrEqual(2);
+  }
 });
 
 test('discovery links to low-view maps are rendered before FAQ and related blocks', () => {

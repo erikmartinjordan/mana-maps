@@ -35,6 +35,7 @@ const COLLECTION = 'maps';
 const SITE_BASE = 'https://maña.com';
 const OUT_CARDS = path.join(SITE_ROOT, 'og-cards');
 const OUT_PAGES = path.join(SITE_ROOT, 'gallery');
+const OUT_VIEWS = path.join(ROOT, 'data', 'sources', 'landing-views.json');
 const DRY_RUN = process.argv.includes('--dry-run');
 const NO_IMAGES = process.argv.includes('--no-images');
 const SLUG_FILTER = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
@@ -183,6 +184,27 @@ function metaDate(m) {
   const d = new Date(typeof ms === 'number' ? ms : Date.parse(ms));
   if (!isFinite(d.getTime())) return '';
   return d.toISOString().split('T')[0];
+}
+
+// ── Corte de visitas de la generación ────────────────────────────
+// «Descubre también» reparte los mapas con pocas visitas según `views` de
+// Firestore, que cambia a diario. Se versiona el corte exacto con el que se
+// generaron las landings (data/sources/) para que la batería de predeploy
+// compruebe el check 15 contra esos mismos datos y no contra un fixture manual
+// que envejece: el 16-11 largest-observatories-world estaba a cero y el 18-11
+// ya sumaba una visita, así que las landings lo trataron como mapa apenas visto
+// (hosts de ≥10) y el fixture a cero lo daba por invisible.
+function writeViewsSnapshot(maps) {
+  const views = {};
+  const sorted = maps.slice().sort((a, b) => String(slugOf(a)).localeCompare(String(slugOf(b))));
+  for (const m of sorted) {
+    const n = Number(m.views);
+    views[slugOf(m)] = isFinite(n) && n > 0 ? n : 0;
+  }
+  const body = JSON.stringify({ source: 'Firestore maps.views', views }, null, 2) + '\n';
+  fs.mkdirSync(path.dirname(OUT_VIEWS), { recursive: true });
+  fs.writeFileSync(OUT_VIEWS, body);
+  return OUT_VIEWS;
 }
 
 function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
@@ -467,6 +489,9 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
+  if (!DRY_RUN) {
+    console.log(`Corte de visitas: ${path.relative(ROOT, writeViewsSnapshot(allMaps))}`);
+  }
   // Los mapas con menos visitas (<10) se enlazan desde varias landings con
   // tráfico: un único enlace puede quedar enterrado. El presupuesto es
   // `perHost` × hosts con ≥10 visitas; con 3 enlaces por host alcanza para dar
