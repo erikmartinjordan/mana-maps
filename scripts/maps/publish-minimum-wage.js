@@ -3,9 +3,11 @@
 // Actualiza el mapa minimum-wage-by-country para cumplir AGENTS.md:
 // - Geometrías Natural Earth 110m (+ microestados 50m) simplificadas
 // - 180+ países con rampa por USD claro→oscuro, borde blanco
-// - Hover/popup con salario en moneda local + USD
+// - Hover/popup con salario en moneda local + USD, año, tipo y procedencia
 // - Props ES completas y _manaLabelStyle con halo >=2
-// Fuente: OIT/ILOSTAT + WageIndicator 2024 + World Bank PA.NUS.FCRF 2024
+// Fuente: OIT/ILOSTAT EAR_INEE_NOC_NB_A + Banco Mundial WDI PA.NUS.FCRF
+// (snapshots en data/sources/minimum-wage-by-country/); WageIndicator 2024
+// solo como respaldo de los países sin observación ILOSTAT utilizable.
 'use strict';
 const https=require('https'), fs=require('fs'), path=require('path');
 
@@ -172,15 +174,31 @@ const CURRENCY_INFO={
 RATES_2024.XK = 0.924;
 CURRENCY_INFO.XK = { code:'EUR', name:'Euro' };
 
-// Wage annual USD 2024 (ILOSTAT + WageIndicator 2024). Null = sin salario mínimo
-// legal estatutario (se fija por convenio colectivo) o sin dato verificado.
-// Valores basados en statutory nominal gross monthly minimum wage ILOSTAT Dec 2024 x12.
-// Auditoría 17-11: Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia,
-// Austria y Suiza no tienen salario mínimo legal nacional; sus cifras antiguas
-// eran estimaciones de convenio y se retiran (null). Francia deja de heredar el
-// valor de EE. UU. (ISO_A2 -99 en Natural Earth) y usa su SMIC de 1.801,80
-// EUR/mes: 21.621,60 EUR/año ÷ 0,924 = 23.400 USD/año.
-const WAGE_ANNUAL_USD={
+// ── Fuente principal: OIT/ILOSTAT + Banco Mundial ───────────────
+// `scripts/lib/minimum-wage-data.js` construye la tabla desde los snapshots
+// versionados en data/sources/minimum-wage-by-country/ (EAR_INEE_NOC_NB_A y
+// PA.NUS.FCRF). Es determinista y no depende de la red. Los salarios son
+// mensuales; el tipo de cambio es el del mismo año (o el último publicado).
+const { buildWageTable, NO_STATUTORY: NO_STATUTORY_ISO3 } = require('../lib/minimum-wage-data');
+const ILOSTAT = buildWageTable().byIso3;
+
+// Observaciones de ILOSTAT que no son utilizables como mínimo mensual: la
+// moneda está mal etiquetada (Camboya), la serie no sigue las redenominaciones
+// (Sudán, Siria) o el valor no es mensual (Ruanda). Se documentan aquí en vez
+// de inventar una conversión; el resto de países sí sale de la fuente.
+const ILOSTAT_REJECTED = {
+  KHM: 'ILOSTAT registra 200 KHR/mes, que equivalen a 0,05 USD: la cifra real de 2024 es 204 USD/mes y la moneda está mal etiquetada en la fuente.',
+  SDN: 'ILOSTAT registra 425 SDG/mes tras las redenominaciones del Sudán; no es un mínimo mensual comparable.',
+  SYR: 'ILOSTAT registra 14.760 SYP/mes, sin reflejar las subidas y redenominaciones de la libra siria.',
+  RWA: 'ILOSTAT registra 2.600 RWF/mes, que no corresponde a un mínimo mensual; se deja sin dato.',
+};
+
+// Respaldo WageIndicator 2024 para los países sin observación ILOSTAT
+// utilizable (Taiwán, Palestina, Micronesia, Turkmenistán, Santa Lucía, Cuba,
+// Santo Tomé y Príncipe, Venezuela y los cuatro rechazados arriba). No es la
+// fuente principal: solo cubre los huecos que ILOSTAT no publica.
+// Valores en USD/año. Null = sin dato verificado.
+const FALLBACK_ANNUAL_USD={
   // Afghanistan 5500 AFN/mes
   AF:858,
   AL:4637, DZ:1790, AO:663, AR:2652, AM:1970, AU:35810, AT:null, AZ:2364,
@@ -225,13 +243,15 @@ const ADM0_A3_TO_ISO2={
 
 // Países y territorios sin salario mínimo legal estatutario: los salarios se
 // fijan por convenio colectivo (o no hay norma). Se pintan en gris y quedan
-// fuera de la rampa; el popup y la descripción lo explican.
-const NO_STATUTORY = new Set(['DK','SE','FI','IS','NO','IT','AT','CH','LI','BN','SG','AE','SO']);
+// fuera de la rampa; el popup y la descripción lo explican. El conjunto vive en
+// `scripts/lib/minimum-wage-data.js` (ISO-3) para que la fuente y el
+// publicador no puedan divergir.
+const NO_STATUTORY = NO_STATUTORY_ISO3;
 
 // Subconjunto cuyo salario se negocia en convenios colectivos (países
 // nórdicos, Islandia, Italia, Austria y Suiza). El resto de NO_STATUTORY
 // simplemente carece de salario mínimo legal.
-const COLLECTIVE_BARGAINING = new Set(['DK','SE','FI','IS','NO','IT','AT','CH']);
+const COLLECTIVE_BARGAINING = new Set(['DNK','SWE','FIN','ISL','NOR','ITA','AUT','CHE']);
 
 const CONTINENT_ES={Africa:'África',Asia:'Asia',Europe:'Europa','North America':'América del Norte','South America':'América del Sur',Oceania:'Oceanía',Antarctica:'Antártida','Seven seas (open ocean)':'Océano'};
 
@@ -255,18 +275,55 @@ function formatMoney(n){
   if(n==null) return '—';
   return n.toLocaleString('es-ES', {maximumFractionDigits:0});
 }
-function formatLocal(annualUSD, iso2, fallback){
-  if(annualUSD==null || annualUSD===0) return fallback || 'Sin dato';
-  const rate=RATES_2024[iso2]||1;
-  const cur=CURRENCY_INFO[iso2]||{code:'USD',name:'Dólar'};
-  const monthlyLocal=Math.round((annualUSD/12)*rate);
-  const annualLocal=Math.round(annualUSD*rate);
-  return `${formatMoney(monthlyLocal)} ${cur.code}/mes · ${formatMoney(annualLocal)} ${cur.code}/año`;
+
+// Nombre en español de cada código de moneda (se reutiliza CURRENCY_INFO).
+const CURRENCY_NAMES={};
+for(const info of Object.values(CURRENCY_INFO)){
+  if(info&&info.code&&info.name&&!CURRENCY_NAMES[info.code]) CURRENCY_NAMES[info.code]=info.name;
 }
-function formatUSD(annualUSD, fallback){
-  if(annualUSD==null || annualUSD===0) return fallback || 'Sin dato';
-  const monthly=Math.round(annualUSD/12);
-  return `${formatMoney(monthly)} USD/mes · ${formatMoney(annualUSD)} USD/año`;
+
+// Respaldo para los países sin observación ILOSTAT utilizable: convierte el
+// valor anual en USD (WageIndicator 2024) a la moneda local con el tipo de
+// cambio del Banco Mundial. Se marca `fallback` para que el popup lo declare.
+function fallbackWage(iso2, annualUSD){
+  const rate=RATES_2024[iso2]||1;
+  const currency=(CURRENCY_INFO[iso2]||{code:'USD'}).code;
+  return {
+    monthlyLocal: Math.round((annualUSD/12)*rate),
+    currency,
+    year: 2024,
+    typeLabel: 'Mínimo legal',
+    annualUSD,
+    rate,
+    rateYear: 2024,
+    rateSource: 'WageIndicator 2024 (respaldo)',
+    fallback: true,
+  };
+}
+
+function wageFromIlostat(row){
+  return {
+    monthlyLocal: row.monthlyLocal,
+    currency: row.currency || 'USD',
+    year: row.year,
+    typeLabel: row.typeLabel,
+    annualUSD: row.annualUSD,
+    rate: row.rate,
+    rateYear: row.rateYear,
+    rateSource: row.rateSource,
+    fallback: false,
+  };
+}
+
+function formatLocalWage(wage, fallback){
+  if(!wage) return fallback || 'Sin dato';
+  const monthly=Math.round(wage.monthlyLocal);
+  const annual=Math.round(wage.monthlyLocal*12);
+  return `${formatMoney(monthly)} ${wage.currency}/mes · ${formatMoney(annual)} ${wage.currency}/año`;
+}
+function formatUSDWage(wage, fallback){
+  if(!wage) return fallback || 'Sin dato';
+  return `${formatMoney(Math.round(wage.annualUSD/12))} USD/mes · ${formatMoney(wage.annualUSD)} USD/año`;
 }
 
 async function buildGeoJSON(){
@@ -330,8 +387,18 @@ async function buildGeoJSON(){
     iso2=iso2.toUpperCase();
     if(!iso2) console.warn(`AVISO: sin ISO2 para «${admin}»; se marcará sin dato.`);
 
-    const annualUSD= iso2 ? WAGE_ANNUAL_USD[iso2] : null;
-    const noStatutory = NO_STATUTORY.has(iso2);
+    // Resolución del dato: ILOSTAT manda; WageIndicator solo cubre los huecos
+    // documentados en ILOSTAT_REJECTED y los países sin observación.
+    const iso3=(propsRaw.ADM0_A3||'').toUpperCase();
+    const rejection=ILOSTAT_REJECTED[iso3];
+    const noStatutory = NO_STATUTORY.has(iso3) || NO_STATUTORY.has(iso2);
+    let wage=null;
+    if(!noStatutory){
+      if(ILOSTAT[iso3] && !rejection) wage=wageFromIlostat(ILOSTAT[iso3]);
+      else if(!ILOSTAT[iso3] && iso2 && FALLBACK_ANNUAL_USD[iso2]!=null) wage=fallbackWage(iso2, FALLBACK_ANNUAL_USD[iso2]);
+      else if(rejection && iso2 && FALLBACK_ANNUAL_USD[iso2]!=null) wage=fallbackWage(iso2, FALLBACK_ANNUAL_USD[iso2]);
+    }
+    const annualUSD= wage ? wage.annualUSD : null;
     const statusLabel = noStatutory ? 'Sin salario mínimo legal' : 'Sin dato';
     // Spanish name: prefer NAME_ES, else NAME, else ADMIN
     let esName=propsRaw.NAME_ES;
@@ -339,11 +406,12 @@ async function buildGeoJSON(){
     // Normalize: ensure Spanish continent
     const continentEn=propsRaw.CONTINENT||'';
     const continente=CONTINENT_ES[continentEn] || continentEn || '—';
-    const curInfo=(!iso2)?null:(CURRENCY_INFO[iso2]||{code:'USD',name:'Dólar'});
-    const moneda=curInfo?`${curInfo.name} (${curInfo.code})`:'No disponible';
+    const currencyCode=wage ? wage.currency : (iso2 ? (CURRENCY_INFO[iso2]||{code:'USD'}).code : '');
+    const currencyName=CURRENCY_NAMES[currencyCode]||(iso2?(CURRENCY_INFO[iso2]||{}).name:'')||'';
+    const moneda=currencyCode?`${currencyName?currencyName+' ':''}(${currencyCode})`:'No disponible';
 
-    const salarioLocal=formatLocal(annualUSD, iso2, statusLabel);
-    const salarioUSD=formatUSD(annualUSD, statusLabel);
+    const salarioLocal=formatLocalWage(wage, statusLabel);
+    const salarioUSD=formatUSDWage(wage, statusLabel);
     const color=colorForWage(annualUSD);
     const opacity=(annualUSD==null||annualUSD===0)?0.45:0.82;
     if(annualUSD!=null && annualUSD!==0) withWage++; else withoutWage++;
@@ -364,14 +432,14 @@ async function buildGeoJSON(){
     }
     const simplifiedGeom={type:geom.type, coordinates: roundCoords(geom.coordinates)};
 
-    const hasWage=annualUSD!=null && annualUSD!==0;
+    const hasWage=wage!=null;
     const description=hasWage
       ? `${uniqueEs} — salario mínimo ${salarioLocal} — ${salarioUSD} — ${continente}`
       : noStatutory
-        ? (COLLECTIVE_BARGAINING.has(iso2)
+        ? (COLLECTIVE_BARGAINING.has(iso3)
           ? `${uniqueEs} — sin salario mínimo legal estatutario: los salarios se fijan por convenio colectivo — ${continente}`
           : `${uniqueEs} — sin salario mínimo legal estatutario — ${continente}`)
-        : `${uniqueEs} — sin dato de salario mínimo en 2024 — ${continente}`;
+        : `${uniqueEs} — sin dato de salario mínimo en la OIT — ${continente}`;
 
     const feature={
       type:'Feature',
@@ -392,10 +460,12 @@ async function buildGeoJSON(){
         'Salario mínimo': salarioLocal,
         'Salario mínimo USD': salarioUSD,
         'Salario mínimo USD anual': hasWage? annualUSD : null,
-        'Salario mínimo local mensual': hasWage? Math.round((annualUSD/12)*(RATES_2024[iso2]||1)) : null,
-        'Tipo de cambio (LCU/USD 2024)': RATES_2024[iso2]||1,
-        'Año': 2024,
-        'Fuente': 'OIT/ILOSTAT + WageIndicator 2024 + Banco Mundial PA.NUS.FCRF 2024',
+        'Salario mínimo local mensual': hasWage? Math.round(wage.monthlyLocal*100)/100 : null,
+        'Tipo de salario mínimo': hasWage? wage.typeLabel : statusLabel,
+        'Tipo de cambio (LCU/USD)': hasWage? wage.rate : null,
+        'Año': hasWage? wage.year : null,
+        'Fuente del dato': hasWage? (wage.fallback ? wage.rateSource : `${wage.rateSource} · OIT/ILOSTAT EAR_INEE_NOC_NB_A`) : null,
+        'Fuente': 'OIT/ILOSTAT EAR_INEE_NOC_NB_A + Banco Mundial WDI PA.NUS.FCRF; WageIndicator 2024 solo como respaldo de los países sin observación',
         'Estado': hasWage ? 'Salario mínimo legal' : statusLabel,
         'Description': description,
         'Superficie': continente,
@@ -470,13 +540,24 @@ async function main(){
   console.log('sin mínimo legal en gris y sin cifra', noStatOk);
   const noData=geo.features.filter(f=>f.properties['Estado']==='Sin dato');
   console.log('sin dato', noData.length);
+  // Cada país con dato debe declarar año y procedencia, y los países sin
+  // mínimo legal no pueden colarse con cifra.
+  const provenanceOk=geo.features.filter(f=>f.properties['Salario mínimo USD anual']!=null)
+    .every(f=>Number.isInteger(f.properties['Año']) && typeof f.properties['Fuente del dato']==='string' && f.properties['Fuente del dato'].length>0 && typeof f.properties['Salario mínimo local mensual']==='number');
+  console.log('año y fuente en cada país con dato', provenanceOk);
+  const noStatWithWage=geo.features.filter(f=>f.properties['Estado']==='Sin salario mínimo legal' && f.properties['Salario mínimo USD anual']!=null).length;
+  console.log('sin mínimo legal con cifra (debe ser 0)', noStatWithWage);
   // rampa ordenable
   const wages=geo.features.filter(f=>f.properties['Salario mínimo USD anual']!=null).map(f=>f.properties['Salario mínimo USD anual']);
   console.log('wage min', Math.min(...wages), 'max', Math.max(...wages));
+  const duplicates=new Map();
+  for(const f of geo.features){ const v=f.properties['Salario mínimo USD anual']; if(v==null) continue; duplicates.set(v,(duplicates.get(v)||0)+1); }
+  const worstDuplicate=[...duplicates.entries()].sort((a,b)=>b[1]-a[1])[0];
+  console.log('mayor grupo con el mismo valor', worstDuplicate?`${worstDuplicate[0]} USD/año en ${worstDuplicate[1]} países`:'—');
   const usWage=geo.features.find(f=>f.properties['País (EN)']==='United States of America');
   const sharedWithUS=usWage?geo.features.filter(f=>f.properties['Salario mínimo USD anual']===usWage.properties['Salario mínimo USD anual']).map(f=>f.properties['País']):[];
   console.log('países con el valor de EE. UU. (', usWage && usWage.properties['Salario mínimo USD anual'], '):', sharedWithUS.join(', '));
-  if(!noStatOk || !usWage || sharedWithUS.length!==1){ console.error('ERROR: datos inconsistentes'); process.exit(1); }
+  if(!noStatOk || !provenanceOk || noStatWithWage>0 || !usWage || sharedWithUS.length!==1){ console.error('ERROR: datos inconsistentes'); process.exit(1); }
 
   const preview=buildMapPreview(geo);
   const now=Date.now();
@@ -485,7 +566,7 @@ async function main(){
     id:fsStr(SLUG), slug:fsStr(SLUG),
     title:fsStr('Salario mínimo por país'),
     name:fsStr('Salario mínimo por país'),
-    description:fsStr('Salario mínimo legal mensual y anual por país en 2024, en moneda local y en dólares (PA.NUS.FCRF). Los países sin mínimo estatutario —nórdicos, Italia, Austria y Suiza— van en gris.'),
+    description:fsStr('Salario mínimo legal mensual y anual por país, en moneda local y en dólares, con el último dato de la OIT (2022-2024). Los países sin mínimo estatutario van en gris.'),
     lang:fsStr('es'),
     featureCount:fsInt(geo.features.length),
     mapPreview:fsMap({
@@ -502,9 +583,12 @@ async function main(){
     visibility:fsStr('public'), shareMode:fsStr('view'), allowPublicEdit:fsBool(false), isPublished:fsBool(true),
     shareUrl:fsStr(`https://maña.com/gallery/?slug=${SLUG}`),
     geojsonText:fsStr(geojsonText), geojsonChunked:fsNull(),
-    dataSource:fsStr('OIT/ILOSTAT statutory nominal gross monthly minimum wage (dic. 2024) + WageIndicator Minimum Wage Database + Banco Mundial WDI PA.NUS.FCRF 2024 (LCU/USD); los países sin salario mínimo legal estatutario (Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia, Austria y Suiza) se marcan en gris porque se rigen por convenio colectivo'),
+    dataSource:fsStr('OIT/ILOSTAT EAR_INEE_NOC_NB_A (salario mínimo mensual en moneda local, último dato 2022-2024) y Banco Mundial WDI PA.NUS.FCRF (tipo de cambio LCU/USD del mismo año); WageIndicator 2024 solo como respaldo de los países sin observación utilizable. Los países sin salario mínimo legal estatutario (Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia, Austria y Suiza) se marcan en gris porque se rigen por convenio colectivo'),
     dataDate:fsStr('2024-12-01'),
     dataYear:fsInt(2024),
+    legendKey:fsStr('Salario mínimo USD anual'),
+    legendTitle:fsStr('Salario mínimo (USD/año)'),
+    legendFormat:fsStr('number'),
     tags:fsArr(['Economía','Trabajo','Salarios','Geografía']),
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,

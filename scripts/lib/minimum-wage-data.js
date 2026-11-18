@@ -30,12 +30,20 @@ const path = require('path');
 const SOURCE_DIR = path.join(__dirname, '..', '..', 'data', 'sources', 'minimum-wage-by-country');
 const MIN_YEAR = 2020;
 const MAX_YEAR = 2024;
+// Horas asumidas por mes para convertir tarifas horarias a mensuales
+// (jornada de 40 h/semana). Solo afecta a Mónaco y Hong Kong en la fuente.
+const HOURS_PER_MONTH = (40 * 52) / 12;
+// País de referencia para el tipo de cambio del euro: Bulgaria y Croacia
+// (antes de 2023) declaran su salario en EUR, pero el Banco Mundial publica su
+// tipo de cambio en la moneda nacional anterior.
+const EURO_REF = 'DEU';
 
 // Países sin salario mínimo legal estatutario (nórdicos, Italia, Austria,
 // Suiza) y territorios sin norma nacional. Se pintan en gris y quedan fuera de
-// la rampa; el popup y la descripción lo explican.
-const NO_STATUTORY = new Set(['DNK', 'SWE', 'FIN', 'ISL', 'NOR', 'ITA', 'AUT', 'CH', 'LIE', 'BRN', 'SGP', 'ARE', 'SOM']);
-const COLLECTIVE_BARGAINING = new Set(['DNK', 'SWE', 'FIN', 'ISL', 'NOR', 'ITA', 'AUT', 'CH']);
+// la rampa; el popup y la descripción lo explican. Son códigos ISO-3, igual
+// que `ref_area` en ILOSTAT.
+const NO_STATUTORY = new Set(['DNK', 'SWE', 'FIN', 'ISL', 'NOR', 'ITA', 'AUT', 'CHE', 'LIE', 'BRN', 'SGP', 'ARE', 'SOM']);
+const COLLECTIVE_BARGAINING = new Set(['DNK', 'SWE', 'FIN', 'ISL', 'NOR', 'ITA', 'AUT', 'CHE']);
 
 // Países y territorios que usan la moneda de otro Estado y que el Banco
 // Mundial publica bajo el emisor: Cook Islands → dólar neozelandés.
@@ -98,6 +106,32 @@ function rateFor(rates, iso, year) {
   return { rate: rates[iso][best], year: best };
 }
 
+// El tipo de cambio debe corresponder a la moneda en la que ILOSTAT declara el
+// salario. Hay dos casos que el tipo de cambio del propio país rompe:
+//   · filas en USD (Liberia) — el tipo del país es LRD/USD;
+//   · filas en EUR de países que aún no habían adoptado el euro (Bulgaria,
+//     Croacia 2022) — su tipo es BGN/USD o HRK/USD.
+function rateForCurrency(rates, iso, currency, year) {
+  if (currency === 'USD') return { rate: 1, year };
+  if (currency === 'EUR') {
+    const own = rateFor(rates, RATE_ALIASES[iso] || iso, year);
+    if (own && own.rate <= 1.5) return own;
+    const euro = rateFor(rates, EURO_REF, year);
+    if (euro) return euro;
+  }
+  return rateFor(rates, RATE_ALIASES[iso] || iso, year);
+}
+
+// ILOSTAT publica algunas observaciones por hora (Mónaco, Hong Kong). El
+// resto va por mes; su nota «Per year» es inconsistente con la propia serie
+// (Ecuador y Uruguay declaran ahí el salario mensual), así que no se divide.
+function monthlyValue(observation) {
+  if (/hour/i.test(observation.timeUnit || '')) {
+    return observation.value * HOURS_PER_MONTH;
+  }
+  return observation.value;
+}
+
 function typeLabel(type) {
   return TYPE_LABELS_ES[type] || 'Mínimo legal';
 }
@@ -124,15 +158,24 @@ function buildWageTable(options) {
     const type = (row.type || '').trim();
     const priority = TYPE_PRIORITY[type] == null ? 8 : TYPE_PRIORITY[type];
     const current = byIso.get(iso);
+    const candidate = {
+      year,
+      value,
+      type,
+      priority,
+      currency: (row.currency || '').trim(),
+      timeUnit: (row.time_unit || '').trim(),
+    };
     if (!current || year > current.year || (year === current.year && priority < current.priority)) {
-      byIso.set(iso, { year, value, type, priority, currency: (row.currency || '').trim() });
+      byIso.set(iso, candidate);
     }
   }
 
   const table = {};
   const years = new Set();
   for (const [iso, obs] of byIso) {
-    const rateInfo = rateFor(rates, RATE_ALIASES[iso] || iso, obs.year);
+    const monthly = monthlyValue(obs);
+    const rateInfo = rateForCurrency(rates, iso, obs.currency, obs.year);
     let annualUSD = null;
     let rate = null;
     let rateYear = null;
@@ -140,7 +183,7 @@ function buildWageTable(options) {
     if (rateInfo) {
       rate = Math.round(rateInfo.rate * 10000) / 10000;
       rateYear = rateInfo.year;
-      annualUSD = Math.round((obs.value * 12) / rate);
+      annualUSD = Math.round((monthly * 12) / rate);
       rateSource = 'Banco Mundial PA.NUS.FCRF';
     } else if (iloUsd[iso] && iloUsd[iso][obs.year] != null) {
       annualUSD = Math.round(iloUsd[iso][obs.year] * 12);
@@ -149,7 +192,7 @@ function buildWageTable(options) {
     if (annualUSD == null || !Number.isFinite(annualUSD)) continue;
     years.add(obs.year);
     table[iso] = {
-      monthlyLocal: obs.value,
+      monthlyLocal: Math.round(monthly * 100) / 100,
       currency: obs.currency,
       year: obs.year,
       type: obs.type,
@@ -158,6 +201,7 @@ function buildWageTable(options) {
       rate,
       rateYear,
       rateSource,
+      hourly: /hour/i.test(obs.timeUnit || ''),
       collectiveBargaining: COLLECTIVE_BARGAINING.has(iso),
     };
   }
