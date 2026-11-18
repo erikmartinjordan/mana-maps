@@ -1,5 +1,31 @@
 [
   {
+    "date": "2026-11-18",
+    "event": "El Consejo de Ministros aprobó el 17 de noviembre de 2026 el SMI de 2027: 1.286 euros brutos al mes en 14 pagas, 65 más que los 1.221 vigentes y +5,3%, equivalentes a 18.004 euros anuales y 42,87 euros diarios, desde el 1 de enero. Supera el IPC acumulado hasta octubre (4,3%) y la recomendación de la comisión asesora (4,9%, 1.281 euros); el Gobierno estima 2,7 millones de beneficiarios y cerca del 9% de los asalariados. Hacienda deja exento de retención de IRPF hasta 18.004 euros y amplía deducciones hasta 23.172; funcionarios +4,5%. CCOO y UGT pedían el 7%; la CEOE critica no haber sido consultada. Serie del mapa de salario mínimo legal (OIT/ILOSTAT y WageIndicator, diciembre de 2024): Portugal 993 euros/mes y 11.920 al año, Grecia 1.058 y 12.694, Eslovenia 1.315 y 15.781, Francia 1.802 y 21.622, Alemania 2.033 y 24.394, Países Bajos 2.786 y 33.437 e Irlanda 2.911 y 34.928; los 18.004 euros de 2027 quedan un 51,0% por encima de Portugal y un 16,7% por debajo de Francia.",
+    "type": "news",
+    "format": "comparativa",
+    "topic": "economia",
+    "mapSlug": "minimum-wage-by-country",
+    "sourceUrls": [
+      "https://www.rtve.es/noticias/20261117/consejo-ministros-aprueba-subida-salario-minimo-sueldo-funcionarios-2027/17317730.shtml",
+      "https://economia3.com/gobierno-sube-smi-1286-euros-en-2027/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "smi-1286-euros-mapa-europeo",
+        "url": "/news/smi-1286-euros-mapa-europeo/",
+        "title": "El SMI sube a 1.286 euros: dónde queda España en Europa",
+        "description": "El Gobierno sube el SMI un 5,3% hasta 1.286 euros en 14 pagas desde enero. El mapa de mínimos legales compara a España con Portugal, Francia y Alemania."
+      },
+      "en": {
+        "slug": "spain-minimum-wage-1286-europe-map",
+        "url": "/en/news/spain-minimum-wage-1286-europe-map/",
+        "title": "Spain's minimum wage rises to €1,286: where it sits in Europe",
+        "description": "The cabinet has raised Spain's minimum wage 5.3% to €1,286 over 14 payments from January. The legal-minimum map compares Spain with Portugal and France."
+      }
+    }
+  },
+  {
     "date": "2026-11-17",
     "event": "La FAA ordenó el 13 de noviembre de 2026 un parón nacional de vuelos durante 4 horas y 25 minutos, entre las 20:54 GMT del viernes y las 01:15 GMT del sábado, por un router instalado por el contratista L3Harris al sustituir cobre por fibra en la red FTI: el equipo lanzó 1.000 intentos de conexión cada 4-5 segundos y afectó a 17 de los 22 centros de control de ruta. FlightAware contó casi 8.000 vuelos cancelados y más de 8.500 retrasados el viernes, y 5.900 cancelaciones y 7.000 retrasos el sábado; Eurocontrol suspendió las salidas hacia EE UU de sus 42 Estados miembros y Heathrow canceló vuelos el sábado. El secretario de Transporte, Sean Duffy, pide 50.000 millones de dólares al Congreso. Datos del mapa de los 50 aeropuertos más transitados (ACI World, 2025): 14 están en EE UU y suman 924,2 millones de pasajeros, el 28,9% de los 3.196 millones del top 50, frente a 11 de China con 665,1 millones.",
     "type": "news",
