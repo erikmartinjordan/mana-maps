@@ -478,20 +478,25 @@ function _labelAnchorForLayer(layer) {
   return null;
 }
 
-function _labelShadow(style) {
+// El halo se dibuja como contorno real (paint-order:stroke) en lugar de 8
+// text-shadow desplazados. Con text-shadow, un haloWidth grande respecto al
+// tamaño de fuente solapa las sombras y tapa el glifo: la etiqueta se ve como
+// un bloque de color ilegible. Además se limita el halo al 18 % del tamaño de
+// fuente para que un valor heredado del dato (p. ej. 3 px a 12 px) no rompa la
+// legibilidad.
+function _labelHaloWidth(style) {
   const w = Number(style.haloWidth) || 0;
-  if (!w) return 'none';
-  const c = style.haloColor;
-  return [
-    '-' + w + 'px 0 ' + c,
-    w + 'px 0 ' + c,
-    '0 -' + w + 'px ' + c,
-    '0 ' + w + 'px ' + c,
-    '-' + w + 'px -' + w + 'px ' + c,
-    w + 'px -' + w + 'px ' + c,
-    '-' + w + 'px ' + w + 'px ' + c,
-    w + 'px ' + w + 'px ' + c,
-  ].join(',');
+  if (w <= 0) return 0;
+  const fontSize = Number(style.fontSize) || 12;
+  return Math.min(w, Math.max(1, fontSize * 0.18));
+}
+
+function _labelHaloCss(style) {
+  const w = _labelHaloWidth(style);
+  if (!w) return '';
+  // paint-order pinta el trazo detrás del relleno: el trazo visible hacia
+  // fuera es la mitad del grosor, así que se duplica para respetar haloWidth.
+  return 'paint-order:stroke fill;-webkit-text-stroke:' + (w * 2).toFixed(2) + 'px ' + esc(style.haloColor) + ';';
 }
 
 function _labelHtml(text, style) {
@@ -502,7 +507,7 @@ function _labelHtml(text, style) {
     'font-weight:' + style.fontWeight + ';' +
     'font-style:' + style.fontStyle + ';' +
     'opacity:' + style.opacity + ';' +
-    'text-shadow:' + esc(_labelShadow(style)) + ';' +
+    _labelHaloCss(style) +
     '">' + esc(text) + '</span>';
 }
 
@@ -520,11 +525,13 @@ function _labelPaneName() {
 function addLabelsToLayer(layer, features, labelStyle) {
   const target = _resolveLabelLayer(layer);
   if (!target) return [];
+  // El color/halo del propio mapa manda también en el embed: un halo inverso
+  // al texto (texto oscuro + halo claro o al revés) mantiene la legibilidad
+  // sobre cualquier relleno. El override fijo del tema oscuro pisaba estilos
+  // ya pensados para el fondo real (p. ej. texto oscuro sobre coropleta claro)
+  // y dejaba las etiquetas sin contraste. Si no hay estilo, _defaultLabelStyle
+  // ya devuelve la paleta adecuada al tema.
   const style = _normalizeLabelStyle(labelStyle || target.labelStyle);
-  if (document.documentElement.classList.contains('mana-editor-embed') && isDarkMapTheme()) {
-    style.color = '#f0edf4';
-    style.haloColor = '#080909';
-  }
   target.labelStyle = style;
   removeLabelsFromLayer(target);
   if (!style.enabled || !style.field) return [];
