@@ -311,9 +311,9 @@ async function main() {
   const docFields = {
     id: fsStr(SLUG),
     slug: fsStr(SLUG),
-    title: fsStr('Emisiones de CO2 per capita por pais'),
-    name: fsStr('Emisiones de CO2 per capita por pais'),
-    description: fsStr('Mapa coro\u00f3ple\u00f3tico de las emisiones de di\u00f3xido de carbono per c\u00e1pita por pa\u00eds en todo el mundo, con datos de 170 naciones. Muestra qui\u00e9n contamina realmente por habitante, desde Burundi (0,05 t) hasta Qatar (41 t).'),
+    title: fsStr('Emisiones de CO2 per cápita por país'),
+    name: fsStr('Emisiones de CO2 per cápita por país'),
+    description: fsStr('Emisiones de CO2 per cápita por país en 2024: 196 países con datos, desde la República Democrática del Congo (0,05 t) hasta Catar (41,3 t). Fuente: Global Carbon Project / Our World in Data.'),
     lang: fsStr('es'),
     featureCount: fsInt(geojson.features.length),
     mapPreview: fsMap({
@@ -337,8 +337,8 @@ async function main() {
     shareUrl: fsStr(`https://ma\u00f1a.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText),
     geojsonChunked: fsNull(),
-    dataSource: fsStr('Our World in Data (OWID) / IEA / CDIAC / Global Carbon Project (ourworldindata.org)'),
-    dataDate: fsStr('2024-01-01'),
+    dataSource: fsStr('Our World in Data (OWID) / Global Carbon Project (ourworldindata.org) — CO2 fósil per cápita, 2024'),
+    dataDate: fsStr('2024-12-31'),
     tags: fsArr(['Clima', 'Medio ambiente', 'Geograf\u00eda', 'Emisiones']),
     legendKey: fsStr('Emisiones CO2 per c\u00e1pita (num)'),
     legendTitle: fsStr('Toneladas de CO2 por persona'),
@@ -373,6 +373,11 @@ async function main() {
   const existing = await firestoreRequest(token, 'GET', `/${COLLECTION}/${SLUG}`);
   if (existing.status === 200) {
     console.log('Document exists. Updating...');
+    // No pisar métricas ni autoría: la republicación solo cambia catálogo y datos.
+    const ef = existing.data.fields || {};
+    for (const key of ['views', 'likes', 'createdAtMs', 'createdAt', 'createdBy', 'ownerUid', 'authorHandle']) {
+      if (ef[key] !== undefined) docFields[key] = ef[key];
+    }
     const fieldPaths = Object.keys(docFields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res = await firestoreRequest(token, 'PATCH', `/${COLLECTION}/${SLUG}?${fieldPaths}`, { fields: docFields });
     if (res.status >= 400) { console.error('Update failed:', res.status); process.exit(1); }

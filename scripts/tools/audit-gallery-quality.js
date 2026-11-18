@@ -110,6 +110,7 @@ const fs = require('fs');
 
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsArr } = require('../lib/publisher');
 const { extractEmbeddedMapSlug } = require('../lib/news-map-links');
+const { findEnglishToponyms } = require('../lib/country-names-en-es');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const VERBOSE = process.argv.includes('--verbose');
@@ -1040,6 +1041,34 @@ function auditCoordinates(geom, applyFix) {
   return { lonOut, latOut, applied };
 }
 
+// ── 4. Idioma de las etiquetas de país (AGENTS.md §4) ────────────
+// Los mapas con lang:es deben mostrar los topónimos en español. `name` suele
+// ser la etiqueta fuente de Natural Earth (en inglés) y no se pinta en el
+// popup, así que se revisan los campos visibles `_manaName` y `País`; solo se
+// mira `name` cuando la feature no tiene ninguna de esas etiquetas.
+function auditToponymLanguage(map, geo) {
+  const issues = [];
+  const manual = [];
+  const samples = [];
+  let count = 0;
+  if (!geo || !Array.isArray(geo.features) || geo.features.length === 0) return { issues, manual, samples, count };
+  if (map && map.lang && map.lang !== 'es') return { issues, manual, samples, count };
+
+  for (const feature of geo.features) {
+    const props = feature.properties || {};
+    for (const hit of findEnglishToponyms(props)) {
+      count++;
+      if (samples.length < 5) samples.push(`${props._manaName || props.name || '(sin nombre)'}: ${hit.field} «${hit.value}» → «${hit.spanish}»`);
+    }
+  }
+
+  if (count) {
+    issues.push(`${count} topónimos en inglés en etiquetas de país (§4)${samples.length ? ` — ej: ${samples.join(' | ')}` : ''}`);
+    manual.push('topónimos de país en inglés (§4)');
+  }
+  return { issues, manual, samples, count };
+}
+
 // ── Auditoría de un mapa ─────────────────────────────────────────
 // Devuelve { issues, fixes, manual, geo } — fixes = campos Firestore a actualizar
 function auditMap(map) {
@@ -1108,6 +1137,13 @@ function auditMap(map) {
     issues.push(`featureCount=${map.featureCount} ≠ features=${actual}`);
     fixes.featureCount = fsInt(actual);
   }
+
+  // 4. Idioma de las etiquetas de país (AGENTS.md §4): los mapas lang:es no
+  // pueden mostrar topónimos en inglés (`_manaName`/`País`). No es auto-fixable
+  // aquí porque exige revisar la fuente de cada mapa.
+  const toponyms = auditToponymLanguage(map, geo);
+  if (toponyms.issues.length) issues.push(...toponyms.issues);
+  if (toponyms.manual.length) manual.push(...toponyms.manual);
 
   // 3+4. coordenadas y colores por feature
   let lonBad = 0, latBad = 0, colorBad = 0, colorFixed = 0, colorMissing = 0, coordFixed = 0;
