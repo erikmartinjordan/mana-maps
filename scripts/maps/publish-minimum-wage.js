@@ -566,7 +566,7 @@ async function main(){
     id:fsStr(SLUG), slug:fsStr(SLUG),
     title:fsStr('Salario mínimo por país'),
     name:fsStr('Salario mínimo por país'),
-    description:fsStr('Salario mínimo legal mensual y anual por país, en moneda local y en dólares, con el último dato de la OIT (2022-2024). Los países sin mínimo estatutario van en gris.'),
+    description:fsStr('Salario mínimo legal mensual y anual por país, en moneda local y en dólares, con el último dato de la OIT. Los nórdicos, Italia, Austria y Suiza fijan el salario por convenio y van en gris.'),
     lang:fsStr('es'),
     featureCount:fsInt(geo.features.length),
     mapPreview:fsMap({
@@ -583,12 +583,15 @@ async function main(){
     visibility:fsStr('public'), shareMode:fsStr('view'), allowPublicEdit:fsBool(false), isPublished:fsBool(true),
     shareUrl:fsStr(`https://maña.com/gallery/?slug=${SLUG}`),
     geojsonText:fsStr(geojsonText), geojsonChunked:fsNull(),
-    dataSource:fsStr('OIT/ILOSTAT EAR_INEE_NOC_NB_A (salario mínimo mensual en moneda local, último dato 2022-2024) y Banco Mundial WDI PA.NUS.FCRF (tipo de cambio LCU/USD del mismo año); WageIndicator 2024 solo como respaldo de los países sin observación utilizable. Los países sin salario mínimo legal estatutario (Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia, Austria y Suiza) se marcan en gris porque se rigen por convenio colectivo'),
+    dataSource:fsStr('OIT/ILOSTAT EAR_INEE_NOC_NB_A (salario mínimo mensual en moneda local, último dato 2022-2024) y Banco Mundial WDI PA.NUS.FCRF (tipo de cambio LCU/USD del mismo año); WageIndicator 2024 solo como respaldo de los países sin observación utilizable. Los países sin salario mínimo legal estatutario (Dinamarca, Suecia, Finlandia, Islandia, Noruega, Italia, Austria, Suiza, Liechtenstein, Brunéi, Singapur, Emiratos Árabes Unidos y Somalia) se marcan en gris porque se rigen por convenio colectivo o no tienen norma nacional'),
     dataDate:fsStr('2024-12-01'),
     dataYear:fsInt(2024),
     legendKey:fsStr('Salario mínimo USD anual'),
     legendTitle:fsStr('Salario mínimo (USD/año)'),
     legendFormat:fsStr('number'),
+    // La leyenda numérica se deriva de legendKey; el campo categórico antiguo
+    // (`legend.steps`) queda obsoleto y se limpia para no pisar la rampa.
+    legend:fsNull(),
     tags:fsArr(['Economía','Trabajo','Salarios','Geografía']),
     authorHandle:fsStr('maña-maps'), createdBy:fsStr('maña-maps'), ownerUid:fsStr('maña-maps'),
     createdAtMs:fsInt(now), updatedAtMs:fsInt(now), createdAt:serverNow, updatedAt:serverNow,
