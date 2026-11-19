@@ -3111,6 +3111,7 @@ module.exports = {
   extractField,
   normalizeHexColor,
   auditCoordinates,
+  auditToponymLanguage,
   concreteDataKeys,
   hasConcreteValue,
   isDenyPopupKey,

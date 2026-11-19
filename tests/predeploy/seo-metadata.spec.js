@@ -19,6 +19,7 @@ const {
   auditLandingMetadata,
   auditMetadataHygiene,
   auditLegendCoherence,
+  auditToponymLanguage,
   legendNumericCandidates,
   isLegendNumericLike,
   normalizeDataDate,
@@ -42,6 +43,7 @@ const {
   extractPublishedTime,
   readNewsArticles,
 } = require('../../scripts/lib/news-map-links');
+const { toSpanishCountryName, findEnglishToponyms } = require('../../scripts/lib/country-names-en-es');
 // Regresión del check 10 de scripts/tools/audit-gallery-quality.js: el JSON-LD
 // CollectionPage de /gallery/ y sitemap.xml son ficheros estáticos que deben
 // seguir sincronizados con los mapas publicados en Firestore.
@@ -1821,4 +1823,64 @@ test('unpublish-map only retires maps that do not look editorial', () => {
   const missingTags = doc({ title: 'Mapa real', dataSource: 'IGN', dataDate: '2025', tags: [] });
   expect(isBlank(missingTags.fields.tags.arrayValue.values)).toBe(true);
   expect(looksEditorial(missingTags)).toBe(false);
+});
+
+// Regresión del check 4 de scripts/tools/audit-gallery-quality.js (AGENTS.md §4):
+// los mapas lang:es no pueden mostrar topónimos de país en inglés. La tarea de
+// traducción dejó limpios co2-per-capita-world y nuclear-energy-world; este test
+// evita que una regeneración o republicación los vuelva a introducir.
+const mapsDir = path.join(repoRoot, 'data', 'maps');
+const readMapGeo = (slug) => JSON.parse(fs.readFileSync(path.join(mapsDir, `${slug}.geojson`), 'utf8'));
+
+test('toponym check flags English country labels in Spanish maps only', () => {
+  const geo = {
+    features: [
+      { properties: { _manaName: 'Spain', name: 'Spain', País: 'Spain' } },
+      { properties: { _manaName: 'France', name: 'France' } },
+      { properties: { _manaName: 'España', name: 'Spain', País: 'España' } },
+    ],
+  };
+
+  const es = auditToponymLanguage({ lang: 'es' }, geo);
+  expect(es.count).toBe(3); // _manaName+País (Spain) y _manaName (France); «España» no cuenta
+  expect(es.issues.join(' ')).toContain('topónimos en inglés');
+  expect(es.manual).toContain('topónimos de país en inglés (§4)');
+
+  const en = auditToponymLanguage({ lang: 'en' }, geo);
+  expect(en.count).toBe(0);
+  expect(en.issues).toEqual([]);
+});
+
+test('translated coropleths keep Spanish country labels and full coverage', () => {
+  for (const slug of ['co2-per-capita-world', 'nuclear-energy-world']) {
+    const geo = readMapGeo(slug);
+    expect(geo.features.length, slug).toBeGreaterThan(0);
+
+    const audit = auditToponymLanguage({ lang: 'es' }, geo);
+    expect(audit.count, `${slug}: topónimos en inglés`).toBe(0);
+
+    for (const feature of geo.features) {
+      const props = feature.properties || {};
+      expect(findEnglishToponyms(props), `${slug}: ${props._manaName}`).toEqual([]);
+      expect(props._manaName, slug).toBeTruthy();
+      expect(toSpanishCountryName(props._manaName), `${slug}: ${props._manaName}`).toBeNull();
+    }
+  }
+
+  // co2-per-capita-world cubre los mismos 205 polígonos que el mapa de totales.
+  const perCapita = readMapGeo('co2-per-capita-world');
+  const totals = readMapGeo('co2-total-emissions-world');
+  expect(perCapita.features.length).toBe(totals.features.length);
+  expect(perCapita.features.length).toBe(205);
+  expect(perCapita.features.map((f) => f.properties._manaName).sort())
+    .toEqual(totals.features.map((f) => f.properties._manaName).sort());
+
+  // nuclear-energy-world muestra `País` y `name` en español en sus 30 features.
+  const nuclear = readMapGeo('nuclear-energy-world');
+  for (const feature of nuclear.features) {
+    const props = feature.properties;
+    expect(props.País, props._manaName).toBe(props._manaName);
+    expect(toSpanishCountryName(props.name), props.name).toBeNull();
+  }
+  expect(nuclear.features.find((f) => /Taiw/i.test(f.properties._manaName)).properties._manaName).toBe('Taiwán');
 });

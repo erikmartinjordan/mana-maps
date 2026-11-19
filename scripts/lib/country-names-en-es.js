@@ -137,7 +137,7 @@ const COUNTRY_NAMES_EN_ES = {
   "Sweden": "Suecia",
   "Switzerland": "Suiza",
   "Syria": "Siria",
-  "Taiwan": "República de China",
+  "Taiwan": "Taiwán",
   "Tajikistan": "Tayikistán",
   "Thailand": "Tailandia",
   "The Bahamas": "Bahamas",
