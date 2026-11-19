@@ -7,7 +7,14 @@
 //   1. dataSource y dataDate no vacíos
 //   2. featureCount coherente con la longitud real de geojsonText.features
 //   3. coordenadas dentro de ±180 (lon) / ±90 (lat)
-//   4. colores hex válidos (_manaColor de cada feature)
+//   4. colores hex válidos (_manaColor de cada feature) e idioma de las
+//      etiquetas de país (AGENTS.md §4): en los mapas `lang:es` se marcan como
+//      fallo los topónimos ingleses de los campos visibles `_manaName` y
+//      `País` (y `name` solo cuando la feature no tiene otra etiqueta). En las
+//      features de línea (ríos, cables, ferrocarriles) el nombre propio es el
+//      de la línea y solo se revisan los campos de país. No es auto-fixable:
+//      la corrección se hace con scripts/tools/translate-country-labels.js y
+//      se reporta como MANUAL (exit 1).
 //   5. tags presentes (array no vacío)
 //   6. lang = 'es'
 //   7. popups con información real (AGENTS.md §5): cada feature debe mostrar
