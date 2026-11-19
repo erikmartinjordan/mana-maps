@@ -1,5 +1,34 @@
 [
   {
+    "date": "2026-11-19",
+    "event": "Xi Jinping y Donald Trump iniciaron el 19 de noviembre de 2026 en Shenzhen (cumbre de APEC) su tercer cara a cara del año sobre aranceles, tierras raras y chips, con reunión trilateral prevista con Vladímir Putin. Ese día el Hang Seng caía un 2,1% hasta unos 22.800 puntos, mínimo desde finales de junio y tercera sesión de pérdidas, tras un tercer trimestre de Tencent con ingresos +8% (11% en el trimestre anterior) y beneficio operativo ajustado -6% mientras crecía el capex en centros de datos de IA. La aduana china informó el 10 de noviembre de un superávit comercial de 1,04 billones de dólares entre enero y octubre (segundo año por encima del billón, camino del récord de 1,2 billones de 2025), con exportaciones +35,2% interanual en octubre, importaciones +41,6% y saldo mensual de 105.300 millones (133.500 en septiembre). Análisis del mapa de los 50 puertos de contenedores más transitados (Lloyd's List y World Shipping Council, 2024): 15 puertos chinos movieron 268.838.000 TEUs, el 44,7% de los 601.487.000 del top 50, con 6 entre los diez primeros; Shanghái 51.506.000 (único por encima de 50 millones y 8,6% del total), Ningbo-Zhoushan 39.308.000, Shenzhen 33.380.000, Qingdao 30.870.000 y Guangzhou 26.070.000; Estados Unidos 38.331.000 (6,4%) en 5 puertos y la UE 54.578.000 (9,1%) en 7, con Róterdam 13.820.000 y Amberes 13.532.000; Hong Kong 13.668.000, 2,4 veces menos que Shenzhen, y el conjunto chino con Hong Kong llega al 47,0%.",
+    "type": "news",
+    "format": "noticia",
+    "topic": "bolsa",
+    "mapSlug": "busiest-ports-world",
+    "sourceUrls": [
+      "https://www.channelnewsasia.com/east-asia/xi-trump-bilateral-talks-apec-shenzhen-6564771",
+      "https://www.kcra.com/article/chinas-trade-surplus-increase-exports-surge/74384758",
+      "https://www.nytimes.com/2026/11/09/business/china-trade-surplus-trillion.html",
+      "https://www.aljazeera.com/economy/2026/11/11/why-chinas-1-trillion-trade-surplus-isnt-all-good-news-for-its-economy",
+      "https://tradingeconomics.com/hong-kong/stock-market"
+    ],
+    "translations": {
+      "es": {
+        "slug": "superavit-china-billon-puertos-contenedores",
+        "url": "/news/superavit-china-billon-puertos-contenedores/",
+        "title": "China supera el billón de superávit en plena cumbre con Trump",
+        "description": "China acumula 1,04 billones de dólares de superávit comercial y exportó un 35,2% más en octubre. El mapa sitúa los 50 puertos con más contenedores del mundo."
+      },
+      "en": {
+        "slug": "china-trade-surplus-trillion-container-ports",
+        "url": "/en/news/china-trade-surplus-trillion-container-ports/",
+        "title": "China's surplus tops $1 trillion as Xi and Trump meet in Shenzhen",
+        "description": "China's goods surplus has passed $1.04 trillion and October exports rose 35.2% as Xi and Trump meet. The map locates the world's 50 busiest container ports."
+      }
+    }
+  },
+  {
     "date": "2026-11-18",
     "event": "El Consejo de Ministros aprobó el 17 de noviembre de 2026 el SMI de 2027: 1.286 euros brutos al mes en 14 pagas, 65 más que los 1.221 vigentes y +5,3%, equivalentes a 18.004 euros anuales y 42,87 euros diarios, desde el 1 de enero. Supera el IPC acumulado hasta octubre (4,3%) y la recomendación de la comisión asesora (4,9%, 1.281 euros); el Gobierno estima 2,7 millones de beneficiarios y cerca del 9% de los asalariados. Hacienda deja exento de retención de IRPF hasta 18.004 euros y amplía deducciones hasta 23.172; funcionarios +4,5%. CCOO y UGT pedían el 7%; la CEOE critica no haber sido consultada. Serie del mapa de salario mínimo legal (OIT/ILOSTAT y WageIndicator, diciembre de 2024): Portugal 993 euros/mes y 11.920 al año, Grecia 1.058 y 12.694, Eslovenia 1.315 y 15.781, Francia 1.802 y 21.622, Alemania 2.033 y 24.394, Países Bajos 2.786 y 33.437 e Irlanda 2.911 y 34.928; los 18.004 euros de 2027 quedan un 51,0% por encima de Portugal y un 16,7% por debajo de Francia.",
     "type": "news",
