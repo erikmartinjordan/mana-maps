@@ -1046,6 +1046,11 @@ function auditCoordinates(geom, applyFix) {
 // ser la etiqueta fuente de Natural Earth (en inglés) y no se pinta en el
 // popup, así que se revisan los campos visibles `_manaName` y `País`; solo se
 // mira `name` cuando la feature no tiene ninguna de esas etiquetas.
+// En las features de línea (ríos, ferrocarriles, cables) el nombre propio es el
+// de la propia línea: «Congo» es el río y no el país, así que ahí solo se
+// revisan los campos de país (`País`).
+const LINE_LABEL_FIELDS = new Set(['_manaName', 'name']);
+
 function auditToponymLanguage(map, geo) {
   const issues = [];
   const manual = [];
@@ -1056,7 +1061,9 @@ function auditToponymLanguage(map, geo) {
 
   for (const feature of geo.features) {
     const props = feature.properties || {};
+    const isLine = feature.geometry && feature.geometry.type === 'LineString';
     for (const hit of findEnglishToponyms(props)) {
+      if (isLine && LINE_LABEL_FIELDS.has(hit.field)) continue;
       count++;
       if (samples.length < 5) samples.push(`${props._manaName || props.name || '(sin nombre)'}: ${hit.field} «${hit.value}» → «${hit.spanish}»`);
     }

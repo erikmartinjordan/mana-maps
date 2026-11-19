@@ -85,7 +85,7 @@ const NOTES = {
   'Kuwait': 'El golfo Pérsico aporta calor pero muy poca lluvia: unos 19 días al año.',
   'Kuala Lumpur': 'El clima ecuatorial reparte más de 2.800 mm en unos 167 días de lluvia.',
   'Bombay': 'El monzón concentra casi toda la lluvia: más de 2.500 mm en unos 79 días.',
-  'Rangún': 'El monzón de Myanmar deja cerca de 2.800 mm anuales.',
+  'Rangún': 'El monzón de Birmania deja cerca de 2.800 mm anuales.',
   'Medellín': 'Conocida como la «ciudad de la eterna primavera», suma unos 173 días de lluvia.',
   'Quito': 'La altura andina no evita la humedad: llueve más de 160 días al año.',
   'Manaos': 'En plena Amazonia, supera los 150 días de lluvia y los 2.300 mm.',

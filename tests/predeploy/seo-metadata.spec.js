@@ -1851,6 +1851,25 @@ test('toponym check flags English country labels in Spanish maps only', () => {
   expect(en.issues).toEqual([]);
 });
 
+// «Congo» es a la vez país y río: en las features de línea el nombre propio es
+// el del río (longest-rivers-world) y no debe contar como topónimo inglés,
+// mientras que en un polígono sí es la etiqueta del país.
+test('toponym check ignores river and line names but flags country polygons', () => {
+  const geo = {
+    features: [
+      { geometry: { type: 'LineString', coordinates: [[15, -5], [18, -5]] }, properties: { _manaName: 'Congo', name: 'Congo' } },
+      { geometry: { type: 'LineString', coordinates: [[15, 0], [18, 0]] }, properties: { _manaName: 'Níger', name: 'Niger', País: 'Niger' } },
+      { geometry: { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] }, properties: { _manaName: 'Congo', name: 'Congo', País: 'Congo' } },
+    ],
+  };
+
+  const audit = auditToponymLanguage({ lang: 'es' }, geo);
+  expect(audit.count).toBe(3); // polígono del país (_manaName y País) + País del río Níger
+  // La primera muestra es el `País` del río, no el nombre «Congo» de la línea.
+  expect(audit.samples[0]).toBe('Níger: País «Niger» → «Níger»');
+  expect(audit.samples.slice(1).every((s) => s.startsWith('Congo: País') || s.startsWith('Congo: _manaName'))).toBe(true);
+});
+
 test('translated coropleths keep Spanish country labels and full coverage', () => {
   for (const slug of ['co2-per-capita-world', 'nuclear-energy-world']) {
     const geo = readMapGeo(slug);
@@ -1883,4 +1902,16 @@ test('translated coropleths keep Spanish country labels and full coverage', () =
     expect(toSpanishCountryName(props.name), props.name).toBeNull();
   }
   expect(nuclear.features.find((f) => /Taiw/i.test(f.properties._manaName)).properties._manaName).toBe('Taiwán');
+});
+
+// Cobertura completa: cualquier GeoJSON local de un mapa permite regenerar y
+// republicar, así que ninguno puede reintroducir topónimos ingleses (§4).
+test('every local map dataset keeps Spanish country labels', () => {
+  const files = fs.readdirSync(mapsDir).filter((f) => f.endsWith('.geojson')).sort();
+  expect(files.length).toBeGreaterThan(40);
+  for (const file of files) {
+    const geo = JSON.parse(fs.readFileSync(path.join(mapsDir, file), 'utf8'));
+    const audit = auditToponymLanguage({ lang: 'es' }, geo);
+    expect(audit.count, `${file}: topónimos en inglés`).toBe(0);
+  }
 });

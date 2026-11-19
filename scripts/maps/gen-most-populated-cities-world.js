@@ -173,7 +173,7 @@ const COUNTRY_ES = {
   'Iraq': 'Irak',
   'Kenya': 'Kenia',
   'Afghanistan': 'Afganistán',
-  'Myanmar': 'Myanmar',
+  'Myanmar': 'Birmania',
   'Ghana': 'Ghana',
   'Spain': 'España',
   'Canada': 'Canadá',

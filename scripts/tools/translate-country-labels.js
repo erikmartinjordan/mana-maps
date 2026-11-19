@@ -28,9 +28,10 @@ const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt } = require('
 const ROOT = path.join(__dirname, '..', '..');
 const MAPS_DIR = path.join(ROOT, 'data', 'maps');
 
-// Nombres que ya son válidos en español aunque la fuente inglesa los use igual.
-// Evita marcar «Myanmar», «Macedonia» o el río «Congo» como topónimos ingleses.
-const SPANISH_VALID = new Set(['Myanmar', 'Macedonia', 'Congo']);
+// En las features de línea (ríos, ferrocarriles, cables) el nombre propio es el
+// de la propia línea: «Congo» es el río y no el país, así que ahí se traducen
+// solo los campos de país (`País`) y se respeta `_manaName`/`name`.
+const LINE_LABEL_FIELDS = new Set(['_manaName', 'name']);
 
 const args = process.argv.slice(2);
 const flags = new Set(args.filter((a) => a.startsWith('--')));
@@ -49,7 +50,7 @@ if (!slugs.length) {
 function spanish(value) {
   if (typeof value !== 'string') return null;
   const key = value.trim();
-  if (!key || SPANISH_VALID.has(key)) return null;
+  if (!key) return null;
   const es = toSpanishCountryName(key);
   return es && es !== key ? es : null;
 }
@@ -59,11 +60,13 @@ function toDecimalComma(value) {
   return value.replace(/(\d)\.(\d)/g, '$1,$2');
 }
 
-function translateFeature(props) {
+function translateFeature(props, geometryType = null) {
   const changes = [];
   const oldName = props._manaName || props.name || null;
+  const isLine = geometryType === 'LineString';
 
   for (const field of ['_manaName', 'País', ...(INCLUDE_NAME ? ['name'] : [])]) {
+    if (isLine && LINE_LABEL_FIELDS.has(field)) continue;
     const current = props[field];
     const es = spanish(current);
     if (!es) continue;
@@ -113,7 +116,7 @@ async function main() {
     let replacements = 0;
     const samples = [];
     for (const feature of geo.features || []) {
-      const changes = translateFeature(feature.properties || (feature.properties = {}));
+      const changes = translateFeature(feature.properties || (feature.properties = {}), feature.geometry && feature.geometry.type);
       if (!changes.length) continue;
       featuresChanged++;
       replacements += changes.length;
