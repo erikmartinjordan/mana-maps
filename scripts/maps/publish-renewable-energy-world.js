@@ -72,7 +72,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Mapa coroplético mundial del porcentaje de electricidad generada a partir de fuentes renovables (hidroeléctrica, solar, eólica, biomasa…) por país, con datos del World Bank (EG.ELC.RNEW.ZS). Bután, Islandia y Paraguay superan el 99 % de electricidad renovable, mientras Omán, Catar, Libia o Brunéi se quedan cerca del 0 %. Completa el cluster de energía de la galería junto a energía nuclear: la contraparte renovable del mix eléctrico mundial.'),
+    description: fsStr('Mapa coroplético mundial del porcentaje de electricidad generada a partir de fuentes renovables (hidroeléctrica, solar, eólica, biomasa…) por país, con datos del World Bank (EG.ELC.RNEW.ZS).'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
@@ -124,6 +124,11 @@ async function main() {
   const existing = await firestoreRequest(token, 'GET', `/${COLLECTION}/${SLUG}`);
   if (existing.status === 200) {
     console.log('Updating document...');
+    // No pisar métricas ni autoría: la republicación solo cambia catálogo y datos.
+    const ef = existing.data.fields || {};
+    for (const key of ['views', 'likes', 'createdAtMs', 'createdAt', 'createdBy', 'ownerUid', 'authorHandle']) {
+      if (ef[key] !== undefined) fields[key] = ef[key];
+    }
     const fieldPaths = Object.keys(fields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res = await firestoreRequest(token, 'PATCH', `/${COLLECTION}/${SLUG}?${fieldPaths}`, { fields });
     if (res.status >= 400) { console.error('Update failed', res.status, JSON.stringify(res.data).slice(0, 600)); process.exit(1); }

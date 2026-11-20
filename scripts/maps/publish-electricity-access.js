@@ -10,6 +10,7 @@ const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsAr
 const SLUG = 'electricity-access-world';
 const TITLE = 'Acceso a Electricidad Mundial';
 const DRY_RUN = process.argv.includes('--dry-run');
+const DATA_YEAR = 2024;
 
 function buildMapPreview(geo) {
   let bbox = [180, 90, -180, -90];
@@ -68,7 +69,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Mapa coroplético mundial del acceso a electricidad por país con datos del World Bank (EG.ELC.ACCS.ZS). Muestra el porcentaje de la población con acceso a electricidad en más de 200 países, revelando la profunda desigualdad energética global: mientras los países desarrollados alcanzan 100%, naciones como Chad, Burundi o Sudán del Sur superan apenas el 5%.'),
+    description: fsStr('Mapa coroplético mundial del acceso a electricidad por país, datos del World Bank (EG.ELC.ACCS.ZS) de 2024: del 5,4 % de Sudán del Sur al 100 % de la mayoría de países desarrollados.'),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
