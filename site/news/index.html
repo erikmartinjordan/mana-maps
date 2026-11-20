@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"News en mapas","description":"Historias de actualidad explicadas con mapas interactivos.","url":"https://maña.com/news/","inLanguage":"es"}</script>
 <style>
   :root{
@@ -81,6 +82,22 @@
   .post-more{font-size:13px;font-weight:700;text-decoration:underline;text-decoration-color:rgba(16,24,40,.3);text-underline-offset:3px}
   .post-more:hover{text-decoration-color:currentColor}
   .post-list .post-card[hidden]{display:none}
+
+  body.public-news #news-list{grid-template-columns:1fr;gap:0}
+  #news-list .post-card--with-thumb{margin-bottom:26px}
+  body.public-news #news-list .story-row{padding:0;border:0;border-bottom:1px solid var(--line-soft,var(--line));border-radius:0;background:transparent;transform:none;box-shadow:none}
+  body.public-news #news-list .story-row:hover{transform:none;background:transparent;border-color:var(--line-soft,var(--line))}
+  .story-row__link{display:grid;grid-template-columns:64px 1fr 24px;gap:18px;align-items:center;padding:20px 0;text-decoration:none;color:var(--ink,var(--text))}
+  .story-row__date{display:flex;flex-direction:column;line-height:1;min-width:0}
+  .story-row__day{font-family:'Silkscreen',monospace;font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1;color:#e8b86d}
+  .story-row__month{font-family:'Silkscreen',monospace;font-size:8px;font-weight:700;letter-spacing:0;color:#e8b86d;margin-top:4px;padding-top:4px;border-top:1px solid rgba(232,184,109,.5);width:100%}
+  .story-row__main{min-width:0}
+  .story-row__kicker{display:block;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--quiet,var(--muted));margin-bottom:5px}
+  .story-row__title{display:block;font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-.03em;color:var(--ink,var(--text))}
+  .story-row__arrow{font-size:18px;color:var(--quiet,var(--muted));transition:transform .2s,color .2s;text-align:right}
+  .story-row__link:hover .story-row__title{text-decoration:underline;text-decoration-color:rgba(232,184,109,.4);text-underline-offset:4px}
+  .story-row__link:hover .story-row__arrow{transform:translateX(4px);color:var(--ink,var(--text))}
+  @media(max-width:640px){.story-row__link{grid-template-columns:54px 1fr 20px;gap:12px;padding:16px 0}.story-row__day{font-size:26px}.story-row__month{font-size:7px}.story-row__kicker{font-size:8px}.story-row__title{font-size:18px}}
   .post-card--with-thumb{display:flex;gap:22px;align-items:flex-start}
   .post-card--with-thumb .post-card__body{flex:1;min-width:0}
   .post-card--with-thumb .post-card__thumb{flex:0 0 210px;width:210px;height:210px;display:block}
@@ -161,243 +178,243 @@
           </div>
           <img class="post-card__thumb" src="/assets/news/anthropic-pixel-b-coin.png" alt="Moneda pixel art de Anthropic con su asterisco y la etiqueta de 93 dólares" width="1080" height="1080" loading="eager">
         </article>
-        <article class="post-card">
-          <p class="kicker">Análisis propio · Inteligencia artificial</p>
-          <h2><a href="/news/ia-1000-twh-red-655-millones/">La IA añade 1.000 TWh a una red que aún no llega a 655 millones</a></h2>
-          <p class="post-meta">20 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">La AIE prevé que los centros de datos dupliquen su consumo eléctrico hasta 1.000 TWh en 2030 y pide 26 millones de kilómetros de líneas nuevas. El mapa del Banco Mundial sitúa los 655 millones de personas sin electricidad: el 88,4% en África subsahariana.</p>
-          <a class="post-more" href="/news/ia-1000-twh-red-655-millones/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/ia-1000-twh-red-655-millones/">
+            <span class="story-row__date"><span class="story-row__day">20</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Análisis propio · Inteligencia artificial</span><span class="story-row__title">La IA añade 1.000 TWh a una red que aún no llega a 655 millones</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Mercados</p>
-          <h2><a href="/news/superavit-china-billon-puertos-contenedores/">China supera el billón de superávit en plena cumbre con Trump</a></h2>
-          <p class="post-meta">19 de noviembre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">La aduana china acumula 1,04 billones de dólares de superávit en diez meses y las exportaciones crecieron un 35,2% en octubre. El mapa muestra que 15 de los 50 puertos con más contenedores están en China y mueven el 44,7% del tráfico.</p>
-          <a class="post-more" href="/news/superavit-china-billon-puertos-contenedores/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/superavit-china-billon-puertos-contenedores/">
+            <span class="story-row__date"><span class="story-row__day">19</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Mercados</span><span class="story-row__title">China supera el billón de superávit en plena cumbre con Trump</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Comparativa · Economía</p>
-          <h2><a href="/news/smi-1286-euros-mapa-europeo/">El SMI sube a 1.286 euros: dónde queda España en Europa</a></h2>
-          <p class="post-meta">18 de noviembre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">El Gobierno sube el salario mínimo un 5,3% hasta 1.286 euros brutos en 14 pagas y 18.004 anuales. El mapa de mínimos legales sitúa a España un 51% por encima de Portugal y un 17% por debajo de Francia.</p>
-          <a class="post-more" href="/news/smi-1286-euros-mapa-europeo/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/smi-1286-euros-mapa-europeo/">
+            <span class="story-row__date"><span class="story-row__day">18</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Comparativa · Economía</span><span class="story-row__title">El SMI sube a 1.286 euros: dónde queda España en Europa</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Explicador · Tecnología</p>
-          <h2><a href="/news/router-desbordado-paraliza-espacio-aereo-eeuu/">Un router desbordado paralizó el espacio aéreo de EE UU</a></h2>
-          <p class="post-meta">17 de noviembre de 2026 · 4 min de lectura</p>
-          <p class="post-excerpt">Un router instalado al cambiar cobre por fibra lanzó mil intentos de conexión cada cinco segundos y tumbó 17 de los 22 centros de control. El viernes se cancelaron casi 8.000 vuelos y el mapa sitúa los 14 aeropuertos de EE UU del top 50.</p>
-          <a class="post-more" href="/news/router-desbordado-paraliza-espacio-aereo-eeuu/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/router-desbordado-paraliza-espacio-aereo-eeuu/">
+            <span class="story-row__date"><span class="story-row__day">17</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Explicador · Tecnología</span><span class="story-row__title">Un router desbordado paralizó el espacio aéreo de EE UU</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Economía</p>
-          <h2><a href="/news/vivienda-supera-salarios-17-paises-ue/">La vivienda sube más que los salarios en 17 países de la UE</a></h2>
-          <p class="post-meta">16 de noviembre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">El indicador de precio de la vivienda sobre la renta de Eurostat empeora en 17 de los 27 países entre 2015 y 2025, y España lo hace un 24,5%. El mapa provincial muestra que la subida de 2026 no distingue provincias caras de baratas.</p>
-          <a class="post-more" href="/news/vivienda-supera-salarios-17-paises-ue/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/vivienda-supera-salarios-17-paises-ue/">
+            <span class="story-row__date"><span class="story-row__day">16</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Economía</span><span class="story-row__title">La vivienda sube más que los salarios en 17 países de la UE</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Análisis propio · Mercados</p>
-          <h2><a href="/news/anthropic-bolsa-millones-sin-internet/">La salida a bolsa de Anthropic y los 2.155 millones sin internet</a></h2>
-          <p class="post-meta">15 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">Anthropic fija el precio de sus acciones el 18 de noviembre con una valoración de hasta 1,4 billones y 81.000 millones de facturación anualizada. El 72,7% de la población de los 182 países con datos usa internet; 2.155 millones quedan fuera.</p>
-          <a class="post-more" href="/news/anthropic-bolsa-millones-sin-internet/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/anthropic-bolsa-millones-sin-internet/">
+            <span class="story-row__date"><span class="story-row__day">15</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Análisis propio · Mercados</span><span class="story-row__title">La salida a bolsa de Anthropic y los 2.155 millones sin internet</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Comparativa · Inteligencia artificial</p>
-          <h2><a href="/news/india-ia-26-gw-parque-nuclear/">La IA sumará 26,3 GW en la India: 3,4 veces su parque nuclear</a></h2>
-          <p class="post-meta">14 de noviembre de 2026 · 3 min de lectura</p>
-          <p class="post-excerpt">La IA y los centros de datos añadirán 26,3 GW de carga eléctrica hasta 2032 y el primer ministro indio pide más nuclear. Su parque operativo suma 7.730 MW en 23 reactores, ocho veces menos que Francia, y el mapa de las 170 centrales pone la escala.</p>
-          <a class="post-more" href="/news/india-ia-26-gw-parque-nuclear/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/india-ia-26-gw-parque-nuclear/">
+            <span class="story-row__date"><span class="story-row__day">14</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Comparativa · Inteligencia artificial</span><span class="story-row__title">La IA sumará 26,3 GW en la India: 3,4 veces su parque nuclear</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Energía</p>
-          <h2><a href="/news/plan-electrico-centros-datos-42-por-ciento/">El plan eléctrico deja a los centros de datos con el 42% de lo pedido</a></h2>
-          <p class="post-meta">13 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">La planificación de la red a 2030 reserva 9.300 MW a los centros de datos, frente a los 22.000 que aspiraba el sector. Industria e hidrógeno se llevan más capacidad y el mapa de renovables sitúa el listón del 80%.</p>
-          <a class="post-more" href="/news/plan-electrico-centros-datos-42-por-ciento/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/plan-electrico-centros-datos-42-por-ciento/">
+            <span class="story-row__date"><span class="story-row__day">13</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Energía</span><span class="story-row__title">El plan eléctrico deja a los centros de datos con el 42% de lo pedido</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Análisis propio · Tecnología</p>
-          <h2><a href="/news/vodafone-supera-movistar-antenas-moviles/">Vodafone supera a Movistar en antenas móviles en 30 provincias</a></h2>
-          <p class="post-meta">12 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">El registro de Infoantenas suma 69.785 antenas en España: Vodafone lidera en 30 provincias, Movistar en 20 y Orange en 2. Madrid y Barcelona concentran una de cada cinco, y Digi ya está en 50 provincias con 2.065.</p>
-          <a class="post-more" href="/news/vodafone-supera-movistar-antenas-moviles/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/vodafone-supera-movistar-antenas-moviles/">
+            <span class="story-row__date"><span class="story-row__day">12</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Análisis propio · Tecnología</span><span class="story-row__title">Vodafone supera a Movistar en antenas móviles en 30 provincias</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Comparativa · Economía</p>
-          <h2><a href="/news/huelga-general-paro-mas-alto-union-europea/">Huelga general con el paro más alto de la Unión Europea</a></h2>
-          <p class="post-meta">11 de noviembre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">España para por primera vez en 14 años con récord de ocupados y 2,59 millones de parados. El mapa de la OIT da al país un 10,4%, el más alto de la UE, frente al 3,7% de Alemania y el 6,2% de Portugal.</p>
-          <a class="post-more" href="/news/huelga-general-paro-mas-alto-union-europea/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/huelga-general-paro-mas-alto-union-europea/">
+            <span class="story-row__date"><span class="story-row__day">11</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Comparativa · Economía</span><span class="story-row__title">Huelga general con el paro más alto de la Unión Europea</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Explicador · Mercados</p>
-          <h2><a href="/news/petroleo-bolsa-tipos-inflacion/">Petróleo, bolsa y tipos: la inflación no es un solo número</a></h2>
-          <p class="post-meta">10 de noviembre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">El Brent cae un 5,85% y Wall Street firma su mejor sesión desde abril, con el IPC de octubre a la vuelta. El mapa de inflación muestra 187 regímenes de precios: de un 2,17% en Alemania a un 34,88% en Turquía.</p>
-          <a class="post-more" href="/news/petroleo-bolsa-tipos-inflacion/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/petroleo-bolsa-tipos-inflacion/">
+            <span class="story-row__date"><span class="story-row__day">10</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Explicador · Mercados</span><span class="story-row__title">Petróleo, bolsa y tipos: la inflación no es un solo número</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Análisis propio · Tecnología</p>
-          <h2><a href="/news/cables-submarinos-infraestructura-fisica-ia/">La IA no flota: 343.486 km de cables bajo el mar</a></h2>
-          <p class="post-meta">9 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">Los 23 cables submarinos en servicio del mapa suman 343.486 km. Estados Unidos aparece en 12 y Egipto concentra el 30,3% de la longitud. Los pedidos récord de LS Cable y el proyecto PISCES muestran la otra cara de la IA, mientras la energía frena los centros de datos.</p>
-          <a class="post-more" href="/news/cables-submarinos-infraestructura-fisica-ia/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/cables-submarinos-infraestructura-fisica-ia/">
+            <span class="story-row__date"><span class="story-row__day">09</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Análisis propio · Tecnología</span><span class="story-row__title">La IA no flota: 343.486 km de cables bajo el mar</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Economía</p>
-          <h2><a href="/news/ocde-pension-obligatoria-22-paises-europeos/">La OCDE avisa: la pensión obligatoria no basta en 22 países europeos</a></h2>
-          <p class="post-meta">8 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">El informe Pensions Outlook 2026 calcula que la pensión obligatoria se quedará por debajo del 70% del salario en 22 de 30 países europeos. España cumple el objetivo para los hombres con salario medio, pero su esperanza de vida alarga la factura. El mapa de esperanza de vida añade cuántos años debe cubrir.</p>
-          <a class="post-more" href="/news/ocde-pension-obligatoria-22-paises-europeos/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/ocde-pension-obligatoria-22-paises-europeos/">
+            <span class="story-row__date"><span class="story-row__day">08</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Economía</span><span class="story-row__title">La OCDE avisa: la pensión obligatoria no basta en 22 países europeos</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Inteligencia artificial</p>
-          <h2><a href="/news/agi-2026-predicciones/">AGI: un 5% para 2026 y 2029 en el horizonte</a></h2>
-          <p class="post-meta">7 de noviembre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">Los mercados de predicción dan un 5,1% a que OpenAI anuncie la AGI antes de 2027 y un 71% antes de 2030. Los laboratorios hablan de dos o tres años y 45 neolabs dudan de la receta actual. El mapa de PIB per cápita sitúa la base económica de la carrera.</p>
-          <a class="post-more" href="/news/agi-2026-predicciones/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/agi-2026-predicciones/">
+            <span class="story-row__date"><span class="story-row__day">07</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Inteligencia artificial</span><span class="story-row__title">AGI: un 5% para 2026 y 2029 en el horizonte</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Mercados</p>
-          <h2><a href="/news/caida-sp500-5-noviembre-2026/">El S&amp;P 500 cae un 4,4%, su peor día desde abril de 2025</a></h2>
-          <p class="post-meta">6 de noviembre de 2026 · 8 min de lectura</p>
-          <p class="post-excerpt">La venta masiva de acciones de IA borra cerca de 2,8 billones de dólares y devuelve al Nasdaq a corrección. El S&amp;P 500 aún está a un 6% de su máximo. Qué pasó en caídas similares y cuánto tardó el mercado en recuperarse.</p>
-          <a class="post-more" href="/news/caida-sp500-5-noviembre-2026/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/caida-sp500-5-noviembre-2026/">
+            <span class="story-row__date"><span class="story-row__day">06</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Mercados</span><span class="story-row__title">El S&amp;P 500 cae un 4,4%, su peor día desde abril de 2025</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Clima</p>
-          <h2><a href="/news/ocde-desvia-senda-climatica-2030/">La OCDE se desvía un 4% de su senda climática de 2030</a></h2>
-          <p class="post-meta">6 de noviembre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">Los países de la OCDE se quedan un 4% por encima de la trayectoria necesaria para cumplir sus metas de 2030 con las políticas actuales, mientras las emisiones globales marcan un récord de 51 Gt. El mapa de CO₂ total muestra dónde se concentran.</p>
-          <a class="post-more" href="/news/ocde-desvia-senda-climatica-2030/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/ocde-desvia-senda-climatica-2030/">
+            <span class="story-row__date"><span class="story-row__day">06</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Clima</span><span class="story-row__title">La OCDE se desvía un 4% de su senda climática de 2030</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Turismo</p>
-          <h2><a href="/news/turismo-britanico-record-comunidad-valenciana/">Récord de gasto del turismo británico en la Comunidad Valenciana</a></h2>
-          <p class="post-meta">5 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">La WTM cierra en Londres con el mercado británico en máximos: 3,05 millones de visitantes y 3.350 millones de euros previstos en la Comunidad Valenciana. El gasto sube, pero las estancias se acortan.</p>
-          <a class="post-more" href="/news/turismo-britanico-record-comunidad-valenciana/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/turismo-britanico-record-comunidad-valenciana/">
+            <span class="story-row__date"><span class="story-row__day">05</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Turismo</span><span class="story-row__title">Récord de gasto del turismo británico en la Comunidad Valenciana</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Etiopía</p>
-          <h2><a href="/news/oms-alerta-colapso-sanitario-norte-etiopia/">La OMS alerta del riesgo de colapso sanitario en el norte de Etiopía</a></h2>
-          <p class="post-meta">4 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">Los ataques con drones del fin de semana y la reanudación de los combates en Amhara, Tigray y Afar han dejado a los hospitales sin personal, medicamentos y ambulancias. El mapa de mortalidad infantil muestra la fragilidad de partida.</p>
-          <a class="post-more" href="/news/oms-alerta-colapso-sanitario-norte-etiopia/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/oms-alerta-colapso-sanitario-norte-etiopia/">
+            <span class="story-row__date"><span class="story-row__day">04</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Etiopía</span><span class="story-row__title">La OMS alerta del riesgo de colapso sanitario en el norte de Etiopía</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Estados Unidos</p>
-          <h2><a href="/news/midterms-eeuu-guerra-iran-conflictos-globales/">Midterms en Estados Unidos: la guerra con Irán y el coste de vida deciden el Congreso</a></h2>
-          <p class="post-meta">3 de noviembre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">EE UU vota este martes con más de 57 millones de votos anticipados, la guerra con Irán en su octavo mes y la gasolina a 4,17 dólares. El mapa de energía nuclear separa la nuclear civil del programa militar iraní.</p>
-          <a class="post-more" href="/news/midterms-eeuu-guerra-iran-conflictos-globales/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/midterms-eeuu-guerra-iran-conflictos-globales/">
+            <span class="story-row__date"><span class="story-row__day">03</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Estados Unidos</span><span class="story-row__title">Midterms en Estados Unidos: la guerra con Irán y el coste de vida deciden el Congreso</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Clima</p>
-          <h2><a href="/news/cop31-antalya-electrificacion-renovables/">La COP31 llega a Antalya con la electrificación como meta</a></h2>
-          <p class="post-meta">2 de noviembre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">La cumbre del clima abre el 9 de noviembre con 85 jefes de Estado o Gobierno y el objetivo de llevar la electricidad al 35% del consumo energético mundial en 2035. El mapa de renovables muestra el punto de partida de cada país.</p>
-          <a class="post-more" href="/news/cop31-antalya-electrificacion-renovables/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/cop31-antalya-electrificacion-renovables/">
+            <span class="story-row__date"><span class="story-row__day">02</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Clima</span><span class="story-row__title">La COP31 llega a Antalya con la electrificación como meta</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Espacio</p>
-          <h2><a href="/news/hera-llega-asteroide-dimorphos/">Hera llega el 4 de noviembre al asteroide que desvió la humanidad</a></h2>
-          <p class="post-meta">1 de noviembre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">La sonda europea alcanza Didymos tres años después del impacto de DART contra Dimorphos. Medirá la masa, el cráter y la estructura del primer asteroide desviado. El mapa de cráteres de impacto da escala al riesgo.</p>
-          <a class="post-more" href="/news/hera-llega-asteroide-dimorphos/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/hera-llega-asteroide-dimorphos/">
+            <span class="story-row__date"><span class="story-row__day">01</span><span class="story-row__month">NOV</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Espacio</span><span class="story-row__title">Hera llega el 4 de noviembre al asteroide que desvió la humanidad</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · España</p>
-          <h2><a href="/news/blocus-diez-detenidos-halloween/">Blocus: diez detenidos y España se blinda en Halloween</a></h2>
-          <p class="post-meta">31 de octubre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">La red difundida por TikTok y Telegram suma diez detenidos en cinco provincias antes de Halloween. Barcelona cerró el 24-O con 133 detenidos, 89 menores. El mapa de usuarios de internet muestra el terreno digital.</p>
-          <a class="post-more" href="/news/blocus-diez-detenidos-halloween/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/blocus-diez-detenidos-halloween/">
+            <span class="story-row__date"><span class="story-row__day">31</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · España</span><span class="story-row__title">Blocus: diez detenidos y España se blinda en Halloween</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">Informe · Octubre 2026</p>
-          <h2><a href="/news/estado-mana-maps-octubre-2026/">Maña Maps supera las 300 sesiones externas en octubre (+16,7%)</a></h2>
-          <p class="post-meta">31 de octubre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">El tráfico externo crece un 16,7% frente a septiembre, con 314 sesiones, pero el mes está marcado por 865 internas de pruebas. El catálogo llega a 52 mapas y la distribución sigue siendo el cuello de botella.</p>
-          <a class="post-more" href="/news/estado-mana-maps-octubre-2026/">Leer el informe →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/estado-mana-maps-octubre-2026/">
+            <span class="story-row__date"><span class="story-row__day">31</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">Informe · Octubre 2026</span><span class="story-row__title">Maña Maps supera las 300 sesiones externas en octubre (+16,7%)</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Economía</p>
-          <h2><a href="/news/gasolina-diesel-bajan-octubre-mas-caros-2025/">Gasolina y diésel bajan en octubre, pero siguen más caros que en 2025</a></h2>
-          <p class="post-meta">30 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">La gasolina cae un 10% en octubre hasta 1,75 euros por litro y el diésel se queda en 1,88. La ayuda de 20 céntimos seguirá en noviembre, pero llenar un depósito cuesta más que hace un año.</p>
-          <a class="post-more" href="/news/gasolina-diesel-bajan-octubre-mas-caros-2025/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/gasolina-diesel-bajan-octubre-mas-caros-2025/">
+            <span class="story-row__date"><span class="story-row__day">30</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Economía</span><span class="story-row__title">Gasolina y diésel bajan en octubre, pero siguen más caros que en 2025</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Sucesos</p>
-          <h2><a href="/news/colision-trenes-urda-toledo/">Al menos 68 muertos en la colisión de dos trenes en Urda</a></h2>
-          <p class="post-meta">29 de octubre de 2026 · 7 min de lectura</p>
-          <p class="post-excerpt">Un AVE de Renfe embistió a un Iryo detenido en la línea Madrid-Sevilla, a la altura de Urda (Toledo). El balance provisional es de 68 muertos y más de un centenar de heridos. La investigación apunta al centro de control de Adif.</p>
-          <a class="post-more" href="/news/colision-trenes-urda-toledo/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/colision-trenes-urda-toledo/">
+            <span class="story-row__date"><span class="story-row__day">29</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Sucesos</span><span class="story-row__title">Al menos 68 muertos en la colisión de dos trenes en Urda</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Energía</p>
-          <h2><a href="/news/nuclear-417-reactores-78-en-construccion/">La nuclear busca resultados: 417 reactores y 78 en obra</a></h2>
-          <p class="post-meta">28 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">La IAEA abre en Incheon su conferencia ministerial con 417 reactores operativos en 31 países y 78 en construcción. El mapa de las 170 centrales nucleares muestra dónde está hoy la potencia instalada.</p>
-          <a class="post-more" href="/news/nuclear-417-reactores-78-en-construccion/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/nuclear-417-reactores-78-en-construccion/">
+            <span class="story-row__date"><span class="story-row__day">28</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Energía</span><span class="story-row__title">La nuclear busca resultados: 417 reactores y 78 en obra</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Aviación</p>
-          <h2><a href="/news/queroseno-asientos-vacios-aviones-espana/">El queroseno ya deja asientos vacíos en los aviones españoles</a></h2>
-          <p class="post-meta">27 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">El queroseno cerca de los 1.600 dólares por tonelada frena por primera vez la ocupación de los vuelos en España. El mapa de los aeropuertos más transitados sitúa Madrid y Barcelona en el top 30 mundial.</p>
-          <a class="post-more" href="/news/queroseno-asientos-vacios-aviones-espana/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/queroseno-asientos-vacios-aviones-espana/">
+            <span class="story-row__date"><span class="story-row__day">27</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Aviación</span><span class="story-row__title">El queroseno ya deja asientos vacíos en los aviones españoles</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · India</p>
-          <h2><a href="/news/delhi-aire-moderado-pronostico-pobre/">Delhi mejora a 'moderado' pero el pronóstico sigue 'pobre'</a></h2>
-          <p class="post-meta">26 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">El AQI de Delhi bajó a 164, pero cinco estaciones siguen en 'pobre' y el pronóstico prevé que la contaminación empeore hasta el 28 de octubre. El mapa de PM2.5 sitúa la exposición crónica en India.</p>
-          <a class="post-more" href="/news/delhi-aire-moderado-pronostico-pobre/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/delhi-aire-moderado-pronostico-pobre/">
+            <span class="story-row__date"><span class="story-row__day">26</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · India</span><span class="story-row__title">Delhi mejora a 'moderado' pero el pronóstico sigue 'pobre'</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Barcelona</p>
-          <h2><a href="/news/disturbios-barcelona-protesta-juvenil/">Barcelona: un centenar de detenidos en una protesta juvenil</a></h2>
-          <p class="post-meta">25 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">Una concentración no comunicada convocada por redes sociales derivó en saqueos, barricadas y 33 incendios en el centro de Barcelona. Hubo un centenar de detenidos, una cuarta parte menores. El mapa de desempleo ayuda a contextualizar la ola europea de protestas.</p>
-          <a class="post-more" href="/news/disturbios-barcelona-protesta-juvenil/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/disturbios-barcelona-protesta-juvenil/">
+            <span class="story-row__date"><span class="story-row__day">25</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Barcelona</span><span class="story-row__title">Barcelona: un centenar de detenidos en una protesta juvenil</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Clima</p>
-          <h2><a href="/news/calor-muertes-ciudades-europeas/">Un estudio atribuye al calor 50.391 muertes en ciudades europeas</a></h2>
-          <p class="post-meta">24 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">Un estudio en Nature Health estima 50.391 muertes por calor en 854 ciudades europeas durante el verano de 2026 y atribuye casi dos tercios al cambio climático. El mapa de CO₂ per cápita muestra qué países emiten más por persona.</p>
-          <a class="post-more" href="/news/calor-muertes-ciudades-europeas/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/calor-muertes-ciudades-europeas/">
+            <span class="story-row__date"><span class="story-row__day">24</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Clima</span><span class="story-row__title">Un estudio atribuye al calor 50.391 muertes en ciudades europeas</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Asia</p>
-          <h2><a href="/news/terremoto-nagqu-tibet/">El terremoto de Nagqu deja al menos 16 muertos en el Tíbet</a></h2>
-          <p class="post-meta">23 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">Un seísmo de magnitud 7,0 en el condado de Baqen, en Nagqu, ha dejado al menos 16 muertos y decenas de heridos. El mapa de los mayores terremotos sitúa la región en el contexto sísmico del Himalaya, aunque su umbral de magnitud 8 deja fuera este episodio.</p>
-          <a class="post-more" href="/news/terremoto-nagqu-tibet/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/terremoto-nagqu-tibet/">
+            <span class="story-row__date"><span class="story-row__day">23</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Asia</span><span class="story-row__title">El terremoto de Nagqu deja al menos 16 muertos en el Tíbet</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Infraestructura</p>
-          <h2><a href="/news/cable-submarino-groenlandia-ue/">La UE proyecta un cable submarino para unir Groenlandia con Europa</a></h2>
-          <p class="post-meta">22 de octubre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">La Comisión Europea presentó el 20 de octubre su estrategia para el Ártico, con un cable de fibra óptica entre Groenlandia y la UE. El mapa de cables submarinos muestra las rutas actuales y el hueco que Bruselas quiere cubrir.</p>
-          <a class="post-more" href="/news/cable-submarino-groenlandia-ue/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/cable-submarino-groenlandia-ue/">
+            <span class="story-row__date"><span class="story-row__day">22</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Infraestructura</span><span class="story-row__title">La UE proyecta un cable submarino para unir Groenlandia con Europa</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Volcanes</p>
-          <h2><a href="/news/kilauea-episodio-56/">El Kilauea entra en pausa a la espera del episodio 56</a></h2>
-          <p class="post-meta">21 de octubre de 2026 · 6 min de lectura</p>
-          <p class="post-excerpt">El episodio 55 de fuentes de lava en el cráter Halemaʻumaʻu duró menos de seis horas y terminó el 17 de octubre. El USGS prevé el siguiente entre el 27 de octubre y el 6 de noviembre. El mapa de volcanes activos sitúa el cráter en el Pacífico.</p>
-          <a class="post-more" href="/news/kilauea-episodio-56/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/kilauea-episodio-56/">
+            <span class="story-row__date"><span class="story-row__day">21</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Volcanes</span><span class="story-row__title">El Kilauea entra en pausa a la espera del episodio 56</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
-        <article class="post-card">
-          <p class="kicker">News · Europa</p>
-          <h2><a href="/news/revueltas-europa/">Francia, Italia y Bélgica: la revuelta va más allá de las aulas</a></h2>
-          <p class="post-meta">19 de octubre de 2026 · 5 min de lectura</p>
-          <p class="post-excerpt">El fin de semana del 17 y 18 de octubre, cientos de miles de personas salieron a la calle en Francia. Italia y Bélgica se sumaron con protestas estudiantiles. El mapa de desigualdad de ingresos ayuda a contextualizar el malestar, pero también muestra sus límites.</p>
-          <a class="post-more" href="/news/revueltas-europa/">Leer el artículo →</a>
+        <article class="post-card story-row">
+          <a class="story-row__link" href="/news/revueltas-europa/">
+            <span class="story-row__date"><span class="story-row__day">19</span><span class="story-row__month">OCT</span></span>
+            <span class="story-row__main"><span class="story-row__kicker">News · Europa</span><span class="story-row__title">Francia, Italia y Bélgica: la revuelta va más allá de las aulas</span></span>
+            <span class="story-row__arrow" aria-hidden="true">→</span>
+          </a>
         </article>
       </section>
 
