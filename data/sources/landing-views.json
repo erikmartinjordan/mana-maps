@@ -2,7 +2,7 @@
   "source": "Firestore maps.views",
   "views": {
     "active-volcanoes-world": 22,
-    "ai-labs-headquarters": 4,
+    "ai-labs-headquarters": 9,
     "air-pollution-pm25-world": 9,
     "airports-world": 11,
     "alcohol-consumption-world": 2,
@@ -14,7 +14,7 @@
     "co2-total-emissions-world": 2,
     "cobertura-forestal-por-pais": 1,
     "daily-steps-world": 4,
-    "electricity-access-world": 6,
+    "electricity-access-world": 7,
     "fertility-rate-world": 2,
     "gdp-per-capita-world": 5,
     "gini-index-world": 53,
