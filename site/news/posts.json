@@ -1,5 +1,36 @@
 [
   {
+    "date": "2026-11-20",
+    "event": "La AIE publicó el 19 de noviembre de 2026 su Prospectiva Energética Mundial (World Energy Outlook 2026): en el escenario de políticas declaradas el consumo eléctrico de los centros de datos se duplica hasta unos 1.000 TWh anuales en 2030, con la IA explicando tres cuartas partes del aumento (unos 350 TWh más al año, más que el consumo anual de Gran Bretaña); las emisiones del sector subirían un 70% porque el gas cubrirá cerca del 60% de la electricidad de los centros de datos en EE UU y la mitad en China saldrá del carbón, mientras en la UE el 70% será renovable; la inversión pasa de 565.000 millones de dólares en 2025 a una proyección de 4 billones en 2030; harán falta 26 millones de km de líneas nuevas hasta 2035 y 16 millones de km por reponer; la demanda punta crecerá un 40-50% y el gasto en redes un 75% en la próxima década; menos de 100 grandes proyectos de IA suman 50 GW, comparable a la demanda punta británica. Análisis propio cruzando el mapa de acceso a electricidad (Banco Mundial EG.ELC.ACCS.ZS, 2024, 205 países) con la población total (SP.POP.TOTL, 2024, descargadas el 20-11-2026): 655,2 millones de personas sin electricidad sobre 8.116 millones cubiertos (91,9% ponderado, frente al 91,93% mundial del Banco Mundial); 105 territorios al 100% y 22 por debajo del 50%; África subsahariana concentra 579 millones, el 88,4% del déficit, con el 15,9% de la población; Nigeria 87,3 millones sin acceso (62,5%), RDC 84,7 (22,5%), Etiopía 57,3 (56,6%), Tanzania 32,6 (52,4%) y Uganda 22,4 (55,3%) suman el 43,4%; los 1.000 TWh equivalen a 1.526 kWh por persona sin acceso y año y los 26 millones de km, a 649 vueltas al ecuador. Noruega suspendió reservas de capacidad para centros de datos hasta agosto de 2027.",
+    "type": "news",
+    "format": "analisis",
+    "topic": "ia",
+    "mapSlug": "electricity-access-world",
+    "sourceUrls": [
+      "https://www.iea.org/reports/world-energy-outlook-2026",
+      "https://www.theguardian.com/world/2026/nov/19/datacentres-to-create-70-more-carbon-emissions-by-2030-iea-report-warns",
+      "https://www.cnbc.com/2026/11/19/data-center-electricity-demand-iea.html",
+      "https://www.euronews.com/2026/11/19/data-centre-energy-consumption-could-double-by-2030-straining-grids-iea-warns",
+      "https://www.industrialinfo.com/news/article/norway-halts-data-center-projects-as-ai-booms--364814",
+      "https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS",
+      "https://data.worldbank.org/indicator/SP.POP.TOTL"
+    ],
+    "translations": {
+      "es": {
+        "slug": "ia-1000-twh-red-655-millones",
+        "url": "/news/ia-1000-twh-red-655-millones/",
+        "title": "La IA añade 1.000 TWh a una red que aún no llega a 655 millones",
+        "description": "La AIE prevé 1.000 TWh de consumo eléctrico de los centros de datos en 2030. El mapa del Banco Mundial sitúa los 655 millones de personas sin electricidad."
+      },
+      "en": {
+        "slug": "data-centres-electricity-655-million-without-power",
+        "url": "/en/news/data-centres-electricity-655-million-without-power/",
+        "title": "AI adds 1,000 TWh to a grid that still misses 655 million people",
+        "description": "The IEA expects data centres to double electricity use to 1,000 TWh by 2030. The World Bank map locates the 655 million people still without power at home."
+      }
+    }
+  },
+  {
     "date": "2026-11-19",
     "event": "Xi Jinping y Donald Trump iniciaron el 19 de noviembre de 2026 en Shenzhen (cumbre de APEC) su tercer cara a cara del año sobre aranceles, tierras raras y chips, con reunión trilateral prevista con Vladímir Putin. Ese día el Hang Seng caía un 2,1% hasta unos 22.800 puntos, mínimo desde finales de junio y tercera sesión de pérdidas, tras un tercer trimestre de Tencent con ingresos +8% (11% en el trimestre anterior) y beneficio operativo ajustado -6% mientras crecía el capex en centros de datos de IA. La aduana china informó el 10 de noviembre de un superávit comercial de 1,04 billones de dólares entre enero y octubre (segundo año por encima del billón, camino del récord de 1,2 billones de 2025), con exportaciones +35,2% interanual en octubre, importaciones +41,6% y saldo mensual de 105.300 millones (133.500 en septiembre). Análisis del mapa de los 50 puertos de contenedores más transitados (Lloyd's List y World Shipping Council, 2024): 15 puertos chinos movieron 268.838.000 TEUs, el 44,7% de los 601.487.000 del top 50, con 6 entre los diez primeros; Shanghái 51.506.000 (único por encima de 50 millones y 8,6% del total), Ningbo-Zhoushan 39.308.000, Shenzhen 33.380.000, Qingdao 30.870.000 y Guangzhou 26.070.000; Estados Unidos 38.331.000 (6,4%) en 5 puertos y la UE 54.578.000 (9,1%) en 7, con Róterdam 13.820.000 y Amberes 13.532.000; Hong Kong 13.668.000, 2,4 veces menos que Shenzhen, y el conjunto chino con Hong Kong llega al 47,0%.",
     "type": "news",
