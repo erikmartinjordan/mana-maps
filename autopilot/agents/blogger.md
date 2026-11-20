@@ -100,18 +100,22 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
 - Tipografía DM Sans. Títulos 800 con `letter-spacing` negativo; entradilla de
   19 px; cuerpo de 17 px con `line-height` 1.75. La única excepción es el pie
   del mapa, en Courier Prime.
-- **El primer visual es el mapa interactivo**, justo después de la entradilla y
-  la firma. Prohibido poner una imagen estática (`site/og-cards`) como cabecera.
-  La imagen OG solo puede ir en `<meta>` para redes sociales.
+- **El primer visual es una ilustración pixel art propia**, justo después de la
+  entradilla y la firma; después va el mapa interactivo. La ilustración no es la
+  OG card: esta solo puede ir en `<meta>` para redes sociales. La ilustración es
+  la única excepción a la paleta monocroma (ver «Ilustración de News»).
 - El mapa embebido es el **editor real de Maña Maps en modo `?embed=1`**, no la
   landing 2D de la galería: al alejar el zoom se transforma en globo 3D y el
   control 2D/3D permite volver al plano. No degradar a un mapa 2D simple.
-- Paleta **blanco/gris/negro**: sin azules ni acentos de color. Botones
-  primarios negros y enlaces en el color del texto con subrayado sutil.
+- Paleta **blanco/gris/negro** en el texto y la interfaz: sin azules ni acentos
+  de color. La única excepción es la ilustración pixel art. Botones primarios
+  negros y enlaces en el color del texto con subrayado sutil.
 - Usa `site/news/revueltas-europa/index.html` y
   `site/en/news/revolts-europe/index.html` como plantillas visuales
-  canónicas; `site/news/index.html` y `site/en/news/index.html` como plantillas de los
-  listados.
+  canónicas; para la ilustración y la tarjeta con miniatura, usa
+  `site/news/anthropic-precio-justo-ant/index.html` (ES),
+  `site/en/news/anthropic-fair-value-ant/index.html` (EN) y
+  `site/news/index.html` / `site/en/news/index.html` como referencia.
 - Pie **Opción C** en ambos idiomas: bloque negro `footer-cta-dark` con el CTA
   y nada más. **Prohibido** añadir dentro o después del bloque enlaces a mapas
   relacionados, listas (`footer-links`, `<ul>`), secciones extra o cualquier
@@ -134,6 +138,33 @@ El artículo debe parecer parte del sitio actual, no un sitio de noticias con es
 - **No menciones la marca en la prosa** fuera de ese crédito: nada de “Maña Maps
   publica…”, “el mapa de Maña Maps…”, “en Maña Maps…” en titulares, entradilla,
   cuerpo, secciones o pies de foto.
+
+## ILUSTRACIÓN DE NEWS (OBLIGATORIO)
+
+Cada artículo nuevo lleva una ilustración original, no una imagen de stock ni la
+OG card. Requisitos:
+
+- **Archivo:** `site/assets/news/<slug>-<tema>.png` (1080×1080, PNG con fondo
+  transparente). No reutilices la imagen de otro artículo.
+- **Estilo:** pixel art, contorno oscuro, contorno blanco tipo sticker y sombra
+  gris. Paleta: amarillo de marca `#e8b86d`; naranja Claude `#d97757` cuando el
+  tema sea Anthropic/Claude. Puede ser un objeto, personaje, moneda, gráfico o
+  ticket, siempre legible a 200-560 px.
+- **Artículo:** inserta después del `<header>` y antes del mapa:
+  `<figure class="article-illustration"><img src="/assets/news/..." alt="..." width="1080" height="1080" loading="eager"><figcaption>...</figcaption></figure>`.
+  Incluye el CSS `.article-illustration` de
+  `site/news/anthropic-precio-justo-ant/index.html` (ES) y su versión EN.
+- **Índices:** en `site/news/index.html` y `site/en/news/index.html`, la tarjeta
+  destacada (la primera) lleva la miniatura a la derecha: clase
+  `post-card post-card--with-thumb`, un `post-card__body` que envuelva el texto y
+  un `<img class="post-card__thumb" ...>` al final. El CSS ya está en ambos
+  índices. Solo la primera tarjeta lleva miniatura; al publicar la siguiente
+  pieza, mueve ese tratamiento a la nueva primera tarjeta y deja la anterior como
+  tarjeta normal (su ilustración sigue en el artículo).
+- **Alt y pie:** descriptivos y en el idioma del artículo. Sin fondo, borde ni
+  caja alrededor de la imagen.
+- **Limpieza:** borra previews temporales y variantes no usadas antes de
+  commitear. La imagen final es solo la que referencia el artículo.
 
 ## IDIOMAS Y RUTAS (OBLIGATORIO)
 
@@ -391,18 +422,18 @@ curl -s -X POST \
 - Título: máximo 70 caracteres en cada idioma, en minúscula tipo oración.
 - `meta description`: 150-160 caracteres en cada idioma, con el tema y el mapa.
 - Estructura según el `format` elegido (no repitas siempre la misma):
-  - `noticia`: entradilla → mapa → qué ha pasado → el mapa → qué viene → fuentes.
-  - `analisis`: entradilla con la pregunta → mapa → método y datos → 3-5
+  - `noticia`: entradilla → ilustración → mapa → qué ha pasado → el mapa → qué viene → fuentes.
+  - `analisis`: entradilla con la pregunta → ilustración → mapa → método y datos → 3-5
     hallazgos → límites → fuentes.
-  - `explicador`: entradilla → mapa → 3-4 claves → cierre breve → fuentes.
-  - `comparativa`: entradilla → mapa → dos o tres casos → qué dicen las cifras →
+  - `explicador`: entradilla → ilustración → mapa → 3-4 claves → cierre breve → fuentes.
+  - `comparativa`: entradilla → ilustración → mapa → dos o tres casos → qué dicen las cifras →
     fuentes.
 - Varía los `h2`, el orden y la longitud de los párrafos. Prohibido encadenar
   los seis epígrafes clásicos en todos los artículos.
-- Elementos fijos en todo formato: entradilla, mapa interactivo como primer
-  visual (iframe, no imagen estática), al menos una cifra de la fuente o dataset
-  y otra del mapa, enlace al mapa a pantalla completa y a la galería, y una
-  sección final de «Fuentes» o «Método y datos».
+- Elementos fijos en todo formato: entradilla, ilustración pixel art propia como
+  primer visual, mapa interactivo después (iframe, no imagen estática), al menos
+  una cifra de la fuente o dataset y otra del mapa, enlace al mapa a pantalla
+  completa y a la galería, y una sección final de «Fuentes» o «Método y datos».
 - **Prohibido** incluir las secciones «Cómo leer el mapa» y «Lo que el mapa
   no dice» (en inglés, «How to read the map» y «What the map does not say»),
   ni variantes con otro título equivalente. Si la unidad, la escala, las
@@ -432,8 +463,9 @@ curl -s -X POST \
   hace falta.
 - Incluye también un enlace a pantalla completa sin `embed`:
   `/map/?gallery=<mapSlug>`.
-- No incluyas imagen estática de cabecera. La imagen OG
-  `https://maña.com/og-cards/<mapSlug>.png` solo va en las metaetiquetas.
+- Incluye la ilustración pixel art en `site/assets/news/` y el
+  `<figure class="article-illustration">` (ver «Ilustración de News»). La imagen
+  OG `https://maña.com/og-cards/<mapSlug>.png` solo va en las metaetiquetas.
 - Añade JSON-LD `NewsArticle` con `headline`, `description`, `datePublished`,
   `dateModified`, `author`, `publisher`, `mainEntityOfPage` e `image`.
 - Actualiza `site/news/index.html` y `site/en/news/index.html`: añade la tarjeta del

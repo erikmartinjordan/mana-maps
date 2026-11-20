@@ -90,6 +90,20 @@ replicado en `site/js/vector-renderer.js` y `site/js/globe.js`), `_manaColor`,
 `_manaGroupId` y `_manaLabelStyle` completo. **Nunca** representes un área
 (país, desierto, región) con un punto: eso exige polígono real (punto 2).
 
+## Ilustración de los artículos de News (obligatoria)
+
+- Cada pieza nueva de News (ES y EN) lleva una ilustración pixel art original,
+  1080×1080 y PNG con fondo transparente, en `site/assets/news/<slug>-<tema>.png`.
+- Estilo: contorno oscuro, contorno blanco tipo sticker y sombra gris; amarillo
+  de marca `#e8b86d` y naranja Claude `#d97757` cuando el tema sea
+  Anthropic/Claude. No reutilizar imágenes ni usar la OG card como ilustración.
+- Insertar `<figure class="article-illustration">` después del header del
+  artículo y antes del mapa, con `alt` y pie de foto. En `/news/` y `/en/news/`,
+  la tarjeta destacada (la primera) lleva la miniatura a la derecha con
+  `post-card--with-thumb`; el resto de tarjetas, no.
+- No dejar wrappers, fondos, bordes ni cajas alrededor de la imagen; el PNG va
+  transparente. Borrar previews y variantes no usadas antes de commitear.
+
 ## Contenido
 
 - Español para todo lo visible por usuarios (títulos, popups, descripciones).

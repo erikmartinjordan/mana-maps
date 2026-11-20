@@ -1,0 +1,866 @@
+{
+  "type": "FeatureCollection",
+  "name": "Sedes de los laboratorios de IA",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Anthropic",
+        "name": "Anthropic",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Anthropic",
+        "Ciudad": "San Francisco",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2021,
+        "Modelo": "Claude",
+        "Dato": "San Francisco (Estados Unidos)",
+        "Description": "Anthropic — San Francisco (Estados Unidos). Fundada en 2021. Modelo: Claude."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.3966,
+          37.7873
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "OpenAI",
+        "name": "OpenAI",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "OpenAI",
+        "Ciudad": "San Francisco",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2015,
+        "Modelo": "GPT",
+        "Dato": "San Francisco (Estados Unidos)",
+        "Description": "OpenAI — San Francisco (Estados Unidos). Fundada en 2015. Modelo: GPT."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.389,
+          37.7701
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Meta AI",
+        "name": "Meta AI",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Meta AI",
+        "Ciudad": "Menlo Park",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2013,
+        "Modelo": "Llama",
+        "Dato": "Menlo Park (Estados Unidos)",
+        "Description": "Meta AI — Menlo Park (Estados Unidos). Fundada en 2013. Modelo: Llama."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1484,
+          37.4848
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Microsoft AI",
+        "name": "Microsoft AI",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Microsoft AI",
+        "Ciudad": "Redmond",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2023,
+        "Modelo": "Copilot",
+        "Dato": "Redmond (Estados Unidos)",
+        "Description": "Microsoft AI — Redmond (Estados Unidos). Fundada en 2023. Modelo: Copilot."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.128,
+          47.6396
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "xAI (SpaceXAI)",
+        "name": "xAI (SpaceXAI)",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "xAI (SpaceXAI)",
+        "Ciudad": "Palo Alto",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2023,
+        "Modelo": "Grok",
+        "Dato": "Palo Alto (Estados Unidos)",
+        "Description": "xAI (SpaceXAI) — Palo Alto (Estados Unidos). Fundada en 2023. Modelo: Grok."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1477,
+          37.4375
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Cohere",
+        "name": "Cohere",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Cohere",
+        "Ciudad": "Toronto",
+        "País": "Canadá",
+        "Región": "América",
+        "Fundación": 2019,
+        "Modelo": "Command",
+        "Dato": "Toronto (Canadá)",
+        "Description": "Cohere — Toronto (Canadá). Fundada en 2019. Modelo: Command."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.391,
+          43.6505
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Hugging Face",
+        "name": "Hugging Face",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Hugging Face",
+        "Ciudad": "Nueva York",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2016,
+        "Modelo": "Transformers",
+        "Dato": "Nueva York (Estados Unidos)",
+        "Description": "Hugging Face — Nueva York (Estados Unidos). Fundada en 2016. Modelo: Transformers."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.988,
+          40.7033
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Perplexity AI",
+        "name": "Perplexity AI",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Perplexity AI",
+        "Ciudad": "San Francisco",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2022,
+        "Modelo": "Perplexity",
+        "Dato": "San Francisco (Estados Unidos)",
+        "Description": "Perplexity AI — San Francisco (Estados Unidos). Fundada en 2022. Modelo: Perplexity."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.432,
+          37.7638
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Inflection AI",
+        "name": "Inflection AI",
+        "_manaColor": "#f08a5d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "América",
+        "_manaGroupId": "america",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Inflection AI",
+        "Ciudad": "Palo Alto",
+        "País": "Estados Unidos",
+        "Región": "América",
+        "Fundación": 2022,
+        "Modelo": "Pi",
+        "Dato": "Palo Alto (Estados Unidos)",
+        "Description": "Inflection AI — Palo Alto (Estados Unidos). Fundada en 2022. Modelo: Pi."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1635,
+          37.4449
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Google DeepMind",
+        "name": "Google DeepMind",
+        "_manaColor": "#e8b86d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Europa",
+        "_manaGroupId": "europe",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Google DeepMind",
+        "Ciudad": "Londres",
+        "País": "Reino Unido",
+        "Región": "Europa",
+        "Fundación": 2010,
+        "Modelo": "Gemini",
+        "Dato": "Londres (Reino Unido)",
+        "Description": "Google DeepMind — Londres (Reino Unido). Fundada en 2010. Modelo: Gemini."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.1055,
+          51.5155
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Mistral AI",
+        "name": "Mistral AI",
+        "_manaColor": "#e8b86d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Europa",
+        "_manaGroupId": "europe",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Mistral AI",
+        "Ciudad": "París",
+        "País": "Francia",
+        "Región": "Europa",
+        "Fundación": 2023,
+        "Modelo": "Mistral",
+        "Dato": "París (Francia)",
+        "Description": "Mistral AI — París (Francia). Fundada en 2023. Modelo: Mistral."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.3522,
+          48.8566
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Stability AI",
+        "name": "Stability AI",
+        "_manaColor": "#e8b86d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Europa",
+        "_manaGroupId": "europe",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Stability AI",
+        "Ciudad": "Londres",
+        "País": "Reino Unido",
+        "Región": "Europa",
+        "Fundación": 2019,
+        "Modelo": "Stable Diffusion",
+        "Dato": "Londres (Reino Unido)",
+        "Description": "Stability AI — Londres (Reino Unido). Fundada en 2019. Modelo: Stable Diffusion."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.1278,
+          51.5074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Aleph Alpha",
+        "name": "Aleph Alpha",
+        "_manaColor": "#e8b86d",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Europa",
+        "_manaGroupId": "europe",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Aleph Alpha",
+        "Ciudad": "Heidelberg",
+        "País": "Alemania",
+        "Región": "Europa",
+        "Fundación": 2019,
+        "Modelo": "Luminous",
+        "Dato": "Heidelberg (Alemania)",
+        "Description": "Aleph Alpha — Heidelberg (Alemania). Fundada en 2019. Modelo: Luminous."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6724,
+          49.3988
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "AI21 Labs",
+        "name": "AI21 Labs",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "AI21 Labs",
+        "Ciudad": "Tel Aviv",
+        "País": "Israel",
+        "Región": "Asia",
+        "Fundación": 2017,
+        "Modelo": "Jamba",
+        "Dato": "Tel Aviv (Israel)",
+        "Description": "AI21 Labs — Tel Aviv (Israel). Fundada en 2017. Modelo: Jamba."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7818,
+          32.0853
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "DeepSeek",
+        "name": "DeepSeek",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "DeepSeek",
+        "Ciudad": "Hangzhou",
+        "País": "China",
+        "Región": "Asia",
+        "Fundación": 2023,
+        "Modelo": "DeepSeek",
+        "Dato": "Hangzhou (China)",
+        "Description": "DeepSeek — Hangzhou (China). Fundada en 2023. Modelo: DeepSeek."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.1551,
+          30.2741
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Alibaba (Qwen)",
+        "name": "Alibaba (Qwen)",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Alibaba (Qwen)",
+        "Ciudad": "Hangzhou",
+        "País": "China",
+        "Región": "Asia",
+        "Fundación": 1999,
+        "Modelo": "Qwen",
+        "Dato": "Hangzhou (China)",
+        "Description": "Alibaba (Qwen) — Hangzhou (China). Fundada en 1999. Modelo: Qwen."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.06,
+          30.28
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Baidu (ERNIE)",
+        "name": "Baidu (ERNIE)",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Baidu (ERNIE)",
+        "Ciudad": "Pekín",
+        "País": "China",
+        "Región": "Asia",
+        "Fundación": 2000,
+        "Modelo": "ERNIE",
+        "Dato": "Pekín (China)",
+        "Description": "Baidu (ERNIE) — Pekín (China). Fundada en 2000. Modelo: ERNIE."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.4074,
+          39.9042
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Moonshot AI",
+        "name": "Moonshot AI",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Moonshot AI",
+        "Ciudad": "Pekín",
+        "País": "China",
+        "Región": "Asia",
+        "Fundación": 2023,
+        "Modelo": "Kimi",
+        "Dato": "Pekín (China)",
+        "Description": "Moonshot AI — Pekín (China). Fundada en 2023. Modelo: Kimi."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.48,
+          39.98
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Sakana AI",
+        "name": "Sakana AI",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Sakana AI",
+        "Ciudad": "Tokio",
+        "País": "Japón",
+        "Región": "Asia",
+        "Fundación": 2023,
+        "Modelo": "Sakana",
+        "Dato": "Tokio (Japón)",
+        "Description": "Sakana AI — Tokio (Japón). Fundada en 2023. Modelo: Sakana."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.6503,
+          35.6762
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_manaName": "Naver (HyperCLOVA X)",
+        "name": "Naver (HyperCLOVA X)",
+        "_manaColor": "#6fb3b8",
+        "_manaFillOpacity": 0.95,
+        "_manaWeight": 1.2,
+        "_manaBorderColor": "#FFFFFF",
+        "_manaGeometryType": "point",
+        "_manaGroupName": "Asia",
+        "_manaGroupId": "asia",
+        "markerType": "circle",
+        "_manaMarkerType": "circle",
+        "_manaLabelStyle": {
+          "enabled": true,
+          "field": "_manaName",
+          "fontFamily": "DM Sans, sans-serif",
+          "fontSize": 11,
+          "fontWeight": "600",
+          "color": "#1e293b",
+          "haloWidth": 3,
+          "haloColor": "#FFFFFF",
+          "opacity": 0.95,
+          "placement": "auto"
+        },
+        "Empresa": "Naver (HyperCLOVA X)",
+        "Ciudad": "Seongnam",
+        "País": "Corea del Sur",
+        "Región": "Asia",
+        "Fundación": 1999,
+        "Modelo": "HyperCLOVA X",
+        "Dato": "Seongnam (Corea del Sur)",
+        "Description": "Naver (HyperCLOVA X) — Seongnam (Corea del Sur). Fundada en 1999. Modelo: HyperCLOVA X."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          127.1389,
+          37.4449
+        ]
+      }
+    }
+  ]
+}

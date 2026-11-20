@@ -81,6 +81,11 @@
   .post-more{font-size:13px;font-weight:700;text-decoration:underline;text-decoration-color:rgba(16,24,40,.3);text-underline-offset:3px}
   .post-more:hover{text-decoration-color:currentColor}
   .post-list .post-card[hidden]{display:none}
+  .post-card--with-thumb{display:flex;gap:22px;align-items:flex-start}
+  .post-card--with-thumb .post-card__body{flex:1;min-width:0}
+  .post-card--with-thumb .post-card__thumb{flex:0 0 210px;width:210px;height:210px;display:block}
+  @media(max-width:640px){.post-card--with-thumb{gap:14px}.post-card--with-thumb .post-card__thumb{flex-basis:110px;width:110px;height:110px}}
+
   .load-more-wrap{display:flex;justify-content:center;margin-top:28px}
   .load-more{
     display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 26px;
@@ -146,6 +151,16 @@
       </header>
 
       <section class="post-list" id="news-list" data-news-list data-batch-size="10" aria-label="Entradas del blog">
+        <article class="post-card post-card--with-thumb">
+          <div class="post-card__body">
+            <p class="kicker">Análisis propio · Bolsa</p>
+            <h2><a href="/news/anthropic-precio-justo-ant/">El precio justo de Anthropic: 93 dólares por acción</a></h2>
+            <p class="post-meta">20 de noviembre de 2026 · 8 min de lectura</p>
+            <p class="post-excerpt">ANT cerró su primer día en 97,17 dólares y 1,8 billones de capitalización. El folleto, los múltiplos y tres escenarios sitúan el valor razonable en 93 dólares; el mapa de las sedes de los laboratorios de IA sitúa la competencia.</p>
+            <a class="post-more" href="/news/anthropic-precio-justo-ant/">Leer el artículo →</a>
+          </div>
+          <img class="post-card__thumb" src="/assets/news/anthropic-pixel-b-coin.png" alt="Moneda pixel art de Anthropic con su asterisco y la etiqueta de 93 dólares" width="1080" height="1080" loading="eager">
+        </article>
         <article class="post-card">
           <p class="kicker">Análisis propio · Inteligencia artificial</p>
           <h2><a href="/news/ia-1000-twh-red-655-millones/">La IA añade 1.000 TWh a una red que aún no llega a 655 millones</a></h2>

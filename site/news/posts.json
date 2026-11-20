@@ -1,6 +1,36 @@
 [
   {
     "date": "2026-11-20",
+    "event": "Anthropic debutó el 19 de noviembre de 2026 en el Nasdaq con el símbolo ANT: colocó 980 millones de acciones a 83 dólares (81.340 millones, la mayor IPO de la historia), abrió a 111,50 (+34,3%), marcó un máximo de 114,99 y cerró en 97,17 (+17,1%), con una capitalización totalmente diluida de unos 1,8 billones. Análisis propio con el folleto: 33.240 millones de ingresos en nueve meses (+1.206%), 16.960 en el tercer trimestre, pérdida operativa de 567 millones tras ganar 974 en el segundo, 900.900 millones de compromisos de cómputo (70.700 a doce meses) y 11.900 clientes de más de 100.000 dólares que aportan el 74% de los ingresos. Modelo de tres escenarios (110.000/150.000/190.000 millones de ventas 2027; 8x/11x/14x) → valor razonable 93 dólares, frente al cierre de 97,17. Mapa de 20 sedes de laboratorios de IA (páginas corporativas y Wikipedia, noviembre de 2026): 9 en América, 4 en Europa y 7 en Asia; San Francisco concentra Anthropic, OpenAI y Perplexity.",
+    "type": "news",
+    "format": "analisis",
+    "topic": "bolsa",
+    "mapSlug": "ai-labs-headquarters",
+    "sourceUrls": [
+      "https://www.anthropic.com/news/anthropic-prices-initial-public-offering",
+      "https://www.cnbc.com/2026/11/19/anthropic-ipo-ant-live-updates.html",
+      "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074944/anthropicpbc-424b4.htm",
+      "https://invezz.com/news/2026/11/18/anthropic-stock-price-targets-what-analysts-say-before-the-ant-debut/",
+      "https://maña.com/gallery/ai-labs-headquarters/",
+      "https://en.wikipedia.org/wiki/Anthropic"
+    ],
+    "translations": {
+      "es": {
+        "slug": "anthropic-precio-justo-ant",
+        "url": "/news/anthropic-precio-justo-ant/",
+        "title": "El precio justo de Anthropic: 93 dólares por acción",
+        "description": "ANT cerró su primer día en 97,17 dólares y 1,8 billones de capitalización. El folleto, los múltiplos y tres escenarios sitúan el valor razonable en 93 dólares; el mapa de las sedes de los laboratorios de IA sitúa la competencia."
+      },
+      "en": {
+        "slug": "anthropic-fair-value-ant",
+        "url": "/en/news/anthropic-fair-value-ant/",
+        "title": "Anthropic's fair value: $93 a share",
+        "description": "ANT closed its first day at $97.17 and a $1.8tn diluted market value. The prospectus, peer multiples and three scenarios put fair value at $93 a share; the AI lab headquarters map sets the competitive landscape."
+      }
+    }
+  },
+  {
+    "date": "2026-11-20",
     "event": "La AIE publicó el 19 de noviembre de 2026 su Prospectiva Energética Mundial (World Energy Outlook 2026): en el escenario de políticas declaradas el consumo eléctrico de los centros de datos se duplica hasta unos 1.000 TWh anuales en 2030, con la IA explicando tres cuartas partes del aumento (unos 350 TWh más al año, más que el consumo anual de Gran Bretaña); las emisiones del sector subirían un 70% porque el gas cubrirá cerca del 60% de la electricidad de los centros de datos en EE UU y la mitad en China saldrá del carbón, mientras en la UE el 70% será renovable; la inversión pasa de 565.000 millones de dólares en 2025 a una proyección de 4 billones en 2030; harán falta 26 millones de km de líneas nuevas hasta 2035 y 16 millones de km por reponer; la demanda punta crecerá un 40-50% y el gasto en redes un 75% en la próxima década; menos de 100 grandes proyectos de IA suman 50 GW, comparable a la demanda punta británica. Análisis propio cruzando el mapa de acceso a electricidad (Banco Mundial EG.ELC.ACCS.ZS, 2024, 205 países) con la población total (SP.POP.TOTL, 2024, descargadas el 20-11-2026): 655,2 millones de personas sin electricidad sobre 8.116 millones cubiertos (91,9% ponderado, frente al 91,93% mundial del Banco Mundial); 105 territorios al 100% y 22 por debajo del 50%; África subsahariana concentra 579 millones, el 88,4% del déficit, con el 15,9% de la población; Nigeria 87,3 millones sin acceso (62,5%), RDC 84,7 (22,5%), Etiopía 57,3 (56,6%), Tanzania 32,6 (52,4%) y Uganda 22,4 (55,3%) suman el 43,4%; los 1.000 TWh equivalen a 1.526 kWh por persona sin acceso y año y los 26 millones de km, a 649 vueltas al ecuador. Noruega suspendió reservas de capacidad para centros de datos hasta agosto de 2027.",
     "type": "news",
     "format": "analisis",
