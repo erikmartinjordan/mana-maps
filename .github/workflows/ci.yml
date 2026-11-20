@@ -73,8 +73,22 @@ jobs:
           npm init -y
           npm install --save-dev @playwright/test
 
+      # La descarga de navegadores y `apt-get` de las dependencias del sistema
+      # fallan de vez en cuando por red en el runner (run 44521925552, 19-11
+      # 12:13 UTC: la instalación de Chromium tumbó el job sin llegar a
+      # ejecutar un solo test). Reintentar evita que ese flake abra una tarea
+      # falsa de «tests rotos».
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: |
+          for attempt in 1 2 3; do
+            if npx playwright install --with-deps chromium; then
+              exit 0
+            fi
+            echo "::warning::Intento ${attempt} de instalar Chromium falló; reintentando."
+            sleep $((attempt * 15))
+          done
+          echo "::error::No se pudo instalar Chromium tras 3 intentos."
+          exit 1
 
       - name: Run Playwright smoke tests
         run: npx playwright test -c tests/predeploy/playwright.config.js --reporter=line
