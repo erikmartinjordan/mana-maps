@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 // ── publish-renewable-energy-world.js ─
 // Mapa coroplético: Energía renovable (% de electricidad) mundial por país
-// Fuente: World Bank — Renewable electricity output (% of total electricity output) — EG.ELC.RNEW.ZS
+// Fuente: Ember (2026) — Share of electricity generation from renewables,
+// vía Our World in Data. La serie del Banco Mundial (EG.ELC.RNEW.ZS) termina
+// en 2021 (devuelve null en 2022–2025), así que se usa la serie vigente de
+// Ember, misma métrica, con último año completo 2024.
 // Lee data/maps/renewable-energy-world.geojson generado por
-// autopilot/strategy/gen-renewable-energy-world.js y publica en Firestore.
+// scripts/maps/refresh-energy-indicators.js y publica en Firestore.
 'use strict';
 const fs = require('fs'), path = require('path');
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNull, fsMap } = require('../lib/publisher');
@@ -11,7 +14,9 @@ const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsAr
 const SLUG = 'renewable-energy-world';
 const TITLE = 'Energía renovable (% de electricidad) mundial por país';
 const DRY_RUN = process.argv.includes('--dry-run');
-const DATA_YEAR = 2021;
+const DATA_YEAR = 2024;
+const DATA_SOURCE = 'Ember (2026) — Share of electricity generation from renewables, vía Our World in Data. https://ourworldindata.org/grapher/share-electricity-renewables';
+const DESCRIPTION = 'Mapa coroplético mundial del porcentaje de electricidad generada con fuentes renovables (hidroeléctrica, solar, eólica, biomasa…) por país, con datos de Ember para 2024 vía Our World in Data.';
 
 function buildMapPreview(geo) {
   let bbox = [180, 90, -180, -90];
@@ -72,7 +77,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Mapa coroplético mundial del porcentaje de electricidad generada a partir de fuentes renovables (hidroeléctrica, solar, eólica, biomasa…) por país, con datos del World Bank (EG.ELC.RNEW.ZS).'),
+    description: fsStr(DESCRIPTION),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
@@ -90,7 +95,7 @@ async function main() {
     allowPublicEdit: fsBool(false), isPublished: fsBool(true),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
-    dataSource: fsStr('World Bank — Renewable electricity output (% of total electricity output). Indicator EG.ELC.RNEW.ZS. https://data.worldbank.org/indicator/EG.ELC.RNEW.ZS'),
+    dataSource: fsStr(DATA_SOURCE),
     dataDate: fsStr(`${DATA_YEAR}-12-31`),
     dataYear: fsInt(DATA_YEAR),
     tags: fsArr(['Energía', 'Medio Ambiente', 'Tecnología']),

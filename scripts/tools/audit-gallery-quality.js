@@ -237,8 +237,8 @@ const KNOWN_META = {
     tags: ['Cultura', 'Educación', 'Barcelona'],
   },
   'electricity-access-world': {
-    dataSource: 'World Bank — Access to electricity (% of population) (EG.ELC.ACCS.ZS). https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS',
-    dataDate: '2022-12-31',
+    dataSource: 'World Bank — Access to electricity (% of population) (EG.ELC.ACCS.ZS), SDG 7.1.1 / ESMAP. https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS',
+    dataDate: '2024-12-31',
     tags: ['Energía', 'Geografía', 'Desarrollo'],
   },
   'internet-users-world': {
@@ -257,8 +257,8 @@ const KNOWN_META = {
     tags: ['Economía', 'Desarrollo', 'Geografía'],
   },
   'renewable-energy-world': {
-    dataSource: 'World Bank — Renewable electricity output (% of total electricity output). Indicator EG.ELC.RNEW.ZS. https://data.worldbank.org/indicator/EG.ELC.RNEW.ZS',
-    dataDate: '2021-12-31',
+    dataSource: 'Ember (2026) — Share of electricity generation from renewables, vía Our World in Data. https://ourworldindata.org/grapher/share-electricity-renewables',
+    dataDate: '2024-12-31',
     tags: ['Energía', 'Medio Ambiente', 'Tecnología'],
   },
   'infant-mortality-world': {

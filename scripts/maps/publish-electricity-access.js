@@ -2,15 +2,18 @@
 // ── publish-electricity-access.js ─
 // Mapa coroplético: Acceso a Electricidad Mundial
 // Fuente: World Bank — Access to electricity (% of population) — EG.ELC.ACCS.ZS
+// (SDG 7.1.1 / ESMAP). Último dato disponible: 2024.
 // Rampa secuencial monocromática azul claro→oscuro por % de acceso
 'use strict';
 const fs = require('fs'), path = require('path');
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsBool, fsArr, fsNum, fsNull, fsMap } = require('../lib/publisher');
 
 const SLUG = 'electricity-access-world';
-const TITLE = 'Acceso a Electricidad Mundial';
+const TITLE = 'Acceso a electricidad mundial';
 const DRY_RUN = process.argv.includes('--dry-run');
 const DATA_YEAR = 2024;
+const DATA_SOURCE = 'World Bank — Access to electricity (% of population) (EG.ELC.ACCS.ZS), SDG 7.1.1 / ESMAP. https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS';
+const DESCRIPTION = 'Mapa coroplético mundial del acceso a electricidad por país, datos del World Bank (EG.ELC.ACCS.ZS) de 2024: del 5,4 % de Sudán del Sur al 100 % de la mayoría de países desarrollados.';
 
 function buildMapPreview(geo) {
   let bbox = [180, 90, -180, -90];
@@ -69,7 +72,7 @@ async function main() {
   const fields = {
     id: fsStr(SLUG), slug: fsStr(SLUG),
     title: fsStr(TITLE), name: fsStr(TITLE),
-    description: fsStr('Mapa coroplético mundial del acceso a electricidad por país, datos del World Bank (EG.ELC.ACCS.ZS) de 2024: del 5,4 % de Sudán del Sur al 100 % de la mayoría de países desarrollados.'),
+    description: fsStr(DESCRIPTION),
     lang: fsStr('es'),
     featureCount: fsInt(geo.features.length),
     mapPreview: fsMap({
@@ -87,9 +90,9 @@ async function main() {
     allowPublicEdit: fsBool(false), isPublished: fsBool(true),
     shareUrl: fsStr(`https://xn--maa-8ma.com/gallery/?slug=${SLUG}`),
     geojsonText: fsStr(geojsonText), geojsonChunked: fsNull(),
-    dataSource: fsStr('World Bank — Access to electricity (% of population) (EG.ELC.ACCS.ZS). https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS'),
-    dataDate: fsStr('2022-12-31'),
-    dataYear: fsInt(2022),
+    dataSource: fsStr(DATA_SOURCE),
+    dataDate: fsStr(`${DATA_YEAR}-12-31`),
+    dataYear: fsInt(DATA_YEAR),
     tags: fsArr(['Energía', 'Geografía', 'Desarrollo']),
     legendKey: fsStr('Acceso a electricidad (num)'),
     legendTitle: fsStr('Acceso a electricidad (% población)'),
@@ -121,6 +124,11 @@ async function main() {
   const existing = await firestoreRequest(token, 'GET', `/${COLLECTION}/${SLUG}`);
   if (existing.status === 200) {
     console.log('Updating document...');
+    // No pisar métricas ni autoría: la republicación solo cambia catálogo y datos.
+    const ef = existing.data.fields || {};
+    for (const key of ['views', 'likes', 'createdAtMs', 'createdAt', 'createdBy', 'ownerUid', 'authorHandle']) {
+      if (ef[key] !== undefined) fields[key] = ef[key];
+    }
     const fieldPaths = Object.keys(fields).map(f => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res = await firestoreRequest(token, 'PATCH', `/${COLLECTION}/${SLUG}?${fieldPaths}`, { fields });
     if (res.status >= 400) { console.error('Update failed', res.status, JSON.stringify(res.data).slice(0, 600)); process.exit(1); }
