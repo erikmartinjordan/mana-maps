@@ -1165,29 +1165,23 @@ map.on('mouseout', () => {
 
 // ── MINIMAP (situational thumbnail below the coordinates) ──
 const MINIMAP_MIN_ZOOM = 8;      // solo aparece a partir de esta escala
-const MINIMAP_ZOOM_OFFSET = 5;   // cuánto se aleja respecto al mapa principal
+const MINIMAP_ZOOM_OFFSET = 4;   // cuánto se aleja respecto al mapa principal
 
 let _minimap = null;
 let _minimapGL = null;
 let _minimapRect = null;
 let _minimapDot = null;
+let _minimapDrawn = null;
+let _minimapDrawnRenderer = null;
+let _minimapViewportRenderer = null;
 let _minimapRaf = 0;
+let _minimapFeatureRaf = 0;
 let _minimapSyncing = false;
 let _minimapStyleKey = '';
 let _minimapZoomDelta = MINIMAP_ZOOM_OFFSET;
 
 function _minimapZoomFor(mainZoom) {
   return Math.max(1, Math.min(11, Math.round(mainZoom - _minimapZoomDelta)));
-}
-
-function minimapZoomBy(step) {
-  if (!_minimap) return;
-  var next = Math.max(1, Math.min(11, _minimap.getZoom() + step));
-  if (next === _minimap.getZoom()) return;
-  _minimapSyncing = true;
-  _minimap.setZoom(next, { animate: false });
-  _minimapSyncing = false;
-  _minimapZoomDelta = Math.max(1, Math.min(9, Math.round(map.getZoom() - next)));
 }
 
 function _minimapShouldShow() {
@@ -1222,6 +1216,57 @@ function updateMinimapStyle() {
   _minimapStyleKey = key;
   var gl = _minimapGL.getMaplibreMap();
   if (gl && gl.setStyle) gl.setStyle(_minimapStyle());
+}
+
+function refreshMinimapFeatures() {
+  if (!_minimapDrawn || typeof drawnItems === 'undefined') return;
+  _minimapDrawn.clearLayers();
+  drawnItems.eachLayer(function(layer) {
+    if (!layer || typeof layer.toGeoJSON !== 'function') return;
+    var geo;
+    try { geo = layer.toGeoJSON(); } catch (e) { return; }
+    var opts = layer.options || {};
+    var baseColor = layer._manaColor || opts.color || opts.fillColor || '#e8b86d';
+    var geoLayer = L.geoJSON(geo, {
+      pointToLayer: function(feature, latlng) {
+        return L.circleMarker(latlng, {
+          pane: 'minimapDrawnPane',
+          renderer: _minimapDrawnRenderer,
+          radius: 2.4,
+          color: '#1a1a1a',
+          weight: 0.8,
+          fill: true,
+          fillColor: baseColor,
+          fillOpacity: 1,
+          interactive: false
+        });
+      },
+      style: function(feature) {
+        var geomType = (feature && feature.geometry && feature.geometry.type) || '';
+        var isArea = geomType.indexOf('Polygon') !== -1;
+        return {
+          pane: 'minimapDrawnPane',
+          renderer: _minimapDrawnRenderer,
+          color: opts.color || baseColor,
+          weight: Math.max(1, Math.min(2.4, opts.weight || 2)),
+          opacity: opts.opacity == null ? 0.9 : opts.opacity,
+          fillColor: opts.fillColor || baseColor,
+          fillOpacity: isArea ? Math.min(0.5, opts.fillOpacity == null ? 0.35 : opts.fillOpacity) : 0,
+          dashArray: opts.dashArray || null,
+          interactive: false
+        };
+      }
+    });
+    _minimapDrawn.addLayer(geoLayer);
+  });
+}
+
+function _scheduleMinimapFeatures() {
+  if (_minimapFeatureRaf) return;
+  _minimapFeatureRaf = requestAnimationFrame(function() {
+    _minimapFeatureRaf = 0;
+    refreshMinimapFeatures();
+  });
 }
 
 function updateMinimap() {
@@ -1263,9 +1308,9 @@ function initMinimap() {
     zoomControl: false,
     attributionControl: false,
     dragging: false,
-    touchZoom: false,
-    doubleClickZoom: false,
-    scrollWheelZoom: false,
+    touchZoom: true,
+    doubleClickZoom: true,
+    scrollWheelZoom: true,
     boxZoom: false,
     keyboard: false,
     zoomAnimation: false,
@@ -1277,13 +1322,24 @@ function initMinimap() {
     maxBoundsViscosity: 1,
     worldCopyJump: false
   }).setView(map.getCenter(), _minimapZoomFor(map.getZoom()));
+
+  _minimap.createPane('minimapDrawnPane');
+  _minimap.getPane('minimapDrawnPane').style.zIndex = 410;
+  _minimap.createPane('minimapViewportPane');
+  _minimap.getPane('minimapViewportPane').style.zIndex = 420;
+  _minimapDrawnRenderer = L.svg({ pane: 'minimapDrawnPane' });
+  _minimapViewportRenderer = L.svg({ pane: 'minimapViewportPane' });
+
   _minimapStyleKey = _minimapStyleKeyFor();
   _minimapGL = L.maplibreGL({
     style: _minimapStyle(),
     renderWorldCopies: true,
     interactive: false
   }).addTo(_minimap);
+  _minimapDrawn = L.layerGroup().addTo(_minimap);
   _minimapRect = L.rectangle(map.getBounds(), {
+    pane: 'minimapViewportPane',
+    renderer: _minimapViewportRenderer,
     color: '#e8b86d',
     weight: 1.6,
     opacity: 1,
@@ -1292,6 +1348,8 @@ function initMinimap() {
     interactive: false
   }).addTo(_minimap);
   _minimapDot = L.circleMarker(map.getCenter(), {
+    pane: 'minimapViewportPane',
+    renderer: _minimapViewportRenderer,
     radius: 3.4,
     color: '#1a1a1a',
     weight: 1,
@@ -1304,23 +1362,43 @@ function initMinimap() {
     if (_minimapSyncing) return;
     map.setView(e.latlng, map.getZoom(), { animate: false });
   });
-  var zoomInBtn = document.getElementById('minimap-zoom-in');
-  var zoomOutBtn = document.getElementById('minimap-zoom-out');
-  if (zoomInBtn) zoomInBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    minimapZoomBy(1);
+  _minimap.on('zoomend', function() {
+    if (_minimapSyncing) return;
+    _minimapZoomDelta = Math.max(1, Math.min(9, Math.round(map.getZoom() - _minimap.getZoom())));
   });
-  if (zoomOutBtn) zoomOutBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    minimapZoomBy(-1);
-  });
+
+  var wrap = document.getElementById('minimap');
+  var tip = document.getElementById('minimap-tip');
+  var hoverCapable = !(window.matchMedia && window.matchMedia('(hover: none)').matches);
+  if (wrap && tip && hoverCapable) {
+    wrap.addEventListener('pointerenter', function() {
+      tip.setAttribute('data-show', 'true');
+      tip.setAttribute('aria-hidden', 'false');
+    });
+    wrap.addEventListener('pointerleave', function() {
+      tip.setAttribute('data-show', 'false');
+      tip.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  if (typeof drawnItems !== 'undefined' && drawnItems.on) {
+    drawnItems.on('layeradd layerremove', function(e) {
+      if (e && e.layer && e.layer.on) e.layer.on('edit dragend', _scheduleMinimapFeatures);
+      _scheduleMinimapFeatures();
+    });
+    drawnItems.eachLayer(function(layer) {
+      if (layer && layer.on) layer.on('edit dragend', _scheduleMinimapFeatures);
+    });
+  }
+
+  refreshMinimapFeatures();
   updateMinimap();
 }
 
 map.on('move zoom', _scheduleMinimapUpdate);
 map.on('zoomend', updateMinimapVisibility);
+map.on('draw:edited draw:deleted', _scheduleMinimapFeatures);
+map.on('editable:vertex:drag editable:vertex:new editable:vertex:deleted', _scheduleMinimapFeatures);
 map.on('resize', function() {
   _scheduleMinimapUpdate();
   updateMinimapVisibility();
