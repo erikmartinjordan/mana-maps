@@ -182,7 +182,6 @@ const I18N = {
     hint_draw_generic: "Haz clic en el mapa para dibujar",
     // ── Live location ──
     minimap_title: "Minimapa de situación: haz clic para centrar el mapa aquí",
-    minimap_tip: "Minimapa",
     locate_title: "Mi ubicación",
     locate_locating: "Localizando…",
     locate_live_active: "Ubicación en directo activada",
@@ -776,7 +775,6 @@ const I18N = {
     hint_draw_generic: "Click on the map to draw",
     // ── Live location ──
     minimap_title: "Situational minimap: click to center the map here",
-    minimap_tip: "Minimap",
     locate_title: "My location",
     locate_locating: "Locating…",
     locate_live_active: "Live location enabled",

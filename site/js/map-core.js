@@ -1170,7 +1170,6 @@ const MINIMAP_ZOOM_OFFSET = 4;   // cuánto se aleja respecto al mapa principal
 let _minimap = null;
 let _minimapGL = null;
 let _minimapRect = null;
-let _minimapDot = null;
 let _minimapDrawn = null;
 let _minimapDrawnRenderer = null;
 let _minimapViewportRenderer = null;
@@ -1278,7 +1277,6 @@ function updateMinimap() {
   _minimap.setView(center, _minimapZoomFor(map.getZoom()), { animate: false });
   _minimapSyncing = false;
   if (_minimapRect) _minimapRect.setBounds(map.getBounds());
-  if (_minimapDot) _minimapDot.setLatLng(center);
 }
 
 function _scheduleMinimapUpdate() {
@@ -1347,17 +1345,6 @@ function initMinimap() {
     dashArray: '4 3',
     interactive: false
   }).addTo(_minimap);
-  _minimapDot = L.circleMarker(map.getCenter(), {
-    pane: 'minimapViewportPane',
-    renderer: _minimapViewportRenderer,
-    radius: 3.4,
-    color: '#1a1a1a',
-    weight: 1,
-    fill: true,
-    fillColor: '#e8b86d',
-    fillOpacity: 1,
-    interactive: false
-  }).addTo(_minimap);
   _minimap.on('click', function(e) {
     if (_minimapSyncing) return;
     map.setView(e.latlng, map.getZoom(), { animate: false });
@@ -1366,20 +1353,6 @@ function initMinimap() {
     if (_minimapSyncing) return;
     _minimapZoomDelta = Math.max(1, Math.min(9, Math.round(map.getZoom() - _minimap.getZoom())));
   });
-
-  var wrap = document.getElementById('minimap');
-  var tip = document.getElementById('minimap-tip');
-  var hoverCapable = !(window.matchMedia && window.matchMedia('(hover: none)').matches);
-  if (wrap && tip && hoverCapable) {
-    wrap.addEventListener('pointerenter', function() {
-      tip.setAttribute('data-show', 'true');
-      tip.setAttribute('aria-hidden', 'false');
-    });
-    wrap.addEventListener('pointerleave', function() {
-      tip.setAttribute('data-show', 'false');
-      tip.setAttribute('aria-hidden', 'true');
-    });
-  }
 
   if (typeof drawnItems !== 'undefined' && drawnItems.on) {
     drawnItems.on('layeradd layerremove', function(e) {
