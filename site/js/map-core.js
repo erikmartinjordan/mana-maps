@@ -172,6 +172,7 @@ function setMapThemeTiles() {
   }
   if (typeof refreshAllLabels === 'function') refreshAllLabels();
   if (typeof applyBasemapTheme === 'function') applyBasemapTheme();
+  if (typeof updateMinimapStyle === 'function') updateMinimapStyle();
 }
 
 const drawnItems = new L.FeatureGroup().addTo(map);
@@ -1163,18 +1164,72 @@ map.on('mouseout', () => {
 });
 
 // ── MINIMAP (situational thumbnail below the coordinates) ──
+const MINIMAP_MIN_ZOOM = 5;      // solo aparece a partir de esta escala
+const MINIMAP_ZOOM_OFFSET = 3;   // cuánto se aleja respecto al mapa principal
+
 let _minimap = null;
+let _minimapGL = null;
 let _minimapRect = null;
 let _minimapDot = null;
 let _minimapRaf = 0;
 let _minimapSyncing = false;
+let _minimapStyleKey = '';
 
 function _minimapZoomFor(mainZoom) {
-  return Math.max(1, Math.min(11, Math.round(mainZoom - 3)));
+  return Math.max(1, Math.min(11, Math.round(mainZoom - MINIMAP_ZOOM_OFFSET)));
+}
+
+function _minimapShouldShow() {
+  return typeof activeBase !== 'undefined'
+    && activeBase !== 'globe'
+    && map.getZoom() >= MINIMAP_MIN_ZOOM;
+}
+
+function _minimapStyleKeyFor() {
+  if (activeBase === 'satellite') return 'satellite';
+  return isDarkMapTheme() ? 'dark' : 'light';
+}
+
+function _minimapStyle() {
+  if (activeBase === 'satellite') {
+    var tileUrl = (window.MANA_BASEMAPS && window.MANA_BASEMAPS.getSatelliteTileUrl)
+      ? window.MANA_BASEMAPS.getSatelliteTileUrl()
+      : 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+    return {
+      version: 8,
+      sources: { sat: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
+      layers: [{ id: 'sat', type: 'raster', source: 'sat' }]
+    };
+  }
+  return getManaBasemapStyleUrl(isDarkMapTheme());
+}
+
+function _updateMinimapAttribution() {
+  var a = document.getElementById('minimap-attrib');
+  if (!a) return;
+  if (activeBase === 'satellite') {
+    a.href = 'https://www.google.com/help/terms_maps/';
+    a.textContent = 'Imagery \u00A9 Google';
+  } else {
+    a.href = 'https://openfreemap.org';
+    a.textContent = '\u00A9 OpenFreeMap';
+  }
+}
+
+function updateMinimapStyle() {
+  if (!_minimapGL || !_minimapGL.getMaplibreMap) return;
+  var key = _minimapStyleKeyFor();
+  if (key === _minimapStyleKey) return;
+  _minimapStyleKey = key;
+  var gl = _minimapGL.getMaplibreMap();
+  if (gl && gl.setStyle) gl.setStyle(_minimapStyle());
+  _updateMinimapAttribution();
 }
 
 function updateMinimap() {
   if (!_minimap || typeof map === 'undefined' || !map) return;
+  var el = document.getElementById('minimap');
+  if (el && el.style.display === 'none') return;
   const center = map.getCenter();
   _minimapSyncing = true;
   _minimap.setView(center, _minimapZoomFor(map.getZoom()), { animate: false });
@@ -1192,14 +1247,20 @@ function _scheduleMinimapUpdate() {
 }
 
 function updateMinimapVisibility() {
-  const el = document.getElementById('minimap');
+  var el = document.getElementById('minimap');
   if (!el) return;
-  el.style.display = (typeof activeBase !== 'undefined' && activeBase === 'globe') ? 'none' : '';
+  var show = _minimapShouldShow();
+  el.style.display = show ? '' : 'none';
+  el.setAttribute('aria-hidden', show ? 'false' : 'true');
+  if (!show) return;
+  if (!_minimap) initMinimap();
+  else _scheduleMinimapUpdate();
 }
 
 function initMinimap() {
   const el = document.getElementById('minimap-canvas');
   if (!el || typeof L === 'undefined' || !L.map || !map) return;
+  if (!L.maplibreGL) return;
   _minimap = L.map(el, {
     zoomControl: false,
     attributionControl: false,
@@ -1217,13 +1278,12 @@ function initMinimap() {
     maxBounds: [[-86, -180], [86, 180]],
     maxBoundsViscosity: 1,
     worldCopyJump: false
-  });
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    updateWhenIdle: true,
-    updateWhenZooming: false,
-    keepBuffer: 1,
-    noWrap: true
+  }).setView(map.getCenter(), _minimapZoomFor(map.getZoom()));
+  _minimapStyleKey = _minimapStyleKeyFor();
+  _minimapGL = L.maplibreGL({
+    style: _minimapStyle(),
+    renderWorldCopies: true,
+    interactive: false
   }).addTo(_minimap);
   _minimapRect = L.rectangle(map.getBounds(), {
     color: '#0ea5e9',
@@ -1247,17 +1307,21 @@ function initMinimap() {
     if (_minimapSyncing) return;
     map.setView(e.latlng, map.getZoom(), { animate: false });
   });
+  _updateMinimapAttribution();
   updateMinimap();
-  updateMinimapVisibility();
 }
 
 map.on('move zoom', _scheduleMinimapUpdate);
-map.on('resize', _scheduleMinimapUpdate);
+map.on('zoomend', updateMinimapVisibility);
+map.on('resize', function() {
+  _scheduleMinimapUpdate();
+  updateMinimapVisibility();
+});
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initMinimap);
+  document.addEventListener('DOMContentLoaded', updateMinimapVisibility);
 } else {
-  initMinimap();
+  updateMinimapVisibility();
 }
 
 // ── Zoom-based label visibility ──
