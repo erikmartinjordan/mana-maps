@@ -1364,13 +1364,31 @@ test('numeric legend candidates ignore text, dates and style keys', () => {
     legendTitle: 'Tipo',
     legendFormat: 'category',
     props: [
-      { Tipo: 'A', Altitud: '1.000 m', Fecha: '2020', Descripcion: 'Volcán de 1.000 m', _manaColor: '#ff0000' },
-      { Tipo: 'A', Altitud: '2.000 m', Fecha: '2021', Descripcion: 'Volcán de 2.000 m', _manaColor: '#00ff00' },
-      { Tipo: 'A', Altitud: '3.000 m', Fecha: '2022', Descripcion: 'Volcán de 3.000 m', _manaColor: '#0000ff' },
+      { Tipo: 'A', Altitud: '1.000 m', Fecha: '2020', Fundación: '2019', Descripcion: 'Volcán de 1.000 m', _manaColor: '#ff0000' },
+      { Tipo: 'A', Altitud: '2.000 m', Fecha: '2021', Fundación: '2021', Descripcion: 'Volcán de 2.000 m', _manaColor: '#00ff00' },
+      { Tipo: 'A', Altitud: '3.000 m', Fecha: '2022', Fundación: '2023', Descripcion: 'Volcán de 3.000 m', _manaColor: '#0000ff' },
     ],
   }).geojsonText);
   const candidates = legendNumericCandidates(geo, 'Tipo');
   expect(candidates.map(c => c.key)).toEqual(['Altitud']);
+
+  // Caso ai-labs-headquarters: la leyenda categórica «Región» es legítima y el
+  // único numérico alternativo es el año de fundación, que no es una rampa de
+  // color. El check no debe marcar el mapa.
+  const aiLabs = auditLegendCoherence([
+    legendMap('ai-labs-headquarters', {
+      legendKey: 'Región',
+      legendTitle: 'Región',
+      legendFormat: 'category',
+      props: [
+        { Región: 'América', Fundación: '2021' },
+        { Región: 'Europa', Fundación: '2022' },
+        { Región: 'Asia', Fundación: '2023' },
+      ],
+    }),
+  ]);
+  expect(aiLabs.issues).toEqual([]);
+  expect(aiLabs.details['ai-labs-headquarters'].candidates).toEqual([]);
 });
 
 // Regresión del bloque «Datos clave»: la frase empieza en minúscula, pero las

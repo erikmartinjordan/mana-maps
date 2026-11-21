@@ -2573,9 +2573,13 @@ const LEGEND_CATEGORICAL_FORMATS = new Set(['category', 'text']);
 // Deliberadamente estricto: descarta fechas, nombres y descripciones con cifras.
 const LEGEND_NUMERIC_LIKE_RE = /^-?\d[\d.,\s]*(?:\s*[A-Za-zµ°%$€/²³]+)*$/;
 // Claves temporales: una fecha no es una variable con rampa de leyenda.
+// «Fundación» (año de fundación de ai-labs-headquarters) entra aquí: un año no
+// es una magnitud que deba alimentar una rampa de color, así que no compite con
+// una leyenda categórica legítima como «Región».
 function isLegendDateKey(key) {
-  const snake = String(key).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
-  return /(^|_)(fecha|date|año|ano|year|timestamp)($|_)/.test(snake);
+  const snake = String(key).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return /(^|_)(fecha|date|año|ano|year|timestamp|fundacion|founded|inauguracion|inauguration|establecimiento|established)($|_)/.test(snake);
 }
 
 function isLegendNumericLike(value) {

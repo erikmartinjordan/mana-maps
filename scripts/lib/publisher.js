@@ -13,6 +13,10 @@ function httpsRequest(url, options, body) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const req = https.request({ hostname: u.hostname, path: u.pathname + u.search, method: options.method || 'GET', headers: options.headers || {} }, res => {
+      // StringDecoder vía setEncoding: concatenar chunks string a pelo partía
+      // los caracteres multibyte entre paquetes y metía U+FFFD en los
+      // geojsonText leídos de Firestore (falsos diffs en auditorías).
+      res.setEncoding('utf8');
       let d = ''; res.on('data', c => d += c); res.on('end', () => { try { resolve({ status: res.statusCode, data: JSON.parse(d) }); } catch (e) { resolve({ status: res.statusCode, data: d, parseError: true }); } });
     });
     req.on('error', reject); if (body) req.write(body); req.end();

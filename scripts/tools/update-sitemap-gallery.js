@@ -57,6 +57,9 @@ function httpsRequest(url, options, body) {
       headers: options.headers || {}
     }, (res) => {
       let data = '';
+      // Decodificación UTF-8 de streaming: concatenar chunks string partía los
+      // caracteres multibyte (ver scripts/lib/publisher.js).
+      res.setEncoding('utf8');
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => {
         try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
@@ -141,6 +144,9 @@ function firestoreRequest(token, method, urlPath, body) {
       }
     }, (res) => {
       let data = '';
+      // Decodificación UTF-8 de streaming: concatenar chunks string partía los
+      // caracteres multibyte (ver scripts/lib/publisher.js).
+      res.setEncoding('utf8');
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => {
         try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
