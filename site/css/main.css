@@ -442,9 +442,23 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
 #minimap .leaflet-container{cursor:crosshair;background:transparent;font:inherit;}
 #minimap::after{
   content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;
-  border-radius:50%;background:var(--blue);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.4);
+  border-radius:50%;background:#e8b86d;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 1px 4px rgba(0,0,0,.4);
   pointer-events:none;z-index:500;
 }
+#minimap-zoom{
+  position:absolute;right:6px;bottom:6px;z-index:600;
+  display:flex;flex-direction:column;gap:3px;
+}
+#minimap-zoom button{
+  width:21px;height:21px;padding:0;border-radius:6px;
+  border:0.5px solid var(--border);
+  background:color-mix(in srgb, var(--surface) 88%, transparent);
+  color:var(--primary);font:600 14px/1 'DM Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+#minimap-zoom button:hover{border-color:#e8b86d;color:#e8b86d;}
+#minimap-zoom button:active{transform:scale(.94);}
 
 /* ── Leaflet attribution (integrated + minimal) ── */
 /* Bottom-right corner holds the locate button + attribution tag side by side. */

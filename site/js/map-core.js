@@ -1174,9 +1174,20 @@ let _minimapDot = null;
 let _minimapRaf = 0;
 let _minimapSyncing = false;
 let _minimapStyleKey = '';
+let _minimapZoomDelta = MINIMAP_ZOOM_OFFSET;
 
 function _minimapZoomFor(mainZoom) {
-  return Math.max(1, Math.min(11, Math.round(mainZoom - MINIMAP_ZOOM_OFFSET)));
+  return Math.max(1, Math.min(11, Math.round(mainZoom - _minimapZoomDelta)));
+}
+
+function minimapZoomBy(step) {
+  if (!_minimap) return;
+  var next = Math.max(1, Math.min(11, _minimap.getZoom() + step));
+  if (next === _minimap.getZoom()) return;
+  _minimapSyncing = true;
+  _minimap.setZoom(next, { animate: false });
+  _minimapSyncing = false;
+  _minimapZoomDelta = Math.max(1, Math.min(9, Math.round(map.getZoom() - next)));
 }
 
 function _minimapShouldShow() {
@@ -1273,25 +1284,37 @@ function initMinimap() {
     interactive: false
   }).addTo(_minimap);
   _minimapRect = L.rectangle(map.getBounds(), {
-    color: '#0ea5e9',
-    weight: 1.5,
-    opacity: 0.95,
+    color: '#e8b86d',
+    weight: 1.6,
+    opacity: 1,
     fill: false,
     dashArray: '4 3',
     interactive: false
   }).addTo(_minimap);
   _minimapDot = L.circleMarker(map.getCenter(), {
-    radius: 3.2,
-    color: '#ffffff',
-    weight: 1.5,
+    radius: 3.4,
+    color: '#1a1a1a',
+    weight: 1,
     fill: true,
-    fillColor: '#0ea5e9',
+    fillColor: '#e8b86d',
     fillOpacity: 1,
     interactive: false
   }).addTo(_minimap);
   _minimap.on('click', function(e) {
     if (_minimapSyncing) return;
     map.setView(e.latlng, map.getZoom(), { animate: false });
+  });
+  var zoomInBtn = document.getElementById('minimap-zoom-in');
+  var zoomOutBtn = document.getElementById('minimap-zoom-out');
+  if (zoomInBtn) zoomInBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    minimapZoomBy(1);
+  });
+  if (zoomOutBtn) zoomOutBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    minimapZoomBy(-1);
   });
   updateMinimap();
 }
