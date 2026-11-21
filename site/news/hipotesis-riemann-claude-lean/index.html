@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es" data-page-type="news" data-slug="hipotesis-riemann-claude-lean">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La hipótesis de Riemann, el problema del millón de dólares que Claude dice haber resuelto</title>
+<meta name="description" content="Levent Alpöge, de Anthropic, asegura que Claude ha demostrado la hipótesis de Riemann. Solo hay 14 partes de código Lean y ninguna verificación independiente: qué dice el teorema y qué falta.">
+<link rel="canonical" href="https://maña.com/news/hipotesis-riemann-claude-lean/">
+<link rel="alternate" hreflang="es" href="https://maña.com/news/hipotesis-riemann-claude-lean/">
+<link rel="alternate" hreflang="en" href="https://maña.com/en/news/riemann-hypothesis-claude-proof-claim/">
+<link rel="alternate" hreflang="x-default" href="https://maña.com/news/hipotesis-riemann-claude-lean/">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://maña.com/news/hipotesis-riemann-claude-lean/">
+<meta property="og:title" content="La hipótesis de Riemann, el problema del millón de dólares que Claude dice haber resuelto">
+<meta property="og:description" content="Levent Alpöge, de Anthropic, asegura que Claude ha demostrado la hipótesis de Riemann. Solo hay 14 partes de código Lean y ninguna verificación independiente: qué dice el teorema y qué falta.">
+<meta property="og:image" content="https://maña.com/assets/news/riemann-pixel-critical-line.png">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="1080">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="Maña Maps">
+<meta property="article:published_time" content="2026-11-21T08:00:00+01:00">
+<meta property="article:section" content="News">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="La hipótesis de Riemann, el problema del millón de dólares que Claude dice haber resuelto">
+<meta name="twitter:description" content="Levent Alpöge, de Anthropic, asegura que Claude ha demostrado la hipótesis de Riemann. Solo hay 14 partes de código Lean y ninguna verificación independiente: qué dice el teorema y qué falta.">
+<meta name="twitter:image" content="https://maña.com/assets/news/riemann-pixel-critical-line.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"La hipótesis de Riemann, el problema del millón de dólares que Claude dice haber resuelto","description":"Levent Alpöge, de Anthropic, asegura que Claude ha demostrado la hipótesis de Riemann. Solo hay 14 partes de código Lean y ninguna verificación independiente: qué dice el teorema y qué falta.","datePublished":"2026-11-21T08:00:00+01:00","dateModified":"2026-11-21T08:00:00+01:00","inLanguage":"es","articleSection":"News","author":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"publisher":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://maña.com/news/hipotesis-riemann-claude-lean/"},"image":["https://maña.com/assets/news/riemann-pixel-critical-line.png"]}</script>
+<style>
+  :root{
+    --bg:#f5f5f7;--surface:rgba(255,255,255,.78);--text:#111214;--muted:#5f6670;
+    --line:rgba(16,24,40,.12);--cta:#17191c;--accent:#17191c;--shadow:0 8px 30px rgba(15,23,42,.08);
+    --soft:rgba(255,255,255,.8);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    min-height:100vh;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--text);background:linear-gradient(180deg, #ffffff 0%, #f5f5f7 48%, #efeff1 100%);
+    -webkit-font-smoothing:antialiased;line-height:1.65;
+  }
+  a{color:inherit;text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
+  a:hover{text-decoration-color:currentColor}
+  .frame{
+    width:min(1120px,calc(100% - 40px));margin:24px auto;border:1px solid var(--line);
+    border-radius:28px;background:var(--surface);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .topbar{
+    height:72px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;
+    gap:16px;border-bottom:1px solid var(--line);min-width:0;overflow:hidden;
+  }
+  .brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+  .brand-logo{position:relative;width:36px;height:36px;flex-shrink:0}
+  .brand-logo svg{width:100%;height:100%;display:block}
+  .brand-word{font-size:18px;font-weight:800;letter-spacing:-.02em}
+  .brand-sub{font-size:11px;color:var(--muted);margin-left:3px;font-weight:600;vertical-align:super}
+  .topbar-actions{display:inline-flex;gap:10px;align-items:center;min-width:0;flex-shrink:1}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 18px;border-radius:50px;
+    font-size:12px;font-weight:700;text-decoration:none;border:1px solid transparent;cursor:pointer;
+    transition:opacity .15s,transform .1s,background .15s,border-color .15s;white-space:nowrap;
+  }
+  .btn-primary{background:var(--cta);color:#fff;border-color:var(--cta)}
+  .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+  .btn-ghost{background:none;border-color:var(--line);color:var(--text)}
+  .btn-ghost:hover{background:rgba(16,24,40,.04)}
+  .page{padding:44px 28px 56px}
+  .breadcrumb{max-width:760px;margin:0 auto 18px;font-size:12px;color:var(--muted)}
+  .breadcrumb a{color:var(--muted);text-decoration:none}
+  .breadcrumb a:hover{color:var(--text)}
+  .post{max-width:760px;margin:0 auto}
+  .kicker{
+    font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--text);margin:0 0 10px;
+  }
+  h1{
+    font-size:clamp(34px,5vw,56px);line-height:1.02;letter-spacing:-.04em;
+    font-weight:800;margin:0 0 18px;
+  }
+  .standfirst{font-size:19px;line-height:1.5;color:var(--muted);margin:0 0 18px;font-weight:500}
+  .byline{font-size:13px;color:var(--muted);padding-bottom:24px;border-bottom:1px solid var(--line)}
+  .map-embed{
+    margin:26px 0 30px;border:1px solid var(--line);border-radius:24px;
+    background:var(--soft);padding:16px;box-shadow:0 4px 16px rgba(15,23,42,.04);
+  }
+  .map-embed h2{margin:0 0 8px;font-size:20px}
+  .map-embed > p{font-size:14px;color:var(--muted);margin:0 0 12px}
+  .map-frame{height:520px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#eef1f5}
+  .map-frame iframe{width:100%;height:100%;border:0;display:block}
+  .map-credit{font-size:12px;color:var(--muted);margin:10px 0 0}
+  .map-help{font-size:12px;color:var(--muted);margin:6px 0 0}
+  h2{font-size:24px;line-height:1.2;letter-spacing:-.02em;margin:38px 0 12px}
+  p{font-size:17px;line-height:1.75;color:#1f2937;margin:0 0 18px}
+  .key-data{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:26px 0}
+  .key-data div{border:1px solid var(--line);border-radius:18px;padding:16px;background:rgba(255,255,255,.72)}
+  .key-data strong{display:block;font-size:28px;line-height:1.05;letter-spacing:-.03em;color:var(--text)}
+  .key-data span{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+  .table-wrap{overflow-x:auto;margin:18px 0 24px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.72)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:420px}
+  caption{text-align:left;font-size:12px;color:var(--muted);padding:12px 14px 0}
+  th,td{padding:11px 14px;border-bottom:1px solid var(--line);text-align:left}
+  th{background:rgba(16,24,40,.03);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  tr:last-child td{border-bottom:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  .callout{
+    border-left:3px solid var(--text);background:rgba(16,24,40,.045);padding:16px 18px;
+    border-radius:0 16px 16px 0;margin:24px 0;font-size:15px;color:var(--text);
+  }
+  .callout p:last-child{margin-bottom:0}
+  .sources{border-top:1px solid var(--line);margin-top:38px;padding-top:20px}
+  .sources h2{font-size:18px;margin-top:0}
+  .sources ul{padding-left:18px;margin:0}
+  .sources li{margin-bottom:9px;font-size:14px;color:var(--muted)}
+  .cta{display:flex;gap:10px;flex-wrap:wrap;margin:30px 0 8px}
+  .cta .btn{height:42px;padding:0 20px;font-size:13px}
+  .footer{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    padding:18px 28px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);
+  }
+  .footer a{color:var(--muted);text-decoration:none}
+  .footer a:hover{color:var(--text)}
+  @media(max-width:920px){
+    .frame{width:calc(100% - 20px);margin:10px auto}
+    .topbar{padding:0 16px;height:66px}
+    .page{padding:32px 20px 44px}
+  }
+  @media(max-width:560px){
+    .topbar{padding:0 12px;height:60px}
+    .topbar-actions .btn-ghost:first-child{display:none}
+    .brand-word{font-size:17px}
+    .page{padding:26px 16px 36px}
+    h1{font-size:34px}
+    .standfirst{font-size:17px}
+    .key-data{grid-template-columns:1fr}
+    .map-frame{height:420px}
+    .map-embed{padding:12px;border-radius:18px}
+    .table-wrap table{min-width:0;font-size:12px}
+    .footer{padding:16px 18px;justify-content:center;text-align:center}
+  }
+
+  .article-illustration{margin:26px 0 30px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .article-illustration img{width:min(100%,560px);height:auto;display:block}
+  .article-illustration figcaption{font-size:12px;color:var(--muted);text-align:center;max-width:560px}
+  .disclaimer{font-size:12px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:16px;margin-top:30px}
+
+  .lang-switch{max-width:760px;margin:0 auto 10px;text-align:right;font-size:12px}
+  .lang-switch a{color:var(--muted);text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
+  .post-footer{border-top:1px solid var(--line);margin-top:38px;padding-top:22px}
+  .footer-cta-dark{background:var(--cta);color:#fff;border-radius:20px;padding:24px}
+  .footer-cta-dark h2{color:#fff;margin:0 0 8px}
+  .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
+  .btn-light{background:#fff;color:var(--cta);border-color:#fff}
+  .btn-light:hover{opacity:.9}
+</style>
+  <link rel="stylesheet" href="/css/site-footer.css">
+  <link rel="stylesheet" href="/css/site-navbar.css">
+  <link rel="stylesheet" href="/css/public-theme.css">
+</head>
+<body class="public-article">
+  <main class="frame">
+<header class="site-navbar">
+  <div class="site-navbar__inner">
+    <a class="brand" href="/" aria-label="Maña Maps">
+      <span class="brand-logo"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+            d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+            transform="translate(100 100)"/>
+        <g transform="translate(62.7889 133.0811) scale(0.04069010 -0.04069010)"><path fill="#fff" d="M1675 0H1303V987L1032 350H777L506 987V0H154V1489H585L915 754L1244 1489H1675Z"/><path fill="#fff" transform="translate(1530 -40)" d="M-186 2061Q-196 1894 -269.0 1816.5Q-342 1739 -472 1739Q-520 1739 -563.0 1758.5Q-606 1778 -637 1797Q-667 1816 -703.5 1835.5Q-740 1855 -765 1855Q-815 1855 -833.0 1823.5Q-851 1792 -855 1733H-1065Q-1059 1879 -983.0 1966.5Q-907 2054 -780 2054Q-732 2054 -691.0 2037.0Q-650 2020 -612 1998Q-582 1981 -546.0 1962.0Q-510 1943 -487 1943Q-439 1943 -418.5 1975.0Q-398 2007 -396 2061Z"/></g></svg></span>
+      <span><span class="brand-word">Maña</span><span class="brand-sub">Maps</span></span>
+    </a>
+    <nav class="site-navbar__actions" aria-label="Navegación principal">
+      <a class="site-navbar__link site-navbar__link--desktop" href="/news/" data-i18n="footer_news">News</a>
+      <a class="site-navbar__link site-navbar__link--desktop" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+      <a class="site-navbar__link site-navbar__link--desktop" href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      <details class="site-navbar__more">
+        <summary class="site-navbar__link site-navbar__menu" data-i18n="nav_menu">Menú</summary>
+        <div class="site-navbar__panel">
+          <a class="" href="/news/" data-i18n="footer_news">News</a>
+          <a class="" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+          <a class="" href="/pricing/" data-i18n="footer_pricing">Precios</a>
+        </div>
+      </details>
+      <a class="site-navbar__link site-navbar__cta" href="/map/" data-i18n="nav_app">Abrir app</a>
+    </nav>
+  </div>
+</header>
+
+  <div class="page">
+    <div class="lang-switch"><a href="/en/news/riemann-hypothesis-claude-proof-claim/" hreflang="en" lang="en">Read in English</a></div>
+    <nav class="breadcrumb" aria-label="Migas de pan"><a href="/">Inicio</a> · <a href="/gallery/">Galería</a> · News</nav>
+
+  <article class="post">
+    <header>
+      <p class="kicker">Explicador · Inteligencia artificial</p>
+      <h1>La hipótesis de Riemann, el problema del millón de dólares que Claude dice haber resuelto</h1>
+      <p class="standfirst">Levent Alpöge, matemático de Anthropic, asegura que Claude ha demostrado la hipótesis de Riemann, el problema abierto más famoso de las matemáticas. De momento hay 14 partes de código Lean y ninguna verificación independiente. Esto es lo que dice el teorema, por qué importa y qué falta para creerlo.</p>
+      <p class="byline">Redacción · 21 de noviembre de 2026 · 7 min de lectura</p>
+    </header>
+
+    <figure class="article-illustration">
+      <img src="/assets/news/riemann-pixel-critical-line.png" alt="Ilustración pixel art de una libreta con la letra zeta, una recta vertical marcada con un medio y tres puntos naranjas sobre ella" width="1080" height="1080" loading="eager">
+      <figcaption>Ilustración pixel art para el explicador de la hipótesis de Riemann. Maña Maps.</figcaption>
+    </figure>
+
+    <div class="key-data" aria-label="Datos clave">
+      <div><strong>1859</strong><span>Año de la memoria de Riemann</span></div>
+      <div><strong>½</strong><span>Parte real de todos los ceros no triviales</span></div>
+      <div><strong>0</strong><span>Verificaciones independientes publicadas</span></div>
+    </div>
+
+    <p>El viernes 20 de noviembre, Levent Alpöge publicó en su web una nota breve: junto a Claude, decía, había demostrado la hipótesis de Riemann. No presentó un artículo, ni una versión divulgativa, ni un PDF con una demostración en el sentido clásico. Presentó código: una formalización en Lean repartida en 14 partes que, según su propia descripción, equivale a unas 250.000 páginas de matemáticas convencionales.</p>
+    <p>La noticia es enorme si el código hace lo que dice. Y ahí está el problema: todavía nadie lo ha comprobado de forma independiente. Ni el Clay Mathematics Institute, que sigue listando el problema como abierto, ni una revista con revisión por pares, ni un equipo externo de matemáticos ha confirmado que la formalización compile, que demuestre exactamente la hipótesis y que no se apoye en axiomas de más. Es un anuncio, no un resultado aceptado.</p>
+    <p>Alpöge trabaja en Anthropic, la empresa de Claude. Eso no invalida nada, pero sí obliga a separar dos cosas: lo que dice el código y lo que dice el marketing. No consta que Anthropic haya presentado el trabajo como un resultado verificado de la compañía. La comunidad matemática tampoco lo ha validado. La frase honesta hoy es «hay un claim publicado», no «la hipótesis está demostrada».</p>
+
+    <div class="callout">
+      <p><strong>Qué significa «formalizado».</strong> Una demostración en Lean es código que un programa comprueba paso a paso. Es una ventaja enorme frente a un PDF: el ordenador no acepta un salto lógico. Pero solo vale si el código compila, si el enunciado es de verdad la hipótesis de Riemann y si no hay trampas como un <code>sorry</code> (el «aquí me salto esto» de Lean) escondido en alguna parte.</p>
+    </div>
+
+    <h2>Qué dice exactamente la hipótesis</h2>
+    <p>La función zeta de Riemann se define, para números complejos con parte real mayor que 1, como una suma infinita: 1 + 1/2<sup>s</sup> + 1/3<sup>s</sup> + 1/4<sup>s</sup> y así hasta el infinito. Riemann demostró en 1859 que esa suma se puede extender a casi todo el plano complejo, y que sus ceros —los valores de <em>s</em> que hacen que la función valga cero— aparecen en dos familias.</p>
+    <p>La primera es aburrida: los enteros pares negativos (−2, −4, −6…), llamados ceros triviales. La segunda es la que importa. Son los ceros no triviales, y todos los calculados hasta hoy —más de diez billones— tienen la misma parte real: ½. La hipótesis afirma que <strong>todos</strong> los ceros no triviales, sin excepción, caen sobre esa línea vertical, la recta crítica. No dice que estén en cualquier sitio del plano: dice que están todos exactamente en el mismo eje.</p>
+    <p>Esa frase, que cabe en un tuit, conecta con los números primos. La función zeta es la forma que tiene la teoría de números de empaquetar toda la información sobre los primos. Si los ceros están donde Riemann dijo, el error al contar primos hasta un número <em>x</em> es tan pequeño como puede serlo. En fórmula: el número de primos hasta <em>x</em>, que se escribe π(<em>x</em>), se aproxima por la integral logarítmica Li(<em>x</em>) con un error del orden de √<em>x</em> por el logaritmo de <em>x</em>. Sin la hipótesis, lo mejor que podemos garantizar es un error bastante mayor; con ella, el error baja a la raíz cuadrada.</p>
+
+    <h2>La partitura que hay detrás del ruido</h2>
+    <p>Si miras la lista de primos —2, 3, 5, 7, 11, 13, 17, 19, 23, 29…— parece ruido. Los huecos cambian sin avisar: uno, dos, cuatro, dos, cuatro, dos, cuatro, seis. No hay una regla visible que diga cuándo aparece el siguiente. Esa es la razón por la que los primos han fascinado a los matemáticos durante siglos: son el ejemplo más puro de algo que parece aleatorio pero no lo es.</p>
+    <p>La hipótesis de Riemann es la afirmación de que ese ruido sigue una partitura. Los ceros de la función zeta son las frecuencias de la partitura; los primos, las notas que suenan. Cuanto más ordenadas estén las frecuencias, más regular es la melodía. Riemann no dio la demostración, pero dejó escrito el instrumento con el que se podía escuchar. Casi todos los avances en teoría de números de los últimos 160 años han consistido en afinar ese instrumento.</p>
+    <p>La analogía tiene un límite y conviene decirlo: no es que los primos «canten» en un sentido místico. Es que la función zeta es una máquina de contar primos, y sus ceros son los engranajes. Si un engranaje se sale de su sitio, el conteo se desvía. La hipótesis dice que ningún engranaje se sale.</p>
+
+    <h2>Por qué importa (y por qué no rompe tu banco)</h2>
+    <p>La hipótesis es uno de los siete problemas del milenio del Clay Institute, con un premio de un millón de dólares. Pero el premio es lo de menos. Lo importante es que cientos de teoremas empiezan hoy con la misma coletilla: «suponiendo la hipótesis de Riemann». Son resultados condicionales: si la hipótesis es cierta, entonces tal cota se cumple, tal algoritmo es rápido, tal estimación es válida. Una demostración convertiría todos esos condicionales en teoremas sin condiciones.</p>
+    <p>¿Y la criptografía? Aquí hay que frenar. La hipótesis de Riemann no rompe RSA por sí sola. RSA se apoya en la dificultad de factorizar números grandes, y no existe un teorema que diga que una demostración de Riemann factorice nada en tiempo polinómico. Lo que sí hace es afinar las cotas de algunos algoritmos y garantizar el comportamiento de tests de primalidad que hoy funcionan bajo la hipótesis generalizada de Riemann. Es una mejora de conocimiento, no un apagón de internet.</p>
+    <p>El valor real es otro: entender por qué los primos, que no siguen un patrón aparente, obedecen una ley global. Es la misma clase de sorpresa que la física encontró cuando descubrió que las irregularidades de los planetas se explican por una ley de gravitación. La hipótesis dice que el desorden de los primos es una ilusión de escala.</p>
+
+    <h2>Cómo se comprueba una demostración en 2026</h2>
+    <p>Tradicionalmente, una demostración se acepta cuando un grupo de especialistas la lee, la entiende y no encuentra el error. Con Lean, el proceso cambia: el núcleo del programa verifica cada paso, así que la pregunta ya no es «¿está bien el razonamiento?» sino «¿el código compila y el enunciado es el correcto?». Es una diferencia importante, porque desplaza la desconfianza desde la lógica hacia la traducción.</p>
+    <p>La lista de comprobaciones es concreta. Primera: que el repositorio compile desde cero, sin dependencias privadas ni pasos manuales. Segunda: que no quede ningún <code>sorry</code> ni axioma añadido a mano; en Lean se puede pedir al programa que imprima los axiomas que usa cada teorema. Tercera: que el enunciado formal sea la hipótesis de Riemann y no una versión más débil, un caso particular o una reformulación equivalente solo bajo supuestos. Cuarta: que matemáticos independientes revisen tanto el código como la traducción. Quinta: que exista una versión legible, en lenguaje matemático normal, publicada en una revista con revisión por pares.</p>
+    <p>El último punto no es un capricho burocrático. Las reglas del Clay Institute exigen que el resultado aparezca en una publicación revisada por pares y que pasen dos años antes de conceder el premio. Una formalización enorme puede ser correcta y, aun así, no cumplir ese trámite. Y hay un precedente que conviene recordar: en 2018, Michael Atiyah presentó en Heidelberg una supuesta demostración basada en su función de Todd. La sala se llenó, la noticia dio la vuelta al mundo y la demostración nunca se aceptó: no había detalles suficientes y la comunidad encontró problemas.</p>
+
+    <h2>Qué mirar en los próximos días</h2>
+    <p>Lo primero es el código. Si las 14 partes se pueden clonar, compilar y verificar con una versión pública de Lean y mathlib, el anuncio sube un escalón. Si hace falta un entorno especial, un binario privado o una rama que no está publicada, la verificación se complica. Lo segundo es el enunciado: la comunidad pedirá ver la primera línea del teorema, la que dice qué se demuestra. Lo tercero es el silencio o la confirmación de Anthropic: sería esperable que una empresa con una demostración verificada de Riemann la presentara con más detalle que una nota personal.</p>
+    <p>También importa el cómo. Si Claude ha producido una formalización completa, es un hito de la demostración automática, incluso si la demostración resulta tener un fallo. Pasar de «el modelo escribe texto plausible» a «el modelo produce código que un verificador acepta» es un cambio de categoría. La pregunta interesante ya no es solo si Riemann es cierto, sino cuánto de una demostración de 250.000 páginas puede generar y comprobar una máquina.</p>
+    <p>Mientras tanto, la posición razonable es la de la comunidad matemática: interés, escepticismo y paciencia. Un claim no es un teorema. Y una formalización sin auditar es un claim escrito en un lenguaje muy preciso.</p>
+
+    <h2>Sin mapa esta vez</h2>
+    <p>Este explicador no lleva mapa. La hipótesis de Riemann no tiene geografía: no hay países, ciudades ni puntos que añadan contexto real. Forzar un mapa decorativo sería justo lo contrario de lo que intentamos hacer en Maña Maps. Si quieres explorar datos con territorio, la <a href="/gallery/">galería</a> reúne los mapas publicados y cada ficha explica su fuente y su fecha.</p>
+
+    <p class="disclaimer">Este artículo describe un anuncio público no verificado. No afirma que la hipótesis de Riemann esté demostrada. Las citas y cifras proceden de las fuentes enlazadas y de la nota publicada por el autor el 20 de noviembre de 2026.</p>
+
+    <section class="sources">
+      <h2>Fuentes</h2>
+      <ul>
+        <li><a href="https://alpo.ge/" target="_blank" rel="noopener">Levent Alpöge (20 de noviembre de 2026): nota personal sobre la formalización en Lean</a>. Descripción del anuncio, las 14 partes y la equivalencia de unas 250.000 páginas.</li>
+        <li><a href="https://www.claymath.org/millennium/riemann-hypothesis/" target="_blank" rel="noopener">Clay Mathematics Institute: «Riemann Hypothesis»</a>. Enunciado oficial, estado del problema y reglas del premio del milenio.</li>
+        <li><a href="https://leanprover.github.io/" target="_blank" rel="noopener">Lean Prover: documentación oficial</a> y <a href="https://leanprover-community.github.io/" target="_blank" rel="noopener">mathlib Community</a>. Funcionamiento del verificador y de la biblioteca de matemáticas formalizadas.</li>
+        <li><a href="https://en.wikipedia.org/wiki/Riemann_hypothesis" target="_blank" rel="noopener">Wikipedia: «Riemann hypothesis»</a>. Definición de la función zeta, ceros triviales y no triviales, y relación con el conteo de primos.</li>
+        <li><a href="https://www.scientificamerican.com/" target="_blank" rel="noopener">Scientific American</a> y <a href="https://www.newscientist.com/" target="_blank" rel="noopener">New Scientist</a>. Cobertura del anuncio y contexto del debate en la comunidad.</li>
+        <li><a href="https://en.wikipedia.org/wiki/Michael_Atiyah" target="_blank" rel="noopener">Wikipedia: «Michael Atiyah»</a>. Precedente de la supuesta demostración presentada en Heidelberg en 2018.</li>
+        <li><a href="https://maña.com/gallery/" target="_blank" rel="noopener">Galería de Maña Maps</a>. Mapas publicados con fuente y fecha de los datos.</li>
+      </ul>
+    </section>
+
+    <section class="post-footer" aria-label="Pie del artículo">
+      <div class="footer-cta-dark">
+        <h2>Convierte tus datos en un mapa</h2>
+        <p>Importa una hoja de cálculo o dibuja directamente sobre el mapa. Compártelo con un enlace.</p>
+        <a class="btn btn-light" href="/map/">Crea un mapa gratis</a>
+      </div>
+    </section>
+  </article>
+
+
+    </div>
+
+    <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
+  <div class="site-footer__lead">
+    <a class="site-footer__brand" href="/">
+      <img src="/favicon.svg" alt="" width="30" height="30">
+      <span>Maña Maps</span>
+    </a>
+    <p class="site-footer__tagline" data-i18n="footer_tagline">Mapas claros, decisiones rápidas.</p>
+    <span class="site-footer__made" data-i18n="footer_made">Hecho con ♥ en Barcelona</span>
+  </div>
+  <nav class="site-footer__groups" aria-label="Enlaces del pie">
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_product">Producto</h2>
+      <div class="site-footer__links">
+        <a href="/map/" data-i18n="footer_create">Crear mapa</a>
+        <a href="/gallery/" data-i18n="footer_gallery">Galería</a>
+        <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      </div>
+    </section>
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_resources">Recursos</h2>
+      <div class="site-footer__links">
+        <a href="/news/" data-i18n="footer_news">News</a>
+        <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+        <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
+        <a href="/map/?tutorial=1">Tutorial</a>
+      <a href="/tasks/" data-i18n="footer_tasks">Tareas</a></div>
+    </section>
+    <section class="site-footer__group site-footer__group--wide">
+      <h2 data-i18n="footer_company">Compañía</h2>
+      <div class="site-footer__links">
+        <a href="/about/" data-i18n="footer_about">Acerca de</a>
+        <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener" data-i18n="footer_github">GitHub</a>
+      </div>
+    </section>
+  </nav>
+  <div class="site-footer__bottom">
+    <span class="site-footer__copyright">© 2026 Maña Maps</span>
+  </div>
+</div></footer>
+  </main>
+  <script defer src="/js/firebase-config.local.js"></script>
+  <script defer src="/js/tracking.js?v=1792741000"></script>
+<script data-overscroll-bg="1">
+(function(){
+  if(!document.querySelector('.frame')) return;
+  var root=document.documentElement, top='#ffffff', bottom='#fbfcfd';
+  function sync(){
+    var y=window.scrollY||window.pageYOffset||0;
+    var max=Math.max(0,root.scrollHeight-window.innerHeight);
+    if(y<=1) root.style.backgroundColor=top;
+    else if(y>=max-1) root.style.backgroundColor=bottom;
+  }
+  window.addEventListener('scroll',sync,{passive:true});
+  window.addEventListener('resize',sync);
+  sync();
+})();
+</script>
+<script defer src="/js/mobile-menu.js"></script>
+</body>
+</html>

@@ -1,5 +1,36 @@
 [
   {
+    "date": "2026-11-21",
+    "event": "Levent Alpöge, matemático de Anthropic, publicó el 20 de noviembre de 2026 en alpo.ge una nota en la que asegura que Claude ha demostrado la hipótesis de Riemann. El trabajo se presenta solo como una formalización en Lean repartida en 14 partes (equivalente a unas 250.000 páginas de matemáticas convencionales), sin artículo legible, sin revisión por pares y sin verificación independiente. El Clay Mathematics Institute sigue listando el problema como abierto y sus reglas exigen publicación revisada y dos años de espera para conceder el premio. Explicador: la hipótesis dice que todos los ceros no triviales de la función zeta tienen parte real ½, lo que equivale a que π(x) se aproxime por Li(x) con un error del orden de √x log x; de ahí que cientos de teoremas condicionales pasarían a ser incondicionales, aunque una demostración no rompe RSA por sí sola. Contexto: el precedente de Atiyah en 2018, que tampoco se aceptó. Sin mapa asociado porque el tema no tiene dimensión geográfica.",
+    "type": "news",
+    "format": "explicador",
+    "topic": "ia",
+    "sourceUrls": [
+      "https://alpo.ge/",
+      "https://www.claymath.org/millennium/riemann-hypothesis/",
+      "https://leanprover.github.io/",
+      "https://leanprover-community.github.io/",
+      "https://en.wikipedia.org/wiki/Riemann_hypothesis",
+      "https://www.scientificamerican.com/",
+      "https://www.newscientist.com/",
+      "https://maña.com/gallery/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "hipotesis-riemann-claude-lean",
+        "url": "/news/hipotesis-riemann-claude-lean/",
+        "title": "La hipótesis de Riemann, el problema del millón de dólares que Claude dice haber resuelto",
+        "description": "Levent Alpöge, de Anthropic, asegura que Claude ha demostrado la hipótesis de Riemann. Solo hay 14 partes de código Lean y ninguna verificación independiente: qué dice el teorema y qué falta."
+      },
+      "en": {
+        "slug": "riemann-hypothesis-claude-proof-claim",
+        "url": "/en/news/riemann-hypothesis-claude-proof-claim/",
+        "title": "The Riemann hypothesis, the million-dollar problem Claude says it solved",
+        "description": "Levent Alpöge, of Anthropic, says Claude has proved the Riemann hypothesis. So far there are 14 parts of Lean code and no independent verification: what the theorem says and what is missing."
+      }
+    }
+  },
+  {
     "date": "2026-11-20",
     "event": "Anthropic debutó el 19 de noviembre de 2026 en el Nasdaq con el símbolo ANT: colocó 980 millones de acciones a 83 dólares (81.340 millones, la mayor IPO de la historia), abrió a 111,50 (+34,3%), marcó un máximo de 114,99 y cerró en 97,17 (+17,1%), con una capitalización totalmente diluida de unos 1,8 billones. Análisis propio con el folleto: 33.240 millones de ingresos en nueve meses (+1.206%), 16.960 en el tercer trimestre, pérdida operativa de 567 millones tras ganar 974 en el segundo, 900.900 millones de compromisos de cómputo (70.700 a doce meses) y 11.900 clientes de más de 100.000 dólares que aportan el 74% de los ingresos. Modelo de tres escenarios (110.000/150.000/190.000 millones de ventas 2027; 8x/11x/14x) → valor razonable 93 dólares, frente al cierre de 97,17. Mapa de 20 sedes de laboratorios de IA (páginas corporativas y Wikipedia, noviembre de 2026): 9 en América, 4 en Europa y 7 en Asia; San Francisco concentra Anthropic, OpenAI y Perplexity.",
     "type": "news",
