@@ -1164,8 +1164,8 @@ map.on('mouseout', () => {
 });
 
 // ── MINIMAP (situational thumbnail below the coordinates) ──
-const MINIMAP_MIN_ZOOM = 5;      // solo aparece a partir de esta escala
-const MINIMAP_ZOOM_OFFSET = 3;   // cuánto se aleja respecto al mapa principal
+const MINIMAP_MIN_ZOOM = 8;      // solo aparece a partir de esta escala
+const MINIMAP_ZOOM_OFFSET = 5;   // cuánto se aleja respecto al mapa principal
 
 let _minimap = null;
 let _minimapGL = null;
@@ -1204,18 +1204,6 @@ function _minimapStyle() {
   return getManaBasemapStyleUrl(isDarkMapTheme());
 }
 
-function _updateMinimapAttribution() {
-  var a = document.getElementById('minimap-attrib');
-  if (!a) return;
-  if (activeBase === 'satellite') {
-    a.href = 'https://www.google.com/help/terms_maps/';
-    a.textContent = 'Imagery \u00A9 Google';
-  } else {
-    a.href = 'https://openfreemap.org';
-    a.textContent = '\u00A9 OpenFreeMap';
-  }
-}
-
 function updateMinimapStyle() {
   if (!_minimapGL || !_minimapGL.getMaplibreMap) return;
   var key = _minimapStyleKeyFor();
@@ -1223,7 +1211,6 @@ function updateMinimapStyle() {
   _minimapStyleKey = key;
   var gl = _minimapGL.getMaplibreMap();
   if (gl && gl.setStyle) gl.setStyle(_minimapStyle());
-  _updateMinimapAttribution();
 }
 
 function updateMinimap() {
@@ -1289,9 +1276,8 @@ function initMinimap() {
     color: '#0ea5e9',
     weight: 1.5,
     opacity: 0.95,
-    fill: true,
-    fillColor: '#0ea5e9',
-    fillOpacity: 0.12,
+    fill: false,
+    dashArray: '4 3',
     interactive: false
   }).addTo(_minimap);
   _minimapDot = L.circleMarker(map.getCenter(), {
@@ -1307,7 +1293,6 @@ function initMinimap() {
     if (_minimapSyncing) return;
     map.setView(e.latlng, map.getZoom(), { animate: false });
   });
-  _updateMinimapAttribution();
   updateMinimap();
 }
 

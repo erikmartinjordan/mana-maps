@@ -445,16 +445,6 @@ html,body{height:100%;background:var(--bg);color:var(--primary);overflow:hidden;
   border-radius:50%;background:var(--blue);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.4);
   pointer-events:none;z-index:500;
 }
-#minimap-attrib{
-  position:absolute;left:4px;bottom:2px;z-index:500;
-  font-size:8px;line-height:1;letter-spacing:.01em;
-  color:rgba(0,0,0,.5);text-decoration:none;pointer-events:auto;
-}
-#minimap-attrib:hover{text-decoration:underline;}
-:root[data-theme="dark"] #minimap-attrib{color:rgba(255,255,255,.45);}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) #minimap-attrib{color:rgba(255,255,255,.45);}
-}
 
 /* ── Leaflet attribution (integrated + minimal) ── */
 /* Bottom-right corner holds the locate button + attribution tag side by side. */
