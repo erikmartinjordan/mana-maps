@@ -1050,6 +1050,7 @@ function setBaseLayer(type) {
   setMapThemeTiles();
   updateBasemapStack(type);
   if (typeof updateMapPillbar === 'function') updateMapPillbar(type);
+  if (typeof updateMinimapVisibility === 'function') updateMinimapVisibility();
   _tileLabelRetries = 0;
   _retryTileLabelHide();
 }
@@ -1160,6 +1161,104 @@ map.on('mousemove', e => {
 map.on('mouseout', () => {
   document.getElementById('mouse-coords').textContent = '\u2014 , \u2014';
 });
+
+// ── MINIMAP (situational thumbnail below the coordinates) ──
+let _minimap = null;
+let _minimapRect = null;
+let _minimapDot = null;
+let _minimapRaf = 0;
+let _minimapSyncing = false;
+
+function _minimapZoomFor(mainZoom) {
+  return Math.max(1, Math.min(11, Math.round(mainZoom - 3)));
+}
+
+function updateMinimap() {
+  if (!_minimap || typeof map === 'undefined' || !map) return;
+  const center = map.getCenter();
+  _minimapSyncing = true;
+  _minimap.setView(center, _minimapZoomFor(map.getZoom()), { animate: false });
+  _minimapSyncing = false;
+  if (_minimapRect) _minimapRect.setBounds(map.getBounds());
+  if (_minimapDot) _minimapDot.setLatLng(center);
+}
+
+function _scheduleMinimapUpdate() {
+  if (_minimapRaf) return;
+  _minimapRaf = requestAnimationFrame(function() {
+    _minimapRaf = 0;
+    updateMinimap();
+  });
+}
+
+function updateMinimapVisibility() {
+  const el = document.getElementById('minimap');
+  if (!el) return;
+  el.style.display = (typeof activeBase !== 'undefined' && activeBase === 'globe') ? 'none' : '';
+}
+
+function initMinimap() {
+  const el = document.getElementById('minimap-canvas');
+  if (!el || typeof L === 'undefined' || !L.map || !map) return;
+  _minimap = L.map(el, {
+    zoomControl: false,
+    attributionControl: false,
+    dragging: false,
+    touchZoom: false,
+    doubleClickZoom: false,
+    scrollWheelZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    zoomAnimation: false,
+    fadeAnimation: false,
+    markerZoomAnimation: false,
+    minZoom: 1,
+    maxZoom: 11,
+    maxBounds: [[-86, -180], [86, 180]],
+    maxBoundsViscosity: 1,
+    worldCopyJump: false
+  });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    updateWhenIdle: true,
+    updateWhenZooming: false,
+    keepBuffer: 1,
+    noWrap: true
+  }).addTo(_minimap);
+  _minimapRect = L.rectangle(map.getBounds(), {
+    color: '#0ea5e9',
+    weight: 1.5,
+    opacity: 0.95,
+    fill: true,
+    fillColor: '#0ea5e9',
+    fillOpacity: 0.12,
+    interactive: false
+  }).addTo(_minimap);
+  _minimapDot = L.circleMarker(map.getCenter(), {
+    radius: 3.2,
+    color: '#ffffff',
+    weight: 1.5,
+    fill: true,
+    fillColor: '#0ea5e9',
+    fillOpacity: 1,
+    interactive: false
+  }).addTo(_minimap);
+  _minimap.on('click', function(e) {
+    if (_minimapSyncing) return;
+    map.setView(e.latlng, map.getZoom(), { animate: false });
+  });
+  updateMinimap();
+  updateMinimapVisibility();
+}
+
+map.on('move zoom', _scheduleMinimapUpdate);
+map.on('resize', _scheduleMinimapUpdate);
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMinimap);
+} else {
+  initMinimap();
+}
 
 // ── Zoom-based label visibility ──
 const LABEL_MIN_ZOOM = 0;
