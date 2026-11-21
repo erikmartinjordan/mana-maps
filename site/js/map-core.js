@@ -1169,10 +1169,8 @@ const MINIMAP_ZOOM_OFFSET = 4;   // cuánto se aleja respecto al mapa principal
 
 let _minimap = null;
 let _minimapGL = null;
-let _minimapRect = null;
 let _minimapDrawn = null;
 let _minimapDrawnRenderer = null;
-let _minimapViewportRenderer = null;
 let _minimapRaf = 0;
 let _minimapFeatureRaf = 0;
 let _minimapSyncing = false;
@@ -1181,6 +1179,12 @@ let _minimapZoomDelta = MINIMAP_ZOOM_OFFSET;
 
 function _minimapZoomFor(mainZoom) {
   return Math.max(1, Math.min(11, Math.round(mainZoom - _minimapZoomDelta)));
+}
+
+function _minimapStepZoom(step) {
+  if (!_minimap) return;
+  var next = Math.max(1, Math.min(11, _minimap.getZoom() + step));
+  if (next !== _minimap.getZoom()) _minimap.setZoom(next);
 }
 
 function _minimapShouldShow() {
@@ -1276,7 +1280,6 @@ function updateMinimap() {
   _minimapSyncing = true;
   _minimap.setView(center, _minimapZoomFor(map.getZoom()), { animate: false });
   _minimapSyncing = false;
-  if (_minimapRect) _minimapRect.setBounds(map.getBounds());
 }
 
 function _scheduleMinimapUpdate() {
@@ -1306,9 +1309,9 @@ function initMinimap() {
     zoomControl: false,
     attributionControl: false,
     dragging: false,
-    touchZoom: true,
-    doubleClickZoom: true,
-    scrollWheelZoom: true,
+    touchZoom: false,
+    doubleClickZoom: false,
+    scrollWheelZoom: false,
     boxZoom: false,
     keyboard: false,
     zoomAnimation: false,
@@ -1323,10 +1326,7 @@ function initMinimap() {
 
   _minimap.createPane('minimapDrawnPane');
   _minimap.getPane('minimapDrawnPane').style.zIndex = 410;
-  _minimap.createPane('minimapViewportPane');
-  _minimap.getPane('minimapViewportPane').style.zIndex = 420;
   _minimapDrawnRenderer = L.svg({ pane: 'minimapDrawnPane' });
-  _minimapViewportRenderer = L.svg({ pane: 'minimapViewportPane' });
 
   _minimapStyleKey = _minimapStyleKeyFor();
   _minimapGL = L.maplibreGL({
@@ -1335,23 +1335,26 @@ function initMinimap() {
     interactive: false
   }).addTo(_minimap);
   _minimapDrawn = L.layerGroup().addTo(_minimap);
-  _minimapRect = L.rectangle(map.getBounds(), {
-    pane: 'minimapViewportPane',
-    renderer: _minimapViewportRenderer,
-    color: '#e8b86d',
-    weight: 1.6,
-    opacity: 1,
-    fill: false,
-    dashArray: '4 3',
-    interactive: false
-  }).addTo(_minimap);
-  _minimap.on('click', function(e) {
-    if (_minimapSyncing) return;
-    map.setView(e.latlng, map.getZoom(), { animate: false });
-  });
   _minimap.on('zoomend', function() {
     if (_minimapSyncing) return;
     _minimapZoomDelta = Math.max(1, Math.min(9, Math.round(map.getZoom() - _minimap.getZoom())));
+  });
+
+  // Wheel/double-click zoom around the minimap center only: the yellow frame
+  // stays fixed in the middle and the view never pans to the sides.
+  var wheelLocked = false;
+  el.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (wheelLocked) return;
+    wheelLocked = true;
+    _minimapStepZoom(e.deltaY < 0 ? 1 : -1);
+    setTimeout(function() { wheelLocked = false; }, 140);
+  }, { passive: false });
+  el.addEventListener('dblclick', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    _minimapStepZoom(1);
   });
 
   if (typeof drawnItems !== 'undefined' && drawnItems.on) {
