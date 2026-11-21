@@ -2,7 +2,7 @@
   "source": "Firestore maps.views",
   "views": {
     "active-volcanoes-world": 22,
-    "ai-labs-headquarters": 10,
+    "ai-labs-headquarters": 12,
     "air-pollution-pm25-world": 9,
     "airports-world": 11,
     "alcohol-consumption-world": 2,
