@@ -46,6 +46,24 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/news/cop31-prorroga-fosiles/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/cop31-prorroga-fosiles/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/cop31-overtime-fossil-fuels/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/cop31-prorroga-fosiles/"/>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://xn--maa-8ma.com/en/news/cop31-overtime-fossil-fuels/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/cop31-prorroga-fosiles/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/cop31-overtime-fossil-fuels/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/cop31-prorroga-fosiles/"/>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/news/hipotesis-riemann-claude-lean/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/hipotesis-riemann-claude-lean/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/riemann-hypothesis-claude-proof-claim/"/>

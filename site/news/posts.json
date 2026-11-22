@@ -1,5 +1,35 @@
 [
   {
+    "date": "2026-11-22",
+    "event": "La COP31 de Antalya (Turquía, 9-20 de noviembre de 2026) entró este domingo 22 en su tercer día de prórroga sin acuerdo. El nuevo borrador presentado por la presidencia turco-australiana reafirma el deber financiero de los países ricos pero sin cifras, y mantiene la ausencia de menciones a los combustibles fósiles: el segundo borrador (19 de noviembre) pasó de 144 a 80 párrafos y borró las dos referencias al abandono de los fósiles tras las objeciones de Arabia Saudí y otros productores, según Reuters; también eliminó la meta de 120.000 millones de dólares anuales para adaptación en 2035. La UE rechazó los dos primeros textos, India se niega a citar hidrocarburos (EFE), Panamá amenaza con objeción formal y Estados Unidos no participa. Contexto del mapa (Global Carbon Project / OWID, 2026, datos de 2024, 205 países): China 12.289 Mt (31,8%), EE UU 4.904 (12,7%), India 3.193 (8,3%); los tres primeros suman el 52,8% del total mundial y los diez primeros el 68,9%. Arabia Saudí emite 692 Mt (1,8%) con 20,4 t por habitante, frente a 2,2 de India y 6,8 de Alemania; España, 220 Mt (0,6%).",
+    "type": "news",
+    "format": "noticia",
+    "topic": "otro",
+    "mapSlug": "co2-total-emissions-world",
+    "sourceUrls": [
+      "https://efe.com/medio-ambiente/2026-11-22/nuevo-borrador-cop31",
+      "https://efe.com/medio-ambiente/2026-11-21/acuerdos-cop31-antalya-turquia",
+      "https://www.cronicadelhenares.com/2026/11/cop31-antalya-dia-12-prorroga-fosiles.html",
+      "https://elclarin.cl/2026/11/20/cop31-al-borde-del-fracaso-desaparecen-los-combustibles-fosiles-del-acuerdo-y-se-debilita-el-financiamiento-climatico",
+      "https://maña.com/gallery/co2-total-emissions-world/",
+      "https://ourworldindata.org/co2-emissions"
+    ],
+    "translations": {
+      "es": {
+        "slug": "cop31-prorroga-fosiles",
+        "url": "/news/cop31-prorroga-fosiles/",
+        "title": "La COP31 entra en su tercera prórroga sin acuerdo sobre los fósiles",
+        "description": "La COP31 afronta su tercera prórroga sin citar los combustibles fósiles: el nuevo borrador evita las cifras y el mapa de emisiones señala a los grandes emisores."
+      },
+      "en": {
+        "slug": "cop31-overtime-fossil-fuels",
+        "url": "/en/news/cop31-overtime-fossil-fuels/",
+        "title": "COP31 runs into a third day of overtime without a deal on fossil fuels",
+        "description": "Cop31 is into a third day of overtime without naming fossil fuels: the new draft drops the figures, and the emissions map shows who emits most."
+      }
+    }
+  },
+  {
     "date": "2026-11-21",
     "event": "Levent Alpöge, matemático de Anthropic, publicó el 20 de noviembre de 2026 en alpo.ge una nota en la que asegura que Claude ha demostrado la hipótesis de Riemann. El trabajo se presenta solo como una formalización en Lean repartida en 14 partes (equivalente a unas 250.000 páginas de matemáticas convencionales), sin artículo legible, sin revisión por pares y sin verificación independiente. El Clay Mathematics Institute sigue listando el problema como abierto y sus reglas exigen publicación revisada y dos años de espera para conceder el premio. Explicador: la hipótesis dice que todos los ceros no triviales de la función zeta tienen parte real ½, lo que equivale a que π(x) se aproxime por Li(x) con un error del orden de √x log x; de ahí que cientos de teoremas condicionales pasarían a ser incondicionales, aunque una demostración no rompe RSA por sí sola. Contexto: el precedente de Atiyah en 2018, que tampoco se aceptó. Sin mapa asociado porque el tema no tiene dimensión geográfica.",
     "type": "news",
