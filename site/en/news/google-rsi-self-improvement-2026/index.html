@@ -112,6 +112,24 @@
   body.public-article .chart-dot{fill:var(--accent);stroke:#101111;stroke-width:2}
   body.public-article .chart-dot--peak{fill:#d97757}
   body.public-article .chart-annotation{fill:#e8b86d;font-size:13px;font-weight:700}
+
+  body.public-article .rel-bar{fill:var(--accent);opacity:.34}
+  body.public-article .rel-bar--2026{fill:#d97757;opacity:.9}
+  body.public-article .rel-avg{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  body.public-article .rel-base{stroke:rgba(255,255,255,.13);stroke-width:1}
+  body.public-article .rel-grid{stroke:rgba(255,255,255,.07);stroke-width:1;stroke-dasharray:2 5}
+  body.public-article .rel-lab{fill:var(--bright);font-size:12px;font-weight:700}
+  body.public-article .rel-delta{fill:var(--bright);font-size:10px;font-weight:600;font-variant-numeric:tabular-nums}
+  body.public-article .rel-year{fill:var(--quiet);font-size:10px;font-weight:600}
+  body.public-article .rel-col{fill:var(--quiet);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+  body.public-article .rel-legend{fill:var(--quiet);font-size:10px}
+  @media(max-width:640px){
+    body.public-article .rel-lab{font-size:22px}
+    body.public-article .rel-delta{font-size:16px}
+    body.public-article .rel-year{font-size:16px}
+    body.public-article .rel-col{font-size:13px}
+    body.public-article .rel-legend{font-size:16px}
+  }
   .article-illustration{margin:26px 0 30px;display:flex;flex-direction:column;align-items:center;gap:8px}
   .article-illustration img{width:min(100%,560px);height:auto;display:block}
   .article-illustration figcaption{font-size:12px;color:var(--muted);text-align:center;max-width:560px}
@@ -391,6 +409,188 @@
         <figcaption>METR, Time Horizon 1.1 (January 2026). The combined trend doubles roughly every 3.6 months; on verifiable tasks, every 1.65 months, a noisier figure. A naive extrapolation puts the 200-hour horizon in July 2027; it is not a forecast. The measure covers software and research tasks, not all work.</figcaption>
       </figure>
 
+      <h2 id="releases">More releases, not necessarily faster</h2>
+      <p>Another way to measure whether the machinery is accelerating is to count what labs publish. The AI Engineering keeps a record of 1,250 notable model releases since January 2023. Between January and October 2025, the six big labs published 77 models; in the same period of 2026, 121, 57% more. The aggregate hides the split: Google and OpenAI are flat (33→37 and 20→27), while Microsoft (9→21), Anthropic (5→11), Meta (5→10) and xAI (5→15) are rising. The point is not that AI is improving itself; it is that release cadence has become a strategy: more variants, more modalities and more intermediate versions. Publishing more is not the same as researching better.</p>
+
+      <figure class="chart">
+        <div class="chart-head">
+          <span class="chart-eyebrow">Releases · January 2024 – October 2026</span>
+          <h3 class="chart-title">Release cadence is not accelerating equally across labs</h3>
+          <p class="chart-lede">Notable model releases per month, all modalities. The six big labs went from 77 between January and October 2025 to 121 in the same period of 2026.</p>
+        </div>
+        <div class="chart-scroll rel-chart" role="group" aria-label="Notable model releases per month and lab">
+<svg viewBox="0 0 740 430" role="img" aria-labelledby="rel-title rel-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="rel-title">Notable model releases per month and lab, January 2024 to October 2026</title>
+<desc id="rel-desc">Google, OpenAI, Microsoft, Anthropic, Meta and xAI. Each bar is one month; orange bars are 2026. The line is the three-month moving average. Google and OpenAI are flat; Microsoft, Anthropic, Meta and xAI are rising.</desc>
+<rect x="494.1" y="44" width="155.9" height="330" fill="rgba(217,119,87,.045)"/>
+<line class="rel-base" x1="120" y1="93" x2="650" y2="93"/>
+<text class="rel-lab" x="108" y="89" text-anchor="end">Google</text>
+<text class="rel-delta" x="732" y="89" text-anchor="end">33 → 37</text>
+<line class="rel-base" x1="120" y1="145" x2="650" y2="145"/>
+<text class="rel-lab" x="108" y="141" text-anchor="end">OpenAI</text>
+<text class="rel-delta" x="732" y="141" text-anchor="end">20 → 27</text>
+<line class="rel-base" x1="120" y1="197" x2="650" y2="197"/>
+<text class="rel-lab" x="108" y="193" text-anchor="end">Microsoft</text>
+<text class="rel-delta" x="732" y="193" text-anchor="end">9 → 21</text>
+<line class="rel-base" x1="120" y1="249" x2="650" y2="249"/>
+<text class="rel-lab" x="108" y="245" text-anchor="end">Anthropic</text>
+<text class="rel-delta" x="732" y="245" text-anchor="end">5 → 11</text>
+<line class="rel-base" x1="120" y1="301" x2="650" y2="301"/>
+<text class="rel-lab" x="108" y="297" text-anchor="end">Meta</text>
+<text class="rel-delta" x="732" y="297" text-anchor="end">5 → 10</text>
+<line class="rel-base" x1="120" y1="353" x2="650" y2="353"/>
+<text class="rel-lab" x="108" y="349" text-anchor="end">xAI</text>
+<text class="rel-delta" x="732" y="349" text-anchor="end">5 → 15</text>
+<line class="rel-grid" x1="213.5" y1="48" x2="213.5" y2="380"/>
+<text class="rel-year" x="213.5" y="35" text-anchor="middle">2024</text>
+<line class="rel-grid" x1="400.6" y1="48" x2="400.6" y2="380"/>
+<text class="rel-year" x="400.6" y="35" text-anchor="middle">2025</text>
+<line class="rel-grid" x1="572.1" y1="48" x2="572.1" y2="380"/>
+<text class="rel-year" x="572.1" y="35" text-anchor="middle">2026</text>
+<line class="rel-grid" x1="650" y1="48" x2="650" y2="380"/>
+<text class="rel-col" x="732" y="35" text-anchor="end">Jan–Oct</text>
+<rect class="rel-bar" x="139.2" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2024-02: 3</title></rect>
+<rect class="rel-bar" x="170.4" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2024-04: 3</title></rect>
+<rect class="rel-bar" x="185.9" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2024-05: 4</title></rect>
+<rect class="rel-bar" x="201.5" y="88.2" width="8.4" height="4.8" rx="2"><title>Google, 2024-06: 1</title></rect>
+<rect class="rel-bar" x="217.1" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2024-07: 2</title></rect>
+<rect class="rel-bar" x="232.7" y="88.2" width="8.4" height="4.8" rx="2"><title>Google, 2024-08: 1</title></rect>
+<rect class="rel-bar" x="248.3" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2024-09: 2</title></rect>
+<rect class="rel-bar" x="295.1" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2024-12: 4</title></rect>
+<rect class="rel-bar" x="326.2" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2025-02: 3</title></rect>
+<rect class="rel-bar" x="341.8" y="59.4" width="8.4" height="33.6" rx="2"><title>Google, 2025-03: 7</title></rect>
+<rect class="rel-bar" x="357.4" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2025-04: 4</title></rect>
+<rect class="rel-bar" x="373.0" y="59.4" width="8.4" height="33.6" rx="2"><title>Google, 2025-05: 7</title></rect>
+<rect class="rel-bar" x="388.6" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2025-06: 2</title></rect>
+<rect class="rel-bar" x="404.2" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2025-07: 2</title></rect>
+<rect class="rel-bar" x="419.8" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2025-08: 3</title></rect>
+<rect class="rel-bar" x="435.4" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2025-09: 3</title></rect>
+<rect class="rel-bar" x="450.9" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2025-10: 2</title></rect>
+<rect class="rel-bar" x="466.5" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2025-11: 2</title></rect>
+<rect class="rel-bar" x="482.1" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2025-12: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="497.7" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2026-01: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="513.3" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2026-02: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="528.9" y="69.0" width="8.4" height="24.0" rx="2"><title>Google, 2026-03: 5</title></rect>
+<rect class="rel-bar rel-bar--2026" x="544.5" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2026-04: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="560.1" y="83.4" width="8.4" height="9.6" rx="2"><title>Google, 2026-05: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="575.7" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2026-06: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="591.2" y="73.8" width="8.4" height="19.2" rx="2"><title>Google, 2026-07: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="606.8" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2026-08: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="622.4" y="64.2" width="8.4" height="28.8" rx="2"><title>Google, 2026-09: 6</title></rect>
+<rect class="rel-bar rel-bar--2026" x="638.0" y="78.6" width="8.4" height="14.4" rx="2"><title>Google, 2026-10: 3</title></rect>
+<polyline class="rel-avg" points="159.0,88.2 174.6,83.4 190.1,81.8 205.7,80.2 221.3,81.8 236.9,86.6 252.5,85.0 268.1,88.2 283.7,89.8 299.3,86.6 314.9,86.6 330.4,81.8 346.0,77.0 361.6,70.6 377.2,64.2 392.8,72.2 408.4,75.4 424.0,81.8 439.6,80.2 455.1,80.2 470.7,81.8 486.3,80.2 501.9,77.0 517.5,75.4 533.1,73.8 548.7,75.4 564.3,77.0 579.9,78.6 595.4,77.0 611.0,75.4 626.6,72.2 642.2,73.8"/>
+<rect class="rel-bar" x="123.6" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2024-01: 1</title></rect>
+<rect class="rel-bar" x="185.9" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2024-05: 1</title></rect>
+<rect class="rel-bar" x="217.1" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2024-07: 1</title></rect>
+<rect class="rel-bar" x="232.7" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2024-08: 1</title></rect>
+<rect class="rel-bar" x="248.3" y="135.4" width="8.4" height="9.6" rx="2"><title>OpenAI, 2024-09: 2</title></rect>
+<rect class="rel-bar" x="263.9" y="135.4" width="8.4" height="9.6" rx="2"><title>OpenAI, 2024-10: 2</title></rect>
+<rect class="rel-bar" x="295.1" y="130.6" width="8.4" height="14.4" rx="2"><title>OpenAI, 2024-12: 3</title></rect>
+<rect class="rel-bar" x="310.7" y="135.4" width="8.4" height="9.6" rx="2"><title>OpenAI, 2025-01: 2</title></rect>
+<rect class="rel-bar" x="326.2" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2025-02: 1</title></rect>
+<rect class="rel-bar" x="341.8" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2025-03: 4</title></rect>
+<rect class="rel-bar" x="357.4" y="135.4" width="8.4" height="9.6" rx="2"><title>OpenAI, 2025-04: 2</title></rect>
+<rect class="rel-bar" x="373.0" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2025-05: 1</title></rect>
+<rect class="rel-bar" x="388.6" y="135.4" width="8.4" height="9.6" rx="2"><title>OpenAI, 2025-06: 2</title></rect>
+<rect class="rel-bar" x="419.8" y="130.6" width="8.4" height="14.4" rx="2"><title>OpenAI, 2025-08: 3</title></rect>
+<rect class="rel-bar" x="435.4" y="135.4" width="8.4" height="9.6" rx="2"><title>OpenAI, 2025-09: 2</title></rect>
+<rect class="rel-bar" x="450.9" y="130.6" width="8.4" height="14.4" rx="2"><title>OpenAI, 2025-10: 3</title></rect>
+<rect class="rel-bar" x="466.5" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2025-11: 4</title></rect>
+<rect class="rel-bar" x="482.1" y="130.6" width="8.4" height="14.4" rx="2"><title>OpenAI, 2025-12: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="513.3" y="130.6" width="8.4" height="14.4" rx="2"><title>OpenAI, 2026-02: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="528.9" y="130.6" width="8.4" height="14.4" rx="2"><title>OpenAI, 2026-03: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="544.5" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2026-04: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="560.1" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2026-05: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="575.7" y="140.2" width="8.4" height="4.8" rx="2"><title>OpenAI, 2026-06: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="591.2" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2026-07: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="622.4" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2026-09: 4</title></rect>
+<rect class="rel-bar rel-bar--2026" x="638.0" y="125.8" width="8.4" height="19.2" rx="2"><title>OpenAI, 2026-10: 4</title></rect>
+<polyline class="rel-avg" points="159.0,143.4 174.6,145.0 190.1,143.4 205.7,143.4 221.3,141.8 236.9,141.8 252.5,138.6 268.1,137.0 283.7,138.6 299.3,137.0 314.9,137.0 330.4,135.4 346.0,133.8 361.6,133.8 377.2,133.8 392.8,137.0 408.4,140.2 424.0,137.0 439.6,137.0 455.1,132.2 470.7,130.6 486.3,129.0 501.9,133.8 517.5,135.4 533.1,135.4 548.7,129.0 564.3,127.4 579.9,130.6 595.4,130.6 611.0,137.0 626.6,132.2 642.2,132.2"/>
+<rect class="rel-bar" x="170.4" y="192.2" width="8.4" height="4.8" rx="2"><title>Microsoft, 2024-04: 1</title></rect>
+<rect class="rel-bar" x="185.9" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2024-05: 2</title></rect>
+<rect class="rel-bar" x="232.7" y="182.6" width="8.4" height="14.4" rx="2"><title>Microsoft, 2024-08: 3</title></rect>
+<rect class="rel-bar" x="295.1" y="192.2" width="8.4" height="4.8" rx="2"><title>Microsoft, 2024-12: 1</title></rect>
+<rect class="rel-bar" x="326.2" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2025-02: 2</title></rect>
+<rect class="rel-bar" x="357.4" y="182.6" width="8.4" height="14.4" rx="2"><title>Microsoft, 2025-04: 3</title></rect>
+<rect class="rel-bar" x="404.2" y="192.2" width="8.4" height="4.8" rx="2"><title>Microsoft, 2025-07: 1</title></rect>
+<rect class="rel-bar" x="419.8" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2025-08: 2</title></rect>
+<rect class="rel-bar" x="450.9" y="192.2" width="8.4" height="4.8" rx="2"><title>Microsoft, 2025-10: 1</title></rect>
+<rect class="rel-bar" x="466.5" y="192.2" width="8.4" height="4.8" rx="2"><title>Microsoft, 2025-11: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="528.9" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2026-03: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="544.5" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2026-04: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="560.1" y="192.2" width="8.4" height="4.8" rx="2"><title>Microsoft, 2026-05: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="575.7" y="168.2" width="8.4" height="28.8" rx="2"><title>Microsoft, 2026-06: 6</title></rect>
+<rect class="rel-bar rel-bar--2026" x="591.2" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2026-07: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="606.8" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2026-08: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="622.4" y="187.4" width="8.4" height="9.6" rx="2"><title>Microsoft, 2026-09: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="638.0" y="177.8" width="8.4" height="19.2" rx="2"><title>Microsoft, 2026-10: 4</title></rect>
+<polyline class="rel-avg" points="159.0,197.0 174.6,195.4 190.1,192.2 205.7,192.2 221.3,193.8 236.9,192.2 252.5,192.2 268.1,192.2 283.7,197.0 299.3,195.4 314.9,195.4 330.4,192.2 346.0,193.8 361.6,189.0 377.2,192.2 392.8,192.2 408.4,195.4 424.0,192.2 439.6,192.2 455.1,192.2 470.7,193.8 486.3,193.8 501.9,195.4 517.5,197.0 533.1,193.8 548.7,190.6 564.3,189.0 579.9,182.6 595.4,182.6 611.0,181.0 626.6,187.4 642.2,184.2"/>
+<rect class="rel-bar" x="154.8" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2024-03: 1</title></rect>
+<rect class="rel-bar" x="201.5" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2024-06: 1</title></rect>
+<rect class="rel-bar" x="263.9" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2024-10: 1</title></rect>
+<rect class="rel-bar" x="326.2" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2025-02: 1</title></rect>
+<rect class="rel-bar" x="373.0" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2025-05: 1</title></rect>
+<rect class="rel-bar" x="419.8" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2025-08: 1</title></rect>
+<rect class="rel-bar" x="435.4" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2025-09: 1</title></rect>
+<rect class="rel-bar" x="450.9" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2025-10: 1</title></rect>
+<rect class="rel-bar" x="466.5" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2025-11: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="513.3" y="239.4" width="8.4" height="9.6" rx="2"><title>Anthropic, 2026-02: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="544.5" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2026-04: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="560.1" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2026-05: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="575.7" y="239.4" width="8.4" height="9.6" rx="2"><title>Anthropic, 2026-06: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="591.2" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2026-07: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="622.4" y="234.6" width="8.4" height="14.4" rx="2"><title>Anthropic, 2026-09: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="638.0" y="244.2" width="8.4" height="4.8" rx="2"><title>Anthropic, 2026-10: 1</title></rect>
+<polyline class="rel-avg" points="159.0,247.4 174.6,247.4 190.1,247.4 205.7,247.4 221.3,247.4 236.9,247.4 252.5,249.0 268.1,247.4 283.7,247.4 299.3,247.4 314.9,249.0 330.4,247.4 346.0,247.4 361.6,247.4 377.2,247.4 392.8,247.4 408.4,247.4 424.0,247.4 439.6,245.8 455.1,244.2 470.7,244.2 486.3,245.8 501.9,247.4 517.5,245.8 533.1,245.8 548.7,244.2 564.3,245.8 579.9,242.6 595.4,242.6 611.0,244.2 626.6,242.6 642.2,242.6"/>
+<rect class="rel-bar" x="123.6" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2024-01: 1</title></rect>
+<rect class="rel-bar" x="170.4" y="291.4" width="8.4" height="9.6" rx="2"><title>Meta, 2024-04: 2</title></rect>
+<rect class="rel-bar" x="201.5" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2024-06: 1</title></rect>
+<rect class="rel-bar" x="217.1" y="281.8" width="8.4" height="19.2" rx="2"><title>Meta, 2024-07: 4</title></rect>
+<rect class="rel-bar" x="248.3" y="277.0" width="8.4" height="24.0" rx="2"><title>Meta, 2024-09: 5</title></rect>
+<rect class="rel-bar" x="263.9" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2024-10: 1</title></rect>
+<rect class="rel-bar" x="295.1" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2024-12: 1</title></rect>
+<rect class="rel-bar" x="357.4" y="281.8" width="8.4" height="19.2" rx="2"><title>Meta, 2025-04: 4</title></rect>
+<rect class="rel-bar" x="435.4" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2025-09: 1</title></rect>
+<rect class="rel-bar" x="466.5" y="286.6" width="8.4" height="14.4" rx="2"><title>Meta, 2025-11: 3</title></rect>
+<rect class="rel-bar" x="482.1" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2025-12: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="528.9" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2026-03: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="544.5" y="296.2" width="8.4" height="4.8" rx="2"><title>Meta, 2026-04: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="591.2" y="291.4" width="8.4" height="9.6" rx="2"><title>Meta, 2026-07: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="606.8" y="291.4" width="8.4" height="9.6" rx="2"><title>Meta, 2026-08: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="622.4" y="291.4" width="8.4" height="9.6" rx="2"><title>Meta, 2026-09: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="638.0" y="291.4" width="8.4" height="9.6" rx="2"><title>Meta, 2026-10: 2</title></rect>
+<polyline class="rel-avg" points="159.0,299.4 174.6,297.8 190.1,297.8 205.7,296.2 221.3,293.0 236.9,293.0 252.5,286.6 268.1,291.4 283.7,291.4 299.3,297.8 314.9,299.4 330.4,299.4 346.0,301.0 361.6,294.6 377.2,294.6 392.8,294.6 408.4,301.0 424.0,301.0 439.6,299.4 455.1,299.4 470.7,294.6 486.3,294.6 501.9,294.6 517.5,299.4 533.1,299.4 548.7,297.8 564.3,297.8 579.9,299.4 595.4,297.8 611.0,294.6 626.6,291.4 642.2,291.4"/>
+<rect class="rel-bar" x="154.8" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2024-03: 2</title></rect>
+<rect class="rel-bar" x="232.7" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2024-08: 1</title></rect>
+<rect class="rel-bar" x="279.5" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2024-11: 1</title></rect>
+<rect class="rel-bar" x="295.1" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2024-12: 2</title></rect>
+<rect class="rel-bar" x="326.2" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2025-02: 1</title></rect>
+<rect class="rel-bar" x="404.2" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2025-07: 1</title></rect>
+<rect class="rel-bar" x="419.8" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2025-08: 2</title></rect>
+<rect class="rel-bar" x="435.4" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2025-09: 1</title></rect>
+<rect class="rel-bar" x="466.5" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2025-11: 2</title></rect>
+<rect class="rel-bar" x="482.1" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2025-12: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="497.7" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2026-01: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="528.9" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2026-03: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="544.5" y="338.6" width="8.4" height="14.4" rx="2"><title>xAI, 2026-04: 3</title></rect>
+<rect class="rel-bar rel-bar--2026" x="560.1" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2026-05: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="575.7" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2026-06: 1</title></rect>
+<rect class="rel-bar rel-bar--2026" x="591.2" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2026-07: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="606.8" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2026-08: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="622.4" y="343.4" width="8.4" height="9.6" rx="2"><title>xAI, 2026-09: 2</title></rect>
+<rect class="rel-bar rel-bar--2026" x="638.0" y="348.2" width="8.4" height="4.8" rx="2"><title>xAI, 2026-10: 1</title></rect>
+<polyline class="rel-avg" points="159.0,349.8 174.6,349.8 190.1,349.8 205.7,353.0 221.3,353.0 236.9,351.4 252.5,351.4 268.1,351.4 283.7,351.4 299.3,348.2 314.9,348.2 330.4,348.2 346.0,351.4 361.6,351.4 377.2,353.0 392.8,353.0 408.4,351.4 424.0,348.2 439.6,346.6 455.1,348.2 470.7,348.2 486.3,348.2 501.9,346.6 517.5,349.8 533.1,349.8 548.7,346.6 564.3,343.4 579.9,343.4 595.4,345.0 611.0,345.0 626.6,343.4 642.2,345.0"/>
+<rect class="rel-bar" x="120" y="400" width="9" height="9" rx="2"/>
+<text class="rel-legend" x="135" y="408">per month</text>
+<rect class="rel-bar rel-bar--2026" x="210" y="400" width="9" height="9" rx="2"/>
+<text class="rel-legend" x="225" y="408">2026</text>
+<line class="rel-avg" x1="265" y1="404" x2="290" y2="404"/>
+<text class="rel-legend" x="298" y="408">3-month avg</text>
+</svg>
+        </div>
+        <figcaption>Source: The AI Engineering, 1,250 notable releases (CC BY 4.0), consulted on 16 November 2026. It counts models, variants and modalities; it does not measure quality or size. Yellow bars are 2024-2025; orange bars are 2026. The line is the three-month moving average. 2026 runs to October.</figcaption>
+      </figure>
+
       <h2>The consequences: five fronts</h2>
       <p><strong>1. The bottleneck moves to verification.</strong> If AI generates more code and more experiments than a human team can review, the limit stops being production and becomes trust. DeepMind sees it in pull requests; OpenAI, in long tasks; Anthropic, in code review. The consequence is organisational: fewer people writing, more people deciding, auditing and designing evaluators. And a new question: who verifies the verifier when the evaluator is also a model?</p>
       <p><strong>2. More capex, more concentration.</strong> Alphabet plans to invest $175-185 billion in 2026, almost six times the $31 billion of 2022. Bloomberg estimated in April that combined spending by the big technology companies would exceed $700 billion this year. If RSI compresses development cycles, the advantage compounds for whoever controls chips, power, data and distribution. Labs that depend on someone else's cloud do not compete on equal terms. The risk is not only economic: it is the concentration of power over a technology that increasingly designs part of itself.</p>
@@ -429,6 +629,7 @@
           <li><a href="https://forecastingresearch.org/research/recursive-self-improvement-v1" target="_blank" rel="noopener">Forecasting Research Institute (10 November 2026): “How Close is Recursive Self-Improvement? A Review of the Evidence”</a>. Evidence review, OpenAI and Anthropic thresholds and a survey of researchers.</li>
           <li><a href="https://www.microsoft.com/en-us/research/publication/self-evolving-coding-agents-via-harness-policy-optimization/" target="_blank" rel="noopener">Microsoft Research (October 2026): “Self-Evolving Coding Agents via Harness-Policy Optimization”</a>. Self-HPO and the improvement from 57.8% to 64.8%.</li>
           <li><a href="https://cacm.acm.org/news/is-recursive-self-improvement-really-here" target="_blank" rel="noopener">Communications of the ACM (16 October 2026): “Is Recursive Self-Improvement Really Here?”</a>. The debate over tactical recursion, verification and architectural limits.</li>
+          <li><a href="https://theaiengineering.com/releases" target="_blank" rel="noopener">The AI Engineering: “AI model releases” (consulted on 16 November 2026)</a>. A record of 1,250 notable releases since January 2023; monthly counts by lab for the chart.</li>
         </ul>
       </section>
 
