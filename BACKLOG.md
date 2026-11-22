@@ -463,3 +463,31 @@ del encuadre) → **P4** (etiquetas y callouts) → **P5** (más plantillas) →
   colores inválidos, coordenadas fuera de rango, features agrupadas y mapas
   importados sin `_manaLabelStyle`. Criterio: nunca se genera un PDF en blanco
   sin explicación; se avisa y se ofrece un fallback.
+
+## Navegación y selector de idioma (22-11)
+
+- [ ] **Unificar el selector de idioma entre todas las páginas públicas**. Hoy
+  conviven dos implementaciones: la portada tiene su propio `LANG`/`applyLang`
+  inline en `site/index.html`, mientras que `/gallery/`, `/pricing/`, `/news/` y
+  las landings usan `site/js/i18n.js`; el botón también cambia de markup
+  (`#lang-btn` con texto directo en la home, `.tb-lang-label` en el resto). Al
+  cambiar de idioma y navegar aparecen etiquetas, `aria-label`, títulos o
+  textos sin traducir/desactualizados. Migrar la portada a `i18n.js` (o extraer
+  un módulo común) con una única clave de persistencia (`mana-lang`), un único
+  `applyTranslations`, un único patrón de botón/aria y el evento
+  `mana:langchange`; comprobar `html[lang]`, `<title>`, meta sociales, footer,
+  cabecera y selector tras navegar `/` → `/gallery/` → `/pricing/` → `/news/` →
+  landing y volver. Criterio: el idioma elegido se mantiene y la UI es idéntica
+  en todas las páginas, sin parpadeos ni cadenas en el idioma anterior. Añadir
+  regresión Playwright de navegación entre páginas en ES/EN.
+
+- [ ] **Mismo menú superior en `/gallery/` que en la portada**. La galería usa
+  hoy un `.topbar` propio con «Menú / Inicio / Mis mapas / Crear mapa» y estilos
+  distintos, mientras la portada usa `.masthead` con «News / Changelog /
+  Precios / Menú / Abrir app». Extraer el menú de la portada a un componente
+  compartido (`site-navbar`/`masthead`) y reutilizarlo en `/gallery/` y en el
+  resto de páginas públicas, decidiendo dónde encajan «Mis mapas» y «Crear
+  mapa» (por ejemplo, en el panel «Menú») y conservando las acciones de sesión
+  si las hay. Criterio: misma jerarquía visual, orden de enlaces, hover/focus,
+  comportamiento del menú móvil, `aria-label` y estilos a 320 px y escritorio;
+  una sola fuente de verdad para el CSS/HTML de la cabecera.
