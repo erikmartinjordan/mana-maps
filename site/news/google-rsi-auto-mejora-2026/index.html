@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es" data-page-type="news" data-slug="google-rsi-auto-mejora-2026">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google ya corre bucles de RSI: la IA que se mejora a sí misma aún no acelera</title>
+<meta name="description" content="El 75% del código nuevo de Google lo genera la IA y DeepMind admite bucles de auto-mejora. Su propio informe no ve aceleración: el 88% de los cambios aún necesita manos humanas. Qué hacen OpenAI, Anthropic y Microsoft, y qué consecuencias tiene.">
+<link rel="canonical" href="https://maña.com/news/google-rsi-auto-mejora-2026/">
+<link rel="alternate" hreflang="es" href="https://maña.com/news/google-rsi-auto-mejora-2026/">
+<link rel="alternate" hreflang="en" href="https://maña.com/en/news/google-rsi-self-improvement-2026/">
+<link rel="alternate" hreflang="x-default" href="https://maña.com/news/google-rsi-auto-mejora-2026/">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://maña.com/news/google-rsi-auto-mejora-2026/">
+<meta property="og:title" content="Google ya corre bucles de RSI: la IA que se mejora a sí misma aún no acelera">
+<meta property="og:description" content="El 75% del código nuevo de Google lo genera la IA y DeepMind admite bucles de auto-mejora. Su propio informe no ve aceleración: el 88% de los cambios aún necesita manos humanas.">
+<meta property="og:image" content="https://maña.com/assets/news/rsi-pixel-loop.png">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="1080">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="Maña Maps">
+<meta property="article:published_time" content="2026-11-22T08:00:00+01:00">
+<meta property="article:section" content="News">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Google ya corre bucles de RSI: la IA que se mejora a sí misma aún no acelera">
+<meta name="twitter:description" content="El 75% del código nuevo de Google lo genera la IA y DeepMind admite bucles de auto-mejora. Su propio informe no ve aceleración: el 88% de los cambios aún necesita manos humanas.">
+<meta name="twitter:image" content="https://maña.com/assets/news/rsi-pixel-loop.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"Google ya corre bucles de RSI: la IA que se mejora a sí misma aún no acelera","description":"El 75% del código nuevo de Google lo genera la IA y DeepMind admite bucles de auto-mejora. Su propio informe no ve aceleración: el 88% de los cambios aún necesita manos humanas.","datePublished":"2026-11-22T08:00:00+01:00","dateModified":"2026-11-22T08:00:00+01:00","inLanguage":"es","articleSection":"News","author":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"publisher":{"@type":"Organization","name":"Maña Maps","url":"https://maña.com"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://maña.com/news/google-rsi-auto-mejora-2026/"},"image":["https://maña.com/assets/news/rsi-pixel-loop.png"]}</script>
+<style>
+  :root{
+    --bg:#f5f5f7;--surface:rgba(255,255,255,.78);--text:#111214;--muted:#5f6670;
+    --line:rgba(16,24,40,.12);--cta:#17191c;--accent:#17191c;--shadow:0 8px 30px rgba(15,23,42,.08);
+    --soft:rgba(255,255,255,.8);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    min-height:100vh;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--text);background:linear-gradient(180deg, #ffffff 0%, #f5f5f7 48%, #efeff1 100%);
+    -webkit-font-smoothing:antialiased;line-height:1.65;
+  }
+  a{color:inherit;text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
+  a:hover{text-decoration-color:currentColor}
+  .frame{
+    width:min(1120px,calc(100% - 40px));margin:24px auto;border:1px solid var(--line);
+    border-radius:28px;background:var(--surface);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .topbar{
+    height:72px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;
+    gap:16px;border-bottom:1px solid var(--line);min-width:0;overflow:hidden;
+  }
+  .brand{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+  .brand-logo{position:relative;width:36px;height:36px;flex-shrink:0}
+  .brand-logo svg{width:100%;height:100%;display:block}
+  .brand-word{font-size:18px;font-weight:800;letter-spacing:-.02em}
+  .brand-sub{font-size:11px;color:var(--muted);margin-left:3px;font-weight:600;vertical-align:super}
+  .topbar-actions{display:inline-flex;gap:10px;align-items:center;min-width:0;flex-shrink:1}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 18px;border-radius:50px;
+    font-size:12px;font-weight:700;text-decoration:none;border:1px solid transparent;cursor:pointer;
+    transition:opacity .15s,transform .1s,background .15s,border-color .15s;white-space:nowrap;
+  }
+  .btn-primary{background:var(--cta);color:#fff;border-color:var(--cta)}
+  .btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+  .btn-ghost{background:none;border-color:var(--line);color:var(--text)}
+  .btn-ghost:hover{background:rgba(16,24,40,.04)}
+  .page{padding:44px 28px 56px}
+  .breadcrumb{max-width:760px;margin:0 auto 18px;font-size:12px;color:var(--muted)}
+  .breadcrumb a{color:var(--muted);text-decoration:none}
+  .breadcrumb a:hover{color:var(--text)}
+  .post{max-width:760px;margin:0 auto}
+  .kicker{
+    font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--text);margin:0 0 10px;
+  }
+  h1{
+    font-size:clamp(34px,5vw,56px);line-height:1.02;letter-spacing:-.04em;
+    font-weight:800;margin:0 0 18px;
+  }
+  .standfirst{font-size:19px;line-height:1.5;color:var(--muted);margin:0 0 18px;font-weight:500}
+  .byline{font-size:13px;color:var(--muted);padding-bottom:24px;border-bottom:1px solid var(--line)}
+  h2{font-size:24px;line-height:1.2;letter-spacing:-.02em;margin:38px 0 12px}
+  p{font-size:17px;line-height:1.75;color:#1f2937;margin:0 0 18px}
+  .key-data{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:26px 0}
+  .key-data div{border:1px solid var(--line);border-radius:18px;padding:16px;background:rgba(255,255,255,.72)}
+  .key-data strong{display:block;font-size:28px;line-height:1.05;letter-spacing:-.03em;color:var(--text)}
+  .key-data span{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+  .table-wrap{overflow-x:auto;margin:18px 0 24px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.72)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+  caption{text-align:left;font-size:12px;color:var(--muted);padding:12px 14px 0}
+  th,td{padding:11px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:rgba(16,24,40,.03);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  tr:last-child td{border-bottom:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  .callout{
+    border-left:3px solid var(--text);background:rgba(16,24,40,.045);padding:16px 18px;
+    border-radius:0 16px 16px 0;margin:24px 0;font-size:15px;color:var(--text);
+  }
+  .callout p:last-child{margin-bottom:0}
+  .chart{
+    margin:32px 0 36px;border:1px solid var(--line);border-radius:24px;
+    background:var(--soft);padding:16px;box-shadow:0 4px 16px rgba(15,23,42,.04);
+  }
+  .chart-scroll{overflow-x:auto;border-radius:16px}
+  .chart svg{display:block;width:100%;height:auto}
+  .chart figcaption{font-size:12px;color:var(--muted);margin:10px 2px 0;line-height:1.5}
+  body.public-article .chart-line{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  body.public-article .chart-area{fill:rgba(232,184,109,.16)}
+  body.public-article .chart-dot{fill:var(--accent);stroke:#101111;stroke-width:2}
+  body.public-article .chart-dot--peak{fill:#d97757}
+  body.public-article .chart-annotation{fill:#e8b86d;font-size:13px;font-weight:700}
+  .article-illustration{margin:26px 0 30px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .article-illustration img{width:min(100%,560px);height:auto;display:block}
+  .article-illustration figcaption{font-size:12px;color:var(--muted);text-align:center;max-width:560px}
+  .disclaimer{font-size:12px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:16px;margin-top:30px}
+  .sources{border-top:1px solid var(--line);margin-top:38px;padding-top:20px}
+  .sources h2{font-size:18px;margin-top:0}
+  .sources ul{padding-left:18px;margin:0}
+  .sources li{margin-bottom:9px;font-size:14px;color:var(--muted)}
+  .lang-switch{max-width:760px;margin:0 auto 10px;text-align:right;font-size:12px}
+  .lang-switch a{color:var(--muted);text-decoration:underline;text-decoration-color:rgba(16,24,40,.25);text-underline-offset:3px}
+  .post-footer{border-top:1px solid var(--line);margin-top:38px;padding-top:22px}
+  .footer-cta-dark{background:var(--cta);color:#fff;border-radius:20px;padding:24px}
+  .footer-cta-dark h2{color:#fff;margin:0 0 8px}
+  .footer-cta-dark p{color:rgba(255,255,255,.72);margin:0 0 14px;font-size:15px}
+  .btn-light{background:#fff;color:var(--cta);border-color:#fff}
+  .btn-light:hover{opacity:.9}
+  @media(max-width:920px){
+    .frame{width:calc(100% - 20px);margin:10px auto}
+    .topbar{padding:0 16px;height:66px}
+    .page{padding:32px 20px 44px}
+  }
+  @media(max-width:640px){
+    .chart{padding:12px;border-radius:18px}
+  }
+  @media(max-width:560px){
+    .topbar{padding:0 12px;height:60px}
+    .topbar-actions .btn-ghost:first-child{display:none}
+    .brand-word{font-size:17px}
+    .page{padding:26px 16px 36px}
+    h1{font-size:34px}
+    .standfirst{font-size:17px}
+    .key-data{grid-template-columns:1fr}
+    .table-wrap table{min-width:0;font-size:14px}
+    .table-wrap thead{display:none}
+    .table-wrap tbody tr{display:block;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .table-wrap tbody tr:last-child{border-bottom:0}
+    .table-wrap tbody td{display:block;border:0;padding:3px 0}
+    .table-wrap tbody td.num{text-align:left}
+    .table-wrap tbody td:before{content:attr(data-label);display:block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+    .footer{padding:16px 18px;justify-content:center;text-align:center}
+  }
+</style>
+  <link rel="stylesheet" href="/css/site-footer.css">
+  <link rel="stylesheet" href="/css/site-navbar.css">
+  <link rel="stylesheet" href="/css/public-theme.css">
+</head>
+<body class="public-article">
+  <main class="frame">
+<header class="site-navbar">
+  <div class="site-navbar__inner">
+    <a class="brand" href="/" aria-label="Maña Maps">
+      <span class="brand-logo"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#30363B" stroke="rgba(1,1,1,0.5)" stroke-width="1"
+            d="M42.3,-74.7C55.1,-65.8,66.1,-55.2,74.7,-42.4C83.2,-29.7,89.3,-14.8,89.7,0.2C90,15.2,84.6,30.5,74.3,40.2C64,49.8,48.7,54,35.6,62.1C22.4,70.2,11.2,82.3,-0.8,83.6C-12.7,84.9,-25.4,75.4,-36.1,65.9C-46.9,56.4,-55.6,46.8,-61.3,35.8C-66.9,24.8,-69.5,12.4,-72,-1.4C-74.5,-15.3,-76.9,-30.5,-70.9,-41C-64.9,-51.4,-50.6,-57.1,-37.4,-65.8C-24.2,-74.5,-12.1,-86.1,1.3,-88.4C14.7,-90.7,29.5,-83.6,42.3,-74.7Z"
+            transform="translate(100 100)"/>
+        <g transform="translate(62.7889 133.0811) scale(0.04069010 -0.04069010)"><path fill="#fff" d="M1675 0H1303V987L1032 350H777L506 987V0H154V1489H585L915 754L1244 1489H1675Z"/><path fill="#fff" transform="translate(1530 -40)" d="M-186 2061Q-196 1894 -269.0 1816.5Q-342 1739 -472 1739Q-520 1739 -563.0 1758.5Q-606 1778 -637 1797Q-667 1816 -703.5 1835.5Q-740 1855 -765 1855Q-815 1855 -833.0 1823.5Q-851 1792 -855 1733H-1065Q-1059 1879 -983.0 1966.5Q-907 2054 -780 2054Q-732 2054 -691.0 2037.0Q-650 2020 -612 1998Q-582 1981 -546.0 1962.0Q-510 1943 -487 1943Q-439 1943 -418.5 1975.0Q-398 2007 -396 2061Z"/></g></svg></span>
+      <span><span class="brand-word">Maña</span><span class="brand-sub">Maps</span></span>
+    </a>
+    <nav class="site-navbar__actions" aria-label="Navegación principal">
+      <a class="site-navbar__link site-navbar__link--desktop" href="/news/" data-i18n="footer_news">News</a>
+      <a class="site-navbar__link site-navbar__link--desktop" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+      <a class="site-navbar__link site-navbar__link--desktop" href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      <details class="site-navbar__more">
+        <summary class="site-navbar__link site-navbar__menu" data-i18n="nav_menu">Menú</summary>
+        <div class="site-navbar__panel">
+          <a class="" href="/news/" data-i18n="footer_news">News</a>
+          <a class="" href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+          <a class="" href="/pricing/" data-i18n="footer_pricing">Precios</a>
+        </div>
+      </details>
+      <a class="site-navbar__link site-navbar__cta" href="/map/" data-i18n="nav_app">Abrir app</a>
+    </nav>
+  </div>
+</header>
+
+  <div class="page">
+    <div class="lang-switch"><a href="/en/news/google-rsi-self-improvement-2026/" hreflang="en" lang="en">Read in English</a></div>
+    <nav class="breadcrumb" aria-label="Migas de pan"><a href="/">Inicio</a> · <a href="/gallery/">Galería</a> · News</nav>
+
+    <article class="post">
+      <header>
+        <p class="kicker">Análisis propio · Inteligencia artificial</p>
+        <h1>Google ya corre bucles de RSI: la IA que se mejora a sí misma aún no acelera</h1>
+        <p class="standfirst">El 75% del código nuevo de Google lo genera la IA y DeepMind reconoce que usa bucles de auto-mejora. Su propio informe de seguridad no encuentra una aceleración significativa: el 88% de los cambios de código todavía necesita dirección humana. Qué hacen Google, OpenAI, Anthropic y Microsoft, y qué consecuencias tiene.</p>
+        <p class="byline">Redacción · 22 de noviembre de 2026 · 9 min de lectura</p>
+      </header>
+
+      <figure class="article-illustration">
+        <img src="/assets/news/rsi-pixel-loop.png" alt="Ilustración pixel art de una serpiente que se muerde la cola alrededor de un chip con las letras RSI" width="1080" height="1080" loading="eager">
+        <figcaption>Ilustración pixel art para el análisis del RSI. Maña Maps.</figcaption>
+      </figure>
+
+      <div class="key-data" aria-label="Datos clave">
+        <div><strong>75%</strong><span>Código nuevo de Google generado por IA y aprobado por ingenieros (abril de 2026)</span></div>
+        <div><strong>0</strong><span>Aceleración significativa de la I+D encontrada por DeepMind en su propio informe</span></div>
+        <div><strong>26%</strong><span>I+D de Anthropic que Claude «dirige» con supervisión humana (agosto de 2026)</span></div>
+      </div>
+
+      <p>La pregunta ya no es si las grandes tecnológicas usan inteligencia artificial para construir mejor inteligencia artificial. La usan. La pregunta es cuánto, en qué parte del proceso y con qué controle humano. La diferencia importa porque «RSI» se ha convertido en una etiqueta que sirve para todo: desde un agente que reescribe un archivo de configuración hasta un sistema que diseña, entrena y evalúa a su sucesor sin que nadie toque el volante.</p>
+      <p>Google es el caso más ilustrativo. En abril de 2026, Sundar Pichai dijo que el 75% de todo el código nuevo de la compañía era generado por IA y aprobado por ingenieros. En octubre, el informe de seguridad de Gemini 4 Argon añadió la otra mitad de la historia: DeepMind había revisado 1.389 trayectorias de su agente interno y no encontró una aceleración significativa de extremo a extremo en su I+D. El código se escribe más rápido; la inteligencia, de momento, no se mejora sola al ritmo que algunos temían.</p>
+
+      <h2>Qué es —y qué no es— el RSI</h2>
+      <p>La idea tiene sesenta años. En 1965, I. J. Good describió una «explosión de inteligencia»: una máquina capaz de diseñar máquinas mejores que ella, que a su vez diseñarían otras aún mejores. El concepto moderno es más modesto y más preciso. El RSI es un bucle en el que un sistema de IA contribuye de forma material a mejorar el sistema que lo produce: propone cambios, los ejecuta, mide el resultado y conserva lo que funciona. Si el bucle se cierra, cada generación parte de una base mejor y el progreso puede dejar de ser lineal.</p>
+      <p>Pero no todo lo que se llama RSI lo es. Un modelo que autocompleta código no es RSI. Un agente que corrige sus propios errores dentro de una sesión tampoco: al terminar, no queda nada. Hay RSI cuando la mejora persiste —en el código, en los datos, en los pesos o en la organización— y cuando esa mejora cambia la forma en que se produce la siguiente generación. DeepMind lo resume en tres mecanismos: mejorar el código y los diseños (arquitecturas, algoritmos, circuitos), mejorar los datos (usar cómputo en producción para generar material de entrenamiento) y especializar equipos de agentes que colaboran entre sí.</p>
+      <div class="callout">
+        <p><strong>La escala que usan los laboratorios.</strong> Epoch AI define seis niveles de automatización, del AL0 (sin IA) al AL5 (IA totalmente autónoma, sin humanos en el bucle). En AL3 la IA «colabora» bajo dirección cercana; en AL4 «dirige»: completa la mayor parte de una tarea a partir de un objetivo de alto nivel, con un humano supervisando. Ningún laboratorio ha publicado todavía un AL5 sostenido.</p>
+      </div>
+      <p>Esa graduación es la clave para leer los titulares. Decir que una empresa «usa RSI» puede significar que automatizó partes del proceso, no que haya construido una máquina que se reproduce sola. La mayoría de lo que ha ocurrido en 2026 pertenece a la primera categoría. Lo notable es la velocidad con la que esas partes se han vuelto importantes.</p>
+
+      <h2>Google: sí, pero por partes</h2>
+      <p>El dato más citado es el del código. En octubre de 2024, Pichai hablaba de «más de una cuarta parte» del código nuevo generado por IA. En otoño de 2025, la cifra había subido al 50%. En abril de 2026, al 75%. La trayectoria es espectacular, aunque mide una cosa concreta: líneas nuevas que un modelo propone y un ingeniero revisa y acepta. No mide la calidad del código, ni el código antiguo, ni la productividad neta.</p>
+
+      <figure class="chart">
+        <div class="chart-head">
+          <span class="chart-eyebrow">Google · código</span>
+          <h3 class="chart-title">Del 25% al 75% en 18 meses</h3>
+          <p class="chart-lede">Código nuevo generado por IA y aprobado por ingenieros</p>
+        </div>
+        <div class="chart-scroll" role="group" aria-label="Evolución del porcentaje de código nuevo de Google generado por IA">
+          <svg viewBox="0 0 720 285" role="img" aria-labelledby="chart1-title chart1-desc" xmlns="http://www.w3.org/2000/svg">
+            <title id="chart1-title">Porcentaje de código nuevo de Google generado por IA y aprobado por ingenieros</title>
+            <desc id="chart1-desc">Octubre de 2024: 25%. Abril de 2025: más del 30%. Otoño de 2025: 50%. Abril de 2026: 75%.</desc>
+            <line class="chart-grid" x1="334" y1="10" x2="334" y2="230"/>
+            <line class="chart-grid" x1="484" y1="10" x2="484" y2="230"/>
+            <line class="chart-grid" x1="634" y1="10" x2="634" y2="230"/>
+            <g class="chart-row">
+              <text class="chart-label" x="168" y="37" text-anchor="end">Oct 2024</text>
+              <rect class="chart-track" x="184" y="20" width="480" height="24" rx="12"/>
+              <rect class="chart-bar" x="184" y="20" width="150" height="24" rx="12"><title>Octubre de 2024: 25%</title></rect>
+              <text class="chart-value" x="342" y="37">25%</text>
+            </g>
+            <g class="chart-row">
+              <text class="chart-label" x="168" y="77" text-anchor="end">Abr 2025</text>
+              <rect class="chart-track" x="184" y="60" width="480" height="24" rx="12"/>
+              <rect class="chart-bar" x="184" y="60" width="180" height="24" rx="12"><title>Abril de 2025: más del 30%</title></rect>
+              <text class="chart-value" x="372" y="77">30%+</text>
+            </g>
+            <g class="chart-row">
+              <text class="chart-label" x="168" y="117" text-anchor="end">Otoño 2025</text>
+              <rect class="chart-track" x="184" y="100" width="480" height="24" rx="12"/>
+              <rect class="chart-bar" x="184" y="100" width="300" height="24" rx="12"><title>Otoño de 2025: 50%</title></rect>
+              <text class="chart-value" x="492" y="117">50%</text>
+            </g>
+            <g class="chart-row chart-row--peak">
+              <text class="chart-label" x="168" y="157" text-anchor="end">Abr 2026</text>
+              <rect class="chart-track" x="184" y="140" width="480" height="24" rx="12"/>
+              <rect class="chart-bar chart-bar--peak" x="184" y="140" width="450" height="24" rx="12"><title>Abril de 2026: 75%</title></rect>
+              <text class="chart-value chart-value--peak" x="642" y="157">75%</text>
+            </g>
+            <line class="chart-axis" x1="184" y1="230" x2="664" y2="230"/>
+            <text class="chart-tick" x="184" y="254" text-anchor="middle">0</text>
+            <text class="chart-tick" x="334" y="254" text-anchor="middle">25%</text>
+            <text class="chart-tick" x="484" y="254" text-anchor="middle">50%</text>
+            <text class="chart-tick" x="634" y="254" text-anchor="middle">75%</text>
+          </svg>
+        </div>
+        <figcaption>Declaraciones de Google en resultados trimestrales de Alphabet y en Google Cloud Next 2026. La cifra mide código nuevo generado por IA y revisado o aprobado por ingenieros; no mide calidad ni productividad neta.</figcaption>
+      </figure>
+
+      <p>El segundo dato es menos conocido. En su informe de Gemini 4 Argon, DeepMind explica que la proporción de <em>pull requests</em> totalmente delegados —cambios enviados por un agente sin que un humano escriba el código— subió del 7,5% al 11,9% entre abril y septiembre de 2026. El otro 88% seguía necesitando dirección humana en varias rondas o autoría humana. Es decir: el 75% del código nuevo puede ser generado por IA, pero solo una décima parte del trabajo de cambio se entrega completo a la máquina.</p>
+      <p>La parte que sí se parece a un bucle cerrado es AlphaEvolve, el agente de Google DeepMind que propone código, lo evalúa con un verificador automático y conserva las versiones que mejoran la métrica. En producción, ha recuperado de media el 0,7% del cómputo mundial de Google al optimizar el planificador de sus centros de datos; aceleró un kernel de entrenamiento de Gemini un 23%, lo que redujo el tiempo de entrenamiento un 1%; y ha participado en el diseño de circuitos de la siguiente generación de TPU. Son mejoras reales, medidas y desplegadas. También son locales: un evaluador automático decide qué es «mejor», y solo funciona donde el éxito se puede puntuar.</p>
+      <p>Pichai ha sido explícito sobre el límite. «Estamos bastante lejos del estado final del RSI», dijo en octubre. «La forma correcta de describirlo es que tienes bucles de RSI junto a investigadores de IA en varias partes del desarrollo de modelos». Su cofundador Sergey Brin fue más lejos: Google está «empezando a subirse a la cinta del RSI». La metáfora es buena: una cinta que se mueve, pero con gente caminando al lado.</p>
+
+      <h2>El freno no está en escribir: está en revisar</h2>
+      <p>El hallazgo central del informe de DeepMind no es que la IA no sirva para investigar, sino que el cuello de botella se ha movido. Si un agente puede producir en minutos un cambio que antes costaba horas, el trabajo escaso pasa a ser decidir si el cambio es correcto, si generaliza y si merece entrar en producción. DeepMind lo midió con 1.389 trayectorias de Argon: cuanto más larga era la tarea, menos probable era que el modelo la terminara solo y más frecuente era la intervención humana. La automatización es máxima en tareas «bien especificadas y verificables» y mínima en ideación científica abierta, diseño experimental novedoso y diagnóstico de inestabilidades sutiles de entrenamiento.</p>
+      <p>La consecuencia práctica es incómoda para las dos narrativas fáciles. Contra el optimismo, la IA no está sustituyendo al investigador: lo está convirtiendo en director de un equipo de agentes. Contra el pesimismo, el volumen de trabajo que absorbe es enorme y crece rápido. El ingeniero que antes escribía código ahora revisa, corrige el rumbo y decide qué experimentos merecen la pena. Si la revisión no escala al mismo ritmo que la generación, el sistema entero se atasca.</p>
+
+      <h2>Anthropic: del 1% al 26% en seis meses</h2>
+      <p>Anthropic ha publicado la serie más agresiva. Su índice interno de automatización de I+D sitúa a Claude «dirigiendo» el 26% de las tareas de investigación y desarrollo de modelos en agosto de 2026, frente a menos del 1% en febrero. Más del 90% del trabajo medido está en nivel AL3 o superior —la IA colabora—, y el 0% en AL5: ninguna tarea se considera totalmente autónoma. La empresa también dice que más del 80% del código que fusiona en producción lo escribió Claude y que el ingeniero típico fusiona ocho veces más código al día que en 2024, aunque reconoce que esa métrica exagera la productividad real; una encuesta interna la sitúa en torno a cuatro veces.</p>
+
+      <figure class="chart">
+        <div class="chart-head">
+          <span class="chart-eyebrow">Anthropic · I+D</span>
+          <h3 class="chart-title">Claude «dirige» el 26% de la I+D de Anthropic</h3>
+          <p class="chart-lede">Tareas de I+D de modelos en nivel AL4: la IA ejecuta, el humano supervisa</p>
+        </div>
+        <div class="chart-scroll" role="group" aria-label="Evolución mensual del porcentaje de I+D de Anthropic dirigido por Claude">
+          <svg viewBox="0 0 720 350" role="img" aria-labelledby="chart2-title chart2-desc" xmlns="http://www.w3.org/2000/svg">
+            <title id="chart2-title">Porcentaje de tareas de I+D de Anthropic en nivel AL4, dirigidas por Claude</title>
+            <desc id="chart2-desc">De menos del 1% en febrero de 2026 al 26% en agosto de 2026, pasando por 1% en marzo, 3% en abril, 12% en mayo, 14% en junio y 22% en julio.</desc>
+            <line class="chart-grid" x1="100" y1="50" x2="660" y2="50"/>
+            <line class="chart-grid" x1="100" y1="120" x2="660" y2="120"/>
+            <line class="chart-grid" x1="100" y1="190" x2="660" y2="190"/>
+            <line class="chart-grid" x1="100" y1="260" x2="660" y2="260"/>
+            <path class="chart-area" d="M100,260 L100,256.5 L193,253 L286,239 L380,176 L473,162 L566,106 L660,78 L660,260 Z"/>
+            <path class="chart-line" d="M100,256.5 L193,253 L286,239 L380,176 L473,162 L566,106 L660,78"/>
+            <g class="chart-dot" >
+              <circle cx="100" cy="256.5" r="5"><title>Febrero: menos del 1%</title></circle>
+              <circle cx="193" cy="253" r="5"><title>Marzo: 1%</title></circle>
+              <circle cx="286" cy="239" r="5"><title>Abril: 3%</title></circle>
+              <circle cx="380" cy="176" r="5"><title>Mayo: 12%</title></circle>
+              <circle cx="473" cy="162" r="5"><title>Junio: 14%</title></circle>
+              <circle cx="566" cy="106" r="5"><title>Julio: 22%</title></circle>
+            </g>
+            <circle class="chart-dot chart-dot--peak" cx="660" cy="78" r="7"><title>Agosto: 26%</title></circle>
+            <text class="chart-annotation" x="660" y="62" text-anchor="end">26%</text>
+            <text class="chart-tick" x="100" y="284" text-anchor="middle">Feb</text>
+            <text class="chart-tick" x="193" y="284" text-anchor="middle">Mar</text>
+            <text class="chart-tick" x="286" y="284" text-anchor="middle">Abr</text>
+            <text class="chart-tick" x="380" y="284" text-anchor="middle">May</text>
+            <text class="chart-tick" x="473" y="284" text-anchor="middle">Jun</text>
+            <text class="chart-tick" x="566" y="284" text-anchor="middle">Jul</text>
+            <text class="chart-tick" x="660" y="284" text-anchor="middle">Ago</text>
+            <text class="chart-tick" x="88" y="264" text-anchor="end">0%</text>
+            <text class="chart-tick" x="88" y="194" text-anchor="end">10%</text>
+            <text class="chart-tick" x="88" y="124" text-anchor="end">20%</text>
+            <text class="chart-tick" x="88" y="54" text-anchor="end">30%</text>
+            <line class="chart-axis" x1="100" y1="260" x2="660" y2="260"/>
+          </svg>
+        </div>
+        <figcaption>Anthropic R&amp;D Automation Index, septiembre de 2026. La empresa advierte que el nivel AL4 incluye supervisión humana y que el juicio lo hace un modelo de Claude; no es una auditoría externa. El nivel AL5 (autonomía total) sigue en 0%.</figcaption>
+      </figure>
+
+      <p>La metodología merece tanta atención como el número. Anthropic muestreó cada semana al 20% de las plantillas de las áreas que participan en el bucle de I+D, extrajo unas 15.000 tareas de Slack y documentación interna, las organizó en un árbol de 542 nodos y las puntuó con un modelo de Claude. En la validación humana, el juicio del modelo coincidió exactamente con el de las personas el 59% de las veces; con una diferencia de un nivel o menos, el 97%. La propia empresa reconoce que un juez del mismo modelo puede repetir sus errores y que hace falta verificación independiente.</p>
+      <p>Hay otras señales. METR, el grupo externo que mide la capacidad de los agentes, revisó datos internos de Anthropic y estimó que sus puntuaciones de capacidad crecían a 1,9 veces el ritmo anterior desde octubre de 2025, con un 80% de esa aceleración atribuible a la IA. Anthropic dijo en su folleto enmendado del 2 de noviembre que «podría estar a punto de cumplir» su umbral interno de aceleración del doble, pero no que lo hubiera observado. Es una diferencia importante: una proyección no es una medición.</p>
+
+      <h2>OpenAI, Microsoft y el resto de la carrera</h2>
+      <p>OpenAI fue el primer laboratorio que dijo en voz alta que un modelo había contribuido a fabricarse a sí mismo. En febrero de 2026 describió GPT-5.3-Codex como «nuestro primer modelo que fue instrumental en su propia creación»: versiones tempranas sirvieron para depurar su entrenamiento, gestionar su despliegue y diagnosticar fallos de evaluación. En septiembre, la empresa anunció que había alcanzado su «becario de investigación automatizado», un sistema que completa tareas bien definidas bajo dirección humana, y fijó marzo de 2028 como objetivo para un investigador de IA completo. En noviembre ya medía 5,7 jornadas de agente por jornada de investigador, frente a 0,5 a principios de año.</p>
+      <p>Las cifras de uso son igual de elocuentes que las de capacidad. A mediados de agosto, el investigador medio de OpenAI gastaba más de 600 dólares diarios en inferencia a precios de API; el 10% más intensivo superaba los 7.000. Pero más de la mitad de las tareas exitosas de cuatro a ocho horas necesitaron al menos una intervención humana. La empresa lo dice sin adornos: no sabe todavía cómo llegar con seguridad a un RSI completo y alineado.</p>
+      <p>Microsoft representa la otra vía: no cerrar el bucle en el producto, sino publicar la maquinaria. Su framework Self-HPO alterna la optimización del <em>harness</em> —prompts, herramientas, memoria y flujo de control— con el entrenamiento de los pesos. En tres benchmarks de código, un modelo de 35.000 millones de parámetros pasó de una tasa media de resolución del 57,8% al 64,8%. Es una mejora de investigación, no una métrica de producción, pero muestra que la auto-mejora ya no es solo un experimento de laboratorio: es una técnica que se puede replicar.</p>
+      <p>Meta y xAI no han publicado un índice equivalente al de Anthropic o al de DeepMind. Su evidencia pública son papers y demostraciones —agentes que se auto-recompensan, sistemas que editan su propio <em>harness</em>—, no una contabilidad de cuánto de su I+D ejecuta la IA. Esa ausencia también es un dato: en la carrera del RSI, la transparencia es desigual y cada empresa define la métrica que le conviene.</p>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Qué ha dicho cada compañía y qué mide exactamente. Fechas de 2026; ninguna de estas cifras ha sido auditada por un regulador independiente.</caption>
+          <thead>
+            <tr><th>Compañía</th><th>Señal pública</th><th>Qué mide</th><th>Límite</th></tr>
+          </thead>
+          <tbody>
+            <tr><td data-label="Compañía">Google</td><td class="num" data-label="Señal pública">75%</td><td data-label="Qué mide">Código nuevo generado por IA y aprobado por ingenieros (abril)</td><td data-label="Límite">No mide calidad ni código antiguo; el 88% de los cambios aún requiere dirección humana</td></tr>
+            <tr><td data-label="Compañía">OpenAI</td><td class="num" data-label="Señal pública">5,7×</td><td data-label="Qué mide">Jornadas de agente por jornada de investigador (noviembre)</td><td data-label="Límite">Es tiempo de ejecución, no productividad equivalente; más de la mitad de las tareas largas necesita intervención</td></tr>
+            <tr><td data-label="Compañía">Anthropic</td><td class="num" data-label="Señal pública">26%</td><td data-label="Qué mide">I+D de modelos en nivel AL4, «dirigida» por Claude (agosto)</td><td data-label="Límite">Autoevaluación con un juez de Claude; AL5 sigue en 0%; sin auditoría externa</td></tr>
+            <tr><td data-label="Compañía">Microsoft</td><td class="num" data-label="Señal pública">57,8 → 64,8</td><td data-label="Qué mide">Tasa media de resolución en tres benchmarks de código con Self-HPO</td><td data-label="Límite">Resultado de investigación, no despliegue de producción a escala</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>La medida independiente: de 3 minutos a más de 5 horas</h2>
+      <p>Las métricas de las empresas tienen un problema de origen: cada una mide lo que le conviene. METR ofrece una vara distinta. Su banco de tareas estima cuánto tardaría una persona experta en resolver cada prueba y calcula la duración de tarea que un agente completa con un 50% de éxito. No mide cuánto trabaja el modelo, sino hasta dónde llega sin ayuda. En los modelos seleccionados, el salto es de dos órdenes de magnitud en menos de tres años: de los 3,5 minutos de GPT-4 en marzo de 2023 a las 5,3 horas de Claude Opus 4.5 en noviembre de 2025.</p>
+
+      <figure class="chart">
+        <div class="chart-head">
+          <span class="chart-eyebrow">METR · horizonte de tareas</span>
+          <h3 class="chart-title">De 3 minutos a más de 5 horas</h3>
+          <p class="chart-lede">Duración de la tarea que un agente completa con 50% de éxito (escala logarítmica)</p>
+        </div>
+        <div class="chart-scroll" role="group" aria-label="Horizonte de tareas al 50% de éxito de varios modelos">
+          <svg viewBox="0 0 720 345" role="img" aria-labelledby="chart3-title chart3-desc" xmlns="http://www.w3.org/2000/svg">
+            <title id="chart3-title">Horizonte de tareas al 50% de éxito de varios modelos de IA</title>
+            <desc id="chart3-desc">GPT-4 (marzo de 2023): 3,5 minutos. Claude 3.7 Sonnet (febrero de 2025): 1 hora. o3 (abril de 2025): 2 horas. GPT-5 (agosto de 2025): 3,6 horas. Claude Opus 4.5 (noviembre de 2025): 5,3 horas.</desc>
+            <line class="chart-grid" x1="110" y1="251" x2="650" y2="251"/>
+            <line class="chart-grid" x1="110" y1="156" x2="650" y2="156"/>
+            <line class="chart-grid" x1="110" y1="60" x2="650" y2="60"/>
+            <path class="chart-line" d="M110,273.6 L486.4,155.6 L519.1,126.5 L584.5,102.8 L633.6,86.1"/>
+            <g class="chart-dot">
+              <circle cx="110" cy="273.6" r="5"><title>GPT-4, marzo de 2023: 3,5 minutos</title></circle>
+              <circle cx="486.4" cy="155.6" r="5"><title>Claude 3.7 Sonnet, febrero de 2025: 1 hora</title></circle>
+              <circle cx="519.1" cy="126.5" r="5"><title>o3, abril de 2025: 2 horas</title></circle>
+              <circle cx="584.5" cy="102.8" r="5"><title>GPT-5, agosto de 2025: 3,6 horas</title></circle>
+            </g>
+            <circle class="chart-dot chart-dot--peak" cx="633.6" cy="86.1" r="7"><title>Claude Opus 4.5, noviembre de 2025: 5,3 horas</title></circle>
+            <text class="chart-annotation" x="120" y="244">3,5 min</text>
+            <text class="chart-annotation" x="496" y="139">1 h</text>
+            <text class="chart-annotation" x="530" y="111">2 h</text>
+            <text class="chart-annotation" x="596" y="87">3,6 h</text>
+            <text class="chart-annotation" x="626" y="70" text-anchor="end">5,3 h</text>
+            <text class="chart-tick" x="98" y="255" text-anchor="end">6 min</text>
+            <text class="chart-tick" x="98" y="160" text-anchor="end">1 h</text>
+            <text class="chart-tick" x="98" y="64" text-anchor="end">10 h</text>
+            <text class="chart-tick" x="110" y="304" text-anchor="middle">mar 2023</text>
+            <text class="chart-tick" x="306" y="304" text-anchor="middle">mar 2024</text>
+            <text class="chart-tick" x="503" y="304" text-anchor="middle">mar 2025</text>
+            <text class="chart-tick" x="634" y="304" text-anchor="middle">nov 2025</text>
+            <line class="chart-axis" x1="110" y1="280" x2="650" y2="280"/>
+          </svg>
+        </div>
+        <figcaption>METR, Time Horizon 1.1 (enero de 2026). La tendencia combinada se duplica cada 3,6 meses; en tareas verificables, cada 1,65 meses, un dato más ruidoso. Una extrapolación ingenua sitúa el horizonte de 200 horas en julio de 2027; no es una predicción. La medida mide tareas de software e investigación, no cualquier trabajo.</figcaption>
+      </figure>
+
+      <h2>Las consecuencias: cinco frentes</h2>
+      <p><strong>1. El cuello de botella se mueve a la verificación.</strong> Si la IA genera más código y más experimentos de los que un equipo humano puede revisar, el límite deja de ser la producción y pasa a ser la confianza. DeepMind lo ve en sus <em>pull requests</em>; OpenAI, en las tareas largas; Anthropic, en la revisión de código. La consecuencia es organizativa: menos personas escribiendo, más personas decidiendo, auditando y diseñando evaluadores. Y una pregunta nueva: ¿quién verifica al verificador cuando el evaluador también es un modelo?</p>
+      <p><strong>2. Más capex, más concentración.</strong> Alphabet prevé invertir entre 175.000 y 185.000 millones de dólares en 2026, casi seis veces los 31.000 millones de 2022. Bloomberg estimó en abril que el gasto conjunto de las grandes tecnológicas superaría los 700.000 millones este año. Si el RSI comprime los ciclos de desarrollo, la ventaja se acumula en quien controla chips, energía, datos y distribución. Los laboratorios que dependen de la nube de otro no compiten en igualdad de condiciones. El riesgo no es solo económico: es de concentración de poder sobre una tecnología que cada vez diseña parte de sí misma.</p>
+      <p><strong>3. La seguridad cambia de forma.</strong> Un agente que investiga tiene acceso a código, datos y modelos sensibles. RAND advierte que comprometer a un agente interno podría influir de forma sutil en el desarrollo de los sistemas futuros. DeepMind reconoce que no puede descartar que Gemini 4 Argon cruce umbrales de ciberataque o bioseguridad en una versión sin restricciones. Y el propio informe usa un benchmark interno con un 90% de exigencia para descartar la automatización total; un análisis independiente publicado en LessWrong señaló que cerca de una cuarta parte de las tareas puntuadas tenía errores que las hacían imposibles de superar. La conclusión «no hay aceleración» es plausible, pero descansa en un instrumento imperfecto.</p>
+      <p><strong>4. El trabajo de investigar se parte en dos.</strong> La parte ejecutable —escribir, probar, medir, iterar— se automatiza rápido. La parte de juicio —elegir el problema, decidir qué resultado creer, saber cuándo abandonar una línea— sigue siendo humana y es la que marca la diferencia. Eso no significa que no haya desplazamiento: significa que el desplazamiento es desigual. Los perfiles junior que aprendían haciendo tareas ejecutables tienen menos peldaños para subir. Las empresas que solo miden líneas de código o jornadas de agente están midiendo la parte fácil.</p>
+      <p><strong>5. La gobernanza llega tarde.</strong> No hay un estándar común para reportar cuánto de la I+D de un laboratorio ejecuta la IA, cuánto cómputo se dedica a experimentos dirigidos por modelos o cuánta mejora se atribuye a ideas generadas por IA. RAND pide una taxonomía y reporte sistemático; Anthropic propone un índice y pide que otros lo publiquen; OpenAI dice que las métricas deberían ser obligatorias. Mientras no exista verificación, cada cifra es una declaración de parte. Y las declaraciones de parte, en una carrera, tienden a optimizarse.</p>
+
+      <h2>Qué mirar en 2027</h2>
+      <p>La primera señal es el AL5. Hoy está en cero en todos los índices publicados. Si alguna empresa empieza a reportar tareas completas sin humanos en el bucle, el debate cambia de naturaleza. La segunda es la aceleración de extremo a extremo: no el porcentaje de código, sino la pendiente de capacidad por mes. DeepMind publicó 0,091 puntos de su índice antes del 1 de abril y 0,118 después; la diferencia no era estadísticamente significativa. Si esa pendiente se dispara, la discusión sobre el RSI dejará de ser especulativa.</p>
+      <p>La tercera es la revisión. El 11,9% de <em>pull requests</em> totalmente delegados en DeepMind es una base pequeña; si sube al 25% o al 40% sin que caiga la calidad, el cuello de botella se habrá movido de verdad. La cuarta es la verificación externa: que un tercero pueda replicar el benchmark, auditar los datos internos y comprobar que el juez no está premiando a su propio modelo. La quinta es el calendario: OpenAI apunta a un investigador automatizado en marzo de 2028; METR calcula que, si se mantiene la tendencia, el horizonte de tareas de 200 horas llegaría en julio de 2027. Son extrapolaciones, no promesas.</p>
+      <p>La conclusión provisional es menos cinematográfica que los titulares y más interesante. Google sí está usando RSI, pero en fragmentos: código, kernels, planificación de centros de datos, circuitos, evaluación. No ha cerrado el bucle completo ni ha encontrado todavía la aceleración que justificaría el miedo. Lo que ha encontrado es algo más prosaico y más difícil de gestionar: una capacidad creciente de producir cambios más rápido de lo que los humanos pueden entenderlos. El problema de 2027 no será que la IA se mejore sola. Será que la mejora sea tan rápida que nadie tenga tiempo de comprobarla.</p>
+
+      <h2>Sin mapa esta vez</h2>
+      <p>Este artículo no lleva mapa. El RSI no tiene una geografía única: es una carrera entre laboratorios, medidas y culturas de verificación, no un fenómeno que se pueda colorear país a país. Forzar un mapa decorativo sería lo contrario de lo que intentamos hacer en Maña Maps. Si quieres explorar datos con territorio, la <a href="/gallery/">galería</a> reúne los mapas publicados y cada ficha explica su fuente y su fecha.</p>
+
+      <p class="disclaimer">Este artículo es un análisis informativo basado en fuentes públicas y en métricas autodeclaradas por las compañías. Las cifras internas de Google DeepMind, OpenAI y Anthropic no han sido auditadas de forma independiente y no deben leerse como una medición homogénea del sector. Las proyecciones se señalan como tales.</p>
+
+      <section class="sources">
+        <h2>Fuentes</h2>
+        <ul>
+          <li><a href="https://stockanalysis.com/stocks/googl/transcripts/652060-google-cloud-next-2026-developer-keynote" target="_blank" rel="noopener">Alphabet, Google Cloud Next 2026 (22 de abril de 2026): intervención de Sundar Pichai</a>. 75% del código nuevo generado por IA y plan de capex de 175.000-185.000 millones para 2026.</li>
+          <li><a href="https://storage.googleapis.com/deepmind-media/gemini/gemini_4_safety_report.pdf" target="_blank" rel="noopener">Google DeepMind, «Gemini 4 Argon Safety &amp; Security Report» (octubre de 2026)</a>. Evaluación holística de la automatización y aceleración de la I+D, código escrito por IA, <em>pull requests</em> delegados y umbrales del Frontier Safety Framework.</li>
+          <li><a href="https://decrypt.co/381061/google-deepmind-ai-isnt-building-itself-writes-most-code" target="_blank" rel="noopener">Decrypt (15 de octubre de 2026): «Google Says AI Isn't Building Itself Yet—Even Though It Writes 75% of the Code»</a>. Resumen del informe y de la rueda de prensa de Haydn Belfield.</li>
+          <li><a href="https://www.lesswrong.com/posts/7jmfDBu2GLCfdwSte/about-a-quarter-of-them-contained-bugs-gemini-4-s-ml-r-and-d" target="_blank" rel="noopener">LessWrong (16 de octubre de 2026): «About a quarter of them contained bugs: Gemini 4's ML R&amp;D benchmark»</a>. Análisis crítico del benchmark interno GRB.</li>
+          <li><a href="https://www.businessinsider.com/sundar-pichai-google-rsi-recursive-self-improvement-ai-2026-10" target="_blank" rel="noopener">Business Insider (23 de octubre de 2026): «Sundar Pichai says Google is far from the ‘end state’ of self-improving AI»</a>. Declaraciones de Pichai y Sergey Brin.</li>
+          <li><a href="https://deepmind.google/blog/alphaevolve-impact" target="_blank" rel="noopener">Google DeepMind (7 de mayo de 2026): «AlphaEvolve: Gemini-powered coding agent scaling impact across fields»</a>. Mejoras en TPU, Spanner, compiladores y centros de datos.</li>
+          <li><a href="https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms" target="_blank" rel="noopener">Google DeepMind (14 de mayo de 2025): «AlphaEvolve: A Gemini-powered coding agent for designing advanced algorithms»</a>. Recuperación media del 0,7% del cómputo global y 23% de aceleración del kernel.</li>
+          <li><a href="https://openai.com/index/introducing-gpt-5-3-codex" target="_blank" rel="noopener">OpenAI (5 de febrero de 2026): «Introducing GPT-5.3-Codex»</a>. «Nuestro primer modelo que fue instrumental en su propia creación».</li>
+          <li><a href="https://openai.com/index/research-acceleration-view-inside-openai" target="_blank" rel="noopener">OpenAI (6 de septiembre de 2026): «Research acceleration: The view inside OpenAI»</a>. Becario de investigación automatizado, 3,1 jornadas de agente por jornada humana y objetivo de marzo de 2028.</li>
+          <li><a href="https://openai.com/index/research-acceleration-jagged-frontier/" target="_blank" rel="noopener">OpenAI (18 de noviembre de 2026): «Research acceleration: The jagged frontier»</a>. 5,7 jornadas de agente por jornada de investigador.</li>
+          <li><a href="https://www.anthropic.com/institute/recursive-self-improvement" target="_blank" rel="noopener">Anthropic Institute (4 de junio de 2026, actualizado): «When AI builds itself»</a>. Más del 80% del código fusionado, 8× de código por ingeniero y escenarios de RSI.</li>
+          <li><a href="https://www.anthropic.com/institute/measuring-pace-of-ai-development" target="_blank" rel="noopener">Anthropic Institute (17 de septiembre de 2026): «Measurements for understanding the pace of AI development inside frontier labs»</a>. Índice de automatización de I+D, 26% en AL4, 0% en AL5 y metodología.</li>
+          <li><a href="https://metr.org/blog/2026-11-20-q4-2026-capability-update/" target="_blank" rel="noopener">METR (20 de noviembre de 2026): «AI R&amp;D-relevant model capabilities are improving rapidly and are getting harder to measure»</a>. Horizonte de tareas y duplicación cada 3,6 meses.</li>
+          <li><a href="https://metr.org/blog/2026-1-29-time-horizon-1-1" target="_blank" rel="noopener">METR (29 de enero de 2026): «Time Horizon 1.1»</a>. Estimaciones por modelo y limitaciones de la métrica.</li>
+          <li><a href="https://www.rand.org/pubs/perspectives/PEA5068-1.html" target="_blank" rel="noopener">RAND (12 de octubre de 2026): «Recursive Self-Improvement and Automated AI Research and Development»</a>. Taxonomía, riesgos de seguridad y ausencia de reporte sistemático.</li>
+          <li><a href="https://forecastingresearch.org/research/recursive-self-improvement-v1" target="_blank" rel="noopener">Forecasting Research Institute (10 de noviembre de 2026): «How Close is Recursive Self-Improvement? A Review of the Evidence»</a>. Revisión de evidencia, umbrales de OpenAI y Anthropic y encuesta a investigadores.</li>
+          <li><a href="https://www.microsoft.com/en-us/research/publication/self-evolving-coding-agents-via-harness-policy-optimization/" target="_blank" rel="noopener">Microsoft Research (octubre de 2026): «Self-Evolving Coding Agents via Harness-Policy Optimization»</a>. Self-HPO y la mejora del 57,8% al 64,8%.</li>
+          <li><a href="https://cacm.acm.org/news/is-recursive-self-improvement-really-here" target="_blank" rel="noopener">Communications of the ACM (16 de octubre de 2026): «Is Recursive Self-Improvement Really Here?»</a>. Debate sobre recursión táctica, verificación y límites arquitectónicos.</li>
+        </ul>
+      </section>
+
+      <section class="post-footer" aria-label="Pie del artículo">
+        <div class="footer-cta-dark">
+          <h2>Convierte tus datos en un mapa</h2>
+          <p>Importa una hoja de cálculo o dibuja directamente sobre el mapa. Compártelo con un enlace.</p>
+          <a class="btn btn-light" href="/map/">Crea un mapa gratis</a>
+        </div>
+      </section>
+    </article>
+  </div>
+
+  <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">
+  <div class="site-footer__lead">
+    <a class="site-footer__brand" href="/">
+      <img src="/favicon.svg" alt="" width="30" height="30">
+      <span>Maña Maps</span>
+    </a>
+    <p class="site-footer__tagline" data-i18n="footer_tagline">Mapas claros, decisiones rápidas.</p>
+    <span class="site-footer__made" data-i18n="footer_made">Hecho con ♥ en Barcelona</span>
+  </div>
+  <nav class="site-footer__groups" aria-label="Enlaces del pie">
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_product">Producto</h2>
+      <div class="site-footer__links">
+        <a href="/map/" data-i18n="footer_create">Crear mapa</a>
+        <a href="/gallery/" data-i18n="footer_gallery">Galería</a>
+        <a href="/pricing/" data-i18n="footer_pricing">Precios</a>
+      </div>
+    </section>
+    <section class="site-footer__group">
+      <h2 data-i18n="footer_resources">Recursos</h2>
+      <div class="site-footer__links">
+        <a href="/news/" data-i18n="footer_news">News</a>
+        <a href="/changelog/" data-i18n="footer_changelog">Changelog</a>
+        <a href="/open/" data-i18n="footer_stats">Estadísticas</a>
+        <a href="/map/?tutorial=1">Tutorial</a>
+      <a href="/tasks/" data-i18n="footer_tasks">Tareas</a></div>
+    </section>
+    <section class="site-footer__group site-footer__group--wide">
+      <h2 data-i18n="footer_company">Compañía</h2>
+      <div class="site-footer__links">
+        <a href="/about/" data-i18n="footer_about">Acerca de</a>
+        <a href="https://github.com/erikmartinjordan/mana-maps" target="_blank" rel="noopener" data-i18n="footer_github">GitHub</a>
+      </div>
+    </section>
+  </nav>
+  <div class="site-footer__bottom">
+    <span class="site-footer__copyright">© 2026 Maña Maps</span>
+  </div>
+</div></footer>
+  </main>
+  <script defer src="/js/firebase-config.local.js"></script>
+  <script defer src="/js/tracking.js?v=1792750000"></script>
+<script data-overscroll-bg="1">
+(function(){
+  if(!document.querySelector('.frame')) return;
+  var root=document.documentElement, top='#ffffff', bottom='#fbfcfd';
+  function sync(){
+    var y=window.scrollY||window.pageYOffset||0;
+    var max=Math.max(0,root.scrollHeight-window.innerHeight);
+    if(y<=1) root.style.backgroundColor=top;
+    else if(y>=max-1) root.style.backgroundColor=bottom;
+  }
+  window.addEventListener('scroll',sync,{passive:true});
+  window.addEventListener('resize',sync);
+  sync();
+})();
+</script>
+<script defer src="/js/mobile-menu.js"></script>
+</body>
+</html>

@@ -1,6 +1,43 @@
 [
   {
     "date": "2026-11-22",
+    "event": "El 13-14 de octubre de 2026, Google DeepMind publicó el informe de seguridad de Gemini 4 Argon con su primera evaluación holística de automatización de I+D: no encuentra aceleración significativa de extremo a extremo (índice GCI de 0,091 puntos/mes antes del 1 de abril y 0,118 después, sin diferencia estadísticamente significativa), aunque más del 75% del código de producción es escrito por IA, el 11,9% de los pull requests están totalmente delegados (7,5% en abril) y el 88% requiere dirección humana o autoría humana; Gemini 4 Argon resuelve aproximadamente la mitad de las tareas completadas del benchmark interno GRB frente al umbral del 90%, y un análisis de LessWrong señala que cerca de una cuarta parte de las tareas puntuadas tenía errores. Alphabet dijo en abril que el 75% de su código nuevo es generado por IA (25% en octubre de 2024, 50% en otoño de 2025) y prevé 175.000-185.000 millones de capex en 2026; AlphaEvolve recupera de media el 0,7% del cómputo global y aceleró un kernel de Gemini un 23%. OpenAI dijo que GPT-5.3-Codex fue instrumental en su creación; en septiembre alcanzó su becario de investigación automatizado (3,1 jornadas de agente por jornada humana) y en noviembre medía 5,7. Anthropic dice que Claude dirige el 26% de su I+D (nivel AL4) en agosto, frente a menos del 1% en febrero, con 0% en AL5 y más del 80% del código fusionado; Microsoft publicó Self-HPO (57,8% a 64,8% en tres benchmarks). Sin mapa asociado porque el tema no tiene dimensión geográfica.",
+    "type": "news",
+    "format": "analisis",
+    "topic": "ia",
+    "sourceUrls": [
+      "https://storage.googleapis.com/deepmind-media/gemini/gemini_4_safety_report.pdf",
+      "https://decrypt.co/381061/google-deepmind-ai-isnt-building-itself-writes-most-code",
+      "https://www.businessinsider.com/sundar-pichai-google-rsi-recursive-self-improvement-ai-2026-10",
+      "https://stockanalysis.com/stocks/googl/transcripts/652060-google-cloud-next-2026-developer-keynote",
+      "https://deepmind.google/blog/alphaevolve-impact",
+      "https://openai.com/index/introducing-gpt-5-3-codex",
+      "https://openai.com/index/research-acceleration-view-inside-openai",
+      "https://openai.com/index/research-acceleration-jagged-frontier/",
+      "https://www.anthropic.com/institute/recursive-self-improvement",
+      "https://www.anthropic.com/institute/measuring-pace-of-ai-development",
+      "https://metr.org/blog/2026-11-20-q4-2026-capability-update/",
+      "https://www.rand.org/pubs/perspectives/PEA5068-1.html",
+      "https://forecastingresearch.org/research/recursive-self-improvement-v1",
+      "https://www.microsoft.com/en-us/research/publication/self-evolving-coding-agents-via-harness-policy-optimization/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "google-rsi-auto-mejora-2026",
+        "url": "/news/google-rsi-auto-mejora-2026/",
+        "title": "Google ya corre bucles de RSI: la IA que se mejora a sí misma aún no acelera",
+        "description": "El 75% del código nuevo de Google lo genera la IA y DeepMind admite bucles de auto-mejora. Su propio informe no ve aceleración: el 88% de los cambios aún necesita manos humanas."
+      },
+      "en": {
+        "slug": "google-rsi-self-improvement-2026",
+        "url": "/en/news/google-rsi-self-improvement-2026/",
+        "title": "Google is already running RSI loops: the AI that improves itself is not accelerating yet",
+        "description": "AI writes 75% of Google's new code and DeepMind admits it runs self-improvement loops. Its own safety report finds no significant acceleration: 88% of code changes still need human steering."
+      }
+    }
+  },
+  {
+    "date": "2026-11-22",
     "event": "La COP31 de Antalya (Turquía, 9-20 de noviembre de 2026) entró este domingo 22 en su tercer día de prórroga sin acuerdo. El nuevo borrador presentado por la presidencia turco-australiana reafirma el deber financiero de los países ricos pero sin cifras, y mantiene la ausencia de menciones a los combustibles fósiles: el segundo borrador (19 de noviembre) pasó de 144 a 80 párrafos y borró las dos referencias al abandono de los fósiles tras las objeciones de Arabia Saudí y otros productores, según Reuters; también eliminó la meta de 120.000 millones de dólares anuales para adaptación en 2035. La UE rechazó los dos primeros textos, India se niega a citar hidrocarburos (EFE), Panamá amenaza con objeción formal y Estados Unidos no participa. Contexto del mapa (Global Carbon Project / OWID, 2026, datos de 2024, 205 países): China 12.289 Mt (31,8%), EE UU 4.904 (12,7%), India 3.193 (8,3%); los tres primeros suman el 52,8% del total mundial y los diez primeros el 68,9%. Arabia Saudí emite 692 Mt (1,8%) con 20,4 t por habitante, frente a 2,2 de India y 6,8 de Alemania; España, 220 Mt (0,6%).",
     "type": "news",
     "format": "noticia",
