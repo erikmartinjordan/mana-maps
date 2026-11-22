@@ -19,6 +19,8 @@ const {
   auditLandingMetadata,
   auditMetadataHygiene,
   auditLegendCoherence,
+  auditEncodingIntegrity,
+  countReplacementChars,
   auditToponymLanguage,
   legendNumericCandidates,
   isLegendNumericLike,
@@ -1389,6 +1391,59 @@ test('numeric legend candidates ignore text, dates and style keys', () => {
   ]);
   expect(aiLabs.issues).toEqual([]);
   expect(aiLabs.details['ai-labs-headquarters'].candidates).toEqual([]);
+});
+
+// Regresión del check 17: integridad de codificación. El `geojsonText` se
+// escribe/lee por REST y un bug de decodificación UTF-8 metió U+FFFD (�) en
+// claves y textos visibles («C��digo Postal», «mort��fero»).
+test('encoding integrity flags U+FFFD in geojson values and property keys', () => {
+  const clean = {
+    id: 'mapa-limpio',
+    geojsonText: JSON.stringify({
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [-3.7, 40.4] },
+        properties: { _manaName: 'Biblioteca Ñandú', 'Código Postal': '08028', Description: 'Mortífero 🔥' },
+      }],
+    }),
+  };
+  const corrupt = {
+    id: 'mapa-corrupto',
+    geojsonText: JSON.stringify({
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [-3.7, 40.4] },
+        properties: { 'C\uFFFD\uFFFDdigo Postal': '08028', Description: 'mort\uFFFD\uFFFDfero' },
+      }],
+    }),
+  };
+
+  expect(auditEncodingIntegrity([clean])).toEqual({ issues: [], affected: [], details: {} });
+  expect(countReplacementChars('C\uFFFD\uFFFDdigo')).toBe(2);
+  expect(countReplacementChars('sano')).toBe(0);
+
+  const result = auditEncodingIntegrity([clean, corrupt, { id: 'sin-geojson' }]);
+  expect(result.affected).toEqual(['mapa-corrupto']);
+  expect(result.details['mapa-corrupto'].total).toBe(4);
+  expect(result.details['mapa-corrupto'].keys).toEqual(['C\uFFFD\uFFFDdigo Postal']);
+  expect(result.details['mapa-corrupto'].fields).toEqual(['features[0].properties.Description']);
+  const issues = result.issues.join('\n');
+  expect(issues).toContain('mapa-corrupto: 4 carácter(es) U+FFFD en geojsonText');
+  expect(issues).toContain('claves de propiedad corruptas: «C\uFFFD\uFFFDdigo Postal»');
+  expect(issues).not.toContain('mapa-limpio');
+});
+
+test('all local map geojson files are free of U+FFFD corruption', () => {
+  const mapsDir = path.join(repoRoot, 'data', 'maps');
+  const corrupted = [];
+  for (const file of fs.readdirSync(mapsDir).filter((f) => f.endsWith('.geojson'))) {
+    const text = fs.readFileSync(path.join(mapsDir, file), 'utf8');
+    const count = countReplacementChars(text);
+    if (count) corrupted.push(`${file} (${count})`);
+  }
+  expect(corrupted, corrupted.join(', ')).toEqual([]);
 });
 
 // Regresión del bloque «Datos clave»: la frase empieza en minúscula, pero las

@@ -2693,6 +2693,95 @@ function auditLegendCoherence(maps) {
   return { issues, affected: [...affected].sort(), details };
 }
 
+// ── Integridad de codificación (check 17) ─────────────────────────
+// El `geojsonText` se escribe y se lee por REST. Si una lectura concatena
+// trozos de string sin decodificar UTF-8, cada carácter multibyte partido
+// entre paquetes se convierte en U+FFFD y ese texto corrupto se vuelve a
+// publicar en la siguiente auditoría. Así aparecieron una clave «Código Postal»
+// con el acento roto, «Santa Lucía — 1 sitio» con tres U+FFFD y «mortífero»
+// partido (auditoría GIS 22-11). Este check recorre el GeoJSON completo
+// (valores y claves de propiedades) y falla con exit 1 si encuentra el carácter
+// de reemplazo: la sustitución por el carácter correcto exige criterio, así que
+// no se auto-corrige.
+
+const REPLACEMENT_CHAR = '\uFFFD';
+
+// Cuenta los U+FFFD de un string (exportado para tests).
+function countReplacementChars(value) {
+  return (String(value == null ? '' : value).match(/\uFFFD/g) || []).length;
+}
+
+// Recorre un valor JSON y devuelve { total, keys, fields }: el total de
+// caracteres U+FFFD, las claves de objeto corruptas y las rutas de los valores
+// de texto corruptos.
+function findReplacementChars(value, pathParts = [], acc = null) {
+  const out = acc || { total: 0, keys: [], fields: [] };
+  if (typeof value === 'string') {
+    const count = countReplacementChars(value);
+    if (count) {
+      out.total += count;
+      out.fields.push(pathParts.join('.') || '(raíz)');
+    }
+    return out;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      const last = pathParts.length ? pathParts[pathParts.length - 1] : '';
+      const nextPath = [...pathParts.slice(0, Math.max(0, pathParts.length - 1)), `${last}[${index}]`];
+      findReplacementChars(item, nextPath, out);
+    });
+    return out;
+  }
+  if (value && typeof value === 'object') {
+    for (const [key, child] of Object.entries(value)) {
+      const count = countReplacementChars(key);
+      if (count) {
+        out.total += count;
+        out.keys.push(key);
+      }
+      findReplacementChars(child, [...pathParts, key], out);
+    }
+  }
+  return out;
+}
+
+// Audita la integridad de codificación de los geojsonText publicados. Devuelve
+// { issues, affected, details } con una incidencia por mapa afectado.
+function auditEncodingIntegrity(maps) {
+  const issues = [];
+  const affected = new Set();
+  const details = {};
+  const list = (Array.isArray(maps) ? maps : [])
+    .filter((m) => m && m.id)
+    .slice()
+    .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  for (const map of list) {
+    const text = String(map.geojsonText == null ? '' : map.geojsonText);
+    const rawTotal = countReplacementChars(text);
+    if (!rawTotal) continue;
+
+    let scan = { total: rawTotal, keys: [], fields: [] };
+    try {
+      scan = findReplacementChars(JSON.parse(text));
+    } catch (_) {
+      // GeoJSON no parseable: se conserva el recuento bruto (auditMap ya
+      // reporta el JSON inválido).
+    }
+    const keys = [...new Set(scan.keys)];
+    const fields = [...new Set(scan.fields)].slice(0, 5);
+    const parts = [`${rawTotal} carácter(es) U+FFFD en geojsonText`];
+    if (keys.length) parts.push(`claves de propiedad corruptas: ${keys.map((k) => `«${k}»`).join(', ')}`);
+    if (fields.length) parts.push(`campos: ${fields.join(', ')}`);
+
+    issues.push(`${map.id}: ${parts.join('; ')}`);
+    affected.add(map.id);
+    details[map.id] = { total: rawTotal, keys, fields };
+  }
+
+  return { issues, affected: [...affected].sort(), details };
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -2954,10 +3043,31 @@ async function main() {
   }
   console.log('');
 
+  // 17. Integridad de codificación: ningún geojsonText publicado debe contener
+  // el carácter de reemplazo U+FFFD (ni en valores ni en claves de propiedad).
+  let encoding = null;
+  try {
+    encoding = auditEncodingIntegrity(published);
+  } catch (e) {
+    encoding = {
+      issues: [`no se pudo comprobar la codificación de los geojsonText: ${e.message}`],
+      affected: [],
+      details: {},
+    };
+  }
+  console.log('CODIFICACIÓN | ISSUES');
+  console.log('-------------|-------');
+  if (encoding.issues.length === 0) {
+    console.log(`OK: ${published.length} geojsonText publicados sin caracteres U+FFFD`);
+  } else {
+    for (const issue of encoding.issues) console.log(`CODIFICACIÓN: ${issue}`);
+  }
+  console.log('');
+
   console.log('SLUG | ISSUES');
   console.log('-----|-------');
 
-  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + internalLinks.issues.length + newsLinks.issues.length + hygieneErrors + legendCoherence.issues.length;
+  let mapsAudited = 0, mapsOk = 0, mapsFixed = 0, mapsManual = 0, errors = seo.issues.length + coverage.issues.length + landingMeta.issues.length + internalLinks.issues.length + newsLinks.issues.length + hygieneErrors + legendCoherence.issues.length + encoding.issues.length;
   let popupFixedTotal = 0, popupMissingTotal = 0, paletteFixedTotal = 0;
   let pointFixedTotal = 0, pointManualTotal = 0;
   const manualList = [];
@@ -3091,6 +3201,7 @@ async function main() {
   console.log(`Metadatos landings (check 12): ${landingMeta.issues.length === 0 ? 'OK' : `${landingMeta.issues.length} incidencias`}`);
   console.log(`Higiene metadatos (check 13): ${hygiene.issues.length === 0 && hygieneErrors === 0 ? 'OK' : `${hygiene.issues.length} incidencias, ${hygieneFixed} mapa(s) corregido(s), ${hygiene.manual.length} manual(es)`}`);
   console.log(`Coherencia leyenda (check 14): ${legendCoherence.issues.length === 0 ? 'OK' : `${legendCoherence.affected.length} mapa(s) afectado(s), ${legendCoherence.issues.length} incidencia(s)`}`);
+  console.log(`Codificación (check 17): ${encoding.issues.length === 0 ? 'OK' : `${encoding.affected.length} mapa(s) con U+FFFD en geojsonText`}`);
   console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News)` : ''}${internalLinks.lowView && internalLinks.lowViewMax ? ` (${internalLinks.lowView.length} con ≤${internalLinks.lowViewMax} visitas enlazados desde ≥${internalLinks.lowViewMinTrafficHosts} landings con ≥${internalLinks.minHostViews} visitas)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas y ${internalLinks.lowViewUndiscovered ? internalLinks.lowViewUndiscovered.length : '?'} apenas vistos sin enlace desde landings con tráfico, la portada, la galería ni News`}`);
   console.log(`News ↔ landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha y ${newsLinks.reverseLinks || 0} enlaces inversos)` : `${newsLinks.issues.length} incidencia(s)`}`);
   console.log(`Errors: ${errors}`);
@@ -3183,6 +3294,10 @@ module.exports = {
   legendNumericCandidates,
   legendKeyDistinctValues,
   auditLegendCoherence,
+  countReplacementChars,
+  findReplacementChars,
+  auditEncodingIntegrity,
+  REPLACEMENT_CHAR,
   parseLegendNumber,
   hexToHsl,
   hslToHex,
