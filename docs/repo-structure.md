@@ -88,6 +88,7 @@ fuente cruda → scripts/maps/gen-*.js → data/maps/*.geojson
 - `site/css/auth-gallery.css`: autenticación y acciones de galería.
 - `site/css/site-footer.css`: pie de página compartido y fondo del overscroll iOS.
 - `site/css/site-navbar.css`: barra superior compartida de las páginas públicas.
+- `site/css/pdf-export.css`: modal de descarga en PDF con plantillas.
 - `site/og-cards/`: una tarjeta 1200×630 por mapa publicado.
 
 ## Higiene

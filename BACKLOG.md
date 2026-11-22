@@ -176,3 +176,290 @@
 - [ ] Corregir los caracteres corruptos de los popups de cuatro mapas ya publicados (auditoría GIS 22-11): el `geojsonText` de Firestore contiene el carácter de reemplazo U+FFFD en texto visible —`bibliotecas-barcelona` 4 veces (la clave `C��digo Postal` rompe además el nombre de la propiedad), `patrimonio-unesco-por-pais` 3 («Santa Lucía ��� 1 sitio UNESCO»), `indice-desarrollo-humano-por-pais` 2 («0.764 (Alto desarrollo humano) �� Asia») y `worst-wildfires-world` 2 («el más mort��fero en EE.UU.»)—; sustituir cada aparición por el carácter correcto («ó», «·», «—», «→») tanto en `data/maps/<slug>.geojson` como en Firestore, republicar los cuatro documentos sin tocar visitas, y añadir a `scripts/tools/audit-gallery-quality.js` un check (etiqueta U+FFFD en `geojsonText` y en claves de propiedades) que falle con exit 1, con regresión sintética en `tests/predeploy/seo-metadata.spec.js` para que la corrupción de codificación no vuelva a colarse; verificar con Playwright y mirada visual del popup de cada mapa en `/gallery/?slug=` (22-11)
 - [ ] Corregir los datos y la ficha de `largest-islands-world` (auditoría GIS 22-11): el `Ranking` no sigue a la `Superficie` —Gran Bretaña figura #8 con 229.848 km² por detrás de Honshu #7 con 227.960, e «Isla de Irlanda» #17 con 84.421 km² por delante de Novaya Zemlya #20 con 90.650—, recalcularlo ordenando por superficie real; corregir el `_manaName` «Isla de-java» por «Isla de Java»; traducir al español los `name` que siguen en inglés (Greenland, New Guinea, Baffin Island, Great Britain, Victoria Island, Ellesmere Island, South Island, North Island, Newfoundland, Iceland, Ireland, Hokkaido, Spitsbergen...) casando con las etiquetas del resto del catálogo, como ya se hizo en `co2-per-capita-world`/`nuclear-energy-world`; generar y guardar el `mapPreview` que falta en el documento (es el único de los 56 publicados sin él, junto a `longest-rivers-world`) para que la tarjeta y el globo no dependan de descargar el GeoJSON completo; republicar en Firestore y regenerar landing, FAQ, OG card y `lastmod`, dejando la auditoría y Playwright en verde (22-11)
 - [ ] Resolver la cobertura de datos de `daily-steps-world` (auditoría GIS 22-11): 160 de sus 206 polígonos están en gris «Sin datos» (22 % de cobertura, fuente Althoff et al./Stanford 2017 centrada en países con smartphone), de modo que el mapa se lee como una mancha gris y contradice el punto 5 de AGENTS.md; completar por país con una fuente autoritativa más reciente (OMS/GSHO actividad física insuficiente, o Eurostat/OCDE donde exista) manteniendo `dataSource`/`dataDate` citados y una única rampa ordenada por el dato, o, si no hay dato homogéneo, recortar la extensión a los países cubiertos y explicarlo en `description`, `legendTitle` y popup; actualizar la descripción para no prometer cobertura mundial si no la hay, republicar y regenerar landing/OG/`lastmod` (22-11)
+
+## Exportación PDF — propuestas de iteración (22-11)
+
+Estado: `Exportar → Descargar PDF…` ya está integrado en `/map/` y `/en/` con 5
+plantillas (Dossier, Atlas, Ficha, Cartel y Minimal), logo oficial, etiquetas y
+encuadre Todo / Vista actual / Región. Lo siguiente son propuestas pendientes,
+no implementadas; priorizar P0 antes de añadir más plantillas.
+
+Orden recomendado de iteración: **P0** (bugs, preview, rendimiento y tests) →
+**P1** (coherencia visual con la app) → **P2** (PDF vectorial) → **P3** (pulido
+del encuadre) → **P4** (etiquetas y callouts) → **P5** (más plantillas) →
+**P6** (integración y accesibilidad).
+
+### P0 · Incidencias y fiabilidad
+
+- [ ] **El mapa de detrás se borra al seleccionar la región**. Repro: abrir
+  `Exportar → Descargar PDF…`, pulsar `Región` y arrastrar el rectángulo; el
+  preview de la plantilla (y/o el mapa del editor detrás del modal) queda en
+  blanco, así que se pierde la referencia de lo que se está encuadrando. Hoy el
+  `.pdfx-preview` se oculta por diseño al abrir el selector, pero hay que
+  confirmar si además el canvas de Leaflet/MapLibre se queda sin pintar por
+  reflow, bloqueo del hilo al reconstruir el SVG o pérdida de contexto WebGL.
+  Criterio: al abrir/arrastrar/aplicar la región, el preview sigue visible o se
+  actualiza en vivo, el mapa del editor no se altera y al cerrar el modal todo
+  vuelve a su estado. Añadir test de regresión visual.
+
+- [ ] **Preview en vivo durante el recorte de región**. En lugar de ocultar la
+  página y mostrar solo el selector, partir el área (selector + miniatura de la
+  plantilla) o superponer una miniatura atenuada que se actualice mientras se
+  mueve el rectángulo. Criterio: se ve el resultado antes de pulsar `Aplicar` y
+  el cambio de encuadre no obliga a cerrar y reabrir el selector.
+
+- [ ] **Repintar el mapa del editor al cerrar el modal**. Al terminar o cancelar
+  la exportación, asegurar `map.invalidateSize()` (o equivalente) y que el
+  contenedor recupera su tamaño real si el overlay o el bloqueo de scroll lo
+  alteraron; comprobar Leaflet, MapLibre y el globo 3D.
+
+- [ ] **Cancelar y cerrar deben dejar estado limpio**. Comprobar que `Cancelar`
+  en el selector restaura plantilla, encuadre y opciones previas; que cerrar el
+  modal revoca blob URLs, aborta generaciones en curso y no deja `state.picker`,
+  `state.region` ni listeners colgados. Criterio: abrir/cerrar 10 veces no
+  acumula memoria ni deja el mapa del editor en blanco.
+
+- [ ] **Mapas grandes (1.000–10.000 features)**. Medir con `antenas-moviles-espana`
+  y mapas de puntos densos: al abrir se construyen 5 previews SVG completos y el
+  selector reconstruye el mapa entero, lo que puede congelar la UI. Proponer
+  previews bajo demanda, miniatura simplificada, límite de puntos/etiquetas,
+  rasterizado progresivo o Web Worker. Criterio: abrir el modal <1 s y descargar
+  sin bloquear la interfaz en un portátil y en móvil.
+
+- [ ] **Fallbacks de generación**. Si fallan `canvas.toDataURL`, `URL.createObjectURL`,
+  la carga del SVG o el canvas por memoria (Safari/iOS), mostrar un error claro
+  y ofrecer alternativa: PNG, imprimir o reintentar con menos resolución.
+  Criterio: el botón nunca queda bloqueado y el estado se anuncia.
+
+- [ ] **Tests Playwright de la feature**. Cubrir abrir modal, cambiar plantilla,
+  alternar Leyenda/Etiquetas/Tabla, aplicar Región, usar Vista actual, descargar
+  y comprobar nombre y tamaño >0. Incluir 0/1 feature, puntos con emoji,
+  polígonos, mapa oculto y cancelación. Criterio: regresión en
+  `tests/predeploy/` sin depender de Firestore real.
+
+### P1 · Coherencia visual con la app
+
+- [ ] **Auditar el estudio PDF contra el design system de la app**. El modal usa
+  hoy una superficie de papel cálido con tokens propios (`--pdfx-*`) que no
+  coinciden con el editor (grafito, `--blue`, `--surface`, `--border`,
+  `--radius`). Comparar lado a lado con los modales existentes (auth, compartir,
+  selector de marcadores, tutorial), decidir si «papel/estudio de impresión» es
+  una superficie intencional y documentada o debe heredar el tema del editor, y
+  alinear tipografía, escala, radios, sombras, iconografía, estados hover/focus
+  y espaciado. Criterio: revisión visual lado a lado sin colores hardcodeados
+  fuera de tokens y con dark/light coherentes.
+
+- [ ] **Reutilizar componentes y patrones existentes**. Extraer del modal los
+  botones, segmented control, checkboxes, tarjetas y cabecera a piezas
+  compartidas (o a CSS con los mismos nombres/tokens que la app) para que no
+  derive con el tiempo; revisar que el foco, el `disabled`, el estado `loading`
+  y los tamaños móviles sigan los mismos patrones que el resto del editor.
+  Criterio: el HTML/CSS del modal no reinventa controles que ya existen.
+
+- [ ] **Definir y documentar la identidad del estudio PDF**. Si se mantiene la
+  estética editorial de papel, documentar en `docs/` sus reglas (paleta,
+  tipografía, uso del logo oficial, márgenes, jerarquía, tono de los textos) y
+  cómo convive con el tema oscuro; si se descarta, migrar todo a tokens del
+  editor. Criterio: una persona nueva puede replicar el diseño sin adivinar.
+
+- [ ] **Coherencia de copy, iconos y microinteracciones**. Revisar nombres
+  («Encuadre», «Región», «Vista actual», «Plantillas»), iconos y transiciones
+  para que hablen el mismo idioma que la app; añadir `aria-live` y estados
+  vacíos/error con el mismo tono. Criterio: el modal se siente parte del
+  producto y no una pantalla incrustada.
+
+### P2 · PDF vectorial y calidad de impresión
+
+- [ ] **Generar el PDF con geometría y texto vectoriales**. Hoy cada página se
+  rasteriza a JPEG y al hacer zoom se ven los píxeles. Migrar a un pipeline que
+  escriba primitivas PDF (paths para polígonos/líneas, rectángulos para tarjetas
+  y leyendas, texto con fuentes embebidas) o usar `svg2pdf`/jsPDF con soporte de
+  `clipPath`, gradientes y fuentes. Los emoji/marcadores deben convertirse a SVG
+  del catálogo `js/markers.js` o a imágenes de alta resolución, no depender de
+  la fuente del sistema. Criterio: al 800 % el mapa, las etiquetas, las guías y
+  la tabla se ven nítidos; el texto es seleccionable/buscable y el PDF pesa
+  menos que el raster equivalente.
+
+- [ ] **Fuentes y tildes**. Embeber DM Sans/DM Mono (o usar una fuente estándar
+  con soporte Latin-1) y verificar acentos, ñ, «·», «—» y comillas en todas las
+  plantillas; evitar que el PDF dependa de fuentes instaladas en el sistema.
+  Criterio: mismo texto en macOS, Windows, Linux e iOS sin caracteres corruptos.
+
+- [ ] **Optimización de geometría para vectores**. Un mapa de 205 polígonos o
+  10.000 puntos puede generar un PDF enorme. Simplificar por escala de página
+  (Douglas-Peucker con tolerancia ligada al tamaño impreso), eliminar anillos
+  diminutos, deduplicar paths y limitar puntos/labels por página sin perder
+  topología. Criterio: PDF <10 MB por página en los mapas más densos y tiempo de
+  generación aceptable.
+
+- [ ] **Raster de respaldo de alta calidad**. Si algún efecto no se puede
+  vectorizar (sombras, texturas, emoji), usar PNG/300 DPI en lugar de JPEG para
+  las zonas rasterizadas y mantener el resto vectorial; ofrecer un selector
+  «Vectorial / Alta calidad (300 DPI) / Borrador». Criterio: no hay texto
+  borroso ni artefactos JPEG en impresión.
+
+- [ ] **Metadatos y preparación para imprenta**. Añadir título, autor, asunto,
+  palabras clave y fecha al PDF; valorar marcas de corte, sangrado, tamaño exacto
+  de página y perfil de color. Criterio: el PDF se imprime al 100 % sin recortes
+  y los metadatos son correctos.
+
+- [ ] **Pruebas de fidelidad**. Tests automatizados que comparen dimensiones de
+  página, número de páginas, presencia de texto y que el mapa no esté vacío;
+  prueba manual al 400–800 % en visor de PDF y en impresión. Criterio: no vuelve
+  a colarse una página rasterizada o borrosa sin detectarse.
+
+### P3 · Encuadre y región
+
+- [ ] **Selector de región más preciso**: zoom/pan con rueda y doble clic,
+  controles +/−, reinicio y asas para redimensionar el rectángulo existente
+  (hoy solo se puede dibujar uno nuevo). Criterio: seleccionar una isla o una
+  provincia pequeña sin tener que ampliar el mapa del editor.
+
+- [ ] **Guía de aspecto y área segura según la plantilla**. Mostrar en el
+  selector el marco de la página (A4 vertical/horizontal, póster) y avisar si
+  el recorte dejará márgenes o se recortará al aplicar la plantilla. Criterio:
+  el encuadre seleccionado coincide visualmente con el PDF final.
+
+- [ ] **Encuadre por capa/grupo**: añadir un desplegable «Ajustar a…» con los
+  bounds de cada `_manaGroupName` visible, además de Todo / Vista actual /
+  Región. Criterio: exportar solo los volcanes o solo un grupo sin dibujar el
+  rectángulo a mano.
+
+- [ ] **Actualizar la vista sin cerrar el modal**: botón «Capturar vista actual»
+  que lea `map.getBounds()` en ese momento, o permitir minimizar el modal para
+  ajustar el mapa y volver. Criterio: Vista actual no depende de haber hecho
+  zoom antes de abrir el diálogo.
+
+- [ ] **Región persistente y visible**: conservar la región al cambiar de
+  plantilla u opciones y mostrar un chip con el encuadre activo y un botón para
+  limpiarlo. Criterio: cambiar de Dossier a Atlas no pierde el zoom elegido.
+
+- [ ] **Criterio de datos en el borde de la región**. Definir si un polígono que
+  cruza el recorte cuenta entero o solo la parte visible para leyenda, tabla y
+  KPIs; hoy se incluye si intersecta. Documentarlo en el modal y aplicar el
+  mismo criterio a etiquetas. Criterio: los totales del PDF son explicables.
+
+- [ ] **Antimeridiano y mapas oceánicos/polares**. Probar regiones que cruzan
+  ±180, vistas con wrap y mapas de puntos en el Pacífico; evitar rectángulos
+  que abarcan el mundo entero al seleccionar cerca del borde. Criterio: el
+  encuadre y el filtrado de datos son correctos en esos casos.
+
+### P4 · Etiquetas, callouts y marcadores
+
+- [ ] **Densidad de etiquetas controlable**: Ninguna / Automática / Todas, o un
+  slider, con prioridad por valor o superficie. Hoy el límite es fijo (60–80)
+  y se descartan etiquetas sin explicar por qué. Criterio: el usuario entiende
+  y controla cuántas etiquetas aparecen.
+
+- [ ] **Anti-solapamiento real**: evitar también el solapamiento con
+  marcadores/emoji, no solo entre textos; medir el ancho real con
+  `measureText`/canvas y, si hace falta, usar guías o leader lines. Criterio:
+  ninguna etiqueta tapa un icono o queda ilegible en clusters.
+
+- [ ] **Etiquetas solo dentro de la región**: filtrar las features por el
+  encuadre antes de rotular, evitar textos cortados en el borde y repetir el
+  nombre en multipolígonos con criterio. Criterio: el PDF no muestra etiquetas
+  de elementos que no se ven.
+
+- [ ] **Respetar `_manaLabelStyle`**: tamaño, color, halo, familia y `enabled`
+  por grupo; si el usuario desactiva etiquetas en el editor, el PDF no debe
+  reactivarlas por defecto sin avisar. Criterio: el PDF coincide con la vista
+  del editor.
+
+- [ ] **Topónimos en español**: usar `_manaName`/`País` en mapas `lang:es` y
+  abreviar nombres largos con criterio («Rep. Dem. del Congo»). Criterio: no
+  vuelven a aparecer «United States of America» ni etiquetas en inglés.
+
+- [ ] **Marcadores vectoriales en el PDF**: sustituir el emoji del sistema por
+  el SVG del catálogo `js/markers.js` para que el resultado sea idéntico en
+  macOS, Windows, Linux e iOS y no dependa de la fuente de emoji. Criterio:
+  mismo icono y tamaño relativo que en el editor.
+
+- [ ] **Callouts manuales (líneas de guía)**. Añadir una capa de anotaciones
+  independiente de las etiquetas: elegir una feature desde una lista o haciendo
+  clic en el preview, escribir el texto del callout, situar la etiqueta y el
+  ancla, elegir lado (izquierda/derecha/arriba/abajo) y estilo de línea (recta,
+  codo, punteada), halo, color y tamaño. Debe poder editarse, ocultarse y
+  borrarse. Criterio: se pueden añadir 2–5 callouts a un mapa sin tocar el
+  GeoJSON ni el editor y aparecen en el PDF en la misma posición.
+
+- [ ] **Callouts automáticos para los valores destacados**. Reutilizar y
+  generalizar la lógica de guías en L de `site/js/share-card.js` para proponer
+  callouts de los N valores más altos (o más bajos) de la clave de leyenda, con
+  colocación inteligente a izquierda/derecha, límite configurable y opción de
+  aceptar, editar o descartar cada uno. Criterio: un mapa coroplético genera
+  callouts legibles sin solaparse con etiquetas, leyenda o tabla.
+
+- [ ] **Anti-colisión y jerarquía de anotaciones**. Resolver el solapamiento
+  entre callouts, etiquetas, marcadores y bordes de la página; priorizar
+  callouts manuales sobre automáticos y ofrecer guías/leader lines cuando la
+  etiqueta no quepa cerca del punto. Criterio: ninguna anotación tapa otra ni
+  queda fuera del área imprimible.
+
+- [ ] **Callouts vectoriales y accesibles**. Exportar líneas, puntos y texto de
+  los callouts como vectores (no imágenes), con texto seleccionable y nombres
+  accesibles; permitir moverlos con teclado y anunciar el estado en el modal.
+  Criterio: al hacer zoom los callouts siguen nítidos y se pueden revisar sin
+  ratón.
+
+- [ ] **Persistencia y plantillas de anotación**. Guardar los callouts junto con
+  la configuración de exportación (localmente y, si aplica, en el mapa) para
+  reutilizarlos al reabrir el PDF; permitir guardar un «set» de callouts como
+  plantilla. Criterio: cerrar y reabrir el modal no pierde las anotaciones.
+
+### P5 · Plantillas y contenido
+
+- [ ] **Más plantillas y formatos**: informe de 2 páginas con portada, A5,
+  Carta/Tabloide y «solo mapa». Reutilizar el motor actual y añadir selector de
+  tamaño y orientación. Criterio: elegir formato sin romper el encuadre.
+
+- [ ] **Metadatos editables en el modal**: título, subtítulo, descripción,
+  fuente, año y autor; toggles para logo, leyenda, tabla, notas, QR y escala.
+  Recordar las preferencias del usuario. Criterio: se puede ajustar el PDF sin
+  editar el nombre del proyecto ni las propiedades del mapa.
+
+- [ ] **QR y atribución**: QR al mapa interactivo (`/gallery/?slug=…` o URL
+  actual) y línea de crédito/fuente; opción de ocultarlo. Criterio: el PDF
+  impreso lleva al mapa vivo sin depender de escribir una URL.
+
+- [ ] **Calidad de impresión**: opción 150/300 DPI, metadatos del PDF
+  (título/autor/asunto), marcas de corte/sangrado y, si es viable, texto
+  vectorial en lugar de página rasterizada. Criterio: texto nítido a tamaño
+  real y peso razonable (<10 MB por página).
+
+- [ ] **Modo B/N y alto contraste**: plantilla imprimible en blanco y negro y
+  revisión de contraste WCAG de leyendas/tablas. Criterio: legible en
+  impresora láser y para baja visión.
+
+- [ ] **Miniaturas y peso estimado**: previews reales perezosas con skeleton,
+  sin bloquear, y mostrar número de páginas y peso estimado antes de descargar.
+  Criterio: el usuario sabe qué va a obtener y cuánto tarda.
+
+### P6 · Accesibilidad, i18n e integración
+
+- [ ] **Accesibilidad del modal y del selector**: focus trap, devolver el foco a
+  `Exportar`, `aria-live` para el estado, navegación por teclado en el selector
+  (flechas para mover/redimensionar) y `prefers-reduced-motion`. Criterio: todo
+  el flujo se completa sin ratón.
+
+- [ ] **i18n completa**: fechas, números, tamaños de papel, nombres de
+  plantillas y textos de estado en ES/EN; respetar `lang` del mapa para los
+  topónimos. Criterio: no se mezclan idiomas en el PDF ni en el modal.
+
+- [ ] **PDF en la vista pública y en compartir**: añadir la descarga PDF a
+  `/gallery/?slug=…` junto a PNG y a las opciones de compartir, con las mismas
+  plantillas/encuadre. Criterio: el visitante puede descargar sin pasar por el
+  editor. Valorar antes si es gratis o Pro (decisión de producto).
+
+- [ ] **Compartir en móvil**: `navigator.share` para el PDF cuando el
+  navegador lo soporte, con descarga como fallback. Criterio: en iOS/Android se
+  puede enviar el PDF a Archivos/Correo/Mensajes.
+
+- [ ] **Analítica anónima**: eventos de apertura, plantilla, encuadre,
+  descarga y error (sin datos personales) para priorizar mejoras. Criterio: se
+  puede medir qué plantilla y qué modo de encuadre se usan.
+
+- [ ] **Robustez de datos de entrada**: mapas con 0/1 feature, capas ocultas,
+  colores inválidos, coordenadas fuera de rango, features agrupadas y mapas
+  importados sin `_manaLabelStyle`. Criterio: nunca se genera un PDF en blanco
+  sin explicación; se avisa y se ofrece un fallback.

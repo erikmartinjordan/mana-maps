@@ -129,6 +129,7 @@ try {
 } catch (e) {}
 </script>
 <link rel="stylesheet" href="/css/main.css?v=1794313000"/>
+<link rel="stylesheet" href="/css/pdf-export.css?v=20261122"/>
 <link rel="stylesheet" href="/css/auth-gallery.css"/>
 <link rel="stylesheet" href="/css/tutorial.css?v=1"/>
 <link rel="stylesheet" href="/css/editor-dark.css"/>
@@ -303,6 +304,8 @@ try {
         <button class="drop-item" onclick="exportAs('kml')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KML / KMZ</button>
         <div class="drop-divider"></div>
         <button class="drop-item" onclick="exportAs('shapefile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
+        <div class="drop-divider"></div>
+        <button class="drop-item" onclick="openPdfExport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="11"/><polyline points="8.5 14.5 12 18 15.5 14.5"/></svg>Descargar PDF…</button>
       </div>
     </div>
 
@@ -857,6 +860,7 @@ try {
 <script defer src="/js/tools.js?v=1793020900"></script>        <!-- herramientas de dibujo -->
 <script defer src="/js/context-menu.js?v=1790749821"></script> <!-- menú contextual -->
 <script defer src="/js/import-export.js?v=1793020900"></script><!-- importar y exportar -->
+<script defer src="/js/pdf-export.js?v=20261122"></script><!-- descarga en PDF con plantillas -->
 <script defer src="/js/chat.js?v=20261108"></script>         <!-- chat y geocodificación -->
 <script defer src="/js/undo-redo.js?v=1776927827"></script>    <!-- deshacer/rehacer -->
 <script defer src="/js/persistence.js?v=1794301500"></script>  <!-- persistencia y compartir -->
