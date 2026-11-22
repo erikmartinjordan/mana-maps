@@ -1,7 +1,7 @@
 {
   "source": "Firestore maps.views",
   "views": {
-    "active-volcanoes-world": 22,
+    "active-volcanoes-world": 36,
     "ai-labs-headquarters": 12,
     "air-pollution-pm25-world": 9,
     "airports-world": 11,
@@ -11,7 +11,7 @@
     "biggest-earthquakes-world": 25,
     "busiest-ports-world": 12,
     "co2-per-capita-world": 10,
-    "co2-total-emissions-world": 2,
+    "co2-total-emissions-world": 5,
     "cobertura-forestal-por-pais": 1,
     "daily-steps-world": 4,
     "electricity-access-world": 7,
@@ -47,6 +47,7 @@
     "population-by-country": 2,
     "rainy-days-by-city-world": 3,
     "renewable-energy-world": 5,
+    "solar-parks-world": 0,
     "submarine-fiber-cables": 38,
     "tallest-skyscrapers-world": 1,
     "tallest-statues-world": 1,
