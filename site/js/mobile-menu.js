@@ -160,3 +160,14 @@
     });
   });
 })();
+
+/* Carga el easter egg del pie solo en páginas que usan este script. */
+(function () {
+  if (window.__manaFooterHeartEgg) return;
+  if (document.querySelector('script[data-mana-footer-heart]')) return;
+  var script = document.createElement('script');
+  script.src = '/js/footer-heart.js';
+  script.defer = true;
+  script.setAttribute('data-mana-footer-heart', '');
+  (document.body || document.documentElement).appendChild(script);
+})();
