@@ -1977,6 +1977,34 @@ test('translated coropleths keep Spanish country labels and full coverage', () =
   expect(nuclear.features.find((f) => /Taiw/i.test(f.properties._manaName)).properties._manaName).toBe('Taiwán');
 });
 
+// largest-islands-world: el Ranking debe seguir la superficie real (Gran
+// Bretaña #7 por delante de Honshu #8, Nueva Zembla #17 por delante de Irlanda
+// #18) y name/_manaName tienen que estar en español, para que una regeneración
+// del GeoJSON no reintroduzca el orden antiguo ni etiquetas inglesas (§4).
+test('largest islands rank by surface and keep Spanish names', () => {
+  const geo = readMapGeo('largest-islands-world');
+  expect(geo.features.length).toBe(22);
+
+  const bySurface = [...geo.features].sort(
+    (a, b) => b.properties['Superficie (km²)'] - a.properties['Superficie (km²)'],
+  );
+  bySurface.forEach((feature, index) => {
+    const props = feature.properties;
+    expect(props.Ranking, props._manaName).toBe(`#${index + 1}`);
+    expect(props.name, props._manaName).toBe(props._manaName);
+    expect(findEnglishToponyms({ name: props.name }), props._manaName).toEqual([]);
+  });
+
+  expect(geo.features.map((f) => f.properties.Ranking))
+    .toEqual(bySurface.map((_, index) => `#${index + 1}`));
+  const greatBritain = geo.features.find((f) => f.properties._manaName === 'Gran Bretaña');
+  const honshu = geo.features.find((f) => f.properties._manaName === 'Honshu');
+  expect(greatBritain.properties.Ranking).toBe('#7');
+  expect(honshu.properties.Ranking).toBe('#8');
+  expect(greatBritain.properties.Descripción).toMatch(/^Séptima isla/);
+  expect(honshu.properties.Descripción).toMatch(/^Octava isla/);
+});
+
 // Cobertura completa: cualquier GeoJSON local de un mapa permite regenerar y
 // republicar, así que ninguno puede reintroducir topónimos ingleses (§4).
 test('every local map dataset keeps Spanish country labels', () => {

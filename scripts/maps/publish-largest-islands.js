@@ -181,7 +181,7 @@ async function main(){
       }))}}
     }),
     visibility:fsStr('public'), shareMode:fsStr('view'), allowPublicEdit:fsBool(false), isPublished:fsBool(true),
-    shareUrl:fsStr(`https://maña.com/gallery/?slug=${SLUG}`),
+    shareUrl:fsStr(`https://maña.com/gallery/${SLUG}/`),
     geojsonText:fsStr(geojsonText), geojsonChunked:fsNull(),
     dataSource:fsStr('Natural Earth 50m (geometría de islas) + Wikipedia (superficie y población)'),
     dataDate:fsStr('2026-09-01'),
@@ -207,6 +207,11 @@ async function main(){
   console.log(`Checking /maps/${SLUG}...`);
   const existing=await firestoreRequest(token,'GET',`/${COLLECTION}/${SLUG}`);
   if(existing.status===200){
+    // Conserva contadores, autoría y fecha de creación en las republicaciones.
+    const prev=existing.data.fields||{};
+    for(const key of ['views','likes','createdAtMs','createdAt','createdBy','ownerUid','public']){
+      if(prev[key]) docFields[key]=prev[key];
+    }
     console.log('Updating document...');
     const fieldPaths=Object.keys(docFields).map(f=>`updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
     const res=await firestoreRequest(token,'PATCH',`/${COLLECTION}/${SLUG}?${fieldPaths}`,{fields:docFields});

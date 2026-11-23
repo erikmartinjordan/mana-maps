@@ -2,7 +2,7 @@
   "source": "Firestore maps.views",
   "views": {
     "active-volcanoes-world": 36,
-    "ai-labs-headquarters": 12,
+    "ai-labs-headquarters": 13,
     "air-pollution-pm25-world": 9,
     "airports-world": 11,
     "alcohol-consumption-world": 2,
@@ -52,7 +52,7 @@
     "tallest-skyscrapers-world": 1,
     "tallest-statues-world": 1,
     "tallest-waterfalls-world": 11,
-    "tourism-arrivals-world": 89,
+    "tourism-arrivals-world": 91,
     "unemployment-world": 12,
     "urban-population-world": 4,
     "water-sanitation-access-world": 1,
