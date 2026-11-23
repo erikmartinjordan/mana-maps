@@ -17,8 +17,16 @@
 // Kong desde Natural Earth 10m (ne_10m_admin_0_countries, ISO HKG), que la
 // base 110m no incluye y es el país con más pasos del estudio.
 //
-// Cobertura real: 46 países del estudio; 45 se renderizan (Hong Kong con
-// geometría NE 10m propia). El resto del mundo queda en gris «Sin datos».
+// Cobertura real: 46 países del estudio (45 con geometría de la base + Hong
+// Kong con NE 10m).
+//
+// Decisión de datos (auditoría GIS 22-11): la muestra del estudio solo cubre
+// países con usuarios de app de smartphone, así que NO existe una medición de
+// pasos comparable para el resto del mundo (la OMS publica prevalencia de
+// actividad física insuficiente, que es otra métrica y no se puede mezclar en
+// la misma rampa). Por eso el GeoJSON se recorta a los 46 países con dato
+// real: nada de polígonos grises «Sin datos» que conviertan el mapa en una
+// mancha gris y sugieran una cobertura mundial que no existe (AGENTS.md §1).
 'use strict';
 
 const fs = require('fs');
@@ -60,7 +68,6 @@ const EN_FIX = {
 // Rampas secuenciales monocromáticas (ColorBrewer «Purples», claro→oscuro).
 // Sin arcoíris: un único tono violeta, borde blanco fino (AGENTS.md §3).
 const RAMP = ['#efedf5', '#dadaeb', '#bcbddc', '#9e9ac8', '#6a51a3', '#54278f'];
-const NO_DATA_COLOR = '#d9d9d9';
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
@@ -169,12 +176,15 @@ async function main() {
   for (const f of base.features) {
     const p = f.properties;
     const en = p['País (EN)'];
-    const hasData = stepsByEn.has(en);
+    // Solo entran los países con dato real del estudio: el mapa no promete
+    // cobertura mundial (no la hay) y no se rellena con gris «Sin datos».
+    if (!stepsByEn.has(en)) continue;
+    const steps = stepsByEn.get(en);
     const props = {
       _manaName: p._manaName,
       name: en,
-      _manaColor: hasData ? colorFor(stepsByEn.get(en)) : NO_DATA_COLOR,
-      _manaFillOpacity: hasData ? 0.82 : 0.45,
+      _manaColor: colorFor(steps),
+      _manaFillOpacity: 0.82,
       _manaWeight: 0.7,
       _manaBorderColor: '#FFFFFF',
       _manaGroupName: 'Pasos diarios',
@@ -183,18 +193,16 @@ async function main() {
       'País': p._manaName,
       'País (EN)': en,
       'Continente': p.Continente,
-      'Pasos diarios': hasData ? fmtSteps(stepsByEn.get(en)) + ' pasos' : 'Sin datos',
-      'Pasos diarios (num)': hasData ? stepsByEn.get(en) : null,
-      'Año de datos': hasData ? DATA_YEAR : 'Sin datos',
+      'Pasos diarios': fmtSteps(steps) + ' pasos',
+      'Pasos diarios (num)': steps,
+      'Año de datos': DATA_YEAR,
       'Fuente': SOURCE_SHORT,
-      'Description': hasData
-        ? `${p._manaName} — ${fmtSteps(stepsByEn.get(en))} pasos de media al día (${DATA_YEAR}) — ${p.Continente}`
-        : `${p._manaName} — sin datos de pasos diarios — ${p.Continente}`,
+      'Description': `${p._manaName} — ${fmtSteps(steps)} pasos de media al día (${DATA_YEAR}) — ${p.Continente}`,
       'Superficie': p.Continente,
-      'Dato': hasData ? fmtSteps(stepsByEn.get(en)) : 'Sin datos'
+      'Dato': fmtSteps(steps)
     };
     features.push({ type: 'Feature', properties: props, geometry: f.geometry });
-    if (hasData) matched.add(en);
+    matched.add(en);
   }
 
   // Hong Kong (NE 10m): el estudio lo sitúa en primer lugar con 6.880 pasos.
@@ -237,8 +245,9 @@ async function main() {
   fs.writeFileSync(OUT_GEO, json);
 
   const withData = features.filter(f => f.properties['Pasos diarios (num)'] != null).length;
+  const coverage = Math.round((withData / STEPS.length) * 100);
   console.log(`OK → ${path.relative(ROOT, OUT_GEO)}`);
-  console.log(`features: ${features.length} | con datos: ${withData} | sin datos: ${features.length - withData}`);
+  console.log(`features: ${features.length} | con datos: ${withData} | sin datos: ${features.length - withData} | cobertura del estudio: ${coverage}%`);
   console.log(`KB: ${(json.length / 1024).toFixed(1)}`);
   console.log(`ramp bins (umbrales): [${binThresholds.join(', ')}] → ${RAMP.join(' ')}`);
 }

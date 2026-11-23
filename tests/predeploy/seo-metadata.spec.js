@@ -2016,3 +2016,36 @@ test('every local map dataset keeps Spanish country labels', () => {
     expect(audit.count, `${file}: topónimos en inglés`).toBe(0);
   }
 });
+
+// daily-steps-world (auditoría GIS 22-11): solo los 46 países del estudio de
+// Althoff et al. tienen una medición de pasos comparable —la OMS publica otra
+// métrica (actividad física insuficiente) y no se puede mezclar en la rampa—,
+// así que el GeoJSON no puede volver a rellenarse con 160 polígonos grises
+// «Sin datos» ni la ficha puede prometer cobertura mundial (§1 y §5).
+test('daily steps map only publishes countries with real step data', () => {
+  const geo = readMapGeo('daily-steps-world');
+  expect(geo.features.length).toBe(46);
+  const names = geo.features.map((f) => f.properties._manaName);
+  expect(new Set(names).size, 'nombres duplicados').toBe(names.length);
+  for (const feature of geo.features) {
+    const props = feature.properties;
+    expect(props['Pasos diarios (num)'], props._manaName).toBeGreaterThan(0);
+    expect(props['Pasos diarios'], props._manaName).not.toMatch(/sin datos/i);
+    expect(props._manaColor, props._manaName).not.toBe('#d9d9d9');
+  }
+  const counts = geo.features.map((f) => f.properties['Pasos diarios (num)']);
+  expect(Math.max(...counts)).toBe(6880);
+  expect(Math.min(...counts)).toBe(3513);
+
+  const publisherSrc = fs.readFileSync(
+    path.join(repoRoot, 'scripts', 'maps', 'publish-daily-steps-world.js'),
+    'utf8',
+  );
+  const description = publisherSrc.match(/const DESCRIPTION = '([^']+)'/);
+  expect(description, 'DESCRIPTION no encontrada').toBeTruthy();
+  const text = description[1];
+  expect(text.length).toBeGreaterThanOrEqual(DESCRIPTION_MIN_LEN);
+  expect(text.length).toBeLessThanOrEqual(DESCRIPTION_MAX_LEN);
+  expect(text).toMatch(/46 países/);
+  expect(text).not.toMatch(/mundial|cobertura mundial|todo el mundo/i);
+});
