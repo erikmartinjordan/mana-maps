@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-11-23",
+    "event": "El queroseno de aviación cotiza a 169 dólares el barril, un 88,6% más que un año antes, tras rozar los 200 en octubre. IATA prevé que el beneficio neto del sector aéreo caiga de 45.000 a 23.000 millones de dólares en 2026 (margen del 2%). El País informa el 23-11 de que las aerolíneas anticipan subida de precios y recorte de plazas para el verano de 2027. Para el invierno 2026-2027 las aerolíneas europeas han programado 501 millones de asientos (+1,6%, OAG); España rozará los 140 millones (+6,4%, Cirium) y superará al Reino Unido (134 millones, -1%), mientras Alemania y Francia recortan en torno a un 1% e Italia sube un 11%. El mapa de llegadas internacionales (UN Tourism, 2024) sitúa a Francia primera con 102 millones y a España segunda con 93,76 millones (el 92% de la cifra francesa).",
+    "type": "news",
+    "format": "comparativa",
+    "topic": "economia",
+    "mapSlug": "tourism-arrivals-world",
+    "sourceUrls": [
+      "https://elpais.com/economia/2026-11-23/las-aerolineas-anticipan-una-subida-de-precios-y-un-recorte-de-plazas-para-el-proximo-verano.html",
+      "https://www.infobae.com/economia/2026/11/22/por-la-suba-del-petroleo-aerolineas-de-europa-y-america-latina-recortan-rutas-y-asientos/",
+      "https://www.expansion.com/empresas/transporte/2026/11/18/aerolineas-ajustan-vuelos-buscan-clientes-premium-alza-fuel.html",
+      "https://www.infobae.com/america/agencias/2026/11/19/iata-advierte-de-que-la-subida-del-combustible-amenaza-la-rentabilidad-de-las-aerolineas/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "espana-plazas-aereas-verano-2027",
+        "url": "/news/espana-plazas-aereas-verano-2027/",
+        "title": "España crece en plazas aéreas mientras Europa recorta para 2027",
+        "description": "El queroseno sube un 88,6% y las aerolíneas recortan plazas y tarifas para el verano de 2027. España será, aun así, el mayor mercado aéreo de Europa este invierno."
+      },
+      "en": {
+        "slug": "spain-airline-seats-summer-2027",
+        "url": "/en/news/spain-airline-seats-summer-2027/",
+        "title": "Spain adds airline seats as Europe cuts capacity for 2027",
+        "description": "Jet fuel is up 88.6% and airlines are cutting seats and raising fares for summer 2027. Spain will still be Europe's largest air market this winter."
+      }
+    }
+  },
+  {
     "date": "2026-11-22",
     "event": "El 13-14 de octubre de 2026, Google DeepMind publicó el informe de seguridad de Gemini 4 Argon con su primera evaluación holística de automatización de I+D: no encuentra aceleración significativa de extremo a extremo (índice GCI de 0,091 puntos/mes antes del 1 de abril y 0,118 después, sin diferencia estadísticamente significativa), aunque más del 75% del código de producción es escrito por IA, el 11,9% de los pull requests están totalmente delegados (7,5% en abril) y el 88% requiere dirección humana o autoría humana; Gemini 4 Argon resuelve aproximadamente la mitad de las tareas completadas del benchmark interno GRB frente al umbral del 90%, y un análisis de LessWrong señala que cerca de una cuarta parte de las tareas puntuadas tenía errores. Alphabet dijo en abril que el 75% de su código nuevo es generado por IA (25% en octubre de 2024, 50% en otoño de 2025) y prevé 175.000-185.000 millones de capex en 2026; AlphaEvolve recupera de media el 0,7% del cómputo global y aceleró un kernel de Gemini un 23%. OpenAI dijo que GPT-5.3-Codex fue instrumental en su creación; en septiembre alcanzó su becario de investigación automatizado (3,1 jornadas de agente por jornada humana) y en noviembre medía 5,7. Anthropic dice que Claude dirige el 26% de su I+D (nivel AL4) en agosto, frente a menos del 1% en febrero, con 0% en AL5 y más del 80% del código fusionado; Microsoft publicó Self-HPO (57,8% a 64,8% en tres benchmarks). Sin mapa asociado porque el tema no tiene dimensión geográfica.",
     "type": "news",
