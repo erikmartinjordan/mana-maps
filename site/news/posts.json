@@ -1,5 +1,36 @@
 [
   {
+    "date": "2026-11-24",
+    "event": "El Real Decreto 1032/2026, publicado en el BOE el 21-11 y en vigor desde el 22-11, obliga a los centros de datos de 10 MW o más a justificar que el 80% de su consumo eléctrico es renovable y con correlación horaria, con adicionalidad de 36 meses. SpainDC (350 empresas) ultima un recurso ante el Tribunal Supremo con suspensión cautelar y la Comunidad de Madrid anuncia que lo llevará a Bruselas (24-11). Más de 160 organizaciones han firmado un manifiesto contra la norma. La patronal cifra el consumo del sector en el 0,8% de la electricidad española y 66.900 millones de inversión; el ministerio, en 5.000 millones de impacto en facturas sin la norma y hasta un 25% más para el consumidor industrial. EY calculó sobre el borrador 49,8 GW nuevos de generación y almacenamiento (26,8 GW solares) para 3,5 GW de demanda. El mapa de mayores parques solares reúne 18 instalaciones y 96.619 MW: 12 son chinos (82.664 MW, 85,6%) y ninguno está en España ni en la UE.",
+    "type": "news",
+    "format": "noticia",
+    "topic": "tech",
+    "mapSlug": "solar-parks-world",
+    "sourceUrls": [
+      "https://www.boe.es/buscar/act.php?id=BOE-A-2026-24439",
+      "https://www.miteco.gob.es/es/prensa/ultimas-noticias/2026/noviembre/el-gobierno-aprueba-el-real-decreto-para-la-sostenibilidad-energ.html",
+      "https://www.computerworld.es/article/4251972/spaindc-pide-la-suspension-cautelar-del-nuevo-real-decreto-sobre-centros-de-datos.html",
+      "https://www.economiadigital.es/madrid/empresas/ayuso-elevara-europa-rechazo-comunidad-madrid-decreto-centros-datos.html",
+      "https://www.abc.es/economia/patronal-data-center-busca-apoyos-cruzada-judicial-20261123025601-nt.html",
+      "https://www.pv-magazine.es/2026/11/20/el-miteco-aprueba-el-decreto-de-centros-de-datos/",
+      "https://www.ey.com/content/dam/ey-unified-site/ey-com/es-es/insights/energy-resources/documents/ey-impacto-prd-centros-datos.pdf"
+    ],
+    "translations": {
+      "es": {
+        "slug": "decreto-centros-datos-renovables",
+        "url": "/news/decreto-centros-datos-renovables/",
+        "title": "El decreto de centros de datos abre un frente judicial y europeo",
+        "description": "El decreto exige un 80% de electricidad renovable hora a hora. La patronal prepara un recurso ante el Supremo y Madrid lo lleva a Bruselas."
+      },
+      "en": {
+        "slug": "data-centres-decree-renewables",
+        "url": "/en/news/data-centres-decree-renewables/",
+        "title": "Spain's data centre decree opens a legal and European front",
+        "description": "The decree demands 80% renewable electricity, hour by hour. The industry is heading to the Supreme Court and Madrid to Brussels with it."
+      }
+    }
+  },
+  {
     "date": "2026-11-23",
     "event": "El queroseno de aviación cotiza a 169 dólares el barril, un 88,6% más que un año antes, tras rozar los 200 en octubre. IATA prevé que el beneficio neto del sector aéreo caiga de 45.000 a 23.000 millones de dólares en 2026 (margen del 2%). El País informa el 23-11 de que las aerolíneas anticipan subida de precios y recorte de plazas para el verano de 2027. Para el invierno 2026-2027 las aerolíneas europeas han programado 501 millones de asientos (+1,6%, OAG); España rozará los 140 millones (+6,4%, Cirium) y superará al Reino Unido (134 millones, -1%), mientras Alemania y Francia recortan en torno a un 1% e Italia sube un 11%. El mapa de llegadas internacionales (UN Tourism, 2024) sitúa a Francia primera con 102 millones y a España segunda con 93,76 millones (el 92% de la cifra francesa).",
     "type": "news",
