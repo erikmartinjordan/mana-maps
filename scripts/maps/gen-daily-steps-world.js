@@ -27,6 +27,8 @@
 // la misma rampa). Por eso el GeoJSON se recorta a los 46 países con dato
 // real: nada de polígonos grises «Sin datos» que conviertan el mapa en una
 // mancha gris y sugieran una cobertura mundial que no existe (AGENTS.md §1).
+// La limitación se explica en la descripción del doc, en legendTitle y en el
+// popup de cada feature (propiedad `Cobertura`).
 'use strict';
 
 const fs = require('fs');
@@ -41,6 +43,9 @@ const NE10M_CACHE = path.join(require('os').tmpdir(), 'ne10m-admin0-countries.ge
 
 const DATA_YEAR = '2017';
 const SOURCE_SHORT = 'Althoff et al. (2017), Nature — pasos diarios medidos con smartphone (app Argus)';
+// Aviso de cobertura que se muestra en el popup de cada país: el mapa no
+// promete cobertura mundial, solo los 46 países con medición comparable.
+const COVERAGE_NOTE = 'Solo los 46 países del estudio (2017); el resto del mundo no tiene medición comparable';
 
 // Supplementary Table 1 (Nature 547:336–339,2017): país → media de pasos/día.
 const STEPS = [
@@ -197,6 +202,7 @@ async function main() {
       'Pasos diarios (num)': steps,
       'Año de datos': DATA_YEAR,
       'Fuente': SOURCE_SHORT,
+      'Cobertura': COVERAGE_NOTE,
       'Description': `${p._manaName} — ${fmtSteps(steps)} pasos de media al día (${DATA_YEAR}) — ${p.Continente}`,
       'Superficie': p.Continente,
       'Dato': fmtSteps(steps)
@@ -226,6 +232,7 @@ async function main() {
       'Pasos diarios (num)': hkSteps,
       'Año de datos': DATA_YEAR,
       'Fuente': SOURCE_SHORT,
+      'Cobertura': COVERAGE_NOTE,
       'Description': `Hong Kong — ${fmtSteps(hkSteps)} pasos de media al día (${DATA_YEAR}) — Asia`,
       'Superficie': 'Asia',
       'Dato': fmtSteps(hkSteps)

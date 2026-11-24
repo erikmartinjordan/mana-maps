@@ -2032,6 +2032,9 @@ test('daily steps map only publishes countries with real step data', () => {
     expect(props['Pasos diarios (num)'], props._manaName).toBeGreaterThan(0);
     expect(props['Pasos diarios'], props._manaName).not.toMatch(/sin datos/i);
     expect(props._manaColor, props._manaName).not.toBe('#d9d9d9');
+    // La limitación de cobertura se explica en el popup de cada país.
+    expect(props.Cobertura, props._manaName).toMatch(/46 países/);
+    expect(props.Cobertura, props._manaName).toMatch(/resto del mundo|no tiene medición/i);
   }
   const counts = geo.features.map((f) => f.properties['Pasos diarios (num)']);
   expect(Math.max(...counts)).toBe(6880);

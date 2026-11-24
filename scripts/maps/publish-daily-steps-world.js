@@ -65,12 +65,13 @@ async function main() {
   const names = new Set(geo.features.map(f => f.properties._manaName));
   const withData = geo.features.filter(f => f.properties['Pasos diarios (num)'] != null).length;
   const borderOk = geo.features.every(f => f.properties._manaBorderColor === '#FFFFFF');
+  const coberturaOk = geo.features.every(f => /46 países/.test(f.properties['Cobertura'] || ''));
   const noDataFeatures = geo.features.length - withData;
   const descriptionOk = DESCRIPTION.length >= 60 && DESCRIPTION.length <= 200 && !/mundial/i.test(DESCRIPTION);
   const geojsonText = JSON.stringify(geo);
   console.log(`features: ${geo.features.length} | con datos: ${withData} | sin datos: ${noDataFeatures} | KB: ${(geojsonText.length / 1024).toFixed(1)}`);
-  console.log(`hex: ${hexOk} | halo: ${haloOk} | coords: ${coordsOk} | uniqueNames: ${names.size === geo.features.length} | whiteBorder: ${borderOk} | description: ${descriptionOk ? 'OK' : 'FALLA'} (${DESCRIPTION.length})`);
-  if (!hexOk || !haloOk || !coordsOk || names.size !== geo.features.length || !borderOk || !descriptionOk || noDataFeatures !== 0) { console.error('VALIDATION FAILED'); process.exit(1); }
+  console.log(`hex: ${hexOk} | halo: ${haloOk} | coords: ${coordsOk} | uniqueNames: ${names.size === geo.features.length} | whiteBorder: ${borderOk} | cobertura: ${coberturaOk} | description: ${descriptionOk ? 'OK' : 'FALLA'} (${DESCRIPTION.length})`);
+  if (!hexOk || !haloOk || !coordsOk || names.size !== geo.features.length || !borderOk || !coberturaOk || !descriptionOk || noDataFeatures !== 0) { console.error('VALIDATION FAILED'); process.exit(1); }
   if (geojsonText.length > 1048576) { console.error('ERROR: GeoJSON >1MiB'); process.exit(1); }
 
   const preview = buildMapPreview(geo);
