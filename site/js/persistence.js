@@ -672,7 +672,7 @@ function setProjectName(name) {
   const input = document.getElementById('project-name-input');
   if (input) input.value = clean;
   if (window.updatePrivateSaveIndicator) window.updatePrivateSaveIndicator();
-  showToast('Nom del projecte: ' + clean);
+  showToast((LANG === 'en' ? 'Project name: ' : 'Nombre del proyecto: ') + clean);
 }
 
 function clearLegacyLocalMapData() {
