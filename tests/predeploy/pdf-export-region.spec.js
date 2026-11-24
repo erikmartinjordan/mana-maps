@@ -157,6 +157,50 @@ test('the region picker keeps the template preview visible while framing', async
   await expectPainted(page);
 });
 
+test('closing the modal repaints the editor map and the 3D globe', async ({ page }) => {
+  await bootPdfModal(page);
+
+  // Sustituye Leaflet, el puente MapLibre y el globo por dobles que cuentan
+  // los repintados: el modal debe devolverles el tamaño real al cerrarse.
+  await page.evaluate(() => {
+    window.__repaint = { leaflet: 0, gl: 0, glJump: null, glPaint: 0, globe: 0 };
+    window.map = {
+      invalidateSize() { window.__repaint.leaflet++; },
+      getCenter() { return { lng: 3.7038, lat: 40.4168 }; },
+      getZoom() { return 6; },
+    };
+    window.__gl = {
+      resize() { window.__repaint.gl++; },
+      jumpTo(o) { window.__repaint.glJump = o; },
+      triggerRepaint() { window.__repaint.glPaint++; },
+    };
+    window._getActiveGLMap = () => window.__gl;
+    window.globeMap = { resize() { window.__repaint.globe++; } };
+  });
+
+  await page.locator('[data-close]').click();
+  await expect(page.locator('#pdfx-modal')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.__repaint.leaflet)).toBe(1);
+  await expect.poll(() => page.evaluate(() => window.__repaint.gl)).toBe(1);
+  await expect.poll(() => page.evaluate(() => window.__repaint.globe)).toBe(1);
+  const repaint = await page.evaluate(() => window.__repaint);
+  expect(repaint.glJump).toEqual({ center: [3.7038, 40.4168], zoom: 6 });
+  expect(repaint.glPaint).toBe(1);
+
+  // Escape cierra igual y vuelve a repintar; el globo nunca se escribe dos
+  // veces por cierre aunque el puente y el globo sean el mismo objeto.
+  await page.evaluate(() => {
+    window._getActiveGLMap = () => window.globeMap;
+    window.globeMap.jumpTo = () => { throw new Error('el globo no debe reencuadrarse'); };
+    window.openPdfExport();
+  });
+  await expect(page.locator('#pdfx-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#pdfx-modal')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.__repaint.leaflet)).toBe(2);
+  await expect.poll(() => page.evaluate(() => window.__repaint.globe)).toBe(2);
+});
+
 test('closing the modal clears the picker state and the preview returns on reopen', async ({ page }) => {
   await bootPdfModal(page);
 

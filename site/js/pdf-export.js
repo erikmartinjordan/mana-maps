@@ -1158,6 +1158,7 @@
       if (previewEl) previewEl.removeAttribute('data-tag');
       wrap.hidden = true;
       document.documentElement.classList.remove('pdfx-open');
+      refreshEditorMaps();
     }
     state.close = close;
     wrap.querySelector('.pdfx-close').addEventListener('click', close);
@@ -1562,6 +1563,44 @@
       state.busy = false;
       if (btn) { btn.disabled = false; btn.classList.remove('is-busy'); }
     }
+  }
+
+  // ── Repintado del mapa del editor ──
+  // El modal oculta el mapa y bloquea el scroll (html.pdfx-open). Al cerrarlo
+  // el contenedor recupera su ancho real un frame después, así que Leaflet, el
+  // puente MapLibre de la capa activa y el globo 3D deben recalcular tamaño o
+  // se quedan con zonas grises/recortadas hasta el siguiente gesto.
+  function refreshEditorMaps() {
+    var seen = [];
+    function resizeGl(gl, syncToLeaflet) {
+      if (!gl || typeof gl.resize !== 'function' || seen.indexOf(gl) !== -1) return;
+      seen.push(gl);
+      try { gl.resize(); } catch (e) { /* sin WebGL disponible */ }
+      if (syncToLeaflet) {
+        try {
+          if (typeof map !== 'undefined' && map && typeof map.getCenter === 'function' && typeof gl.jumpTo === 'function') {
+            var c = map.getCenter();
+            gl.jumpTo({ center: [c.lng, c.lat], zoom: map.getZoom() });
+          }
+        } catch (e) { /* el globo conserva su propia cámara */ }
+      }
+      try { if (typeof gl.triggerRepaint === 'function') gl.triggerRepaint(); } catch (e) {}
+    }
+    setTimeout(function () {
+      try {
+        if (typeof map !== 'undefined' && map && typeof map.invalidateSize === 'function') {
+          map.invalidateSize();
+        }
+      } catch (e) { /* páginas sin mapa Leaflet */ }
+      var gl = null;
+      try {
+        gl = typeof _getActiveGLMap === 'function' ? _getActiveGLMap() : null;
+      } catch (e) { gl = null; }
+      resizeGl(gl, true);
+      try {
+        if (typeof globeMap !== 'undefined') resizeGl(globeMap, false);
+      } catch (e) { /* el globo aún no se ha creado */ }
+    }, 50);
   }
 
   function openPdfExport() {

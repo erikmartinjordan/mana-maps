@@ -191,7 +191,7 @@ del encuadre) → **P4** (etiquetas y callouts) → **P5** (más plantillas) →
 
 ### P0 · Incidencias y fiabilidad
 
-- [ ] **El mapa de detrás se borra al seleccionar la región**. Repro: abrir
+- [x] **El mapa de detrás se borra al seleccionar la región**. Repro: abrir
   `Exportar → Descargar PDF…`, pulsar `Región` y arrastrar el rectángulo; el
   preview de la plantilla (y/o el mapa del editor detrás del modal) queda en
   blanco, así que se pierde la referencia de lo que se está encuadrando. Hoy el
@@ -200,18 +200,40 @@ del encuadre) → **P4** (etiquetas y callouts) → **P5** (más plantillas) →
   reflow, bloqueo del hilo al reconstruir el SVG o pérdida de contexto WebGL.
   Criterio: al abrir/arrastrar/aplicar la región, el preview sigue visible o se
   actualiza en vivo, el mapa del editor no se altera y al cerrar el modal todo
-  vuelve a su estado. Añadir test de regresión visual.
+  vuelve a su estado. Añadir test de regresión visual. (24-11) — ya estaba
+  resuelto en `main`: al abrir el selector el `.pdfx-preview` se convierte en
+  miniatura (`is-picking`, `data-tag="Vista previa"`) y no desaparece, y la
+  regresión `tests/predeploy/pdf-export-region.spec.js` («the region picker
+  keeps the template preview visible while framing») mide los píxeles del PNG
+  del preview para descartar el blanco. Verificado 3/3 junto con las tareas
+  siguientes.
 
-- [ ] **Preview en vivo durante el recorte de región**. En lugar de ocultar la
+- [x] **Preview en vivo durante el recorte de región**. En lugar de ocultar la
   página y mostrar solo el selector, partir el área (selector + miniatura de la
   plantilla) o superponer una miniatura atenuada que se actualice mientras se
   mueve el rectángulo. Criterio: se ve el resultado antes de pulsar `Aplicar` y
-  el cambio de encuadre no obliga a cerrar y reabrir el selector.
+  el cambio de encuadre no obliga a cerrar y reabrir el selector. (24-11) — ya
+  implementado en `main`: `updateCropPreview()` recompone el SVG con el recorte
+  al terminar el arrastre (`renderPreview(bounds)`), con solo el último recorte
+  en caché para no acumular memoria, y el test comprueba de verdad que la
+  imagen del preview cambia y sigue pintada antes de `Aplicar`.
 
-- [ ] **Repintar el mapa del editor al cerrar el modal**. Al terminar o cancelar
+- [x] **Repintar el mapa del editor al cerrar el modal**. Al terminar o cancelar
   la exportación, asegurar `map.invalidateSize()` (o equivalente) y que el
   contenedor recupera su tamaño real si el overlay o el bloqueo de scroll lo
-  alteraron; comprobar Leaflet, MapLibre y el globo 3D.
+  alteraron; comprobar Leaflet, MapLibre y el globo 3D. (24-11) —
+  `refreshEditorMaps()` en `site/js/pdf-export.js` se ejecuta en `close()`
+  (botón Cancelar, aspa, fondo y Escape; también tras descargar, que cierra el
+  modal) cuando ya se retiró `html.pdfx-open`: a los 50 ms llama a
+  `map.invalidateSize()` (Leaflet), a `resize()` del puente MapLibre de la capa
+  activa (`_getActiveGLMap`) reencuadrándolo con centro/zoom de Leaflet y
+  `triggerRepaint()`, y a `resize()` de `globeMap` sin tocar su cámara; todo va
+  con guardas para páginas sin mapa y deduplica por identidad si el puente y el
+  globo son el mismo objeto. Regresión en `pdf-export-region.spec.js`
+  («closing the modal repaints the editor map and the 3D globe») con dobles de
+  Leaflet, MapLibre y globo que cuentan repintados y verifican que el globo
+  nunca se reencuadra. Playwright 97/97, `check-local-assets` y
+  `check-repo-hygiene` OK.
 
 - [ ] **Cancelar y cerrar deben dejar estado limpio**. Comprobar que `Cancelar`
   en el selector restaura plantilla, encuadre y opciones previas; que cerrar el
