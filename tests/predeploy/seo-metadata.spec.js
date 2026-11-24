@@ -1788,7 +1788,7 @@ test('static landings attribute internal discovery clicks by placement', async (
 
   // Un enlace externo (compartir en Reddit) no es descubrimiento interno.
   await page.evaluate(() => { window.__events = []; });
-  await page.click('.cta a[href*="reddit.com/submit"]');
+  await page.click('.share-row a[href*="reddit.com/submit"]');
   const external = await page.evaluate(() => window.__events.filter((event) => event[0] === 'discovery_click'));
   expect(external).toEqual([]);
 });

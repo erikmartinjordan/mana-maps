@@ -114,17 +114,32 @@
   </header>
   <main class="wrap">
     <nav class="breadcrumb" aria-label="Migas de pan"><ol><li><a href="/">Inicio</a></li><li><a href="/gallery/">Galería</a></li><li aria-current="page">Países que más reciben turistas internacionales</li></ol></nav>
-    <h1>Países que más reciben turistas internacionales</h1>
-    <p class="lede">Mapa coroplético mundial del número de turistas internacionales que recibe cada país, con datos de UN Tourism (OMT): Francia encabeza la lista con unos 102 millones de llegadas, seguida de España.</p>
-    <a class="shot" href="/gallery/?slug=tourism-arrivals-world"><img src="/og-cards/tourism-arrivals-world.png" alt="Países que más reciben turistas internacionales" width="1200" height="630"></a>
-    <p class="meta">205 elementos · 2026-10-14</p>
-    <div class="cta">
+    <header class="map-hero">
+      <p class="map-kicker">Turismo · Economía · Geografía</p>
+      <h1>Países que más reciben turistas internacionales</h1>
+      <p class="lede">Mapa coroplético mundial del número de turistas internacionales que recibe cada país, con datos de UN Tourism (OMT): Francia encabeza la lista con unos 102 millones de llegadas, seguida de España.</p>
+      <div class="map-plate">
+        <span class="map-plate__media" id="map-plate-media">
+          <span class="map-plate__map" id="map-plate-map" aria-hidden="true"></span>
+          <span class="map-plate__loading" aria-hidden="true">Cargando mapa…</span>
+        </span>
+        <a class="map-plate__cta" href="/gallery/?slug=tourism-arrivals-world" aria-label="Abrir mapa interactivo: Países que más reciben turistas internacionales">Abrir mapa interactivo <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="map-meta">
+        <span class="map-meta__item"><strong>205</strong> elementos</span>
+        <span class="map-meta__item"><time datetime="2026-10-14">14 oct 2026</time></span>
+      </div>
+    </header>
+    <div class="map-actions">
       <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'create_map',source:'static_map'})">Crea tu mapa gratis</a>
-      <a class="btn btn-ghost" href="/gallery/?slug=tourism-arrivals-world" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
-      <a class="btn btn-ghost" data-save-map="tourism-arrivals-world" href="/gallery/?slug=tourism-arrivals-world&amp;intent=save" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
-      <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=Pa%C3%ADses%20que%20m%C3%A1s%20reciben%20turistas%20internacionales%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Ftourism-arrivals-world%2F" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
-      <a class="btn btn-ghost" href="https://www.reddit.com/submit?url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Ftourism-arrivals-world%2F&amp;title=Pa%C3%ADses%20que%20m%C3%A1s%20reciben%20turistas%20internacionales" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Compartir en Reddit</a>
-      <button type="button" class="btn btn-ghost" data-share-native data-share-url="https://maña.com/gallery/tourism-arrivals-world/" data-share-title="Países que más reciben turistas internacionales" data-share-status="share-status">Compartir</button>
+      <a class="btn btn-outline" href="/gallery/?slug=tourism-arrivals-world" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
+      <a class="btn btn-outline" data-save-map="tourism-arrivals-world" href="/gallery/?slug=tourism-arrivals-world&amp;intent=save" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
+    </div>
+    <div class="share-row">
+      <span class="share-row__label">Compartir</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Pa%C3%ADses%20que%20m%C3%A1s%20reciben%20turistas%20internacionales%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Ftourism-arrivals-world%2F" target="_blank" rel="noopener" aria-label="Compartir en X" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">X</a>
+      <a class="share-link" href="https://www.reddit.com/submit?url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Ftourism-arrivals-world%2F&amp;title=Pa%C3%ADses%20que%20m%C3%A1s%20reciben%20turistas%20internacionales" target="_blank" rel="noopener" aria-label="Compartir en Reddit" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Reddit</a>
+      <button type="button" class="share-link" data-share-native data-share-url="https://maña.com/gallery/tourism-arrivals-world/" data-share-title="Países que más reciben turistas internacionales" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
     <div class="source"><strong>Fuente de datos:</strong> UN Tourism (OMT) — Base de datos de estadísticas de turismo, indicador INBD_TRIP_TOTL_TOTL_TOUR (inbound trips, descarga de diciembre de 2025) + World Tourism Barometer (enero 2026, datos 2024). Geometrías: Natural Earth (vía population-by-country). https://www.unwto.org/tourism-statistics · 2024-12-31</div>
@@ -136,7 +151,7 @@
         <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">Islas Marshall</span><span class="facts-value">35 turistas</span></li><li><span class="facts-name">Tuvalu</span><span class="facts-value">244 turistas</span></li><li><span class="facts-name">Islas Salomón</span><span class="facts-value">700 turistas</span></li></ol></div>
       </div>
     </section>
-    <section class="related related--discovery"><h2>Descubre también</h2><ul><li><a href="/gallery/solar-parks-world/">Los mayores parques solares del mundo</a></li><li><a href="/gallery/tallest-skyscrapers-world/">Los rascacielos más altos del mundo</a></li><li><a href="/gallery/tallest-statues-world/">Las estatuas más altas del mundo</a></li></ul></section>
+    <section class="related related--discovery"><h2>Descubre también</h2><ul><li><a href="/gallery/tallest-skyscrapers-world/">Los rascacielos más altos del mundo</a></li><li><a href="/gallery/tallest-statues-world/">Las estatuas más altas del mundo</a></li><li><a href="/gallery/largest-observatories-world/">Los mayores observatorios ópticos del mundo</a></li></ul></section>
     <section class="faq" aria-labelledby="preguntas-frecuentes">
       <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>
       <dl class="faq-list"><div class="faq-item"><dt>¿Qué lugar registra el valor más alto de turistas internacionales?</dt><dd>Francia, con 102.000.000 turistas.</dd></div><div class="faq-item"><dt>¿Qué lugar registra el valor más bajo de turistas internacionales?</dt><dd>Islas Marshall, con 35 turistas.</dd></div><div class="faq-item"><dt>¿De dónde salen los datos del mapa?</dt><dd>Los datos proceden de UN Tourism (OMT) — Base de datos de estadísticas de turismo, indicador INBD_TRIP_TOTL_TOTL_TOUR (inbound trips, descarga de diciembre de 2025) + World Tourism Barometer (enero 2026, datos 2024). Geometrías: Natural Earth (vía population-by-country). https://www.unwto.org/tourism-statistics · 2024-12-31. El mapa incluye 205 elementos.</dd></div></dl>
@@ -189,6 +204,8 @@
   <script defer src="/js/landing-share.js"></script>
   <script defer src="/js/landing-view.js"></script>
   <script defer src="/js/landing-discovery.js"></script>
+  <script defer src="/js/basemap-config.js"></script>
+  <script defer src="/js/landing-map-preview.js"></script>
   <script defer src="/js/mobile-menu.js"></script>
 </body>
 </html>

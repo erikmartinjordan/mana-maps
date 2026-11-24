@@ -111,17 +111,32 @@
   </header>
   <main class="wrap">
     <nav class="breadcrumb" aria-label="Migas de pan"><ol><li><a href="/">Inicio</a></li><li><a href="/gallery/">Galería</a></li><li aria-current="page">Los reactores nucleares del mundo</li></ol></nav>
-    <h1>Los reactores nucleares del mundo</h1>
-    <p class="lede">Los 417 reactores nucleares operativos del mundo, agrupados en sus 170 centrales, con la potencia de cada emplazamiento y el detalle de sus unidades. Datos de IAEA PRIS.</p>
-    <a class="shot" href="/gallery/?slug=nuclear-reactors-world"><img src="/og-cards/nuclear-reactors-world.png" alt="Los reactores nucleares del mundo" width="1200" height="630"></a>
-    <p class="meta">170 elementos · 2026-10-25</p>
-    <div class="cta">
+    <header class="map-hero">
+      <p class="map-kicker">Energía · Infraestructura · Geografía</p>
+      <h1>Los reactores nucleares del mundo</h1>
+      <p class="lede">Los 417 reactores nucleares operativos del mundo, agrupados en sus 170 centrales, con la potencia de cada emplazamiento y el detalle de sus unidades. Datos de IAEA PRIS.</p>
+      <div class="map-plate">
+        <span class="map-plate__media" id="map-plate-media">
+          <span class="map-plate__map" id="map-plate-map" aria-hidden="true"></span>
+          <span class="map-plate__loading" aria-hidden="true">Cargando mapa…</span>
+        </span>
+        <a class="map-plate__cta" href="/gallery/?slug=nuclear-reactors-world" aria-label="Abrir mapa interactivo: Los reactores nucleares del mundo">Abrir mapa interactivo <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="map-meta">
+        <span class="map-meta__item"><strong>170</strong> elementos</span>
+        <span class="map-meta__item"><time datetime="2026-10-25">25 oct 2026</time></span>
+      </div>
+    </header>
+    <div class="map-actions">
       <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'create_map',source:'static_map'})">Crea tu mapa gratis</a>
-      <a class="btn btn-ghost" href="/gallery/?slug=nuclear-reactors-world" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
-      <a class="btn btn-ghost" data-save-map="nuclear-reactors-world" href="/gallery/?slug=nuclear-reactors-world&amp;intent=save" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
-      <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=Los%20reactores%20nucleares%20del%20mundo%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fnuclear-reactors-world%2F" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
-      <a class="btn btn-ghost" href="https://www.reddit.com/submit?url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fnuclear-reactors-world%2F&amp;title=Los%20reactores%20nucleares%20del%20mundo" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Compartir en Reddit</a>
-      <button type="button" class="btn btn-ghost" data-share-native data-share-url="https://maña.com/gallery/nuclear-reactors-world/" data-share-title="Los reactores nucleares del mundo" data-share-status="share-status">Compartir</button>
+      <a class="btn btn-outline" href="/gallery/?slug=nuclear-reactors-world" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
+      <a class="btn btn-outline" data-save-map="nuclear-reactors-world" href="/gallery/?slug=nuclear-reactors-world&amp;intent=save" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
+    </div>
+    <div class="share-row">
+      <span class="share-row__label">Compartir</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Los%20reactores%20nucleares%20del%20mundo%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fnuclear-reactors-world%2F" target="_blank" rel="noopener" aria-label="Compartir en X" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">X</a>
+      <a class="share-link" href="https://www.reddit.com/submit?url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fnuclear-reactors-world%2F&amp;title=Los%20reactores%20nucleares%20del%20mundo" target="_blank" rel="noopener" aria-label="Compartir en Reddit" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Reddit</a>
+      <button type="button" class="share-link" data-share-native data-share-url="https://maña.com/gallery/nuclear-reactors-world/" data-share-title="Los reactores nucleares del mundo" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
     <div class="source"><strong>Fuente de datos:</strong> IAEA Power Reactor Information System (PRIS), base de datos de reactores de potencia (consulta de octubre de 2026); coordenadas de cada central según GeoNuclearData 0.17.0 (ODbL), cruzadas con PRIS por el identificador IAEAId. · 2026-10-25</div>
@@ -185,6 +200,8 @@
   <script defer src="/js/landing-share.js"></script>
   <script defer src="/js/landing-view.js"></script>
   <script defer src="/js/landing-discovery.js"></script>
+  <script defer src="/js/basemap-config.js"></script>
+  <script defer src="/js/landing-map-preview.js"></script>
   <script defer src="/js/mobile-menu.js"></script>
 </body>
 </html>

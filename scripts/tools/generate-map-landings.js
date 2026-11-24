@@ -9,7 +9,7 @@
 // /gallery/<slug>/ y desde ahí se enlaza al visor interactivo ?slug=.
 //
 // Uso:
-//   node scripts/tools/generate-map-landings.js [--dry-run] [--no-images]
+//   node scripts/tools/generate-map-landings.js [--dry-run] [--no-images] [--no-pages] [--slug=<slug>]
 //
 // Configuración (en orden): MANA_FIREBASE_PRO_CONFIG_JSON, o
 // site/js/firebase-config.local.js. Solo necesita la API key pública (lectura).
@@ -38,6 +38,7 @@ const OUT_PAGES = path.join(SITE_ROOT, 'gallery');
 const OUT_VIEWS = path.join(ROOT, 'data', 'sources', 'landing-views.json');
 const DRY_RUN = process.argv.includes('--dry-run');
 const NO_IMAGES = process.argv.includes('--no-images');
+const NO_PAGES = process.argv.includes('--no-pages');
 const SLUG_FILTER = (process.argv.find((a) => a.startsWith('--slug=')) || '').split('=')[1] || null;
 
 // En macOS 10.15 (Catalina) Playwright ya no publica chromium-headless-shell:
@@ -156,6 +157,183 @@ function docToMap(doc) {
   return out;
 }
 
+// ── Vista previa cartográfica local ─────────────────────────────
+// La cabecera de cada landing carga `preview.json` (mismo origen) y pinta el
+// mapa con MapLibre. Así no depende de Firestore en cada visita ni muestra una
+// tarjeta OG ajena al diseño del mapa real. El JSON es compacto: arrays en vez
+// de objetos y coordenadas a 3 decimales.
+const FIRESTORE_VALUE_KEYS = {
+  nullValue: 1, stringValue: 1, timestampValue: 1, integerValue: 1,
+  doubleValue: 1, booleanValue: 1, arrayValue: 1, mapValue: 1
+};
+const PREVIEW_TYPE_CODES = {
+  Point: 1, MultiPoint: 2, LineString: 3, MultiLineString: 4,
+  Polygon: 5, MultiPolygon: 6
+};
+
+function decodeFirestoreValue(value) {
+  if (Array.isArray(value)) return value.map(decodeFirestoreValue);
+  if (value && typeof value === 'object') {
+    const keys = Object.keys(value);
+    if (keys.length === 1 && FIRESTORE_VALUE_KEYS[keys[0]]) {
+      const type = keys[0];
+      const raw = value[type];
+      if (type === 'nullValue') return null;
+      if (type === 'stringValue' || type === 'timestampValue') return raw;
+      if (type === 'integerValue') return parseInt(raw, 10);
+      if (type === 'doubleValue') return Number(raw);
+      if (type === 'booleanValue') return raw;
+      if (type === 'arrayValue') return ((raw && raw.values) || []).map(decodeFirestoreValue);
+      if (type === 'mapValue') {
+        const fields = (raw && raw.fields) || {};
+        const out = {};
+        for (const k of Object.keys(fields)) out[k] = decodeFirestoreValue(fields[k]);
+        return out;
+      }
+    }
+    const plain = {};
+    for (const k of keys) plain[k] = decodeFirestoreValue(value[k]);
+    return plain;
+  }
+  return value;
+}
+
+function roundPreviewCoord(coord) {
+  if (Array.isArray(coord) && typeof coord[0] === 'number') {
+    return [Math.round(coord[0] * 1000) / 1000, Math.round(coord[1] * 1000) / 1000];
+  }
+  return Array.isArray(coord) ? coord.map(roundPreviewCoord) : coord;
+}
+
+function previewCoordinates(geometry) {
+  if (!geometry || typeof geometry !== 'object') return null;
+  if (Array.isArray(geometry.coordinates)) return geometry.coordinates;
+  if (typeof geometry.coordinatesText === 'string' && geometry.coordinatesText) {
+    try { return JSON.parse(geometry.coordinatesText); } catch (e) { return null; }
+  }
+  return null;
+}
+
+// Douglas–Peucker por anillos/líneas. El épsilon se deriva del bbox (≈1 px de
+// la ficha) para conservar la forma visible y recortar el JSON a la mitad.
+function simplifySegment(points, epsilon) {
+  if (!Array.isArray(points) || points.length <= 2) return points;
+  const sqDist = (p, a, b) => {
+    let x = p[0], y = p[1];
+    let x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];
+    let dx = x2 - x1, dy = y2 - y1;
+    if (dx || dy) {
+      const t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
+      if (t > 1) { x1 = x2; y1 = y2; }
+      else if (t > 0) { x1 += dx * t; y1 += dy * t; }
+    }
+    dx = x - x1; dy = y - y1;
+    return dx * dx + dy * dy;
+  };
+  const simplify = (pts) => {
+    if (pts.length <= 2) return pts;
+    let max = 0, index = 0;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const d = sqDist(pts[i], pts[0], pts[pts.length - 1]);
+      if (d > max) { max = d; index = i; }
+    }
+    if (max > epsilon * epsilon) {
+      const left = simplify(pts.slice(0, index + 1));
+      const right = simplify(pts.slice(index));
+      return left.slice(0, -1).concat(right);
+    }
+    return [pts[0], pts[pts.length - 1]];
+  };
+  return simplify(points);
+}
+
+function simplifyRing(ring, epsilon) {
+  if (!Array.isArray(ring) || ring.length < 4) return ring;
+  const closed = ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1];
+  const points = closed ? ring.slice(0, -1) : ring.slice();
+  if (points.length < 3) return ring;
+  const simplified = simplifySegment(points.concat([points[0]]), epsilon);
+  if (simplified.length < 4) return ring;
+  if (simplified[0][0] !== simplified[simplified.length - 1][0] || simplified[0][1] !== simplified[simplified.length - 1][1]) {
+    simplified.push(simplified[0]);
+  }
+  return simplified;
+}
+
+function simplifyPreviewCoordinates(coordinates, typeCode, epsilon) {
+  if (typeCode === 1 || typeCode === 2) return coordinates;
+  if (typeCode === 3) return simplifySegment(coordinates, epsilon);
+  if (typeCode === 4) return coordinates.map((line) => simplifySegment(line, epsilon));
+  if (typeCode === 5) return coordinates.map((ring) => simplifyRing(ring, epsilon));
+  if (typeCode === 6) return coordinates.map((polygon) => polygon.map((ring) => simplifyRing(ring, epsilon)));
+  return coordinates;
+}
+
+function previewEpsilon(bbox) {
+  const span = Math.max(Number(bbox[2]) - Number(bbox[0]), Number(bbox[3]) - Number(bbox[1]));
+  return (isFinite(span) && span > 0 ? span : 1) / 800;
+}
+
+function compactPreview(rawPreview) {
+  const preview = decodeFirestoreValue(decodeFirestoreValue(rawPreview));
+  if (!preview || !Array.isArray(preview.bbox)) return null;
+  if (preview.kind === 'density-grid' && Array.isArray(preview.cells) && preview.cells.length) {
+    return {
+      k: 'd',
+      b: preview.bbox,
+      g: preview.gridSize,
+      c: preview.cells.map((cell) => [cell.x, cell.y, cell.n, cell.c]),
+    };
+  }
+  const epsilon = previewEpsilon(preview.bbox);
+  const features = [];
+  for (const entry of preview.features || []) {
+    const geometry = entry && entry.geometry;
+    const typeCode = geometry && PREVIEW_TYPE_CODES[geometry.type];
+    const coordinates = previewCoordinates(geometry);
+    if (!typeCode || !coordinates) continue;
+    const feature = [typeCode, roundPreviewCoord(simplifyPreviewCoordinates(coordinates, typeCode, epsilon)), entry.color];
+    if (typeof entry.fillOpacity === 'number') feature.push(entry.fillOpacity);
+    features.push(feature);
+  }
+  return features.length ? { k: 'g', b: preview.bbox, f: features } : null;
+}
+
+function compactPreviewFromGeo(geo) {
+  if (!geo || !Array.isArray(geo.features) || !geo.features.length) return null;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const walk = (coords) => {
+    if (!coords) return;
+    if (typeof coords[0] === 'number') {
+      const x = Number(coords[0]), y = Number(coords[1]);
+      if (!isFinite(x) || !isFinite(y)) return;
+      if (x < minX) minX = x; if (x > maxX) maxX = x;
+      if (y < minY) minY = y; if (y > maxY) maxY = y;
+      return;
+    }
+    coords.forEach(walk);
+  };
+  for (const f of geo.features) {
+    if (f && f.geometry) walk(f.geometry.coordinates);
+  }
+  if (minX === Infinity) return null;
+  const bbox = [minX, minY, maxX, maxY];
+  const epsilon = previewEpsilon(bbox);
+  const features = [];
+  for (const f of geo.features) {
+    const geometry = f && f.geometry;
+    const typeCode = geometry && PREVIEW_TYPE_CODES[geometry.type];
+    if (!typeCode || !Array.isArray(geometry.coordinates)) continue;
+    const color = (f.properties && (f.properties._manaColor || f.properties.color)) || '#0ea5e9';
+    features.push([typeCode, roundPreviewCoord(simplifyPreviewCoordinates(geometry.coordinates, typeCode, epsilon)), color]);
+  }
+  return features.length ? { k: 'g', b: bbox, f: features } : null;
+}
+
+function buildPreviewPayload(m, geo) {
+  return (m.mapPreview && compactPreview(m.mapPreview)) || compactPreviewFromGeo(geo);
+}
+
 async function fetchPublishedMaps(cfg) {
   const maps = [];
   let token = null;
@@ -184,6 +362,14 @@ function metaDate(m) {
   const d = new Date(typeof ms === 'number' ? ms : Date.parse(ms));
   if (!isFinite(d.getTime())) return '';
   return d.toISOString().split('T')[0];
+}
+
+const MONTHS_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+function prettyDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+  if (!m) return iso || '';
+  return `${Number(m[3])} ${MONTHS_ES[Number(m[2]) - 1] || ''} ${m[1]}`;
 }
 
 // ── Corte de visitas de la generación ────────────────────────────
@@ -260,6 +446,10 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   // circuito interno y da a los crawlers una ruta landing → artículo → landing.
   const news = (newsIndex && newsIndex.get(slug)) || [];
   const newsBlock = newsLinksBlock(news, { title: 'En las noticias' });
+  // Kicker editorial: las etiquetas del mapa dan contexto sin repetir el título.
+  const tags = Array.isArray(m.tags) ? m.tags.filter(Boolean).slice(0, 3) : [];
+  const kicker = tags.length ? tags.map(esc).join(' · ') : 'Mapa de datos';
+  const dateLabel = prettyDate(date);
 
   const dataset = {
     '@context': 'https://schema.org',
@@ -399,17 +589,32 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   </header>
   <main class="wrap">
     <nav class="breadcrumb" aria-label="Migas de pan"><ol><li><a href="/">Inicio</a></li><li><a href="/gallery/">Galería</a></li><li aria-current="page">${esc(title)}</li></ol></nav>
-    <h1>${esc(title)}</h1>
-    <p class="lede">${esc(description)}</p>
-    <a class="shot" href="${esc(interactive)}"><img src="/og-cards/${encodeURIComponent(slug)}.png" alt="${esc(title)}" width="1200" height="630"></a>
-    <p class="meta">${m.featureCount ? esc(m.featureCount) + ' elementos' : ''}${m.featureCount && date ? ' · ' : ''}${date ? esc(date) : ''}</p>
-    <div class="cta">
+    <header class="map-hero">
+      <p class="map-kicker">${kicker}</p>
+      <h1>${esc(title)}</h1>
+      <p class="lede">${esc(description)}</p>
+      <div class="map-plate">
+        <span class="map-plate__media" id="map-plate-media">
+          <span class="map-plate__map" id="map-plate-map" aria-hidden="true"></span>
+          <span class="map-plate__loading" aria-hidden="true">Cargando mapa…</span>
+        </span>
+        <a class="map-plate__cta" href="${esc(interactive)}" aria-label="${esc('Abrir mapa interactivo: ' + title)}">Abrir mapa interactivo <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="map-meta">
+        ${m.featureCount ? `<span class="map-meta__item"><strong>${esc(m.featureCount)}</strong> elementos</span>` : ''}
+        ${date ? `<span class="map-meta__item"><time datetime="${esc(date)}">${esc(dateLabel)}</time></span>` : ''}
+      </div>
+    </header>
+    <div class="map-actions">
       <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'create_map',source:'static_map'})">Crea tu mapa gratis</a>
-      <a class="btn btn-ghost" href="${esc(interactive)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
-      <a class="btn btn-ghost" data-save-map="${esc(slug)}" href="${esc(saveIntent)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
-      <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=${xText}&url=${xUrl}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
-      <a class="btn btn-ghost" href="${esc(redditUrl)}" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Compartir en Reddit</a>
-      <button type="button" class="btn btn-ghost" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
+      <a class="btn btn-outline" href="${esc(interactive)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
+      <a class="btn btn-outline" data-save-map="${esc(slug)}" href="${esc(saveIntent)}" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
+    </div>
+    <div class="share-row">
+      <span class="share-row__label">Compartir</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=${xText}&url=${xUrl}" target="_blank" rel="noopener" aria-label="Compartir en X" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">X</a>
+      <a class="share-link" href="${esc(redditUrl)}" target="_blank" rel="noopener" aria-label="Compartir en Reddit" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Reddit</a>
+      <button type="button" class="share-link" data-share-native data-share-url="${esc(canonical)}" data-share-title="${esc(title)}" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
     ${sourceLine ? '<div class="source"><strong>Fuente de datos:</strong> ' + esc(sourceLine) + '</div>' : ''}${factsBlock}${discoveryBlock}${faqBlock}${newsBlock ? '\n    ' + newsBlock : ''}
@@ -460,6 +665,8 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   <script defer src="/js/landing-share.js"></script>
   <script defer src="/js/landing-view.js"></script>
   <script defer src="/js/landing-discovery.js"></script>
+  <script defer src="/js/basemap-config.js"></script>
+  <script defer src="/js/landing-map-preview.js"></script>
   <script defer src="/js/mobile-menu.js"></script>
 </body>
 </html>
@@ -489,7 +696,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     throw e;
   }
   const relatedIndex = buildRelatedIndex(allMaps);
-  if (!DRY_RUN) {
+  if (!DRY_RUN && !NO_PAGES) {
     console.log(`Corte de visitas: ${path.relative(ROOT, writeViewsSnapshot(allMaps))}`);
   }
   // Los mapas con menos visitas (<10) se enlazan desde varias landings con
@@ -529,8 +736,14 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
 
     if (page) {
       try {
-        const { svg } = buildMapSVG(geo, worldLandPath);
-        const html = renderSvgPage({ title: m.title || m.name }, svg);
+        const { svg, count } = buildMapSVG(geo, worldLandPath, { width: 584, height: 400, pad: 16 });
+        const source = [m.dataSource, m.dataDate || m.dataYear].filter(Boolean).join(' · ');
+        const html = renderSvgPage({
+          title: m.title || m.name,
+          description: m.description || '',
+          source,
+          featureCount: m.featureCount || count,
+        }, svg);
         await page.setContent(html, { waitUntil: 'load' });
         await page.waitForFunction(() => window.__renderReady === true, null, { timeout: 15000 });
         await page.waitForTimeout(200);
@@ -542,11 +755,19 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
       }
     }
 
-    const html = buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex);
-    if (!DRY_RUN) {
-      const dir = path.join(OUT_PAGES, slug);
-      fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
+    if (!NO_PAGES) {
+      const html = buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex);
+      if (!DRY_RUN) {
+        const dir = path.join(OUT_PAGES, slug);
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
+        const preview = buildPreviewPayload(m, geo);
+        if (preview) {
+          fs.writeFileSync(path.join(dir, 'preview.json'), JSON.stringify(preview) + '\n', 'utf8');
+        } else {
+          try { fs.rmSync(path.join(dir, 'preview.json'), { force: true }); } catch (e) {}
+        }
+      }
     }
     generatedSlugs.add(slug);
     pages++;
@@ -555,7 +776,7 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
   if (browser) await browser.close();
 
   // Elimina landings y OG cards estáticas de mapas ya no publicados.
-  if (!DRY_RUN && !SLUG_FILTER && fs.existsSync(OUT_PAGES)) {
+  if (!DRY_RUN && !SLUG_FILTER && !NO_PAGES && fs.existsSync(OUT_PAGES)) {
     for (const entry of fs.readdirSync(OUT_PAGES)) {
       const stat = fs.statSync(path.join(OUT_PAGES, entry));
       if (!stat.isDirectory()) continue;

@@ -949,54 +949,210 @@ body.public-landing .lede {
   line-height: 1.62;
 }
 
-body.public-landing .shot {
+body.public-landing .map-kicker {
+  margin: 0 0 16px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+body.public-landing .map-hero { margin: 0 0 30px; }
+
+body.public-landing .map-plate {
+  position: relative;
   display: block;
-  margin: 0 0 20px;
-  padding: 10px;
+  margin: 0;
   border: 1px solid var(--line);
   border-radius: 24px;
   background: #101111;
   overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .45);
 }
 
-body.public-landing .shot img {
+body.public-landing .map-plate__media {
   display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--line-soft);
-  border-radius: 16px;
-  transition: transform .6s var(--ease);
+  position: relative;
+  aspect-ratio: 1200 / 520;
+  background: #eef0f2;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-body.public-landing .shot:hover img { transform: scale(1.015); }
-
-body.public-landing .meta {
-  margin: 0 0 28px;
-  color: var(--quiet);
-  font-size: 12px;
-  letter-spacing: .02em;
+body.public-landing .map-plate__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: opacity .3s var(--ease);
 }
 
-body.public-landing .cta {
-  display: flex;
+body.public-landing .map-plate__map {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s var(--ease);
+}
+
+body.public-landing .map-plate__media.is-live .map-plate__loading { opacity: 0; }
+
+body.public-landing .map-plate__media.is-live .map-plate__map { opacity: 1; }
+
+body.public-landing .map-plate__map canvas { pointer-events: none; }
+
+body.public-landing .map-plate__map .maplibregl-ctrl {
+  pointer-events: auto;
+  z-index: 2;
+}
+
+body.public-landing .map-plate__cta {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 3;
+  display: inline-flex;
   align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin: 0 0 46px;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  background: rgba(8, 9, 9, .7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  text-decoration: none;
+  transition: background .2s, border-color .2s, transform .2s var(--ease);
 }
 
-body.public-landing .cta .btn {
-  height: auto;
-  padding: 7px 16px;
+body.public-landing .map-plate:hover .map-plate__cta,
+body.public-landing .map-plate__cta:focus-visible {
+  background: rgba(8, 9, 9, .88);
+  border-color: rgba(232, 184, 109, .5);
+  transform: translateY(-1px);
+}
+
+body.public-landing .map-plate__cta svg { transition: transform .2s var(--ease); }
+
+body.public-landing .map-plate:hover .map-plate__cta svg { transform: translateX(3px); }
+
+body.public-landing .map-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+body.public-landing .map-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  color: var(--quiet);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+body.public-landing .map-meta__item strong {
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+body.public-landing .map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+body.public-landing .map-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
   font-size: 14px;
 }
 
-body.public-landing .cta .btn-primary {
-  height: 52px;
-  padding: 0 26px;
+body.public-landing .btn-outline {
+  border: 1px solid var(--line);
   border-radius: 999px;
-  font-size: 15px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
 }
+
+body.public-landing .btn-outline:hover {
+  border-color: rgba(232, 184, 109, .5);
+  background: rgba(232, 184, 109, .06);
+  color: #fff;
+}
+
+body.public-landing .share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 44px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+body.public-landing .share-row__label {
+  margin-right: 4px;
+  color: var(--quiet);
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+body.public-landing .share-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--copy);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .2s, border-color .2s, background .2s;
+}
+
+body.public-landing .share-link:hover {
+  border-color: rgba(232, 184, 109, .5);
+  background: rgba(232, 184, 109, .06);
+  color: #fff;
+}
+
+body.public-landing .share-status { flex-basis: 100%; color: var(--quiet); font-size: 12px; }
 
 body.public-landing .source {
   margin: 0 0 44px;
@@ -1112,9 +1268,11 @@ body.public-landing .related a:hover { color: #fff; }
 
 @media (max-width: 600px) {
   body.public-landing .wrap { width: calc(100% - 40px); padding: 64px 0 70px; }
-  body.public-landing h1 { font-size: 36px; letter-spacing: -1.4px; }
+  body.public-landing h1 { font-size: 38px; letter-spacing: -1.6px; }
   body.public-landing .lede { font-size: 16px; }
-  body.public-landing .cta { gap: 18px; }
+  body.public-landing .map-plate__media { min-height: 180px; }
+  body.public-landing .map-plate__cta { left: 12px; bottom: 12px; padding: 8px 12px; font-size: 11.5px; }
+  body.public-landing .map-actions .btn { flex: 1 1 100%; height: 44px; }
   body.public-landing .facts-grid { grid-template-columns: 1fr; gap: 26px; }
 }
 

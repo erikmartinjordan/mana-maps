@@ -114,17 +114,32 @@
   </header>
   <main class="wrap">
     <nav class="breadcrumb" aria-label="Migas de pan"><ol><li><a href="/">Inicio</a></li><li><a href="/gallery/">Galería</a></li><li aria-current="page">Los terremotos más potentes de la historia</li></ol></nav>
-    <h1>Los terremotos más potentes de la historia</h1>
-    <p class="lede">Los 104 terremotos de magnitud 8 o superior registrados por el USGS desde 1700, más el terremoto de Nagqu de 2026 (M7,0) como referencia reciente de menor magnitud.</p>
-    <a class="shot" href="/gallery/?slug=biggest-earthquakes-world"><img src="/og-cards/biggest-earthquakes-world.png" alt="Los terremotos más potentes de la historia" width="1200" height="630"></a>
-    <p class="meta">105 elementos · 2026-10-31</p>
-    <div class="cta">
+    <header class="map-hero">
+      <p class="map-kicker">Naturaleza · Geología · Desastres</p>
+      <h1>Los terremotos más potentes de la historia</h1>
+      <p class="lede">Los 104 terremotos de magnitud 8 o superior registrados por el USGS desde 1700, más el terremoto de Nagqu de 2026 (M7,0) como referencia reciente de menor magnitud.</p>
+      <div class="map-plate">
+        <span class="map-plate__media" id="map-plate-media">
+          <span class="map-plate__map" id="map-plate-map" aria-hidden="true"></span>
+          <span class="map-plate__loading" aria-hidden="true">Cargando mapa…</span>
+        </span>
+        <a class="map-plate__cta" href="/gallery/?slug=biggest-earthquakes-world" aria-label="Abrir mapa interactivo: Los terremotos más potentes de la historia">Abrir mapa interactivo <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="map-meta">
+        <span class="map-meta__item"><strong>105</strong> elementos</span>
+        <span class="map-meta__item"><time datetime="2026-10-31">31 oct 2026</time></span>
+      </div>
+    </header>
+    <div class="map-actions">
       <a class="btn btn-primary" href="/map/" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'create_map',source:'static_map'})">Crea tu mapa gratis</a>
-      <a class="btn btn-ghost" href="/gallery/?slug=biggest-earthquakes-world" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
-      <a class="btn btn-ghost" data-save-map="biggest-earthquakes-world" href="/gallery/?slug=biggest-earthquakes-world&amp;intent=save" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
-      <a class="btn btn-ghost" href="https://twitter.com/intent/tweet?text=Los%20terremotos%20m%C3%A1s%20potentes%20de%20la%20historia%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fbiggest-earthquakes-world%2F" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">Compartir en X</a>
-      <a class="btn btn-ghost" href="https://www.reddit.com/submit?url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fbiggest-earthquakes-world%2F&amp;title=Los%20terremotos%20m%C3%A1s%20potentes%20de%20la%20historia" target="_blank" rel="noopener" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Compartir en Reddit</a>
-      <button type="button" class="btn btn-ghost" data-share-native data-share-url="https://maña.com/gallery/biggest-earthquakes-world/" data-share-title="Los terremotos más potentes de la historia" data-share-status="share-status">Compartir</button>
+      <a class="btn btn-outline" href="/gallery/?slug=biggest-earthquakes-world" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'interactive',source:'static_map'})">Abrir mapa interactivo</a>
+      <a class="btn btn-outline" data-save-map="biggest-earthquakes-world" href="/gallery/?slug=biggest-earthquakes-world&amp;intent=save" onclick="if(window.trackEvent)window.trackEvent('cta_click',{target:'save_map',source:'static_map'})">Guardar en mi espacio</a>
+    </div>
+    <div class="share-row">
+      <span class="share-row__label">Compartir</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Los%20terremotos%20m%C3%A1s%20potentes%20de%20la%20historia%20%E2%80%94%20v%C3%ADa%20Ma%C3%B1a%20Maps&url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fbiggest-earthquakes-world%2F" target="_blank" rel="noopener" aria-label="Compartir en X" onclick="if(window.trackEvent)window.trackEvent('share',{network:'x',source:'static_map'})">X</a>
+      <a class="share-link" href="https://www.reddit.com/submit?url=https%3A%2F%2Fma%C3%B1a.com%2Fgallery%2Fbiggest-earthquakes-world%2F&amp;title=Los%20terremotos%20m%C3%A1s%20potentes%20de%20la%20historia" target="_blank" rel="noopener" aria-label="Compartir en Reddit" onclick="if(window.trackEvent)window.trackEvent('share',{network:'reddit',source:'static_map'})">Reddit</a>
+      <button type="button" class="share-link" data-share-native data-share-url="https://maña.com/gallery/biggest-earthquakes-world/" data-share-title="Los terremotos más potentes de la historia" data-share-status="share-status">Compartir</button>
       <span class="share-status" id="share-status" role="status" aria-live="polite"></span>
     </div>
     <div class="source"><strong>Fuente de datos:</strong> USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700; evento us6000u43g (Nagqu, 22-10-2026) para el destacado reciente. · 2026-10-22</div>
@@ -136,7 +151,7 @@
         <div class="facts-col"><h3>Valores más bajos</h3><ol><li><span class="facts-name">Terremoto de Nagqu de 2026 (Tíbet)</span><span class="facts-value">7 escala de Richter</span></li><li><span class="facts-name">Terremoto de Antofagasta de 1995 (Chile)</span><span class="facts-value">8 escala de Richter</span></li><li><span class="facts-name">Terremoto de Atka de 1986 (Alaska)</span><span class="facts-value">8 escala de Richter</span></li></ol></div>
       </div>
     </section>
-    <section class="related related--discovery"><h2>Descubre también</h2><ul><li><a href="/gallery/largest-islands-world/">Las islas más grandes del mundo</a></li><li><a href="/gallery/literacy-rate-world/">Alfabetización mundial por país</a></li></ul></section>
+    <section class="related related--discovery"><h2>Descubre también</h2><ul><li><a href="/gallery/longest-rivers-world/">Los ríos más largos del mundo</a></li><li><a href="/gallery/patrimonio-unesco-por-pais/">Sitios patrimonio de la humanidad UNESCO por país</a></li></ul></section>
     <section class="faq" aria-labelledby="preguntas-frecuentes">
       <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>
       <dl class="faq-list"><div class="faq-item"><dt>¿Qué lugar registra el valor más alto de magnitud?</dt><dd>Terremoto de Valdivia de 1960 (Chile), con 9,5 escala de Richter.</dd></div><div class="faq-item"><dt>¿Qué lugar registra el valor más bajo de magnitud?</dt><dd>Terremoto de Nagqu de 2026 (Tíbet), con 7 escala de Richter.</dd></div><div class="faq-item"><dt>¿De dónde salen los datos del mapa?</dt><dd>Los datos proceden de USGS Earthquake Hazards Program — catálogo ComCat/FDSN (earthquake.usgs.gov), eventos de magnitud ≥ 8 desde 1700; evento us6000u43g (Nagqu, 22-10-2026) para el destacado reciente. · 2026-10-22. El mapa incluye 105 elementos.</dd></div></dl>
@@ -189,6 +204,8 @@
   <script defer src="/js/landing-share.js"></script>
   <script defer src="/js/landing-view.js"></script>
   <script defer src="/js/landing-discovery.js"></script>
+  <script defer src="/js/basemap-config.js"></script>
+  <script defer src="/js/landing-map-preview.js"></script>
   <script defer src="/js/mobile-menu.js"></script>
 </body>
 </html>
