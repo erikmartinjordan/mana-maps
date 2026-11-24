@@ -159,6 +159,10 @@
     function normalizeHandle(value) { return (value || '').toLowerCase().replace(/[^a-z0-9._-]/g, ''); }
     function isValidHandle(value) { return /^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$/.test(value || '') && value.length >= 3 && value.length <= 24; }
     window.addEventListener('load', function() {
+      if (typeof firebase === 'undefined') return;
+      if (window.ManaFirebase && typeof window.ManaFirebase.initializeApp === 'function') {
+        window.ManaFirebase.initializeApp();
+      }
       firebase.auth().onAuthStateChanged(async function(user) {
         var loading = document.getElementById('profile-loading');
         var login = document.getElementById('profile-login');

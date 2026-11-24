@@ -255,6 +255,9 @@
     window.addEventListener('load', async function() {
       // Check auth state
       if (typeof firebase === 'undefined') return;
+      if (window.ManaFirebase && typeof window.ManaFirebase.initializeApp === 'function') {
+        window.ManaFirebase.initializeApp();
+      }
       firebase.auth().onAuthStateChanged(async function(user) {
         if (!user || user.isAnonymous) {
           document.getElementById('login-prompt').style.display = 'block';

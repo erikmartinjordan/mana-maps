@@ -19,7 +19,17 @@
 
   function getDb() {
     if (typeof firebase === 'undefined') return null;
-    return firebase.firestore();
+    try {
+      if (window.ManaFirebase && typeof window.ManaFirebase.initializeApp === 'function') {
+        if (!window.ManaFirebase.initializeApp()) return null;
+      } else if (!firebase.apps || !firebase.apps.length) {
+        return null;
+      }
+      return firebase.firestore();
+    } catch (e) {
+      console.warn('firestore unavailable:', e);
+      return null;
+    }
   }
 
   function txt(es, en) {

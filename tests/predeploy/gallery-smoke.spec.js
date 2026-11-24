@@ -329,3 +329,58 @@ test('related maps use canonical landings and reserve a slot for the least-viewe
   const discoveryMax = await page.evaluate(() => window.ManaGalleryRelated.RELATED_DISCOVERY_MAX_VIEWS);
   expect(discoveryMax).toBe(10);
 });
+
+// Regresión: /my-maps/ y /profile/ llamaban a firebase.auth() desde el listener
+// de load sin inicializar la app. Cuando el SDK compat ya estaba cargado pero
+// auth.js todavía no había ejecutado su inicialización perezosa, la página
+// lanzaba «No Firebase App '[DEFAULT]' has been created» y el área privada se
+// quedaba en blanco aunque el mapa sí se hubiera guardado en Firestore.
+test('private pages initialize Firebase before reading the auth state', async ({ page }) => {
+  const pageErrors = [];
+  page.on('pageerror', (err) => pageErrors.push(err.message));
+
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
+
+  // SDK compat simulado: auth() falla si initializeApp() no se llamó antes.
+  await page.addInitScript(() => {
+    let initialized = false;
+    const authStub = {
+      currentUser: null,
+      onAuthStateChanged(cb) {
+        setTimeout(() => cb(null), 0);
+        return () => {};
+      },
+      signOut: async () => {},
+    };
+    window.firebase = {
+      apps: [],
+      app() {
+        return this.apps[0] || null;
+      },
+      initializeApp() {
+        if (!this.apps.length) this.apps.push({});
+        initialized = true;
+        return this.apps[0];
+      },
+      auth() {
+        if (!initialized) {
+          throw new Error("Firebase: No Firebase App '[DEFAULT]' has been created - call Firebase App.initializeApp()");
+        }
+        return authStub;
+      },
+      firestore() {
+        if (!initialized) {
+          throw new Error("Firebase: No Firebase App '[DEFAULT]' has been created - call Firebase App.initializeApp()");
+        }
+        return { collection: () => ({ doc: () => ({ get: async () => ({ exists: false }) }) }) };
+      },
+    };
+  });
+
+  for (const route of ['/my-maps/', '/profile/']) {
+    pageErrors.length = 0;
+    await page.goto(route, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(800);
+    expect(pageErrors, `${route} no debe fallar por una app Firebase sin inicializar`).toEqual([]);
+  }
+});
