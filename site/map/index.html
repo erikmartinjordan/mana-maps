@@ -1032,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (darkPref === 'true') {
     document.documentElement.setAttribute('data-theme', 'dark');
   } else if (darkPref === 'false') {
-    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.setAttribute('data-theme', 'light');
   }
 
   var isDarkResolved =
@@ -1052,7 +1052,7 @@ function toggleDarkMode() {
     || (!rootTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   var btn = document.getElementById('dark-toggle');
   if (isDark) {
-    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.setAttribute('data-theme', 'light');
     localStorage.setItem('mana-dark', 'false');
     if (btn) btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
   } else {
