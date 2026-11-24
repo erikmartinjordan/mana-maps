@@ -1148,6 +1148,14 @@
 
     function close() {
       releaseUrls();
+      state.picker = null;
+      var pickerEl = document.getElementById('pdfx-picker');
+      if (pickerEl) pickerEl.hidden = true;
+      var previewEl = document.getElementById('pdfx-preview');
+      if (previewEl && previewEl.parentNode && previewEl.parentNode.classList) {
+        previewEl.parentNode.classList.remove('is-picking');
+      }
+      if (previewEl) previewEl.removeAttribute('data-tag');
       wrap.hidden = true;
       document.documentElement.classList.remove('pdfx-open');
     }
@@ -1207,6 +1215,7 @@
         if (apply) apply.disabled = true;
         var note = document.getElementById('pdfx-picker-note');
         if (note) note.textContent = tr('Arrastra para definir la zona', 'Drag to define the area');
+        renderPreview();
       });
       pickerMap.addEventListener('pointermove', function (e) {
         if (!state.picker || !state.picker.dragStart) return;
@@ -1237,13 +1246,17 @@
         if (apply) apply.disabled = false;
         var note = document.getElementById('pdfx-picker-note');
         if (note) note.textContent = tr('Zona seleccionada', 'Selected area');
+        updateCropPreview();
       });
       pickerMap.addEventListener('pointercancel', function () {
         if (state.picker) state.picker.dragStart = null;
       });
     }
     wrap.querySelector('[data-picker-apply]').addEventListener('click', applyRegionPicker);
-    wrap.querySelector('[data-picker-cancel]').addEventListener('click', function () { closeRegionPicker(true); });
+    wrap.querySelector('[data-picker-cancel]').addEventListener('click', function () {
+      closeRegionPicker(true);
+      renderPreview();
+    });
     wrap.querySelector('[data-picker-reset]').addEventListener('click', resetRegionPicker);
     window.addEventListener('resize', function () {
       if (state.picker && state.picker.sel) drawPickerSel(state.picker.sel);
@@ -1257,10 +1270,14 @@
     if (state.frame === 'view') return validBounds(state.mapViewBounds) ? state.mapViewBounds : null;
     return null;
   }
+  function boundsKey(b) {
+    if (!validBounds(b)) return 'fit';
+    return [b.minX, b.maxX, b.minY, b.maxY].map(function (v) { return v.toFixed(5); }).join(',');
+  }
   function frameKey() {
     var b = frameBounds();
     if (!b) return 'fit';
-    return state.frame + ':' + [b.minX, b.maxX, b.minY, b.maxY].map(function (v) { return v.toFixed(5); }).join(',');
+    return state.frame + ':' + boundsKey(b);
   }
   function currentOptions() {
     return {
@@ -1270,8 +1287,11 @@
       viewBounds: frameBounds()
     };
   }
+  function flagsKey(tpl) {
+    return tpl.id + ':' + (state.includeLegend ? 1 : 0) + (state.includeLabels ? 1 : 0) + (state.includeTable ? 1 : 0);
+  }
   function optionsKey(tpl) {
-    return tpl.id + ':' + (state.includeLegend ? 1 : 0) + (state.includeLabels ? 1 : 0) + (state.includeTable ? 1 : 0) + ':' + frameKey();
+    return flagsKey(tpl) + ':' + frameKey();
   }
   function releaseUrls() {
     if (state.previewUrl) { URL.revokeObjectURL(state.previewUrl); state.previewUrl = null; }
@@ -1386,15 +1406,35 @@
       if (note) note.textContent = tr('Zona seleccionada', 'Selected area');
     }
   }
+  function selectionBounds() {
+    if (!state.picker || !state.picker.sel) return null;
+    var s = state.picker.sel, p = state.picker.p, b = state.picker.b;
+    if (!p || !b) return null;
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    var out = {
+      minX: clamp(p.minX + (Math.min(s.x1, s.x2) - p.ox) / p.s, b.minX, b.maxX),
+      maxX: clamp(p.minX + (Math.max(s.x1, s.x2) - p.ox) / p.s, b.minX, b.maxX),
+      minY: clamp(p.maxY - (Math.max(s.y1, s.y2) - p.oy) / p.s, b.minY, b.maxY),
+      maxY: clamp(p.maxY - (Math.min(s.y1, s.y2) - p.oy) / p.s, b.minY, b.maxY)
+    };
+    return validBounds(out) ? out : null;
+  }
+  // Mientras se elige la región el preview sigue visible como miniatura y se
+  // refresca con la zona marcada, para no perder la referencia del encuadre.
+  function updateCropPreview() {
+    var b = selectionBounds();
+    if (!b) { renderPreview(); return; }
+    try { renderPreview(b); } catch (e) { renderPreview(); }
+  }
   function openRegionPicker() {
     var wrap = document.getElementById('pdfx-modal');
     if (!wrap) return;
     var preview = document.getElementById('pdfx-preview');
     var picker = document.getElementById('pdfx-picker');
     if (!picker) return;
-    if (preview) preview.style.display = 'none';
-    var cap = document.getElementById('pdfx-caption');
-    if (cap) cap.style.display = 'none';
+    var holder = preview ? preview.parentNode : null;
+    if (holder && holder.classList) holder.classList.add('is-picking');
+    if (preview) preview.setAttribute('data-tag', tr('Vista previa', 'Preview'));
     picker.hidden = false;
     renderPicker();
     updateFrameUI();
@@ -1410,30 +1450,23 @@
     var picker = document.getElementById('pdfx-picker');
     var preview = document.getElementById('pdfx-preview');
     if (picker) picker.hidden = true;
-    if (preview) preview.style.display = '';
-    var cap = document.getElementById('pdfx-caption');
-    if (cap) cap.style.display = '';
+    if (preview && preview.parentNode && preview.parentNode.classList) {
+      preview.parentNode.classList.remove('is-picking');
+    }
+    if (preview) preview.removeAttribute('data-tag');
     if (restore) {
       state.frame = state.picker && state.picker.prevFrame ? state.picker.prevFrame : 'fit';
       if (state.frame === 'region' && !validBounds(state.region)) state.frame = 'fit';
+      state.picker = null;
     }
     updateFrameUI();
   }
   function applyRegionPicker() {
-    if (!state.picker || !state.picker.sel) return;
-    var s = state.picker.sel, p = state.picker.p, b = state.picker.b;
-    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-    var minLon = p.minX + (Math.min(s.x1, s.x2) - p.ox) / p.s;
-    var maxLon = p.minX + (Math.max(s.x1, s.x2) - p.ox) / p.s;
-    var maxMerc = p.maxY - (Math.min(s.y1, s.y2) - p.oy) / p.s;
-    var minMerc = p.maxY - (Math.max(s.y1, s.y2) - p.oy) / p.s;
-    state.region = {
-      minX: clamp(minLon, b.minX, b.maxX),
-      maxX: clamp(maxLon, b.minX, b.maxX),
-      minY: clamp(minMerc, b.minY, b.maxY),
-      maxY: clamp(maxMerc, b.minY, b.maxY)
-    };
+    var b = selectionBounds();
+    if (!b) return;
+    state.region = b;
     state.frame = 'region';
+    state.picker = null;
     closeRegionPicker(false);
     rebuildContextForFrame();
     updateFrameUI();
@@ -1441,31 +1474,46 @@
     renderThumbs();
   }
   function resetRegionPicker() {
-    if (!state.picker) return;
-    state.picker.sel = null;
+    if (state.picker) state.picker.sel = null;
     var selEl = document.getElementById('pdfx-picker-sel');
     if (selEl) selEl.hidden = true;
     var apply = document.querySelector('[data-picker-apply]');
     if (apply) apply.disabled = true;
     var note = document.getElementById('pdfx-picker-note');
     if (note) note.textContent = tr('Ninguna zona seleccionada', 'No area selected');
+    renderPreview();
   }
-  function renderPreview() {
+  function renderPreview(cropBounds) {
     var box = document.getElementById('pdfx-preview');
     if (!box) return;
     var tpl = templateById(state.template);
-    var key = optionsKey(tpl);
-    var svg;
-    if (state.cache[key]) svg = state.cache[key];
-    else {
-      svg = buildSvg(state.ctx, tpl, currentOptions());
+    var crop = validBounds(cropBounds) ? cropBounds : null;
+    var key = crop ? ('crop:' + flagsKey(tpl) + ':' + boundsKey(crop)) : optionsKey(tpl);
+    if (crop) {
+      // Solo se conserva el último recorte: evita acumular SVG en memoria
+      // mientras el usuario redibuja el rectángulo.
+      Object.keys(state.cache).forEach(function (k) {
+        if (k.indexOf('crop:') === 0 && k !== key) delete state.cache[k];
+      });
+    }
+    var svg = state.cache[key];
+    if (!svg) {
+      // La miniatura del recorte se compone con su propio contexto para que
+      // leyenda y tabla describan solo la zona elegida.
+      var ctx = crop ? buildContext(crop) : state.ctx;
+      svg = buildSvg(ctx, tpl, {
+        includeLegend: state.includeLegend,
+        includeLabels: state.includeLabels,
+        includeTable: state.includeTable,
+        viewBounds: crop || frameBounds()
+      });
       state.cache[key] = svg;
     }
     if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
     state.previewUrl = svgUrl(svg);
     box.innerHTML = '<img alt="' + esc(templateName(tpl)) + '" src="' + state.previewUrl + '">';
     var cap = document.getElementById('pdfx-caption');
-    if (cap) cap.textContent = templateName(tpl) + ' · ' + tpl.size;
+    if (cap) cap.textContent = (crop ? tr('Recorte', 'Crop') + ' · ' : '') + templateName(tpl) + ' · ' + tpl.size;
   }
 
   function renderThumbs() {
@@ -1542,7 +1590,11 @@
     var lb = wrap.querySelector('#pdfx-opt-labels'); if (lb) lb.checked = state.includeLabels;
     var tb = wrap.querySelector('#pdfx-opt-table'); if (tb) tb.checked = true;
     var picker = document.getElementById('pdfx-picker'); if (picker) picker.hidden = true;
-    var pickerPrev = document.getElementById('pdfx-preview'); if (pickerPrev) pickerPrev.style.display = '';
+    var previewWrap = document.querySelector('#pdfx-modal .pdfx-preview-wrap');
+    if (previewWrap) previewWrap.classList.remove('is-picking');
+    var previewBefore = document.getElementById('pdfx-preview');
+    if (previewBefore) previewBefore.removeAttribute('data-tag');
+    state.picker = null;
     updateFrameUI();
     setStatus('');
     wrap.hidden = false;
