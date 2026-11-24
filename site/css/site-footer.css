@@ -37,6 +37,16 @@ body:has(> .frame) { display: flow-root; }
 .site-footer *::before,
 .site-footer *::after { box-sizing: border-box; }
 
+/* En escritorio el frame deja 24px de margen inferior. Como el fondo del
+   documento (html) es el del pie, ese hueco se veía como una banda de otro
+   color bajo las esquinas redondeadas. Se traslada el margen al padding del
+   body para que lo pinte su propio fondo (degradado o liso). En móvil/iOS se
+   mantiene intacto el fondo --overscroll-bg del html. */
+@media (min-width: 481px) and (min-height: 501px) {
+  body:has(> main.frame) { padding-bottom: 24px; }
+  body > main.frame { margin-bottom: 0; }
+}
+
 .site-footer__inner {
   max-width: 1120px;
   margin: 0 auto;
