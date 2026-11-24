@@ -288,6 +288,7 @@ try {
         <button class="drop-item" onclick="importTrigger('.geojson,.json')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>GeoJSON</button>
         <button class="drop-item" onclick="importTrigger('.kml')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KML</button>
         <button class="drop-item" onclick="importTrigger('.kmz')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>KMZ</button>
+        <button class="drop-item" onclick="importTrigger('.gpx')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>GPX</button>
         <div class="drop-divider"></div>
         <button class="drop-item" onclick="importTrigger('.zip,.shp')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Shapefile (.zip)</button>
       </div>
@@ -844,7 +845,7 @@ try {
 <script defer src="/js/firebase.js"></script>
 
 <!-- ═══ Módulos de la app (el orden importa) ═══ -->
-<script defer src="/js/i18n.js?v=20261124"></script>      <!-- i18n: must load first -->
+<script defer src="/js/i18n.js?v=20261124b"></script>      <!-- i18n: must load first -->
 <script defer src="/js/basemap-config.js?v=1794000000"></script>
 <script defer src="/js/world-land.js"></script>              <!-- silueta mundial simplificada (previews) -->
 <script defer src="/js/map-preview.js?v=1791708010"></script>          <!-- previews compartidos (galería, perfiles) -->
@@ -859,13 +860,13 @@ try {
 <script defer src="/js/globe-hand.js?v=16"></script>         <!-- easter egg: mano girando el globo -->
 <script defer src="/js/tools.js?v=1793020900"></script>        <!-- herramientas de dibujo -->
 <script defer src="/js/context-menu.js?v=1790749821"></script> <!-- menú contextual -->
-<script defer src="/js/import-export.js?v=1793020900"></script><!-- importar y exportar -->
+<script defer src="/js/import-export.js?v=20261124"></script><!-- importar y exportar -->
 <script defer src="/js/pdf-export.js?v=20261122"></script><!-- descarga en PDF con plantillas -->
 <script defer src="/js/chat.js?v=20261108"></script>         <!-- chat y geocodificación -->
 <script defer src="/js/undo-redo.js?v=1776927827"></script>    <!-- deshacer/rehacer -->
 <script defer src="/js/persistence.js?v=1794301500"></script>  <!-- persistencia y compartir -->
 
-<script defer src="/js/gallery.js?v=1776927826"></script>      <!-- galería pública -->
+<script defer src="/js/gallery.js?v=20261124"></script>      <!-- galería pública -->
 <script defer src="/js/ogc-loader.js?v=1776927826"></script>   <!-- cargador OGC -->
 <script defer src="/js/responsive.js?v=1776927826"></script>  <!-- responsive / móvil -->
 
@@ -874,9 +875,9 @@ try {
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script defer src="/js/auth.js?v=1776927826"></script>
-<script defer src="/js/user-maps.js?v=1776927826"></script>
+<script defer src="/js/user-maps.js?v=20261124"></script>
 <script defer src="/js/tracking.js?v=1792742000"></script>
-<script defer src="/js/collab.js?v=1776927826"></script>
+<script defer src="/js/collab.js?v=20261124"></script>
 <script defer src="/js/plans.js?v=1776927826"></script>
 <script defer src="/js/upsell.js?v=1776927826"></script>
 

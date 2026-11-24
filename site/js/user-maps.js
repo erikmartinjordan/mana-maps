@@ -267,10 +267,45 @@
       .collection('maps').doc(mapId);
     const doc = await docRef.get();
 
-    if (doc.exists && doc.data().public) {
-      // Remove from public index
-      await db.collection(PUBLIC_MAPS_COL).doc(mapId).delete();
+    // Un mapa puede tener espejo público sin que el doc privado esté marcado
+    // como public (enlaces de «Compartir» no listados). Borra siempre el
+    // espejo para no dejar mapas huérfanos en Firestore.
+    try {
+      const publicRef = db.collection(PUBLIC_MAPS_COL).doc(mapId);
+      const publicDoc = await publicRef.get();
+      if (publicDoc.exists) {
+        const publicData = publicDoc.data() || {};
+        const uid = firebase.auth && firebase.auth().currentUser ? firebase.auth().currentUser.uid : '';
+        const owned = publicData.ownerUid === uid || publicData.createdBy === uid ||
+          publicData.authorHandle === handle || !uid;
+        if (owned) {
+          // Las reglas exigen que el mapa exista para borrar presencia y salas
+          // de colaboración, así que se limpian antes del documento público.
+          try {
+            const presenceSnap = await publicRef.collection('presence').get();
+            if (!presenceSnap.empty) {
+              const presenceBatch = db.batch();
+              presenceSnap.forEach(function (doc) { presenceBatch.delete(doc.ref); });
+              await presenceBatch.commit();
+            }
+          } catch (e) {
+            console.warn('public map presence delete failed:', e);
+          }
+          try {
+            const roomRef = db.collection('collabRooms').doc(mapId);
+            const roomDoc = await roomRef.get();
+            if (roomDoc.exists) await roomRef.delete();
+          } catch (e) {
+            console.warn('public map collab room delete failed:', e);
+          }
+          await publicRef.delete();
+        }
+      }
+    } catch (e) {
+      console.warn('public map delete failed:', e);
     }
+
+    if (!doc.exists) return;
 
     // Delete geo chunks subcollection
     const chunksSnap = await docRef.collection('geoChunks').get();

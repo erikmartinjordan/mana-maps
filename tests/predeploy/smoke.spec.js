@@ -135,6 +135,92 @@ test('map editor shell loads core UI containers', async ({ page }) => {
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
 
+test('CSV export keeps geometry and centroids for lines and polygons', async ({ page }) => {
+  await installFirebaseSmokeConfig(page);
+
+  await page.goto('/map');
+  await page.waitForFunction(() => typeof window.exportCSV === 'function');
+
+  const csv = await page.evaluate(() => {
+    const geo = {
+      type: 'FeatureCollection',
+      features: [
+        { type: 'Feature', properties: { name: 'Punto' }, geometry: { type: 'Point', coordinates: [2.1734, 41.3851] } },
+        { type: 'Feature', properties: { name: 'Linea' }, geometry: { type: 'LineString', coordinates: [[-3.7038, 40.4168], [-0.3763, 39.4699]] } },
+        { type: 'Feature', properties: { name: 'Poligono' }, geometry: { type: 'Polygon', coordinates: [[[2.10, 41.30], [2.30, 41.30], [2.30, 41.45], [2.10, 41.30]]] } }
+      ]
+    };
+    const original = window.dl;
+    let content = '';
+    window.dl = (value) => { content = value; };
+    window.exportCSV(geo, 'test');
+    window.dl = original;
+    return content;
+  });
+
+  const lines = csv.trim().split(/\r?\n/);
+  const header = lines[0];
+  expect(header).toContain('"latitude"');
+  expect(header).toContain('"longitude"');
+  expect(header).toContain('"geometry"');
+  expect(lines).toHaveLength(4);
+
+  const rows = lines.slice(1).map((line) => {
+    const cells = [];
+    let value = '';
+    let quoted = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (quoted && line[i + 1] === '"') { value += '"'; i++; }
+        else quoted = !quoted;
+      } else if (ch === ',' && !quoted) { cells.push(value); value = ''; }
+      else value += ch;
+    }
+    cells.push(value);
+    return cells;
+  });
+
+  const headerCells = header.split(',').map((h) => h.replace(/^"|"$/g, ''));
+  const latIdx = headerCells.indexOf('latitude');
+  const lngIdx = headerCells.indexOf('longitude');
+  const geomIdx = headerCells.indexOf('geometry');
+
+  for (const row of rows) {
+    expect(row[latIdx]).not.toBe('');
+    expect(row[lngIdx]).not.toBe('');
+    const geometry = JSON.parse(row[geomIdx]);
+    expect(geometry.type).toMatch(/Point|LineString|Polygon/);
+  }
+});
+
+test('map editor parses GPX waypoints, routes and tracks', async ({ page }) => {
+  await installFirebaseSmokeConfig(page);
+
+  await page.goto('/map');
+  await page.waitForFunction(() => typeof window.gpxToGeoJSON === 'function');
+
+  const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1">
+  <wpt lat="41.3851" lon="2.1734"><name>Punto GPX</name><desc>Waypoint</desc></wpt>
+  <rte><name>Ruta GPX</name><rtept lat="40.4168" lon="-3.7038"/><rtept lat="39.4699" lon="-0.3763"/></rte>
+  <trk><name>Track GPX</name><trkseg><trkpt lat="41.0" lon="2.0"/><trkpt lat="41.1" lon="2.1"/></trkseg></trk>
+</gpx>`;
+
+  const fc = await page.evaluate((source) => {
+    const doc = new DOMParser().parseFromString(source, 'text/xml');
+    return window.gpxToGeoJSON(doc);
+  }, gpx);
+
+  expect(fc.type).toBe('FeatureCollection');
+  expect(fc.features).toHaveLength(3);
+  expect(fc.features.map((f) => f.geometry.type)).toEqual(['Point', 'LineString', 'LineString']);
+  expect(fc.features[0].properties.name).toBe('Punto GPX');
+  expect(fc.features[0].geometry.coordinates).toEqual([2.1734, 41.3851]);
+  expect(fc.features[1].geometry.coordinates).toEqual([[-3.7038, 40.4168], [-0.3763, 39.4699]]);
+  expect(fc.features[2].geometry.coordinates).toEqual([[2.0, 41.0], [2.1, 41.1]]);
+});
+
 test('site footer stays consistent and readable on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');

@@ -4,6 +4,7 @@
 
 (function() {
   const MAPS_COLLECTION = 'maps';
+  const USERS_COLLECTION = 'users';
   const FIRESTORE_FIELD_MAX_BYTES = 1048487;
 
   // ═══════════════════════════════════════════════════════════════
@@ -516,6 +517,22 @@
     const preview = buildMapPreview(geo);
     const normalizedShareMode = shareMode === 'edit' ? 'edit' : 'view';
     const shareUrl = buildGalleryURL(slug, normalizedShareMode);
+    const docRef = db.collection(MAPS_COLLECTION).doc(slug);
+
+    // Compartir crea un enlace público no listado. Si el mapa ya estaba
+    // publicado en la galería, el enlace mantiene su ficha pública y no lo
+    // oculta; publicar/despublicar sigue siendo una acción explícita.
+    let keepListed = false;
+    try {
+      const existingPublic = await docRef.get();
+      if (existingPublic.exists) {
+        const data = existingPublic.data() || {};
+        keepListed = data.isPublished === true && data.unlisted !== true;
+      }
+    } catch (e) {
+      console.warn('existing public map lookup failed:', e);
+    }
+    const unlisted = !keepListed;
 
     var geoToPublish = geo;
     var geoString = toGeoJSONString(geoToPublish);
@@ -536,7 +553,9 @@
       lang: meta.lang || 'es',
       featureCount: geo.features.length,
       mapPreview: preview || null,
-      visibility: 'public',
+      visibility: unlisted ? 'unlisted' : 'public',
+      unlisted: unlisted,
+      public: !unlisted,
       shareMode: normalizedShareMode,
       allowPublicEdit: normalizedShareMode === 'edit',
       isPublished: true,
@@ -557,10 +576,17 @@
       payload.geojsonChunked = { collection: 'geoChunks', chunkCount: 0 };
     }
 
-    const docRef = db.collection(MAPS_COLLECTION).doc(slug);
     const writePayload = { ...payload, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
     if (!existingId) writePayload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
     await docRef.set(writePayload, { merge: true });
+
+    // Mantén alineado el flag privado con la visibilidad real del espejo
+    // público para que «Mis mapas» muestre Publicar/Despublicar correctamente.
+    if (authorHandle) {
+      db.collection(USERS_COLLECTION).doc(authorHandle).collection(MAPS_COLLECTION).doc(slug)
+        .update({ public: !unlisted })
+        .catch(function(err) { console.warn('private map visibility sync failed:', err); });
+    }
 
     if (useChunkedGeo) {
       var chunks = splitTextIntoChunks(geoString, 900000);
@@ -721,8 +747,8 @@
         '<button class="modal-close-btn share-close" type="button" aria-label="Cerrar" data-share-close>&times;</button>' +
         '<h3 id="share-choice-title">' + (LANG === 'en' ? 'Share map' : 'Compartir mapa') + '</h3>' +
         '<p class="share-subtitle">' + (LANG === 'en'
-          ? 'Copy a map-editor link as view-only or editable.'
-          : 'Copia un enlace al editor en solo lectura o editable.') + '</p>' +
+          ? 'Copy a view-only or editable editor link. It is not listed in the gallery.'
+          : 'Copia un enlace al editor en solo lectura o editable. No aparece en la galería.') + '</p>' +
         '<div class="share-actions">' +
           '<button type="button" class="share-action-btn share-action-btn-primary" data-share-action="share-view">' +
             '<span class="share-action-title">' + (typeof t === 'function' ? t('share_view_only') : (LANG === 'en' ? 'View only' : 'Solo lectura')) + '</span>' +

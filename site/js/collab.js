@@ -394,6 +394,14 @@
       }
     }
 
+    function parseRemoteGeo(value) {
+      if (!value) return null;
+      if (typeof value === 'string') {
+        try { return JSON.parse(value); } catch (e) { return null; }
+      }
+      return value;
+    }
+
     function pushStateNow() {
       if (window.manaSharedAccess && window.manaSharedAccess.canEdit === false) return;
       if (APPLYING_REMOTE || !window._manaCollabRoomRef) return;
@@ -406,8 +414,13 @@
       }
       var cleanGeo = sanitizeFirestorePayload(geo);
       if (!cleanGeo || !cleanGeo.features) return;
+      // Firestore no admite arrays anidados: las coordenadas de lineas y
+      // poligonos ([[...]]) rompen la escritura. Guardamos el GeoJSON como
+      // texto, igual que hace la publicacion, y lo parseamos al leerlo.
+      var geoText;
+      try { geoText = JSON.stringify(cleanGeo); } catch (e) { return; }
       window._manaCollabRoomRef.set({
-        state: cleanGeo,
+        stateText: geoText,
         lastEditor: userName,
         lastEditorId: CLIENT_ID,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -418,8 +431,7 @@
 
       if (window._manaCollabMapRef) {
         window._manaCollabMapRef.set({
-          mapData: cleanGeo,
-          geojson: cleanGeo,
+          mapDataText: geoText,
           featureCount: Array.isArray(cleanGeo.features) ? cleanGeo.features.length : 0,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAtMs: Date.now(),
@@ -461,7 +473,7 @@
     window._manaCollabRoomRef.onSnapshot(function(doc) {
       var data = doc && doc.data ? doc.data() : null;
       if (!data) return;
-      applyRemoteState(data.state, data);
+      applyRemoteState(parseRemoteGeo(data.stateText) || parseRemoteGeo(data.state), data);
     }, function(err) {
       console.warn('[collab] room sync subscription failed', err);
     });
@@ -470,7 +482,10 @@
       window._manaCollabMapRef.onSnapshot(function(doc) {
         var data = doc && doc.data ? doc.data() : null;
         if (!data) return;
-        applyRemoteState(data.mapData || data.geojson, data);
+        applyRemoteState(
+          parseRemoteGeo(data.mapDataText) || parseRemoteGeo(data.mapData) || parseRemoteGeo(data.geojson),
+          data
+        );
       }, function(err) {
         console.warn('[collab] map sync subscription failed', err);
       });

@@ -71,6 +71,8 @@ async function processFile(file) {
       return;
     } else if (name.endsWith('.kml')) {
       loadGeoJSON(kmlToGeoJSON(new DOMParser().parseFromString(await file.text(), 'text/xml')), layerName);
+    } else if (name.endsWith('.gpx')) {
+      loadGeoJSON(gpxToGeoJSON(new DOMParser().parseFromString(await file.text(), 'text/xml')), layerName);
     } else if (name.endsWith('.kmz')) {
       const zip = await JSZip.loadAsync(await file.arrayBuffer());
       const kmlFile = Object.keys(zip.files).find(n => n.endsWith('.kml'));
@@ -274,6 +276,51 @@ function kmlToGeoJSON(xmlDoc) {
   return { type: 'FeatureCollection', features };
 }
 
+// ── GPX PARSER ──
+function gpxToGeoJSON(xmlDoc) {
+  const features = [];
+  const text = (el, sel) => { const n = el.querySelector(sel); return n ? (n.textContent || '').trim() : ''; };
+  const latLng = (el) => {
+    const lat = parseFloat(el.getAttribute('lat'));
+    const lon = parseFloat(el.getAttribute('lon'));
+    return (isFinite(lat) && isFinite(lon)) ? [lon, lat] : null;
+  };
+  const propsFor = (el) => {
+    const props = {};
+    const name = text(el, 'name');
+    if (name) props.name = name;
+    const desc = text(el, 'desc');
+    if (desc) props.Description = desc;
+    const time = text(el, 'time');
+    if (time) props.time = time;
+    return props;
+  };
+
+  xmlDoc.querySelectorAll('wpt').forEach(wpt => {
+    const coords = latLng(wpt);
+    if (coords) features.push({ type: 'Feature', properties: propsFor(wpt), geometry: { type: 'Point', coordinates: coords } });
+  });
+
+  xmlDoc.querySelectorAll('rte').forEach(rte => {
+    const coords = Array.from(rte.querySelectorAll('rtept')).map(latLng).filter(Boolean);
+    if (coords.length >= 2) features.push({ type: 'Feature', properties: propsFor(rte), geometry: { type: 'LineString', coordinates: coords } });
+  });
+
+  xmlDoc.querySelectorAll('trk').forEach(trk => {
+    const props = propsFor(trk);
+    const segments = Array.from(trk.querySelectorAll('trkseg')).map(seg =>
+      Array.from(seg.querySelectorAll('trkpt')).map(latLng).filter(Boolean)
+    ).filter(seg => seg.length >= 2);
+    if (segments.length === 1) {
+      features.push({ type: 'Feature', properties: props, geometry: { type: 'LineString', coordinates: segments[0] } });
+    } else if (segments.length > 1) {
+      features.push({ type: 'Feature', properties: props, geometry: { type: 'MultiLineString', coordinates: segments } });
+    }
+  });
+
+  return { type: 'FeatureCollection', features };
+}
+
 // ── EXPORT ──
 function hexToKmlColor(hex, alpha) {
   alpha = alpha || "ff";
@@ -308,25 +355,49 @@ function dl(content, filename, mime, isBlob) {
 }
 
 // ===================== CSV =====================
+function _csvCentroid(geometry) {
+  if (!geometry || !geometry.coordinates) return [null, null];
+  if (geometry.type === "Point") {
+    return [geometry.coordinates[0], geometry.coordinates[1]];
+  }
+  var points = [];
+  (function walk(coords) {
+    if (!Array.isArray(coords)) return;
+    if (typeof coords[0] === "number" && typeof coords[1] === "number") {
+      points.push(coords);
+      return;
+    }
+    coords.forEach(walk);
+  })(geometry.coordinates);
+  if (!points.length) return [null, null];
+  var lng = 0, lat = 0;
+  points.forEach(function(p) { lng += p[0]; lat += p[1]; });
+  return [lng / points.length, lat / points.length];
+}
+
 function exportCSV(geo, prefix) {
   prefix = prefix || "mana-maps";
   var allKeys = {};
   geo.features.forEach(function(f) {
     var p = f.properties || {};
-    Object.keys(p).forEach(function(k) { if (k !== "color" && k.charAt(0) !== "_") allKeys[k] = true; });
+    Object.keys(p).forEach(function(k) { if (k !== "color" && k !== "geometry" && k.charAt(0) !== "_") allKeys[k] = true; });
   });
   var keys = Object.keys(allKeys);
-  var header = ["id", "type", "latitude", "longitude"].concat(keys);
+  var header = ["id", "type", "latitude", "longitude"].concat(keys).concat(["geometry"]);
   var rows = [header.map(function(h) { return '"' + h + '"'; }).join(",")];
   geo.features.forEach(function(f, i) {
     var g = f.geometry, p = f.properties || {};
-    var lat = "", lng = "";
-    if (g.type === "Point") { lng = g.coordinates[0]; lat = g.coordinates[1]; }
-    var row = [i + 1, g.type, lat, lng];
+    var center = _csvCentroid(g);
+    var lat = center[1] == null ? "" : center[1];
+    var lng = center[0] == null ? "" : center[0];
+    var geometryJson = "";
+    try { geometryJson = g ? JSON.stringify(g) : ""; } catch (e) { geometryJson = ""; }
+    var row = [i + 1, g ? g.type : "", lat, lng];
     keys.forEach(function(k) {
       var v = p[k]; if (v === null || v === undefined) v = "";
       row.push(v);
     });
+    row.push(geometryJson);
     rows.push(row.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","));
   });
   dl(rows.join("\n"), prefix + ".csv", "text/csv");

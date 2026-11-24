@@ -28,6 +28,69 @@ test('gallery loads without errors and shows empty state when Firebase is unavai
   expect(pageErrors, `Unexpected runtime errors:\n${pageErrors.join('\n')}`).toEqual([]);
 });
 
+test('gallery hides unlisted share links but keeps them published by URL', async ({ page }) => {
+  await page.route(EXTERNAL_CDN, (route) => route.abort());
+
+  const MOCK_MAPS = [
+    { slug: 'mapa-publicado', title: 'Mapa publicado', isPublished: true, createdAtMs: 2000, featureCount: 1, shareMode: 'view' },
+    { slug: 'mapa-compartido', title: 'Mapa compartido', isPublished: true, unlisted: true, createdAtMs: 3000, featureCount: 1, shareMode: 'view' },
+  ];
+
+  await page.addInitScript((maps) => {
+    delete window.MANA_FIREBASE_CONFIGS;
+    const docSnap = (data) => ({ id: data.slug, exists: true, data: () => data });
+    const listSnap = {
+      docs: maps.map(docSnap),
+      empty: maps.length === 0,
+      forEach: (fn) => maps.forEach((m) => fn(docSnap(m))),
+    };
+    const query = {
+      where: () => query,
+      orderBy: () => query,
+      limit: () => query,
+      get: async () => listSnap,
+      onSnapshot: (cb) => {
+        if (typeof cb === 'function') cb(listSnap);
+        return () => {};
+      },
+    };
+    const mockAuth = () => ({
+      currentUser: null,
+      onAuthStateChanged: (cb) => {
+        if (typeof cb === 'function') cb(null);
+        return () => {};
+      },
+      signInWithEmailAndPassword: async () => { throw new Error('mock-auth'); },
+      createUserWithEmailAndPassword: async () => { throw new Error('mock-auth'); },
+      signInAnonymously: async () => { throw new Error('mock-auth'); },
+      signInWithPopup: async () => { throw new Error('mock-auth'); },
+      signOut: async () => {},
+    });
+    mockAuth.GoogleAuthProvider = function GoogleAuthProvider() {};
+    window.firebase = {
+      apps: [{}],
+      initializeApp: () => ({}),
+      auth: mockAuth,
+      firestore: () => ({
+        collection: () => ({
+          where: () => query,
+          doc: (id) => ({
+            get: async () => {
+              const m = maps.find((x) => x.slug === id || x.id === id);
+              return m ? docSnap(m) : { exists: false, data: () => null };
+            },
+          }),
+        }),
+      }),
+    };
+  }, MOCK_MAPS);
+
+  await page.goto('/gallery/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#gallery-list .card-link[aria-label="Mapa publicado"]')).toHaveCount(1, { timeout: 20_000 });
+  await expect(page.locator('#gallery-list .card-link[aria-label="Mapa compartido"]')).toHaveCount(0);
+  await expect(page.locator('.card-link')).toHaveCount(1);
+});
+
 test('gallery language selector translates static and empty-state UI', async ({ page }) => {
   await page.route(EXTERNAL_CDN, (route) => route.abort());
   await page.addInitScript(() => {
@@ -342,7 +405,17 @@ test('private pages initialize Firebase before reading the auth state', async ({
   await page.route(EXTERNAL_CDN, (route) => route.abort());
 
   // SDK compat simulado: auth() falla si initializeApp() no se llamó antes.
+  // En CI el fichero firebase-config.local.js se genera solo en el job de
+  // deploy; aquí inyectamos una config válida para que ManaFirebase.initializeApp()
+  // pueda inicializar la app simulada.
   await page.addInitScript(() => {
+    const stubConfig = {
+      apiKey: 'test-api-key',
+      authDomain: 'test.firebaseapp.com',
+      projectId: 'test-project',
+      appId: '1:123:web:abc',
+    };
+    window.MANA_FIREBASE_CONFIGS = { pre: stubConfig, pro: stubConfig };
     let initialized = false;
     const authStub = {
       currentUser: null,

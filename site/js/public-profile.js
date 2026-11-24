@@ -245,7 +245,7 @@
         .get();
     }
     var maps = snap.docs.map(function(doc) { return Object.assign({ id: doc.id }, doc.data() || {}); })
-      .filter(function(item) { return item.isPublished === true || item.public === true; });
+      .filter(function(item) { return (item.isPublished === true || item.public === true) && item.unlisted !== true; });
     maps.sort(function(a, b) { return timestampMs(b) - timestampMs(a); });
     return maps.slice(0, 48);
   }

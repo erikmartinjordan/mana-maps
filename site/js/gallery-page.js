@@ -16,7 +16,7 @@
   const GALLERY_LIST_FIELDS = [
     'title', 'name', 'slug', 'tags', 'likes', 'views',
     'authorHandle', 'shareMode', 'featureCount', 'createdAt', 'createdAtMs',
-    'legendKey', 'legendTitle', 'legendFormat', 'dataSource'
+    'legendKey', 'legendTitle', 'legendFormat', 'dataSource', 'unlisted'
   ];
 
   function withListFields(query) {
@@ -95,6 +95,9 @@
     });
     const seen = {};
     return items.filter(function(item) {
+      // Los enlaces de «Compartir» del editor son públicos por URL pero no se
+      // listan en la galería; solo aparecen allí si se publican explícitamente.
+      if (item.unlisted === true) return false;
       var key = item.slug || item.id;
       if (!key || seen[key]) return false;
       seen[key] = true;
