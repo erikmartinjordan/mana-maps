@@ -3,11 +3,25 @@
 > Guardarraíles de producto (ver `AGENTS.md`): no reintroducir «Mapas para descubrir», descripciones/fuente visibles en las tarjetas de la galería, bloques de «Caso de uso» en News, enlaces relacionados en el pie de los artículos ni el índice de mapas de la galería.
 
 
-- [ ] **Cancelar y cerrar deben dejar estado limpio**. Comprobar que `Cancelar`
+- [x] **Cancelar y cerrar deben dejar estado limpio**. Comprobar que `Cancelar`
   en el selector restaura plantilla, encuadre y opciones previas; que cerrar el
   modal revoca blob URLs, aborta generaciones en curso y no deja `state.picker`,
   `state.region` ni listeners colgados. Criterio: abrir/cerrar 10 veces no
-  acumula memoria ni deja el mapa del editor en blanco.
+  acumula memoria ni deja el mapa del editor en blanco. (25-11) — `close()`
+  invalida la generación en curso (`state.run`), cancela el cierre diferido de
+  la descarga, revoca todas las blob URLs, vacía `state.cache`/`ctx`, resetea
+  `picker`/`region`/`frame`/plantilla y opciones, limpia preview y miniaturas y
+  vuelve a sincronizar los controles; `svgToJpeg`/`generatePdf` abortan entre
+  pasos y `onDownload` ignora descargas y estados tardíos. `Cancelar` del
+  selector guarda una instantánea al abrirlo (plantilla, encuadre, región y
+  casillas) y la restaura al cancelar, incluso si se cambió de plantilla
+  mientras estaba abierto; elegir otro encuadre ya no deja el selector huérfano
+  y el preview en vivo usa el recorte al cambiar opciones. Versión de
+  `pdf-export.js` renovada a `20261125` en `/map/` y `/en/`. 4 regresiones
+  nuevas en `tests/predeploy/pdf-export-region.spec.js` (cancelar restaura
+  estado, todas las blob URLs revocadas al cerrar, cierre a mitad de descarga
+  sin PDF, 10 aperturas/cierres sin fugas); Playwright 110/110,
+  `check-local-assets` y `check-repo-hygiene` OK.
 
 - [ ] **Mapas grandes (1.000–10.000 features)**. Medir con `antenas-moviles-espana`
   y mapas de puntos densos: al abrir se construyen 5 previews SVG completos y el
