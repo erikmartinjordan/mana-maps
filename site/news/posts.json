@@ -1,5 +1,39 @@
 [
   {
+    "date": "2026-11-25",
+    "event": "Análisis propio sobre el GeoJSON del mapa de inflación (Banco Mundial WDI FP.CPI.TOTL.ZG, actualizado el 2026-10-08): 187 países con dato, mediana del 3,20%, 129 por encima del 2%, 47 por encima del 5%, 23 por encima del 10% y 14 en deflación. El 25-11 se publica el PCE de octubre y el mercado descuenta una subida de 25 pb el 9-12 (92,7% según CME FedWatch citado por Reuters el 19-11). Jefferson (19-11) afirmó que el despliegue de IA presiona al alza la demanda y la inflación; Goolsbee habló de riesgo de sobrecalentamiento. JPMorgan espera subidas en diciembre, enero y marzo hasta el 4,50%-4,75%. El lunes Nvidia subió más del 30% y el S&P 500 un 4,7%; el martes el Nasdaq cedió un 1,48% y el miércoles Asia cayó con fuerza (SoftBank -13,8%) y sidecar en el Kospi. El dato de EE. UU. en el mapa es de 2024 (2,95%), así que no mide el repunte actual.",
+    "type": "news",
+    "format": "analisis",
+    "topic": "bolsa",
+    "mapSlug": "inflation-world",
+    "sourceUrls": [
+      "https://www.federalreserve.gov/newsevents/speech/jefferson20261119a.htm",
+      "https://www.channelnewsasia.com/business/ai-surge-could-strain-us-capacity-and-overheat-economy-feds-goolsbee-says-6567271",
+      "https://finwire.io/news/economy-news/jpmorgan-joins-growing-wall-street-chorus-expecting-three-fed-rate-hikes-in-a-row",
+      "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "https://www.cnbc.com/2026/11/25/tech-stocks-softbank-group-advantest-sk-hynix-samsung.html",
+      "https://www.koreatimes.co.kr/economy/others/20261125/bourse-operator-activates-sell-side-sidecar-for-kospi-on-sharp-fall",
+      "https://www.coindesk.com/markets/2026/11/23/market-rout-kills-50-basis-points-december-fed-rate-hike-bets",
+      "https://www.expansion.com/mercados/2026/11/24/dos-claves-frenar-caidas-bolsa.html",
+      "https://mlq.ai/news/australias-annual-inflation-rises-to-49-in-october-as-electricity-prices-jump-252/",
+      "https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG"
+    ],
+    "translations": {
+      "es": {
+        "slug": "ia-inflacion-fed",
+        "url": "/news/ia-inflacion-fed/",
+        "title": "La IA entra en la inflación: 129 países por encima del 2%",
+        "description": "Dos cargos de la Fed vinculan el despliegue de la IA con la presión sobre los precios. El mapa muestra 129 de 187 países con inflación por encima del 2%."
+      },
+      "en": {
+        "slug": "ai-inflation-fed",
+        "url": "/en/news/ai-inflation-fed/",
+        "title": "AI enters the inflation debate: 129 countries above 2%",
+        "description": "Two Federal Reserve officials link the AI build-out to price pressure. The inflation map puts 129 of 187 countries above 2% in their latest available year."
+      }
+    }
+  },
+  {
     "date": "2026-11-24",
     "event": "El Real Decreto 1032/2026, publicado en el BOE el 21-11 y en vigor desde el 22-11, obliga a los centros de datos de 10 MW o más a justificar que el 80% de su consumo eléctrico es renovable y con correlación horaria, con adicionalidad de 36 meses. SpainDC (350 empresas) ultima un recurso ante el Tribunal Supremo con suspensión cautelar y la Comunidad de Madrid anuncia que lo llevará a Bruselas (24-11). Más de 160 organizaciones han firmado un manifiesto contra la norma. La patronal cifra el consumo del sector en el 0,8% de la electricidad española y 66.900 millones de inversión; el ministerio, en 5.000 millones de impacto en facturas sin la norma y hasta un 25% más para el consumidor industrial. EY calculó sobre el borrador 49,8 GW nuevos de generación y almacenamiento (26,8 GW solares) para 3,5 GW de demanda. El mapa de mayores parques solares reúne 18 instalaciones y 96.619 MW: 12 son chinos (82.664 MW, 85,6%) y ninguno está en España ni en la UE.",
     "type": "news",
