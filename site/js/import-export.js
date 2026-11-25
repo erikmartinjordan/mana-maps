@@ -138,11 +138,23 @@ function loadGeoJSON(geo, groupName) {
   const batchSize = 250;
   const importColor = drawColor;
 
+  // El color del grupo (punto de la leyenda/panel) debe salir de los datos
+  // importados cuando los features ya traen su propia paleta; si no, todos los
+  // mapas de la galería heredarían el color de dibujo actual (amarillo).
+  let groupColor = importColor;
+  if (Array.isArray(geo.features)) {
+    for (const feature of geo.features) {
+      const props = (feature && feature.properties) || {};
+      const featureColor = props._manaColor || props.color;
+      if (featureColor) { groupColor = String(featureColor); break; }
+    }
+  }
+
   // Assign a unique group ID for this imported layer
   const groupId = ++_manaGroupCounter;
   const gName = groupName || geo.fileName || t('geom_imported_layer');
   // Register group in metadata registry
-  registerGroupMeta(groupId, gName, importColor);
+  registerGroupMeta(groupId, gName, groupColor);
   if (geo.features && geo.features.length && geo.features[0].properties && geo.features[0].properties._manaLabelStyle && _manaGroupMeta[groupId]) {
     _manaGroupMeta[groupId].labelStyle = _normalizeLabelStyle(geo.features[0].properties._manaLabelStyle);
   }
@@ -205,6 +217,7 @@ function loadGeoJSON(geo, groupName) {
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
     refreshLabelsForLayer(groupId);
     stats();
+    if (typeof refreshGlobeLayers === 'function') refreshGlobeLayers();
     if (typeof saveState === 'function') saveState();
     return layer;
   };

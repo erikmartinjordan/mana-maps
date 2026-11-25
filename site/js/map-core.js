@@ -159,16 +159,9 @@ function setMapThemeTiles() {
   // ── Globe 3D: swap vector style ──
   if (typeof updateGlobeBaseStyle === 'function') updateGlobeBaseStyle(isDark);
   if (typeof globeMap !== 'undefined' && globeMap && globeMap.isStyleLoaded && globeMap.isStyleLoaded()) {
-    if (globeMap.getLayer('drawn-fills')) {
-      globeMap.setPaintProperty('drawn-fills', 'fill-opacity', ['coalesce', ['get', '_manaFillOpacity'], isDark ? 0.32 : 0.25]);
-    }
-    if (globeMap.getLayer('drawn-point-labels')) {
-      globeMap.setPaintProperty('drawn-point-labels', 'text-color', isDark ? '#e8e6e3' : '#30363b');
-      globeMap.setPaintProperty('drawn-point-labels', 'text-halo-color', isDark ? '#1a1a1a' : '#ffffff');
-    }
-    if (globeMap.getLayer('drawn-points')) {
-      globeMap.setPaintProperty('drawn-points', 'circle-stroke-color', isDark ? '#1a1a1a' : '#ffffff');
-    }
+    // El globo crea una capa por grupo y tipo de geometría; reconstruirlas con
+    // syncToGlobe() aplica el tema oscuro/claro a todas sin listar ids fijos.
+    if (typeof syncToGlobe === 'function') syncToGlobe();
   }
   if (typeof refreshAllLabels === 'function') refreshAllLabels();
   if (typeof applyBasemapTheme === 'function') applyBasemapTheme();
@@ -767,7 +760,7 @@ function applyGroupFilter(gid) {
   });
   meta.hiddenLayers.clear();
 
-  if (!rules.length) { refreshLabelsForLayer(gid); stats(); return; }
+  if (!rules.length) { refreshLabelsForLayer(gid); stats(); refreshGlobeLayers(); return; }
 
   // Apply filter: hide non-matching
   let matched = 0;
@@ -784,6 +777,7 @@ function applyGroupFilter(gid) {
 
   refreshLabelsForLayer(gid);
   stats();
+  refreshGlobeLayers();
 }
 
 function clearGroupFilter(gid) {
@@ -797,6 +791,7 @@ function clearGroupFilter(gid) {
   delete _filterOpen[gid];
   refreshLabelsForLayer(gid);
   stats();
+  refreshGlobeLayers();
 }
 
 function addFilterRule(gid) {
@@ -1656,6 +1651,13 @@ const ManaLocateControl = L.Control.extend({
   // MapLibre has no way to read the pixels missing after a container grows.
   // Force a full repaint of the GL bridge so no grey gap is left behind.
   function forceMapRepaint() {
+    if (typeof activeBase !== 'undefined' && activeBase === 'globe' &&
+        typeof globeMap !== 'undefined' && globeMap && typeof globeMap.resize === 'function') {
+      try {
+        globeMap.resize();
+        if (typeof globeMap.triggerRepaint === 'function') globeMap.triggerRepaint();
+      } catch (e) {}
+    }
     if (typeof map === 'undefined' || !map) return;
     map.invalidateSize();
     var gl = typeof _getActiveGLMap === 'function' ? _getActiveGLMap() : null;
@@ -1770,7 +1772,13 @@ const ManaLocateControl = L.Control.extend({
         document.removeEventListener('mouseup', onEnd);
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('touchend', onEnd);
-        map.invalidateSize();
+        // El último frame del layout puede llegar después del mouseup: repinta
+        // cuando el contenedor ya tiene su tamaño definitivo para que el fondo
+        // (MapLibre) y las capas vectoriales no queden desalineados.
+        requestAnimationFrame(function () {
+          forceMapRepaint();
+          setTimeout(forceMapRepaint, 120);
+        });
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
@@ -1933,6 +1941,16 @@ const ManaLocateControl = L.Control.extend({
 })();
 
 // ── STATS & LAYER LIST ──
+function refreshGlobeLayers() {
+  if (typeof activeBase === 'undefined' || activeBase !== 'globe') return;
+  if (typeof globeMap === 'undefined' || !globeMap || typeof syncToGlobe !== 'function') return;
+  try {
+    syncToGlobe();
+  } catch (err) {
+    console.warn('globe layer sync failed:', err);
+  }
+}
+
 function stats() {
   let pts = 0, lns = 0, pols = 0;
   drawnItems.eachLayer(l => {
@@ -2156,11 +2174,14 @@ function _syncGroupOrder() {
   _groupOrder = _groupOrder.filter(gid => _manaGroupMeta[gid]);
 }
 
-// Move a group from one position to another
-function reorderGroup(fromIdx, toIdx) {
-  if (fromIdx === toIdx) return;
+// Move a group to an insertion boundary (0 = before first, length = after last)
+function moveGroupToInsertion(fromIdx, insertPos) {
+  if (fromIdx < 0 || insertPos == null) return;
+  let target = insertPos;
+  if (target > fromIdx) target--; // the dragged item is removed first
+  if (target === fromIdx) return;
   const item = _groupOrder.splice(fromIdx, 1)[0];
-  _groupOrder.splice(toIdx, 0, item);
+  _groupOrder.splice(target, 0, item);
   // Reorder layers on the map (bring later groups to front)
   _groupOrder.forEach(gid => {
     const meta = _manaGroupMeta[gid];
@@ -2172,6 +2193,7 @@ function reorderGroup(fromIdx, toIdx) {
     });
   });
   renderLayers();
+  refreshGlobeLayers();
   if (typeof saveState === 'function') saveState();
 }
 
@@ -2193,6 +2215,7 @@ const ICON = {
   grip: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>',
   eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
   eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+  gallery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
 };
 
 function esc(s) { return String(s).replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -2411,6 +2434,11 @@ async function applyStarterTemplate(id) {
   if (typeof showToast === 'function') showToast(t('template_loaded'));
 }
 
+function renderGalleryLayersButton() {
+  return '<button type="button" class="new-layer-btn gallery-layers-btn" onclick="openGalleryLayersPicker()">' +
+    ICON.gallery + ' ' + esc(t('gallery_layers_open')) + '</button>';
+}
+
 function renderLayers() {
   const list = document.getElementById('layer-list');
   const layers = [];
@@ -2423,7 +2451,7 @@ function renderLayers() {
   }
 
   if (!layers.length && !totalHidden && !Object.keys(_manaGroupMeta).length) {
-    list.innerHTML = '<p class="empty-note">' + t('layer_empty').replace('\n','<br>') + '</p>' + renderStarterTemplates();
+    list.innerHTML = renderGalleryLayersButton() + '<p class="empty-note">' + t('layer_empty').replace('\n','<br>') + '</p>' + renderStarterTemplates();
     return;
   }
 
@@ -2461,6 +2489,9 @@ function renderLayers() {
   html += '<button class="new-layer-btn" onclick="createNewLayer()">';
   html += ICON.plus + ' ' + t('layer_new') + '</button>';
 
+  // Import a published map from the public gallery as a new layer
+  html += renderGalleryLayersButton();
+
   // Render grouped layers
   groupOrder.forEach(gid => {
     const g = groups[gid];
@@ -2491,7 +2522,7 @@ function renderLayers() {
       : '';
 
     var orderIdx = _groupOrder.indexOf(gid);
-    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + (!g.visible ? ' is-hidden' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragover="onLayerDragOver(event)" ondrop="onLayerDrop(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
+    html += '<div class="layer-group' + (g.hasFilter ? ' has-filter' : '') + (isActive ? ' active-layer' : '') + (!g.visible ? ' is-hidden' : '') + '" data-gid="' + gid + '" data-order="' + orderIdx + '" draggable="true" ondragstart="onLayerDragStart(event,' + orderIdx + ')" ondragend="onLayerDragEnd(event)">';
 
     // ── Header: click sets active, chevron toggles expand
     html += '<div class="layer-group-header" onclick="setActiveGroup(' + gid + ')" oncontextmenu="showLayerCtx(event,\'group\',' + gid + ')">';
@@ -2661,6 +2692,7 @@ function setGroupVisibility(gid, visible, opts) {
     if (meta.visible && typeof refreshLabelsForLayer === 'function') refreshLabelsForLayer(gid);
     if (typeof renderLayers === 'function') renderLayers();
     if (typeof stats === 'function') stats();
+    refreshGlobeLayers();
     if (typeof saveState === 'function') saveState();
   }
 }
@@ -2704,6 +2736,7 @@ async function deleteGroup(gid) {
   delete _filterOpen[gid];
   if (_activeGroupId === gid) _activeGroupId = null;
   stats();
+  refreshGlobeLayers();
   if (typeof saveState === 'function') saveState();
 }
 
@@ -2723,43 +2756,100 @@ function focusLayer(i) {
 // LAYER DRAG & DROP REORDERING
 // ═══════════════════════════════════════════════════════════════
 let _dragFromIdx = null;
+let _dragInsertPos = null;
+
+function _layerGroupEls() {
+  return Array.from(document.querySelectorAll('#layer-list .layer-group'));
+}
+
+function _clearLayerDropPreview() {
+  _layerGroupEls().forEach(g => g.classList.remove('drop-before', 'drop-after'));
+  _dragInsertPos = null;
+}
+
+function _showLayerDropPreview(pos) {
+  const groups = _layerGroupEls();
+  if (!groups.length) return;
+  groups.forEach(g => g.classList.remove('drop-before', 'drop-after'));
+  if (pos <= 0) groups[0].classList.add('drop-before');
+  else if (pos >= groups.length) groups[groups.length - 1].classList.add('drop-after');
+  else groups[pos].classList.add('drop-before');
+}
 
 function onLayerDragStart(e, idx) {
   _dragFromIdx = idx;
+  _dragInsertPos = idx;
   e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', idx);
-  // Add visual feedback
-  setTimeout(() => { e.target.classList.add('dragging'); }, 0);
+  e.dataTransfer.setData('text/plain', String(idx));
+  const list = document.getElementById('layer-list');
+  if (list) list.classList.add('is-reordering');
+  setTimeout(() => {
+    const group = e.target && e.target.closest ? e.target.closest('.layer-group') : null;
+    if (group) group.classList.add('dragging');
+  }, 0);
 }
 
-function onLayerDragOver(e) {
+function onLayerListDragOver(e) {
+  if (_dragFromIdx === null) return;
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
-  // Highlight drop target
-  const group = e.target.closest('.layer-group');
-  document.querySelectorAll('.layer-group').forEach(g => g.classList.remove('drag-over'));
-  if (group) group.classList.add('drag-over');
-}
+  const groups = _layerGroupEls();
+  const group = e.target && e.target.closest ? e.target.closest('.layer-group') : null;
 
-function onLayerDrop(e, toIdx) {
-  e.preventDefault();
-  document.querySelectorAll('.layer-group').forEach(g => {
-    g.classList.remove('drag-over');
-    g.classList.remove('dragging');
-  });
-  if (_dragFromIdx !== null && _dragFromIdx !== toIdx) {
-    reorderGroup(_dragFromIdx, toIdx);
+  if (group) {
+    const idx = Number(group.getAttribute('data-order'));
+    const rect = group.getBoundingClientRect();
+    const insertPos = e.clientY < rect.top + rect.height / 2 ? idx : idx + 1;
+    _dragInsertPos = insertPos;
+    _showLayerDropPreview(insertPos);
+    return;
   }
+
+  // Zona libre bajo la última capa (o huecos entre bloques): se calcula el
+  // límite de inserción más cercano para que también se pueda soltar al final.
+  let insertPos = groups.length;
+  for (let i = 0; i < groups.length; i++) {
+    const rect = groups[i].getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) { insertPos = i; break; }
+  }
+  _dragInsertPos = insertPos;
+  _showLayerDropPreview(insertPos);
+}
+
+function onLayerListDragLeave(e) {
+  if (_dragFromIdx === null) return;
+  const list = e.currentTarget;
+  if (!e.relatedTarget || !list.contains(e.relatedTarget)) _clearLayerDropPreview();
+}
+
+function _endLayerDrag() {
+  _layerGroupEls().forEach(g => g.classList.remove('dragging', 'drop-before', 'drop-after'));
+  const list = document.getElementById('layer-list');
+  if (list) list.classList.remove('is-reordering');
+  _dragInsertPos = null;
   _dragFromIdx = null;
 }
 
-function onLayerDragEnd(e) {
-  document.querySelectorAll('.layer-group').forEach(g => {
-    g.classList.remove('drag-over');
-    g.classList.remove('dragging');
-  });
-  _dragFromIdx = null;
+function onLayerListDrop(e) {
+  if (_dragFromIdx === null) return;
+  e.preventDefault();
+  const fromIdx = _dragFromIdx;
+  const insertPos = _dragInsertPos;
+  _endLayerDrag();
+  if (insertPos != null) moveGroupToInsertion(fromIdx, insertPos);
 }
+
+function onLayerDragEnd() {
+  _endLayerDrag();
+}
+
+(function initLayerDragAndDrop() {
+  const list = document.getElementById('layer-list');
+  if (!list) return;
+  list.addEventListener('dragover', onLayerListDragOver);
+  list.addEventListener('dragleave', onLayerListDragLeave);
+  list.addEventListener('drop', onLayerListDrop);
+})();
 
 
 // ═══════════════════════════════════════════════════════════════

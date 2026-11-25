@@ -98,7 +98,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
 <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
-<link rel="stylesheet" href="/css/main.css?v=1794313000"/>
+<link rel="stylesheet" href="/css/main.css?v=20261125b"/>
 <link rel="stylesheet" href="/css/pdf-export.css?v=20261122"/>
 <link rel="stylesheet" href="/css/editor-dark.css"/>
 <script>
@@ -223,6 +223,22 @@ try {
   <div id="name-modal-btns">
     <button class="modal-btn modal-btn-cancel" onclick="modalCancel()">Cancel</button>
     <button class="modal-btn modal-btn-ok" onclick="modalOk()">Save</button>
+  </div>
+</div>
+
+<!-- ═══ Add layers from the public gallery ═══ -->
+<div id="gallery-layers-modal" class="mk-modal-overlay gallery-layers-overlay" style="display:none" role="dialog" aria-modal="true" data-i18n-aria-label="gallery_layers_title">
+  <div class="mk-modal-box gallery-layers-box">
+    <div class="gallery-layers-header">
+      <div>
+        <strong data-i18n="gallery_layers_title">Add layers from the gallery</strong>
+        <span data-i18n="gallery_layers_sub">Public community maps</span>
+      </div>
+      <button type="button" class="mk-modal-close" onclick="closeGalleryLayersPicker()" aria-label="Close">&times;</button>
+    </div>
+    <input id="gallery-layers-search" class="mk-modal-search gallery-layers-search" type="search" data-i18n-placeholder="gallery_layers_search" placeholder="Search maps…" autocomplete="off" spellcheck="false"/>
+    <div id="gallery-layers-status" class="gallery-layers-status" role="status"></div>
+    <div id="gallery-layers-list" class="gallery-layers-list"></div>
   </div>
 </div>
 
@@ -750,22 +766,23 @@ try {
 <script src="../js/firebase.js"></script>
 
 <!-- ═══ App modules (order matters) ═══ -->
-<script src="../js/i18n.js?v=20261124b"></script>      <!-- i18n: must load first -->
+<script src="../js/i18n.js?v=20261125b"></script>      <!-- i18n: must load first -->
 <script src="../js/basemap-config.js"></script>
 <script src="../js/world-land.js"></script>              <!-- silueta mundial simplificada (previews) -->
 <script src="../js/markers.js?v=1791708010"></script>      <!-- color y marcadores -->
 <script src="../js/modal.js"></script>        <!-- diálogo de nombre -->
-<script src="../js/map-core.js?v=1794313000"></script>     <!-- mapa, capas, stats -->
+<script src="../js/map-core.js?v=20261125c"></script>     <!-- mapa, capas, stats -->
 <script src="../js/vector-renderer.js?v=1791708010"></script>  <!-- render vectorial sin drift -->
 <script src="../js/stats.js"></script>      <!-- panel de estadísticas -->
-<script src="../js/globe.js?v=1791708010"></script>        <!-- globo 3D -->
+<script src="../js/globe.js?v=20261125c"></script>        <!-- globo 3D -->
 <script src="../js/tools.js?v=1793020900"></script>        <!-- herramientas de dibujo -->
 <script src="../js/context-menu.js"></script> <!-- menú contextual -->
-<script src="../js/import-export.js?v=20261124"></script><!-- importar y exportar -->
+<script src="../js/import-export.js?v=20261125"></script><!-- importar y exportar -->
 <script src="../js/pdf-export.js?v=20261122"></script><!-- descarga en PDF con plantillas -->
 <script src="../js/chat.js?v=20261108"></script>         <!-- chat y geocodificación -->
 <script src="../js/undo-redo.js"></script>    <!-- deshacer/rehacer -->
 <script src="../js/persistence.js"></script>  <!-- persistencia y compartir -->
+<script src="../js/gallery-layers.js?v=20261125"></script> <!-- añadir capas de la galería -->
 <script src="../js/ogc-loader.js"></script>   <!-- cargador OGC -->
 <script src="../js/responsive.js"></script>  <!-- responsive / móvil -->
 

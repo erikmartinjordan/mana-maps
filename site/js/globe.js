@@ -4,6 +4,7 @@ var globeMap = null;
 var spinActive = false;
 var spinRAF = null;
 var globePopup = null;
+var _globeDrawnLayerIds = [];
 
 // El «espacio» exterior del globo lo dibuja MapLibre con la propiedad `sky`.
 // Sin definirla usa un azul oscuro que desentona en modo claro; la fijamos por
@@ -148,19 +149,41 @@ function _manaGlobeLabelAnchor(geom) {
   return [(x0 + x1) / 2, (y0 + y1) / 2];
 }
 
+function _removeDrawnGlobeLayers() {
+  if (!globeMap) return;
+  try {
+    var style = globeMap.getStyle && globeMap.getStyle();
+    if (style && style.layers) {
+      style.layers.forEach(function(layer) {
+        if (layer && typeof layer.id === 'string' && layer.id.indexOf('drawn-') === 0) {
+          try { globeMap.removeLayer(layer.id); } catch (e) {}
+        }
+      });
+    }
+    if (style && style.sources) {
+      Object.keys(style.sources).forEach(function(id) {
+        if (id === 'drawn' || id.indexOf('drawn-') === 0) {
+          try { globeMap.removeSource(id); } catch (e) {}
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('globe drawn layer cleanup failed:', e);
+  }
+  _globeDrawnLayerIds = [];
+}
+
 function syncToGlobe() {
   if (!globeMap) return;
   if (globePopup) { globePopup.remove(); globePopup = null; }
-  if (globeMap.getLayer('drawn-feature-labels')) globeMap.removeLayer('drawn-feature-labels');
-  if (globeMap.getSource('drawn-labels')) globeMap.removeSource('drawn-labels');
-  if (globeMap.getLayer('drawn-point-labels')) globeMap.removeLayer('drawn-point-labels');
-  if (globeMap.getLayer('drawn-emoji-points')) globeMap.removeLayer('drawn-emoji-points');
-  if (globeMap.getLayer('drawn-points')) globeMap.removeLayer('drawn-points');
-  if (globeMap.getLayer('drawn-lines')) globeMap.removeLayer('drawn-lines');
-  if (globeMap.getLayer('drawn-fills')) globeMap.removeLayer('drawn-fills');
-  if (globeMap.getSource('drawn')) globeMap.removeSource('drawn');
+  _removeDrawnGlobeLayers();
 
   var geo = getEnrichedGeoJSON();
+  // Las capas ocultas con el ojo se exportan con _manaGroupHidden para poder
+  // restaurarlas, pero el globo solo debe pintar lo visible.
+  geo.features = geo.features.filter(function(f) {
+    return !(f && f.properties && f.properties._manaGroupHidden);
+  });
   if (!geo.features.length) return;
 
   var _emojiMap = {
@@ -259,36 +282,101 @@ function syncToGlobe() {
     }
   });
 
+  // Una capa MapLibre por grupo y tipo de geometría, en el mismo orden que el
+  // panel (de atrás a delante). Así el 3D respeta el apilado del 2D: un grupo
+  // inferior no puede pintar por encima de uno superior.
+  var emojiMarkerTypes = Object.keys(_emojiMap);
+  var buckets = {};
+  var bucketOrder = [];
+  geo.features.forEach(function(f) {
+    if (!f || !f.geometry) return;
+    var rawGid = f.properties && f.properties._manaGroupId;
+    var key = rawGid != null ? String(rawGid) : 'nogroup';
+    f.properties._globeGroupKey = key;
+    if (!buckets[key]) { buckets[key] = []; bucketOrder.push(key); }
+    buckets[key].push(f);
+  });
+
+  var orderedKeys = [];
+  if (typeof _groupOrder !== 'undefined' && Array.isArray(_groupOrder)) {
+    _groupOrder.forEach(function(gid) {
+      var key = String(gid);
+      if (buckets[key]) orderedKeys.push(key);
+    });
+  }
+  bucketOrder.forEach(function(key) {
+    if (orderedKeys.indexOf(key) === -1) orderedKeys.push(key);
+  });
+
   globeMap.addSource('drawn', { type: 'geojson', data: geo });
 
   var _isDarkGlobe = (typeof isDarkMapTheme === 'function' && isDarkMapTheme());
-  globeMap.addLayer({
-    id: 'drawn-fills', type: 'fill', source: 'drawn',
-    filter: ['in', ['get', '_type'], ['literal', ['Polygon', 'MultiPolygon']]],
-    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['coalesce', ['get', '_manaFillOpacity'], _isDarkGlobe ? 0.32 : 0.25] }
-  });
-  globeMap.addLayer({
-    id: 'drawn-lines', type: 'line', source: 'drawn',
-    filter: ['in', ['get', '_type'], ['literal', ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon']]],
-    paint: { 'line-color': ['coalesce', ['get', '_manaBorderColor'], ['get', 'color']], 'line-width': 2.5 }
-  });
-  // Separate circle vs emoji points so fire/water stickers keep their shape in 3D
-  globeMap.addLayer({
-    id: 'drawn-points', type: 'circle', source: 'drawn',
-    filter: ['all', ['==', ['get', '_type'], 'Point'], ['!', ['in', ['get', '_manaMarkerType'], ['literal', ['emoji_fire','emoji_collision','emoji_water','emoji_rain','emoji_star','emoji_heart','emoji_diamond','emoji_home','emoji_building','emoji_tree','emoji_mountain','emoji_beach','emoji_camping','emoji_flower','emoji_sun','emoji_moon','emoji_car','emoji_bus','emoji_train','emoji_plane','emoji_ship','emoji_bike','emoji_walk','emoji_parking','emoji_fuel','emoji_camera','emoji_music','emoji_soccer','emoji_trophy','emoji_ski','emoji_swim','emoji_paint','emoji_game','emoji_warning','emoji_info','emoji_question','emoji_check','emoji_cross','emoji_lock','emoji_key','emoji_target','emoji_pin','emoji_pushpin','emoji_flag','emoji_gift','emoji_money','emoji_bulb','emoji_party','emoji_trash','emoji_package','emoji_hospital','emoji_school','emoji_church','emoji_museum','emoji_moai','emoji_hotel','emoji_store','emoji_bank','emoji_factory','emoji_restaurant','emoji_burger','emoji_pizza','emoji_coffee','emoji_beer','emoji_wine','emoji_cocktail','emoji_sushi','emoji_icecream']]]]],
-    paint: { 'circle-radius': 7, 'circle-color': ['get', 'color'], 'circle-stroke-color': _isDarkGlobe ? '#1a1a1a' : '#ffffff', 'circle-stroke-width': 2 }
-  });
-  globeMap.addLayer({
-    id: 'drawn-emoji-points', type: 'symbol', source: 'drawn',
-    filter: ['all', ['==', ['get', '_type'], 'Point'], ['in', ['get', '_manaMarkerType'], ['literal', ['emoji_fire','emoji_collision','emoji_water','emoji_rain','emoji_star','emoji_heart','emoji_diamond','emoji_home','emoji_building','emoji_tree','emoji_mountain','emoji_beach','emoji_camping','emoji_flower','emoji_sun','emoji_moon','emoji_car','emoji_bus','emoji_train','emoji_plane','emoji_ship','emoji_bike','emoji_walk','emoji_parking','emoji_fuel','emoji_camera','emoji_music','emoji_soccer','emoji_trophy','emoji_ski','emoji_swim','emoji_paint','emoji_game','emoji_warning','emoji_info','emoji_question','emoji_check','emoji_cross','emoji_lock','emoji_key','emoji_target','emoji_pin','emoji_pushpin','emoji_flag','emoji_gift','emoji_money','emoji_bulb','emoji_party','emoji_trash','emoji_package','emoji_hospital','emoji_school','emoji_church','emoji_museum','emoji_moai','emoji_hotel','emoji_store','emoji_bank','emoji_factory','emoji_restaurant','emoji_burger','emoji_pizza','emoji_coffee','emoji_beer','emoji_wine','emoji_cocktail','emoji_sushi','emoji_icecream']]]],
-    layout: {
-      'icon-image': ['get', '_manaIcon'],
-      'icon-size': ['interpolate', ['linear'], ['coalesce', ['get', '_manaEmojiSize'], 28], 22, 0.48, 42, 0.95],
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
-      'icon-anchor': 'center'
+  var fillTypes = ['Polygon', 'MultiPolygon'];
+  var lineTypes = ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'];
+
+  orderedKeys.forEach(function(key) {
+    var features = buckets[key] || [];
+    var hasFill = false, hasLine = false, hasCircle = false, hasEmoji = false;
+    features.forEach(function(f) {
+      var type = f.geometry && f.geometry.type;
+      var markerType = f.properties && f.properties._manaMarkerType;
+      if (fillTypes.indexOf(type) !== -1) hasFill = true;
+      if (lineTypes.indexOf(type) !== -1) hasLine = true;
+      if (type === 'Point') {
+        if (markerType && emojiMarkerTypes.indexOf(markerType) !== -1) hasEmoji = true;
+        else hasCircle = true;
+      }
+    });
+
+    var safe = key.replace(/[^a-zA-Z0-9_-]/g, '_');
+    var groupFilter = ['==', ['get', '_globeGroupKey'], key];
+
+    if (hasFill) {
+      var fillId = 'drawn-fills-' + safe;
+      globeMap.addLayer({
+        id: fillId, type: 'fill', source: 'drawn',
+        filter: ['all', groupFilter, ['in', ['get', '_type'], ['literal', fillTypes]]],
+        paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['coalesce', ['get', '_manaFillOpacity'], _isDarkGlobe ? 0.32 : 0.25] }
+      });
+      _globeDrawnLayerIds.push(fillId);
+    }
+    if (hasLine) {
+      var lineId = 'drawn-lines-' + safe;
+      globeMap.addLayer({
+        id: lineId, type: 'line', source: 'drawn',
+        filter: ['all', groupFilter, ['in', ['get', '_type'], ['literal', lineTypes]]],
+        paint: { 'line-color': ['coalesce', ['get', '_manaBorderColor'], ['get', 'color']], 'line-width': 2.5 }
+      });
+      _globeDrawnLayerIds.push(lineId);
+    }
+    if (hasCircle) {
+      var circleId = 'drawn-points-' + safe;
+      globeMap.addLayer({
+        id: circleId, type: 'circle', source: 'drawn',
+        filter: ['all', groupFilter, ['==', ['get', '_type'], 'Point'],
+          ['!', ['in', ['get', '_manaMarkerType'], ['literal', emojiMarkerTypes]]]],
+        paint: { 'circle-radius': 7, 'circle-color': ['get', 'color'], 'circle-stroke-color': _isDarkGlobe ? '#1a1a1a' : '#ffffff', 'circle-stroke-width': 2 }
+      });
+      _globeDrawnLayerIds.push(circleId);
+    }
+    if (hasEmoji) {
+      var emojiId = 'drawn-emoji-points-' + safe;
+      globeMap.addLayer({
+        id: emojiId, type: 'symbol', source: 'drawn',
+        filter: ['all', groupFilter, ['==', ['get', '_type'], 'Point'],
+          ['in', ['get', '_manaMarkerType'], ['literal', emojiMarkerTypes]]],
+        layout: {
+          'icon-image': ['get', '_manaIcon'],
+          'icon-size': ['interpolate', ['linear'], ['coalesce', ['get', '_manaEmojiSize'], 28], 22, 0.48, 42, 0.95],
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+          'icon-anchor': 'center'
+        }
+      });
+      _globeDrawnLayerIds.push(emojiId);
     }
   });
+
   globeMap.addLayer({
     id: 'drawn-point-labels', type: 'symbol', source: 'drawn',
     filter: ['==', ['get', '_type'], 'Point'],
@@ -350,7 +438,7 @@ function syncToGlobe() {
 // Popups de datos en el globo: el 3D usa MapLibre (no Leaflet), así que hay que
 // consultar las capas renderizadas y reutilizar el mismo HTML que el mapa 2D.
 function _globePopupLayers() {
-  return ['drawn-fills', 'drawn-lines', 'drawn-points', 'drawn-emoji-points'].filter(function(id) {
+  return _globeDrawnLayerIds.filter(function(id) {
     try { return !!globeMap.getLayer(id); } catch (e) { return false; }
   });
 }
