@@ -32,6 +32,30 @@
   polígonos, mapa oculto y cancelación. Criterio: regresión en
   `tests/predeploy/` sin depender de Firestore real.
 
+- [ ] **Plantillas base de alta precisión: países, continentes y ciudades (3
+  mapas)**. Crear tres plantillas editables desde «Empieza con una plantilla»,
+  con la máxima fidelidad posible y sin geometrías aproximadas a mano: (1)
+  **Países del mundo** con fronteras oficiales de todos los Estados soberanos y
+  territorios dependientes (Natural Earth 1:10m Admin 0 Countries + ISO 3166-1,
+  nombres ES/EN, `_manaName`, `name`, código ISO y continente, sin duplicar
+  islas ni perder países pequeños); (2) **Continentes** con los 7 continentes
+  del modelo habitual (Natural Earth 1:50m/1:10m), resolviendo explícitamente
+  casos transcontinentales como Rusia, Turquía o Egipto y conservando islas y
+  límites coherentes con la plantilla de países; (3) **Ciudades del mundo** con
+  300–500 ciudades reales (capitales + mayores áreas urbanas) de Natural Earth
+  Populated Places/GeoNames, coordenadas verificadas, población, país, ISO y
+  capital, con marcador de puntos, etiqueta y popup con datos reales —nunca
+  representar un área con un punto—. Usar `simplify(preserve_topology)` y
+  descartar solo partes irrelevantes, validar coordenadas ±180/±90, colores hex,
+  `_manaLabelStyle` completo, nombres únicos y `featureCount`; documentar
+  `dataSource`/`dataDate` y licencia/atribución, y cumplir AGENTS.md completo si
+  además se publican en la galería (≤1 MiB/doc, JSON-LD, sitemap, OG card,
+  landing y auditorías). Criterio: las tres plantillas cargan rápido, se ven
+  bien a zoom mundial, continental y local, comparadas contra la fuente oficial
+  sin costas ni fronteras desplazadas, con popups y leyendas correctos, tests
+  Playwright y `audit-gallery-quality` en verde, y revisión visual escritorio +
+  móvil.
+
 - [ ] **Tooltip cuidado en las acciones de cada capa**. Sustituir los `title`
   nativos de los botones de la fila de acciones de cada capa (ocultar/mostrar,
   estilo, etiquetas, filtro, tabla de atributos, zoom y eliminar) por un tooltip
