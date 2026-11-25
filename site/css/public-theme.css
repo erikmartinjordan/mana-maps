@@ -2421,7 +2421,7 @@ body.public-profile .profile-nav .btn {
   font-weight: 500;
 }
 body.public-profile .profile-nav .btn:hover { border-color: rgba(232, 184, 109, .4); }
-body.public-profile .profile-nav .btn-primary { background: #fff; border-color: #fff; color: #171719; font-weight: 600; }
+body.public-profile.profile-page .profile-nav .btn-primary { background: #fff; border-color: #fff; color: #171719; font-weight: 600; }
 
 body.public-profile .profile-card,
 body.public-profile .public-profile-card {
@@ -2480,7 +2480,7 @@ body.public-profile .profile-loading {
 }
 
 body.public-profile .btn { border: 1px solid var(--line); background: transparent; color: var(--ink); }
-body.public-profile .btn-primary { background: #fff; border-color: #fff; color: #171719; font-weight: 600; }
+body.public-profile.profile-page .btn-primary { background: #fff; border-color: #fff; color: #171719; font-weight: 600; }
 body.public-profile .btn-ghost {
   padding: 10px 0;
   border-color: transparent;
@@ -2546,6 +2546,19 @@ body.public-profile .auth-modal-box input {
   color: var(--ink) !important;
 }
 body.public-profile .auth-submit-btn { background: #fff !important; color: #171719 !important; border-radius: 999px !important; }
+body.public-profile .auth-field label { color: var(--quiet); }
+body.public-profile .auth-signup-hint { color: var(--quiet); }
+body.public-profile .auth-signup-hint a { color: var(--accent); }
+body.public-profile .auth-divider::before,
+body.public-profile .auth-divider::after { background: var(--line); }
+body.public-profile .auth-divider span { color: var(--quiet); }
+body.public-profile .auth-google-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #101111;
+  color: var(--ink);
+}
+body.public-profile .auth-google-btn:hover { border-color: rgba(232, 184, 109, .4); background: #101111; }
 
 @media (max-width: 600px) {
   body.public-profile .profile-shell { width: calc(100% - 32px); }
