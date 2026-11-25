@@ -29,7 +29,7 @@ const GEO = {
   ],
 };
 
-async function bootPdfModal(page) {
+async function bootPdfModal(page, beforeOpen) {
   await page.route(EXTERNAL, (route) => route.abort());
   await page.goto('/404.html', { waitUntil: 'domcontentloaded' });
   await page.addStyleTag({ url: '/css/pdf-export.css' });
@@ -38,10 +38,47 @@ async function bootPdfModal(page) {
     window.getProjectName = () => 'Mapa de prueba';
     window.getEnrichedGeoJSON = () => JSON.parse(JSON.stringify(geo));
   }, GEO);
+  if (beforeOpen) await page.evaluate(beforeOpen);
   await page.addScriptTag({ url: '/js/pdf-export.js' });
   await page.evaluate(() => window.openPdfExport());
   await expect(page.locator('#pdfx-modal')).toBeVisible();
   await expect(page.locator('#pdfx-preview img')).toHaveCount(1, { timeout: 15_000 });
+}
+
+// Instrumenta las blob URLs para detectar fugas: cada URL creada debe acabar
+// revocada al cerrar el modal.
+async function trackBlobUrls(page) {
+  await page.evaluate(() => {
+    window.__blob = { created: [], revoked: [] };
+    const create = URL.createObjectURL.bind(URL);
+    const revoke = URL.revokeObjectURL.bind(URL);
+    URL.createObjectURL = (blob) => {
+      const url = create(blob);
+      window.__blob.created.push(url);
+      return url;
+    };
+    URL.revokeObjectURL = (url) => {
+      window.__blob.revoked.push(url);
+      return revoke(url);
+    };
+  });
+}
+
+async function liveBlobUrls(page) {
+  return page.evaluate(() => window.__blob.created.filter((u) => window.__blob.revoked.indexOf(u) === -1));
+}
+
+async function dragSelection(page) {
+  const mapBox = await page.locator('#pdfx-picker-map').boundingBox();
+  const x1 = mapBox.x + mapBox.width * 0.25;
+  const y1 = mapBox.y + mapBox.height * 0.3;
+  const x2 = mapBox.x + mapBox.width * 0.62;
+  const y2 = mapBox.y + mapBox.height * 0.72;
+  await page.mouse.move(x1, y1);
+  await page.mouse.down();
+  await page.mouse.move(x2, y2, { steps: 12 });
+  await page.mouse.up();
+  await expect(page.locator('#pdfx-picker-note')).toHaveText('Zona seleccionada');
 }
 
 // Dibuja el preview real en un canvas y devuelve métricas de sus píxeles: si la
@@ -217,4 +254,119 @@ test('closing the modal clears the picker state and the preview returns on reope
   await expect(page.locator('.pdfx-preview-wrap')).not.toHaveClass(/is-picking/);
   await expect(page.locator('#pdfx-preview img')).toHaveCount(1);
   await expectPainted(page);
+});
+
+test('cancelling the region picker restores the previous template, frame and options', async ({ page }) => {
+  await bootPdfModal(page);
+
+  // Estado previo al selector: otra plantilla y la leyenda desactivada.
+  await page.locator('.pdfx-card[data-id="atlas"]').click();
+  await expect(page.locator('.pdfx-card[data-id="atlas"]')).toHaveClass(/on/);
+  await page.locator('#pdfx-opt-legend').uncheck();
+  await expect(page.locator('#pdfx-opt-legend')).not.toBeChecked();
+
+  await page.locator('[data-frame="region"]').click();
+  await expect(page.locator('#pdfx-picker')).toBeVisible();
+  await dragSelection(page);
+
+  // Mientras se elige la zona se puede cambiar de plantilla: cancelar también
+  // debe deshacer ese cambio y volver al estado con el que se abrió.
+  await page.locator('.pdfx-card[data-id="minimal"]').click();
+  await expect(page.locator('.pdfx-card[data-id="minimal"]')).toHaveClass(/on/);
+
+  await page.locator('[data-picker-cancel]').click();
+  await expect(page.locator('#pdfx-picker')).toBeHidden();
+  await expect(page.locator('.pdfx-card[data-id="atlas"]')).toHaveClass(/on/);
+  await expect(page.locator('.pdfx-card[data-id="minimal"]')).not.toHaveClass(/on/);
+  await expect(page.locator('#pdfx-opt-legend')).not.toBeChecked();
+  await expect(page.locator('[data-frame="fit"]')).toHaveClass(/on/);
+  await expect(page.locator('#pdfx-frame-hint')).toHaveText('Se usará todo el mapa.');
+  await expect(page.locator('#pdfx-preview')).not.toHaveAttribute('data-tag', /.+/);
+  await expectPainted(page);
+});
+
+test('closing the modal revokes every preview and thumbnail blob URL', async ({ page }) => {
+  await bootPdfModal(page, () => {
+    window.__blob = { created: [], revoked: [] };
+    const create = URL.createObjectURL.bind(URL);
+    const revoke = URL.revokeObjectURL.bind(URL);
+    URL.createObjectURL = (blob) => {
+      const url = create(blob);
+      window.__blob.created.push(url);
+      return url;
+    };
+    URL.revokeObjectURL = (url) => {
+      window.__blob.revoked.push(url);
+      return revoke(url);
+    };
+  });
+
+  await expect(page.locator('#pdfx-preview img')).toHaveCount(1);
+  await expect(page.locator('.pdfx-thumb.has-img')).toHaveCount(5, { timeout: 10_000 });
+
+  await page.locator('[data-close]').click();
+  await expect(page.locator('#pdfx-modal')).toBeHidden();
+
+  const created = await page.evaluate(() => window.__blob.created.length);
+  expect(created).toBeGreaterThan(5);
+  expect(await liveBlobUrls(page)).toEqual([]);
+  // La imagen del preview apuntaba a una URL revocada: no debe quedar en el DOM
+  // ni las miniaturas con fondos rotos.
+  await expect(page.locator('#pdfx-preview img')).toHaveCount(0);
+  await expect(page.locator('.pdfx-thumb.has-img')).toHaveCount(0);
+});
+
+test('closing the modal cancels an in-flight download and reopening starts clean', async ({ page }) => {
+  await bootPdfModal(page);
+
+  // Doble del descargador para contar PDFs sin tocar el disco.
+  await page.evaluate(() => {
+    window.__downloads = [];
+    window.ManaShareCard = {
+      downloadBlob(blob, filename) { window.__downloads.push(filename); },
+    };
+    document.getElementById('pdfx-download').click();
+    document.querySelector('[data-close]').click();
+  });
+  await expect(page.locator('#pdfx-modal')).toBeHidden();
+  await expect(page.locator('#pdfx-status')).toHaveText('');
+  // Margen para que una generación no cancelada habría terminado y descargado.
+  await page.waitForTimeout(600);
+  expect(await page.evaluate(() => window.__downloads)).toEqual([]);
+
+  // Al reabrir, el modal parte de los valores por defecto y descarga una vez.
+  await page.evaluate(() => window.openPdfExport());
+  await expect(page.locator('#pdfx-modal')).toBeVisible();
+  await expect(page.locator('.pdfx-card[data-id="dossier"]')).toHaveClass(/on/);
+  await expect(page.locator('#pdfx-opt-legend')).toBeChecked();
+  await expect(page.locator('[data-frame="fit"]')).toHaveClass(/on/);
+  await expect(page.locator('#pdfx-preview img')).toHaveCount(1, { timeout: 15_000 });
+  await expectPainted(page);
+
+  await page.locator('#pdfx-download').click();
+  await expect.poll(() => page.evaluate(() => window.__downloads.length), { timeout: 15_000 }).toBe(1);
+  expect(await page.evaluate(() => window.__downloads[0])).toMatch(/-mana-maps\.pdf$/);
+});
+
+test('opening and closing the modal ten times leaks no blob URLs', async ({ page }) => {
+  await bootPdfModal(page);
+  await trackBlobUrls(page);
+
+  for (let i = 0; i < 10; i++) {
+    if (i > 0) await page.evaluate(() => window.openPdfExport());
+    await expect(page.locator('#pdfx-modal')).toBeVisible();
+    await expect(page.locator('#pdfx-preview img')).toHaveCount(1, { timeout: 15_000 });
+    if (i % 2 === 0) {
+      await page.locator('[data-frame="region"]').click();
+      await expect(page.locator('#pdfx-picker')).toBeVisible();
+    }
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#pdfx-modal')).toBeHidden();
+    await expect(page.locator('html')).not.toHaveClass(/pdfx-open/);
+  }
+
+  expect(await liveBlobUrls(page)).toEqual([]);
+  await expect(page.locator('#pdfx-picker')).toBeHidden();
+  await expect(page.locator('.pdfx-preview-wrap')).not.toHaveClass(/is-picking/);
+  await expect(page.locator('#pdfx-preview img')).toHaveCount(0);
 });

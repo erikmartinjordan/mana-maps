@@ -42,7 +42,9 @@
     cache: {},
     previewUrl: null,
     thumbUrls: {},
-    busy: false
+    busy: false,
+    run: 0,
+    closeTimer: null
   };
   function templateName(t) { return lang() === 'en' ? (t.nameEn || t.name) : t.name; }
 
@@ -959,16 +961,25 @@
   }
 
   // ── Rasterizado y PDF ──
+  function cancelledError() {
+    var e = new Error('cancelled');
+    e.cancelled = true;
+    return e;
+  }
+  function isCancelledError(e) { return !!(e && e.cancelled); }
   function svgUrl(svg) {
     return URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
   }
-  function svgToJpeg(svg, pixelW, pixelH) {
+  function svgToJpeg(svg, pixelW, pixelH, isCancelled) {
     return new Promise(function (resolve, reject) {
       var url = svgUrl(svg);
       var img = new Image();
       function done() { URL.revokeObjectURL(url); }
+      function cancelled() { return typeof isCancelled === 'function' && isCancelled(); }
       img.onload = function () {
         try {
+          // Cerrar el modal a mitad de rasterizado no debe dejar vivo el trabajo.
+          if (cancelled()) { done(); reject(cancelledError()); return; }
           var c = document.createElement('canvas');
           c.width = pixelW; c.height = pixelH;
           var g = c.getContext('2d');
@@ -981,6 +992,7 @@
       };
       img.onerror = function () { done(); reject(new Error('No se pudo rasterizar la plantilla')); };
       img.src = url;
+      if (cancelled()) { done(); reject(cancelledError()); }
     });
   }
   function dataUrlBytes(dataUrl) {
@@ -1055,18 +1067,23 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 6000);
   }
 
-  async function generatePdf(tpl, opts, onStatus) {
+  async function generatePdf(tpl, opts, onStatus, isCancelled) {
+    function stopped() { return typeof isCancelled === 'function' && isCancelled(); }
+    if (stopped()) throw cancelledError();
     var svg = buildSvg(state.ctx, tpl, opts);
+    if (stopped()) throw cancelledError();
     if (onStatus) onStatus(tr('Preparando la página…', 'Preparing page…'));
     var pixelW = Math.round(tpl.w * tpl.scale);
     var pixelH = Math.round(tpl.h * tpl.scale);
-    var jpg = await svgToJpeg(svg, pixelW, pixelH);
+    var jpg = await svgToJpeg(svg, pixelW, pixelH, isCancelled);
+    if (stopped()) throw cancelledError();
     if (onStatus) onStatus(tr('Construyendo el PDF…', 'Building PDF…'));
     var blob = buildPdf([{
       pw: tpl.pw, ph: tpl.ph,
       width: jpg.width, height: jpg.height,
       bytes: dataUrlBytes(jpg.dataUrl)
     }]);
+    if (stopped()) throw cancelledError();
     var filename = slugify(state.ctx.title) + '-mana-maps.pdf';
     downloadBlob(blob, filename);
   }
@@ -1147,15 +1164,46 @@
     }).join('');
 
     function close() {
+      // Invalida cualquier generación en curso y cancela el cierre diferido que
+      // se programa tras descargar (si no, podría cerrar una apertura nueva).
+      state.run++;
+      if (state.closeTimer) { clearTimeout(state.closeTimer); state.closeTimer = null; }
+      state.busy = false;
       releaseUrls();
+      state.cache = {};
+      state.ctx = null;
       state.picker = null;
+      state.region = null;
+      state.mapViewBounds = null;
+      state.frame = 'fit';
+      state.template = 'dossier';
+      state.includeLegend = true;
+      state.includeLabels = false;
+      state.includeTable = true;
       var pickerEl = document.getElementById('pdfx-picker');
       if (pickerEl) pickerEl.hidden = true;
+      var selEl = document.getElementById('pdfx-picker-sel');
+      if (selEl) selEl.hidden = true;
       var previewEl = document.getElementById('pdfx-preview');
       if (previewEl && previewEl.parentNode && previewEl.parentNode.classList) {
         previewEl.parentNode.classList.remove('is-picking');
       }
-      if (previewEl) previewEl.removeAttribute('data-tag');
+      if (previewEl) {
+        previewEl.removeAttribute('data-tag');
+        previewEl.innerHTML = '<div class="pdfx-spinner"></div>';
+      }
+      // Las miniaturas apuntan a blob URLs ya revocadas: se limpian para que la
+      // siguiente apertura no muestre imágenes rotas.
+      wrap.querySelectorAll('.pdfx-thumb').forEach(function (t) {
+        t.classList.remove('has-img');
+        t.style.backgroundImage = '';
+      });
+      var caption = document.getElementById('pdfx-caption');
+      if (caption) caption.textContent = '';
+      var downloadBtn = document.getElementById('pdfx-download');
+      if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.classList.remove('is-busy'); }
+      syncControls();
+      setStatus('');
       wrap.hidden = true;
       document.documentElement.classList.remove('pdfx-open');
       refreshEditorMaps();
@@ -1171,30 +1219,26 @@
       btn.addEventListener('click', function () {
         if (state.busy) return;
         state.template = btn.getAttribute('data-id');
-        list.querySelectorAll('.pdfx-card').forEach(function (b) {
-          var on = b === btn;
-          b.classList.toggle('on', on);
-          b.setAttribute('aria-checked', on ? 'true' : 'false');
-        });
-        renderPreview();
+        syncControls();
+        refreshPreview();
       });
     });
     wrap.querySelector('#pdfx-opt-legend').addEventListener('change', function (e) {
       state.includeLegend = !!e.target.checked;
       state.cache = {};
-      renderPreview();
+      refreshPreview();
       renderThumbs();
     });
     wrap.querySelector('#pdfx-opt-labels').addEventListener('change', function (e) {
       state.includeLabels = !!e.target.checked;
       state.cache = {};
-      renderPreview();
+      refreshPreview();
       renderThumbs();
     });
     wrap.querySelector('#pdfx-opt-table').addEventListener('change', function (e) {
       state.includeTable = !!e.target.checked;
       state.cache = {};
-      renderPreview();
+      refreshPreview();
       renderThumbs();
     });
     wrap.querySelectorAll('[data-frame]').forEach(function (btn) {
@@ -1257,6 +1301,7 @@
     wrap.querySelector('[data-picker-cancel]').addEventListener('click', function () {
       closeRegionPicker(true);
       renderPreview();
+      renderThumbs();
     });
     wrap.querySelector('[data-picker-reset]').addEventListener('click', resetRegionPicker);
     window.addEventListener('resize', function () {
@@ -1303,6 +1348,25 @@
     state.ctx = buildContext(frameBounds());
     state.cache = {};
   }
+  // Refleja el estado real (plantilla y casillas) en los controles del modal.
+  function syncControls() {
+    var wrap = document.getElementById('pdfx-modal');
+    if (!wrap) return;
+    wrap.querySelectorAll('.pdfx-card').forEach(function (b) {
+      var on = b.getAttribute('data-id') === state.template;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    var lg = wrap.querySelector('#pdfx-opt-legend'); if (lg) lg.checked = !!state.includeLegend;
+    var lb = wrap.querySelector('#pdfx-opt-labels'); if (lb) lb.checked = !!state.includeLabels;
+    var tb = wrap.querySelector('#pdfx-opt-table'); if (tb) tb.checked = !!state.includeTable;
+  }
+  // Con el selector de región abierto el preview enseña el recorte en vivo; en
+  // el resto de casos, el encuadre actual.
+  function refreshPreview() {
+    if (state.picker && state.picker.sel) { updateCropPreview(); return; }
+    renderPreview();
+  }
   function updateFrameUI() {
     var wrap = document.getElementById('pdfx-modal');
     if (!wrap) return;
@@ -1321,6 +1385,9 @@
   function chooseFrame(frame) {
     if (state.busy) return;
     if (frame === 'region') { openRegionPicker(); return; }
+    // Elegir otro encuadre con el selector abierto descarta la selección en
+    // curso: no debe quedar un selector huérfano sobre el preview.
+    if (state.picker) closeRegionPicker(false);
     if (frame === 'view') {
       var vb = getMapViewBounds();
       if (!vb) {
@@ -1430,14 +1497,34 @@
   function openRegionPicker() {
     var wrap = document.getElementById('pdfx-modal');
     if (!wrap) return;
+    // Reentrar en el selector no debe perder el estado previo a la selección.
+    if (state.picker) return;
     var preview = document.getElementById('pdfx-preview');
     var picker = document.getElementById('pdfx-picker');
     if (!picker) return;
+    // Instantánea para que Cancelar devuelva plantilla, encuadre y opciones tal
+    // y como estaban antes de abrir el selector.
+    var snapshot = {
+      template: state.template,
+      includeLegend: state.includeLegend,
+      includeLabels: state.includeLabels,
+      includeTable: state.includeTable,
+      frame: state.frame,
+      region: validBounds(state.region) ? {
+        minX: state.region.minX, maxX: state.region.maxX,
+        minY: state.region.minY, maxY: state.region.maxY
+      } : null,
+      mapViewBounds: validBounds(state.mapViewBounds) ? {
+        minX: state.mapViewBounds.minX, maxX: state.mapViewBounds.maxX,
+        minY: state.mapViewBounds.minY, maxY: state.mapViewBounds.maxY
+      } : null
+    };
     var holder = preview ? preview.parentNode : null;
     if (holder && holder.classList) holder.classList.add('is-picking');
     if (preview) preview.setAttribute('data-tag', tr('Vista previa', 'Preview'));
     picker.hidden = false;
     renderPicker();
+    if (state.picker) state.picker.snapshot = snapshot;
     updateFrameUI();
     document.querySelectorAll('[data-frame]').forEach(function (b) {
       b.classList.toggle('on', b.getAttribute('data-frame') === 'region');
@@ -1450,15 +1537,32 @@
   function closeRegionPicker(restore) {
     var picker = document.getElementById('pdfx-picker');
     var preview = document.getElementById('pdfx-preview');
+    var current = state.picker;
     if (picker) picker.hidden = true;
     if (preview && preview.parentNode && preview.parentNode.classList) {
       preview.parentNode.classList.remove('is-picking');
     }
     if (preview) preview.removeAttribute('data-tag');
+    var selEl = document.getElementById('pdfx-picker-sel');
+    if (selEl) selEl.hidden = true;
+    state.picker = null;
     if (restore) {
-      state.frame = state.picker && state.picker.prevFrame ? state.picker.prevFrame : 'fit';
+      var snap = current && current.snapshot;
+      if (snap) {
+        state.template = snap.template;
+        state.includeLegend = snap.includeLegend;
+        state.includeLabels = snap.includeLabels;
+        state.includeTable = snap.includeTable;
+        state.frame = snap.frame;
+        state.region = snap.region;
+        state.mapViewBounds = snap.mapViewBounds;
+      } else {
+        state.frame = current && current.prevFrame ? current.prevFrame : 'fit';
+      }
       if (state.frame === 'region' && !validBounds(state.region)) state.frame = 'fit';
-      state.picker = null;
+      if (state.frame === 'view' && !validBounds(state.mapViewBounds)) state.frame = 'fit';
+      syncControls();
+      rebuildContextForFrame();
     }
     updateFrameUI();
   }
@@ -1549,19 +1653,36 @@
     if (state.busy) return;
     var btn = document.getElementById('pdfx-download');
     var tpl = templateById(state.template);
+    var run = ++state.run;
     state.busy = true;
     if (btn) { btn.disabled = true; btn.classList.add('is-busy'); }
+    // Cerrar el modal invalida la generación: nada de descargas ni de estados
+    // tardíos sobre una apertura nueva.
+    function cancelled() {
+      var wrap = document.getElementById('pdfx-modal');
+      return run !== state.run || !wrap || wrap.hidden;
+    }
     try {
       await new Promise(function (r) { setTimeout(r, 30); });
-      await generatePdf(tpl, currentOptions(), setStatus);
+      if (cancelled()) return;
+      await generatePdf(tpl, currentOptions(), function (msg) {
+        if (!cancelled()) setStatus(msg);
+      }, cancelled);
+      if (cancelled()) return;
       setStatus(tr('PDF descargado ✓', 'PDF downloaded ✓'));
-      setTimeout(function () { if (state.close) state.close(); }, 700);
+      state.closeTimer = setTimeout(function () {
+        state.closeTimer = null;
+        if (!cancelled() && state.close) state.close();
+      }, 700);
     } catch (e) {
+      if (isCancelledError(e) || cancelled()) return;
       console.error('[pdf-export]', e);
       setStatus(tr('No se pudo generar el PDF. Inténtalo de nuevo.', 'Could not generate the PDF. Please try again.'));
     } finally {
-      state.busy = false;
-      if (btn) { btn.disabled = false; btn.classList.remove('is-busy'); }
+      if (run === state.run) {
+        state.busy = false;
+        if (btn) { btn.disabled = false; btn.classList.remove('is-busy'); }
+      }
     }
   }
 
@@ -1607,6 +1728,11 @@
     if (document.querySelectorAll('#export-menu.open, .drop-menu.open').length) {
       document.querySelectorAll('.drop-menu.open').forEach(function (x) { x.classList.remove('open'); });
     }
+    // Una apertura nueva invalida generaciones y cierres pendientes de la
+    // anterior para que no escriban en esta sesión.
+    state.run++;
+    if (state.closeTimer) { clearTimeout(state.closeTimer); state.closeTimer = null; }
+    state.busy = false;
     state.frame = 'fit';
     state.region = null;
     state.picker = null;
@@ -1623,17 +1749,16 @@
     state.includeLabels = !!state.ctx.labelsEnabled && state.ctx.feats.length <= 120;
     state.includeTable = true;
     var wrap = ensureModal();
-    // Re-sincroniza el estado de las tarjetas y casillas cada vez que se abre.
-    wrap.querySelectorAll('.pdfx-card').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-id') === 'dossier'); });
-    var lg = wrap.querySelector('#pdfx-opt-legend'); if (lg) lg.checked = true;
-    var lb = wrap.querySelector('#pdfx-opt-labels'); if (lb) lb.checked = state.includeLabels;
-    var tb = wrap.querySelector('#pdfx-opt-table'); if (tb) tb.checked = true;
+    // Re-sincroniza las tarjetas, casillas y botones cada vez que se abre.
+    syncControls();
+    var downloadBtn = document.getElementById('pdfx-download');
+    if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.classList.remove('is-busy'); }
     var picker = document.getElementById('pdfx-picker'); if (picker) picker.hidden = true;
+    var selEl = document.getElementById('pdfx-picker-sel'); if (selEl) selEl.hidden = true;
     var previewWrap = document.querySelector('#pdfx-modal .pdfx-preview-wrap');
     if (previewWrap) previewWrap.classList.remove('is-picking');
     var previewBefore = document.getElementById('pdfx-preview');
     if (previewBefore) previewBefore.removeAttribute('data-tag');
-    state.picker = null;
     updateFrameUI();
     setStatus('');
     wrap.hidden = false;
@@ -1642,6 +1767,7 @@
     if (prev) prev.innerHTML = '<div class="pdfx-spinner"></div>';
     // Deja que el modal se pinte antes de componer el SVG (mapas grandes).
     setTimeout(function () {
+      if (wrap.hidden) return;
       try { renderPreview(); } catch (e) { console.error(e); setStatus(tr('No se pudo componer la vista previa.', 'Could not build the preview.')); }
       renderThumbs();
     }, 20);
