@@ -46,6 +46,29 @@
   };
   function templateName(t) { return lang() === 'en' ? (t.nameEn || t.name) : t.name; }
 
+  // ── Analítica anónima ──
+  // Mide qué plantilla y qué encuadre se usan y dónde falla la exportación.
+  // Nunca se envían el título del mapa, su slug, textos ni coordenadas: solo
+  // identificadores de plantilla, modos, booleanos y el número de elementos
+  // agrupado en tramos, para no identificar el contenido del usuario.
+  function featureBucket(n) {
+    n = Number(n) || 0;
+    if (n <= 1) return '0-1';
+    if (n <= 50) return '2-50';
+    if (n <= 200) return '51-200';
+    if (n <= 1000) return '201-1000';
+    return '1001+';
+  }
+  function errorReason(e) {
+    var reason = (e && (e.name || e.code)) || 'unknown';
+    return String(reason).slice(0, 40);
+  }
+  function track(name, params) {
+    try {
+      if (typeof window.trackEvent === 'function') window.trackEvent(name, params || {});
+    } catch (e) { /* la medición nunca puede bloquear la exportación */ }
+  }
+
   // ── Utilidades de texto ──
   function lang() { return (typeof LANG === 'string') ? LANG : 'es'; }
   function tr(es, en) { return lang() === 'en' ? en : es; }
@@ -1176,6 +1199,7 @@
           b.classList.toggle('on', on);
           b.setAttribute('aria-checked', on ? 'true' : 'false');
         });
+        track('pdf_template', { template: state.template });
         renderPreview();
       });
     });
@@ -1335,6 +1359,7 @@
     }
     rebuildContextForFrame();
     updateFrameUI();
+    track('pdf_frame', { frame: state.frame, requested: frame });
     renderPreview();
     renderThumbs();
   }
@@ -1471,6 +1496,7 @@
     closeRegionPicker(false);
     rebuildContextForFrame();
     updateFrameUI();
+    track('pdf_frame', { frame: 'region', requested: 'region' });
     renderPreview();
     renderThumbs();
   }
@@ -1549,15 +1575,27 @@
     if (state.busy) return;
     var btn = document.getElementById('pdfx-download');
     var tpl = templateById(state.template);
+    var started = Date.now();
     state.busy = true;
     if (btn) { btn.disabled = true; btn.classList.add('is-busy'); }
     try {
       await new Promise(function (r) { setTimeout(r, 30); });
       await generatePdf(tpl, currentOptions(), setStatus);
+      track('export', {
+        format: 'pdf',
+        template: tpl.id,
+        frame: state.frame,
+        legend: state.includeLegend,
+        labels: state.includeLabels,
+        table: state.includeTable,
+        featureCount: featureBucket(state.ctx && state.ctx.feats ? state.ctx.feats.length : 0),
+        durationMs: Date.now() - started
+      });
       setStatus(tr('PDF descargado ✓', 'PDF downloaded ✓'));
       setTimeout(function () { if (state.close) state.close(); }, 700);
     } catch (e) {
       console.error('[pdf-export]', e);
+      track('pdf_error', { stage: 'download', template: tpl.id, frame: state.frame, reason: errorReason(e) });
       setStatus(tr('No se pudo generar el PDF. Inténtalo de nuevo.', 'Could not generate the PDF. Please try again.'));
     } finally {
       state.busy = false;
@@ -1613,6 +1651,7 @@
     state.mapViewBounds = getMapViewBounds();
     state.ctx = buildContext(null);
     if (!state.ctx.feats.length) {
+      track('pdf_error', { stage: 'empty', template: 'none', frame: 'fit', reason: 'no-features' });
       if (typeof showToast === 'function') showToast(tr('No hay elementos para exportar.', 'No elements to export.'), 'warning');
       else if (typeof manaAlert === 'function') manaAlert(tr('No hay elementos para exportar.', 'No elements to export.'), 'warning');
       return;
@@ -1636,13 +1675,22 @@
     state.picker = null;
     updateFrameUI();
     setStatus('');
+    track('pdf_open', {
+      featureCount: featureBucket(state.ctx.feats.length),
+      templates: TEMPLATES.length,
+      labels: state.includeLabels
+    });
     wrap.hidden = false;
     document.documentElement.classList.add('pdfx-open');
     var prev = document.getElementById('pdfx-preview');
     if (prev) prev.innerHTML = '<div class="pdfx-spinner"></div>';
     // Deja que el modal se pinte antes de componer el SVG (mapas grandes).
     setTimeout(function () {
-      try { renderPreview(); } catch (e) { console.error(e); setStatus(tr('No se pudo componer la vista previa.', 'Could not build the preview.')); }
+      try { renderPreview(); } catch (e) {
+        console.error(e);
+        track('pdf_error', { stage: 'preview', template: state.template, frame: state.frame, reason: errorReason(e) });
+        setStatus(tr('No se pudo componer la vista previa.', 'Could not build the preview.'));
+      }
       renderThumbs();
     }, 20);
   }

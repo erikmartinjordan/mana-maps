@@ -353,6 +353,12 @@
   navegador lo soporte, con descarga como fallback. Criterio: en iOS/Android se
   puede enviar el PDF a Archivos/Correo/Mensajes.
 
-- [ ] **Analítica anónima**: eventos de apertura, plantilla, encuadre,
+- [x] **Analítica anónima**: eventos de apertura, plantilla, encuadre,
   descarga y error (sin datos personales) para priorizar mejoras. Criterio: se
-  puede medir qué plantilla y qué modo de encuadre se usan.
+  puede medir qué plantilla y qué modo de encuadre se usan. (25-11) —
+  `pdf_open`, `pdf_template`, `pdf_frame` y `pdf_error` miden apertura, plantilla,
+  encuadre y fallos (incluido mapa vacío), y `export` (`format: 'pdf'`) mide la
+  descarga con plantilla, encuadre, opciones y tramo de elementos; nunca viajan
+  título, slug, textos ni coordenadas. `monthly-report-metrics.js` ya cuenta los
+  cuatro eventos nuevos y `tests/predeploy/pdf-analytics.spec.js` cubre el
+  payload anónimo, plantilla/encuadre, descarga, error y mapa vacío.

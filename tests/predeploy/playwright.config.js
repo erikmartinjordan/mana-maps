@@ -13,7 +13,7 @@ const launchOptions = chromePath ? { executablePath: chromePath } : undefined;
 
 module.exports = defineConfig({
   testDir: __dirname,
-  testMatch: /(smoke|gallery-smoke|gallery-layers|local-assets|logo-consistency|seo-metadata|firestore-retry|pdf-export-region)\.spec\.js/,
+  testMatch: /(smoke|gallery-smoke|gallery-layers|local-assets|logo-consistency|seo-metadata|firestore-retry|pdf-export-region|pdf-analytics)\.spec\.js/,
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   workers: 1,

@@ -294,7 +294,8 @@ function buildReport(month, events, maps) {
       featureCount: Number(m.featureCount) || 0
     }));
 
-  const eventNames = ['sessionstart', 'chatmessage', 'mapview', 'featuredrawn', 'export', 'share', 'signup', 'profile_created'];
+  const eventNames = ['sessionstart', 'chatmessage', 'mapview', 'featuredrawn', 'export', 'share', 'signup', 'profile_created',
+    'pdf_open', 'pdf_template', 'pdf_frame', 'pdf_error'];
   const productEvents = Object.fromEntries(eventNames.map((name) => [name, {
     month: countEvents(monthEvents, name),
     previous_month: countEvents(prevEvents, name),
