@@ -42,7 +42,10 @@
     cache: {},
     previewUrl: null,
     thumbUrls: {},
-    busy: false
+    busy: false,
+    shareArtifact: null,
+    shareKey: null,
+    shareTimer: null
   };
   function templateName(t) { return lang() === 'en' ? (t.nameEn || t.name) : t.name; }
 
@@ -1078,7 +1081,19 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 6000);
   }
 
-  async function generatePdf(tpl, opts, onStatus) {
+  // Web Share con archivos (iOS/Android y navegadores compatibles). Se prueba
+  // con un PDF diminuto para decidir si se ofrece «Compartir PDF» sin tener
+  // que construir el documento; si no hay soporte queda la descarga normal.
+  function canSharePdfFile(file) {
+    try {
+      if (typeof navigator === 'undefined' || typeof navigator.share !== 'function' ||
+          typeof navigator.canShare !== 'function' || typeof File !== 'function') return false;
+      var probe = file || new File([new Uint8Array(1)], 'mapa.pdf', { type: 'application/pdf' });
+      return !!navigator.canShare({ files: [probe] });
+    } catch (e) { return false; }
+  }
+
+  async function buildPdfArtifact(tpl, opts, onStatus) {
     var svg = buildSvg(state.ctx, tpl, opts);
     if (onStatus) onStatus(tr('Preparando la página…', 'Preparing page…'));
     var pixelW = Math.round(tpl.w * tpl.scale);
@@ -1091,7 +1106,15 @@
       bytes: dataUrlBytes(jpg.dataUrl)
     }]);
     var filename = slugify(state.ctx.title) + '-mana-maps.pdf';
-    downloadBlob(blob, filename);
+    var file = null;
+    try { file = new File([blob], filename, { type: 'application/pdf' }); } catch (e) { file = null; }
+    return { blob: blob, file: file, filename: filename };
+  }
+
+  async function generatePdf(tpl, opts, onStatus) {
+    var artifact = await buildPdfArtifact(tpl, opts, onStatus);
+    downloadBlob(artifact.blob, artifact.filename);
+    return artifact;
   }
 
   // ── Modal ──
@@ -1152,9 +1175,10 @@
           '</div>' +
         '</div>' +
         '<div class="pdfx-foot">' +
-          '<span class="pdfx-status" id="pdfx-status"></span>' +
+          '<span class="pdfx-status" id="pdfx-status" role="status" aria-live="polite"></span>' +
           '<div class="pdfx-actions">' +
             '<button type="button" class="pdfx-btn ghost" data-close>' + esc(tr('Cancelar', 'Cancel')) + '</button>' +
+            '<button type="button" class="pdfx-btn ghost" id="pdfx-share" hidden>' + esc(tr('Compartir PDF', 'Share PDF')) + '</button>' +
             '<button type="button" class="pdfx-btn primary" id="pdfx-download">' + esc(tr('Descargar PDF', 'Download PDF')) + '</button>' +
           '</div>' +
         '</div>' +
@@ -1171,6 +1195,7 @@
 
     function close() {
       releaseUrls();
+      clearShareArtifact();
       state.picker = null;
       var pickerEl = document.getElementById('pdfx-picker');
       if (pickerEl) pickerEl.hidden = true;
@@ -1287,6 +1312,7 @@
       if (state.picker && state.picker.sel) drawPickerSel(state.picker.sel);
     });
     wrap.querySelector('#pdfx-download').addEventListener('click', onDownload);
+    wrap.querySelector('#pdfx-share').addEventListener('click', onShare);
     return wrap;
   }
 
@@ -1541,6 +1567,7 @@
     box.innerHTML = '<img alt="' + esc(templateName(tpl)) + '" src="' + state.previewUrl + '">';
     var cap = document.getElementById('pdfx-caption');
     if (cap) cap.textContent = (crop ? tr('Recorte', 'Crop') + ' · ' : '') + templateName(tpl) + ' · ' + tpl.size;
+    if (!crop) scheduleShareArtifact();
   }
 
   function renderThumbs() {
@@ -1571,6 +1598,21 @@
     var el = document.getElementById('pdfx-status');
     if (el) el.textContent = msg || '';
   }
+  // Parámetros anónimos de la exportación: identifican plantilla, encuadre y
+  // opciones, nunca el contenido del mapa. `via` distingue descarga y share.
+  function exportParams(tpl, started, via) {
+    return {
+      format: 'pdf',
+      via: via,
+      template: tpl.id,
+      frame: state.frame,
+      legend: state.includeLegend,
+      labels: state.includeLabels,
+      table: state.includeTable,
+      featureCount: featureBucket(state.ctx && state.ctx.feats ? state.ctx.feats.length : 0),
+      durationMs: Date.now() - started
+    };
+  }
   async function onDownload() {
     if (state.busy) return;
     var btn = document.getElementById('pdfx-download');
@@ -1581,16 +1623,7 @@
     try {
       await new Promise(function (r) { setTimeout(r, 30); });
       await generatePdf(tpl, currentOptions(), setStatus);
-      track('export', {
-        format: 'pdf',
-        template: tpl.id,
-        frame: state.frame,
-        legend: state.includeLegend,
-        labels: state.includeLabels,
-        table: state.includeTable,
-        featureCount: featureBucket(state.ctx && state.ctx.feats ? state.ctx.feats.length : 0),
-        durationMs: Date.now() - started
-      });
+      track('export', exportParams(tpl, started, 'download'));
       setStatus(tr('PDF descargado ✓', 'PDF downloaded ✓'));
       setTimeout(function () { if (state.close) state.close(); }, 700);
     } catch (e) {
@@ -1601,6 +1634,148 @@
       state.busy = false;
       if (btn) { btn.disabled = false; btn.classList.remove('is-busy'); }
     }
+  }
+
+  // ── Compartir en móvil ──
+  // El PDF se prepara en segundo plano (solo en pantallas táctiles) para que
+  // al tocar «Compartir PDF» la hoja nativa del sistema se abra dentro del
+  // gesto del usuario: iOS descarta `navigator.share` si se llama tarde. Si no
+  // hay artefacto listo se genera en el momento y, si el navegador lo rechaza,
+  // la exportación cae en la descarga normal.
+  function isCoarsePointer() {
+    try { return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches); } catch (e) { return false; }
+  }
+  function shareArtifactKey() {
+    return optionsKey(templateById(state.template));
+  }
+  function clearShareArtifact() {
+    if (state.shareTimer) { clearTimeout(state.shareTimer); state.shareTimer = null; }
+    state.shareArtifact = null;
+    state.shareKey = null;
+  }
+  function prefetchShareArtifact() {
+    if (!canSharePdfFile() || state.busy || !state.ctx || !state.ctx.feats || !state.ctx.feats.length) return;
+    // En mapas muy densos la rasterización en segundo plano competiría con la
+    // vista previa y la descarga: se genera al tocar el botón.
+    if (state.ctx.feats.length > 200) return;
+    var key = shareArtifactKey();
+    if (state.shareKey === key) return;
+    state.shareKey = key;
+    state.shareArtifact = null;
+    var tpl = templateById(state.template);
+    buildPdfArtifact(tpl, currentOptions()).then(function (artifact) {
+      if (state.shareKey === key) state.shareArtifact = artifact;
+    }).catch(function () {
+      if (state.shareKey === key) state.shareArtifact = null;
+    });
+  }
+  function scheduleShareArtifact() {
+    if (!isCoarsePointer() || !canSharePdfFile()) return;
+    if (state.shareTimer) clearTimeout(state.shareTimer);
+    state.shareTimer = setTimeout(function () {
+      state.shareTimer = null;
+      prefetchShareArtifact();
+    }, 700);
+  }
+
+  function finishShare(artifact, tpl, started) {
+    track('export', exportParams(tpl, started, 'download'));
+    downloadBlob(artifact.blob, artifact.filename);
+    setStatus(tr('No se pudo compartir; PDF descargado ✓', 'Could not share; PDF downloaded ✓'));
+    setTimeout(function () { if (state.close) state.close(); }, 800);
+  }
+
+  async function onShare() {
+    if (state.busy) return;
+    if (!canSharePdfFile()) {
+      // El navegador dejó de soportarlo (o cambió): la descarga es el fallback.
+      onDownload();
+      return;
+    }
+    var shareBtn = document.getElementById('pdfx-share');
+    var dlBtn = document.getElementById('pdfx-download');
+    var tpl = templateById(state.template);
+    var started = Date.now();
+    var key = shareArtifactKey();
+    var cached = (state.shareArtifact && state.shareKey === key) ? state.shareArtifact : null;
+    if (cached && cached.file) {
+      // Sin awaits antes del share: conserva la activación del gesto en iOS.
+      return shareNow(cached, tpl, started, shareBtn, dlBtn);
+    }
+    state.busy = true;
+    if (shareBtn) { shareBtn.disabled = true; shareBtn.classList.add('is-busy'); }
+    if (dlBtn) dlBtn.disabled = true;
+    var artifact = null;
+    try {
+      artifact = await buildPdfArtifact(tpl, currentOptions(), setStatus);
+      if (!artifact.file || !canSharePdfFile(artifact.file)) {
+        downloadBlob(artifact.blob, artifact.filename);
+        track('export', exportParams(tpl, started, 'download'));
+        setStatus(tr('Compartir no está disponible; PDF descargado ✓', 'Sharing is not available; PDF downloaded ✓'));
+        setTimeout(function () { if (state.close) state.close(); }, 800);
+        return;
+      }
+      await navigator.share({
+        files: [artifact.file],
+        title: (state.ctx && state.ctx.title) || 'Maña Maps',
+        text: tr('Mapa creado con Maña Maps', 'Map made with Maña Maps')
+      });
+      track('export', exportParams(tpl, started, 'share'));
+      setStatus(tr('PDF compartido ✓', 'PDF shared ✓'));
+      setTimeout(function () { if (state.close) state.close(); }, 700);
+    } catch (e) {
+      if (e && e.name === 'AbortError') {
+        setStatus(tr('Compartir cancelado.', 'Sharing cancelled.'));
+      } else if (artifact) {
+        // El PDF existe: la descarga es el fallback cuando el share falla.
+        console.error('[pdf-export]', e);
+        track('pdf_error', { stage: 'share', template: tpl.id, frame: state.frame, reason: errorReason(e) });
+        finishShare(artifact, tpl, started);
+      } else {
+        console.error('[pdf-export]', e);
+        track('pdf_error', { stage: 'share', template: tpl.id, frame: state.frame, reason: errorReason(e) });
+        setStatus(tr('No se pudo generar el PDF. Inténtalo de nuevo.', 'Could not generate the PDF. Please try again.'));
+      }
+    } finally {
+      state.busy = false;
+      if (shareBtn) { shareBtn.disabled = false; shareBtn.classList.remove('is-busy'); }
+      if (dlBtn) dlBtn.disabled = false;
+    }
+  }
+
+  function shareNow(artifact, tpl, started, shareBtn, dlBtn) {
+    state.busy = true;
+    if (shareBtn) { shareBtn.disabled = true; shareBtn.classList.add('is-busy'); }
+    if (dlBtn) dlBtn.disabled = true;
+    var done = function () {
+      state.busy = false;
+      if (shareBtn) { shareBtn.disabled = false; shareBtn.classList.remove('is-busy'); }
+      if (dlBtn) dlBtn.disabled = false;
+    };
+    var sharePromise;
+    try {
+      sharePromise = navigator.share({
+        files: [artifact.file],
+        title: (state.ctx && state.ctx.title) || 'Maña Maps',
+        text: tr('Mapa creado con Maña Maps', 'Map made with Maña Maps')
+      });
+    } catch (e) {
+      sharePromise = Promise.reject(e);
+    }
+    return Promise.resolve(sharePromise).then(function () {
+      track('export', exportParams(tpl, started, 'share'));
+      setStatus(tr('PDF compartido ✓', 'PDF shared ✓'));
+      setTimeout(function () { if (state.close) state.close(); }, 700);
+      done();
+    }).catch(function (e) {
+      done();
+      if (e && e.name === 'AbortError') {
+        setStatus(tr('Compartir cancelado.', 'Sharing cancelled.'));
+        return;
+      }
+      track('pdf_error', { stage: 'share', template: tpl.id, frame: state.frame, reason: errorReason(e) });
+      finishShare(artifact, tpl, started);
+    });
   }
 
   // ── Repintado del mapa del editor ──
@@ -1662,6 +1837,14 @@
     state.includeLabels = !!state.ctx.labelsEnabled && state.ctx.feats.length <= 120;
     state.includeTable = true;
     var wrap = ensureModal();
+    // «Compartir PDF» solo aparece donde el navegador puede compartir archivos.
+    clearShareArtifact();
+    var shareBtn = wrap.querySelector('#pdfx-share');
+    if (shareBtn) {
+      shareBtn.hidden = !canSharePdfFile();
+      shareBtn.disabled = false;
+      shareBtn.classList.remove('is-busy');
+    }
     // Re-sincroniza el estado de las tarjetas y casillas cada vez que se abre.
     wrap.querySelectorAll('.pdfx-card').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-id') === 'dossier'); });
     var lg = wrap.querySelector('#pdfx-opt-legend'); if (lg) lg.checked = true;
