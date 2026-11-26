@@ -23,7 +23,7 @@ const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
-const { buildFactsSection, buildFaqSection } = require('../lib/map-landing-facts');
+const { buildFactsSection, buildFaqSection, buildFallbackFaqSection } = require('../lib/map-landing-facts');
 const { buildNewsMapIndex, newsLinksBlock, readNewsArticles } = require('../lib/news-map-links');
 const { withRetries, isQuotaExhausted } = require('../lib/firestore-retry');
 
@@ -428,19 +428,28 @@ function buildLandingHTML(m, relatedIndex, discoveryIndex, geo, newsIndex) {
     legendFormat: m.legendFormat,
   });
   const factsBlock = facts ? '\n    ' + facts.html : '';
-  // FAQPage a partir del máximo y el mínimo de «Datos clave»: convierte el dato
-  // ya publicado en una pregunta long-tail («¿qué país registra…?») que Bing
-  // puede responder sin inventar cifras.
+  // FAQPage a partir de «Datos clave»: convierte el dato ya publicado en
+  // preguntas long-tail («¿qué país registra…?», «¿cuál es el valor medio de…?»,
+  // «¿de qué año son los datos?») que Bing puede responder sin inventar cifras.
+  // Los mapas sin variable numérica reciben las dos preguntas mínimas
+  // (cuántos elementos y fuente) para no quedar sin contenido ni FAQPage.
   const faq = facts
     ? buildFaqSection({
         title,
         label: facts.label,
         max: facts.max,
         min: facts.min,
+        stats: facts.stats,
+        dataYear: m.dataYear,
+        dataDate: m.dataDate,
         sourceLine,
         featureCount: m.featureCount,
       })
-    : null;
+    : buildFallbackFaqSection({
+        title,
+        sourceLine,
+        featureCount: m.featureCount,
+      });
   const faqBlock = faq ? '\n    ' + faq.html : '';
   // News ya enlaza la landing desde cada artículo; el enlace inverso cierra el
   // circuito interno y da a los crawlers una ruta landing → artículo → landing.

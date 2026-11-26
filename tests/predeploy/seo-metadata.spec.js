@@ -35,6 +35,8 @@ const {
 const {
   buildFactsSection,
   buildFaqSection,
+  buildFallbackFaqSection,
+  buildLevelStats,
   lowercaseIndicatorStart,
 } = require('../../scripts/lib/map-landing-facts');
 const {
@@ -1530,17 +1532,17 @@ test('landing FAQ derives questions from key facts and emits FAQPage JSON-LD', (
 });
 
 // Todas las landings regeneradas con el generador deben publicar el FAQ visible
-// y el JSON-LD cuando tienen «Datos clave»; los 3 mapas sin variable numérica
-// (línea AVE, antenas y océanos) quedan fuera.
-test('every landing with key facts publishes a visible FAQ and FAQPage JSON-LD', () => {
+// y el JSON-LD: las que tienen «Datos clave» con máximo, mínimo, media/mediana,
+// año y fuente, y las que no tienen variable numérica (línea AVE, antenas,
+// océanos, sedes de IA) con las dos preguntas mínimas de recuento y fuente.
+test('every landing publishes a visible FAQ and FAQPage JSON-LD', () => {
   const galleryDir = path.join(siteRoot, 'gallery');
   const slugs = fs.readdirSync(galleryDir)
     .filter((slug) => fs.existsSync(path.join(galleryDir, slug, 'index.html')));
   let withFacts = 0;
   for (const slug of slugs) {
     const html = fs.readFileSync(path.join(galleryDir, slug, 'index.html'), 'utf8');
-    if (!html.includes('class="facts-lede"')) continue;
-    withFacts++;
+    if (html.includes('class="facts-lede"')) withFacts++;
     expect(html, slug).toContain('<section class="faq" aria-labelledby="preguntas-frecuentes">');
     expect(html, slug).toContain('"@type":"FAQPage"');
     const scripts = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
@@ -1548,15 +1550,88 @@ test('every landing with key facts publishes a visible FAQ and FAQPage JSON-LD',
     const faq = scripts.find((item) => item['@type'] === 'FAQPage');
     expect(faq, slug).toBeTruthy();
     expect(faq.mainEntity.length, slug).toBeGreaterThanOrEqual(2);
-    expect(faq.mainEntity.length, slug).toBeLessThanOrEqual(3);
+    expect(faq.mainEntity.length, slug).toBeLessThanOrEqual(5);
     for (const item of faq.mainEntity) {
       expect(item['@type'], slug).toBe('Question');
       expect(item.name, slug).toBeTruthy();
       expect(item.acceptedAnswer && item.acceptedAnswer.text, slug).toBeTruthy();
     }
     expect((html.match(/id="preguntas-frecuentes"/g) || []), slug).toHaveLength(1);
+    // Sin «Datos clave» no se puede inventar el máximo ni el mínimo.
+    if (!html.includes('class="facts-lede"')) {
+      expect(faq.mainEntity.map((item) => item.name).join('\n'), slug).not.toContain('valor más');
+    }
   }
   expect(withFacts).toBeGreaterThanOrEqual(50);
+});
+
+// Regresión de las preguntas añadidas para capturar búsquedas de «valor medio»
+// y de año: se derivan de los mismos datos que «Datos clave», con la unidad del
+// indicador limpia (sin años ni recuentos pegados a la cifra) y sin inventar el
+// año cuando la fuente no lo declara.
+test('landing FAQ adds mean, median and data-year questions from the dataset', () => {
+  const geo = {
+    type: 'FeatureCollection',
+    features: [
+      { type: 'Feature', properties: { _manaName: 'Singapur', 'PIB (num)': 139593 }, geometry: { type: 'Point', coordinates: [103.8, 1.35] } },
+      { type: 'Feature', properties: { _manaName: 'España', 'PIB (num)': 32000 }, geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
+      { type: 'Feature', properties: { _manaName: 'Brasil', 'PIB (num)': 9000 }, geometry: { type: 'Point', coordinates: [-47.9, -15.8] } },
+      { type: 'Feature', properties: { _manaName: 'Burundi', 'PIB (num)': 1067 }, geometry: { type: 'Point', coordinates: [29.9, -3.4] } },
+    ],
+  };
+  const facts = buildFactsSection(geo, {
+    legendKey: 'PIB (num)',
+    legendTitle: 'PIB per cápita (USD corrientes)',
+    legendFormat: 'number',
+  });
+  expect(facts.stats).toMatchObject({ count: 4, mean: 45415, median: 20500 });
+
+  const faq = buildFaqSection({
+    title: 'PIB per cápita mundial por país',
+    label: facts.label,
+    max: facts.max,
+    min: facts.min,
+    stats: facts.stats,
+    dataDate: '2024-12-31',
+    sourceLine: 'Banco Mundial · 2024-12-31',
+    featureCount: 4,
+  });
+  const meanQuestion = faq.questions.find((item) => item.question.includes('valor medio'));
+  expect(meanQuestion.answer).toBe('La media es 45.415 USD corrientes y la mediana, 20.500 USD corrientes.');
+  const yearQuestion = faq.questions.find((item) => item.question.includes('año'));
+  expect(yearQuestion.answer).toBe('Los datos corresponden a 2024.');
+  expect(faq.questions).toHaveLength(5);
+  expect(faq.ld.mainEntity.map((item) => item.name)).toEqual(faq.questions.map((item) => item.question));
+
+  // Sin año declarado no se publica la pregunta de año.
+  const noYear = buildFaqSection({
+    title: 'Mapa', label: 'altura',
+    max: { name: 'A', display: '1 m' }, min: { name: 'B', display: '0 m' },
+    stats: { meanDisplay: '0,5 m', medianDisplay: '0,5 m' },
+  });
+  expect(noYear.questions.some((item) => item.question.includes('año'))).toBe(false);
+
+  // La unidad no arrastra el año ni el recuento del paréntesis del título.
+  const unitCases = [
+    ['Tráfico de contenedores (TEUs, 2024)', ' TEUs'],
+    ['Días de lluvia al año (media 1991–2020)', ''],
+    ['Medallas olímpicas de verano (hasta París 2024)', ''],
+    ['Pasos medios diarios (46 países, 2017)', ''],
+    ['Altitud (m)', ' m'],
+  ];
+  for (const [legendTitle, expectedUnit] of unitCases) {
+    const stats = buildLevelStats([1, 2, 3, 4].map((value) => ({ value })), { legendTitle, legendFormat: 'number' });
+    expect(stats.unit, legendTitle).toBe(expectedUnit);
+  }
+
+  // Los mapas sin variable numérica reciben las dos preguntas mínimas.
+  const fallback = buildFallbackFaqSection({ sourceLine: 'IHO · 2024', featureCount: 26 });
+  expect(fallback.questions.map((item) => item.question)).toEqual([
+    '¿Cuántos elementos incluye el mapa?',
+    '¿De dónde salen los datos del mapa?',
+  ]);
+  expect(fallback.questions[0].answer).toBe('El mapa incluye 26 elementos.');
+  expect(buildFallbackFaqSection({})).toBeNull();
 });
 
 // Regresión de la medición en landings estáticas: /gallery/<slug>/ es la URL

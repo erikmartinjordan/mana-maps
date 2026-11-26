@@ -94,6 +94,48 @@ function displayValue(entry, opts) {
   return formatFactNumber(entry.value) + unitFromLegendTitle(opts.legendTitle, opts.legendFormat);
 }
 
+// Unidad para la media y la mediana: la misma del indicador, pero limpia. Los
+// títulos meten años y recuentos en el paréntesis («Pasos medios diarios (46
+// países, 2017)», «(media 1991–2020)», «(hasta París 2024)») y pegarlos a una
+// cifra produce frases sin sentido, así que se descartan los trozos con
+// dígitos; los que son unidad de verdad («TEUs, 2024» → «TEUs») se conservan.
+function statsUnit(opts) {
+  const raw = unitFromLegendTitle(opts && opts.legendTitle, opts && opts.legendFormat).trim();
+  if (!raw) return '';
+  const parts = raw.split(',').map((part) => part.trim())
+    .filter((part) => part && !/\d/.test(part));
+  return parts.length ? ' ' + parts.join(', ') : '';
+}
+
+function medianOf(sortedValues) {
+  const length = sortedValues.length;
+  if (!length) return NaN;
+  const middle = Math.floor(length / 2);
+  if (length % 2) return sortedValues[middle];
+  return (sortedValues[middle - 1] + sortedValues[middle]) / 2;
+}
+
+// Media y mediana del indicador. La mediana acompaña a la media porque en
+// distribuciones muy asimétricas (PIB, población) la media sola engaña; ambas
+// se calculan sobre los mismos valores que ya usan «Datos clave».
+function buildLevelStats(entries, opts) {
+  const values = entries
+    .map((entry) => entry.value)
+    .filter((value) => isFinite(value))
+    .sort((a, b) => a - b);
+  if (values.length < MIN_FACT_ENTRIES) return null;
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const unit = statsUnit(opts);
+  return {
+    count: values.length,
+    mean,
+    median: medianOf(values),
+    unit,
+    meanDisplay: formatFactNumber(mean) + unit,
+    medianDisplay: formatFactNumber(medianOf(values)) + unit,
+  };
+}
+
 // Entradas {name, value, display} del indicador de leyenda, sin duplicados de
 // nombre y con valores numéricos válidos. Devuelve [] si el mapa no tiene una
 // variable numérica con al menos MIN_FACT_ENTRIES entidades.
@@ -168,7 +210,41 @@ function buildFactsSection(geo, opts) {
     '      </div>\n' +
     '    </section>';
 
-  return { html, entries, top, bottom, max, min, label, legendTitle: title };
+  const stats = buildLevelStats(entries, opts);
+  return { html, entries, top, bottom, max, min, label, legendTitle: title, stats };
+}
+
+// Año de los datos a partir de `dataYear` o de la fecha de la fuente
+// («2024-01-01», «2019–2024»). Solo se publica cuando la fuente lo declara.
+function yearOfData(input) {
+  const explicit = trimmed(input && input.dataYear);
+  const fromExplicit = explicit.match(/(?:19|20)\d{2}/);
+  if (fromExplicit) return fromExplicit[0];
+  const date = trimmed(input && input.dataDate);
+  const fromDate = date.match(/(?:19|20)\d{2}/);
+  return fromDate ? fromDate[0] : '';
+}
+
+function faqMarkup(questions) {
+  const html = '<section class="faq" aria-labelledby="preguntas-frecuentes">\n' +
+    '      <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>\n' +
+    '      <dl class="faq-list">' + questions.map((item) =>
+      '<div class="faq-item"><dt>' + escapeHtml(item.question) + '</dt>' +
+      '<dd>' + escapeHtml(item.answer) + '</dd></div>'
+    ).join('') + '</dl>\n' +
+    '    </section>';
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: questions.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
+
+  return { html, ld, questions };
 }
 
 // Preguntas frecuentes derivadas de «Datos clave» (directiva 2026-11,
@@ -176,7 +252,8 @@ function buildFactsSection(geo, opts) {
 // del indicador; convertirlos en preguntas explícitas («¿qué país registra el
 // valor más alto de…?») da contenido long-tail verificable y un FAQPage que
 // Bing —la fuente de búsqueda con señal real (38/56)— puede usar en respuestas
-// enriquecidas. No inventa datos: reutiliza max/min y la fuente ya citada.
+// enriquecidas. No inventa datos: reutiliza max/min, la media y mediana de los
+// mismos valores, el año que declara la fuente y la cita ya publicada.
 function buildFaqSection(input) {
   const title = trimmed(input && input.title);
   const label = trimmed(input && input.label);
@@ -199,6 +276,26 @@ function buildFaqSection(input) {
     },
   ];
 
+  // «¿Cuál es el valor medio de…?» es una búsqueda long-tail propia y la
+  // respuesta ya está en los datos: media y mediana de la misma serie.
+  const stats = input && input.stats;
+  const meanDisplay = trimmed(stats && stats.meanDisplay);
+  const medianDisplay = trimmed(stats && stats.medianDisplay);
+  if (meanDisplay && medianDisplay) {
+    questions.push({
+      question: `¿Cuál es el valor medio de ${label}?`,
+      answer: `La media es ${meanDisplay} y la mediana, ${medianDisplay}.`,
+    });
+  }
+
+  const year = yearOfData(input);
+  if (year) {
+    questions.push({
+      question: '¿De qué año son los datos del mapa?',
+      answer: `Los datos corresponden a ${year}.`,
+    });
+  }
+
   const sourceLine = trimmed(input && input.sourceLine);
   const featureCount = Number(input && input.featureCount);
   if (sourceLine) {
@@ -212,25 +309,33 @@ function buildFaqSection(input) {
     });
   }
 
-  const html = '<section class="faq" aria-labelledby="preguntas-frecuentes">\n' +
-    '      <h2 id="preguntas-frecuentes">Preguntas frecuentes</h2>\n' +
-    '      <dl class="faq-list">' + questions.map((item) =>
-      '<div class="faq-item"><dt>' + escapeHtml(item.question) + '</dt>' +
-      '<dd>' + escapeHtml(item.answer) + '</dd></div>'
-    ).join('') + '</dl>\n' +
-    '    </section>';
+  return faqMarkup(questions);
+}
 
-  const ld = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: questions.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
-    })),
-  };
+// FAQs mínimas para los mapas sin variable numérica (línea AVE, océanos,
+// antenas): no tienen «Datos clave», pero la landing indexada sí puede
+// responder cuántos elementos incluye y de dónde salen. Evita que esas cuatro
+// fichas queden sin contenido long-tail ni FAQPage.
+function buildFallbackFaqSection(input) {
+  const sourceLine = trimmed(input && input.sourceLine);
+  const featureCount = Number(input && input.featureCount);
+  const questions = [];
 
-  return { html, ld, questions };
+  if (isFinite(featureCount) && featureCount > 0) {
+    questions.push({
+      question: '¿Cuántos elementos incluye el mapa?',
+      answer: `El mapa incluye ${formatFactNumber(featureCount)} elementos.`,
+    });
+  }
+  if (sourceLine) {
+    questions.push({
+      question: '¿De dónde salen los datos del mapa?',
+      answer: `Los datos proceden de ${sourceLine}.`,
+    });
+  }
+  if (!questions.length) return null;
+
+  return faqMarkup(questions);
 }
 
 module.exports = {
@@ -239,6 +344,9 @@ module.exports = {
   collectFactEntries,
   buildFactsSection,
   buildFaqSection,
+  buildFallbackFaqSection,
+  buildLevelStats,
+  yearOfData,
   lowercaseIndicatorStart,
   unitFromLegendTitle,
   formatFactNumber,
