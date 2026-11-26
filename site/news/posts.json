@@ -1,5 +1,37 @@
 [
   {
+    "date": "2026-11-26",
+    "event": "Argentina entra en recesión técnica: el PIB cayó 0,6% en el 2T y las consultoras estiman -1,8% en el 3T a partir del EMAE del INDEC (24-11), con la cifra oficial el 16-12; el riesgo país llegó a 1.121 pb el 25-11 (desde ~400 en julio) y el dólar minorista superó los 1.600 pesos (Infobae, 26-11). Brasil recortó el 23-11 su previsión de crecimiento de 2026 al 1,9% (2027: 1,8%) con el Selic en 13,75% y la inflación prevista en 5,3%. México creció 0,9% t/t y 3,3% anual en el 3T (INEGI, 23-11) y registró 2,9% de desocupación y 55,0% de informalidad laboral (ENOE, 25-11); Banxico bajó tipos al 6,25% el 5-11. Mapa de desempleo (OIT vía Banco Mundial, 2025): México 2,7%, Brasil 6,0%, Argentina 7,1%; mediana de los 32 países y territorios de América Latina y el Caribe con dato: 6,0%.",
+    "type": "news",
+    "format": "comparativa",
+    "topic": "economia",
+    "mapSlug": "unemployment-world",
+    "sourceUrls": [
+      "https://www.indec.gob.ar/uploads/informesdeprensa/emae_11_26C3D902DB86.pdf",
+      "https://www.bloomberglinea.com/latinoamerica/argentina/emae-la-economia-argentina-crece-en-septiembre-pero-no-logra-eludir-la-recesion-tecnica-segun-el-indec/",
+      "https://www.infobae.com/economia/2026/11/26/recesion-tecnica-pico-del-riesgo-pais-dolar-en-alza-y-acciones-en-rojo-por-que-se-complico-el-frente-economico-de-la-argentina/",
+      "https://www.infobae.com/america/america-latina/2026/11/24/brasil-redujo-al-19-su-prevision-de-crecimiento-del-pib-en-2026/",
+      "https://expansion.mx/economia/2026/11/23/pib-de-mexico-crece-0-9-tercer-trimestre-pierde-ritmo-inegi",
+      "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2026/enoe/enoe2026_11.pdf",
+      "https://www.banxico.org.mx/publicaciones-y-prensa/anuncios-de-las-decisiones-de-politica-monetaria/",
+      "https://data.worldbank.org/indicator/SL.UEM.TOTL.ZS"
+    ],
+    "translations": {
+      "es": {
+        "slug": "argentina-brasil-mexico-empleo-financiacion",
+        "url": "/news/argentina-brasil-mexico-empleo-financiacion/",
+        "title": "Argentina, Brasil y México: el empleo aguanta, la financiación aprieta",
+        "description": "Argentina entra en recesión técnica, Brasil recorta su previsión al 1,9% y México crece un 3,3%. El mapa de desempleo muestra dónde aguanta el empleo."
+      },
+      "en": {
+        "slug": "argentina-brazil-mexico-jobs-credit",
+        "url": "/en/news/argentina-brazil-mexico-jobs-credit/",
+        "title": "Argentina, Brazil and Mexico: jobs hold up, credit bites",
+        "description": "Argentina is in a technical recession, Brazil has cut growth to 1.9% and Mexico is growing 3.3% a year. The unemployment map shows where jobs hold up."
+      }
+    }
+  },
+  {
     "date": "2026-11-25",
     "event": "Análisis propio sobre el GeoJSON del mapa de inflación (Banco Mundial WDI FP.CPI.TOTL.ZG, actualizado el 2026-10-08): 187 países con dato, mediana del 3,20%, 129 por encima del 2%, 47 por encima del 5%, 23 por encima del 10% y 14 en deflación. El 25-11 se publica el PCE de octubre y el mercado descuenta una subida de 25 pb el 9-12 (92,7% según CME FedWatch citado por Reuters el 19-11). Jefferson (19-11) afirmó que el despliegue de IA presiona al alza la demanda y la inflación; Goolsbee habló de riesgo de sobrecalentamiento. JPMorgan espera subidas en diciembre, enero y marzo hasta el 4,50%-4,75%. El lunes Nvidia subió más del 30% y el S&P 500 un 4,7%; el martes el Nasdaq cedió un 1,48% y el miércoles Asia cayó con fuerza (SoftBank -13,8%) y sidecar en el Kospi. El dato de EE. UU. en el mapa es de 2024 (2,95%), así que no mide el repunte actual.",
     "type": "news",
