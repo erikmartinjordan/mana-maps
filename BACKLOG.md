@@ -362,3 +362,4 @@
   título, slug, textos ni coordenadas. `monthly-report-metrics.js` ya cuenta los
   cuatro eventos nuevos y `tests/predeploy/pdf-analytics.spec.js` cubre el
   payload anónimo, plantilla/encuadre, descarga, error y mapa vacío.
+- [ ] Add to backlog to review changelig website, on opening the menu from phone, doesnt open (hamburger menu)
