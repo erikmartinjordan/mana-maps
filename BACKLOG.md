@@ -108,7 +108,7 @@
   mantiene el flujo actual para capas creadas al vuelo desde una herramienta
   concreta.
 
-- [ ] **Changelog con las tareas de la última semana y botón «Ver más»**.
+- [x] **Changelog con las tareas de la última semana y botón «Ver más»**.
   En `/changelog/`, mostrar por defecto solo las entradas de los últimos 7 días
   y añadir un botón «Ver más» que vaya revelando el resto sin recargar la
   página (y su opuesto «Ver menos» si aplica). El HTML completo debe seguir en
@@ -119,7 +119,13 @@
   (`aria-expanded`, foco controlado, `prefers-reduced-motion`), el estado es
   coherente al cambiar de idioma, funciona con el generador
   `.github/scripts/generate_changelog.py` sin tocar su salida y hay una
-  regresión Playwright que comprueba el corte semanal y la expansión.
+  regresión Playwright que comprueba el corte semanal y la expansión. (26-11) —
+  `site/js/changelog-timeline.js` oculta los días anteriores al corte semanal y
+  alterna «Ver más»/«Ver menos» con `aria-expanded`, estado `aria-live`, foco en
+  el botón y sin animación con `prefers-reduced-motion`; sin JS el HTML conserva
+  todo el historial. El generador añade el botón y el script (mismo HTML de la
+  plantilla que se publica) y `tests/predeploy/changelog-timeline.spec.js` cubre
+  corte 0-6 días, fallback sin entradas recientes, teclado, idioma y no-JS.
 
 - [ ] **Unificar el selector de idioma entre todas las páginas públicas**. Hoy
   conviven dos implementaciones: la portada tiene su propio `LANG`/`applyLang`
