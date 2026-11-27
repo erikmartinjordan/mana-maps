@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // ── generate-map-landings.js ─
-// Genera, para cada mapa publicado en Firestore:
+// Genera, para cada mapa del catálogo de Firestore (isPublished sin unlisted),
 //   1) una tarjeta OG 1200x630  → site/og-cards/<slug>.png
 //   2) una landing estática SEO → site/gallery/<slug>/index.html
+// y retira las fichas estáticas de mapas que ya no están en el catálogo.
 //
 // Las landings estáticas existen porque los crawlers de X/Facebook no ejecutan
 // JS: necesitan meta/OG en el HTML servido. La URL canónica pasa a ser
@@ -344,7 +345,10 @@ async function fetchPublishedMaps(cfg) {
     const data = await restGet(url);
     for (const doc of data.documents || []) {
       const m = docToMap(doc);
-      if (m.isPublished === true && m.slug) maps.push(m);
+      // Solo el catálogo (isPublished y no unlisted): un enlace compartido se
+      // abre por URL pero no tiene ficha, OG ni entrada de sitemap. Al no
+      // entrar en `maps`, la limpieza final retira sus restos estáticos.
+      if (isListed(m) && m.slug) maps.push(m);
     }
     token = data.nextPageToken || null;
   } while (token);

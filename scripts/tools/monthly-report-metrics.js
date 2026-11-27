@@ -12,6 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { isListed } = require('../lib/gallery-catalog');
 
 const PROJECT = 'mana-maps-pro-f2177';
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
@@ -278,7 +279,10 @@ function buildReport(month, events, maps) {
     try { return new URL(raw, 'https://maña.com').pathname || 'sin_dato'; } catch (_) { return 'sin_dato'; }
   }), 20);
 
-  const published = maps.filter((m) => m.isPublished === true);
+  // Solo fichas del catálogo (isPublished sin unlisted): los enlaces
+  // compartidos se publican por URL pero no son mapas de la galería y
+  // inflarían `published` y `zero_views` del informe.
+  const published = maps.filter(isListed);
   const featureCounts = published.map((m) => Number(m.featureCount) || 0);
   const views = published.map((m) => Number(m.views) || 0);
   const likes = published.map((m) => Number(m.likes) || 0);

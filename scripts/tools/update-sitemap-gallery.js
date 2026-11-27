@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // ── update-sitemap-gallery.js ─
-// Consulta los mapas publicados en Firestore y añade sus URLs individuales
-// al sitemap.xml con priority 0.6 y changefreq weekly.
+// Consulta los mapas del catálogo en Firestore (isPublished sin unlisted) y
+// añade sus URLs individuales al sitemap.xml con priority 0.6 y changefreq
+// weekly.
 //
 // Uso:
 //   node scripts/tools/update-sitemap-gallery.js [--dry-run]
@@ -20,6 +21,7 @@ const COLLECTION = 'maps';
 const SITE_BASE = 'https://xn--maa-8ma.com';
 const SITEMAP_PATH = path.join(__dirname, '..', '..', 'site', 'sitemap.xml');
 const DRY_RUN = process.argv.includes('--dry-run');
+const { isListed } = require('../lib/gallery-catalog');
 
 // ─── Auth helpers (reuse from homogeneize-gallery.js) ──────────────
 function loadServiceAccount() {
@@ -222,8 +224,11 @@ async function main() {
     pageNum++;
     for (const doc of docs) {
       const id = doc.name.split('/').pop();
-      const isPublished = extractField(doc, 'isPublished');
-      if (isPublished === true && !publishedSlugs.includes(id)) {
+      // El catálogo es isPublished sin unlisted (scripts/lib/gallery-catalog.js):
+      // los enlaces compartidos se abren por URL pero no son fichas públicas y
+      // no deben entrar en el sitemap.
+      const map = { isPublished: extractField(doc, 'isPublished'), unlisted: extractField(doc, 'unlisted') };
+      if (isListed(map) && !publishedSlugs.includes(id)) {
         publishedSlugs.push(id);
         const lastmod = isoDate(extractField(doc, 'updatedAtMs') || extractField(doc, 'createdAtMs'));
         if (lastmod) lastmodBySlug[id] = lastmod;

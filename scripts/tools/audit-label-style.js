@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // ── audit-label-style.js ─
-// Audita _manaLabelStyle (enabled, haloWidth ≥ 2, campos completos) en todos
-// los mapas isPublished de Firestore y completa los que falten, siguiendo el
-// patrón ya aplicado a minimum-wage-by-country.
+// Audita _manaLabelStyle (enabled, haloWidth ≥ 2, campos completos) en los
+// mapas del catálogo de Firestore y completa los que falten, siguiendo el
+// patrón ya aplicado a minimum-wage-by-country. Los enlaces compartidos
+// (`unlisted: true`) son contenido del usuario fuera de la galería y no se
+// tocan (scripts/lib/gallery-catalog.js).
 //
 // Uso:
 //   node scripts/tools/audit-label-style.js [--dry-run] [--verbose]
@@ -10,6 +12,7 @@
 'use strict';
 
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr } = require('../lib/publisher');
+const { isListed } = require('../lib/gallery-catalog');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const VERBOSE = process.argv.includes('--verbose');
@@ -167,6 +170,7 @@ async function main() {
         id,
         title: extractField(doc, 'title') || extractField(doc, 'name') || '',
         isPublished: extractField(doc, 'isPublished'),
+        unlisted: extractField(doc, 'unlisted'),
         geojsonText: extractField(doc, 'geojsonText') || '',
         featureCount: extractField(doc, 'featureCount'),
         rawDoc: doc,
@@ -175,8 +179,10 @@ async function main() {
   }
 
   const allMaps = await listAllMaps();
-  const published = allMaps.filter(m => m.isPublished === true);
-  console.log(`Found ${allMaps.length} docs, ${published.length} published.\n`);
+  const published = allMaps.filter(isListed);
+  const shared = allMaps.filter((m) => m.isPublished === true && m.unlisted === true);
+  console.log(`Found ${allMaps.length} docs, ${published.length} in the gallery catalog` +
+    `${shared.length ? ` (${shared.length} unlisted share link${shared.length === 1 ? '' : 's'} excluded)` : ''}.\n`);
 
   console.log('SLUG | FEATURES | LABEL-STYLE ISSUES');
   console.log('-----|----------|-------------------');

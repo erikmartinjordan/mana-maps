@@ -79,6 +79,27 @@ Todo mapa nuevo o actualización de la galería debe cumplir:
    y revisión visual escritorio + móvil de `/gallery/?slug=<id>`
    (leyenda, etiquetas únicas, popup funcional).
 
+### Catálogo frente a enlaces compartidos
+
+No todo documento publicado en `/maps` es una ficha de la galería:
+
+- **Catálogo** (`isPublished === true` y `unlisted !== true`): tarjeta de la
+  galería con landing `/gallery/<slug>/`, OG card, entrada en `sitemap.xml`,
+  `itemListElement` del JSON-LD y enlaces internos.
+- **Enlace compartido** (`isPublished === true` y `unlisted === true`): lo crea
+  «Compartir» del editor para que la URL sea legible; no se lista y no exige
+  ficha editorial.
+
+La definición única vive en `scripts/lib/gallery-catalog.js` (`isListed`,
+`isSharedLink`, `splitCatalog`). **Toda** herramienta de catálogo (auditoría,
+landings/OG, sitemap, informe mensual, auditoría de `_manaLabelStyle`) debe
+filtrar con `isListed`: contar enlaces compartidos genera landings y entradas de
+sitemap para páginas que no se listan y hace que la auditoría las denuncie como
+deriva. El contrato de lectura por URL está fijado por
+`tests/predeploy/gallery-smoke.spec.js` («gallery hides unlisted share links but
+keeps them published by URL»), así que no se despublican: simplemente quedan
+fuera del catálogo.
+
 ### Mapas puntuales con iconos (emojis)
 
 Cuando el tema sea una **entidad puntual real** (picos, volcanes, incendios,
