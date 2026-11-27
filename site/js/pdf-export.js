@@ -45,7 +45,13 @@
     busy: false,
     shareArtifact: null,
     shareKey: null,
-    shareTimer: null
+    shareTimer: null,
+    // Sesión del modal: cada apertura y cada cierre la incrementan para que el
+    // trabajo asíncrono pendiente (previews, miniaturas, PDF, share) se
+    // descarte en vez de tocar el DOM o dejar blob URLs vivas.
+    session: 0,
+    timers: [],
+    pickerSnapshot: null
   };
   function templateName(t) { return lang() === 'en' ? (t.nameEn || t.name) : t.name; }
 
@@ -988,12 +994,13 @@
   function svgUrl(svg) {
     return URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
   }
-  function svgToJpeg(svg, pixelW, pixelH) {
+  function svgToJpeg(svg, pixelW, pixelH, cancelled) {
     return new Promise(function (resolve, reject) {
       var url = svgUrl(svg);
       var img = new Image();
       function done() { URL.revokeObjectURL(url); }
       img.onload = function () {
+        if (isCancelled(cancelled)) { done(); reject(abortError()); return; }
         try {
           var c = document.createElement('canvas');
           c.width = pixelW; c.height = pixelH;
@@ -1093,28 +1100,28 @@
     } catch (e) { return false; }
   }
 
-  async function buildPdfArtifact(tpl, opts, onStatus) {
-    var svg = buildSvg(state.ctx, tpl, opts);
+  async function buildPdfArtifact(tpl, opts, onStatus, cancelled) {
+    if (isCancelled(cancelled)) throw abortError();
+    // Contexto fijado al empezar: cerrar el modal lo vacía y la generación en
+    // curso debe terminar con su propia copia, nunca leer estado liberado.
+    var ctx = state.ctx;
+    if (!ctx) throw new Error('Sin mapa para exportar');
+    var svg = buildSvg(ctx, tpl, opts);
     if (onStatus) onStatus(tr('Preparando la página…', 'Preparing page…'));
     var pixelW = Math.round(tpl.w * tpl.scale);
     var pixelH = Math.round(tpl.h * tpl.scale);
-    var jpg = await svgToJpeg(svg, pixelW, pixelH);
+    var jpg = await svgToJpeg(svg, pixelW, pixelH, cancelled);
+    if (isCancelled(cancelled)) throw abortError();
     if (onStatus) onStatus(tr('Construyendo el PDF…', 'Building PDF…'));
     var blob = buildPdf([{
       pw: tpl.pw, ph: tpl.ph,
       width: jpg.width, height: jpg.height,
       bytes: dataUrlBytes(jpg.dataUrl)
     }]);
-    var filename = slugify(state.ctx.title) + '-mana-maps.pdf';
+    var filename = slugify(ctx.title) + '-mana-maps.pdf';
     var file = null;
     try { file = new File([blob], filename, { type: 'application/pdf' }); } catch (e) { file = null; }
     return { blob: blob, file: file, filename: filename };
-  }
-
-  async function generatePdf(tpl, opts, onStatus) {
-    var artifact = await buildPdfArtifact(tpl, opts, onStatus);
-    downloadBlob(artifact.blob, artifact.filename);
-    return artifact;
   }
 
   // ── Modal ──
@@ -1194,16 +1201,29 @@
     }).join('');
 
     function close() {
+      // Nuevo token de sesión: invalida previews, miniaturas, PDF y share que
+      // sigan en vuelo para que no escriban estado ni creen blob URLs.
+      state.session += 1;
+      clearSessionTimers();
+      hidePickerUI();
       releaseUrls();
       clearShareArtifact();
       state.picker = null;
-      var pickerEl = document.getElementById('pdfx-picker');
-      if (pickerEl) pickerEl.hidden = true;
+      state.pickerSnapshot = null;
+      state.region = null;
+      state.mapViewBounds = null;
+      state.cache = {};
+      state.ctx = null;
+      state.busy = false;
       var previewEl = document.getElementById('pdfx-preview');
-      if (previewEl && previewEl.parentNode && previewEl.parentNode.classList) {
-        previewEl.parentNode.classList.remove('is-picking');
-      }
-      if (previewEl) previewEl.removeAttribute('data-tag');
+      if (previewEl) previewEl.innerHTML = '';
+      var captionEl = document.getElementById('pdfx-caption');
+      if (captionEl) captionEl.textContent = '';
+      setStatus('');
+      var dlBtn = document.getElementById('pdfx-download');
+      if (dlBtn) { dlBtn.disabled = false; dlBtn.classList.remove('is-busy'); }
+      var shBtn = document.getElementById('pdfx-share');
+      if (shBtn) { shBtn.disabled = false; shBtn.classList.remove('is-busy'); }
       wrap.hidden = true;
       document.documentElement.classList.remove('pdfx-open');
       refreshEditorMaps();
@@ -1213,7 +1233,16 @@
     wrap.querySelector('[data-close]').addEventListener('click', close);
     wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !wrap.hidden) close();
+      if (e.key !== 'Escape' || wrap.hidden) return;
+      // Escape cierra primero el selector de región (y restaura el estado
+      // anterior); solo con el selector cerrado cierra el modal.
+      var picker = document.getElementById('pdfx-picker');
+      if (picker && !picker.hidden) {
+        e.preventDefault();
+        cancelRegionPicker();
+        return;
+      }
+      close();
     });
     list.querySelectorAll('.pdfx-card').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -1258,6 +1287,7 @@
         if (!pt) return;
         try { pickerMap.setPointerCapture(e.pointerId); } catch (_) {}
         state.picker.dragStart = { x: pt.x, y: pt.y };
+        state.picker.pointerId = e.pointerId;
         state.picker.sel = null;
         var selEl = document.getElementById('pdfx-picker-sel');
         if (selEl) selEl.hidden = true;
@@ -1303,10 +1333,7 @@
       });
     }
     wrap.querySelector('[data-picker-apply]').addEventListener('click', applyRegionPicker);
-    wrap.querySelector('[data-picker-cancel]').addEventListener('click', function () {
-      closeRegionPicker(true);
-      renderPreview();
-    });
+    wrap.querySelector('[data-picker-cancel]').addEventListener('click', cancelRegionPicker);
     wrap.querySelector('[data-picker-reset]').addEventListener('click', resetRegionPicker);
     window.addEventListener('resize', function () {
       if (state.picker && state.picker.sel) drawPickerSel(state.picker.sel);
@@ -1349,6 +1376,38 @@
     Object.keys(state.thumbUrls).forEach(function (k) { URL.revokeObjectURL(state.thumbUrls[k]); });
     state.thumbUrls = {};
   }
+  // ── Ciclo de vida del modal ──
+  // Un único contador de sesión distingue el trabajo de la apertura actual del
+  // de una apertura ya cerrada: ni los timers ni las promesas tardías deben
+  // escribir estado, crear blob URLs ni descargar nada después de cerrar.
+  function isOpen() {
+    var wrap = document.getElementById('pdfx-modal');
+    return !!(wrap && !wrap.hidden);
+  }
+  function isStale(token) { return token !== state.session; }
+  function sessionTimer(fn, delay) {
+    var token = state.session;
+    var id = setTimeout(function () {
+      state.timers = state.timers.filter(function (t) { return t !== id; });
+      if (isStale(token)) return;
+      fn();
+    }, delay);
+    state.timers.push(id);
+    return id;
+  }
+  function clearSessionTimers() {
+    state.timers.forEach(function (id) { clearTimeout(id); });
+    state.timers = [];
+  }
+  function closeLater(ms) {
+    sessionTimer(function () { if (state.close) state.close(); }, ms);
+  }
+  function abortError() {
+    var e = new Error('cancelled');
+    e.name = 'AbortError';
+    return e;
+  }
+  function isCancelled(cancelled) { return typeof cancelled === 'function' && !!cancelled(); }
   function rebuildContextForFrame() {
     state.ctx = buildContext(frameBounds());
     state.cache = {};
@@ -1371,6 +1430,8 @@
   function chooseFrame(frame) {
     if (state.busy) return;
     if (frame === 'region') { openRegionPicker(); return; }
+    // Elegir otro encuadre estando en el selector equivale a descartarlo.
+    dismissRegionPicker();
     if (frame === 'view') {
       var vb = getMapViewBounds();
       if (!vb) {
@@ -1478,12 +1539,90 @@
     if (!b) { renderPreview(); return; }
     try { renderPreview(b); } catch (e) { renderPreview(); }
   }
+  // ── Selector de región ──
+  // Al abrirlo se guarda una instantánea de plantilla, encuadre y opciones:
+  // «Cancelar» (o Escape) devuelve exactamente ese estado, aunque el usuario
+  // haya tocado la plantilla o las casillas mientras elegía la zona.
+  function pickerSnapshot() {
+    return {
+      template: state.template,
+      includeLegend: state.includeLegend,
+      includeLabels: state.includeLabels,
+      includeTable: state.includeTable,
+      frame: state.frame,
+      region: validBounds(state.region) ? {
+        minX: state.region.minX, maxX: state.region.maxX,
+        minY: state.region.minY, maxY: state.region.maxY
+      } : null
+    };
+  }
+  function syncControls(wrap) {
+    wrap = wrap || document.getElementById('pdfx-modal');
+    if (!wrap) return;
+    wrap.querySelectorAll('.pdfx-card').forEach(function (b) {
+      var on = b.getAttribute('data-id') === state.template;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    var lg = wrap.querySelector('#pdfx-opt-legend');
+    if (lg) lg.checked = !!state.includeLegend;
+    var lb = wrap.querySelector('#pdfx-opt-labels');
+    if (lb) lb.checked = !!state.includeLabels;
+    var tb = wrap.querySelector('#pdfx-opt-table');
+    if (tb) tb.checked = !!state.includeTable;
+  }
+  // Deja el selector cerrado y sin selección: se usa tanto al cancelar como al
+  // cerrar el modal para no arrastrar rectángulo, nota ni captura de puntero.
+  function hidePickerUI() {
+    var pickerMap = document.getElementById('pdfx-picker-map');
+    if (pickerMap && state.picker && state.picker.pointerId != null) {
+      try {
+        if (pickerMap.hasPointerCapture && pickerMap.hasPointerCapture(state.picker.pointerId)) {
+          pickerMap.releasePointerCapture(state.picker.pointerId);
+        }
+      } catch (e) { /* el puntero ya se había liberado */ }
+    }
+    var picker = document.getElementById('pdfx-picker');
+    if (picker) picker.hidden = true;
+    var selEl = document.getElementById('pdfx-picker-sel');
+    if (selEl) selEl.hidden = true;
+    var apply = document.querySelector('[data-picker-apply]');
+    if (apply) apply.disabled = true;
+    var note = document.getElementById('pdfx-picker-note');
+    if (note) note.textContent = tr('Ninguna zona seleccionada', 'No area selected');
+    var preview = document.getElementById('pdfx-preview');
+    if (preview && preview.parentNode && preview.parentNode.classList) {
+      preview.parentNode.classList.remove('is-picking');
+    }
+    if (preview) preview.removeAttribute('data-tag');
+  }
+  function restorePickerSnapshot() {
+    var snap = state.pickerSnapshot;
+    state.pickerSnapshot = null;
+    state.picker = null;
+    if (!snap) return false;
+    state.template = snap.template;
+    state.includeLegend = snap.includeLegend;
+    state.includeLabels = snap.includeLabels;
+    state.includeTable = snap.includeTable;
+    state.frame = snap.frame;
+    state.region = snap.region ? {
+      minX: snap.region.minX, maxX: snap.region.maxX,
+      minY: snap.region.minY, maxY: snap.region.maxY
+    } : null;
+    syncControls();
+    rebuildContextForFrame();
+    return true;
+  }
   function openRegionPicker() {
     var wrap = document.getElementById('pdfx-modal');
     if (!wrap) return;
     var preview = document.getElementById('pdfx-preview');
     var picker = document.getElementById('pdfx-picker');
     if (!picker) return;
+    // Si el selector ya estaba abierto no se sobrescribe la instantánea: sigue
+    // siendo el estado previo a la primera apertura.
+    if (picker.hidden) state.pickerSnapshot = pickerSnapshot();
     var holder = preview ? preview.parentNode : null;
     if (holder && holder.classList) holder.classList.add('is-picking');
     if (preview) preview.setAttribute('data-tag', tr('Vista previa', 'Preview'));
@@ -1499,25 +1638,34 @@
       : tr('Arrastra sobre el mapa para elegir la zona.', 'Drag over the map to choose the area.');
   }
   function closeRegionPicker(restore) {
-    var picker = document.getElementById('pdfx-picker');
-    var preview = document.getElementById('pdfx-preview');
-    if (picker) picker.hidden = true;
-    if (preview && preview.parentNode && preview.parentNode.classList) {
-      preview.parentNode.classList.remove('is-picking');
-    }
-    if (preview) preview.removeAttribute('data-tag');
+    hidePickerUI();
     if (restore) {
-      state.frame = state.picker && state.picker.prevFrame ? state.picker.prevFrame : 'fit';
-      if (state.frame === 'region' && !validBounds(state.region)) state.frame = 'fit';
-      state.picker = null;
+      if (!restorePickerSnapshot()) {
+        state.frame = state.picker && state.picker.prevFrame ? state.picker.prevFrame : 'fit';
+        if (state.frame === 'region' && !validBounds(state.region)) state.frame = 'fit';
+        state.picker = null;
+      }
     }
     updateFrameUI();
+  }
+  function dismissRegionPicker() {
+    var picker = document.getElementById('pdfx-picker');
+    if (!picker || picker.hidden) return;
+    hidePickerUI();
+    state.picker = null;
+    state.pickerSnapshot = null;
+  }
+  function cancelRegionPicker() {
+    closeRegionPicker(true);
+    renderPreview();
+    renderThumbs();
   }
   function applyRegionPicker() {
     var b = selectionBounds();
     if (!b) return;
     state.region = b;
     state.frame = 'region';
+    state.pickerSnapshot = null;
     state.picker = null;
     closeRegionPicker(false);
     rebuildContextForFrame();
@@ -1538,9 +1686,11 @@
   }
   function renderPreview(cropBounds) {
     var box = document.getElementById('pdfx-preview');
-    if (!box) return;
-    var tpl = templateById(state.template);
+    if (!box || !isOpen()) return;
     var crop = validBounds(cropBounds) ? cropBounds : null;
+    // El contexto se libera al cerrar: sin mapa no hay nada que componer.
+    if (!crop && !state.ctx) return;
+    var tpl = templateById(state.template);
     var key = crop ? ('crop:' + flagsKey(tpl) + ':' + boundsKey(crop)) : optionsKey(tpl);
     if (crop) {
       // Solo se conserva el último recorte: evita acumular SVG en memoria
@@ -1573,9 +1723,9 @@
   function renderThumbs() {
     var cards = document.querySelectorAll('.pdfx-card');
     cards.forEach(function (btn, i) {
-      setTimeout(function () {
+      sessionTimer(function () {
         var wrap = document.getElementById('pdfx-modal');
-        if (!wrap || wrap.hidden) return;
+        if (!wrap || wrap.hidden || !state.ctx) return;
         try {
           var tpl = templateById(btn.getAttribute('data-id'));
           var key = optionsKey(tpl);
@@ -1618,15 +1768,23 @@
     var btn = document.getElementById('pdfx-download');
     var tpl = templateById(state.template);
     var started = Date.now();
+    // Token de la apertura actual: si el modal se cierra durante la
+    // generación, el PDF se descarta (no se descarga ni toca la UI).
+    var token = state.session;
+    var cancelled = function () { return isStale(token); };
+    var status = function (msg) { if (!cancelled()) setStatus(msg); };
     state.busy = true;
     if (btn) { btn.disabled = true; btn.classList.add('is-busy'); }
     try {
       await new Promise(function (r) { setTimeout(r, 30); });
-      await generatePdf(tpl, currentOptions(), setStatus);
+      var artifact = await buildPdfArtifact(tpl, currentOptions(), status, cancelled);
+      if (cancelled()) return;
+      downloadBlob(artifact.blob, artifact.filename);
       track('export', exportParams(tpl, started, 'download'));
       setStatus(tr('PDF descargado ✓', 'PDF downloaded ✓'));
-      setTimeout(function () { if (state.close) state.close(); }, 700);
+      closeLater(700);
     } catch (e) {
+      if (cancelled() || (e && e.name === 'AbortError')) return;
       console.error('[pdf-export]', e);
       track('pdf_error', { stage: 'download', template: tpl.id, frame: state.frame, reason: errorReason(e) });
       setStatus(tr('No se pudo generar el PDF. Inténtalo de nuevo.', 'Could not generate the PDF. Please try again.'));
@@ -1663,26 +1821,33 @@
     state.shareKey = key;
     state.shareArtifact = null;
     var tpl = templateById(state.template);
-    buildPdfArtifact(tpl, currentOptions()).then(function (artifact) {
+    var token = state.session;
+    var cancelled = function () { return isStale(token); };
+    buildPdfArtifact(tpl, currentOptions(), null, cancelled).then(function (artifact) {
+      if (isStale(token)) return;
       if (state.shareKey === key) state.shareArtifact = artifact;
     }).catch(function () {
+      if (isStale(token)) return;
       if (state.shareKey === key) state.shareArtifact = null;
     });
   }
   function scheduleShareArtifact() {
     if (!isCoarsePointer() || !canSharePdfFile()) return;
     if (state.shareTimer) clearTimeout(state.shareTimer);
+    var token = state.session;
     state.shareTimer = setTimeout(function () {
       state.shareTimer = null;
+      if (isStale(token)) return;
       prefetchShareArtifact();
     }, 700);
   }
 
-  function finishShare(artifact, tpl, started) {
+  function finishShare(artifact, tpl, started, cancelled) {
+    if (isCancelled(cancelled)) return;
     track('export', exportParams(tpl, started, 'download'));
     downloadBlob(artifact.blob, artifact.filename);
     setStatus(tr('No se pudo compartir; PDF descargado ✓', 'Could not share; PDF downloaded ✓'));
-    setTimeout(function () { if (state.close) state.close(); }, 800);
+    closeLater(800);
   }
 
   async function onShare() {
@@ -1696,23 +1861,27 @@
     var dlBtn = document.getElementById('pdfx-download');
     var tpl = templateById(state.template);
     var started = Date.now();
+    var token = state.session;
+    var cancelled = function () { return isStale(token); };
+    var status = function (msg) { if (!cancelled()) setStatus(msg); };
     var key = shareArtifactKey();
     var cached = (state.shareArtifact && state.shareKey === key) ? state.shareArtifact : null;
     if (cached && cached.file) {
       // Sin awaits antes del share: conserva la activación del gesto en iOS.
-      return shareNow(cached, tpl, started, shareBtn, dlBtn);
+      return shareNow(cached, tpl, started, shareBtn, dlBtn, cancelled);
     }
     state.busy = true;
     if (shareBtn) { shareBtn.disabled = true; shareBtn.classList.add('is-busy'); }
     if (dlBtn) dlBtn.disabled = true;
     var artifact = null;
     try {
-      artifact = await buildPdfArtifact(tpl, currentOptions(), setStatus);
+      artifact = await buildPdfArtifact(tpl, currentOptions(), status, cancelled);
+      if (cancelled()) return;
       if (!artifact.file || !canSharePdfFile(artifact.file)) {
         downloadBlob(artifact.blob, artifact.filename);
         track('export', exportParams(tpl, started, 'download'));
         setStatus(tr('Compartir no está disponible; PDF descargado ✓', 'Sharing is not available; PDF downloaded ✓'));
-        setTimeout(function () { if (state.close) state.close(); }, 800);
+        closeLater(800);
         return;
       }
       await navigator.share({
@@ -1720,17 +1889,19 @@
         title: (state.ctx && state.ctx.title) || 'Maña Maps',
         text: tr('Mapa creado con Maña Maps', 'Map made with Maña Maps')
       });
+      if (cancelled()) return;
       track('export', exportParams(tpl, started, 'share'));
       setStatus(tr('PDF compartido ✓', 'PDF shared ✓'));
-      setTimeout(function () { if (state.close) state.close(); }, 700);
+      closeLater(700);
     } catch (e) {
+      if (cancelled()) return;
       if (e && e.name === 'AbortError') {
         setStatus(tr('Compartir cancelado.', 'Sharing cancelled.'));
       } else if (artifact) {
         // El PDF existe: la descarga es el fallback cuando el share falla.
         console.error('[pdf-export]', e);
         track('pdf_error', { stage: 'share', template: tpl.id, frame: state.frame, reason: errorReason(e) });
-        finishShare(artifact, tpl, started);
+        finishShare(artifact, tpl, started, cancelled);
       } else {
         console.error('[pdf-export]', e);
         track('pdf_error', { stage: 'share', template: tpl.id, frame: state.frame, reason: errorReason(e) });
@@ -1743,7 +1914,7 @@
     }
   }
 
-  function shareNow(artifact, tpl, started, shareBtn, dlBtn) {
+  function shareNow(artifact, tpl, started, shareBtn, dlBtn, cancelled) {
     state.busy = true;
     if (shareBtn) { shareBtn.disabled = true; shareBtn.classList.add('is-busy'); }
     if (dlBtn) dlBtn.disabled = true;
@@ -1763,18 +1934,20 @@
       sharePromise = Promise.reject(e);
     }
     return Promise.resolve(sharePromise).then(function () {
+      done();
+      if (isCancelled(cancelled)) return;
       track('export', exportParams(tpl, started, 'share'));
       setStatus(tr('PDF compartido ✓', 'PDF shared ✓'));
-      setTimeout(function () { if (state.close) state.close(); }, 700);
-      done();
+      closeLater(700);
     }).catch(function (e) {
       done();
+      if (isCancelled(cancelled)) return;
       if (e && e.name === 'AbortError') {
         setStatus(tr('Compartir cancelado.', 'Sharing cancelled.'));
         return;
       }
       track('pdf_error', { stage: 'share', template: tpl.id, frame: state.frame, reason: errorReason(e) });
-      finishShare(artifact, tpl, started);
+      finishShare(artifact, tpl, started, cancelled);
     });
   }
 
@@ -1820,12 +1993,21 @@
     if (document.querySelectorAll('#export-menu.open, .drop-menu.open').length) {
       document.querySelectorAll('.drop-menu.open').forEach(function (x) { x.classList.remove('open'); });
     }
+    // Nueva sesión: cualquier resto de la anterior (timers, blob URLs,
+    // miniaturas y artefacto de share) se descarta antes de montar la vista.
+    state.session += 1;
+    clearSessionTimers();
+    releaseUrls();
+    clearShareArtifact();
+    hidePickerUI();
     state.frame = 'fit';
     state.region = null;
     state.picker = null;
+    state.pickerSnapshot = null;
     state.mapViewBounds = getMapViewBounds();
     state.ctx = buildContext(null);
     if (!state.ctx.feats.length) {
+      state.ctx = null;
       track('pdf_error', { stage: 'empty', template: 'none', frame: 'fit', reason: 'no-features' });
       if (typeof showToast === 'function') showToast(tr('No hay elementos para exportar.', 'No elements to export.'), 'warning');
       else if (typeof manaAlert === 'function') manaAlert(tr('No hay elementos para exportar.', 'No elements to export.'), 'warning');
@@ -1837,25 +2019,16 @@
     state.includeLabels = !!state.ctx.labelsEnabled && state.ctx.feats.length <= 120;
     state.includeTable = true;
     var wrap = ensureModal();
-    // «Compartir PDF» solo aparece donde el navegador puede compartir archivos.
-    clearShareArtifact();
     var shareBtn = wrap.querySelector('#pdfx-share');
     if (shareBtn) {
       shareBtn.hidden = !canSharePdfFile();
       shareBtn.disabled = false;
       shareBtn.classList.remove('is-busy');
     }
-    // Re-sincroniza el estado de las tarjetas y casillas cada vez que se abre.
-    wrap.querySelectorAll('.pdfx-card').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-id') === 'dossier'); });
-    var lg = wrap.querySelector('#pdfx-opt-legend'); if (lg) lg.checked = true;
-    var lb = wrap.querySelector('#pdfx-opt-labels'); if (lb) lb.checked = state.includeLabels;
-    var tb = wrap.querySelector('#pdfx-opt-table'); if (tb) tb.checked = true;
-    var picker = document.getElementById('pdfx-picker'); if (picker) picker.hidden = true;
-    var previewWrap = document.querySelector('#pdfx-modal .pdfx-preview-wrap');
-    if (previewWrap) previewWrap.classList.remove('is-picking');
-    var previewBefore = document.getElementById('pdfx-preview');
-    if (previewBefore) previewBefore.removeAttribute('data-tag');
-    state.picker = null;
+    var dlBtn = wrap.querySelector('#pdfx-download');
+    if (dlBtn) { dlBtn.disabled = false; dlBtn.classList.remove('is-busy'); }
+    // Re-sincroniza tarjetas y casillas con el estado recién reiniciado.
+    syncControls(wrap);
     updateFrameUI();
     setStatus('');
     track('pdf_open', {
@@ -1868,7 +2041,7 @@
     var prev = document.getElementById('pdfx-preview');
     if (prev) prev.innerHTML = '<div class="pdfx-spinner"></div>';
     // Deja que el modal se pinte antes de componer el SVG (mapas grandes).
-    setTimeout(function () {
+    sessionTimer(function () {
       try { renderPreview(); } catch (e) {
         console.error(e);
         track('pdf_error', { stage: 'preview', template: state.template, frame: state.frame, reason: errorReason(e) });
