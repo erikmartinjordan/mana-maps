@@ -140,6 +140,7 @@
     </div>
   </div>
 
+  <script src="/js/lang-detect.js?v=20261127"></script>
   <script>
     // Style the auth modal open/close
     var authModalStyle = document.createElement('style');
@@ -147,7 +148,9 @@
     document.head.appendChild(authModalStyle);
 
     // Global LANG detection
-    var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es';
+    var LANG = (typeof window.manaInitialLang === 'function')
+      ? window.manaInitialLang()
+      : (localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'en');
 
     var _toastTimer = null;
     var _confirmResolve = null;

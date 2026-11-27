@@ -21,6 +21,10 @@ module.exports = defineConfig({
     baseURL: 'http://127.0.0.1:4175',
     headless: true,
     launchOptions,
+    // El idioma por defecto depende de la zona horaria. Fijamos una española
+    // para que los tests existentes (interfaz en español) sean deterministas;
+    // los tests de detección por país sobrescriben `timezoneId`.
+    timezoneId: 'Europe/Madrid',
   },
   webServer: {
     command: `python3 -m http.server 4175 --bind 127.0.0.1 --directory "${siteRoot}"`,

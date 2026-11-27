@@ -146,8 +146,11 @@
   <script defer src="/js/world-land.js"></script>
   <script defer src="/js/map-preview.js?v=1791708010"></script>
   <script defer src="/js/public-profile.js?v=20261124"></script>
+  <script src="/js/lang-detect.js?v=20261127"></script>
   <script>
-    var LANG = localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'es';
+    var LANG = (typeof window.manaInitialLang === 'function')
+      ? window.manaInitialLang()
+      : (localStorage.getItem('mana-lang') || localStorage.getItem('mana-landing-lang') || 'en');
     function manaAlert(message) { setProfileStatus(message, 'error'); }
     function showToast(message) { setProfileStatus(message, 'ok'); }
     function setProfileStatus(message, type) {

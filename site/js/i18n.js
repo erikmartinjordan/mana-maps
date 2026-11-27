@@ -1233,17 +1233,24 @@ function getStoredManaLang() {
 
 function persistManaLang(lang) {
   if (!I18N[lang]) return;
+  if (typeof window.manaPersistLang === 'function') {
+    window.manaPersistLang(lang);
+    return;
+  }
   localStorage.setItem(MANA_LANG_KEY, lang);
   // Keep the legacy landing-page key in sync so older cached pages do not
   // switch the user back to a different language when navigating home.
   localStorage.setItem(MANA_LEGACY_LANDING_LANG_KEY, lang);
 }
 
-// Language detection policy:
+// Language detection policy (ver lang-detect.js):
 // 1) Persisted setting wins (shared with the home page).
 // 2) /en URL path forces EN.
-// 3) Default ES, matching the Spanish-first home page.
+// 3) Spanish-speaking countries (by timezone) get ES; the rest get EN.
 let LANG = (function() {
+  if (typeof window.manaInitialLang === 'function') {
+    try { return window.manaInitialLang(); } catch (e) {}
+  }
   var stored = getStoredManaLang();
   if (stored) return stored;
   if (window.location.pathname.startsWith('/en')) return 'en';
@@ -1287,7 +1294,6 @@ function formatMeasureNumber(value, maxDecimals) {
 // ── Apply translations to DOM elements with data-i18n / data-i18n-placeholder ──
 function applyTranslations(lang) {
   if (lang && I18N[lang]) LANG = lang;
-  persistManaLang(LANG);
 
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
@@ -1350,6 +1356,7 @@ function applyTranslations(lang) {
 // ── Toggle language (called from lang button) ──
 function toggleLang() {
   LANG = (LANG === 'es') ? 'en' : 'es';
+  persistManaLang(LANG);
   applyTranslations(LANG);
 }
 

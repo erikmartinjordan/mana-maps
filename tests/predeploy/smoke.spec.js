@@ -121,6 +121,41 @@ test('landing section labels follow the selected language', async ({ page }) => 
   await expect(page.locator('.discover')).toHaveCount(0);
 });
 
+test.describe('default language by country', () => {
+  test.use({ timezoneId: 'America/New_York' });
+
+  test('non-Spanish timezone defaults to English and keeps the user choice', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page).toHaveTitle(/Design maps with clarity/i);
+    const languageButton = page.locator('#lang-btn');
+    await expect(languageButton).toHaveAttribute('aria-label', /Current language: English.*Switch to Spanish/i);
+
+    await languageButton.click();
+    await expect(languageButton).toHaveAttribute('aria-label', /Idioma actual: español/i);
+
+    // La preferencia guardada debe ganar a la zona horaria en la recarga.
+    await page.goto('/');
+    await expect(languageButton).toHaveAttribute('aria-label', /Idioma actual: español/i);
+  });
+
+  test('pages powered by i18n.js also follow the timezone default', async ({ page }) => {
+    await page.goto('/pricing/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+});
+
+test.describe('Spanish-speaking timezone defaults to Spanish', () => {
+  test.use({ timezoneId: 'America/Mexico_City' });
+
+  test('Mexico defaults to Spanish', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page).toHaveTitle(/Diseña mapas con claridad/i);
+    await expect(page.locator('#lang-btn')).toHaveAttribute('aria-label', /Idioma actual: español/i);
+  });
+});
+
 test('map editor shell loads core UI containers', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', (err) => pageErrors.push(err.message));
