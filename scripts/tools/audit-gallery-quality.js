@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 // ── audit-gallery-quality.js ─
-// Valida los mapas isPublished de Firestore contra AGENTS.md §Estándar de
-// publicación y corrige en Firestore lo que se pueda de forma segura.
+// Valida los mapas del catálogo público de Firestore contra AGENTS.md
+// §Estándar de publicación y corrige en Firestore lo que se pueda de forma
+// segura. «Catálogo» es `isPublished === true` y `unlisted !== true`
+// (scripts/lib/gallery-catalog.js): los enlaces compartidos (`unlisted: true`)
+// se abren por URL pero no se listan, así que no exigen landing, OG, sitemap
+// ni JSON-LD y no se auditan como fichas editoriales.
 //
 // Comprobaciones (BACKLOG 03-10 / 03-10 popups / 05-10 paleta §3 / 06-10 puntos):
 //   1. dataSource y dataDate no vacíos
@@ -33,7 +37,7 @@
 //      válido del catálogo js/markers.js, _manaEmojiSize o Area para escalar
 //      el icono, _manaGroupName y _manaGroupId. Nunca se representa un área
 //      (país, desierto, región…) con un punto: eso exige polígono real §2.
-//  10. deriva de metadatos SEO: los mapas isPublished de Firestore deben
+//  10. deriva de metadatos SEO: los mapas del catálogo de Firestore deben
 //      coincidir exactamente con el itemListElement/numberOfItems del JSON-LD
 //      CollectionPage de gallery/index.html y con las URLs de mapa de
 //      sitemap.xml. Lista faltantes/sobrantes/duplicados y falla (exit 1) si
@@ -46,7 +50,7 @@
 //      que declara el Dataset de la landing como dateModified; entradas sin
 //      <lastmod>, con formato inválido o desactualizadas se reportan como
 //      deriva. Regenerar con `node scripts/tools/update-sitemap-gallery.js`.
-//  11. cobertura de landings y OG cards: cada mapa isPublished debe tener
+//  11. cobertura de landings y OG cards: cada mapa del catálogo debe tener
 //      gallery/<slug>/index.html (que además debe contener su slug) y
 //      og-cards/<slug>.png no vacío. Lista los faltantes y falla (exit 1).
 //      Los que falten se generan con `node scripts/tools/generate-map-landings.js`.
@@ -118,6 +122,7 @@ const fs = require('fs');
 const { getAccessToken, firestoreRequest, COLLECTION, fsStr, fsInt, fsArr } = require('../lib/publisher');
 const { extractEmbeddedMapSlug } = require('../lib/news-map-links');
 const { findEnglishToponyms } = require('../lib/country-names-en-es');
+const { isListed, isSharedLink } = require('../lib/gallery-catalog');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const VERBOSE = process.argv.includes('--verbose');
@@ -2830,6 +2835,7 @@ async function main() {
         id,
         title: extractField(doc, 'title') || extractField(doc, 'name') || '',
         isPublished: extractField(doc, 'isPublished'),
+        unlisted: extractField(doc, 'unlisted'),
         lang: extractField(doc, 'lang'),
         dataSource: extractField(doc, 'dataSource'),
         dataDate: extractField(doc, 'dataDate'),
@@ -2849,8 +2855,10 @@ async function main() {
   }
 
   const allMaps = await listAllMaps();
-  const published = allMaps.filter(m => m.isPublished === true);
-  console.log(`Found ${allMaps.length} docs, ${published.length} published.\n`);
+  const published = allMaps.filter(isListed);
+  const sharedLinks = allMaps.filter(isSharedLink);
+  console.log(`Found ${allMaps.length} docs, ${allMaps.filter(m => m.isPublished === true).length} published ` +
+    `(${published.length} in the gallery catalog, ${sharedLinks.length} unlisted share link${sharedLinks.length === 1 ? '' : 's'} excluded).\n`);
 
   // 10. Deriva de metadatos SEO (Firestore ↔ JSON-LD CollectionPage ↔ sitemap).
   let seo = null;
@@ -3204,6 +3212,7 @@ async function main() {
   console.log(`Codificación (check 17): ${encoding.issues.length === 0 ? 'OK' : `${encoding.affected.length} mapa(s) con U+FFFD en geojsonText`}`);
   console.log(`Enlaces internos (check 15): ${internalLinks.issues.length === 0 ? `OK${internalLinks.zeroView ? ` (${internalLinks.zeroView.length} con cero visitas enlazados desde landings con ≥${internalLinks.minHostViews} visitas, la portada, la galería o el índice de News)` : ''}${internalLinks.lowView && internalLinks.lowViewMax ? ` (${internalLinks.lowView.length} con ≤${internalLinks.lowViewMax} visitas enlazados desde ≥${internalLinks.lowViewMinTrafficHosts} landings con ≥${internalLinks.minHostViews} visitas)` : ''}` : `${internalLinks.orphans ? internalLinks.orphans.length : '?'} mapa(s) sin enlaces entrantes, ${internalLinks.undiscovered ? internalLinks.undiscovered.length : '?'} con cero visitas y ${internalLinks.lowViewUndiscovered ? internalLinks.lowViewUndiscovered.length : '?'} apenas vistos sin enlace desde landings con tráfico, la portada, la galería ni News`}`);
   console.log(`News ↔ landing (check 16): ${newsLinks.issues.length === 0 ? `OK (${newsLinks.articles.length} artículos con enlace a la ficha y ${newsLinks.reverseLinks || 0} enlaces inversos)` : `${newsLinks.issues.length} incidencia(s)`}`);
+  console.log(`Enlaces no listados: ${sharedLinks.length === 0 ? 'OK (ninguno)' : `${sharedLinks.length} publicado(s) por URL fuera del catálogo (sin landing, OG, sitemap ni JSON-LD)`}`);
   console.log(`Errors: ${errors}`);
   if (manualList.length) {
     console.log(`\nManual follow-up needed:`);

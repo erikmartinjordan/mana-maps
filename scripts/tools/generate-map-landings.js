@@ -23,6 +23,7 @@ const path = require('path');
 const { chromium } = require('playwright-core');
 const { buildMapSVG, renderSvgPage, loadWorldLandPath } = require('../lib/map-card');
 const { buildRelatedIndex, buildDiscoveryIndex, relatedLinks, slugOf } = require('../lib/related-maps');
+const { isListed } = require('../lib/gallery-catalog');
 const { buildFactsSection, buildFaqSection, buildFallbackFaqSection } = require('../lib/map-landing-facts');
 const { buildNewsMapIndex, newsLinksBlock, readNewsArticles } = require('../lib/news-map-links');
 const { withRetries, isQuotaExhausted } = require('../lib/firestore-retry');
