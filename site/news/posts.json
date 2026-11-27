@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-11-27",
+    "event": "Taiwán celebra el 28 de noviembre un referéndum sobre la derogación de su política de «patria libre de nuclear», coincidiendo con las elecciones municipales y 18 meses después de apagar el último reactor de Maanshan (18-05-2025). La pregunta la aprobó la mayoría legislativa del KMT y el TPP por 59-51 el 14 de agosto; es un voto sobre «política importante» que obliga al Gobierno pero no deroga leyes, y necesita más sí que no y el 25% del electorado (en agosto de 2025 el sí logró 4,34 millones de votos, 74%, con participación del 29,5%, y se quedó a unos 660.000 del umbral de 5.000.523). En el debate del 18-11, el legislador del TPP Hung Yu-hsiang vinculó la electricidad fiable a la defensa y a los semiconductores y la IA, con Taiwán importando el 94,6% de su energía, reservas de gas para 11-14 días y renovables en el 13,3% de la electricidad en 2025 (objetivo 20%); los opositores citaron riesgo sísmico y el coste de prorrogar Diablo Canyon (390.000 millones de NT$, 11.800 millones de US$), y la plataforma contraria señaló 501 de 532 días con margen de reserva superior al 10% desde el apagón. Mapa de generación nuclear (Our World in Data / Ember, 2025, 30 países, 2.718 TWh): Taiwán 3,2 TWh (1,1% de su electricidad, 141 kWh/hab), la cuota más baja del mapa; Corea del Sur 184,7 TWh (29,6%, 3.574 kWh/hab), 57 veces más en absoluto y 25 veces más per cápita; Japón 94,1 TWh (9,1%); EE UU 784,8 TWh (17,4%); Francia 392,1 TWh (68,8%).",
+    "type": "news",
+    "format": "noticia",
+    "topic": "ia",
+    "mapSlug": "nuclear-energy-world",
+    "sourceUrls": [
+      "https://www.taipeitimes.com/News/feat/archives/2026/11/21/2003868117",
+      "https://www.taipeitimes.com/News/taiwan/archives/2026/11/27/2003868486",
+      "https://www.taiwannews.com.tw/en/news/6477981",
+      "https://www.taiwannews.com.tw/en/news/6479535"
+    ],
+    "translations": {
+      "es": {
+        "slug": "taiwan-referendum-nuclear-ia",
+        "url": "/news/taiwan-referendum-nuclear-ia/",
+        "title": "Taiwán vota el nuclear que le pide la IA",
+        "description": "Taiwán decide el 28-N si deroga su política de «patria libre de nuclear» por la demanda eléctrica de chips e IA. El mapa de generación nuclear, en datos."
+      },
+      "en": {
+        "slug": "taiwan-nuclear-referendum-ai",
+        "url": "/en/news/taiwan-nuclear-referendum-ai/",
+        "title": "Taiwan votes on the nuclear power AI is asking for",
+        "description": "Taiwan votes on 28 November whether to scrap its nuclear-free homeland policy, driven by chip and AI electricity demand. The nuclear generation map, in data."
+      }
+    }
+  },
+  {
     "date": "2026-11-26",
     "event": "Argentina entra en recesión técnica: el PIB cayó 0,6% en el 2T y las consultoras estiman -1,8% en el 3T a partir del EMAE del INDEC (24-11), con la cifra oficial el 16-12; el riesgo país llegó a 1.121 pb el 25-11 (desde ~400 en julio) y el dólar minorista superó los 1.600 pesos (Infobae, 26-11). Brasil recortó el 23-11 su previsión de crecimiento de 2026 al 1,9% (2027: 1,8%) con el Selic en 13,75% y la inflación prevista en 5,3%. México creció 0,9% t/t y 3,3% anual en el 3T (INEGI, 23-11) y registró 2,9% de desocupación y 55,0% de informalidad laboral (ENOE, 25-11); Banxico bajó tipos al 6,25% el 5-11. Mapa de desempleo (OIT vía Banco Mundial, 2025): México 2,7%, Brasil 6,0%, Argentina 7,1%; mediana de los 32 países y territorios de América Latina y el Caribe con dato: 6,0%.",
     "type": "news",
