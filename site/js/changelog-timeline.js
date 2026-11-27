@@ -23,18 +23,12 @@
       less: 'Ver menos',
       moreLabel: 'Ver las entradas anteriores a los últimos 7 días',
       lessLabel: 'Contraer el historial y volver a los últimos 7 días',
-      collapsed: 'Mostrando los últimos 7 días.',
-      expanded: 'Mostrando todo el historial.',
-      fallback: 'No hay entradas en los últimos 7 días; se muestra la más reciente.',
     },
     en: {
       more: 'Show more',
       less: 'Show less',
       moreLabel: 'Show entries older than the last 7 days',
       lessLabel: 'Collapse the history back to the last 7 days',
-      collapsed: 'Showing the last 7 days.',
-      expanded: 'Showing the full history.',
-      fallback: 'No entries in the last 7 days; showing the most recent one.',
     },
   };
 
@@ -85,7 +79,6 @@
   function init() {
     var timeline = document.getElementById('timeline');
     var button = document.getElementById('timeline-more');
-    var status = document.getElementById('timeline-status');
     if (!timeline || !button) return;
 
     var groups = Array.prototype.slice.call(timeline.querySelectorAll('.day-group'));
@@ -106,11 +99,9 @@
       // contenido por un formato inesperado.
       return item.date === null || item.date >= cutoff;
     });
-    var fallback = false;
     if (recent.length === 0) {
       // Página sin commits en la última semana: mostrar al menos el día más
       // reciente para no dejar el historial vacío.
-      fallback = true;
       var newest = dated
         .filter(function (item) { return item.date !== null; })
         .sort(function (a, b) { return b.date - a.date; })[0];
@@ -129,9 +120,6 @@
       var copy = strings();
       button.textContent = expanded ? copy.less : copy.more;
       button.setAttribute('aria-label', expanded ? copy.lessLabel : copy.moreLabel);
-      if (status) {
-        status.textContent = expanded ? copy.expanded : (fallback ? copy.fallback : copy.collapsed);
-      }
     }
 
     function setExpanded(next) {

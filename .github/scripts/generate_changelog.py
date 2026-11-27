@@ -195,17 +195,16 @@ TEMPLATE = """<!DOCTYPE html>
 .entry-sha:hover{{color:var(--blue);}}
 .entry-time{{font-size:11px;color:var(--third);}}
 .day-group[hidden]{{display:none;}}
-.timeline-more{{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;}}
+.timeline-more{{display:flex;justify-content:center;margin-top:8px;}}
 .timeline-more__btn{{
-  display:inline-flex;align-items:center;justify-content:center;min-width:132px;
-  padding:9px 22px;border-radius:50px;border:1px solid var(--border);
-  background:none;color:var(--primary);font-family:inherit;font-size:13px;
-  font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,transform .1s;
+  display:inline-flex;align-items:center;justify-content:center;height:44px;
+  padding:0 26px;border-radius:50px;border:1px solid rgba(16,24,40,.18);
+  background:rgba(255,255,255,.72);color:var(--primary);font-family:inherit;
+  font-size:13px;font-weight:700;cursor:pointer;
+  transition:background .15s,border-color .15s,transform .1s;
 }}
-.timeline-more__btn:hover{{background:var(--bgBox);border-color:rgba(30,30,30,.18);}}
-.timeline-more__btn:active{{transform:scale(.98);}}
-.timeline-more__btn:focus-visible{{outline:2px solid var(--blue);outline-offset:2px;}}
-.timeline-more__status{{font-size:12px;color:var(--third);text-align:center;min-height:1.2em;}}
+.timeline-more__btn:hover{{background:rgba(16,24,40,.05);border-color:rgba(16,24,40,.32);transform:translateY(-1px);}}
+.timeline-more__btn:focus-visible{{outline:2px solid #17191c;outline-offset:3px;}}
 @keyframes timeline-enter{{from{{opacity:0;transform:translateY(6px);}}to{{opacity:1;transform:none;}}}}
 .day-group.is-entering{{animation:timeline-enter .22s ease;}}
 @media (prefers-reduced-motion: reduce){{.day-group.is-entering{{animation:none;}}}}
@@ -251,7 +250,6 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
   <div class="timeline-more">
     <button type="button" class="timeline-more__btn" id="timeline-more" hidden aria-expanded="false" aria-controls="timeline">Ver más</button>
-    <p class="timeline-more__status" id="timeline-status" role="status" aria-live="polite"></p>
   </div>
 </div>
 <footer class="site-footer" aria-label="Pie de página"><div class="site-footer__inner">

@@ -27,7 +27,6 @@ function fixtureHtml(labels) {
     <div class="timeline" id="timeline">${groups}</div>
     <div class="timeline-more">
       <button type="button" class="timeline-more__btn" id="timeline-more" hidden aria-expanded="false" aria-controls="timeline">Ver más</button>
-      <p class="timeline-more__status" id="timeline-status" role="status" aria-live="polite"></p>
     </div>
   </body></html>`;
 }
@@ -64,7 +63,7 @@ test('changelog shows only the last 7 days by default and expands without reload
       hidden: group.hidden,
       date: api.parseDayLabel(group.querySelector('.day-label').textContent),
     }));
-    return { cutoff, items, status: document.getElementById('timeline-status').textContent };
+    return { cutoff, items };
   });
   const visible = visibility.items.filter((item) => !item.hidden);
   expect(visible.length).toBeGreaterThan(0);
@@ -75,13 +74,11 @@ test('changelog shows only the last 7 days by default and expands without reload
   for (const item of hidden) {
     expect(item.date).toBeLessThan(visibility.cutoff);
   }
-  expect(visibility.status).toBe(hidden.length ? 'Mostrando los últimos 7 días.' : 'No hay entradas en los últimos 7 días; se muestra la más reciente.');
 
   await button.click();
   await expect(page.locator('#timeline .day-group:not([hidden])')).toHaveCount(total);
   await expect(button).toHaveAttribute('aria-expanded', 'true');
   await expect(button).toContainText('Ver menos');
-  await expect(page.locator('#timeline-status')).toHaveText('Mostrando todo el historial.');
 
   await button.click();
   await expect(page.locator('#timeline .day-group[hidden]')).toHaveCount(hidden.length);
@@ -103,8 +100,6 @@ test('a page without recent entries keeps the newest day visible', async ({ page
   await bootFixture(page, [dayLabel(20), dayLabel(45), dayLabel(200)]);
 
   expect(await hiddenFlags(page)).toEqual([false, true, true]);
-  await expect(page.locator('#timeline-status'))
-    .toHaveText('No hay entradas en los últimos 7 días; se muestra la más reciente.');
 });
 
 test('changelog expansion is keyboard accessible and honours reduced motion', async ({ page }) => {
@@ -126,11 +121,9 @@ test('changelog labels follow the stored language', async ({ page }) => {
   const button = page.locator('#timeline-more');
   await expect(button).toContainText('Show more');
   await expect(button).toHaveAttribute('aria-label', 'Show entries older than the last 7 days');
-  await expect(page.locator('#timeline-status')).toHaveText('Showing the last 7 days.');
 
   await button.click();
   await expect(button).toContainText('Show less');
-  await expect(page.locator('#timeline-status')).toHaveText('Showing the full history.');
 });
 
 test('changelog keeps the full history in the static HTML for SEO and no-JS users', () => {
