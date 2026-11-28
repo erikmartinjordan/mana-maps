@@ -46,6 +46,15 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://xn--maa-8ma.com/news/5g-cobertura-poblacion-territorio/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/5g-cobertura-poblacion-territorio/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/5g-coverage-population-territory/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://xn--maa-8ma.com/news/5g-cobertura-poblacion-territorio/"/>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://xn--maa-8ma.com/news/taiwan-referendum-nuclear-ia/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://xn--maa-8ma.com/news/taiwan-referendum-nuclear-ia/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://xn--maa-8ma.com/en/news/taiwan-nuclear-referendum-ai/"/>

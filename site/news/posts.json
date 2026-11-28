@@ -1,5 +1,34 @@
 [
   {
+    "date": "2026-11-28",
+    "event": "El BOE publicó el 25 de noviembre de 2026 la Orden TDF/1266/2026, que pone fin desde el 1 de enero de 2027 a la obligación de Telefónica de prestar banda ancha y voz fija como servicio universal (mínimo de 100 Mbps de bajada y 5 de subida; el abono social se mantiene solo para los beneficiarios actuales, sin nuevas altas). La orden justifica la decisión con el informe de la CNMC IPN/CNMC/048/26: la cobertura 5G «alcanzaba el 99,27% del territorio nacional» y el 98,10% en 5G SA. El Informe de cobertura de banda ancha 2025 del Ministerio para la Transformación Digital publica el mismo 99,27% como población (rural 96,13%; 5G SA 98,1% de población, con salto rural del 12,39% al 91,22%), y su nota de prensa del 6 de mayo se titula «El 5G alcanza ya al 99% de la población española y al 96% en zonas rurales»; Adslzone señaló la discrepancia el 25-11. Análisis propio: el barómetro de nPerf de septiembre de 2026 (mediciones del 1-9-2025 al 31-8-2026) da una cobertura geográfica 5G máxima del 50,31% (MasOrange/Yoigo) frente al 72,71% de población, y Vodafone 50,29% frente a 70,86%; en 4G el mejor operador logra 91,57% geográfico y 96,61% de población. El registro de Infoantenas (VCTEL, 9-11-2026) suma 69.785 antenas en 52 provincias: Vodafone 25.192 (36,1%), Movistar 23.058 (33,0%), Orange 19.021 (27,3%), Digi 2.065 (3,0%), Yoigo 443 (0,6%) y otros 6, con tres operadores en el 96,4%; Madrid 7.581 (10,9%), Barcelona 5.913 (8,5%) y Valencia 3.521 (5,0%) concentran el 24,4%; Madrid registra 13,9 antenas por municipio y Soria 1,8, con mediana provincial de 993. La CNMC cita FTTH al 95,72% de hogares (30-6-2025), acceso fijo radioeléctrico al 99,15% y satélite al 100%, con accesos satelitales de 10.199 a finales de 2022 a 98.391 a finales de 2025, el 0,5% de la banda ancha fija.",
+    "type": "news",
+    "format": "analisis",
+    "topic": "tech",
+    "mapSlug": "antenas-moviles-espana",
+    "sourceUrls": [
+      "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-24784",
+      "https://digital.gob.es/content/dam/portal-mtdfp/comunicacion/comunicacion_setid/2026/05/06/260406_NdP_Informe%20de%20cobertura%202026.pdf",
+      "https://media.nperf.com/files/publications/ES/ES-Coverage-Barometer-nPerf-2026.pdf",
+      "https://geoportal.minetur.gob.es/VCTEL/vcne.do",
+      "https://www.adslzone.net/noticias/redes/boe-5g-cobertura-territorio-poblacion-confusion/"
+    ],
+    "translations": {
+      "es": {
+        "slug": "5g-cobertura-poblacion-territorio",
+        "url": "/news/5g-cobertura-poblacion-territorio/",
+        "title": "El 5G cubre el 99,27 % de la población, no del territorio",
+        "description": "La orden que retira la banda ancha universal cita el 99,27 % del territorio; el ministerio mide población y las pruebas de campo, la mitad. Análisis propio."
+      },
+      "en": {
+        "slug": "5g-coverage-population-territory",
+        "url": "/en/news/5g-coverage-population-territory/",
+        "title": "5G reaches 99.27% of Spaniards, not 99.27% of Spain",
+        "description": "The order ending universal broadband cites 5G coverage of 99.27% of the territory; the ministry measures people, and field tests about half. Own analysis."
+      }
+    }
+  },
+  {
     "date": "2026-11-27",
     "event": "Taiwán celebra el 28 de noviembre un referéndum sobre la derogación de su política de «patria libre de nuclear», coincidiendo con las elecciones municipales y 18 meses después de apagar el último reactor de Maanshan (18-05-2025). La pregunta la aprobó la mayoría legislativa del KMT y el TPP por 59-51 el 14 de agosto; es un voto sobre «política importante» que obliga al Gobierno pero no deroga leyes, y necesita más sí que no y el 25% del electorado (en agosto de 2025 el sí logró 4,34 millones de votos, 74%, con participación del 29,5%, y se quedó a unos 660.000 del umbral de 5.000.523). En el debate del 18-11, el legislador del TPP Hung Yu-hsiang vinculó la electricidad fiable a la defensa y a los semiconductores y la IA, con Taiwán importando el 94,6% de su energía, reservas de gas para 11-14 días y renovables en el 13,3% de la electricidad en 2025 (objetivo 20%); los opositores citaron riesgo sísmico y el coste de prorrogar Diablo Canyon (390.000 millones de NT$, 11.800 millones de US$), y la plataforma contraria señaló 501 de 532 días con margen de reserva superior al 10% desde el apagón. Mapa de generación nuclear (Our World in Data / Ember, 2025, 30 países, 2.718 TWh): Taiwán 3,2 TWh (1,1% de su electricidad, 141 kWh/hab), la cuota más baja del mapa; Corea del Sur 184,7 TWh (29,6%, 3.574 kWh/hab), 57 veces más en absoluto y 25 veces más per cápita; Japón 94,1 TWh (9,1%); EE UU 784,8 TWh (17,4%); Francia 392,1 TWh (68,8%).",
     "type": "news",
