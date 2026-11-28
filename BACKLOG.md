@@ -3,11 +3,19 @@
 > Guardarraíles de producto (ver `AGENTS.md`): no reintroducir «Mapas para descubrir», descripciones/fuente visibles en las tarjetas de la galería, bloques de «Caso de uso» en News, enlaces relacionados en el pie de los artículos ni el índice de mapas de la galería.
 
 
-- [ ] **Cancelar y cerrar deben dejar estado limpio**. Comprobar que `Cancelar`
+- [x] **Cancelar y cerrar deben dejar estado limpio**. Comprobar que `Cancelar`
   en el selector restaura plantilla, encuadre y opciones previas; que cerrar el
   modal revoca blob URLs, aborta generaciones en curso y no deja `state.picker`,
   `state.region` ni listeners colgados. Criterio: abrir/cerrar 10 veces no
-  acumula memoria ni deja el mapa del editor en blanco.
+  acumula memoria ni deja el mapa del editor en blanco. (28-11) —
+  `site/js/pdf-export.js` guarda una instantánea (`pickerSnapshot`) al abrir el
+  selector y la restaura al cancelar; el contador `state.session`, los timers y
+  `releaseUrls()` invalidan previews, miniaturas, PDF y share pendientes al
+  cerrar, y `refreshEditorMaps()` recalcula Leaflet, el globo 3D y el puente
+  MapLibre. `tests/predeploy/pdf-modal-cleanup.spec.js` cubre las 10
+  aperturas/cierres sin blob URLs vivas, el cierre con el selector abierto, el
+  repintado del editor/globo en cada cierre y el descarte de la generación en
+  curso.
 
 - [ ] **Mapas grandes (1.000–10.000 features)**. Medir con `antenas-moviles-espana`
   y mapas de puntos densos: al abrir se construyen 5 previews SVG completos y el

@@ -172,6 +172,81 @@ test('closing the modal releases blob URLs and leaves no picker or region state'
   await expect(page.locator('#pdfx-preview img')).toHaveCount(1);
 });
 
+test('closing with the region picker open clears the selection and reopens clean', async ({ page }) => {
+  await bootPdfModal(page);
+
+  await page.locator('[data-frame="region"]').click();
+  await expect(page.locator('#pdfx-picker')).toBeVisible();
+  await drawRegion(page);
+  await expect(page.locator('#pdfx-picker-sel')).toBeVisible();
+
+  // Cerrar el modal sin cancelar ni aplicar el selector no debe dejar la
+  // selección, la clase is-picking ni el estado de «Región» vivos.
+  await page.locator('.pdfx-close').click();
+  await expect(page.locator('#pdfx-modal')).toBeHidden();
+
+  const snapshot = await page.evaluate(() => ({
+    pickerHidden: document.getElementById('pdfx-picker').hidden,
+    selHidden: document.getElementById('pdfx-picker-sel').hidden,
+    picking: document.querySelector('.pdfx-preview-wrap').classList.contains('is-picking'),
+    applyDisabled: document.querySelector('[data-picker-apply]').disabled,
+    htmlClass: document.documentElement.className,
+  }));
+  expect(snapshot.pickerHidden).toBe(true);
+  expect(snapshot.selHidden).toBe(true);
+  expect(snapshot.picking).toBe(false);
+  expect(snapshot.applyDisabled).toBe(true);
+  expect(snapshot.htmlClass).not.toContain('pdfx-open');
+
+  await page.evaluate(() => window.openPdfExport());
+  await expect(page.locator('#pdfx-modal')).toBeVisible();
+  await expect(page.locator('#pdfx-picker')).toBeHidden();
+  await expect(page.locator('[data-frame="fit"]')).toHaveClass(/on/);
+  await expect(page.locator('#pdfx-frame-hint')).toHaveText('Se usará todo el mapa.');
+  await expect(page.locator('#pdfx-preview img')).toHaveCount(1);
+});
+
+test('closing the modal repaints the editor map and 3D globe', async ({ page }) => {
+  await bootPdfModal(page);
+
+  await page.evaluate(() => {
+    window.__editor = { invalidated: 0, resized: 0, repainted: 0, jumped: 0 };
+    window.map = {
+      invalidateSize() { window.__editor.invalidated += 1; },
+      getCenter() { return { lng: -3, lat: 40 }; },
+      getZoom() { return 5; },
+    };
+    window._getActiveGLMap = () => ({
+      resize() { window.__editor.resized += 1; },
+      triggerRepaint() { window.__editor.repainted += 1; },
+      jumpTo() { window.__editor.jumped += 1; },
+    });
+    window.globeMap = {
+      resize() { window.__editor.resized += 1; },
+      triggerRepaint() { window.__editor.repainted += 1; },
+    };
+  });
+
+  // Tres ciclos: cada cierre debe recalcular el tamaño del editor (si no, el
+  // mapa se queda en blanco o recortado al recuperar el ancho real).
+  for (let i = 0; i < 3; i++) {
+    await page.locator('.pdfx-close').click();
+    await expect(page.locator('#pdfx-modal')).toBeHidden();
+    await page.waitForTimeout(120);
+    await page.evaluate(() => window.openPdfExport());
+    await expect(page.locator('#pdfx-preview img')).toHaveCount(1);
+  }
+  await page.locator('.pdfx-close').click();
+  await expect(page.locator('#pdfx-modal')).toBeHidden();
+  await page.waitForTimeout(200);
+
+  const counts = await page.evaluate(() => window.__editor);
+  expect(counts.invalidated).toBe(4);
+  expect(counts.resized).toBeGreaterThanOrEqual(4);
+  expect(counts.repainted).toBeGreaterThanOrEqual(4);
+  expect(counts.jumped).toBe(4);
+});
+
 test('closing during generation discards the PDF and keeps the studio usable', async ({ page }) => {
   await bootPdfModal(page);
 
