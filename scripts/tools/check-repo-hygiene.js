@@ -10,7 +10,9 @@ const fs = require('fs');
 const path = require('path');
 
 const MAX_FILE_BYTES = 3 * 1024 * 1024;
-const MAX_TOTAL_BYTES = 35 * 1024 * 1024;
+// El catálogo crece con cada mapa publicado y con el News diario (ES/EN), así
+// que el tope acompaña al contenido sin relajar el límite por archivo.
+const MAX_TOTAL_BYTES = 40 * 1024 * 1024;
 const ALLOWED_LARGE = new Set([
   // Dataset nacional con información individual de cada estación.
   'data/maps/antenas-moviles-espana.geojson',
