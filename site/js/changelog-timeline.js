@@ -33,13 +33,10 @@
   };
 
   function getLang() {
-    var stored = null;
-    try {
-      stored = localStorage.getItem('mana-lang');
-    } catch (e) {
-      stored = null;
-    }
-    if (stored === 'en' || stored === 'es') return stored;
+    // El changelog solo existe en español (no hay /en/changelog/), así que el
+    // idioma lo manda la propia página. Antes se leía localStorage['mana-lang']
+    // y quien hubiera elegido inglés en otra página veía «Show more» sobre un
+    // historial en español.
     if (window.location.pathname.indexOf('/en/') === 0 || window.location.pathname === '/en') return 'en';
     var htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
     return htmlLang.indexOf('en') === 0 ? 'en' : 'es';

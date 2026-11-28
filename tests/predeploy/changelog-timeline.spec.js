@@ -114,16 +114,18 @@ test('changelog expansion is keyboard accessible and honours reduced motion', as
   expect(await hiddenFlags(page)).toEqual([false, false]);
 });
 
-test('changelog labels follow the stored language', async ({ page }) => {
+test('changelog labels follow the page language, not the stored one', async ({ page }) => {
+  // La página es solo española: una preferencia EN guardada en otra página no
+  // debe dejar el botón en inglés sobre un historial en español.
   await page.addInitScript(() => localStorage.setItem('mana-lang', 'en'));
   await page.goto('/changelog/', { waitUntil: 'domcontentloaded' });
 
   const button = page.locator('#timeline-more');
-  await expect(button).toContainText('Show more');
-  await expect(button).toHaveAttribute('aria-label', 'Show entries older than the last 7 days');
+  await expect(button).toContainText('Ver más');
+  await expect(button).toHaveAttribute('aria-label', 'Ver las entradas anteriores a los últimos 7 días');
 
   await button.click();
-  await expect(button).toContainText('Show less');
+  await expect(button).toContainText('Ver menos');
 });
 
 test('changelog keeps the full history in the static HTML for SEO and no-JS users', () => {
