@@ -51,8 +51,19 @@
     // descarte en vez de tocar el DOM o dejar blob URLs vivas.
     session: 0,
     timers: [],
-    pickerSnapshot: null
+    pickerSnapshot: null,
+    previewKey: null
   };
+  // Diagnóstico interno de los pases de composición (lo consume la regresión
+  // de rendimiento; nunca sale del navegador ni se envía a analítica).
+  var debug = { last: null };
+  function debugTime() {
+    try { return (window.performance && performance.now) ? performance.now() : Date.now(); } catch (e) { return Date.now(); }
+  }
+  function debugPatch(values) {
+    if (!debug.last) return;
+    Object.keys(values).forEach(function (k) { debug.last[k] = values[k]; });
+  }
   function templateName(t) { return lang() === 'en' ? (t.nameEn || t.name) : t.name; }
 
   // ── Analítica anónima ──
@@ -198,6 +209,131 @@
   function intersects(a, b) {
     return a.minX <= b.maxX && a.maxX >= b.minX && a.minY <= b.maxY && a.maxY >= b.minY;
   }
+
+  // ── Muestreo para previews ──
+  // Los mapas densos (miles de puntos o decenas de miles de vértices) se
+  // componen en SVG y el coste real está en serializar cada círculo/vértice.
+  // Para las miniaturas y la primera vista previa se usa una copia muestreada
+  // del GeoJSON; la descarga y el artefacto compartido siguen usando la
+  // geometría completa. Los presupuestos están en elementos (puntos) y
+  // coordenadas (anillos y líneas).
+  var SAMPLE_BUDGETS = {
+    thumb: { maxPoints: 1200, maxCoords: 4000 },
+    fast: { maxPoints: 6000, maxCoords: 15000 },
+    detail: { maxPoints: 14000, maxCoords: 30000 },
+    picker: { maxPoints: 12000, maxCoords: 30000 }
+  };
+  // Por debajo de este coste no merece la pena un primer pase muestreado: se
+  // compone la vista previa completa de una vez.
+  var PREVIEW_FAST_MIN_COST = 8000;
+
+  function measureGeometry(geo) {
+    var out = { points: 0, coords: 0, total: 0 };
+    ((geo && geo.features) || []).forEach(function (f) {
+      var g = f && f.geometry;
+      if (!g) return;
+      if (g.type === 'Point') out.points += 1;
+      else if (g.type === 'MultiPoint') out.points += (g.coordinates || []).length;
+      else forEachRing(g, function (r) { out.coords += r.length; });
+    });
+    out.total = out.points + out.coords;
+    return out;
+  }
+
+  function decimateRing(ring, stride) {
+    if (!ring || ring.length < 8 || stride <= 1) return ring;
+    var closed = ring.length > 3 && ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1];
+    var out = [];
+    for (var i = 0; i < ring.length; i += stride) out.push(ring[i]);
+    var first = out[0], last = ring[ring.length - 1];
+    if (closed) {
+      var tail = out[out.length - 1];
+      if (tail[0] !== first[0] || tail[1] !== first[1]) out.push(first);
+    } else if (out[out.length - 1] !== last) {
+      out.push(last);
+    }
+    return out.length >= 3 ? out : ring;
+  }
+
+  function decimateLine(line, stride) {
+    if (!line || line.length < 4 || stride <= 1) return line;
+    var out = [];
+    for (var i = 0; i < line.length; i += stride) out.push(line[i]);
+    var last = line[line.length - 1];
+    if (out[out.length - 1] !== last) out.push(last);
+    return out.length >= 2 ? out : line;
+  }
+
+  function sampleGeometry(geo, budget) {
+    var cost = measureGeometry(geo);
+    var maxPoints = (budget && budget.maxPoints) || Infinity;
+    var maxCoords = (budget && budget.maxCoords) || Infinity;
+    if (cost.points <= maxPoints && cost.coords <= maxCoords) return geo;
+    var pointStride = cost.points > maxPoints ? Math.ceil(cost.points / maxPoints) : 1;
+    var coordStride = cost.coords > maxCoords ? Math.ceil(cost.coords / maxCoords) : 1;
+    var pointIndex = 0;
+    var features = [];
+    (geo.features || []).forEach(function (f) {
+      var g = f && f.geometry;
+      if (!g) { features.push(f); return; }
+      if (g.type === 'Point') {
+        if (pointIndex++ % pointStride === 0) features.push(f);
+        return;
+      }
+      if (g.type === 'MultiPoint') {
+        var pts = g.coordinates || [];
+        var kept = [];
+        for (var i = 0; i < pts.length; i += pointStride) kept.push(pts[i]);
+        if (!kept.length && pts.length) kept.push(pts[0]);
+        features.push({ type: 'Feature', properties: f.properties, geometry: { type: 'MultiPoint', coordinates: kept } });
+        return;
+      }
+      if (g.type === 'Polygon') {
+        features.push({ type: 'Feature', properties: f.properties, geometry: {
+          type: 'Polygon', coordinates: g.coordinates.map(function (r) { return decimateRing(r, coordStride); })
+        } });
+        return;
+      }
+      if (g.type === 'MultiPolygon') {
+        features.push({ type: 'Feature', properties: f.properties, geometry: {
+          type: 'MultiPolygon', coordinates: g.coordinates.map(function (poly) {
+            return poly.map(function (r) { return decimateRing(r, coordStride); });
+          })
+        } });
+        return;
+      }
+      if (g.type === 'LineString') {
+        features.push({ type: 'Feature', properties: f.properties, geometry: { type: 'LineString', coordinates: decimateLine(g.coordinates, coordStride) } });
+        return;
+      }
+      if (g.type === 'MultiLineString') {
+        features.push({ type: 'Feature', properties: f.properties, geometry: {
+          type: 'MultiLineString', coordinates: g.coordinates.map(function (l) { return decimateLine(l, coordStride); })
+        } });
+        return;
+      }
+      features.push(f);
+    });
+    return { type: 'FeatureCollection', features: features };
+  }
+
+  function cloneContext(ctx, geo) {
+    var out = {};
+    Object.keys(ctx).forEach(function (k) { if (k !== 'samples') out[k] = ctx[k]; });
+    out.geo = geo;
+    return out;
+  }
+
+  // Cada contexto guarda sus copias muestreadas para no repetir el trabajo al
+  // cambiar de plantilla u opciones (solo se invalida al cambiar de encuadre).
+  function sampledContext(ctx, level) {
+    if (!ctx.samples) ctx.samples = {};
+    if (ctx.samples[level]) return ctx.samples[level];
+    var geo = sampleGeometry(ctx.geo, SAMPLE_BUDGETS[level]);
+    var out = { ctx: cloneContext(ctx, geo), cost: measureGeometry(geo) };
+    ctx.samples[level] = out;
+    return out;
+  }
   function getMapViewBounds() {
     try {
       if (typeof map === 'undefined' || !map || typeof map.getBounds !== 'function') return null;
@@ -307,8 +443,10 @@
             sz = Math.max(12, Math.min(34, sz * 0.42));
             points += '<text x="' + x.toFixed(1) + '" y="' + (y + sz * 0.35).toFixed(1) + '" text-anchor="middle" font-size="' + sz.toFixed(1) + '" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,' + FONT + '">' + emoji + '</text>';
           } else {
-            points += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4.6" fill="#fff" fill-opacity="0.92" stroke="' + col + '" stroke-width="1.6"/>';
-            points += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2.1" fill="' + col + '"/>';
+            // Un solo círculo con relleno de color y aro blanco: mismo
+            // aspecto que dos círculos concéntricos (radio exterior 4,6 y
+            // núcleo de 2,1) con la mitad de elementos SVG.
+            points += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.35" fill="' + col + '" fill-opacity="0.92" stroke="#fff" stroke-width="2.5"/>';
           }
         });
       }
@@ -1498,9 +1636,13 @@
     var rect = { x: 0, y: 0, w: PICKER_W, h: PICKER_H };
     var p = fit(b, rect, false);
     if (!p) return;
-    var inner = renderMap(state.ctx.geo, rect, { id: 'picker', graticule: true });
+    // El selector es una miniatura de 1000×625: se dibuja con geometría
+    // muestreada para no reconstruir decenas de miles de puntos en el DOM.
+    var pickerSample = sampledContext(state.ctx, 'picker');
+    var inner = renderMap(pickerSample.ctx.geo, rect, { id: 'picker', graticule: true });
     canvas.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + PICKER_W + ' ' + PICKER_H +
       '" preserveAspectRatio="xMidYMid meet">' + inner + '</svg>';
+    debugPatch({ pickerCost: pickerSample.cost });
     state.picker = { b: b, p: p, dragStart: null, sel: null, prevFrame: state.frame };
     if (selEl) selEl.hidden = true;
     if (apply) apply.disabled = true;
@@ -1684,6 +1826,19 @@
     if (note) note.textContent = tr('Ninguna zona seleccionada', 'No area selected');
     renderPreview();
   }
+  function paintPreview(svg, tpl, crop) {
+    var box = document.getElementById('pdfx-preview');
+    if (!box || !isOpen()) return;
+    if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
+    state.previewUrl = svgUrl(svg);
+    box.innerHTML = '<img alt="' + esc(templateName(tpl)) + '" src="' + state.previewUrl + '">';
+    var cap = document.getElementById('pdfx-caption');
+    if (cap) cap.textContent = (crop ? tr('Recorte', 'Crop') + ' · ' : '') + templateName(tpl) + ' · ' + tpl.size;
+    if (debug.last && debug.last.firstPaintMs == null) {
+      debug.last.firstPaintMs = Math.round((debugTime() - debug.last.startedAt) * 10) / 10;
+    }
+  }
+
   function renderPreview(cropBounds) {
     var box = document.getElementById('pdfx-preview');
     if (!box || !isOpen()) return;
@@ -1699,25 +1854,64 @@
         if (k.indexOf('crop:') === 0 && k !== key) delete state.cache[k];
       });
     }
+    var opts = {
+      includeLegend: state.includeLegend,
+      includeLabels: state.includeLabels,
+      includeTable: state.includeTable,
+      viewBounds: crop || frameBounds()
+    };
     var svg = state.cache[key];
-    if (!svg) {
+    if (svg) {
+      state.previewKey = key;
+      paintPreview(svg, tpl, crop);
+      if (!crop) scheduleShareArtifact();
+      return;
+    }
+    if (crop) {
       // La miniatura del recorte se compone con su propio contexto para que
       // leyenda y tabla describan solo la zona elegida.
-      var ctx = crop ? buildContext(crop) : state.ctx;
-      svg = buildSvg(ctx, tpl, {
-        includeLegend: state.includeLegend,
-        includeLabels: state.includeLabels,
-        includeTable: state.includeTable,
-        viewBounds: crop || frameBounds()
-      });
+      var cropCtx = buildContext(crop);
+      var cropSample = sampledContext(cropCtx, 'fast');
+      svg = buildSvg(cropSample.ctx, tpl, opts);
       state.cache[key] = svg;
+      state.previewKey = key;
+      paintPreview(svg, tpl, crop);
+      scheduleShareArtifact();
+      return;
     }
-    if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
-    state.previewUrl = svgUrl(svg);
-    box.innerHTML = '<img alt="' + esc(templateName(tpl)) + '" src="' + state.previewUrl + '">';
-    var cap = document.getElementById('pdfx-caption');
-    if (cap) cap.textContent = (crop ? tr('Recorte', 'Crop') + ' · ' : '') + templateName(tpl) + ' · ' + tpl.size;
-    if (!crop) scheduleShareArtifact();
+    var cost = measureGeometry(state.ctx.geo);
+    state.previewKey = key;
+    // Mapas ligeros: vista previa completa de una vez.
+    if (cost.total <= PREVIEW_FAST_MIN_COST) {
+      svg = buildSvg(state.ctx, tpl, opts);
+      state.cache[key] = svg;
+      paintPreview(svg, tpl, null);
+      debugPatch({ mode: 'direct', cost: cost, previewCost: cost });
+      scheduleShareArtifact();
+      return;
+    }
+    // Mapas densos: primero una vista muestreada (se pinta en el siguiente
+    // frame) y después la versión de detalle, para no congelar la interfaz
+    // mientras el usuario ve el modal y cambia de plantilla.
+    var fast = sampledContext(state.ctx, 'fast');
+    var fastSvg = buildSvg(fast.ctx, tpl, {
+      includeLegend: opts.includeLegend,
+      includeLabels: false,
+      includeTable: opts.includeTable,
+      viewBounds: opts.viewBounds
+    });
+    paintPreview(fastSvg, tpl, null);
+    debugPatch({ mode: 'progressive', cost: cost, previewCost: fast.cost, fastBytes: fastSvg.length });
+    sessionTimer(function () {
+      if (state.previewKey !== key || state.cache[key] || !state.ctx) return;
+      var detail = sampledContext(state.ctx, 'detail');
+      var detailSvg = buildSvg(detail.ctx, tpl, opts);
+      state.cache[key] = detailSvg;
+      if (state.previewKey !== key || !isOpen()) return;
+      paintPreview(detailSvg, tpl, null);
+      debugPatch({ detailCost: detail.cost, detailBytes: detailSvg.length, detailRendered: true });
+      scheduleShareArtifact();
+    }, 220);
   }
 
   function renderThumbs() {
@@ -1728,9 +1922,22 @@
         if (!wrap || wrap.hidden || !state.ctx) return;
         try {
           var tpl = templateById(btn.getAttribute('data-id'));
-          var key = optionsKey(tpl);
+          // Las miniaturas viven en su propio espacio de caché: usan geometría
+          // muestreada y sin etiquetas, así que nunca deben reutilizar (ni
+          // contaminar) el SVG a tamaño completo de la vista previa.
+          var key = 'thumb:' + optionsKey(tpl);
           var svg = state.cache[key];
-          if (!svg) { svg = buildSvg(state.ctx, tpl, currentOptions()); state.cache[key] = svg; }
+          if (!svg) {
+            var sample = sampledContext(state.ctx, 'thumb');
+            var thumbOpts = currentOptions();
+            thumbOpts.includeLabels = false;
+            svg = buildSvg(sample.ctx, tpl, thumbOpts);
+            state.cache[key] = svg;
+            if (debug.last) {
+              debug.last.thumbs = debug.last.thumbs || [];
+              debug.last.thumbs.push({ id: tpl.id, cost: sample.cost, bytes: svg.length });
+            }
+          }
           var thumb = btn.querySelector('.pdfx-thumb');
           if (!thumb) return;
           var id = btn.getAttribute('data-id');
@@ -1996,6 +2203,8 @@
     // Nueva sesión: cualquier resto de la anterior (timers, blob URLs,
     // miniaturas y artefacto de share) se descarta antes de montar la vista.
     state.session += 1;
+    state.previewKey = null;
+    debug.last = { startedAt: debugTime(), firstPaintMs: null, mode: 'none', cost: null, thumbs: [] };
     clearSessionTimers();
     releaseUrls();
     clearShareArtifact();
@@ -2052,5 +2261,5 @@
   }
 
   window.openPdfExport = openPdfExport;
-  window.ManaPdfExport = { open: openPdfExport, buildContext: buildContext, _templates: TEMPLATES };
+  window.ManaPdfExport = { open: openPdfExport, buildContext: buildContext, _templates: TEMPLATES, _debug: debug };
 })();
